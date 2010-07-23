@@ -1,0 +1,50 @@
+Copyright 2010 Kevin Ryde
+
+This file is part of math-image.
+
+math-image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+math-image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You can get a copy of the GNU General Public License online at
+<http://www.gnu.org/licenses/>.
+
+
+Version 11, July 2010
+    - only save root resources if dynamic colormap
+
+Version 10, July 2010
+    - split out X11 image stuff, and more
+
+Version 9, July 2010
+    - more paths and values
+
+Version 8, July 2010
+    - progressive drawing for slow paths or big screens
+
+Version 7, July 2010
+    - more stuff and fixes
+
+Version 6, July 2010
+    - more stuff
+
+Version 5, July 2010
+    - more stuff
+
+Version 4, June 2010
+    - more stuff
+
+Version 3, June 2010
+    - more stuff
+
+Version 2, June 2010
+    - more stuff
+
+Version 1, June 2010
+    - the first version

@@ -1,0 +1,350 @@
+#!perl -w
+
+# Copyright 2010 Kevin Ryde
+
+# This file is part of Math-Image.
+#
+# Math-Image is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3, or (at your option) any later
+# version.
+#
+# Math-Image is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+use 5.004;
+use strict;
+use warnings;
+use App::MathImage;
+use vars '$VERSION';
+$VERSION = 11;
+exit App::MathImage->command_line;
+
+__END__
+
+=for stopwords recurrences Gtk2 Ulam's --ulam Ulam sprial Vogel pronic --pronic
+fibonacci --fibonacci fullscreen --fullscreen --png png --xpm xpm RGB
+menubar toplevel colormap Ryde ie perrin --perrin padovan --padovan Perrin
+Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT
+
+=head1 NAME
+
+math-image -- display some mathematical images
+
+=head1 SYNOPSIS
+
+ math-image [--options]
+
+=head1 DESCRIPTION
+
+C<math-image> displays some mathematical style images, either in a Gtk2
+graphical interface, as an image file output, or setting the root window.
+
+There's lots of options for images to display, in particular they include
+Ulam's spiral of prime numbers, and variations on that numbers in a path
+theme, including Sacks spiral and Vogel floret.
+
+=head1 OPTIONS
+
+=head2 Values Options
+
+The following control what set of values is displayed in the image.
+
+=over
+
+=item --primes
+
+The prime numbers.
+
+=item --twin
+
+=item --twin1
+
+=item --twin2
+
+The twin primes.  C<--twin> is both twins like 11,13.  C<--twin1> is just
+the first of each like 11, or C<--twin2> is just the second like 13.
+
+=item --semi-primes
+
+=item --semi-primes-odd
+
+The semi-prime or bi-prime numbers, meaning integers which have two prime
+factors p*q, including p==q squares of primes.  C<--semi-primes-odd> is just
+the odd semiprimes.
+
+=item --squares
+
+The perfect squares 1, 4, 9, 16, 25, 36, etc.
+
+=item --pronic
+
+The pronic numbers 2, 6, 12, 20, 30, 42, etc, k*(k+1).  These are half way
+between successive perfect squares, and twice the triangular numbers.
+
+=item --triangular
+
+The triangular numbers 1, 3, 6, 10, 15, 21, etc, k*(k+1)/2.
+
+=item --polygonal=K
+
+The K-sided polygon numbers.
+
+=item --cubes
+
+=item --tetrahedral
+
+The cubes 1, 8, 27, 64, 125, etc or tetrahedral numbers 1, 4, 10, 20, 35,
+56, etc.  These tend to grow too quickly to display much of a pattern,
+though the Vogel floret is close,
+
+    math-image --cubes --vogel
+
+=item --fibonacci
+
+The Fibonacci numbers 1,1,2,3,5,8,13,21, etc.  On the Vogel floret path
+these fall on an axis going to the right.  For other spirals and paths they
+tend to grow too quickly to show much.
+
+=item --perrin
+
+=item --padovan
+
+The Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc.  Or Padovan numbers 1,
+1, 1, 2, 2, 3, 4, 5, 7, 9, etc.  These are cubic recurrences and tend to
+grow too quickly to display much in the way of patterns.
+
+=item --fraction=NUM/DEN
+
+The 1 bits in the binary expansion of a fraction.  The default is 5/29 which
+means 9,11,12, 17, 21,22,24, 27,28,29,30, etc.  A fraction is always a
+repeating pattern, with length no longer than the denominator, but can give
+interesting patterns for various paths.
+
+=item --all
+
+=item --odd
+
+=item --even
+
+All integers, or just odd or even integers.  For the paths which fill the
+plane C<--all> will just fill the screen (slowly!), but for C<--sacks> and
+C<--vogely> it shows where all the points lie.
+
+=item --expression='x^2+2*x+1'
+
+Draw values following a formula.  It should have a single variable which
+will be evaluated at 0,1,2, etc.  This option requires C<Math::Symbolic>.
+
+=item --lines
+
+Draw lines along the path instead of a set of selected points.  This shows
+where a path travels but you may have to increase the C<--scale> to see it
+properly.
+
+=back
+
+=head2 Path Options
+
+The following control the path in the plane where the values will be
+displayed as pixels (or circles for Sacks and Vogel).
+
+=over 4
+
+=item --ulam
+
+Ulam's primes in a square spiral (currently the default too).
+
+=item --vogel
+
+Vogel's floret design for the positions of seeds in a sunflower.  Try the
+following to see all the points in the pattern before applying various
+special sets of values.
+
+    math-image --vogel --all --scale=10
+
+Scaling up helps the circles draw properly.  When the values displayed are
+less than all the integers a lower scale can be used.
+
+=item --sacks
+
+An Archimedian spiral with points going by their square root, by Robert
+Sacks.
+
+=item --diamond
+
+A diamond shaped spiral, see L<Math::PlanePath::DiamondSpiral>.
+
+=item --pyramid
+
+The sides of a pyramid shape, see L<Math::PlanePath::PyramidSides>.
+
+=item --pyramid-rows
+
+A pyramid made from horizontal rows, see L<Math::PlanePath::PyramidRows>.
+
+=item --corner
+
+=item --diagonals
+
+Diagonals between the X and Y axes, per
+L<Math::PlanePath::Diagonals>.
+
+=item --rows
+
+=item --columns
+
+=back
+
+=head2 Output Options
+
+=over
+
+=item --window
+
+Run the Gtk GUI.  This is the default.
+
+=item --fullscreen
+
+Run the Gtk GUI starting in full screen mode.  Press Control-F to toggle
+between full screen and a normal window.  In full screen mode the menus can
+still be used, just press Alt-E etc as normal.
+
+=item --root
+
+Set the root window background to the requested image and exit.  For example
+to a random image, perhaps from your F<~/.xsession> file,
+
+    math-image --root --random
+
+Under X the root window is set with C<X11::Protocol> if available, or
+C<Gtk2> otherwise.  C<X11::Protocol> is preferred as it allows the
+C<--foreground> and C<--background> colours to be saved on a pseudo-colour
+screen.  C<Gtk2> on a true-colour screen is fine, as are black and white
+(being permanent in the default colormap) but other colours won't be
+preserved.
+
+=item --display=DPY
+
+Select an X display for C<X11::Protocol> or Gtk.  The default is from the
+C<DISPLAY> environment variable.
+
+    math-image --display=:3
+
+=item --png
+
+=item --xpm
+
+Write a PNG or XPM image file to standard output and exit.  PNG requires
+either C<Image::Base::GD> or C<Image::Base::PNGwriter> and the respective
+supporting libraries.  XPM output requires C<Image::Xpm>.
+
+    math-image --png >/tmp/my-file.png
+
+=item --text
+
+Write a text-only image to standard output and exit.  The default size
+follows the terminal (per C<Term::Size>).  This is usually too small to see
+much, but a bigger image might be cute to send to a line printer or similar.
+
+    math-image --text --width=130 --height=49 | lpr
+
+=back
+
+=head2 Other Options
+
+=over
+
+=item --random
+
+Choose a path and values at random.  For example in your F<~/.xsession>
+
+    math-image --root --random
+
+=item --scale=PIXELS
+
+How many pixels for each value shown.  The current default is 3 to show 3x3
+squares, or for C<--text> output just 1.
+
+=item --foreground=COLOUR
+
+=item --background=COLOUR
+
+Set the foreground and background colours.  The colours can be names, or hex
+style #RRGGBB or #RRRRGGGGBBBB.    For example white on a shade of red,
+
+    math-image --foreground=white --background=#A01010
+
+Available names depend on the output type, for example in Gtk and X the X
+RGB database F</etc/X11/rgb.txt>, or for PNG output the C<GD::Simple> names,
+or for XPM anything at all passes through to the file.
+
+=item --size=PIXELS
+
+=item --size=WIDTHxHEIGHT
+
+Set the size of the image in pixels.  A single value means that size square,
+otherwise WIDTHxHEIGHT.  For C<--root> this size is currently ignored and
+the full screen used.
+
+For the GUI this is an initial size for the window, though it may be widened
+to accomodate to the menubar.  Under C<--fullscreen> this is the
+unfullscreened size if you switch to that (Control-F).
+
+The default for the GUI is to make the toplevel window about 4/5 of the
+screen.  The default for image file output is an arbitrary 200x200, or for
+C<--text> output the size of the terminal (per C<Term::Size>).
+
+=item --help, -?
+
+Print a summary of the options.
+
+=item --version
+
+Print the program version number.
+
+=item --<gtk-options>
+
+Standard Gtk options.  See L<gtk-options(7)> for the full list.  The only
+one which does much for C<math-image> is C<--display> to set the X display
+(default from the C<DISPLAY> environment variable).
+
+=back
+
+=head1 BUGS
+
+C<Math::Prime::XS> is used to generate primes but as of version 0.20_01 it
+puts its sieve space on the stack (the C stack) which may limit the size of
+images showing primes.  Depending on the chosen path an image 3000 high or
+so might overflow an 8Mb stack limit (see L<ulimit(3)>).  The symptom is
+usually a seg fault.  Increase the stack if necessary or perhaps a newer
+module version will use plain C<malloc>, and/or pack more sieving into the
+bytes.
+
+=head1 SEE ALSO
+
+L<gtk-options(7)>, L<xsetroot(1)>
+
+=head1 LICENSE
+
+Math-Image is Copyright 2010 Kevin Ryde
+
+Math-Image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut
