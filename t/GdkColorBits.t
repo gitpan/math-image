@@ -26,15 +26,10 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-# BEGIN {
-#  SKIP: { eval 'use Test::NoWarnings; 1'
-#            or skip 'Test::NoWarnings not available', 1; }
-# }
-
 require App::MathImage::Gtk2::Ex::GdkColorBits;
 
 {
-  my $want_version = 11;
+  my $want_version = 12;
   is ($App::MathImage::Gtk2::Ex::GdkColorBits::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Gtk2::Ex::GdkColorBits->VERSION,  $want_version, 'VERSION class method');
   ok (eval { App::MathImage::Gtk2::Ex::GdkColorBits->VERSION($want_version); 1 },

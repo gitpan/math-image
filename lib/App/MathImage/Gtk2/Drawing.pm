@@ -33,9 +33,9 @@ use App::MathImage::Gtk2::Drawing::Path;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 11;
+our $VERSION = 12;
 
-use constant _IDLE_TIME_SLICE => 0.25;
+use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
@@ -296,9 +296,9 @@ sub start_drawing_window {
     my $image_window = Image::Base::Gtk2::Gdk::Window->new
       (-window => $window);
 
-    require App::MathImage::Image::Base::Multiplex;
+    require Image::Base::Multiplex;
     $image = $self->{'drawing'}->{'image'}
-      = App::MathImage::Image::Base::Multiplex->new
+      = Image::Base::Multiplex->new
         (-images => [ $image, $image_window ]);
   }
   ### $image

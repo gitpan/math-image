@@ -36,7 +36,7 @@ use_ok ('App::MathImage::Image::Base::Magick');
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 11;
+my $want_version = 12;
 is ($App::MathImage::Image::Base::Magick::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Magick->VERSION,

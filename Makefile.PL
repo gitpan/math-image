@@ -41,7 +41,6 @@ MyMakeMakerExtras::WriteMakefile
                     'Glib::Ex::SourceIds' => 2,  # new in ObjectBits 2
                     'Glib::Ex::SignalIds' => 0,
                     'Gtk2' => 0,
-                    'Gtk2::Ex::CrossHair' => 0,
                     'Gtk2::Ex::Units' => 0,
                     'Gtk2::Ex::WidgetCursor' => 0,
                     'Image::Base' => 0,
@@ -91,6 +90,8 @@ MyMakeMakerExtras::WriteMakefile
              'Image::Xpm' => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,
+             'Gtk2::Ex::CrossHair' => 0,
+             'Gtk2::Ex::ErrorDialog' => 0,
            },
         optional_features
         => {
@@ -102,11 +103,13 @@ MyMakeMakerExtras::WriteMakefile
                                'Image::Base::X11::Protocol::Window' => 0,
                                'Math::Symbolic'         => 0,
                                'Image::Xpm'             => 0,
+                               'Gtk2::Ex::CrossHair' => 0,
+                               'Gtk2::Ex::ErrorTextDialog::Handler' => 0,
                              },
                },
             maximum_tests
             => { description => 'Have "make test" do as much as possible.',
-                 requires => { 'Test::NoWarnings' => 0,
+                 requires => { 'Test::Weaken' => 3,
                              },
                },
            },

@@ -26,7 +26,7 @@ use Lingua::Any::Numbers 'to_ordinal';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub new {
   my $class = shift;

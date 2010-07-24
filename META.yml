@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            11
+version:            12
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -19,7 +19,6 @@ requires:
     Glib::Ex::SourceIds:  2
     Glib::Object::Subclass:  0
     Gtk2:                 0
-    Gtk2::Ex::CrossHair:  0
     Gtk2::Ex::Units:      0
     Gtk2::Ex::WidgetCursor:  0
     Image::Base:          0
@@ -68,6 +67,8 @@ optional_features:
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
         requires:
+            Gtk2::Ex::CrossHair:  0
+            Gtk2::Ex::ErrorTextDialog::Handler:  0
             Image::Base::GD:      4
             Image::Base::PNGwriter:  2
             Image::Base::X11::Protocol::Pixmap:  0
@@ -79,14 +80,16 @@ optional_features:
         requires:
             Parse::CPAN::Meta:   0
             Test::DistManifest:  0
-            Test::NoWarnings:    0
             Test::Pod:           1.00
+            Test::Weaken:        3
             Test::YAML::Meta:    0.15
             YAML:                0
             YAML::Syck:          0
             YAML::Tiny:          0
             YAML::XS:            0
 recommends:
+    Gtk2::Ex::CrossHair:  0
+    Gtk2::Ex::ErrorDialog:  0
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0

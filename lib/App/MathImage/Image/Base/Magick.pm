@@ -1,3 +1,6 @@
+# drawing ops not right
+
+
 # Copyright 2010 Kevin Ryde
 
 # This file is part of Image-Base-Magick.
@@ -28,7 +31,7 @@ use base 'Image::Base';
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub new {
   my ($class, %params) = @_;

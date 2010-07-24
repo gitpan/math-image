@@ -23,13 +23,14 @@ use Carp;
 use POSIX ();
 use Module::Util;
 use List::Util qw(min max);
+use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub new {
   my $class = shift;
@@ -94,6 +95,17 @@ use constant values_choices
 
       qw(lines),
      );
+
+my %values_info =
+  (lines => { name => __('Lines'),
+              description => __('No numbers, instead lines showing the path taken.'),
+            },
+  );
+sub values_info {
+  my ($self, $key) = @_;
+  ### %values_info
+  return $values_info{$key};
+}
 
 use constant path_choices => qw(SquareSpiral
                                 SacksSpiral
@@ -188,7 +200,7 @@ sub get_xpm_string {
 sub get_Image_Base {
   my ($self, $image_class) = @_;
   return ($self->{"Image_Base.$image_class"} ||= do {
-    $image_class ||= 'Image::Text';
+    $image_class ||= 'Image::Base::Text';
     require Module::Load;
     Module::Load::load ($image_class);
     my $image = $image_class->new
@@ -259,6 +271,11 @@ sub path_object {
   });
 }
 
+$values_info{'squares'} =
+  { subr => \&values_make_squares,
+    name => __('Perfect Squares'),
+    description => __('An arbitrary expression, to be parsed by Math::Symbolic.   It should have a single variable which will be evaluated at 0,1,2, etc.'),
+  };
 sub values_make_expression {
   my ($self, $lo, $hi) = @_;
   require Math::Symbolic;
@@ -368,6 +385,11 @@ sub values_make_champernowne_binary {
 
 # http://www.research.att.com/~njas/sequences/A026147
 # bit count per example in perlfunc unpack()
+$values_info{'thue_morse_evil'} =
+  { subr => \&values_make_thue_morse_evil,
+    name => __('Thue-Morse Evil Numbers'),
+    description => __('The Thue-Morse "evil" numbers, meaning numbers with an even number of 1s in their binary form (the opposite of the "odious"s).'),
+  };
 sub values_make_thue_morse_evil {
   my ($self, $lo, $hi) = @_;
   my $i = $lo-1;
@@ -384,7 +406,13 @@ sub values_make_thue_morse_evil {
     }
   };
 }
+
 # http://www.research.att.com/~njas/sequences/A000069
+$values_info{'thue_morse_odious'} =
+  { subr => \&values_make_thue_morse_odious,
+    name => __('Thue-Morse Odious Numbers'),
+    description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).'),
+  };
 sub values_make_thue_morse_odious {
   my ($self, $lo, $hi) = @_;
   my $i = $lo-1;
@@ -424,6 +452,11 @@ sub make_iter_arrayref {
   };
 }
 
+$values_info{'fraction_bits'} =
+  { subr => \&values_make_fraction_bits,
+    name => __('Fraction Bits'),
+    description => __('A given fraction number written out in binary.'),
+  };
 sub values_make_fraction_bits {
   my ($self, $lo, $hi) = @_;
   ### values_make_fraction_bits()
@@ -470,6 +503,11 @@ sub values_make_polygonal {
   };
 }
 
+$values_info{'squares'} =
+  { subr => \&values_make_squares,
+    name => __('Perfect Squares'),
+    description => __('The perfect squares 1,4,9,16,25, etc k*k.'),
+  };
 sub values_make_squares {
   my ($self, $lo, $hi) = @_;
   my $i = POSIX::ceil (sqrt (max(0,$lo)));
@@ -478,6 +516,11 @@ sub values_make_squares {
   };
 }
 
+$values_info{'prime_quadratic_euler'} =
+  { subr => \&values_make_prime_quadratic_euler,
+    name => __('Rrime Generating Quadratic of Euler'),
+    description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.'),
+  };
 sub values_make_prime_quadratic_euler {
   my ($self, $lo, $hi) = @_;
   my $i = -1;
@@ -486,7 +529,13 @@ sub values_make_prime_quadratic_euler {
                                     return ($i + 1)*$i + 41;
                                   });
 }
+
 # http://www.research.att.com/~njas/sequences/A007641  (the prime values)
+$values_info{'prime_quadratic_legendre'} =
+  { subr => \&values_make_prime_quadratic_legendre,
+    name => __('Rrime Generating Quadratic of Legendre'),
+    description => __('The quadratic numbers 2*k^2 + 29.'),
+  };
 sub values_make_prime_quadratic_legendre {
   my ($self, $lo, $hi) = @_;
   my $i = -1;
@@ -495,7 +544,13 @@ sub values_make_prime_quadratic_legendre {
     return 2*$i*$i + 29;
   });
 }
+
 # http://www.research.att.com/~njas/sequences/A048988
+$values_info{'prime_quadratic_honaker'} =
+  { subr => \&values_make_prime_quadratic_honaker,
+    name => __('Rrime Generating Quadratic of Honaker'),
+    description => __('The quadratic numbers 4*k^2 + k + 59.'),
+  };
 sub values_make_prime_quadratic_honaker {
   my ($self, $lo, $hi) = @_;
   my $i = -1;
@@ -532,6 +587,11 @@ sub _prime_quadratic_filter {
   return $subr;
 }
 
+$values_info{'multiples'} =
+  { subr => \&values_make_multiples,
+    name => __('Multiples of a given K'),
+    description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.'),
+  };
 sub values_make_multiples {
   my ($self, $lo, $hi) = @_;
   my $i = -1;
@@ -542,6 +602,11 @@ sub values_make_multiples {
   };
 }
 
+$values_info{'cubes'} =
+  { subr => \&values_make_cubes,
+    name => __('Perfect Cubes'),
+    description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.'),
+  };
 sub values_make_cubes {
   my ($self, $lo, $hi) = @_;
   require Math::Libm;
@@ -550,6 +615,7 @@ sub values_make_cubes {
     return $i++ ** 3;
   };
 }
+
 sub values_make_tetrahedral {
   my ($self, $lo, $hi) = @_;
   require Math::Libm;
@@ -560,6 +626,11 @@ sub values_make_tetrahedral {
   };
 }
 
+$values_info{'triangular'} =
+  { subr => \&values_make_triangular,
+    name => __('Triangular Numbers'),
+    description => __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.'),
+  };
 sub values_make_triangular {
   my ($self, $lo, $hi) = @_;
   require Math::TriangularNumbers;
@@ -570,6 +641,11 @@ sub values_make_triangular {
   };
 }
 
+$values_info{'pentagonal'} =
+  { subr => \&values_make_pentagonal,
+    name => __('Pentagonal Numbers'),
+    description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.'),
+  };
 sub values_make_pentagonal {
   my ($self, $lo, $hi) = @_;
   my $i = 0;
@@ -578,6 +654,12 @@ sub values_make_pentagonal {
     return (3*$i-1)*$i/2;
   };
 }
+
+$values_info{'pentagonal_second'} =
+  { subr => \&values_make_pentagonal_second,
+    name => __('Pentagonal Numbers, second type'),
+    description => __('The pentagonal numbers 2,7,15,26, etc, (3k+1)*k/2.  The formula is the same as the plain pentagonal numbers, but taking negative k.'),
+  };
 sub values_make_pentagonal_second {
   my ($self, $lo, $hi) = @_;
   my $i = 0;
@@ -586,6 +668,12 @@ sub values_make_pentagonal_second {
     return (3*$i+1)*$i/2;
   };
 }
+
+$values_info{'pentagonal_generalized'} =
+  { subr => \&values_make_pentagonal_generalized,
+    name => __('Pentagonal Numbers, generalized'),
+    description => __('The generalized pentagonal numbers 1, 2, 5, 7, 15, 22, 22, 26, etc, (3k-1)*k/2 for k positive and negative.  This is the plain pentagonal and second pentagonals taken together.'),
+  };
 sub values_make_pentagonal_generalized {
   my ($self, $lo, $hi) = @_;
   my $i = 0;
@@ -601,6 +689,11 @@ sub values_make_pentagonal_generalized {
   };
 }
 
+$values_info{'pronic'} =
+  { subr => \&values_make_pronic,
+    name => __('Pronic Numbers'),
+    description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k*(k+1).  These are twice the triangular numbers, and half way between perfect squares.'),
+  };
 sub values_make_pronic {
   my ($self, $lo, $hi) = @_;
   require Math::TriangularNumbers;
@@ -618,6 +711,11 @@ sub pronic_inverse_ceil {
   return Math::TriangularNumbers::Tri(POSIX::ceil($n/2));
 }
 
+$values_info{'fibonacci'} =
+  { subr => \&values_make_fibonacci,
+    name => __('Fibonacci Numbers'),
+    description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.'),
+  };
 sub values_make_fibonacci {
   my ($self, $lo, $hi) = @_;
   my $f0 = 1;
@@ -627,6 +725,12 @@ sub values_make_fibonacci {
     return $ret;
   };
 }
+
+$values_info{'lucas'} =
+  { subr => \&values_make_lucas,
+    name => __('Lucas Numbers'),
+    description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.'),
+  };
 sub values_make_lucas_numbers {
   my ($self, $lo, $hi) = @_;
   my $f0 = 1;
@@ -637,6 +741,11 @@ sub values_make_lucas_numbers {
   };
 }
 
+$values_info{'perrin'} =
+  { subr => \&values_make_perrin,
+    name => __('Perrin Numbers'),
+    description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.'),
+  };
 sub values_make_perrin {
   my ($self, $lo, $hi) = @_;
   my $p0 = 3;
@@ -647,6 +756,12 @@ sub values_make_perrin {
     return $ret;
   };
 }
+
+$values_info{'padovan'} =
+  { subr => \&values_make_padovan,
+    name => __('Padovan Numbers'),
+    description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.'),
+  };
 sub values_make_padovan {
   my ($self, $lo, $hi) = @_;
   my $p0 = 1;
@@ -658,6 +773,11 @@ sub values_make_padovan {
   };
 }
 
+$values_info{'all'} =
+  { subr => \&values_make_all,
+    name => __('All Integers'),
+    description => __('All integers 1,2,3,etc.'),
+  };
 sub values_make_all {
   my ($self, $lo, $hi) = @_;
   ### values_make_all()
@@ -667,6 +787,12 @@ sub values_make_all {
     return $lo++;
   };
 }
+
+$values_info{'odd'} =
+  { subr => \&values_make_odd,
+    name => __('Odd Integers'),
+    description => __('The odd integers 1, 3, 5, 7, 9, etc.'),
+  };
 sub values_make_odd {
   my ($self, $lo, $hi) = @_;
   unless ($lo & 1) { $lo++; }
@@ -675,6 +801,12 @@ sub values_make_odd {
     return ($lo += 2);
   };
 }
+
+$values_info{'even'} =
+  { subr => \&values_make_even,
+    name => __('Even Integers'),
+    description => __('The even integers 2, 4, 6, 8, 10, etc.'),
+  };
 sub values_make_even {
   my ($self, $lo, $hi) = @_;
   if ($lo & 1) { $lo++; }
@@ -684,6 +816,11 @@ sub values_make_even {
   };
 }
 
+$values_info{'primes'} =
+  { subr => \&values_make_primes,
+    name => __('Prime Numbers'),
+    description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.'),
+  };
 sub values_make_primes {
   my ($self, $lo, $hi) = @_;
   ### values_make_primes(): $lo, $hi
@@ -703,6 +840,12 @@ sub values_make_primes {
   }
   return make_iter_arrayref([Math::Prime::XS::sieve_primes ($lo, $hi)]);
 }
+
+$values_info{'twin_primes'} =
+  { subr => \&values_make_twin_primes,
+    name => __('Twin Primes'),
+    description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.'),
+  };
 sub values_make_twin_primes {
   my ($self, $lo, $hi) = @_;
 
@@ -723,6 +866,12 @@ sub values_make_twin_primes {
     return $primes[$i++];
   };
 }
+
+$values_info{'twin_primes_1'} =
+  { subr => \&values_make_twin_primes_1,
+    name => __('Twin Primes, first of each'),
+    description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.'),
+  };
 sub values_make_twin_primes_1 {
   my ($self, $lo, $hi) = @_;
 
@@ -743,6 +892,11 @@ sub values_make_twin_primes_1 {
   };
 }
 
+$values_info{'twin_primes_2'} =
+  { subr => \&values_make_twin_primes_2,
+    name => __('Twin Primes, second of each'),
+    description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.'),
+  };
 sub values_make_twin_primes_2 {
   my ($self, $lo, $hi) = @_;
 
@@ -763,11 +917,22 @@ sub values_make_twin_primes_2 {
   };
 }
 
+$values_info{'semi_primes'} =
+  { subr => \&values_make_semi_primes,
+    name => __('Semi-Primes'),
+    description => __('The semi-primes, or bi-primes, 4, 6, 9, 15, 21, etc, being numbers with just two prime factors P*Q, including the squares where P==Q.'),
+  };
 sub values_make_semi_primes {
   my ($self, $lo, $hi) = @_;
   ### values_make_semi_primes(): $lo, $hi
   return _semi_primes ($lo, $hi, 2);
 }
+
+$values_info{'semi_primes_odd'} =
+  { subr => \&values_make_semi_primes_odd,
+    name => __('Semi-Primes, Odd'),
+    description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including the squares where P==Q.'),
+  };
 sub values_make_semi_primes_odd {
   my ($self, $lo, $hi) = @_;
   return _semi_primes ($lo, $hi, 3);
@@ -831,6 +996,11 @@ sub values_make_ln3 {
   return binary_positions($total, $hi);
 }
 
+$values_info{'sqrt_bits'} =
+  { subr => \&values_make_sqrt_bits,
+    name => __('Square Root Bits'),
+    description => __('The square root of a given number written out in binary.'),
+  };
 sub values_make_sqrt_bits {
   my ($self, $lo, $hi) = @_;
 
@@ -862,10 +1032,21 @@ sub binary_positions {
   };
 }
 
+$values_info{'pi_bits'} =
+  { subr => \&values_make_pi_bits,
+    name => __('Pi Bits'),
+    description => __('Pi 3.141529... written out in binary.'),
+  };
 sub values_make_pi_bits {
   my ($self, $lo, $hi) = @_;
   return $self->make_gz ($lo, $hi, 'pi');
 }
+
+$values_info{'ln2_bits'} =
+  { subr => \&values_make_ln2_bits,
+    name => __('Log(2) Bits'),
+    description => __('Natural log(2), being 0.693147..., written out in binary.'),
+  };
 sub values_make_ln2_bits {
   my ($self, $lo, $hi) = @_;
   return $self->make_gz ($lo, $hi, 'ln2');

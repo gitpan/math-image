@@ -23,7 +23,7 @@ use Carp;
 use base 'App::MathImage::Image::Base::X::Drawable';
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub new {
   my ($class, %params) = @_;

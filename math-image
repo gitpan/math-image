@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 exit App::MathImage->command_line;
 
 __END__
@@ -313,6 +313,25 @@ Print the program version number.
 Standard Gtk options.  See L<gtk-options(7)> for the full list.  The only
 one which does much for C<math-image> is C<--display> to set the X display
 (default from the C<DISPLAY> environment variable).
+
+=back
+
+=head1 OPTIONAL MODULES
+
+In addition to C<Math::Symbolic> and the image output modules described
+above, the following optional module are used in the GUI if available,
+
+=over
+
+=item C<Gtk2::Ex::CrossHair>
+
+Lines following the cursor.
+
+=item C<Gtk2::Ex::ErrorTextDialog>
+
+Error messages in a dialog instead of to C<STDERR>.  Of course there
+shouldn't be any errors, though currently a bad "expression" entered will
+provoke errors.
 
 =back
 

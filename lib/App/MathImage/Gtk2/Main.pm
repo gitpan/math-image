@@ -20,9 +20,10 @@ package App::MathImage::Gtk2::Main;
 use 5.008;
 use strict;
 use warnings;
+use List::Util qw(min max);
+use Module::Util;
 use Glib::Ex::ConnectProperties 7;  # version 7 for transforms
 use Gtk2::Ex::ActionTooltips;
-use List::Util qw(min max);
 use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 use App::MathImage::Gtk2::Drawing;
@@ -31,7 +32,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 11;
+our $VERSION = 12;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -94,6 +95,13 @@ sub _path_to_mnemonic {
           || App::MathImage::Gtk2::Drawing::Values::key_to_display($str));
 }
 
+my $set_tooltip_text;
+BEGIN {
+  $set_tooltip_text = (Gtk2::Widget->can('set_tooltip_text')
+                       ? 'set_tooltip_text'  # new in 2.12
+                       : sub {});  # dummy
+}
+
 sub INIT_INSTANCE {
   my ($self) = @_;
 
@@ -136,10 +144,10 @@ sub INIT_INSTANCE {
         callback => \&_do_action_about,
       },
 
-      { name     => 'Randomize',
-        label    => __('Randomize'),
-        callback => \&_do_action_randomize,
-        tooltip  => __('Choose a path and set of values at random.  Click this repeatedly to see various things.'),
+      { name     => 'Random',
+        label    => __('Random'),
+        callback => \&_do_action_random,
+        tooltip  => __('Choose a random path, values, scale, etc.  Click repeatedly to see interesting things.'),
       },
      ],
      $self);
@@ -161,17 +169,20 @@ sub INIT_INSTANCE {
     Glib::Ex::ConnectProperties->new ([$draw,  'draw-progressive'],
                                       [$action,'active']);
   }
-  $actiongroup->add_toggle_actions
-    # name, stock id, label, accel, tooltip, subr, is_active
-    ([{ name        => 'Cross',
-        label       =>  __('_Cross'),
-        accelerator => __p('Main-accelerator-key','C'),
-        callback    => \&_do_action_crosshair,
-        is_active   => 0,
-        tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
-      },
-     ],
-     $self);
+
+  if (Module::Util::find_installed('Gtk2::Ex::CrossHair')) {
+    $actiongroup->add_toggle_actions
+      # name, stock id, label, accel, tooltip, subr, is_active
+      ([{ name        => 'Cross',
+          label       =>  __('_Cross'),
+          accelerator => __p('Main-accelerator-key','C'),
+          callback    => \&_do_action_crosshair,
+          is_active   => 0,
+          tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
+        },
+       ],
+       $self);
+  }
 
   {
     my $n = 0;
@@ -233,7 +244,11 @@ HERE
   $ui_str .= <<'HERE';
     </menu>
     <menu action='ToolsMenu'>
-      <menuitem action='Cross'/>
+HERE
+  if ($actiongroup->get_action('Cross')) {
+    $ui_str .= "<menuitem action='Cross'/>\n";
+  }
+  $ui_str .= <<'HERE';
       <menuitem action='Fullscreen'/>
       <menuitem action='DrawProgressive'/>
     </menu>
@@ -242,7 +257,7 @@ HERE
     </menu>
   </menubar>
   <toolbar  name='ToolBar'>
-    <toolitem action='Randomize'/>
+    <toolitem action='Random'/>
     <separator/>
   </toolbar>
 </ui>
@@ -287,7 +302,7 @@ HERE
       # $hbox->pack_start (Gtk2::Label->new(__('Path')), 0,0,0);
       my $combobox = $self->{'path_combobox'} = Gtk2::ComboBox->new
         (App::MathImage::Gtk2::Drawing::Path->model);
-      $combobox->set_tooltip_text(__('The path for where to put values in the plane.'));
+      $combobox->$set_tooltip_text(__('The path for where to put values in the plane.'));
       if ($combobox->find_property('tearoff_title')) {
         $combobox->set (tearoff_title => __('Path'));
       }
@@ -314,7 +329,7 @@ HERE
       Glib::Ex::ConnectProperties->new ([$draw,'path-wider'],
                                         [$adj,'value']);
       my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-      $spin->set_tooltip_text(__('Wider path.'));
+      $spin->$set_tooltip_text(__('Wider path.'));
       $item->add ($spin);
       $self->{'path_combobox'}->signal_connect
         ('notify::active' => sub {
@@ -336,7 +351,7 @@ HERE
       Glib::Ex::ConnectProperties->new ([$draw,'pyramid_step'],
                                         [$adj,'value']);
       my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-      $spin->set_tooltip_text(__('Step width for the pyramid rows, half going to each side.'));
+      $spin->$set_tooltip_text(__('Step width for the pyramid rows, half going to each side.'));
       $item->add ($spin);
       $self->{'path_combobox'}->signal_connect
         ('notify::active' => sub {
@@ -347,6 +362,7 @@ HERE
            $spin->set (visible => ($path && $path eq 'PyramidRows'));
          });
     }
+
     {
       my $item = Gtk2::ToolItem->new;
       $toolbar->insert ($item, $tpos++);
@@ -357,10 +373,27 @@ HERE
       # $hbox->pack_start (Gtk2::Label->new(__('Values')), 0,0,0);
       my $combobox = $self->{'values_combobox'} = Gtk2::ComboBox->new
         (App::MathImage::Gtk2::Drawing::Values->model);
-      $combobox->set_tooltip_text(__('The values to display.'));
       if ($combobox->find_property('tearoff_title')) {
         $combobox->set (tearoff_title => __('Values'));
       }
+
+      $combobox->signal_connect
+        ('notify::active' => sub {
+           my ($combobox) = @_;
+           my $active = $combobox->get_active;
+           my $hash = App::MathImage::Gtk2::Drawing::Values->model_rows_hash;
+           my $values = $hash->{$active};
+           my $tooltip = __('The values to display.');
+           if (my $info = App::MathImage::Generator->values_info($values)) {
+             ### $info
+             $tooltip .= "\n\n"
+               . __x('Current setting: {name}', name => $info->{'name'})
+                 . "\n"
+                   . $info->{'description'};
+           }
+           ### $tooltip
+           $combobox->$set_tooltip_text ($tooltip);
+         });
 
       $combobox->pack_start ($renderer1, 1);
       $combobox->set_attributes ($renderer1, text => 1);
@@ -383,13 +416,12 @@ HERE
       if ($combobox->find_property('tearoff_title')) {
         $combobox->set (tearoff_title => __('Prime Quadratic Filter'));
       }
-      $combobox->set_tooltip_text(__('Optionally show only the primes among the prime generating polynomials.'));
+      $combobox->$set_tooltip_text(__('Optionally show only the primes among the prime generating polynomials.'));
       $item->add ($combobox);
 
       $combobox->pack_start ($renderer1, 1);
       $combobox->set_attributes ($renderer1, text => 1);
 
-      ### $hash
       Glib::Ex::ConnectProperties->new
           ([$draw,'prime-quadratic'],
            [$combobox,'active',
@@ -410,7 +442,7 @@ HERE
 
       my $entry = $self->{'fraction_entry'} = Gtk2::Entry->new;
       $entry->set_width_chars (8);
-      $entry->set_tooltip_text(__('The fraction to show, for example 5/29.'));
+      $entry->$set_tooltip_text(__('The fraction to show, for example 5/29.'));
       $item->add ($entry);
       $entry->signal_connect (activate => sub {
                                 my ($entry) = @_;
@@ -435,7 +467,7 @@ HERE
 
       my $entry = $self->{'expression_entry'} = Gtk2::Entry->new;
       $entry->set_width_chars (30);
-      $entry->set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible functions etc.'));
+      $entry->$set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible functions etc.'));
       $item->add ($entry);
       $entry->signal_connect (activate => sub {
                                 my ($entry) = @_;
@@ -465,7 +497,7 @@ HERE
       Glib::Ex::ConnectProperties->new ([$draw,'sqrt'],
                                         [$adj,'value']);
       my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-      $spin->set_tooltip_text(__('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'));
+      $spin->$set_tooltip_text(__('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'));
       $item->add ($spin);
       $self->{'values_combobox'}->signal_connect
         ('notify::active' => sub {
@@ -487,7 +519,7 @@ HERE
       Glib::Ex::ConnectProperties->new ([$draw,'polygonal'],
                                         [$adj,'value']);
       my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-      $spin->set_tooltip_text(__('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
+      $spin->$set_tooltip_text(__('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
       $item->add ($spin);
       $self->{'values_combobox'}->signal_connect
         ('notify::active' => sub {
@@ -509,7 +541,7 @@ HERE
       Glib::Ex::ConnectProperties->new ([$draw,'multiples'],
                                         [$adj,'value']);
       my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-      $spin->set_tooltip_text(__('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'));
+      $spin->$set_tooltip_text(__('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'));
       $item->add ($spin);
       $self->{'values_combobox'}->signal_connect
         ('notify::active' => sub {
@@ -525,7 +557,7 @@ HERE
       $toolbar->insert ($item, $tpos++);
 
       my $check = Gtk2::CheckButton->new_with_label (__('Conjunctions'));
-      $check->set_tooltip_text(__('Whether to include conjunctions "and" or "et" in the words of the sequence.'));
+      $check->$set_tooltip_text(__('Whether to include conjunctions "and" or "et" in the words of the sequence.'));
       $item->add ($check);
       Glib::Ex::ConnectProperties->new ([$draw,'aronson-conjunctions'],
                                         [$check,'active']);
@@ -553,7 +585,7 @@ HERE
       Glib::Ex::ConnectProperties->new ([$draw,'scale'],
                                         [$adj,'value']);
       my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-      $spin->set_tooltip_text(__('How many pixels per square.'));
+      $spin->$set_tooltip_text(__('How many pixels per square.'));
       $hbox->pack_start ($spin, 0,0,0);
     }
   }
@@ -709,7 +741,7 @@ sub _do_action_about {
   App::MathImage::Gtk2::AboutDialog->new->present;
 }
 
-sub _do_action_randomize {
+sub _do_action_random {
   my ($action, $self) = @_;
   $self->{'draw'}->set (App::MathImage::Generator->random_options);
 }
@@ -717,7 +749,6 @@ sub _do_action_crosshair {
   my ($action, $self) = @_;
   $self->{'crosshair_connect'} ||= do {
     require Gtk2::Ex::CrossHair;
-    require Glib::Ex::ConnectProperties;
     my $cross = $self->{'crosshair'}
       = Gtk2::Ex::CrossHair->new (widget => $self->{'draw'},
                                   foreground => 'orange',

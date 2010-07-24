@@ -27,7 +27,7 @@ use base 'Image::Base';
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub new {
   my $class = shift;

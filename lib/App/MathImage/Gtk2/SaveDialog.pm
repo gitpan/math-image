@@ -21,6 +21,8 @@ use 5.008;
 use strict;
 use warnings;
 use Text::Capitalize;
+use File::Spec;
+use List::Util;
 use Gtk2;
 use Gtk2::Ex::Units;
 use App::MathImage::Gtk2::Drawing;
@@ -28,7 +30,7 @@ use App::MathImage::Gtk2::Ex::GdkPixbufBits;
 use App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 11;
+our $VERSION = 12;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -78,7 +80,10 @@ sub INIT_INSTANCE {
 
     my $combo = $self->{'combo'}
       = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
-    $combo->set_tooltip_text(__('The file format to save in, being all the GdkPixbuf formats with "write" support.'));
+    if ($combo->can('set_tooltip_text')) { # new in 2.12
+      $combo->set_tooltip_text(__("The file format to save in.\n(This is all the GdkPixbuf formats with \"write\" support.)"));
+    }
+    $combo->signal_connect ('notify::active' => \&_combo_notify_active);
     $hbox->pack_start ($combo, 0,0,0);
     $hbox->show_all;
   }
@@ -142,6 +147,10 @@ sub save {
                                                      0,0, 0,0,
                                                      $pixmap->get_size);
   my $values = $draw->get('values');
+  if ($values eq 'fraction' || $values eq 'expression' || $values eq 'sqrt'
+      || $values eq 'polygonal' || $values eq 'multiples') {
+    $values .= ' '.$draw->get($values);
+  }
   my $path = $draw->get('path');
   my $scale = $draw->get('scale');
   my $title = __x('{values} drawn as {path}',
@@ -156,8 +165,7 @@ sub save {
         'tEXt::Creation Time' => POSIX::strftime (STRFTIME_FORMAT_RFC822,
                                                   localtime(time)),
         # 'tEXt::Description'   => '',
-        'tEXt::Software'      => "math-image",
-        'tEXt::Homepage'      => 'http://user42.tuxfamily.org/math-image/index.html',
+        'tEXt::Software'      => "math-image, http://user42.tuxfamily.org/math-image/index.html",
         zlib_compression      => 9,
         tiff_compression_type => 'deflate',
         quality_percent       => 100));
@@ -171,4 +179,54 @@ sub save {
     die "Cannot write $filename: $@";
   };
 }
+
+# type combobox 'active' signal handler
+sub _combo_notify_active {
+  my ($combo) = @_;
+  my $self = $combo->get_ancestor(__PACKAGE__);
+  my $type = $combo->get('type');
+  my $info = _get_format_from_type($type) || return; # oops, unknown
+  _set_extension ($self, $info->{'extensions'}->[0] || '');
+}
+
+# Set the ".xyz" extension part of the filename in $chooser.
+# $ext can be for instance ".txt", "txt", or empty "".
+# If $case_sensitive is true then $ext and any extension in the current
+# filename are compared case-sensitively before changing.
+#
+# The extension on the current filename is taken to be any ".abcde" of 0 to
+# 5 characters.  If there's other dots in the name and no ".txt" or whatever
+# then a part of the name as such might be replaced.
+#
+# Is there a $chooser->get_current for the user entered part?
+#
+sub _set_extension {
+  my ($chooser, $ext, $case_sensitive) = @_;
+  unless ($ext =~ /^(\.|$)/) {
+    $ext = ".$ext";
+  }
+  my $filename = $chooser->get_filename;
+  if ($filename =~ ($case_sensitive ? qr/\Q$ext\E$/ : qr/\Q$ext\E$/i)) {
+    return; # already right
+  }
+  (my $volume,my $directories, $filename) = File::Spec->splitpath($filename);
+  $filename =~ s/\.[^.]{0,5}$/$ext/;
+  $chooser->set_current_folder ($directories);
+  $chooser->set_current_name ($filename);
+}
+
+my $get_formats_method;
+BEGIN {
+  $get_formats_method = (Gtk2::Gdk::Pixbuf->can('get_formats') # new in Gtk 2.2
+                         ? 'get_formats'
+                         : sub { return () }); # empty list
+}
+sub _get_format_from_type {
+  my ($type) = @_;
+  return List::Util::first
+    {$_->{'name'} eq $type}
+      Gtk2::Gdk::Pixbuf->$get_formats_method;
+}
+
 1;
+__END__

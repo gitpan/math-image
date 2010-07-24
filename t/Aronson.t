@@ -33,7 +33,7 @@ require App::MathImage::Aronson;
 # VERSION
 
 {
-  my $want_version = 11;
+  my $want_version = 12;
   is ($App::MathImage::Aronson::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Aronson->VERSION,  $want_version, 'VERSION class method');
 

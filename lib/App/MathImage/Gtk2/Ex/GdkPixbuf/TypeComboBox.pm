@@ -31,7 +31,7 @@ Locale::Messages::bind_textdomain_filter
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 11;
+our $VERSION = 12;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
@@ -127,14 +127,13 @@ BEGIN {
 
 my $get_formats_method;
 BEGIN {
-  if (Gtk2::Gdk::Pixbuf->can('get_formats')) {
-    # get_formats() new in Gtk 2.2
-    $get_formats_method = 'get_formats';
-  } else {
-    $get_formats_method = sub {
-      return { name => 'png' }, { name => 'jpeg' };
-    };
-  }
+  $get_formats_method
+    = (Gtk2::Gdk::Pixbuf->can('get_formats')  # new in Gtk 2.2
+       ? 'get_formats'
+       : sub {
+         return ({ name => 'png' },
+                 { name => 'jpeg' });
+       });
 }
 
 BEGIN {

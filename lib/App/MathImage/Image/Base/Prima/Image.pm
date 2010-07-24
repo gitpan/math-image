@@ -27,7 +27,7 @@ use base 'App::MathImage::Image::Base::Prima::Drawable';
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub load {
   my ($self, $filename) = @_;

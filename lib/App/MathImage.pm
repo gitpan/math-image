@@ -26,7 +26,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -380,6 +380,13 @@ sub _output_image {
 sub show_method_window {
   my ($self) = @_;
 
+  if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
+    Glib->install_exception_handler
+      (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
+    $SIG{'__WARN__'}
+      = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
+  }
+
   my $gen_options = $self->{'gen_options'};
   require App::MathImage::Gtk2::Main;
   my $toplevel = App::MathImage::Gtk2::Main->new
@@ -476,8 +483,8 @@ sub show_method_root_x11_protocol {
     $pixmap = $image_pixmap->get('-pixmap');
     ### $pixmap
 
-    require App::MathImage::Image::Base::Multiplex;
-    my $image = App::MathImage::Image::Base::Multiplex->new
+    require Image::Base::Multiplex;
+    my $image = Image::Base::Multiplex->new
       (-images => [ $image_pixmap, $image_rootwin ]);
 
     my $gen = $self->make_generator;

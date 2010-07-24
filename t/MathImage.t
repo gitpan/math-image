@@ -35,7 +35,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 11;
+  my $want_version = 12;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
