@@ -24,49 +24,49 @@ use List::Util qw(min max);
 use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 use Prima 'Application';
+use App::MathImage::Generator;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 12;
+our $VERSION = 13;
 
 my $d;
 sub run {
-  my $main = Prima::MainWindow->new
-      (text => 'Hello',
-       menuItems =>
-       [ [ "~File" => [
-                       [ "E~xit" => sub {
-                           $::application->destroy;
-                         }
-                       ]
-                      ] ],
-         [ ef => "~View" => [
-                             _menu_values(),
-                             [],  # separator
-                             _menu_path(),
-                            ]],
+  my ($class, $gen_options) = @_;
 
-         [],
-         [ "~Help" => [ [ "~About" => "About",
-                          sub {
-                            require Prima::MsgBox;
-                            Prima::MsgBox::message
-                                (__x('Math Image version {version}', version => $VERSION),
-                                 mb::Information() + mb::Ok());
-                            # require App::MathImage::Prima::About;
-                            # App::MathImage::Prima::About->new;
-                          }],
-                      ] ],
-       ],
-       onPaint  => sub {
-         my ( $self, $canvas) = @_;
-         $canvas-> clear;
-         $canvas-> fill_ellipse(50,50, 20,20);
-       },
-      );
-  $d = Prima::Image->create (width => 100, height => 100);
-#  $main->insert($d);
+  my $main = Prima::MainWindow->new
+    (text => 'Hello',
+     menuItems =>
+     [ [ "~File" => [
+                     [ "E~xit" => sub {
+                         $::application->destroy;
+                       }
+                     ]
+                    ] ],
+       [ ef => "~View" => [
+                           _menu_for_values(),
+                           [],  # separator
+                           _menu_for_path(),
+                          ]],
+
+       [],
+       [ "~Help" => [ [ "~About" => "About",
+                        sub {
+                          require Prima::MsgBox;
+                          Prima::MsgBox::message
+                              (__x('Math Image version {version}', version => $VERSION),
+                               mb::Information() + mb::Ok());
+                          # require App::MathImage::Prima::About;
+                          # App::MathImage::Prima::About->new;
+                        }],
+                    ] ],
+     ],
+     onPaint  => \&_paint,
+    );
+
+  $main->{__PACKAGE__.'.gen_options'} = $gen_options;
+  my $image = Prima::Image->create (owner => $main);
 
   Prima->run;
 }
@@ -106,7 +106,7 @@ sub key_to_display {
   $str =~ s/([[:lower:][:digit:]])([[:upper:]])/$1 $2/g;
   return $str;
 }
-sub _menu_values {
+sub _menu_for_values {
   my ($self) = @_;
 
   return map {
@@ -137,7 +137,7 @@ sub _path_to_mnemonic {
   my ($str) = @_;
   return ($_values_to_mnemonic{$str} || key_to_display($str));
 }
-sub _menu_path {
+sub _menu_for_path {
   my ($self) = @_;
 
   return map {
@@ -149,6 +149,42 @@ sub _menu_path {
   } App::MathImage::Generator->path_choices;
 }
 
+
+sub _paint {
+  my ($self, $canvas) = @_;
+  ### _paint
+  $canvas->clear;
+  $canvas->fill_ellipse(50,50, 20,20);
+
+  _draw_image ($canvas, $self->{__PACKAGE__.'.gen_options'});
+}
+
+sub _draw_image {
+  my ($drawable, $gen_options) = @_;
+  ### _draw_image(): ref($drawable)
+
+  my $gen = App::MathImage::Generator->new
+    (%$gen_options,
+     width  => $drawable->width,
+     height => $drawable->height);
+  #      foreground => $self->style->fg($self->state)->to_string,
+  #      background => $background_colorobj->to_string,
+
+  #   $self->{'path_object'} = $gen->path_object;
+  #   $self->{'coord'} = $gen->{'coord'};
+
+  ### width:  $drawable->width
+  ### height: $drawable->height
+
+  require App::MathImage::Image::Base::Prima::Drawable;
+  my $image = App::MathImage::Image::Base::Prima::Drawable->new
+    (-drawable => $drawable);
+  ### width:  $image->get('-width')
+  ### height: $image->get('-height')
+
+  $gen->draw_Image_start ($image);
+  $gen->draw_Image_steps ($image, 99999);
+}
 
 # sub expose {
 #           if ( $d-> begin_paint) {
@@ -338,9 +374,7 @@ sub _menu_path {
 #       $hbox->pack_start (Prima::Label->new(__('Path')), 0,0,0);
 #       my $combobox = Prima::ComboBox->new
 #         (App::MathImage::Prima::Drawing::Path->model);
-#       if ($combobox->find_property('tearoff_title')) {
-#         $combobox->set (tearoff_title => __('Path'));
-#       }
+#       $combobox->set (tearoff_title => __('Path'));
 # 
 #       my $renderer = Prima::CellRendererText->new;
 #       $renderer->set (ypad => 0);
@@ -365,9 +399,7 @@ sub _menu_path {
 #       $hbox->pack_start (Prima::Label->new(__('Values')), 0,0,0);
 #       my $combobox = $self->{'values_combobox'} = Prima::ComboBox->new
 #         (App::MathImage::Prima::Drawing::Values->model);
-#       if ($combobox->find_property('tearoff_title')) {
-#         $combobox->set (tearoff_title => __('Values'));
-#       }
+#       $combobox->set (tearoff_title => __('Values'));
 # 
 #       my $renderer = Prima::CellRendererText->new;
 #       $renderer->set (ypad => 0);

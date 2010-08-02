@@ -25,8 +25,6 @@ use Smart::Comments;
 
 use lib 'devel/lib';
 
-
-
 {
   require Math::PlanePath::SacksSpiral;
   require Math::PlanePath::VogelFloret;
@@ -41,9 +39,9 @@ use lib 'devel/lib';
   require Math::PlanePath::KnightSpiral;
   require Math::PlanePath::SquareSpiral;
 
-  require Math::PlanePath::SquareSpiral;
-  my $path = Math::PlanePath::SquareSpiral->new (wider => 0);;
-  foreach my $i (1 .. 50) {
+  require App::MathImage::PlanePath::TheodorusSpiral;
+  my $path = App::MathImage::PlanePath::TheodorusSpiral->new (wider => 0);;
+  foreach my $i (1 .. 500) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
@@ -52,6 +50,23 @@ use lib 'devel/lib';
     print "$i  $x,$y  $n  ${n_lo}_${n_hi}",
       ($i ne $n || $n_hi < $n ? "  ****" : ""),
         "\n";
+  }
+  exit 0;
+}
+
+
+{
+  require POSIX;
+  require Math::Trig;
+  my $r = 1;
+  my $theta = 0;
+  my $ang = 0;
+  foreach my $n (1 .. 100) {
+    printf "%2d  ang=%.3f  %.3f %.3f %.3f\n",
+      $n, $ang, $r, $ang, POSIX::fmod($ang, 2*3.14159);
+    $ang = Math::Trig::asin(1/$r) / (2*3.14159);
+    $theta += $ang;
+    $r += $ang;
   }
   exit 0;
 }

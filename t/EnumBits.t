@@ -20,22 +20,22 @@
 
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 13;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-require App::MathImage::Gtk2::Ex::GdkColorBits;
+require App::MathImage::Glib::Ex::EnumBits;
 
 {
   my $want_version = 13;
-  is ($App::MathImage::Gtk2::Ex::GdkColorBits::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Gtk2::Ex::GdkColorBits->VERSION,  $want_version, 'VERSION class method');
-  ok (eval { App::MathImage::Gtk2::Ex::GdkColorBits->VERSION($want_version); 1 },
+  is ($App::MathImage::Glib::Ex::EnumBits::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Glib::Ex::EnumBits->VERSION,  $want_version, 'VERSION class method');
+  ok (eval { App::MathImage::Glib::Ex::EnumBits->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::Ex::GdkColorBits->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Glib::Ex::EnumBits->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -45,15 +45,19 @@ MyTestHelpers::glib_gtk_versions();
 
 #-----------------------------------------------------------------------------
 
-foreach my $elem ([ 0x0000, 0x0080, 0x00FF, '#000000' ],
-                  [ 0xFF00, 0xFF80, 0xFFFF, '#FFFFFF' ],
-                  [ 0x1234, 0x5678, 0x9ABC, '#12569A' ],
+foreach my $elem (['foo', 'Foo'],
+                  ['foo-bar', 'Foo Bar'],
+                  ['foo_bar', 'Foo Bar'],
+                  ['foo1', 'Foo 1'],
+                  ['foo1bar', 'Foo 1 Bar'],
+                  ['foo12bar', 'Foo 12 Bar'],
+                  ['foo123bar4', 'Foo 123 Bar 4'],
+                  ['FooBar', 'Foo Bar'],
+                  ['Foo2Bar', 'Foo 2 Bar'],
                  ) {
-  my ($red, $green, $blue, $want) = @$elem;
-  my $color = Gtk2::Gdk::Color->new($red, $green, $blue);
-  is (App::MathImage::Gtk2::Ex::GdkColorBits::to_HRRGGBB($color),
-      $want,
-      sprintf('to_HRRGGBB on %#X %#X %#X',$red,$green,$blue));
+  my ($nick, $want) = @$elem;
+  my $got = App::MathImage::Glib::Ex::EnumBits::nick_to_display($nick);
+  is ($got, $want, "nick_to_display $nick");
 }
 
 exit 0;

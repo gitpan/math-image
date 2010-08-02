@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # Copyright 2010 Kevin Ryde
 
@@ -22,6 +22,64 @@ use strict;
 use warnings;
 
 use Smart::Comments;
+
+{
+  use Prima;
+  use Prima::Const;
+
+  my $d = Prima::Image->new;
+  $d = Prima::Image->load('/usr/share/emacs/23.2/etc/images/icons/hicolor/16x16/apps/emacs.png',
+                          loadExtras => 1);
+  ### width: $d->width
+  ### heightwidth: $d->height
+  ### extras: $d->{'extras'}
+  my $codecs = $d->codecs;
+  ### codecs: ref($codecs)
+  ### codecs: map {$_->{'fileShortType'}} @{$d->codecs}
+
+  $d = Prima::Image->new (width => 1, height => 1);
+  $d->save (\*STDOUT)
+    or die $@;
+  exit 0;
+}
+
+{
+  use Prima;
+  use Prima::Const;
+
+  my $d = Prima::Image->create (width => 5, height => 5);
+  $d->begin_paint;
+  $d->lineWidth(1);
+
+  $d->color (cl::Black);
+  $d->bar (0,0, 4,4);
+
+  $d->color (cl::White);
+  $d->rectangle (1,1, 1,1);
+
+  $d->end_paint;
+  $d-> save('/tmp/foo.gif') or die "Error saving:$@\n";
+  system "xzgv /tmp/foo.gif";
+  exit 0;
+}
+{
+  # available cL:: colour names
+  require Prima;
+  my @array;
+  foreach my $name (keys %cl::) {
+    if ($name eq 'AUTOLOAD' || $name eq 'constant') {
+      print "$name\n";
+      next;
+    }
+    my $var = "cl::$name";
+    my $value = do { no strict 'refs'; &$var(); };
+    push @array, [$name, $value];
+  }
+  foreach my $elem (sort {$a->[1] <=> $b->[1]} @array) {
+    printf "%8s %s\n", sprintf('%06X',$elem->[1]), $elem->[0];
+  }
+  exit 0;
+}
 
 {
   #   require Prima;

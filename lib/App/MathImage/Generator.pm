@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 12;
+$VERSION = 13;
 
 sub new {
   my $class = shift;
@@ -110,6 +110,8 @@ sub values_info {
 use constant path_choices => qw(SquareSpiral
                                 SacksSpiral
                                 VogelFloret
+                                TheodorusSpiral
+
                                 DiamondSpiral
                                 PentSpiral
                                 PentSpiralSkewed
@@ -125,7 +127,8 @@ use constant path_choices => qw(SquareSpiral
                                 Corner
                                 Diagonals
                                 Rows
-                                Columns);
+                                Columns
+                                ArchimedeanSpiral);
 
 sub random_options {
   my @choices;
@@ -226,16 +229,21 @@ sub path_object {
     require Module::Load;
     my $path_class = $self->{'path'};
     ### $path_class
+    my $err = '';
     unless ($path_class =~ /::/) {
       foreach my $try_class ("Math::PlanePath::$path_class",
-                             "App::MathImage::$path_class") {
+                             "App::MathImage::PlanePath::$path_class") {
         if (eval { Module::Load::load ($try_class); 1 }) {
           $path_class = $try_class;
           last;
         } else {
+          $err .= $@;
           ### cannot load: $@
         }
       }
+    }
+    unless ($path_class =~ /::/) {
+      croak $err;
     }
 
     my $path_object = $path_class->new
@@ -267,9 +275,9 @@ sub path_object {
        y_scale  => $self->{'scale'} * $invert);
 
     ### $path_class
-    $path_object
-  });
-}
+       $path_object
+     });
+        }
 
 $values_info{'squares'} =
   { subr => \&values_make_squares,
@@ -321,37 +329,17 @@ sub values_make_aronson {
 #
 # as integer positions
 #   http://www.research.att.com/~njas/sequences/A030310
+#   http://www.research.att.com/~njas/sequences/A030303
 #
 # 1 10  11 100 101  110 111
 # 1 2  4,5 6   9,11 12,13 15,16,17,
 #
-sub values_make_champernowne_binary_lsb {
-  my ($self, $lo, $hi) = @_;
-
-  my $val = 0;
-  my $bitmask = 1;
-  my $n = 0;
-  return sub {
-    ### $n
-    ### $val
-    ### $bitmask
-    for (;;) {
-      if ($bitmask > $val) {
-        $val++;
-        $bitmask = 1;
-        ### $val
-      }
-      $n++;
-      if ($bitmask & $val) {
-        $bitmask <<= 1;
-        return $n;
-      }
-      $bitmask <<= 1;
-    }
+#
+$values_info{'champernowne_binary'} =
+  { subr => \&values_make_champernowne_binary,
+    name => __('Champernowne Sequence'),
+    description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.'),
   };
-}
-
-# http://www.research.att.com/~njas/sequences/A030303
 sub values_make_champernowne_binary {
   my ($self, $lo, $hi) = @_;
 
@@ -382,6 +370,37 @@ sub values_make_champernowne_binary {
     }
   };
 }
+$values_info{'champernowne_binary_lsb'} =
+  { subr => \&values_make_champernowne_binary_lsb,
+    name => __('Champernowne Sequence LSB First'),
+    description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary least significant bit first, 1 01 11 001 101 etc.'),
+  };
+sub values_make_champernowne_binary_lsb {
+  my ($self, $lo, $hi) = @_;
+
+  my $val = 0;
+  my $bitmask = 1;
+  my $n = 0;
+  return sub {
+    ### $n
+    ### $val
+    ### $bitmask
+    for (;;) {
+      if ($bitmask > $val) {
+        $val++;
+        $bitmask = 1;
+        ### $val
+      }
+      $n++;
+      if ($bitmask & $val) {
+        $bitmask <<= 1;
+        return $n;
+      }
+      $bitmask <<= 1;
+    }
+  };
+}
+
 
 # http://www.research.att.com/~njas/sequences/A026147
 # bit count per example in perlfunc unpack()
@@ -487,6 +506,20 @@ sub values_make_fraction_bits {
   };
 }
 
+# ($k-2)*$i*($i+1)/2 - ($k-3)*$i
+# = ($k-2)/2*$i*i + ($k-2)/2*$i - ($k-3)*$i
+# = ($k-2)/2*$i*i + ($k - 2 - 2*$k + 6)/2*$i
+# = ($k-2)/2*$i*i + (-$k + 4)/2*$i
+# = 0.5 * (($k-2)*$i*i + (-$k +4)*$i)
+# = 0.5 * $i * (($k-2)*$i - $k + 4)
+
+# 25*i*(i+1)/2 - 24i
+# 25*i*(i+1)/2 - 48i/2
+# i/2*(25*(i+1) - 48)
+# i/2*(25*i + 25 - 48)
+# i/2*(25*i - 23)
+# 
+
 sub values_make_polygonal {
   my ($self, $lo, $hi) = @_;
   ### values_make_polygonal()
@@ -499,7 +532,7 @@ sub values_make_polygonal {
   my $i = 0;
   return sub {
     $i++;
-    return ($k-2)*$i*($i+1)/2 - ($k-3)*$i;
+    return 0.5 * $i * (($k-2)*$i - $k + 4);
   };
 }
 
@@ -920,7 +953,7 @@ sub values_make_twin_primes_2 {
 $values_info{'semi_primes'} =
   { subr => \&values_make_semi_primes,
     name => __('Semi-Primes'),
-    description => __('The semi-primes, or bi-primes, 4, 6, 9, 15, 21, etc, being numbers with just two prime factors P*Q, including the squares where P==Q.'),
+    description => __('The semi-primes, or bi-primes, 4, 6, 9, 15, 21, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.'),
   };
 sub values_make_semi_primes {
   my ($self, $lo, $hi) = @_;
@@ -931,7 +964,7 @@ sub values_make_semi_primes {
 $values_info{'semi_primes_odd'} =
   { subr => \&values_make_semi_primes_odd,
     name => __('Semi-Primes, Odd'),
-    description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including the squares where P==Q.'),
+    description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including P==Q squares of primes.'),
   };
 sub values_make_semi_primes_odd {
   my ($self, $lo, $hi) = @_;
@@ -1086,7 +1119,7 @@ sub draw_Image_start {
   if ($image->can('add_colours')) {
     $image->add_colours ($foreground, $background);
   } else {
-    ### image cannot add_colours(): ref $image
+    ### image doesn't have add_colours(): ref($image)
   }
 
   # clear
@@ -1135,6 +1168,7 @@ sub draw_Image_steps {
   my $foreground = $self->{'foreground'};
   my $background = $self->{'background'};
   my $scale = $self->{'scale'};
+  ### $scale
 
   my $path = $self->path_object;
   my $figure = ($scale == 1 ? 'point' : $path->figure);
@@ -1211,6 +1245,7 @@ sub draw_Image_steps {
                                         $width,$height);
 
         if (@rectangles >= _RECTANGLES_CHUNKS) {
+          ### rectangles chunk
           App::MathImage::Image::Base::Other::rectangles
               ($image, $foreground, 1, @rectangles);
           @rectangles = ();
@@ -1231,6 +1266,7 @@ sub draw_Image_steps {
   App::MathImage::Image::Base::Other::rectangles
       ($image, $foreground, 1, @rectangles);
 
+  ### $more
   return $more;
 }
 

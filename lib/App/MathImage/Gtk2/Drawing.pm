@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Drawing::Path;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 12;
+our $VERSION = 13;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 

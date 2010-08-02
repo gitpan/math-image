@@ -1,19 +1,19 @@
 # Copyright 2010 Kevin Ryde
 
-# This file is part of Gtk2-Ex-WidgetBits.
+# This file is part of Math-Image.
 #
-# Gtk2-Ex-WidgetBits is free software; you can redistribute it and/or modify
+# Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Gtk2-Ex-WidgetBits is distributed in the hope that it will be useful, but
+# Math-Image is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Gtk2-Ex-WidgetBits.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 package App::MathImage::Gtk2::Ex::GdkPixbufBits;
 use 5.008;
@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 12;
+our $VERSION = 13;
 
 my %tiff_compression_types = (none    => 1,
                               huffman => 2,

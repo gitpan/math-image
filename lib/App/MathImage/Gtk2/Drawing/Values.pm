@@ -20,57 +20,25 @@ package App::MathImage::Gtk2::Drawing::Values;
 use 5.008;
 use strict;
 use warnings;
-use Locale::Messages;
-use App::MathImage::Generator;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 12;
-
+our $VERSION = 13;
+our $TEXTDOMAIN = 'Math-Image';
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Values',
                            App::MathImage::Generator->values_choices);
 
-sub key_to_display {
-  my ($str) = @_;
-  require Text::Capitalize;
-  $str =~ tr/-_/  /;
-  $str =~ s/([[:lower:][:digit:]])([[:upper:]])/$1 $2/g;
-  return Text::Capitalize::capitalize($str);
-}
-
-use constant::defer model => sub {
-  require Text::Capitalize;
-  my $model = Gtk2::ListStore->new ('App::MathImage::Gtk2::Drawing::Values',
-                                    'Glib::String');
-
-  foreach my $elem (Glib::Type->list_values
-                    ('App::MathImage::Gtk2::Drawing::Values')) {
-    ### $elem
-    my $nick = $elem->{'nick'};
-    my $display = key_to_display ($nick);
-    $display = Locale::Messages::dgettext
-      ('Math-Image', Text::Capitalize::capitalize_title($display));
-    ### $display
-    $model->set ($model->append,
-                 0, $nick,
-                 1, $display);
+sub to_description {
+  my ($class, $nick) = @_;
+  require App::MathImage::Generator;
+  if (my $info = App::MathImage::Generator->values_info($nick)) {
+    ### $info
+    return  $info->{'description'};
+  } else {
+    return undef;
   }
-  return $model;
-};
-
-use constant::defer model_rows_hash => sub {
-  my %hash;
-  model()->foreach (sub {
-                      my ($model, $path, $iter) = @_;
-                      my ($n) = $path->get_indices;
-                      my $nick = $model->get_value($iter,0);
-                      $hash{$n} = $nick;
-                      $hash{$nick} = $n;
-                      return 0; # continue;
-                    });
-  return \%hash;
-};
+}
 
 1;
 __END__

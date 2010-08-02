@@ -26,7 +26,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 12;
+$VERSION = 13;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -35,6 +35,23 @@ sub _hopt {
   }
   $self->{$hashname}->{$key} = $value;
 }
+
+my %path_options = (ulam                    => 'SquareSpiral',
+                    'square-spiral'         => 'SquareSpiral',
+                    hex                     => 'HexSpiral',
+                    'hex-skewed'            => 'HexSpiralSkewed',
+                    'sacks'                 => 'SacksSpiral',
+                    'vogel-floret'          => 'VogelFloret',
+                    theodorus               => 'TheodorusSpiral',
+                    'diamond'               => 'DiamondSpiral',
+                    'pyramid|pyramid-sides' => 'PyramidSides',
+                    'pyramid-rows'          => 'PyramidRows',
+                    'knight-spiral'         => 'KnightSpiral',
+                    corner                  => 'Corner',
+                    diagonals               => 'Diagonals',
+                    rows                    => 'Rows',
+                    columns                 => 'Columns',
+                   );
 
 sub getopt_long_specifications {
   my ($self) = @_;
@@ -75,11 +92,6 @@ sub getopt_long_specifications {
      'expression=s' =>
      sub { my ($name, $value) = @_;
            ### $value
-           $value = "$value";
-           my $tree = Math::Symbolic->parse_from_string($value);
-           if (! defined $tree) {
-             die "invalid expression for Math::Symbolic";
-           }
            _hopt($self,'gen_options','values',     'expression');
            _hopt($self,'gen_options','expression', $value);
          },
@@ -100,31 +112,12 @@ sub getopt_long_specifications {
        _hopt($self,'gen_options','prime_quadratic', 'primes');
      },
 
-     'path=s'  => sub{my ($name, $value) = @_;
-                      _hopt($self,'gen_options','path', "$value");  },
-     'ulam'     =>
-     sub { _hopt($self,'gen_options','path', 'SquareSpiral');  },
-     'square-spiral' =>
-     sub { _hopt($self,'gen_options','path', 'SquareSpiral'); },
-     'hex'      =>
-     sub { _hopt($self,'gen_options','path', 'HexSpiral'); },
-     'hex-skewed' =>
-     sub { _hopt($self,'gen_options','path', 'HexSpiralSkewed');},
-     'sacks'    =>
-     sub { _hopt($self,'gen_options','path', 'SacksSpiral');  },
-     'vogel-floret' =>
-     sub { _hopt($self,'gen_options','path', 'VogelFloret');  },
-     'diamond'  =>
-     sub { _hopt($self,'gen_options','path', 'DiamondSpiral');  },
-     'pyramid|pyramid-sides' =>
-     sub { _hopt($self,'gen_options','path', 'PyramidSides');  },
-     'pyramid-rows'  =>
-     sub { _hopt($self,'gen_options','path', 'PyramidRows');  },
-     'knight-spiral' => sub{_hopt($self,'gen_options','path','KnightSpiral')},
-     'corner'    => sub{_hopt($self,'gen_options','path', 'Corner');  },
-     'diagonals' => sub{_hopt($self,'gen_options','path', 'Diagonals');  },
-     'rows'      => sub{_hopt($self,'gen_options','path', 'Rows');  },
-     'columns'   => sub{_hopt($self,'gen_options','path', 'Columns');  },
+     'path=s'  => sub{ my ($name, $value) = @_;
+                       _hopt($self,'gen_options','path', "$value");  },
+     (map { my $opt = $_;
+            ($opt => sub { _hopt ($self,'gen_options','path',
+                                  $path_options{$opt}) })
+          } keys %path_options),
 
      'scale=i'  => sub{my ($name, $value) = @_;
                        _hopt($self,'gen_options','scale', "$value");  },
@@ -139,6 +132,7 @@ sub getopt_long_specifications {
      'xpm'      => sub{_hopt($self, 'gui_options', 'show', 'xpm');  },
      'png'      => sub{_hopt($self, 'gui_options', 'show', 'png');  },
      'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png-gd');  },
+     'png-gtk'  => sub{_hopt($self, 'gui_options', 'show', 'png-gtk');  },
      'png-pngwriter' => sub{_hopt($self, 'gui_options', 'show', 'png-pngwriter');  },
      'text'     => sub{_hopt($self, 'gui_options', 'show', 'text'); },
      'text-numbers' => sub{_hopt($self, 'gui_options', 'show', 'text-numbers'); },
@@ -342,8 +336,10 @@ sub show_method_png {
     $self->show_method_png_gd;
   } elsif (eval { require Image::Base::PNGwriter }) {
     $self->show_method_png_pngwriter;
+  } elsif (eval { require Image::Base::Gtk2::Gdk::Pixbuf }) {
+    $self->show_method_png_pngwriter;
   } else {
-    die 'Neither Image::Base::GD nor Image::Base::PNGwriter available to write png';
+    die 'No module available to write png: Image::Base::GD, Image::Base::PNGwriter, Image::Base::Gtk2::Gdk::Pixbuf';
   }
 }
 sub show_method_png_pngwriter {
@@ -355,6 +351,11 @@ sub show_method_png_gd {
   my ($self) = @_;
   binmode (\*STDOUT) or die;
   _output_image ($self, 'Image::Base::GD');
+}
+sub show_method_png_gtk {
+  my ($self) = @_;
+  binmode (\*STDOUT) or die;
+  _output_image ($self, 'Image::Base::Gtk2::Gdk::Pixbuf');
 }
 sub _output_image {
   my ($self, $image_class) = @_;
@@ -679,7 +680,7 @@ sub show_method_text_numbers {
 sub show_method_prima {
   my ($self) = @_;
   require App::MathImage::Prima::Main;
-  App::MathImage::Prima::Main->run;
+  App::MathImage::Prima::Main->run ($self->{'gen_options'});
   return 0;
 }
 

@@ -21,23 +21,28 @@ use 5.004;
 use strict;
 use warnings;
 use Carp;
-use base 'Image::Base';
+use vars '$VERSION', '@ISA';
+
+use Image::Base;
+@ISA = ('Image::Base');
+
+$VERSION = 13;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-use vars '$VERSION';
-$VERSION = 12;
-
 sub new {
   my $class = shift;
-  my $self = bless { _set_colour => '',
-                     @_ }, $class;
+  my $self = bless { _set_colour => '' }, $class;
+  $self->set (@_);
   return $self;
 }
 
 my %get_methods = (-width  => 'width',
-                   -height => 'height');
+                   -height => 'height',
+                   -depth  => 'get_bpp',
+                   -bpp    => 'get_bpp',
+                  );
 sub _get {
   my ($self, $key) = @_;
   ### Prima-Drawable _get(): $key
@@ -71,43 +76,80 @@ sub xy {
   my $drawable = $self->{'-drawable'};
   $y = $drawable->height - 1 - $y;
   if (@_ == 4) {
-    ### xy store: $x,$y
+    #### xy store: $x,$y
     $drawable->pixel ($x,$y, $self->colour_to_pixel($colour));
   } else {
-    ### fetch: $x,$y
+    #### fetch: $x,$y
     return sprintf '#%06X', $drawable->pixel($x,$y);
   }
 }
 sub line {
-  my ($self, $x0, $y0, $x1, $y1, $colour) = @_ ;
+  my ($self, $x1,$y1, $x2,$y2, $colour) = @_ ;
+  ### Image-Base-Prima-Drawable line(): "$x1,$y1, $x2,$y2"
   my $y_top = $self->{'-drawable'}->height - 1;
-  _set_colour($self,$colour)->line ($x0, $y_top - $y0,
-                                    $x1, $y_top - $y1);
+  _set_colour($self,$colour)->line ($x1, $y_top-$y1,
+                                    $x2, $y_top-$y2);
 }
 sub rectangle {
   my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
+
+  # In Prima 1.28 under X, if lineWidth==0 then a one-pixel unfilled
+  # rectangle x1==x2 and y1==y2 draws nothing.  This will be just the usual
+  # server-dependent behaviour on a zero-width line.  Use bar() for this
+  # case so as to be sure of getting a pixel drawn whether lineWidth==0 or
+  # lineWidth==1.
+  #
+  my $method = ($fill || ($x1==$x2 && $y1==$y2)
+                ? 'bar'
+                : 'rectangle');
   my $y_top = $self->{'-drawable'}->height - 1;
-  my $method = ($fill ? 'bar' : 'rectangle');
-  ### rectangle: $method
+  ### Image-Base-Prima-Drawable rectangle(): $method
   _set_colour($self,$colour)->$method ($x1, $y_top - $y1,
                                        $x2, $y_top - $y2);
 }
 sub ellipse {
   my ($self, $x1, $y1, $x2, $y2, $colour) = @_;
-  _set_colour($self,$colour)->ellipse
-    (($x1+$x2)/2, ($y1+$y2)/2, $x2-$x1+1, $y2-$y1+1);
+
+  # In Prima 1.28 under X, if lineWidth==0 then a one-pixel ellipse x1==x2
+  # and y1==y2 draws nothing, the same as for an unfilled rectangle above.
+  #
+  my $drawable = $self->{'-drawable'};
+  my $y_top = $drawable->height - 1;
+  if ($x1==$x2 && $y1==$y2) {
+    $drawable->pixel ($x1, $y_top - $y1,
+                      $self->colour_to_pixel($colour));
+  } else {
+    # The adjustment from the x1,y1 corner to the centre args for prima
+    # ellipse() are per the unix/apc_graphics.c X code.  Hope it ends up the
+    # same on different platforms.  The calculate_ellipse_divergence() looks
+    # a bit doubtful, it might be exercising the zero-width line.
+    #
+    my $dx = $x2-$x1+1; # diameter
+    my $dy = $y2-$y1+1;
+    ### ellipse
+    ### centre x: $x1 + int (($dx - 1)/2)
+    ### centre y: $y_top - ($y1 + int (($dy - 1)/2))
+    ### $dx
+    ### $dy
+    _set_colour($self,$colour)->ellipse
+      ($x1 + int (($dx - 1)/2),
+       ($y_top - $y1) - int ($dy/2),
+       $dx, $dy);
+  }
 }
 
 sub _set_colour {
   my ($self, $colour) = @_;
-  ### _set_colour: $colour
   my $drawable = $self->{'-drawable'};
   if ($colour ne $self->{'_set_colour'}) {
+    ### Image-Base-Prima-Drawable _set_colour() change to: $colour
     $self->{'_set_colour'} = $colour;
     $drawable->color ($self->colour_to_pixel ($colour));
   }
   return $drawable;
 }
+
+# not documented yet
 sub colour_to_pixel {
   my ($self, $colour) = @_;
   ### colour_to_pixel(): $colour
@@ -130,54 +172,80 @@ sub colour_to_pixel {
   croak "Unrecognised colour: $colour";
 }
 
+
+# =item C<$image-E<gt>add_colours ($name, $name, ...)>
+# 
+# Add colours to the drawable's palette.  Colour names are the same for the
+# drawing functions.
+# 
+#     $image->add_colours ('red', 'green', '#FF00FF');
+# 
+# The drawing functions automatically add a colour if it doesn't already exist
+# but C<add_colours> can initialize the palette with particular desired
+# colours.
+
+
 1;
 __END__
 
-=for stopwords undef Ryde pixmap colormap ie XID drawables Prima
+=for stopwords Ryde Prima
 
 =head1 NAME
 
-Image::Base::Prima::Drawable -- draw into Prima window, image, etc
+App::MathImage::Image::Base::Prima::Drawable -- draw into Prima window, image, etc
+
+=for test_synopsis my ($d)
 
 =head1 SYNOPSIS
 
- use Image::Base::Prima::Drawable;
- my $X = Prima->new;
- my $image = Image::Base::Prima::Drawable->new
-               (-X         => $X,
-                -drawable  => $xid);
+ use App::MathImage::Image::Base::Prima::Drawable;
+ my $image = App::MathImage::Image::Base::Prima::Drawable->new
+               (-drawable => $d);
  $image->line (0,0, 99,99, '#FF00FF');
  $image->rectangle (10,10, 20,15, 'white');
 
 =head1 CLASS HIERARCHY
 
-C<Image::Base::Prima::Drawable> is a subclass of
-C<Image::Base>,
+C<App::MathImage::Image::Base::Prima::Drawable> is a subclass of C<Image::Base>,
 
     Image::Base
-      Image::Base::Prima::Drawable
+      App::MathImage::Image::Base::Prima::Drawable
 
 =head1 DESCRIPTION
 
-C<Image::Base::Prima::Drawable> extends C<Image::Base> to draw into Prima
-drawables.
+C<App::MathImage::Image::Base::Prima::Drawable> extends C<Image::Base> to draw into a
+C<Prima::Drawable> drawables, meaning a widget window, off-screen image,
+printer, etc.
 
-Colours for drawing can be names known to the X server (usually from the
-file F</etc/X11/rgb.txt>) or 2-digit #RRGGBB or 4-digit #RRRRGGGGBBBB hex.
+The native Prima drawing has lots more features, but this module is an easy
+way to point C<Image::Base> style code at a Prima image etc.
+
+Colours names for drawing are the "Blue" etc from the Prima colour constants
+C<cl::Blue> etc (see L<Prima::Drawable/Color space>), plus 2-digit #RRGGBB
+or 4-digit #RRRRGGGGBBBB hex.  Internally Prima works in 8-bit RGB
+components, so 4-digit values are truncated.
+
+X,Y coordinates are the usual C<Image::Base> style 0,0 at the top-left
+corner.  Prima works from 0,0 as the bottom-left but
+C<App::MathImage::Image::Base::Prima::Drawable> converts.  There's no support for the Prima
+"translate" origin shift yet.
+
+None of the drawing functions do a C<$drawable-E<gt>begin_paint>.  That's
+left to the application, and of course happens automatically for an
+C<onPaint> handler.  The symptom of forgetting is that lines, rectangles and
+ellipses don't draw anything.  (In the current code C<xy> might come out
+since it uses C<$drawable-E<gt>pixel>, but don't rely on that.)
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$image = Image::Base::Prima::Drawable-E<gt>new (key=E<gt>value,...)>
+=item C<$image = App::MathImage::Image::Base::Prima::Drawable-E<gt>new (key=E<gt>value,...)>
 
-Create and return a new image object.  The C<Prima> connection
-object and drawable XID (an integer) must be given.
+Create and return a new image object.  A C<Prima::Drawable> object must be
+given.
 
-    $image = Image::Base::Prima::Drawable->new
-                 (-X        => $x11_protocol_obj,
-                  -drawable => $xid_drawable,
-                  -colormap => $xid_colormap);
+    $image = App::MathImage::Image::Base::Prima::Drawable->new (-drawable => $d);
 
 =item C<$colour = $image-E<gt>xy ($x, $y)>
 
@@ -185,37 +253,7 @@ object and drawable XID (an integer) must be given.
 
 Get or set the pixel at C<$x>,C<$y>.
 
-Currently colours returned by a get are either a name used previously to
-draw, or a 4-digit hex #RRRRGGGGBBBB.  If two colour names became the same
-pixel value because that was a close as could be represented then it's
-unspecified which is returned.  For hex it's 4-digits because that's the
-range in the X protocol.
-
-If the drawable is a window and it doesn't have backing store then fetching
-a pixel from an obscured region returns an unspecified colour, usually
-a garbage #RRRRGGGGBBBB value.
-
-Fetching a pixel is an X server round-trip and will be very slow if
-attempting to read out a big region.  It's possible to read a big region or
-the entire drawable in one go, but how to know if there's going to be lots
-of C<xy> calls, and whether to re-fetch for possibly changed window
-contents?
-
-=item C<$image-E<gt>add_colours ($name, $name, ...)>
-
-Allocate colours in the colormap.  Colour names are the same for the drawing
-functions.
-
-    $image->add_colours ('red', 'green', '#FF00FF');
-
-The drawing functions automatically add a colour if it doesn't already exist
-but C<add_colours> can initialize the colormap with particular desired
-colours and it does so with a single server round-trip instead of separate
-individual ones.
-
-If the C<-colormap> set is the default colormap in one of the screens then
-colours "black" and "white" are taken from the screen info without querying
-the server.
+Currently colours returned by a get are always 2-digit hex #RRGGBB.
 
 =back
 
@@ -227,35 +265,11 @@ the server.
 
 The target drawable.
 
-=item C<-colormap> (XID integer)
-
-The colormap in which to allocate colours when drawing.  It defaults to the
-default colormap of the screen containing the target drawable, though
-getting that screen costs a server round-trip the first time the colormap is
-required (for drawing or for a C<get>).
-
-The C<Image::Base::Prima::Window> sub-class instead uses a window's
-installed colormap as the default.
-
-Setting C<-colormap> only affects where colours are allocated.  If the
-drawable is a window then the colormap is not installed in the window's
-attributes.
-
 =item C<-width> (integer, read-only)
 
 =item C<-height> (integer, read-only)
 
-Width and height are read-only.  Values are obtained from C<GetGeometry>
-when required, then cached.  If you already know the size then including
-values in the C<new> will record them ready for later C<get>.  The plain
-drawing operations don't need the size though.
-
-    $image = Image::Base::Prima::Drawable->new
-                 (-X        => $x11_protocol_obj,
-                  -drawable => $id,
-                  -width    => 200,      # record known values to save
-                  -height   => 100,      # a server query
-                  -colormap => $colormap);
+The width and height of the underlying drawable.
 
 =back
 

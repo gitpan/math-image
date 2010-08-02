@@ -27,7 +27,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 12;
+our $VERSION = 13;
 
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
                            App::MathImage::Generator->path_choices);
@@ -41,7 +41,8 @@ use constant::defer model => sub {
                     ('App::MathImage::Gtk2::Drawing::Path')) {
     ### $elem
     my $nick = $elem->{'nick'};
-    my $display = App::MathImage::Gtk2::Drawing::Values::key_to_display($nick);
+    my $display = App::MathImage::Glib::Ex::EnumBits::to_display
+      (__PACKAGE__, $nick);
     $display = Locale::Messages::dgettext
       ('Math-Image', Text::Capitalize::capitalize_title($display));
     ### $display

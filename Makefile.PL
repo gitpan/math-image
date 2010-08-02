@@ -78,6 +78,8 @@ MyMakeMakerExtras::WriteMakefile
                     # these new in v.4
                     'Math::PlanePath::PentSpiral'           => 4,
                     'Math::PlanePath::HeptSpiralSkewed'     => 4,
+                    # this new in v.6
+                    'Math::PlanePath::TheodorusSpiral'      => 6,
                    },
    MIN_PERL_VERSION => '5.008',
 

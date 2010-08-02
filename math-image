@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 12;
+$VERSION = 13;
 exit App::MathImage->command_line;
 
 __END__
@@ -211,9 +211,9 @@ Run the Gtk GUI.  This is the default.
 
 =item --fullscreen
 
-Run the Gtk GUI starting in full screen mode.  Press Control-F to toggle
+Run the Gtk GUI starting in full screen mode.  Menu Tools/Fullscreen toggles
 between full screen and a normal window.  In full screen mode the menus can
-still be used, just press Alt-E etc as normal.
+still be used, just press Alt-F, Alt-T, etc as normal.
 
 =item --root
 

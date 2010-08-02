@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            12
+version:            13
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -38,6 +38,7 @@ requires:
     Math::PlanePath::PyramidRows:  4
     Math::PlanePath::PyramidSpiral:  3
     Math::PlanePath::SquareSpiral:  5
+    Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::Prime::XS:      0.20_01

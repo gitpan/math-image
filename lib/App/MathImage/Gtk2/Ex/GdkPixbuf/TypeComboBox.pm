@@ -1,19 +1,19 @@
 # Copyright 2010 Kevin Ryde
 
-# This file is part of Gtk2-Ex-WidgetBits.
+# This file is part of Math-Image.
 #
-# Gtk2-Ex-WidgetBits is free software; you can redistribute it and/or modify
+# Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Gtk2-Ex-WidgetBits is distributed in the hope that it will be useful, but
+# Math-Image is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Gtk2-Ex-WidgetBits.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 package App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
 use 5.008;
@@ -26,12 +26,12 @@ use List::MoreUtils;
 use Locale::Messages;
 
 Locale::Messages::bind_textdomain_filter
-  ('Gtk2-Ex-WidgetBits', \&Locale::Messages::turn_utf_8_on);
+  ('Math-Image', \&Locale::Messages::turn_utf_8_on);
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 12;
+our $VERSION = 13;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
@@ -202,7 +202,7 @@ sub _choose_types {
 
   # translated descriptions
   my %formats = map {; ($_,
-                        Locale::Messages::dgettext('Gtk2-Ex-WidgetBits',
+                        Locale::Messages::dgettext('Math-Image',
                                                    uc($_)))
                    } @formats;
 
@@ -229,7 +229,7 @@ sub _model_for_types {
     $model->set ($model->append,
                  COLUMN_TYPE, $name,
                  COLUMN_DISPLAY,
-                 Locale::Messages::dgettext ('Gtk2-Ex-WidgetBits',
+                 Locale::Messages::dgettext ('Math-Image',
                                              uc($name)));
   }
   Scalar::Util::weaken ($_model_for_types{$key} = $model);

@@ -7,6 +7,7 @@ debian/copyright
 debian/rules
 debian/source/format
 debian/watch
+devel/archimedean.pl
 devel/aronson.pl
 devel/bits.pl
 devel/camel.pl
@@ -32,10 +33,12 @@ lib/App/MathImage.pm
 lib/App/MathImage/Aronson.pm
 lib/App/MathImage/Coord.pm
 lib/App/MathImage/Generator.pm
+lib/App/MathImage/Glib/Ex/EnumBits.pm
 lib/App/MathImage/Gtk2/AboutDialog.pm
 lib/App/MathImage/Gtk2/Drawing.pm
 lib/App/MathImage/Gtk2/Drawing/Path.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
+lib/App/MathImage/Gtk2/Ex/ComboBox/EnumValues.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbuf/TypeComboBox.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
@@ -50,6 +53,7 @@ lib/App/MathImage/Image/Base/X/Drawable.pm
 lib/App/MathImage/Image/Base/X/Pixmap.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
+lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Main.pm
 Makefile.PL
@@ -63,8 +67,10 @@ t/0-Test-DistManifest.t
 t/0-Test-Pod.t
 t/0-Test-YAML-Meta.t
 t/Aronson.t
+t/EnumBits.t
 t/GdkColorBits.t
 t/Generator.t
+t/Image-Base-Prima-Drawable.t
 t/Magick.t
 t/MathImage.t
 t/MyTestHelpers.pm
