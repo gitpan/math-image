@@ -39,8 +39,8 @@ use lib 'devel/lib';
   require Math::PlanePath::KnightSpiral;
   require Math::PlanePath::SquareSpiral;
 
-  require App::MathImage::PlanePath::TheodorusSpiral;
-  my $path = App::MathImage::PlanePath::TheodorusSpiral->new (wider => 0);;
+  require Math::PlanePath::TheodorusSpiral;
+  my $path = Math::PlanePath::TheodorusSpiral->new (wider => 0);;
   foreach my $i (1 .. 500) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;

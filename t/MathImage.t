@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 13;
+  my $want_version = 14;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -72,7 +72,7 @@ foreach my $elem ([ ['--version'] ],
     my ($argv, %options) = @$elem;
     if (my $module = $options{'module'}) {
       if (! eval "require $module") {
-        skip "due to $module not available: $@", 1;
+        skip "due to $module not available: $@", 2;
       }
     }
     local @ARGV = @$argv;

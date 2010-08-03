@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 13;
+$VERSION = 14;
 exit App::MathImage->command_line;
 
 __END__
@@ -42,18 +42,19 @@ math-image -- display some mathematical images
 
 =head1 DESCRIPTION
 
-C<math-image> displays some mathematical style images, either in a Gtk2
-graphical interface, as an image file output, or setting the root window.
+C<math-image> displays some mathematical images, either in a Gtk2 graphical
+interface, as an image file output, or setting the root window.
 
-There's lots of options for images to display, in particular they include
-Ulam's spiral of prime numbers, and variations on that numbers in a path
-theme, including Sacks spiral and Vogel floret.
+There's lots of options for images to display, in particular including
+Ulam's spiral of prime numbers, and variations on the numbers in a path
+theme, including Sacks spiral and Vogel floret.  Try C<--random> or the
+Randomize button to see interesting combinations.
 
 =head1 OPTIONS
 
 =head2 Values Options
 
-The following control what set of values is displayed in the image.
+The following control what set of values to display.
 
 =over
 
@@ -119,10 +120,13 @@ The Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc.  Or Padovan numbers 1,
 1, 1, 2, 2, 3, 4, 5, 7, 9, etc.  These are cubic recurrences and tend to
 grow too quickly to display much in the way of patterns.
 
-=item --fraction=NUM/DEN
+=item --fraction=5/29
 
-The 1 bits in the binary expansion of a fraction.  The default is 5/29 which
-means 9,11,12, 17, 21,22,24, 27,28,29,30, etc.  A fraction is always a
+=item --fraction=1.234
+
+The 1 bits in the binary expansion of a fraction.  For example the default
+in the GUI is 5/29 which means 9,11,12, 17, 21,22,24, 27,28,29,30, etc.
+A decimal can be given so 1.234 means 1234/1000.  A fraction is always a
 repeating pattern, with length no longer than the denominator, but can give
 interesting patterns for various paths.
 
@@ -175,6 +179,10 @@ less than all the integers a lower scale can be used.
 
 An Archimedian spiral with points going by their square root, by Robert
 Sacks.
+
+=item --theodorus
+
+The spiral of Theodorus or square-root spiral.
 
 =item --diamond
 
@@ -319,13 +327,13 @@ one which does much for C<math-image> is C<--display> to set the X display
 =head1 OPTIONAL MODULES
 
 In addition to C<Math::Symbolic> and the image output modules described
-above, the following optional module are used in the GUI if available,
+above, the following optional modules are used in the GUI if available,
 
 =over
 
 =item C<Gtk2::Ex::CrossHair>
 
-Lines following the cursor.
+Lines following the cursor, enabled from the Tools/Cross menu item.
 
 =item C<Gtk2::Ex::ErrorTextDialog>
 
@@ -338,12 +346,12 @@ provoke errors.
 =head1 BUGS
 
 C<Math::Prime::XS> is used to generate primes but as of version 0.20_01 it
-puts its sieve space on the stack (the C stack) which may limit the size of
-images showing primes.  Depending on the chosen path an image 3000 high or
-so might overflow an 8Mb stack limit (see L<ulimit(3)>).  The symptom is
-usually a seg fault.  Increase the stack if necessary or perhaps a newer
-module version will use plain C<malloc>, and/or pack more sieving into the
-bytes.
+puts its sieve space on the stack (the C stack) which may restrict the size
+of images showing primes.  Depending on the chosen path an image 3000x3000
+or so might overflow an 8Mb stack limit (per L<ulimit(3)>).  The symptom is
+usually a seg fault.  Increase the stack if necessary, if possible, or
+perhaps a newer C<Math::Prime::XS> will use plain C<malloc> and/or pack more
+sieving into the bytes.
 
 =head1 SEE ALSO
 

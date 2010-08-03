@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 86;
+use Test::More tests => 66;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 13;
+  my $want_version = 14;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -227,41 +227,51 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 #------------------------------------------------------------------------------
 # path_choices
 
-require Image::Base::Text;
-foreach my $path (App::MathImage::Generator->path_choices) {
-  my $gen = App::MathImage::Generator->new (width  => 10,
-                                            height => 10,
-                                            scale  => 1,
-                                            path   => $path,
-                                            values => 'all');
-  my $image = Image::Base::Text->new
-    (-width  => 10,
-     -height => 10,
-     -cindex => { 'black' => ' ',
-                  'white' => '*'});
-  $gen->draw_Image ($image);
-  ok (1, "path_choices $path");
+{
+  my $good = 1;
+  require Image::Base::Text;
+  foreach my $path (App::MathImage::Generator->path_choices) {
+    my $gen = App::MathImage::Generator->new (width  => 10,
+                                              height => 10,
+                                              scale  => 1,
+                                              path   => $path,
+                                              values => 'all');
+    my $image = Image::Base::Text->new
+      (-width  => 10,
+       -height => 10,
+       -cindex => { 'black' => ' ',
+                    'white' => '*'});
+    $gen->draw_Image ($image);
+  }
+  ok ($good, "all path_choices exercised");
 }
 
 #------------------------------------------------------------------------------
 # values_choices
 
-require Image::Base::Text;
-my $good = 1;
-foreach my $values (App::MathImage::Generator->values_choices) {
-  diag "exercise values $values";
-  my $gen = App::MathImage::Generator->new (width  => 10,
-                                            height => 10,
-                                            scale  => 1,
-                                            path   => 'Rows',
-                                            values => $values);
-  my $image = Image::Base::Text->new
-    (-width  => 10,
-     -height => 10,
-     -cindex => { 'black' => ' ',
-                  'white' => '*'});
-  $gen->draw_Image ($image);
+{
+  require Image::Base::Text;
+  my $good = 1;
+  foreach my $values (App::MathImage::Generator->values_choices) {
+    diag "exercise values $values";
+    if ($values eq 'expression' && ! eval { require Math::Symbolic }) {
+      diag "skip $values due to no Math::Symbolic -- $@";
+      next;
+    }
+
+    my $gen = App::MathImage::Generator->new (width  => 10,
+                                              height => 10,
+                                              scale  => 1,
+                                              path   => 'Rows',
+                                              values => $values);
+    my $image = Image::Base::Text->new
+      (-width  => 10,
+       -height => 10,
+       -cindex => { 'black' => ' ',
+                    'white' => '*'});
+    $gen->draw_Image ($image);
+  }
+  ok ($good, "all values_choices exercised");
 }
-ok (1, "all values_choices exercised");
 
 exit 0;

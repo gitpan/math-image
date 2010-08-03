@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More 0.82;
+use Test::More;
 
 use lib 't';
 use MyTestHelpers;
@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 13;
+my $want_version = 14;
 {
   is ($App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox::VERSION,
       $want_version,
@@ -131,7 +131,7 @@ SKIP: {
        });
     is ($leaks, undef, 'Test::Weaken deep garbage collection');
     if ($leaks) {
-      diag "Test-Weaken ", explain $leaks;
+      eval { diag "Test-Weaken ", explain $leaks }; # explain new in 0.82
 
       my $unfreed = $leaks->unfreed_proberefs;
       say "unfreed isweak ",

@@ -26,7 +26,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 13;
+$VERSION = 14;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -84,8 +84,6 @@ sub getopt_long_specifications {
      'fibonacci'  => sub { _hopt($self,'gen_options','values', 'fibonacci');  },
      'fraction-bits=s' =>
      sub { my ($name, $value) = @_;
-           $value =~ m{^\d+/\d+$}
-             or die "Invalid fraction: $value";
            _hopt($self,'gen_options','values',   'fraction_bits');
            _hopt($self,'gen_options','fraction', $value);
          },
@@ -409,7 +407,9 @@ sub show_method_window {
   my $bg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'background'});
   $draw->modify_fg ('normal', $fg_color);
   $draw->modify_bg ('normal', $bg_color);
+  ### draw set gen_options: %$gen_options
   $draw->set (%$gen_options);
+  ### draw values now: $draw->get('values')
 
   $toplevel->show;
   Gtk2->main;

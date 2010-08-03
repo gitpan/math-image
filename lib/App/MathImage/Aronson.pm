@@ -26,7 +26,7 @@ use Lingua::Any::Numbers 'to_ordinal';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 13;
+$VERSION = 14;
 
 sub new {
   my $class = shift;
@@ -38,12 +38,31 @@ sub new {
                      lang         => 'en',
                      @_
                    }, $class;
+  $self->{'conjunctions_func'}
+    = (! $self->{'conjunctions'}
+       && $self->can('strip_conjunctions_'.$self->{'lang'}))
+      || \&_strip_noop;
+
   if ($self->{'lang'} eq 'fr') {
     $self->{'letter'} = 'e';
     $self->{'ret'} = [ 1, 2 ]; # "E est la "
     $self->{'upto'} = 7;
   }
   return $self;
+}
+
+sub strip_conjunctions_en {
+  my ($str) = @_;
+  $str =~ s/\band\b//ig;
+  return $str;
+}
+sub strip_conjunctions_fr {
+  my ($str) = @_;
+  $str =~ s/\bet\b//ig;
+  return $str;
+}
+sub _strip_noop {
+  return $_[0];
 }
 
 sub next {
@@ -60,7 +79,7 @@ sub next {
 
     my $str = to_ordinal($k,$self->{'lang'});
     ### orig str: $str
-    if (! $self->{'conjunctions'}) { $str =~ s/\b(and|et)\b//g; }
+    $str = &{$self->{'conjunctions_func'}}($str);
     $str =~ tr/\x{E8}-\x{EB}/eeee/;
     if ($str eq 'premier') { $str = 'premiere'; }
     $str =~ tr/a-z//cd;

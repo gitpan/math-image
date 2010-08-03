@@ -27,7 +27,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 13;
+our $VERSION = 14;
 
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
                            App::MathImage::Generator->path_choices);

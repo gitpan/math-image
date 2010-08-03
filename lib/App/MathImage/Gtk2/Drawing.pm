@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Drawing::Path;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 13;
+our $VERSION = 14;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -302,7 +302,20 @@ sub start_drawing_window {
         (-images => [ $image, $image_window ]);
   }
   ### $image
-  $gen->draw_Image_start ($image);
+  if (! eval { $gen->draw_Image_start ($image); 1 }) {
+    my $err = $@;
+    ### $err;
+    my $main;
+    if (($main = $self->get_ancestor('Gtk2::Window'))
+        && (my $statusbar = $main->{'statusbar'})) {
+      require Gtk2::Ex::Statusbar::MessageUntilKey;
+      $err =~ s/\n+$//;
+      Gtk2::Ex::Statusbar::MessageUntilKey->message($statusbar, $err);
+    }
+    undef $self->{'path_object'};
+    undef $self->{'coord'};
+    return;
+  }
 
   $self->{'drawing'}->{'steps'} = ($progressive ? 1000 : undef);
   Scalar::Util::weaken (my $weak_self = $self);

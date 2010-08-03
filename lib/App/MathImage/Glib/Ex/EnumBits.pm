@@ -28,7 +28,7 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(to_display);
 
-our $VERSION = 13;
+our $VERSION = 14;
 
 sub to_display {
   my ($enum_class, $nick) = @_;

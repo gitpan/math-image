@@ -35,7 +35,7 @@ use App::MathImage::Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 13;
+our $VERSION = 14;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -107,26 +107,26 @@ BEGIN {
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  
+
   my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
   $vbox->show;
   $self->add ($vbox);
-  
+
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
   $draw->show;
-  
+
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-  
+
   $actiongroup->add_actions
     ([                          # name,        stock-id,  label
       [ 'FileMenu',   undef,    dgettext('gtk20-properties','_File')  ],
       [ 'ViewMenu',   undef,    dgettext('gtk20-properties','_View')  ],
       [ 'ToolsMenu',  undef,    dgettext('gtk20-properties','_Tools')  ],
       [ 'HelpMenu',   undef,    dgettext('gtk20-properties','_Help')  ],
-      
+
       # name,       stock id,     label,  accelerator,  tooltip
-      
+
       { name     => 'SaveAs',
         stock_id => 'gtk-save-as',
         callback => \&_do_action_save_as,
@@ -141,12 +141,12 @@ sub INIT_INSTANCE {
         __p('Main-accelerator-key','<Control>Q'),
         undef, \&_do_action_quit,
       ],
-      
+
       { name     => 'About',
         stock_id => 'gtk-about',
         callback => \&_do_action_about,
       },
-      
+
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
@@ -154,7 +154,7 @@ sub INIT_INSTANCE {
       },
      ],
      $self);
-  
+
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
                                           label => __('_Fullscreen'),
@@ -176,13 +176,15 @@ sub INIT_INSTANCE {
     Glib::Ex::ConnectProperties->new ([$draw,  'draw-progressive'],
                                       [$action,'active']);
   }
-  
+
   if (Module::Util::find_installed('Gtk2::Ex::CrossHair')) {
     $actiongroup->add_toggle_actions
       # name, stock id, label, accel, tooltip, subr, is_active
       ([{ name        => 'Cross',
           label       =>  __('_Cross'),
-          accelerator => __p('Main-accelerator-key','C'),
+          # "C" as an accelerator steals that key from the Gtk2::Entry of an
+          # expression.  Is that supposed to happen?
+          #   accelerator => __p('Main-accelerator-key','C'),
           callback    => \&_do_action_crosshair,
           is_active   => 0,
           tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
@@ -190,7 +192,7 @@ sub INIT_INSTANCE {
        ],
        $self);
   }
-  
+
   {
     my $n = 0;
     my $group;
@@ -227,7 +229,7 @@ sub INIT_INSTANCE {
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-  
+
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -270,54 +272,54 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-  
+
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-  
+
   my $toolbar = $self->toolbar;
   $vbox->pack_start ($toolbar, 0,0,0);
-  
+
   my $table = $self->{'table'} = Gtk2::Table->new (1, 1);
   $vbox->pack_start ($table, 1,1,0);
-  
+
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
   $vbox->pack_start ($statusbar, 0,0,0);
-  
+
   my $renderer1 = Gtk2::CellRendererText->new;
   $renderer1->set (ypad => 0);
-  
+
   {
     #       my $action = $actiongroup->get_action ('Toolbar');
     #       Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
     #                                         [$action,'active']);
-    
+
     my $toolpos = -999;
     {
       my $toolitem = Gtk2::ToolItem->new;
       $toolbar->insert ($toolitem, $toolpos++);
-      
+
       my $combobox = $self->{'path_combobox'}
         = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
           (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
       _set_property_if_exists ($combobox, tearoff_title => __('Path'));
       $combobox->$set_tooltip_text(__('The path for where to place values in the plane.'));
       $toolitem->add ($combobox);
-      
+
       Glib::Ex::ConnectProperties->new ([$draw,'path'],
                                         [$combobox,'nick']);
     }
     {
       my $toolitem = Gtk2::ToolItem->new;
       $toolbar->insert ($toolitem, $toolpos++);
-      
+
       my $adj = Gtk2::Adjustment->new (0,       # initial
                                        0, 999,  # min,max
                                        1,10,    # steps
@@ -337,7 +339,7 @@ HERE
     {
       my $toolitem = Gtk2::ToolItem->new;
       $toolbar->insert ($toolitem, $toolpos++);
-      
+
       my $adj = Gtk2::Adjustment->new (2,       # initial
                                        1, 12,   # min,max
                                        1,1,     # steps
@@ -354,17 +356,17 @@ HERE
            $spin->set (visible => ($path && $path eq 'PyramidRows'));
          });
     }
-    
+
     {
       my $toolitem = Gtk2::ToolItem->new;
       $toolbar->insert ($toolitem, $toolpos++);
-      
+
       my $combobox = $self->{'values_combobox'}
         = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
           (enum_type => 'App::MathImage::Gtk2::Drawing::Values');
       $toolitem->add ($combobox);
       _set_property_if_exists ($combobox, tearoff_title => __('Values'));
-      
+
       $combobox->signal_connect
         ('notify::nick' => sub {
            my ($combobox) = @_;
@@ -383,9 +385,10 @@ HERE
            ### $tooltip
            $combobox->$set_tooltip_text ($tooltip);
          });
-      
+
       Glib::Ex::ConnectProperties->new ([$draw,'values'],
                                         [$combobox,'nick']);
+      ### values combobox initial: $combobox->get('nick')
     }
     {
       my $toolitem = Gtk2::ToolItem->new;
@@ -398,10 +401,10 @@ HERE
                                tearoff_title => __('Prime Quadratic Filter'));
       $combobox->$set_tooltip_text(__('Optionally show only the primes among the prime generating polynomials.'));
       $toolitem->add ($combobox);
-      
+
       $combobox->pack_start ($renderer1, 1);
       $combobox->set_attributes ($renderer1, text => 1);
-      
+
       Glib::Ex::ConnectProperties->new
           ([$draw,'prime-quadratic'],
            [$combobox,'active',
@@ -418,19 +421,14 @@ HERE
     {
       my $toolitem = Gtk2::ToolItem->new;
       $toolbar->insert ($toolitem, $toolpos++);
-      
+
       my $entry = $self->{'fraction_entry'} = Gtk2::Entry->new;
       $entry->set_width_chars (8);
       $entry->$set_tooltip_text(__('The fraction to show, for example 5/29.'));
       $toolitem->add ($entry);
-      $entry->signal_connect (activate => sub {
-                                my ($entry) = @_;
-                                my $self = $entry->get_ancestor(__PACKAGE__);
-                                my $draw = $self->{'draw'};
-                                $draw->set(fraction => $entry->get_text);
-                              });
-      $draw->signal_connect ('notify::fraction' => \&_do_notify_fraction);
-      _do_notify_fraction ($draw);  # initial value
+      Glib::Ex::ConnectProperties->new
+          ([$draw,'fraction'],
+           [$entry,'text']);
       $self->{'values_combobox'}->signal_connect
         ('notify::active' => sub {
            my ($values_combobox) = @_;
@@ -444,16 +442,22 @@ HERE
 
       my $entry = $self->{'expression_entry'} = Gtk2::Entry->new;
       $entry->set_width_chars (30);
-      $entry->$set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible functions etc.'));
+      $entry->$set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible operators and function.'));
       $toolitem->add ($entry);
-      $entry->signal_connect (activate => sub {
-                                my ($entry) = @_;
-                                my $self = $entry->get_ancestor(__PACKAGE__);
-                                my $draw = $self->{'draw'};
-                                $draw->set (expression => $entry->get_text);
-                              });
-      $draw->signal_connect ('notify::expression' => \&_do_notify_expression);
-      _do_notify_expression ($draw);  # initial value
+      if (Glib::Ex::ConnectProperties->VERSION >= 8) {
+        Glib::Ex::ConnectProperties->new
+            ([$draw,'expression'],
+             [$entry,'text', read_on_signal => 'activate']);
+      } else {
+        $entry->signal_connect (activate => sub {
+                                  my ($entry) = @_;
+                                  my $self = $entry->get_ancestor(__PACKAGE__);
+                                  my $draw = $self->{'draw'};
+                                  $draw->set (expression => $entry->get_text);
+                                });
+        $draw->signal_connect ('notify::expression' => \&_do_notify_expression);
+        _do_notify_expression ($draw);  # initial value
+      }
       $self->{'values_combobox'}->signal_connect
         ('notify::active' => sub {
            my ($values_combobox) = @_;
@@ -566,15 +570,6 @@ HERE
   $self->{'values_combobox'}->notify('active');  # initial spinners
 }
 
-sub _do_notify_fraction {
-  my ($draw) = @_;
-  ### Entry draw notify-fraction: $draw->get('fraction')
-  my $self = $draw->get_ancestor(__PACKAGE__);
-  ### $self
-  my $entry = $self->{'fraction_entry'};
-  ### $entry
-  $entry->set_text ($draw->get('fraction'));
-}
 sub _do_notify_expression {
   my ($draw) = @_;
   ### Entry draw notify-expression: $draw->get('expression')

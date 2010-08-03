@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 13;
+$VERSION = 14;
 
 sub new {
   my $class = shift;
@@ -279,10 +279,13 @@ sub path_object {
      });
         }
 
-$values_info{'squares'} =
-  { subr => \&values_make_squares,
-    name => __('Perfect Squares'),
-    description => __('An arbitrary expression, to be parsed by Math::Symbolic.   It should have a single variable which will be evaluated at 0,1,2, etc.'),
+$values_info{'expression'} =
+  { subr => \&values_make_expression,
+    name => __('Arbitrary Expression'),
+    description => __('An arbitrary expression, to be parsed by Math::Symbolic.
+It should have a single variable which will be evaluated at 0,1,2, etc.
+
+An invalid expression gives a blank display and a message in the status bar.'),
   };
 sub values_make_expression {
   my ($self, $lo, $hi) = @_;
@@ -481,10 +484,29 @@ sub values_make_fraction_bits {
   ### values_make_fraction_bits()
   ### $lo
   ### $hi
-  my ($num, $den) = ($self->{'fraction'} =~ m{^\s*(\d+)\s*/\s*(\d+)\s*$})
-    or return \&iter_empty;
+  my ($num, $den)
+    = ($self->{'fraction'} =~ m{^\s*
+                                ([.[:digit:]]+)?
+                                \s*
+                                (?:/\s*
+                                  ([.[:digit:]]+)?
+                                )?
+                                \s*$}x)
+      or return \&iter_empty;
+  if (! defined $num) { $num = 1; }
+  if (! defined $den) { $den = 1; }
+  ### $num
+  ### $den
 
-  if ($num == 0) {
+  if ($num =~ m{(\d*)\.(\d+)}) {
+    ### expand decimal to
+    $num = $1 . $2;
+    $den *= 10 ** length($2);
+    ### $num
+    ### $den
+  }
+
+  if ($den == 0) {
     return \&iter_empty;
   }
   while ($num > $den) {
@@ -492,6 +514,9 @@ sub values_make_fraction_bits {
   }
   my $i = $lo;
   return sub {
+    if ($num == 0) {
+      return undef;
+    }
     for (;;) {
       ### frac: "$num / $den"
       $i++;
