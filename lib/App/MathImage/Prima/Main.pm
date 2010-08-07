@@ -29,9 +29,8 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 14;
+our $VERSION = 15;
 
-my $d;
 sub run {
   my ($class, $gen_options) = @_;
 
@@ -96,14 +95,9 @@ my %_values_to_mnemonic =
   );
 sub _values_to_mnemonic {
   my ($str) = @_;
-  $str = ($_values_to_mnemonic{$str} || key_to_display($str));
+  $str = ($_values_to_mnemonic{$str}
+          || App::MathImage::Glib::Ex::EnumBits::to_text_default(undef,$str));
   $str =~ tr/_/~/;
-  return $str;
-}
-sub key_to_display {
-  my ($str) = @_;
-  $str =~ tr/-_/  /;
-  $str =~ s/([[:lower:][:digit:]])([[:upper:]])/$1 $2/g;
   return $str;
 }
 sub _menu_for_values {
@@ -135,7 +129,8 @@ my %_path_to_mnemonic =
   );
 sub _path_to_mnemonic {
   my ($str) = @_;
-  return ($_values_to_mnemonic{$str} || key_to_display($str));
+  return ($_values_to_mnemonic{$str}
+          || App::MathImage::Glib::Ex::EnumBits::to_text_default(undef,$str));
 }
 sub _menu_for_path {
   my ($self) = @_;

@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 14;
+our $VERSION = 15;
 
 my %tiff_compression_types = (none    => 1,
                               huffman => 2,
@@ -44,11 +44,13 @@ sub save_options {
     my $value = shift;
     if ($key eq 'zlib_compression') {
       next unless $type eq 'png';
+      # png saving always avaiable, but compression option only in 2.8 up
+      next if Gtk2->check_version(2,8,0);
       $key = 'compression';
 
     } elsif ($key eq 'tiff_compression_type') {
       next unless $type eq 'tiff';
-      next if Gtk2->check_version(2,20,0);
+      next if Gtk2->check_version(2,20,0);  # new in 2.20
       $key = 'compression';
       $value = $tiff_compression_types{$value}
         || croak "Unrecognised compression_type";
@@ -66,13 +68,15 @@ sub save_options {
       $key = 'quality';
 
     } elsif ($key =~ /^[xy]_hot$/) {
-      next unless $type eq 'ico'; # || $type eq 'xpm';
+      # no xpm saving as of 2.20, but anticipate it should use x_hot/y_hot
+      # same as ico if/when available
+      next unless $type eq 'ico' || $type eq 'xpm';
 
     } elsif ($key eq 'depth') {
       next unless $type eq 'ico';
 
     } elsif ($key eq 'icc-profile') {
-      # not yet documented ....
+      # this mangling not yet documented ....
       next unless $type eq 'png' ||  $type eq 'tiff';
       next if Gtk2->check_version(2,20,0);
     }

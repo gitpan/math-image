@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Drawing::Path;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 14;
+our $VERSION = 15;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -75,6 +75,13 @@ use Glib::Object::Subclass
                    'expression',
                    'Blurb.',
                    'x^2 + x + 41',      # default
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->string
+                  ('aronson-lang',
+                   'aronson-lang',
+                   'Blurb.',
+                   'en',      # default
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->boolean
@@ -264,7 +271,8 @@ sub start_drawing_window {
      scale      => $self->get('scale'),
      fraction   => $self->get('fraction'),
      expression => $self->get('expression'),
-     aronson_conjunctions => $self->get('aronson_conjunctions'),
+     aronson_options => { lang  => $self->get('aronson_lang'),
+                          conjunctions => $self->get('aronson_conjunctions') },
      sqrt       => $self->get('sqrt'),
      polygonal  => $self->get('polygonal'),
      multiples  => $self->get('multiples'),

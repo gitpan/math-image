@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2008, 2009, 2010 Kevin Ryde
+# Copyright 2010 Kevin Ryde
 
 # This file is part of Gtk2-Ex-WidgetBits.
 #
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Gtk2-Ex-WidgetBits.  If not, see <http://www.gnu.org/licenses/>.
 
-
+use 5.008;
 use strict;
 use warnings;
 use Test::More tests => 13;
@@ -29,7 +29,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 require App::MathImage::Glib::Ex::EnumBits;
 
 {
-  my $want_version = 14;
+  my $want_version = 15;
   is ($App::MathImage::Glib::Ex::EnumBits::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Glib::Ex::EnumBits->VERSION,  $want_version, 'VERSION class method');
   ok (eval { App::MathImage::Glib::Ex::EnumBits->VERSION($want_version); 1 },
@@ -56,8 +56,8 @@ foreach my $elem (['foo', 'Foo'],
                   ['Foo2Bar', 'Foo 2 Bar'],
                  ) {
   my ($nick, $want) = @$elem;
-  my $got = App::MathImage::Glib::Ex::EnumBits::nick_to_display($nick);
-  is ($got, $want, "nick_to_display $nick");
+  my $got = App::MathImage::Glib::Ex::EnumBits::to_text_default(undef,$nick);
+  is ($got, $want, "to_text_default $nick");
 }
 
 exit 0;

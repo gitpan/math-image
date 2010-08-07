@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 14;
+  my $want_version = 15;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -92,7 +92,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     my $got_array = [ App::MathImage::Generator::line_clipper ($x1,$y1, $x2,$y2, $width,$height) ];
     my $want = join(',',@$want_array);
     my $got = join(',',@$got_array);
-    is ($got, $want, "line_clipper() ".join(',',@$args))
+    is ($got, $want, "line_clipper() ".join(',',@$args));
   }
 
   ($x1,$y1, $x2,$y2) = ($x2,$y2, $x1,$y1);
@@ -103,7 +103,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     my $got_array = [ App::MathImage::Generator::line_clipper ($x1,$y1, $x2,$y2, $width,$height) ];
     my $want = join(',',@$want_array);
     my $got = join(',',@$got_array);
-    is ($got, $want, "line_clipper() ".join(',',@$args))
+    is ($got, $want, "line_clipper() ".join(',',@$args));
   }
 }
 
@@ -187,8 +187,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         85, 86, 87, 91, 93, 94, 95, 106, 111, 115, 118, 119,
                         121, 122, 123, 129, 133, 134, 141, 142, 143, 145,
                         146, 155, 158, 159, 161, 166, 169, 177, 178, 183,
-                        185, 187
-                      ] ],
+                        185, 187 ] ],
 
                     [ 'values_make_aronson', 0,
                       [ 1, 4, 11, 16, 24, 29, 33, 35, 39, 45, 47, 51, 56, 58,

@@ -128,7 +128,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Archimedean Ryde Math-PlanePath
+=for stopwords Archimedean Ryde Math-PlanePath 27-gonal
 
 =head1 NAME
 
@@ -206,7 +206,7 @@ return is C<undef>.
 
 =head1 SEE ALSO
 
-L<App::MathImage::PlanePath>,
+L<Math::PlanePath>,
 L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::SacksSpiral>
 

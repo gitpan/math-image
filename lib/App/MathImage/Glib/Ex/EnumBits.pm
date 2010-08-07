@@ -26,36 +26,43 @@ use Carp;
 
 use Exporter;
 our @ISA = ('Exporter');
-our @EXPORT_OK = qw(to_display);
+our @EXPORT_OK = qw(to_text
+                    to_text_default
+                    to_description);
 
-our $VERSION = 14;
+our $VERSION = 15;
 
-sub to_display {
+sub to_text {
   my ($enum_class, $nick) = @_;
   if (@_ < 2) {
-    croak "Not enough arguments for EnumBits to_display()";
+    croak "Not enough arguments for EnumBits to_text()";
   }
-  if (my $subr = $enum_class->can('to_display')) {
+  if (my $subr = $enum_class->can('to_text')) {
     return $enum_class->$subr($nick);
   }
-  my $str = nick_to_display ($nick);
-  if (defined (my $textdomain = do { no strict 'refs';
-                                    ${"${enum_class}::TEXTDOMAIN"} })
+  return to_text_default ($enum_class, $nick);
+}
+
+sub to_text_default {
+  my ($enum_class, $nick) = @_;
+  if (@_ < 2) {
+    croak "Not enough arguments for EnumBits to_text_default()";
+  }
+  my $str = join (' ',
+                  map {ucfirst}
+                  split(/[-_ ]+
+                       |(?<=\D)(?=\d)
+                       |(?<=\d)(?=\D)
+                       |(?<=[[:lower:]])(?=[[:upper:]])
+                        /x,
+                        $nick));
+  if (defined $enum_class
+      && defined (my $textdomain = do { no strict 'refs';
+                                        ${"${enum_class}::TEXTDOMAIN"} })
       && Locale::Messages->can('dgettext')) {
     $str = Locale::Messages::dgettext ($textdomain, $str);
   }
   return $str;
-}
-
-sub nick_to_display {
-  my ($nick) = @_;
-  return join (' ',
-               map {ucfirst}
-               split(/[-_ ]+
-                    |(?<=\D)(?=\d)
-                    |(?<=\d)(?=\D)
-                    |(?<=[[:lower:]])(?=[[:upper:]])
-                     /x, $nick));
 }
 
 sub to_description {
@@ -65,9 +72,8 @@ sub to_description {
   }
   if (my $subr = $enum_class->can('to_description')) {
     return $enum_class->$subr($nick);
-  } else {
-    return undef;
   }
+  return undef;
 }
 
 1;
@@ -102,7 +108,7 @@ __END__
 #   return undef;
 # }
 
-=for stopwords Ryde Enum Glib
+=for stopwords Ryde enum Enum Glib
 
 =head1 NAME
 
@@ -111,5 +117,26 @@ App::MathImage::Glib::Ex::EnumBits -- misc enum helpers
 =head1 SYNOPSIS
 
  use App::MathImage::Glib::Ex::EnumBits;
+
+=head1 FUNCTIONS
+
+=over
+
+=item << App::MathImage::Glib::Ex::EnumBits::to_text ($enum_class, $nick) >>
+
+Return a text form of value C<$nick> from C<$enum_class>.  This is meant to
+be suitable for display in a menu, label, etc.
+
+C<$enum_class> is a string like C<"Glib::UserDirectory">.  If it has a
+C<< $enum_class->to_text ($nick) >> method then that's called, otherwise the
+C<$nick> string is manipulated to turn for instance C<public-share> into
+"Public Share".
+
+=back
+
+=head1 SEE ALSO
+
+L<Glib>,
+L<Glib::Type>
 
 =cut

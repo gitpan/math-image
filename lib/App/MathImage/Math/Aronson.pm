@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Aronson;
+package App::MathImage::Math::Aronson;
 use 5.004;
 use strict;
 use warnings;
+use Carp;
 # use Lingua::EN::Numbers 1.01 'num2en_ordinal';  # 1.01 rewrite
 use Lingua::Any::Numbers 'to_ordinal';
 
@@ -26,42 +27,83 @@ use Lingua::Any::Numbers 'to_ordinal';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 14;
+$VERSION = 15;
+
+my $unaccent;
+BEGIN {
+  if (eval { require Unicode::Normalize }) {
+    $unaccent = sub {
+      ### unaccent: $_[0]
+      $_[0] =~ s{([^[:ascii:]])}
+                { my $c = $1;
+                  my $nfd = Unicode::Normalize::normalize('D',$c);
+                  ($nfd =~ /^([[:ascii:]])/ ? $1 : $c)
+                }ge;
+    };
+  } else {
+    $unaccent = sub {
+      # latin-1, per devel/aronson-latin1.pl
+      $_[0] =~ tr/\x{C0}\x{C1}\x{C2}\x{C3}\x{C4}\x{C5}\x{C7}\x{C8}\x{C9}\x{CA}\x{CB}\x{CC}\x{CD}\x{CE}\x{CF}\x{D1}\x{D2}\x{D3}\x{D4}\x{D5}\x{D6}\x{D9}\x{DA}\x{DB}\x{DC}\x{DD}\x{E0}\x{E1}\x{E2}\x{E3}\x{E4}\x{E5}\x{E7}\x{E8}\x{E9}\x{EA}\x{EB}\x{EC}\x{ED}\x{EE}\x{EF}\x{F1}\x{F2}\x{F3}\x{F4}\x{F5}\x{F6}\x{F9}\x{FA}\x{FB}\x{FC}\x{FD}\x{FF}/AAAAAACEEEEIIIINOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy/;
+    };
+  }
+}
 
 sub new {
   my $class = shift;
-  my $self = bless { upto         => 7,  # less 1 for pos() being after the T
-                     queue        => [ ],
-                     ret          => [ 1, 4 ], # "T is the" ... first
-                     letter       => 't',
-                     conjunctions => 0,  # default no "and"s per sloane
-                     lang         => 'en',
+  my @ret;
+  my $self = bless { ret   => \@ret,
+                     queue => [ ],
+                     lang  => 'en',
                      @_
                    }, $class;
-  $self->{'conjunctions_func'}
-    = (! $self->{'conjunctions'}
-       && $self->can('strip_conjunctions_'.$self->{'lang'}))
-      || \&_strip_noop;
 
-  if ($self->{'lang'} eq 'fr') {
-    $self->{'letter'} = 'e';
-    $self->{'ret'} = [ 1, 2 ]; # "E est la "
-    $self->{'upto'} = 7;
+  if (defined (my $lang = $self->{'lang'})) {
+    if ($lang eq 'en') {
+      %$self = (letter => 't',
+                initial_string => 't is the',
+                conjunction_word => 'and',
+                %$self);
+    } elsif ($lang eq 'fr') {
+      %$self = (letter => 'e',
+                initial_string => 'e est la',
+                conjunction_word => 'et',
+                %$self);
+    }
   }
+
+  my $conjunctions = delete $self->{'conjunctions'};
+  my $conjunction_word = delete $self->{'conjunction_word'};
+  my $conjunctions_func
+    = ($self->{'conjunctions_func'} ||=
+       ($conjunctions || ! defined $conjunction_word
+        ? \&_conjunction_noop
+        : do {
+          $conjunction_word = lc($conjunction_word);
+          sub { $_[0] =~ s/\b\Q$conjunction_word\E\b// }
+        }));
+
+  my $letter = $self->{'letter'} = lc($self->{'letter'});
+
+  my $str = delete $self->{'initial_string'};
+  if (! defined $str) {
+    croak 'No initial_string';
+  }
+  &$conjunctions_func ($str);
+  &$unaccent ($str);
+  $str = lc ($str);
+  $str =~ tr/a-z//cd;
+  ### $str
+  my $upto = 1;
+  my $pos = 0;
+  while (($pos = index($str,$letter,$pos)) >= 0) {
+    push @ret, $pos++ + $upto;
+  }
+  $self->{'upto'} = $upto + length($str);
+
   return $self;
 }
 
-sub strip_conjunctions_en {
-  my ($str) = @_;
-  $str =~ s/\band\b//ig;
-  return $str;
-}
-sub strip_conjunctions_fr {
-  my ($str) = @_;
-  $str =~ s/\bet\b//ig;
-  return $str;
-}
-sub _strip_noop {
+sub _conjunction_noop {
   return $_[0];
 }
 
@@ -77,11 +119,12 @@ sub next {
     my $k = shift @{$self->{'queue'}}
       || return;  # end of sequence
 
-    my $str = to_ordinal($k,$self->{'lang'});
+    my $str = to_ordinal ($k, $self->{'lang'});
     ### orig str: $str
-    $str = &{$self->{'conjunctions_func'}}($str);
-    $str =~ tr/\x{E8}-\x{EB}/eeee/;
-    if ($str eq 'premier') { $str = 'premiere'; }
+    &{$self->{'conjunctions_func'}} ($str);
+    &$unaccent ($str);
+    $str = lc ($str);
+    if ($str eq 'premier' && $self->{'lang'} eq 'fr') { $str = 'premiere'; }
     $str =~ tr/a-z//cd;
     ### munged str: $str
 
@@ -105,12 +148,12 @@ __END__
 
 =head1 NAME
 
-App::MathImage::Aronson -- generate values of Aronson's sequence
+App::MathImage::Math::Aronson -- generate values of Aronson's sequence
 
 =head1 SYNOPSIS
 
- use App::MathImage::Aronson;
- my $aronson = App::MathImage::Aronson->new;
+ use App::MathImage::Math::Aronson;
+ my $aronson = App::MathImage::Math::Aronson->new;
  print $aronson->next,"\n";
  print $aronson->next,"\n";
 
@@ -141,7 +184,7 @@ there's an option below to try it without.
 
 =over
 
-=item C<< $obj = App::MathImage::Aronson->new (key => value, ...) >>
+=item C<< $obj = App::MathImage::Math::Aronson->new (key => value, ...) >>
 
 Create and return a new Aronson sequence object.  The following optional
 key/value parameters affect the sequence.

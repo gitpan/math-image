@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 14;
+$VERSION = 15;
 
 sub new {
   my $class = shift;
@@ -188,7 +188,9 @@ sub random_options {
           fraction  => "$num/$den",
           polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
           sqrt      => $sqrt,
-          aronson_conjunctions => int(rand(2)),
+          aronson_options => { conjunctions => int(rand(2)),
+                               lang => (int(rand(2)) ? 'en' : 'fr'),
+                             },
           prime_quadratic => $prime_quadratic,
           path_wider   => $path_wider,
           pyramid_step => $pyramid_step,
@@ -320,10 +322,10 @@ sub values_make_expression {
 
 sub values_make_aronson {
   my ($self, $lo, $hi) = @_;
-  require App::MathImage::Aronson;
-  my $aronson = App::MathImage::Aronson->new
-    (conjunctions => $self->{'aronson_conjunctions'},
-     hi => $hi);
+  require App::MathImage::Math::Aronson;
+  my $aronson = App::MathImage::Math::Aronson->new
+    (hi => $hi,
+     %{$self->{'aronson_options'}});
   return sub { $aronson->next };
 }
 
@@ -785,7 +787,7 @@ sub values_make_fibonacci {
 }
 
 $values_info{'lucas'} =
-  { subr => \&values_make_lucas,
+  { subr => \&values_make_lucas_numbers,
     name => __('Lucas Numbers'),
     description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.'),
   };
@@ -1243,7 +1245,7 @@ sub draw_Image_steps {
         $more = 1;
         last;
       }
-      defined ($n = $iter->()) && $n <= $n_hi
+      (defined($n = $iter->()) && $n <= $n_hi)
         or last;
       ### $n
       my ($x, $y) = $path->n_to_xy($n) or next;

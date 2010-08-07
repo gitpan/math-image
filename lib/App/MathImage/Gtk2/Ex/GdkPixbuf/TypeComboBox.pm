@@ -31,7 +31,7 @@ Locale::Messages::bind_textdomain_filter
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 14;
+our $VERSION = 15;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
@@ -138,13 +138,13 @@ BEGIN {
 
 BEGIN {
   if (0) {
-    # These are the only writables as of Gtk 2.20, extend this if there's
-    # more and wnat to translate their names.
+    # These are the type names as of Gtk 2.20, extend if there's more and
+    # want to translate their names.
     #
-    # TRANSLATORS: The format display strings are localized in case some
-    # non-Latin script should be shown instead or as well.  Latin languages
-    # should probably leave the names as-is even if the abbreviation would
-    # be different in the target language.
+    # TRANSLATORS: These format types are localized in case some non-Latin
+    # script ought to be shown instead or as well.  Latin languages will
+    # probably leave the types unchanged, even if the abbreviation would be
+    # different in the target language.
     __('ANI');
     __('BMP');
     __('GIF');
@@ -239,7 +239,8 @@ sub _model_for_types {
 1;
 __END__
 
-=for stopwords Gtk Gtk2 combobox ComboBox Gdk Pixbuf Gtk writability png jpeg ico bmp undef programmatically
+=for stopwords Gtk Gtk2 Perl-Gtk combobox ComboBox Gdk Pixbuf Gtk
+writability png jpeg ico bmp undef programmatically
 
 =head1 NAME
 

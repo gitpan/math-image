@@ -31,7 +31,7 @@ use base 'Image::Base';
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 14;
+$VERSION = 15;
 
 sub new {
   my ($class, %params) = @_;
@@ -194,12 +194,12 @@ __END__
 
 =head1 NAME
 
-Image::Base::Magick -- draw images using Image Magick
+App::MathImage::Image::Base::Magick -- draw images using Image Magick
 
 =head1 SYNOPSIS
 
- use Image::Base::Magick;
- my $image = Image::Base::Magick->new (-width => 100,
+ use App::MathImage::Image::Base::Magick;
+ my $image = App::MathImage::Image::Base::Magick->new (-width => 100,
                                        -height => 100);
  $image->rectangle (0,0, 99,99, 'white');
  $image->xy (20,20, 'black');
@@ -209,34 +209,34 @@ Image::Base::Magick -- draw images using Image Magick
 
 =head1 CLASS HIERARCHY
 
-C<Image::Base::Magick> is a subclass of C<Image::Base>,
+C<App::MathImage::Image::Base::Magick> is a subclass of C<Image::Base>,
 
     Image::Base
-      Image::Base::Magick
+      App::MathImage::Image::Base::Magick
 
 =head1 DESCRIPTION
 
-C<Image::Base::Magick> extends C<Image::Base> to create or update image
+C<App::MathImage::Image::Base::Magick> extends C<Image::Base> to create or update image
 files using ImageMagick through the C<Image::Magick> module.
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$image = Image::Base::Magick-E<gt>new (key=E<gt>value,...)>
+=item C<$image = App::MathImage::Image::Base::Magick-E<gt>new (key=E<gt>value,...)>
 
 Create and return a new image object.  A new image can be started with
 C<-width> and C<-height>,
 
-    $image = Image::Base::Magick->new (-width => 200, -height => 100);
+    $image = App::MathImage::Image::Base::Magick->new (-width => 200, -height => 100);
 
 Or an existing file can be read,
 
-    $image = Image::Base::Magick->new (-file => '/some/filename.png');
+    $image = App::MathImage::Image::Base::Magick->new (-file => '/some/filename.png');
 
 Or a C<Image::Magick> object can be given,
 
-    $image = Image::Base::Magick->new (-imagemagick => $mobj);
+    $image = App::MathImage::Image::Base::Magick->new (-imagemagick => $mobj);
 
 =back
 

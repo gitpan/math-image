@@ -22,15 +22,16 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 14;
+$VERSION = 15;
 exit App::MathImage->command_line;
 
 __END__
 
-=for stopwords recurrences Gtk2 Ulam's --ulam Ulam sprial Vogel pronic --pronic
-fibonacci --fibonacci fullscreen --fullscreen --png png --xpm xpm RGB
-menubar toplevel colormap Ryde ie perrin --perrin padovan --padovan Perrin
-Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT
+=for stopwords recurrences Gtk2 Ulam's --ulam Ulam sprial Vogel pronic
+--pronic fibonacci --fibonacci fullscreen --fullscreen unfullscreened --png
+png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
+--padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT theodorus
+Theodorus semiprimes segfault
 
 =head1 NAME
 
@@ -288,9 +289,15 @@ style #RRGGBB or #RRRRGGGGBBBB.    For example white on a shade of red,
 
     math-image --foreground=white --background=#A01010
 
-Available names depend on the output type, for example in Gtk and X the X
-RGB database F</etc/X11/rgb.txt>, or for PNG output the C<GD::Simple> names,
-or for XPM anything at all passes through to the file.
+The default is white foreground on black background.  For C<--root> white
+can be a bit bright when there's a lot of points shown.  A shade of grey is
+easier on the eye
+
+    math-image --root --foreground=lightgrey
+
+Available names depend on the output type, for example Gtk has a hard-coded
+copy of the X F</etc/X11/rgb.txt>, or PNG output has the C<GD::Simple>
+names, or for XPM anything at all passes through to the file.
 
 =item --size=PIXELS
 
@@ -301,7 +308,7 @@ otherwise WIDTHxHEIGHT.  For C<--root> this size is currently ignored and
 the full screen used.
 
 For the GUI this is an initial size for the window, though it may be widened
-to accomodate to the menubar.  Under C<--fullscreen> this is the
+to accommodate to the menubar.  Under C<--fullscreen> this is the
 unfullscreened size if you switch to that (Control-F).
 
 The default for the GUI is to make the toplevel window about 4/5 of the
@@ -349,7 +356,7 @@ C<Math::Prime::XS> is used to generate primes but as of version 0.20_01 it
 puts its sieve space on the stack (the C stack) which may restrict the size
 of images showing primes.  Depending on the chosen path an image 3000x3000
 or so might overflow an 8Mb stack limit (per L<ulimit(3)>).  The symptom is
-usually a seg fault.  Increase the stack if necessary, if possible, or
+usually a segfault.  Increase the stack if necessary, if possible, or
 perhaps a newer C<Math::Prime::XS> will use plain C<malloc> and/or pack more
 sieving into the bytes.
 

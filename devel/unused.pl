@@ -434,3 +434,50 @@ sub values_arrayref {
       }
     }
   }
+
+# sub _do_map {
+#   my ($self) = @_;
+#   ### _do_map()
+#   shift->signal_chain_from_overridden (@_);
+#   ### mapped now: $self->mapped
+# 
+# #   $self->{'draw'}->realize;
+# #   _fullscreen_windows ($self);
+# }
+# sub _fullscreen_windows {
+#   my ($self) = @_;
+#   ### _fullscreen_windows()
+#   my $fullscreen = $self->{'fullscreen'};
+#   if (my $win = $self->{'draw'}->window) { # $self->window) {
+#     if ($fullscreen) {
+#       ### win fullscreen
+#       $win->fullscreen;
+#     } else {
+#       ### win unfullscreen
+#       $win->unfullscreen;
+#     }
+#   }
+# #   if ($self->{'draw'}->window) {
+# #     $self->{'draw'}->window->raise;
+# #   }
+# }
+
+      if (Glib::Ex::ConnectProperties->VERSION >= 8) {
+      } else {
+        $entry->signal_connect (activate => sub {
+                                  my ($entry) = @_;
+                                  my $self = $entry->get_ancestor(__PACKAGE__);
+                                  my $draw = $self->{'draw'};
+                                  $draw->set (expression => $entry->get_text);
+                                });
+        $draw->signal_connect ('notify::expression' => \&_do_notify_expression);
+        _do_notify_expression ($draw);  # initial value
+      }
+sub _do_notify_expression {
+  my ($draw) = @_;
+  ### Entry draw notify-expression: $draw->get('expression')
+  my $self = $draw->get_ancestor(__PACKAGE__);
+  my $entry = $self->{'expression_entry'};
+  $entry->set_text ($draw->get('expression'));
+}
+

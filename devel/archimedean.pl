@@ -62,8 +62,8 @@ use Math::PlanePath::TheodorusSpiral;
 
 {
   foreach my $i (0 .. 50) {
-    my $theta = Math::PlanePath::TheodorusSpiral::_inverse($i);
-    my $length = Math::PlanePath::TheodorusSpiral::_arc_length($theta);
+    my $theta = Math::PlanePath::ArchimedeanSpiral::_inverse($i);
+    my $length = Math::PlanePath::ArchimedeanSpiral::_arc_length($theta);
     printf "%2d %8.3f %8.3f\n", $i, $theta, $length;
   }
   exit 0;

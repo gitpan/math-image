@@ -26,7 +26,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 14;
+$VERSION = 15;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -188,7 +188,7 @@ sub colour_to_pixel {
 1;
 __END__
 
-=for stopwords Ryde Prima
+=for stopwords Ryde Prima RGB
 
 =head1 NAME
 
@@ -261,7 +261,7 @@ Currently colours returned by a get are always 2-digit hex #RRGGBB.
 
 =over
 
-=item C<-drawable> (XID integer)
+=item C<-drawable> (C<Prima::Drawable>)
 
 The target drawable.
 

@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 # Copyright 2010 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -15,38 +17,33 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-
-package App::MathImage::Prima::About;
-use 5.008;
+use 5.010;
 use strict;
 use warnings;
-use Locale::TextDomain 1.19 ('App-MathImage');
-use Prima::Label;
-use Prima::MsgBox;
+use Encode;
+use Unicode::Normalize 'normalize';
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use Smart::Comments;
 
-our $VERSION = 15;
+my $from = '';
+my $to = '';
+foreach my $i (0x80 .. 0xFF) {
+  my $str = chr($i);
+  $str = Encode::decode ('latin-1', $str);
 
-# use base 'Prima::Window';
-# sub init {
-#   my $self = shift;
-#   ### About init: @_
-#   my %profile = $self-> SUPER::init(@_);
-# 
-#   $self->insert
-#     ('Label',
-#      text  => __x('Math Image version {version}', version => $VERSION),
-#     );
-#   return %profile;
-# }
+  # perl 5.10 thinks all non-ascii is alpha, or some such
+  next unless $str =~ /[[:alpha:]]/;
 
-sub popup {
-  my $text = Prima::MsgBox::message
-    (__x('Math Image version {version}', version => $VERSION),
-     mb::Information(), mb::Ok());
+  my $nfd = normalize('D',$str);
+  ### $str
+  ### $nfd
+
+  if ($nfd =~ /^([[:ascii:]])/) {
+    $from .= sprintf '\\x{%02X}', $i;
+    $to   .= $1;
+  }
 }
 
-1;
-__END__
+print "tr/$from/$to/\n";
+
+exit 0;

@@ -15,38 +15,26 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-
-package App::MathImage::Prima::About;
-use 5.008;
+package App::MathImage::Iterator::Simple::Aronson;
+use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 1.19 ('App-MathImage');
-use Prima::Label;
-use Prima::MsgBox;
+use App::MathImage::Math::Aronson;
+use Iterator::Simple;
+
+use vars '$VERSION';
+$VERSION = 15;
+
+sub new {
+  my $class = shift;
+  my $it = App::MathImage::Math::Aronson->new (@_);
+  return Iterator::Simple::iterator (sub { $it->next });
+}
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 15;
+use vars '$VERSION';
+$VERSION = 15;
 
-# use base 'Prima::Window';
-# sub init {
-#   my $self = shift;
-#   ### About init: @_
-#   my %profile = $self-> SUPER::init(@_);
-# 
-#   $self->insert
-#     ('Label',
-#      text  => __x('Math Image version {version}', version => $VERSION),
-#     );
-#   return %profile;
-# }
-
-sub popup {
-  my $text = Prima::MsgBox::message
-    (__x('Math Image version {version}', version => $VERSION),
-     mb::Information(), mb::Ok());
-}
-
-1;
-__END__

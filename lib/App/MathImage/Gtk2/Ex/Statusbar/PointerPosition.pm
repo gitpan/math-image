@@ -25,7 +25,7 @@ use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 
 use Glib::Ex::SignalIds;
 
-our $VERSION = 14;
+our $VERSION = 15;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -57,7 +57,7 @@ use Glib::Object::Subclass
 # sub INIT_INSTANCE {
 #   my ($self) = @_;
 # }
-# 
+
 # sub FINALIZE_INSTANCE {
 #   my ($self) = @_;
 # }
@@ -70,28 +70,22 @@ sub SET_PROPERTY {
     Scalar::Util::weaken ($self->{'widget'} = $newval);
   }
 
-  $self->{'motion_ids'} = $self->{'widget'} && $self->{'statusbar'} && do {
-    $self->{'widget'}->add_events (['pointer-motion-mask','enter-notify-mask']);
-    Scalar::Util::weaken (my $weak_self = $self);
-    Glib::Ex::SignalIds->new
-        ($newval,
-         $newval->signal_connect (enter_notify_event => \&_do_motion_notify,
-                                  \$weak_self),
-         $newval->signal_connect (leave_notify_event => \&_do_leave_notify,
-                                  \$weak_self),
-         $newval->signal_connect (motion_notify_event => \&_do_motion_notify,
-                                  \$weak_self));
-  };
-}
+  $self->{'motion_ids'} = $self->{'widget'} && $self->{'statusbar'}
+    && do {
+      # or WidgetEvents ...
+      $self->{'widget'}->add_events (['pointer-motion-mask',
+                                      'enter-notify-mask']);
 
-# 'leave-notify-event' signal on one of the widgets
-sub _do_leave_notify {
-  my ($widget, $event, $ref_weak_self) = @_;
-  if (my $self = $$ref_weak_self) {
-    undef $self->{'x'};
-    undef $self->{'y'};
-}
-  return 0; # Gtk2::EVENT_PROPAGATE
+      Scalar::Util::weaken (my $weak_self = $self);
+      Glib::Ex::SignalIds->new
+          ($newval,
+           $newval->signal_connect (motion_notify_event => \&_do_motion_notify,
+                                    \$weak_self),
+           $newval->signal_connect (enter_notify_event => \&_do_motion_notify,
+                                    \$weak_self),
+           $newval->signal_connect (leave_notify_event => \&_do_leave_notify,
+                                    \$weak_self));
+    };
 }
 
 # 'enter-notify-event' signal on the widgets
@@ -104,7 +98,7 @@ sub _do_motion_notify {
       $self->{'x'} = $event->x;
       $self->{'x'} = $event->y;
 
-      $self->{'sync_call'} ||= do {
+      $self->{'sync_call_pending'} ||= do {
         Gtk2::Ex::SyncCall->sync ($widget, \&_do_synccall, $ref_weak_self);
         1;
       };
@@ -113,10 +107,20 @@ sub _do_motion_notify {
   return 0; # Gtk2::EVENT_PROPAGATE
 }
 
+# 'leave-notify-event' signal on one of the widgets
+sub _do_leave_notify {
+  my ($widget, $event, $ref_weak_self) = @_;
+  if (my $self = $$ref_weak_self) {
+    undef $self->{'x'};
+    undef $self->{'y'};
+  }
+  return 0; # Gtk2::EVENT_PROPAGATE
+}
+
 sub _do_synccall {
   my ($widget, $ref_weak_self) = @_;
   my $self = $$ref_weak_self || return;
-  $self->{'sync_call'} = 0;
+  $self->{'sync_call_pending'} = 0;
   my $statusbar = $self->{'statusbar'} || return;
 
   my $id = $statusbar->get_context_id (__PACKAGE__);

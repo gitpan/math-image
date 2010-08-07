@@ -20,15 +20,15 @@
 use 5.010;
 use strict;
 use warnings;
-use App::MathImage::Aronson;
+use App::MathImage::Math::Aronson;
 use Lingua::Any::Numbers;
 # Lingua::ES::Numeros;
 
 use Smart::Comments;
 
 {
-  my $aronson = App::MathImage::Aronson->new (lang => 'fr');
-
+  my $aronson = App::MathImage::Math::Aronson->new (lang => 'en');
+  ### $aronson
   foreach (1 .. 50) {
     say $aronson->next//last;
   }

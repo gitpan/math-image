@@ -15,12 +15,12 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 842745cb706f8f2126506f544492f7a80dbe29b3 COPYING
-SHA1 5a381c45ac7143a141302b3b4fbc844853509434 Changes
-SHA1 85fcd536d0a8f8331b0db3888c5e73422f8dd93e MANIFEST
+SHA1 3ec08dc6cd851a297e7615d437d02a5416959257 Changes
+SHA1 23f3366c74a10435e77245f92643a9b046009b30 MANIFEST
 SHA1 9f057ed3ba7d042426c4d899f7685b4ae05076b2 MANIFEST.SKIP
-SHA1 dba110f7f83d1c94ba10a53e8f6dcd77141ee0c0 META.yml
-SHA1 e7f23192334e965e2d94b16b68a560fde75e77a9 Makefile.PL
-SHA1 6614b7af3f60e5ce118d3e5b4a9b121cc855cdc7 debian/changelog
+SHA1 aa9b4003023d9e82dfea6be0ae1651f6d5d607be META.yml
+SHA1 37ecaeeb02aeb6560dc8132771ae34a5568e6197 Makefile.PL
+SHA1 9ba2ae114e403bcadaec034409f8be5b681af856 debian/changelog
 SHA1 ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4 debian/compat
 SHA1 d296e6af740c015ed4a048284d4b9dbc52ecb1d6 debian/control
 SHA1 32dc08798db28b0a2ef77cf4f985eb31817111ad debian/copyright
@@ -28,8 +28,9 @@ SHA1 7b9ee249e4dad2ae7cae90ed311be3555c2b36a4 debian/rules
 SHA1 61652cd1568dcf2614df833eba241755eee34e89 debian/source/format
 SHA1 228d0d7b76d8b1c5ba37dd03ed22799132709bcc debian/watch
 SHA1 6547f8af73fe9790edc9793b0ee221f2af83719c devel/Makefile
-SHA1 b809f7f407742448b567dbe38d1ecae1b2b06560 devel/archimedean.pl
-SHA1 26d7e60f0bc3af6b0b84832249e90af377d706df devel/aronson.pl
+SHA1 5f588271280bc338b7c302d64d77dfde457e9c6c devel/archimedean.pl
+SHA1 2618e21f8cebda42fc855aca3958ecf3b943e856 devel/aronson-latin1.pl
+SHA1 a461d97225dae1c4d721167a478e7cfe066045b1 devel/aronson.pl
 SHA1 b02046f4058879b947ae42f40300dddbd1a6b4d1 devel/bits.pl
 SHA1 0bb574bf71e99992b95288598b78ec88c50b6c0e devel/camel.pl
 SHA1 989c9dad0830c2f7e373750f813a02a34d165c81 devel/euler.pl
@@ -45,58 +46,60 @@ SHA1 30fceb77a4c447794f7371e753fb93443915c9f5 devel/run-savetype.pl
 SHA1 fa3741608323239781381dae168a7af247b3643c devel/svg.pl
 SHA1 8e9e1b0e93ae80d37911fcb7f87b23df92606616 devel/symbolic.pl
 SHA1 be14d9adbb0e6e384a608e1575eebd4a9eef204b devel/triangular.pl
-SHA1 0684b88be32e28d619c2166a273158239d44f4f2 devel/unused.pl
+SHA1 33ed8d4953a5accb183d41f1b4acb839a480e292 devel/unused.pl
 SHA1 21110cf6b2e71bf438fec9346e79e0f87e5e495f devel/x11-protocol.pl
 SHA1 83dc7aff5595e0efd1eab14964b536fc0aaff291 inc/MyMakeMakerExtras.pm
 SHA1 692a1ddc2ca6b98cac7b48ea40bc1ac1509e8ed9 inc/my_pod2html
-SHA1 e8d5ee62a6e31aed187f053573c2dcdc3e2d3a69 lib/App/MathImage.pm
-SHA1 cd913869aee766942c5e5f1f4e390de1b3309f53 lib/App/MathImage/Aronson.pm
-SHA1 9e9f4476772b25e7e567b742f782d00cefe15f5e lib/App/MathImage/Coord.pm
-SHA1 6f9b328343f0cf1d2c11cd1fdee5eb5b8730892e lib/App/MathImage/Generator.pm
-SHA1 e725917ba479b72b870a383c3e64a4d9fdf9b9f7 lib/App/MathImage/Glib/Ex/EnumBits.pm
-SHA1 0886138322dcf7d92d88109c590d964c92fa50a6 lib/App/MathImage/Gtk2/AboutDialog.pm
-SHA1 2af91ee1d522325843bab6540741967faf530871 lib/App/MathImage/Gtk2/Drawing.pm
-SHA1 fce9da4a08d7e91608d28dfa11df879664dfc245 lib/App/MathImage/Gtk2/Drawing/Path.pm
-SHA1 955f185b1a8c4275fde4b1195114f96817cd378a lib/App/MathImage/Gtk2/Drawing/Values.pm
-SHA1 5613e41a08dbc56f7d74a956fb1fc3aaa868677b lib/App/MathImage/Gtk2/Ex/ComboBox/EnumValues.pm
-SHA1 c0832d03ae12e333863bf92529a80dd5707431e0 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
-SHA1 fdcf21d7056d1c43b3aac0b2bdaef5f0bdc03abb lib/App/MathImage/Gtk2/Ex/GdkPixbuf/TypeComboBox.pm
-SHA1 cdb521212e8d054e21a7ef19fc8b02d6456094b9 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
-SHA1 c2428b53e7c62fc42edcd9fbfac7af55f9e94332 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
-SHA1 1d69d6f95a44458404f2fcf88cbe99d13268531f lib/App/MathImage/Gtk2/Main.pm
-SHA1 9271bd4c194b356b12aa0a006fe26d40444c68d6 lib/App/MathImage/Gtk2/SaveDialog.pm
-SHA1 696280b3b5ea8c8199af3a0135f5c76765f18d3b lib/App/MathImage/Image/Base/Magick.pm
-SHA1 38137c5c8a996d3ba08a93409c806281fa69255d lib/App/MathImage/Image/Base/Other.pm
-SHA1 72fbee91500dd6af8fd667dac26c7e90d9437354 lib/App/MathImage/Image/Base/Prima/Drawable.pm
-SHA1 8af6ef6117cc05b8b8fb382197e93560497506ed lib/App/MathImage/Image/Base/Prima/Image.pm
-SHA1 8ac96efacdaa85909abfbf00d95424075ed43979 lib/App/MathImage/Image/Base/X/Drawable.pm
-SHA1 7a17d4a55f246bb6b844ef07c737c1931dbac14d lib/App/MathImage/Image/Base/X/Pixmap.pm
-SHA1 538c1620373a7cbc7bb964b76ebe8fca0f314a43 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
-SHA1 9a8b61cb70974d3b974cfdc130ee0abbb73785bf lib/App/MathImage/Prima/About.pm
-SHA1 e9ae152e5d6bff4b7c6dc6054e00d7d26d0c61ee lib/App/MathImage/Prima/Main.pm
+SHA1 117d0ff41417d2c40100e8d580ab06f67b8eb11d lib/App/MathImage.pm
+SHA1 35824cf61f72ca12e994d1287471a9a9f167e395 lib/App/MathImage/Coord.pm
+SHA1 5d83258bfc526024a0c71e4748e39db6b5f7ee74 lib/App/MathImage/Generator.pm
+SHA1 35ade34aa07379ae96ee93d1b4accc468f5d6c00 lib/App/MathImage/Glib/Ex/EnumBits.pm
+SHA1 912a2930e41a04469b30481e158b3a63d7e20b34 lib/App/MathImage/Gtk2/AboutDialog.pm
+SHA1 2e2c10cc3560a4ca1dfe2cc637531508ba43ba65 lib/App/MathImage/Gtk2/Drawing.pm
+SHA1 d746c8359e042d9598454d2196b6a82a9466e9da lib/App/MathImage/Gtk2/Drawing/Path.pm
+SHA1 2829d2e64e42882745587615262e275785ffec88 lib/App/MathImage/Gtk2/Drawing/Values.pm
+SHA1 443491a970af0417b0a558593fb42c3064489fad lib/App/MathImage/Gtk2/Ex/ComboBox/EnumValues.pm
+SHA1 8f8c706f54634155090b18eddb8987c37e180f4d lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
+SHA1 abe5b1247e71b976831c173b6f36ac6bfc9c7d6a lib/App/MathImage/Gtk2/Ex/GdkPixbuf/TypeComboBox.pm
+SHA1 4644cf96c68a83b584a88e0f897ecc6b17e44bc9 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
+SHA1 a4dc04404da20ac58eba0094e498424450c68a9c lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
+SHA1 07d7c44ef38eeac58bf9ab878d25d5b5486de243 lib/App/MathImage/Gtk2/Main.pm
+SHA1 37e692cdeee8a309aee5d50b27e99af06590467b lib/App/MathImage/Gtk2/SaveDialog.pm
+SHA1 4d11edb06ed02517e497c5d8a6ffc403fe75896c lib/App/MathImage/Image/Base/Magick.pm
+SHA1 9735c71ba98814a4c9ff5a0ab4d605039ea95116 lib/App/MathImage/Image/Base/Other.pm
+SHA1 ac4d874440b593b1f6e764fcda9fe96d05efaa98 lib/App/MathImage/Image/Base/Prima/Drawable.pm
+SHA1 f43454a741c4a28e717e95074dc6e2a1ea4cb7a9 lib/App/MathImage/Image/Base/Prima/Image.pm
+SHA1 4706866f189c9103c6ad4d30089a054a86dbdae2 lib/App/MathImage/Image/Base/X/Drawable.pm
+SHA1 5706c2ee45a561088ee5fd3cce8a86f6cfe6edf4 lib/App/MathImage/Image/Base/X/Pixmap.pm
+SHA1 f5bd5276f82ca8b70c6fb7aaf94ed454017f641c lib/App/MathImage/Iterator/Aronson.pm
+SHA1 7d4fcb1504577d7a119ebc9beb2fa7e52f7efd61 lib/App/MathImage/Iterator/Simple/Aronson.pm
+SHA1 e5cac565723aaa538905b71e62d256c9568eecf0 lib/App/MathImage/Math/Aronson.pm
+SHA1 3b6cea535a476c9aece2fcce70cf9aad63e985e8 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
+SHA1 2909102fb9956f5b972fb605e94eba6bfa63ed7c lib/App/MathImage/Prima/About.pm
+SHA1 04f3b6fa93ef7e0bf4de09aac0af6cc62bf7c4bf lib/App/MathImage/Prima/Main.pm
 SHA1 1c222731ea3ad632ed0c16740ab7870662916c5c lib/App/MathImage/ln2.gz
 SHA1 9d05d09a33f4cfbdb79993365f75891cbaed336a lib/App/MathImage/pi.gz
-SHA1 a1eb162a075869916aa9fbad1866c8bd1ed6f74a math-image
+SHA1 0bdf011847778f62506a39a41657b4cde166dc4e math-image
 SHA1 9127f78a0dfa04976acbb979dd7862ef59a74c58 t/0-META-read.t
 SHA1 37abd43b41068804ea4bb099fdd89af21be82926 t/0-Test-DistManifest.t
 SHA1 8f93fb4c8f0424a4442cc93c9a2e86342ef55281 t/0-Test-Pod.t
 SHA1 fb517c2fae5ddac559318bf6a224949115ea3129 t/0-Test-YAML-Meta.t
 SHA1 c84fa2f39a57885c647ebb69a456f3129de706c1 t/0-exe-shebang.t
-SHA1 be5bc3d83f943080649d34920f60afe81d255015 t/Aronson.t
-SHA1 8f080de5d375a529fd7fb0600a15c7daa0e7507b t/EnumBits.t
-SHA1 0f1fc52e33f6fd7a5dfefee2012c5bf076aed68e t/GdkColorBits.t
-SHA1 e67e95d59b6d5e677338eb23a16de2b55cd8d412 t/Generator.t
-SHA1 9901d86924e919dfd1e9975ebfbf4cc69cf0cb37 t/Image-Base-Prima-Drawable.t
-SHA1 b55a6314c07e2685e97d36dcdd7e4529b472771a t/Magick.t
-SHA1 d2f99a2e05233edf9edac80a22cc35483d83aa8b t/MathImage.t
+SHA1 8130d125ed5fb03257654707d7705027af635795 t/Aronson.t
+SHA1 f4dc3f38826e6934c3f3feaa0ac2fd46a5fbbd58 t/EnumBits.t
+SHA1 15567e509d27297cc1f562b00305b618add4d738 t/GdkColorBits.t
+SHA1 34d71e51f4d7b6d3547e622ca97546f28c6a1f9b t/Generator.t
+SHA1 a9548f3192cef5cb7feb33c8c1abba6bd89274da t/Image-Base-Magick.t
+SHA1 ac3b92557a6729eced4a2fd9c8733258ffa02358 t/Image-Base-Prima-Drawable.t
+SHA1 286cf5be8521f644a755e5b9dd57499853f58230 t/MathImage.t
 SHA1 f3bc1eb4ccf4844e7d352ca88452d854c3e6b437 t/MyTestHelpers.pm
 SHA1 9f49bc870e513d0b87485da015ec5c0dac4d027a t/MyTestImageBase.pm
+SHA1 dd28bd1d702914ded334a79a7004f9cb2e3bb7eb t/Pixbuf-TypeComboBox.t
 SHA1 ebce7bd61ed66cdc0103689ffb7e8844a0a71696 t/Test/Weaken/ExtraBits.pm
-SHA1 ab00c3adcdfb066a315d4043b9aebb75f87539c3 t/TypeComboBox.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iD8DBQFMVz9WLFMCIV9q3ToRAkHRAJ98p355x3q697EUetakQCib+HOhFACeKTmv
-rgkXb2HMKNSOC2tHAv5R2p0=
-=6frB
+iD8DBQFMXKYJLFMCIV9q3ToRAhgFAJwNZv9V8Pr+3mXqU7Fxaig5V3MuaACfRQCB
+vsrXZlf9E8jO76E2ihrI2Go=
+=Z1OM
 -----END PGP SIGNATURE-----

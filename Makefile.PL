@@ -38,7 +38,7 @@ MyMakeMakerExtras::WriteMakefile
                     'Compress::Zlib' => 0,
                     'Glib' => 0,
                     'Glib::Object::Subclass' => 0,
-                    'Glib::Ex::ConnectProperties' => 7, # for transforms
+                    'Glib::Ex::ConnectProperties' => 8, # v.8 for write_only
                     'Glib::Ex::SourceIds' => 2,  # new in ObjectBits 2
                     'Glib::Ex::SignalIds' => 0,
                     'Gtk2' => '1.200',

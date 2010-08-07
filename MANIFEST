@@ -8,6 +8,7 @@ debian/rules
 debian/source/format
 debian/watch
 devel/archimedean.pl
+devel/aronson-latin1.pl
 devel/aronson.pl
 devel/bits.pl
 devel/camel.pl
@@ -30,7 +31,6 @@ devel/x11-protocol.pl
 inc/my_pod2html
 inc/MyMakeMakerExtras.pm
 lib/App/MathImage.pm
-lib/App/MathImage/Aronson.pm
 lib/App/MathImage/Coord.pm
 lib/App/MathImage/Generator.pm
 lib/App/MathImage/Glib/Ex/EnumBits.pm
@@ -51,7 +51,10 @@ lib/App/MathImage/Image/Base/Prima/Drawable.pm
 lib/App/MathImage/Image/Base/Prima/Image.pm
 lib/App/MathImage/Image/Base/X/Drawable.pm
 lib/App/MathImage/Image/Base/X/Pixmap.pm
+lib/App/MathImage/Iterator/Aronson.pm
+lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
+lib/App/MathImage/Math/Aronson.pm
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
 lib/App/MathImage/Prima/About.pm
@@ -70,11 +73,11 @@ t/Aronson.t
 t/EnumBits.t
 t/GdkColorBits.t
 t/Generator.t
+t/Image-Base-Magick.t
 t/Image-Base-Prima-Drawable.t
-t/Magick.t
 t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
+t/Pixbuf-TypeComboBox.t
 t/Test/Weaken/ExtraBits.pm
-t/TypeComboBox.t
 META.yml                                 Module meta-data (added by MakeMaker)

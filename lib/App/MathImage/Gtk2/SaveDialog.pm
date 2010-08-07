@@ -30,7 +30,7 @@ use App::MathImage::Gtk2::Ex::GdkPixbufBits;
 use App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 14;
+our $VERSION = 15;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',

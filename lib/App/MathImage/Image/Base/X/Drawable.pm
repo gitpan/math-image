@@ -28,7 +28,7 @@ use base 'Image::Base';
 use X11::Lib;
 
 use vars '$VERSION';
-$VERSION = 14;
+$VERSION = 15;
 
 sub new {
   my ($class, %params) = @_;

@@ -27,44 +27,44 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 14;
+our $VERSION = 15;
 
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
                            App::MathImage::Generator->path_choices);
 
-use constant::defer model => sub {
-  require Text::Capitalize;
-  my $model = Gtk2::ListStore->new ('App::MathImage::Gtk2::Drawing::Path',
-                                    'Glib::String');
-
-  foreach my $elem (Glib::Type->list_values
-                    ('App::MathImage::Gtk2::Drawing::Path')) {
-    ### $elem
-    my $nick = $elem->{'nick'};
-    my $display = App::MathImage::Glib::Ex::EnumBits::to_display
-      (__PACKAGE__, $nick);
-    $display = Locale::Messages::dgettext
-      ('Math-Image', Text::Capitalize::capitalize_title($display));
-    ### $display
-    $model->set ($model->append,
-                 0, $nick,
-                 1, $display);
-  }
-  return $model;
-};
-
-use constant::defer model_rows_hash => sub {
-  my %hash;
-  model()->foreach (sub {
-                      my ($model, $path, $iter) = @_;
-                      my ($n) = $path->get_indices;
-                      my $nick = $model->get_value($iter,0);
-                      $hash{$n} = $nick;
-                      $hash{$nick} = $n;
-                      return 0; # continue;
-                    });
-  return \%hash;
-};
+# use constant::defer model => sub {
+#   require Text::Capitalize;
+#   my $model = Gtk2::ListStore->new ('App::MathImage::Gtk2::Drawing::Path',
+#                                     'Glib::String');
+# 
+#   foreach my $elem (Glib::Type->list_values
+#                     ('App::MathImage::Gtk2::Drawing::Path')) {
+#     ### $elem
+#     my $nick = $elem->{'nick'};
+#     my $display = App::MathImage::Glib::Ex::EnumBits::to_text
+#       (__PACKAGE__, $nick);
+#     $display = Locale::Messages::dgettext
+#       ('Math-Image', Text::Capitalize::capitalize_title($display));
+#     ### $display
+#     $model->set ($model->append,
+#                  0, $nick,
+#                  1, $display);
+#   }
+#   return $model;
+# };
+# 
+# use constant::defer model_rows_hash => sub {
+#   my %hash;
+#   model()->foreach (sub {
+#                       my ($model, $path, $iter) = @_;
+#                       my ($n) = $path->get_indices;
+#                       my $nick = $model->get_value($iter,0);
+#                       $hash{$n} = $nick;
+#                       $hash{$nick} = $n;
+#                       return 0; # continue;
+#                     });
+#   return \%hash;
+# };
 
 1;
 __END__
