@@ -23,7 +23,7 @@ use App::MathImage::Math::Aronson;
 use Iterator::Simple;
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 
 sub new {
   my $class = shift;
@@ -36,5 +36,5 @@ sub new {
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 

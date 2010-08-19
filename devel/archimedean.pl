@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use Math::PlanePath::TheodorusSpiral;
+use App::MathImage::PlanePath::MultipleRings;
 
 {
   my $width = 79;
@@ -33,10 +33,10 @@ use Math::PlanePath::TheodorusSpiral;
   my $y_origin = int($height/2);
   my $x_origin = int($width/2);
 
-  my $path = Math::PlanePath::TheodorusSpiral->new;
+  my $path = App::MathImage::PlanePath::MultipleRings->new;
   my @rows = (' ' x $width) x $height;
 
-  foreach my $n (0 .. 61) {
+  foreach my $n (0 .. 60) {
     my ($x, $y) = $path->n_to_xy ($n) or next;
     $x *= $x_scale;
     $y *= $y_scale;

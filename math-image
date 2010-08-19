@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 exit App::MathImage->command_line;
 
 __END__
@@ -46,10 +46,10 @@ math-image -- display some mathematical images
 C<math-image> displays some mathematical images, either in a Gtk2 graphical
 interface, as an image file output, or setting the root window.
 
-There's lots of options for images to display, in particular including
-Ulam's spiral of prime numbers, and variations on the numbers in a path
-theme, including Sacks spiral and Vogel floret.  Try C<--random> or the
-Randomize button to see interesting combinations.
+There's lots of options for what to display, in particular including Ulam's
+spiral of prime numbers, and variations on the numbers in a path theme
+including Sacks spiral and Vogel floret.  Try C<--random> or the Randomize
+button to see interesting combinations.
 
 =head1 OPTIONS
 
@@ -208,6 +208,8 @@ L<Math::PlanePath::Diagonals>.
 
 =item --columns
 
+Points drawn in successive rows or columns.
+
 =back
 
 =head2 Output Options
@@ -240,8 +242,8 @@ preserved.
 
 =item --display=DPY
 
-Select an X display for C<X11::Protocol> or Gtk.  The default is from the
-C<DISPLAY> environment variable.
+Select the X server for C<X11::Protocol> or Gtk.  The default is from the
+C<DISPLAY> environment variable which is set at X startup.
 
     math-image --display=:3
 
@@ -249,16 +251,17 @@ C<DISPLAY> environment variable.
 
 =item --xpm
 
-Write a PNG or XPM image file to standard output and exit.  PNG requires
-either C<Image::Base::GD> or C<Image::Base::PNGwriter> and the respective
-supporting libraries.  XPM output requires C<Image::Xpm>.
+Write a PNG or XPM image file to standard output and exit.  PNG is always
+possible using GdkPixbuf but can also use C<Image::Base::GD> or
+C<Image::Base::PNGwriter> and their respective supporting libraries.  XPM
+output requires C<Image::Xpm>.
 
     math-image --png >/tmp/my-file.png
 
 =item --text
 
 Write a text-only image to standard output and exit.  The default size
-follows the terminal (per C<Term::Size>).  This is usually too small to see
+follows the terminal per C<Term::Size>.  This is usually too small to see
 much, but a bigger image might be cute to send to a line printer or similar.
 
     math-image --text --width=130 --height=49 | lpr
@@ -275,29 +278,26 @@ Choose a path and values at random.  For example in your F<~/.xsession>
 
     math-image --root --random
 
-=item --scale=PIXELS
-
-How many pixels for each value shown.  The current default is 3 to show 3x3
-squares, or for C<--text> output just 1.
-
 =item --foreground=COLOUR
 
 =item --background=COLOUR
 
-Set the foreground and background colours.  The colours can be names, or hex
-style #RRGGBB or #RRRRGGGGBBBB.    For example white on a shade of red,
+Set the foreground and background colours.  The colours can be either names
+or hex style #RRGGBB or #RRRRGGGGBBBB.  For example white on a shade of red,
 
     math-image --foreground=white --background=#A01010
 
-The default is white foreground on black background.  For C<--root> white
-can be a bit bright when there's a lot of points shown.  A shade of grey is
-easier on the eye
+The default is white foreground on black background.  For a C<--root>
+background a full white can be a bit hard on the eye when there's a lot of
+points shown.  Try a shade of grey instead
 
     math-image --root --foreground=lightgrey
 
-Available names depend on the output type, for example Gtk has a hard-coded
-copy of the X F</etc/X11/rgb.txt>, or PNG output has the C<GD::Simple>
-names, or for XPM anything at all passes through to the file.
+Available names depend on the output type.  Gtk uses a hard-coded copy of
+the X F</etc/X11/rgb.txt>.  The C<X11::Protocol> C<--root> uses the server's
+database.  C<--png> output with GD has the C<GD::Simple> names.  C<--xpm>
+passes anything at all through to the file.  For C<--text> currently the
+colours can be single characters to show, though perhaps that will change.
 
 =item --size=PIXELS
 
@@ -307,13 +307,18 @@ Set the size of the image in pixels.  A single value means that size square,
 otherwise WIDTHxHEIGHT.  For C<--root> this size is currently ignored and
 the full screen used.
 
-For the GUI this is an initial size for the window, though it may be widened
-to accommodate to the menubar.  Under C<--fullscreen> this is the
-unfullscreened size if you switch to that (Control-F).
+For the GUI this is an initial size for the window, but it may be widened to
+accommodate to the menubar.  Under C<--fullscreen> this will be the
+unfullscreened size if you switch back to that (menu Tools/Fullscreen).
 
-The default for the GUI is to make the toplevel window about 4/5 of the
-screen.  The default for image file output is an arbitrary 200x200, or for
-C<--text> output the size of the terminal (per C<Term::Size>).
+The default for the GUI is about 4/5 of the screen.  The default for image
+file output is an arbitrary 200x200, or for C<--text> output the size of the
+terminal per C<Term::Size>.
+
+=item --scale=PIXELS
+
+How many pixels for each value shown.  The current default is 3 to show 3x3
+pixel squares, or for C<--text> output just 1.
 
 =item --help, -?
 
@@ -345,24 +350,26 @@ Lines following the cursor, enabled from the Tools/Cross menu item.
 =item C<Gtk2::Ex::ErrorTextDialog>
 
 Error messages in a dialog instead of to C<STDERR>.  Of course there
-shouldn't be any errors, though currently a bad "expression" entered will
-provoke errors.
+shouldn't be any errors!
 
 =back
 
 =head1 BUGS
 
-C<Math::Prime::XS> is used to generate primes but as of version 0.20_01 it
-puts its sieve space on the stack (the C stack) which may restrict the size
-of images showing primes.  Depending on the chosen path an image 3000x3000
-or so might overflow an 8Mb stack limit (per L<ulimit(3)>).  The symptom is
-usually a segfault.  Increase the stack if necessary, if possible, or
-perhaps a newer C<Math::Prime::XS> will use plain C<malloc> and/or pack more
-sieving into the bytes.
+C<Math::Prime::XS> is used for primes but as of version 0.20_01 it puts its
+sieve space on the stack (the C stack) which may restrict the size of images
+showing primes.  Depending on the chosen path an image 3000x3000 or so may
+overflow an 8Mb stack limit (see L<ulimit(3)>).  The symptom is usually a
+segfault.  Increase the stack if necessary and if possible, or perhaps a
+newer C<Math::Prime::XS> will use plain C<malloc> or pack more sieving into
+the bytes.
 
 =head1 SEE ALSO
 
 L<gtk-options(7)>, L<xsetroot(1)>
+
+L<Math::PlanePath>, L<Gtk2>, L<X11::Protocol>, L<Gtk2::Ex::CrossHair>,
+L<Gtk2::Ex::ErrorTextDialog>
 
 =head1 LICENSE
 

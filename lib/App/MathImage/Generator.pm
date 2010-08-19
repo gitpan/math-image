@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 
 sub new {
   my $class = shift;
@@ -104,7 +104,7 @@ my %values_info =
 sub values_info {
   my ($self, $key) = @_;
   ### %values_info
-  return $values_info{$key};
+  return $values_info{$key} || { name => $key };
 }
 
 use constant path_choices => qw(SquareSpiral
@@ -128,7 +128,8 @@ use constant path_choices => qw(SquareSpiral
                                 Diagonals
                                 Rows
                                 Columns
-                                ArchimedeanSpiral);
+                                ArchimedeanSpiral
+                                MultipleRings);
 
 sub random_options {
   my @choices;
@@ -175,6 +176,11 @@ sub random_options {
     $pyramid_step = 2;  # most of the time
   }
 
+  my $rings_step = int(rand(20));
+  if ($rings_step > 15) {
+    $rings_step = 6;  # more often
+  }
+
   my $path_wider = int(rand(30));
   if ($path_wider > 20) {
     $path_wider = 0; # most of the time
@@ -194,32 +200,37 @@ sub random_options {
           prime_quadratic => $prime_quadratic,
           path_wider   => $path_wider,
           pyramid_step => $pyramid_step,
+          rings_step   => $rings_step,
          );
 }
 
-sub get_xpm_string {
+sub description {
   my ($self) = @_;
-  my $image = $self->get_Image_Base('Image::Xpm');
-  return App::MathImage::Image::Base::Other::save_string($image);
-}
-sub get_Image_Base {
-  my ($self, $image_class) = @_;
-  return ($self->{"Image_Base.$image_class"} ||= do {
-    $image_class ||= 'Image::Base::Text';
-    require Module::Load;
-    Module::Load::load ($image_class);
-    my $image = $image_class->new
-      (-width  => $self->{'width'} * $self->{'scale'},
-       -height => $self->{'height'} * $self->{'scale'});
-    $self->draw_Image;
-    $image
-  });
-}
+  my $ret = $self->{'path'};
+  if ($self->{'path'} eq 'SquareSpiral') {
+    if ($self->{'path_wider'}) {
+      $ret .= " wider $self->{'path_wider'}";
+    }
+  } elsif ($self->{'path'} eq 'PyramidRows') {
+    $ret .= " step $self->{'pyramid_step'}";
+  }
 
-sub n_pixels {
-  my ($self) = @_;
-  ### n_pixels(): $self->{'width'}, $self->{'height'}
-  return $self->{'width'} * $self->{'height'};
+  $ret .= ' ' . $self->values_info($self->{'values'})->{'name'};
+  if ($self->{'values'} eq 'fraction') {
+    $ret .= " $self->{'fraction'}";
+  } elsif ($self->{'values'} eq 'expression') {
+    $ret .= " $self->{'expression'}";
+  } elsif ($self->{'values'} eq 'sqrt_bits') {
+    $ret .= " $self->{'sqrt'}";
+  } elsif ($self->{'values'} eq 'polygonal') {
+    $ret .= " $self->{'polygonal'}";
+  } elsif ($self->{'values'} eq 'multiples') {
+    $ret .= " $self->{'multiples'}";
+  } elsif ($self->{'values'} =~ /^prime_quadratic/) {
+    $ret .= " $self->{'prime_quadratic'}";
+  }
+
+  return $ret . " $self->{'width'}x$self->{'height'} scale $self->{'scale'}";
 }
 
 sub path_object {
@@ -249,18 +260,21 @@ sub path_object {
     }
 
     my $path_object = $path_class->new
-      (width  => int($self->{'width'} / $self->{'scale'}),
-       height => int($self->{'height'} / $self->{'scale'}),
-       step   => $self->{'pyramid_step'},
-       wider  => $self->{'path_wider'});
+      (width    => POSIX::ceil($self->{'width'} / $self->{'scale'}),
+       height   => POSIX::ceil($self->{'height'} / $self->{'scale'}),
+       step     => ($path_class eq 'Math::PlanePath::PyramidRows'
+                    ? $self->{'pyramid_step'}
+                    : $self->{'rings_step'}),
+       wider    => $self->{'path_wider'});
+    ### $path_object
 
     my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
                   ? -1
                   : -1);
-    my $x_origin = ($path_object->x_negative
+    my $x_origin = ($path_object->x_negative || $self->{'path'} eq 'MultipleRings'
                     ? int ($self->{'width'} / 2)
                     : $offset);
-    my $y_origin = ($path_object->y_negative
+    my $y_origin = ($path_object->y_negative || $self->{'path'} eq 'MultipleRings'
                     ? int ($self->{'height'} / 2)
                     : $invert > 0 ? $offset
                     : $self->{'height'} - $self->{'scale'} + $offset);
@@ -291,6 +305,7 @@ An invalid expression gives a blank display and a message in the status bar.'),
   };
 sub values_make_expression {
   my ($self, $lo, $hi) = @_;
+  ### values_make_expression()
   require Math::Symbolic;
   my $tree = Math::Symbolic->parse_from_string($self->{'expression'});
   if (! defined $tree) {
@@ -578,7 +593,7 @@ sub values_make_squares {
 
 $values_info{'prime_quadratic_euler'} =
   { subr => \&values_make_prime_quadratic_euler,
-    name => __('Rrime Generating Quadratic of Euler'),
+    name => __('Prime Generating Quadratic of Euler'),
     description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.'),
   };
 sub values_make_prime_quadratic_euler {
@@ -593,7 +608,7 @@ sub values_make_prime_quadratic_euler {
 # http://www.research.att.com/~njas/sequences/A007641  (the prime values)
 $values_info{'prime_quadratic_legendre'} =
   { subr => \&values_make_prime_quadratic_legendre,
-    name => __('Rrime Generating Quadratic of Legendre'),
+    name => __('Prime Generating Quadratic of Legendre'),
     description => __('The quadratic numbers 2*k^2 + 29.'),
   };
 sub values_make_prime_quadratic_legendre {
@@ -608,7 +623,7 @@ sub values_make_prime_quadratic_legendre {
 # http://www.research.att.com/~njas/sequences/A048988
 $values_info{'prime_quadratic_honaker'} =
   { subr => \&values_make_prime_quadratic_honaker,
-    name => __('Rrime Generating Quadratic of Honaker'),
+    name => __('Prime Generating Quadratic of Honaker'),
     description => __('The quadratic numbers 4*k^2 + k + 59.'),
   };
 sub values_make_prime_quadratic_honaker {
@@ -1006,8 +1021,9 @@ sub _semi_primes {
   require Math::Prime::XS;
   Math::Prime::XS->VERSION (0.020_001);
 
+  # 0.20_01 doesn't like base==limit, extend limit by 1
   my @primes = Math::Prime::XS::sieve_primes ($prime_base,
-                                              int($hi/$prime_base));
+                                              int($hi/$prime_base) + 1);
   my $vec = Bit::Vector->new($hi+1);
   foreach my $i (0 .. $#primes) {
     my $p1 = $primes[$i];
@@ -1245,9 +1261,10 @@ sub draw_Image_steps {
         $more = 1;
         last;
       }
-      (defined($n = $iter->()) && $n <= $n_hi)
-        or last;
+      $n = $iter->();
       ### $n
+      (defined $n && $n <= $n_hi)
+        or last;
       my ($x, $y) = $path->n_to_xy($n) or next;
       ### path: "$x,$y"
 

@@ -25,7 +25,7 @@ use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 
 use Glib::Ex::SignalIds;
 
-our $VERSION = 15;
+our $VERSION = 16;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

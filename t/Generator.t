@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -230,6 +230,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
   my $good = 1;
   require Image::Base::Text;
   foreach my $path (App::MathImage::Generator->path_choices) {
+    diag "exercise path $path";
     my $gen = App::MathImage::Generator->new (width  => 10,
                                               height => 10,
                                               scale  => 1,

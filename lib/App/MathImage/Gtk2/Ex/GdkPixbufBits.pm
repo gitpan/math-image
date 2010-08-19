@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 15;
+our $VERSION = 16;
 
 my %tiff_compression_types = (none    => 1,
                               huffman => 2,

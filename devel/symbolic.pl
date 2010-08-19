@@ -26,7 +26,7 @@ use Smart::Comments;
 
 use lib 'devel/lib';
 
-my $tree = Math::Symbolic->parse_from_string('x+1');
+my $tree = Math::Symbolic->parse_from_string('');
 ### $tree
 $tree = $tree->simplify;
 

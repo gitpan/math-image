@@ -25,6 +25,7 @@ use Smart::Comments;
 
 use lib 'devel/lib';
 
+
 {
   require Math::PlanePath::SacksSpiral;
   require Math::PlanePath::VogelFloret;
@@ -38,21 +39,40 @@ use lib 'devel/lib';
   require Math::PlanePath::HexSpiralSkewed;
   require Math::PlanePath::KnightSpiral;
   require Math::PlanePath::SquareSpiral;
+  require Math::PlanePath::MultipleRings;
 
-  require Math::PlanePath::TheodorusSpiral;
-  my $path = Math::PlanePath::TheodorusSpiral->new (wider => 0);;
+  my $path = Math::PlanePath::MultipleRings->new (wider => 0,
+                                                  step => 0);;
   foreach my $i (1 .. 500) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
-    my $n = $path->xy_to_n ($x, $y) // 'none';
+    my $n = $path->xy_to_n ($x+.0, $y+.0) // 'none';
     my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $x,$y);
-    print "$i  $x,$y  $n  ${n_lo}_${n_hi}",
-      ($i ne $n || $n_hi < $n ? "  ****" : ""),
-        "\n";
+    printf "%3d %8.4f,%8.4f   %3s %s %s\n",
+      $i,  $x,$y,  $n,
+        "${n_lo}_${n_hi}",
+          ($i ne $n || $n_hi < $n ? "  ****" : "");
   }
   exit 0;
 }
+
+{
+  require Math::Trig;
+  my $x;
+  foreach (my $i = 1; $i < 10000000; $i++) {
+    my $multiple = $i * 7;
+    my $r = 0.5/sin(Math::Trig::pi()/$multiple);
+    $x //= $r-1;
+    if ($r - $x < 1) {
+      printf "%2d %3d %8.3f  %6.3f\n", $i, $multiple, $r, $i*$x;
+      die $i;
+    }
+    $x = $r;
+  }
+  exit 0;
+}
+
 
 
 {

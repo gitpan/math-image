@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Drawing::Path;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 15;
+our $VERSION = 16;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -129,6 +129,14 @@ use Glib::Object::Subclass
                    'Blurb.',
                    1, POSIX::INT_MAX(),
                    2,           # default
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->int
+                  ('rings-step',
+                   'rings-step',
+                   'Blurb.',
+                   0, POSIX::INT_MAX(),
+                   6,           # default
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->boolean
@@ -261,28 +269,32 @@ sub start_drawing_window {
   require Gtk2::Ex::WidgetCursor;
   Gtk2::Ex::WidgetCursor->busy;
 
+  # stop previous, so as to do nothing if draw_Image_start() fails
+  delete $self->{'drawing'}->{'idle_ids'};
+
   my ($width, $height) = $window->get_size;
   my $background_colorobj = $self->style->bg($self->state);
   $window->set_background ($background_colorobj);
 
   my $gen = $self->{'drawing'}->{'gen'} = App::MathImage::Generator->new
-    (values     => $self->get('values'),
-     path       => $self->get('path'),
-     scale      => $self->get('scale'),
-     fraction   => $self->get('fraction'),
-     expression => $self->get('expression'),
+    (values          => $self->get('values'),
+     path            => $self->get('path'),
+     scale           => $self->get('scale'),
+     fraction        => $self->get('fraction'),
+     expression      => $self->get('expression'),
      aronson_options => { lang  => $self->get('aronson_lang'),
                           conjunctions => $self->get('aronson_conjunctions') },
-     sqrt       => $self->get('sqrt'),
-     polygonal  => $self->get('polygonal'),
-     multiples  => $self->get('multiples'),
-     prime_quadratic  => $self->get('prime_quadratic'),
-     pyramid_step => $self->get('pyramid-step'),
-     path_wider => $self->get('path-wider'),
-     width      => $width,
-     height     => $height,
-     foreground => $self->style->fg($self->state)->to_string,
-     background => $background_colorobj->to_string,
+     sqrt            => $self->get('sqrt'),
+     polygonal       => $self->get('polygonal'),
+     multiples       => $self->get('multiples'),
+     prime_quadratic => $self->get('prime_quadratic'),
+     pyramid_step    => $self->get('pyramid-step'),
+     rings_step      => $self->get('rings-step'),
+     path_wider      => $self->get('path-wider'),
+     width           => $width,
+     height          => $height,
+     foreground      => $self->style->fg($self->state)->to_string,
+     background      => $background_colorobj->to_string,
     );
   ### $gen
   $self->{'path_object'} = $gen->path_object;

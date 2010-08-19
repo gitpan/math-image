@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            15
+version:            16
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -25,8 +25,9 @@ requires:
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  0
     Image::Base:          0
-    Image::Base::Gtk2::Gdk::Pixmap:  0
-    Image::Base::Gtk2::Gdk::Window:  0
+    Image::Base::Gtk2::Gdk::Pixbuf:  3
+    Image::Base::Gtk2::Gdk::Pixmap:  2
+    Image::Base::Gtk2::Gdk::Window:  2
     Image::Base::Multiplex:  0
     Image::Base::Text:    0
     Lingua::Any::Numbers:  0
@@ -38,6 +39,7 @@ requires:
     Math::PlanePath:      0
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::HeptSpiralSkewed:  4
+    Math::PlanePath::MultipleRings:  7
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
     Math::PlanePath::PyramidRows:  4
@@ -74,11 +76,12 @@ optional_features:
         description:  Stuff used variously for development.
         requires:
             Pod::Simple::HTML:  0
+            warnings::unused:   0
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
         requires:
             Gtk2::Ex::CrossHair:  0
-            Gtk2::Ex::ErrorTextDialog::Handler:  0
+            Gtk2::Ex::ErrorTextDialog::Handler:  7
             Image::Base::GD:      4
             Image::Base::PNGwriter:  2
             Image::Base::X11::Protocol::Pixmap:  0
@@ -102,7 +105,7 @@ optional_features:
             YAML::XS:             0
 recommends:
     Gtk2::Ex::CrossHair:  0
-    Gtk2::Ex::ErrorDialog:  0
+    Gtk2::Ex::ErrorDialog:  7
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0

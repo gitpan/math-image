@@ -1,3 +1,9 @@
+# ordinal_func
+
+
+
+
+
 # Copyright 2010 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -27,7 +33,7 @@ use Lingua::Any::Numbers 'to_ordinal';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 
 my $unaccent;
 BEGIN {
@@ -58,15 +64,13 @@ sub new {
                    }, $class;
 
   if (defined (my $lang = $self->{'lang'})) {
-    if ($lang eq 'en') {
-      %$self = (letter => 't',
-                initial_string => 't is the',
-                conjunction_word => 'and',
-                %$self);
-    } elsif ($lang eq 'fr') {
-      %$self = (letter => 'e',
-                initial_string => 'e est la',
+    if ($lang eq 'fr') {
+      %$self = (initial_string => 'e est la',
                 conjunction_word => 'et',
+                %$self);
+    } elsif ($lang eq 'en') {
+      %$self = (initial_string => 't is the',
+                conjunction_word => 'and',
                 %$self);
     }
   }
@@ -82,24 +86,32 @@ sub new {
           sub { $_[0] =~ s/\b\Q$conjunction_word\E\b// }
         }));
 
-  my $letter = $self->{'letter'} = lc($self->{'letter'});
-
   my $str = delete $self->{'initial_string'};
   if (! defined $str) {
     croak 'No initial_string';
   }
-  &$conjunctions_func ($str);
   &$unaccent ($str);
   $str = lc ($str);
+
+  my $letter = $self->{'letter'};
+  if (! defined $letter) {
+    $letter = substr($str,0,1);
+  }
+  unless (length($letter)) {
+    $letter = ' '; # dummy no-match empty
+  }
+  $self->{'letter'} = $letter = lc($letter);
+
+  &$conjunctions_func ($str);
   $str =~ tr/a-z//cd;
-  ### $str
+  ### initial: $str
   my $upto = 1;
   my $pos = 0;
   while (($pos = index($str,$letter,$pos)) >= 0) {
     push @ret, $pos++ + $upto;
   }
   $self->{'upto'} = $upto + length($str);
-
+  ### initial: $self
   return $self;
 }
 
@@ -124,7 +136,10 @@ sub next {
     &{$self->{'conjunctions_func'}} ($str);
     &$unaccent ($str);
     $str = lc ($str);
+
+    # FIXME: "premiere" is per Sloane's sequence, should this be an option?
     if ($str eq 'premier' && $self->{'lang'} eq 'fr') { $str = 'premiere'; }
+
     $str =~ tr/a-z//cd;
     ### munged str: $str
 
@@ -159,26 +174,26 @@ App::MathImage::Math::Aronson -- generate values of Aronson's sequence
 
 =head1 DESCRIPTION
 
-Aronson's sequence is a recurrence generated from positions of the letter T
-in numbers expressed in words.
+Aronson's sequence is a kind of self-referential recurrence generated from
+where the letter T falls in numbers written out in words.
 
     T is the first, fourth, eleventh, sixteenth, ...
     ^    ^       ^      ^         ^      ^   ^
     1    4      11     16        24     29  33
 
-In the starting "T is the", the letter T is the first and fourth letters, so
-those words are added to make "T is the first, fourth".  In those new words
-"first, fourth" there are further Ts at 11 and 16, so those words are added,
-and so on.
+In the initial string "T is the", the letter T is the first and fourth
+letters, so those words are added to make "T is the first, fourth".  In
+those new words "first, fourth" there are further Ts at 11 and 16, so those
+words are added, and so on.
 
-Spaces and punctuation are ignored.  It's possible for the sequence to end,
-since the ordinal names for some numbers don't have any Ts in them, but in
-English there doesn't seem to be enough of them, or the sequence doesn't
-fall on enough of them, to end.  (Is that proven?)
+Spaces and punctuation are ignored.  The C<conjunctions> option can ignore
+"and" or "et" too.  For non-English languages accents like acutes are
+stripped for matching.
 
-On reaching 104 there's a choice whether to write that as "one hundred and
-four" or just "one hundred four".  The default is to include the "and", but
-there's an option below to try it without.
+It's possible for the sequence to end, since the ordinal names for some
+numbers don't have any Ts in them, but in English there doesn't seem to be
+enough of those, or the sequence doesn't fall on enough of them.  (Is that
+proven?)
 
 =head1 FUNCTIONS
 
@@ -189,15 +204,55 @@ there's an option below to try it without.
 Create and return a new Aronson sequence object.  The following optional
 key/value parameters affect the sequence.
 
+=over
+
+=item C<< lang => $string >>, default "en"
+
+The language to use for the sequence.  This can be anything recognised by
+C<Lingua::Any::Numbers>.  "en" and "fr" have defaults for the settings
+below.
+
+=item C<< initial_string => $str >>, default "T is the" or "E est la"
+
+The initial string for the sequence.  The default is "T is the" for English
+or "E est la" for French.  For other languages an C<initial_string> must be
+given or the sequence is empty.
+
+=item C<< letter => $str >>, default "T" or "E"
+
+The letter to look for in the words.  The default is the first letter of
+C<initial_string>.
+
 =item C<< conjunctions => $boolean >>, default true
 
-Whether to include conjunctions, meaning "and" in the wording.  The default
-is to do so.
+Whether to include conjunctions, meaning "and" in the wording, so for
+instance "one hundred and four" or "one hundred four".  The default is with
+whatever conjunctions C<Lingua::Any::Numbers> gives.
 
-=item C<< hi => $integer >>, default C<undef>
+For reference, in Sloane's On-Line Encyclopedia of Integer Sequences the
+English sequence A005224 is without conjunctions, but the French one A080520
+is with them.
 
-The highest value desired from the sequence object.
+    http://www.research.att.com/%7Enjas/sequences/A005224
+    http://www.research.att.com/%7Enjas/sequences/A080520
+
+=item C<< conjunction_word => $string >>, default "and" or "et"
+
+The conjunction word to exclude if C<conjunctions> is true.  The default is
+"and" for English or "et" for French.  For other languages there's no
+default currently.
 
 =back
 
+=back
+
+=head1 SEE ALSO
+
+L<Lingua::Any::Numbers>
+
 =cut
+
+# =item C<< hi => $integer >>, default C<undef>
+# 
+# The highest value desired from the sequence object.
+

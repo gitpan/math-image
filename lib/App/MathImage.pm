@@ -26,7 +26,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -252,6 +252,7 @@ sub command_line {
 
   my $gui_options = $self->{'gui_options'};
   my $gen_options = $self->{'gen_options'};
+  my $gen_defaults = $self->{'gen_defaults'};
   my $other_options = $self->{'other_options'};
 
   # defaults
@@ -260,8 +261,18 @@ sub command_line {
   ### gui_options: $gui_options
   my $show = $gui_options->{'show'};
 
+  # cap random scale at a requested width/height
+  if ($gen_defaults->{'scale'} && defined $gen_options->{'width'}) {
+    if ($gen_defaults->{'scale'} > $gen_options->{'width'}) {
+      $gen_defaults->{'scale'} = $gen_options->{'width'};
+    }
+    if ($gen_defaults->{'scale'} > $gen_options->{'height'}) {
+      $gen_defaults->{'scale'} = $gen_options->{'height'};
+    }
+  }
+
   ### command line: $gen_options
-  %$gen_options = (%{$self->{'gen_defaults'}},
+  %$gen_options = (%$gen_defaults,
                    %$gen_options);
   ### gen_options: $gen_options
   if (! defined $gen_options->{'scale'}) {
@@ -309,6 +320,9 @@ sub command_line {
   }
   if (@ARGV) { die "Unrecognised option(s): ",join(' ',@ARGV); }
 
+  if ($self->{'verbose'}) {
+    print STDERR $self->make_generator->description,"\n";
+  }
   (my $show_method = "show_method_$show") =~ tr/-/_/;
   my $coderef = $self->can($show_method)
     || die "Unrecognised show option: $show";
@@ -334,10 +348,8 @@ sub show_method_png {
     $self->show_method_png_gd;
   } elsif (eval { require Image::Base::PNGwriter }) {
     $self->show_method_png_pngwriter;
-  } elsif (eval { require Image::Base::Gtk2::Gdk::Pixbuf }) {
-    $self->show_method_png_pngwriter;
   } else {
-    die 'No module available to write png: Image::Base::GD, Image::Base::PNGwriter, Image::Base::Gtk2::Gdk::Pixbuf';
+    $self->show_method_png_gtk;
   }
 }
 sub show_method_png_pngwriter {
@@ -353,10 +365,11 @@ sub show_method_png_gd {
 sub show_method_png_gtk {
   my ($self) = @_;
   binmode (\*STDOUT) or die;
-  _output_image ($self, 'Image::Base::Gtk2::Gdk::Pixbuf');
+  _output_image ($self, 'Image::Base::Gtk2::Gdk::Pixbuf',
+                 -file_format => 'png');
 }
 sub _output_image {
-  my ($self, $image_class) = @_;
+  my ($self, $image_class, @image_options) = @_;
   my $gen_options = $self->{'gen_options'};
   if (! defined $gen_options->{'width'}) {
     $gen_options->{'width'} = 200;
@@ -367,7 +380,8 @@ sub _output_image {
 
   my $image = $image_class->new
     (-width  => $gen_options->{'width'},
-     -height => $gen_options->{'height'});
+     -height => $gen_options->{'height'},
+     @image_options);
   { my $gen = $self->make_generator;
     $gen->draw_Image ($image); }
 

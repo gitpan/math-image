@@ -35,7 +35,7 @@ use App::MathImage::Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 15;
+our $VERSION = 16;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -359,6 +359,24 @@ HERE
                                       [$spin,'visible',
                                        write_only => 1,
                                        hash_in => { 'PyramidRows' => 1 }]);
+  }
+  {
+    my $toolitem = Gtk2::ToolItem->new;
+    $toolbar->insert ($toolitem, $toolpos++);
+
+    my $adj = Gtk2::Adjustment->new (6,        # initial
+                                     0, 9999,  # min,max
+                                     1,10,     # steps
+                                     0);       # page_size
+    Glib::Ex::ConnectProperties->new ([$draw,'rings-step'],
+                                      [$adj,'value']);
+    my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
+    # $spin->$set_tooltip_text(__('Multiple ...'));
+    $toolitem->add ($spin);
+    Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
+                                      [$spin,'visible',
+                                       write_only => 1,
+                                       hash_in => { 'MultipleRings' => 1 }]);
   }
 
   my $values_combobox;

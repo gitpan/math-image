@@ -35,7 +35,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -48,27 +48,28 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 
 #------------------------------------------------------------------------------
 
-foreach my $elem ([ ['--version'] ],
-                  [ ['--help'] ],
-                  [ ['--verbose', '--version'] ],
+foreach my $elem
+  ([ ['--version'] ],
+   [ ['--help'] ],
+   [ ['--verbose', '--version'] ],
 
-                  [ ['--text'] ],
-                  [ ['--text', '--scale=5'] ],
-                  [ ['--text', '--size=10'] ],
-                  [ ['--text', '--size=10x20'] ],
-                  [ ['--text', '--vogel'] ],
-                  [ ['--text', '--sacks'] ],
-                  [ ['--text', '--random'] ],
+   [ ['--text'] ],
+   [ ['--text', '--scale=5'] ],
+   [ ['--text', '--size=10'] ],
+   [ ['--text', '--size=10x20'] ],
+   [ ['--text', '--vogel'] ],
+   [ ['--text', '--sacks'] ],
+   [ ['--text', '--random'] ],
 
-                  [ ['--text-numbers'] ],
-                  [ ['--text-list'] ],
-                  [ ['--xpm'], module => 'Image::Xpm' ],
-                  [ ['--png-gd'], module => 'Image::Base::GD' ],
-                  [ ['--png-gtk'], module => 'Image::Base::Gtk2::Gdk::Pixbuf' ],
-                  [ ['--png-pngwriter'], module => 'Image::Base::PNGwriter' ],
-                  [ ['--png'], module => 'Image::Base::GD' ],
-                 ) {
-  SKIP: {
+   [ ['--text-numbers'] ],
+   [ ['--text-list'] ],
+   [ ['--xpm'],           module => 'Image::Xpm' ],
+   [ ['--png-gd'],        module => 'Image::Base::GD' ],
+   [ ['--png-gtk']        ], # always have Image::Base::Gtk2::Gdk::Pixbuf
+   [ ['--png-pngwriter'], module => 'Image::Base::PNGwriter' ],
+   [ ['--png'],           module => 'Image::Base::GD' ],
+  ) {
+ SKIP: {
     my ($argv, %options) = @$elem;
     if (my $module = $options{'module'}) {
       if (! eval "require $module") {
@@ -95,6 +96,6 @@ foreach my $elem ([ ['--version'] ],
         0,
         "command ".join(' ',@$argv));
   }
-}
+  }
 
 exit 0;

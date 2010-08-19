@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 9;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require App::MathImage::Math::Aronson;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($App::MathImage::Math::Aronson::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Math::Aronson->VERSION,  $want_version, 'VERSION class method');
 
@@ -46,7 +46,10 @@ require App::MathImage::Math::Aronson;
 
 #------------------------------------------------------------------------------
 
-foreach my $elem ([ "en, conjunctions==0",
+foreach my $elem (
+                  # per Sloane's A005224
+                  # http://www.research.att.com/%7Enjas/sequences/A005224
+                  [ "en, conjunctions==0",
                     { lang => 'en',
                       conjunctions => 0 },
                     [ 1, 4, 11, 16, 24, 29, 33, 35, 39, 45, 47, 51, 56, 58,
@@ -67,6 +70,7 @@ foreach my $elem ([ "en, conjunctions==0",
                       335, 356 ] ],
 
                   # per Sloane's A080520
+                  # http://www.research.att.com/%7Enjas/sequences/A080520
                   [ "fr, conjunctions==1",
                     { lang => 'fr',
                       conjunctions => 1 },
@@ -75,10 +79,20 @@ foreach my $elem ([ "en, conjunctions==0",
                       109, 113, 115, 118, 121, 126, 128, 131, 134, 140, 142,
                       150, 152, 156, 158, 166, 168, 172, 174, 183, 184, 189,
                       191, 200, 207, 209, 218, 220, 224, 226, 234, 241 ] ],
+
+                  [ "empty initial_string",
+                    { initial_string => '' },
+                    [ undef, undef, undef ] ],
+
+                  [ "initial_string \"f is\"",
+                    { initial_string => 'f is' },
+                    # f is first, fourth, nineth
+                    # 1    4      9       
+                    [ 1, 4, 9, undef, undef ] ],
                  ) {
   my ($name, $options, $want) = @$elem;
   my $aronson = App::MathImage::Math::Aronson->new (%$options);
-  my @got = map {$aronson->next} 1 .. @$want;
+  my @got = map {scalar($aronson->next)} 1 .. @$want;
   is_deeply (\@got, $want, $name);
 }
 

@@ -43,7 +43,7 @@ MyMakeMakerExtras::WriteMakefile
                     'Glib::Ex::SignalIds' => 0,
                     'Gtk2' => '1.200',
 
-                    # my WidgetBits
+                    # my Gtk2-Ex-WidgetBits
                     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
                     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
                     'Gtk2::Ex::Units'          => 13, # new in v.13
@@ -52,10 +52,15 @@ MyMakeMakerExtras::WriteMakefile
                     'Gtk2::Ex::WidgetCursor' => 0,
 
                     'Image::Base' => 0,
+
+                    # my Image-Base-Other
                     'Image::Base::Multiplex' => 0,
-                    'Image::Base::Text' => 0,  # comes with Multiplex
-                    'Image::Base::Gtk2::Gdk::Pixmap' => 0,
-                    'Image::Base::Gtk2::Gdk::Window' => 0,
+                    'Image::Base::Text'      => 0,
+
+                    # my Image-Base-Gtk2
+                    'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
+                    'Image::Base::Gtk2::Gdk::Window' => 2,
+                    'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
 
                     'Lingua::EN::Numbers' => '1.01', # version 1.01 rewrite
                     # 'Lingua::FR::Numbers' => 0,
@@ -83,16 +88,14 @@ MyMakeMakerExtras::WriteMakefile
                     'Math::PlanePath::Diagonals'    => 2, # sqrt fix
                     'Math::PlanePath::SquareSpiral' => 5, # wider parameter
                     'Math::PlanePath::PyramidRows'  => 4, # step parameter
-                    # these new in v.3
-                    'Math::PlanePath::PyramidSpiral'        => 3,
+                    'Math::PlanePath::PyramidSpiral'        => 3, # new in v.3
                     'Math::PlanePath::TriangleSpiral'       => 3,
                     'Math::PlanePath::TriangleSpiralSkewed' => 3,
                     'Math::PlanePath::PentSpiralSkewed'     => 3,
-                    # these new in v.4
-                    'Math::PlanePath::PentSpiral'           => 4,
+                    'Math::PlanePath::PentSpiral'           => 4, # new in v.4
                     'Math::PlanePath::HeptSpiralSkewed'     => 4,
-                    # this new in v.6
-                    'Math::PlanePath::TheodorusSpiral'      => 6,
+                    'Math::PlanePath::TheodorusSpiral'      => 6, # new in v.6
+                    'Math::PlanePath::MultipleRings'        => 7, # new in v.7 
                    },
    MIN_PERL_VERSION => '5.008',
 
@@ -106,7 +109,7 @@ MyMakeMakerExtras::WriteMakefile
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,
              'Gtk2::Ex::CrossHair' => 0,
-             'Gtk2::Ex::ErrorDialog' => 0,
+             'Gtk2::Ex::ErrorDialog' => 7, # suggest v.7 for popup control
            },
         optional_features
         => {
@@ -114,7 +117,8 @@ MyMakeMakerExtras::WriteMakefile
             => { description => 'All the optional things Math-Image can use.',
                  requires => {
                               'Gtk2::Ex::CrossHair' => 0,
-                              'Gtk2::Ex::ErrorTextDialog::Handler' => 0,
+                              # suggest ErrorTextDialog v.7 for popup control
+                              'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
                               'Image::Xpm'             => 0,
                               'Image::Base::GD'        => 4, # bug fixes
                               'Image::Base::PNGwriter' => 2, # bug fixes

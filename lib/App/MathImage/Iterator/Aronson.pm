@@ -23,7 +23,7 @@ use App::MathImage::Math::Aronson;
 use base 'Iterator';
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 
 sub new {
   my $class = shift;

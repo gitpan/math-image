@@ -1,3 +1,8 @@
+# nick-to-text $str
+# set_data and call nick-to-text every time ?
+
+
+
 # Copyright 2010 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -29,7 +34,7 @@ use App::MathImage::Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 15;
+our $VERSION = 16;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
