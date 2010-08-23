@@ -20,30 +20,17 @@
 use 5.010;
 use strict;
 use warnings;
-use Encode;
-use Unicode::Normalize 'normalize';
+use App::MathImage::Gtk2::SaveDialog;
+use Gtk2 '-init';
 
-use Smart::Comments;
+use FindBin;
+my $progname = $FindBin::Script;
 
-my $from = '';
-my $to = '';
-foreach my $i (0x80 .. 0xFF) {
-  my $str = chr($i);
-  $str = Encode::decode ('latin-1', $str);
+my $dialog = App::MathImage::Gtk2::SaveDialog->new;
+$dialog->signal_connect (destroy => sub { Gtk2->main_quit });
+$dialog->set_current_name ('foo.PNG');
 
-  # perl 5.10 thinks all non-ascii is alpha, or some such
-  next unless $str =~ /[[:alpha:]]/;
-
-  my $nfd = normalize('D',$str);
-  ### $str
-  ### $nfd
-
-  if ($nfd =~ /^([[:ascii:]])/) {
-    $from .= sprintf '\\x{%02X}', $i;
-    $to   .= $1;
-  }
-}
-
-print "tr/$from/$to/\n";
+$dialog->show_all;
+Gtk2->main;
 
 exit 0;

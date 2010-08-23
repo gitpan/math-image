@@ -36,7 +36,7 @@ use_ok ('App::MathImage::Image::Base::Magick');
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 16;
+my $want_version = 17;
 is ($App::MathImage::Image::Base::Magick::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Magick->VERSION,
@@ -53,7 +53,7 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
 
 {
   my $image = App::MathImage::Image::Base::Magick->new
-    (-width => 20,
+    (-width  => 20,
      -height => 10);
   is ($image->get('-width'), 20);
   is ($image->get('-height'), 10);

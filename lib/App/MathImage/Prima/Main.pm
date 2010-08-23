@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 sub run {
   my ($class, $gen_options) = @_;

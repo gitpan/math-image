@@ -27,13 +27,18 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 my %tiff_compression_types = (none    => 1,
                               huffman => 2,
                               lzw     => 5,
                               jpeg    => 7,
                               deflate => 8);
+
+sub save {
+  my ($pixbuf, $filename, $type, @options) = @_;
+  $pixbuf->save ($filename, $type, save_options($type,@options));
+}
 
 sub save_options {
   my $type = shift;

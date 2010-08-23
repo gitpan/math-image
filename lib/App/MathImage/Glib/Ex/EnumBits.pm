@@ -1,3 +1,8 @@
+# method ->EnumBits_to_text for namespace clean
+
+
+
+
 # Copyright 2010 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -30,23 +35,27 @@ our @EXPORT_OK = qw(to_text
                     to_text_default
                     to_description);
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 sub to_text {
   my ($enum_class, $nick) = @_;
   if (@_ < 2) {
     croak "Not enough arguments for EnumBits to_text()";
   }
-  if (my $subr = $enum_class->can('to_text')) {
+  if (my $subr = $enum_class->can('EnumBits_to_text')) {
     return $enum_class->$subr($nick);
+  }
+  if (defined (my $str = do {
+    no strict 'refs'; ${"${enum_class}::EnumBits_to_text"}{$nick} })) {
+    return $str;
   }
   return to_text_default ($enum_class, $nick);
 }
 
 sub to_text_default {
   my ($enum_class, $nick) = @_;
-  if (@_ < 2) {
-    croak "Not enough arguments for EnumBits to_text_default()";
+  if (@_ != 2) {
+    croak "Wrong number of arguments for EnumBits to_text_default()";
   }
   my $str = join (' ',
                   map {ucfirst}
@@ -70,7 +79,7 @@ sub to_description {
   if (@_ < 2) {
     croak "Not enough arguments for EnumBits to_description()";
   }
-  if (my $subr = $enum_class->can('to_description')) {
+  if (my $subr = $enum_class->can('EnumBits_to_description')) {
     return $enum_class->$subr($nick);
   }
   return undef;
@@ -122,15 +131,23 @@ App::MathImage::Glib::Ex::EnumBits -- misc enum helpers
 
 =over
 
-=item << App::MathImage::Glib::Ex::EnumBits::to_text ($enum_class, $nick) >>
+=item C<< $str = App::MathImage::Glib::Ex::EnumBits::to_text ($enum_class, $nick) >>
 
-Return a text form of value C<$nick> from C<$enum_class>.  This is meant to
+Return a text form for value C<$nick> from C<$enum_class>.  This is meant to
 be suitable for display in a menu, label, etc.
 
-C<$enum_class> is a string like C<"Glib::UserDirectory">.  If it has a
-C<< $enum_class->to_text ($nick) >> method then that's called, otherwise the
-C<$nick> string is manipulated to turn for instance C<public-share> into
-"Public Share".
+C<$enum_class> is a string class name such as C<"Glib::UserDirectory">.  If
+that class has a C<< $enum_class->EnumBits_to_text ($nick) >> method then
+it's called, otherwise C<to_text_default> below.
+
+=item C<< $str = App::MathImage::Glib::Ex::EnumBits::to_text_default ($enum_class, $nick) >>
+
+Return a text form for value C<$nick> from C<$enum_class>.  This function is
+the default for C<to_text> above and can be used as a fallback in a
+C<to_text> method.
+
+The nick is split into words and numbers, and C<ucfirst> applied to each
+word.  So for example "some-val1" gives "Some Val 1".
 
 =back
 
@@ -138,5 +155,7 @@ C<$nick> string is manipulated to turn for instance C<public-share> into
 
 L<Glib>,
 L<Glib::Type>
+
+L<App::MathImage::Gtk2::Ex::ComboBox::EnumValues>
 
 =cut

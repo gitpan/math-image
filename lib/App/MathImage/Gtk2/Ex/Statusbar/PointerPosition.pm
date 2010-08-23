@@ -24,8 +24,9 @@ use Gtk2;
 use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 
 use Glib::Ex::SignalIds;
+use Gtk2::Ex::WidgetEvents;
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -70,22 +71,21 @@ sub SET_PROPERTY {
     Scalar::Util::weaken ($self->{'widget'} = $newval);
   }
 
-  $self->{'motion_ids'} = $self->{'widget'} && $self->{'statusbar'}
-    && do {
-      # or WidgetEvents ...
-      $self->{'widget'}->add_events (['pointer-motion-mask',
-                                      'enter-notify-mask']);
-
-      Scalar::Util::weaken (my $weak_self = $self);
-      Glib::Ex::SignalIds->new
-          ($newval,
-           $newval->signal_connect (motion_notify_event => \&_do_motion_notify,
-                                    \$weak_self),
-           $newval->signal_connect (enter_notify_event => \&_do_motion_notify,
-                                    \$weak_self),
-           $newval->signal_connect (leave_notify_event => \&_do_leave_notify,
-                                    \$weak_self));
-    };
+  $self->{'motion_ids'} = $self->{'widget'} && $self->{'statusbar'} && do {
+    Scalar::Util::weaken (my $weak_self = $self);
+    Glib::Ex::SignalIds->new
+        ($newval,
+         $newval->signal_connect (motion_notify_event => \&_do_motion_notify,
+                                  \$weak_self),
+         $newval->signal_connect (enter_notify_event => \&_do_motion_notify,
+                                  \$weak_self),
+         $newval->signal_connect (leave_notify_event => \&_do_leave_notify,
+                                  \$weak_self));
+  };
+  $self->{'wevents'} = $self->{'motion_ids'} &&
+    Gtk2::Ex::WidgetEvents->new
+        ($self->{'widget'},
+         ['pointer-motion-mask','enter-notify-mask']);
 }
 
 # 'enter-notify-event' signal on the widgets

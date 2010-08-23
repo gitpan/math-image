@@ -8,8 +8,6 @@ debian/rules
 debian/source/format
 debian/watch
 devel/archimedean.pl
-devel/aronson-latin1.pl
-devel/aronson.pl
 devel/bits.pl
 devel/camel.pl
 devel/euler.pl
@@ -22,6 +20,7 @@ devel/misc.pl
 devel/pixbuf-types.pl
 devel/prima.pl
 devel/run-about.pl
+devel/run-savedialog.pl
 devel/run-savetype.pl
 devel/svg.pl
 devel/symbolic.pl
@@ -36,7 +35,6 @@ lib/App/MathImage/Generator.pm
 lib/App/MathImage/Glib/Ex/EnumBits.pm
 lib/App/MathImage/Gtk2/AboutDialog.pm
 lib/App/MathImage/Gtk2/Drawing.pm
-lib/App/MathImage/Gtk2/Drawing/Path.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
 lib/App/MathImage/Gtk2/Ex/ComboBox/EnumValues.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
@@ -54,7 +52,6 @@ lib/App/MathImage/Image/Base/X/Pixmap.pm
 lib/App/MathImage/Iterator/Aronson.pm
 lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
-lib/App/MathImage/Math/Aronson.pm
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
 lib/App/MathImage/Prima/About.pm
@@ -69,7 +66,6 @@ t/0-META-read.t
 t/0-Test-DistManifest.t
 t/0-Test-Pod.t
 t/0-Test-YAML-Meta.t
-t/Aronson.t
 t/EnumBits.t
 t/GdkColorBits.t
 t/Generator.t

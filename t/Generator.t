@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 16;
+  my $want_version = 17;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -111,6 +111,11 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 # values_make funcs
 
 {
+  my %values_choices;
+  foreach my $values (App::MathImage::Generator->values_choices) {
+    $values_choices{$values} = 1;
+  }
+
   my $gen = App::MathImage::Generator->new;
   foreach my $elem ([ 'values_make_all', 0,
                       [ 0, 1, 2, 3, 4, 5, 6, 7 ] ],
@@ -189,6 +194,8 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         146, 155, 158, 159, 161, 166, 169, 177, 178, 183,
                         185, 187 ] ],
 
+                    # sloanes
+                    # http://www.research.att.com/~njas/sequences/A005224
                     [ 'values_make_aronson', 0,
                       [ 1, 4, 11, 16, 24, 29, 33, 35, 39, 45, 47, 51, 56, 58,
                         62, 64, 69, 73, 78, 80, 84, 89, 94, 99, 104, 111,
@@ -196,7 +203,9 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         174, 181, 183, 193, 199, 205, 208, 214, 220, 226,
                         231, 237, 243, 249, 254, 270, 288, 303, 307, 319,
                         323, 341 ],
-                      { aronson_conjunctions => 0 } ],
+                      { aronson_options => { without_conjunctions => 1 } },
+                      'Math::Aronson',
+                    ],
 
                     [ 'values_make_thue_morse_evil', 0,
                       [ 0, 3, 5, 6, 9, 10, 12, 15, 17, 18, 20, 23, 24, 27,
@@ -213,13 +222,27 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         104, 107, 109, 110, 112, 115, 117, 118, 121, 122,
                         124, 127, 128 ] ],
                    ) {
-    my ($method, $lo, $want, $options) = @$elem;
+    my ($method, $lo, $want, $options, $module) = @$elem;
     if ($options) {
       %$gen = (%$gen, %$options);
     }
-    my $iter = $gen->$method ($lo, 1000);
-    my $got = [ map {$iter->()} 0 .. $#$want ];
-    is_deeply ($got, $want, "$method lo=$lo");
+  SKIP: {
+      my $iter;
+      if (! eval {
+        $iter = $gen->$method ($lo, 1000);
+        1;
+      }) {
+        my $err = $@;
+        diag "method=$method -- $err";
+        if ($module && ! eval "require $module; 1") {
+          skip "method=$method no module $module", 1
+        }
+        die $err;
+      }
+
+      my $got = [ map {$iter->()} 0 .. $#$want ];
+      is_deeply ($got, $want, "$method lo=$lo");
+    }
   }
 }
 
@@ -256,6 +279,10 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     diag "exercise values $values";
     if ($values eq 'expression' && ! eval { require Math::Symbolic }) {
       diag "skip $values due to no Math::Symbolic -- $@";
+      next;
+    }
+    if ($values eq 'aronson' && ! eval { require Math::Aronson }) {
+      diag "skip $values due to no Math::Aronson -- $@";
       next;
     }
 

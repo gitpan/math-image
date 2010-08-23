@@ -19,15 +19,15 @@ package App::MathImage::Iterator::Simple::Aronson;
 use 5.004;
 use strict;
 use warnings;
-use App::MathImage::Math::Aronson;
+use Math::Aronson;
 use Iterator::Simple;
 
 use vars '$VERSION';
-$VERSION = 16;
+$VERSION = 17;
 
 sub new {
   my $class = shift;
-  my $it = App::MathImage::Math::Aronson->new (@_);
+  my $it = Math::Aronson->new (@_);
   return Iterator::Simple::iterator (sub { $it->next });
 }
 
@@ -36,5 +36,5 @@ sub new {
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 16;
+$VERSION = 17;
 

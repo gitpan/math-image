@@ -39,18 +39,22 @@ MyMakeMakerExtras::WriteMakefile
                     'Glib' => 0,
                     'Glib::Object::Subclass' => 0,
                     'Glib::Ex::ConnectProperties' => 8, # v.8 for write_only
-                    'Glib::Ex::SourceIds' => 2,  # new in ObjectBits 2
-                    'Glib::Ex::SignalIds' => 0,
+
+                    # my Glib-Ex-ObjectBits
+                    'Glib::Ex::SourceIds'  => 2, # new in v.2
+                    'Glib::Ex::SignalIds'  => 0,
+                    'Glib::Ex::SignalBits' => 9, # new in v.9
+
                     'Gtk2' => '1.200',
 
                     # my Gtk2-Ex-WidgetBits
                     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
                     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
                     'Gtk2::Ex::Units'          => 13, # new in v.13
+                    'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
                     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
                     'Gtk2::Ex::WidgetCursor' => 0,
-
                     'Image::Base' => 0,
 
                     # my Image-Base-Other
@@ -62,9 +66,6 @@ MyMakeMakerExtras::WriteMakefile
                     'Image::Base::Gtk2::Gdk::Window' => 2,
                     'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
 
-                    'Lingua::EN::Numbers' => '1.01', # version 1.01 rewrite
-                    # 'Lingua::FR::Numbers' => 0,
-                    'Lingua::Any::Numbers' => 0,
                     'List::MoreUtils' => 0,
                     'Locale::TextDomain' => '1.19',
                     'Locale::Messages' => 0,
@@ -95,7 +96,7 @@ MyMakeMakerExtras::WriteMakefile
                     'Math::PlanePath::PentSpiral'           => 4, # new in v.4
                     'Math::PlanePath::HeptSpiralSkewed'     => 4,
                     'Math::PlanePath::TheodorusSpiral'      => 6, # new in v.6
-                    'Math::PlanePath::MultipleRings'        => 7, # new in v.7 
+                    'Math::PlanePath::MultipleRings'        => 7, # new in v.7
                    },
    MIN_PERL_VERSION => '5.008',
 
@@ -104,11 +105,12 @@ MyMakeMakerExtras::WriteMakefile
         => { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
            },
         recommends
-        => { 'Math::Symbolic' => 0,
-             'Image::Xpm' => 0,
+        => { 'Math::Aronson'  => 1,
+             'Math::Symbolic' => 0, # probably almost any ok
+             'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,
-             'Gtk2::Ex::CrossHair' => 0,
+             'Gtk2::Ex::CrossHair'   => 0,
              'Gtk2::Ex::ErrorDialog' => 7, # suggest v.7 for popup control
            },
         optional_features
@@ -124,7 +126,8 @@ MyMakeMakerExtras::WriteMakefile
                               'Image::Base::PNGwriter' => 2, # bug fixes
                               'Image::Base::X11::Protocol::Pixmap' => 0,
                               'Image::Base::X11::Protocol::Window' => 0,
-                              'Math::Symbolic'         => 0,
+                              'Math::Aronson'  => 1,
+                              'Math::Symbolic' => 0,
                              },
                },
             maximum_tests

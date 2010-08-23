@@ -28,14 +28,25 @@ use Gtk2 1.200;
 use Glib::Ex::SourceIds;
 use App::MathImage::Generator;
 use App::MathImage::Gtk2::Drawing::Values;
-use App::MathImage::Gtk2::Drawing::Path;
+use Locale::TextDomain ('App-MathImage');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
+
+BEGIN {
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
+                             App::MathImage::Generator->path_choices);
+
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::AronsonLang',
+                             'en', 'fr');
+  %App::MathImage::Gtk2::Drawing::AronsonLang::EnumBits_to_text
+    = (en => __('English'),
+       fr => __('French'));
+}
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
@@ -44,7 +55,7 @@ use Glib::Object::Subclass
                    'values',
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::Values',
-                   'lines',    # default
+                   App::MathImage::Generator->default_options->{'values'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->enum
@@ -52,7 +63,7 @@ use Glib::Object::Subclass
                    'path',
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::Path',
-                   'SquareSpiral',      # default
+                   App::MathImage::Generator->default_options->{'path'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -60,21 +71,21 @@ use Glib::Object::Subclass
                    'scale',
                    'Blurb.',
                    1, POSIX::INT_MAX(),
-                   1,           # default
+                   App::MathImage::Generator->default_options->{'scale'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
                   ('fraction',
                    'fraction',
                    'Blurb.',
-                   '5/29',      # default
+                   App::MathImage::Generator->default_options->{'fraction'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
                   ('expression',
                    'expression',
                    'Blurb.',
-                   'x^2 + x + 41',      # default
+                   App::MathImage::Generator->default_options->{'expression'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
@@ -88,7 +99,7 @@ use Glib::Object::Subclass
                   ('aronson-conjunctions',
                    'aronson-conjunctions',
                    'Blurb.',
-                   0,      # default
+                   1,      # default
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -96,7 +107,7 @@ use Glib::Object::Subclass
                    'sqrt',
                    'Blurb.',
                    0, POSIX::INT_MAX(),
-                   2,           # default
+                   App::MathImage::Generator->default_options->{'sqrt'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -104,7 +115,7 @@ use Glib::Object::Subclass
                    'polygonal',
                    'Blurb.',
                    1, POSIX::INT_MAX(),
-                   5,           # default
+                   App::MathImage::Generator->default_options->{'polygonal'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->double
@@ -112,7 +123,7 @@ use Glib::Object::Subclass
                    'multiples',
                    'Blurb.',
                    - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
-                   90,           # default
+                   App::MathImage::Generator->default_options->{'multiples'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -120,7 +131,7 @@ use Glib::Object::Subclass
                    'path-wider',
                    'Blurb.',
                    0, POSIX::INT_MAX(),
-                   0,           # default
+                   App::MathImage::Generator->default_options->{'path_wider'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -128,7 +139,7 @@ use Glib::Object::Subclass
                    'pyramid-step',
                    'Blurb.',
                    1, POSIX::INT_MAX(),
-                   2,           # default
+                   App::MathImage::Generator->default_options->{'pyramid_step'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -136,7 +147,7 @@ use Glib::Object::Subclass
                    'rings-step',
                    'Blurb.',
                    0, POSIX::INT_MAX(),
-                   6,           # default
+                   App::MathImage::Generator->default_options->{'rings_step'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->boolean
@@ -150,7 +161,7 @@ use Glib::Object::Subclass
                   ('prime-quadratic',
                    'prime-quadratic',
                    'Blurb.',
-                   'all',      # default
+                   App::MathImage::Generator->default_options->{'prime_quadratic'},
                    Glib::G_PARAM_READWRITE),
 
                 ];
@@ -274,7 +285,15 @@ sub start_drawing_window {
 
   my ($width, $height) = $window->get_size;
   my $background_colorobj = $self->style->bg($self->state);
+  my $foreground_colorobj = $self->style->fg($self->state);
   $window->set_background ($background_colorobj);
+
+  my $undrawnground_colorobj = Gtk2::Gdk::Color->new
+    (map {0.9 * $background_colorobj->$_()
+            + 0.1 * $foreground_colorobj->$_()}
+     'red', 'blue', 'green');
+  my $colormap = $self->get_colormap;
+  $colormap->rgb_find_color ($undrawnground_colorobj);
 
   my $gen = $self->{'drawing'}->{'gen'} = App::MathImage::Generator->new
     (values          => $self->get('values'),
@@ -282,8 +301,9 @@ sub start_drawing_window {
      scale           => $self->get('scale'),
      fraction        => $self->get('fraction'),
      expression      => $self->get('expression'),
-     aronson_options => { lang  => $self->get('aronson_lang'),
-                          conjunctions => $self->get('aronson_conjunctions') },
+     aronson_options
+     => { lang                 => $self->get('aronson_lang'),
+          without_conjunctions => ! $self->get('aronson_conjunctions') },
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
@@ -293,8 +313,9 @@ sub start_drawing_window {
      path_wider      => $self->get('path-wider'),
      width           => $width,
      height          => $height,
-     foreground      => $self->style->fg($self->state)->to_string,
+     foreground      => $foreground_colorobj->to_string,
      background      => $background_colorobj->to_string,
+     undrawnground   => $undrawnground_colorobj->to_string,
     );
   ### $gen
   $self->{'path_object'} = $gen->path_object;
@@ -375,7 +396,12 @@ sub _idle_handler_draw {
     my $window = $drawing->{'window'};
     $window->set_back_pixmap ($pixmap);
     ### set_back_pixmap: "$pixmap"
-    $self->queue_draw;
+
+    if ($drawing->{'window'} == $self->window) {
+      $self->queue_draw;
+    } else {
+      $window->clear;  # for root window
+    }
     delete $self->{'drawing'};
   }
   ### _idle_handler_draw() end

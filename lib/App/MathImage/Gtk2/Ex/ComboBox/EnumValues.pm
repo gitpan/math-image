@@ -1,4 +1,3 @@
-# nick-to-text $str
 # set_data and call nick-to-text every time ?
 
 
@@ -28,17 +27,26 @@ use Carp;
 use Gtk2;
 use Scalar::Util;
 use List::MoreUtils;
-use Locale::Messages;
+use Glib::Ex::SignalBits;
 use App::MathImage::Glib::Ex::EnumBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
-  signals => { notify => \&_do_notify },
+  signals => { notify => \&_do_notify,
+
+               # this one not yet documented ...
+               'nick-to-text' => { param_types   => ['Glib::String'],
+                                   return_type   => 'Glib::String',
+                                   flags         => ['action','run-last'],
+                                   class_closure => \&_default_nick_to_text,
+                                   accumulator   => \&Glib::Ex::SignalBits::accumulator_first_defined,
+                                 }
+             },
   properties => [ (Glib::Param->can('gtype')
                    ?
                    # new in Glib 2.10 and Perl-Glib 1.240
@@ -68,7 +76,7 @@ use Glib::Object::Subclass
                 ];
 
 use constant { _COLUMN_NICK    => 0,
-               _COLUMN_DISPLAY => 1,
+               _COLUMN_TEXT => 1,
              };
 
 sub INIT_INSTANCE {
@@ -77,7 +85,7 @@ sub INIT_INSTANCE {
   my $renderer = Gtk2::CellRendererText->new;
   $renderer->set (ypad => 0);
   $self->pack_start ($renderer, 1);
-  $self->set_attributes ($renderer, text => _COLUMN_DISPLAY);
+  $self->set_attributes ($renderer, text => _COLUMN_TEXT);
 }
 
 sub GET_PROPERTY {
@@ -104,7 +112,7 @@ sub SET_PROPERTY {
     # preserve active by its nick, if new type has that value
     my $nick = $self->get('active-nick');
     $self->{$pname} = $newval;
-    $self->set_model (_model_for_enum ($newval));
+    $self->set_model (_model_for_enum ($self, $newval));
     $newval = _nick_to_nth ($self, $newval);  # as if setting active-nick
     # set_active() will notify if the active changes, in particular to -1 if
     # nick not known in the new enum_type
@@ -114,6 +122,12 @@ sub SET_PROPERTY {
   if ($self->get_model) {
     $self->set_active (_nick_to_nth ($self, $newval));
   }
+}
+
+sub _default_nick_to_text {
+  my ($self, $nick) = @_;
+  return App::MathImage::Glib::Ex::EnumBits::to_text
+    ($self->get('enum-type'), $nick);
 }
 
 # Crib note: $combobox->set_active_iter() doesn't accept undef for no active
@@ -148,30 +162,35 @@ sub _do_notify {
   }
 }
 
-my %_model_for_enum;
-sub _model_for_enum {
-  my ($enum_type) = @_;
+# no model sharing if nick-to-text may vary by combobox instance
+# my %_model_for_enum;
 
-  # prune any weakened away
-  delete @_model_for_enum{ # hash slice
-    grep{!$_model_for_enum{$_}} keys %_model_for_enum
-  };
+sub _model_for_enum {
+  my ($self, $enum_type) = @_;
+
+  #   # prune any weakened away
+  #   delete @_model_for_enum{ # hash slice
+  #     grep{!$_model_for_enum{$_}} keys %_model_for_enum
+  #   };
 
   if (! defined $enum_type) {
     return undef;
   }
-  if (my $model = $_model_for_enum{$enum_type}) {
-    return $model;  # existing model
-  }
+
+  #   if (my $model = $_model_for_enum{$enum_type}) {
+  #     return $model;  # existing model
+  #   }
 
   # new model
   my $model = Gtk2::ListStore->new ('Glib::String', 'Glib::String');
   foreach my $info (Glib::Type->list_values($enum_type)) {
+    my $nick = $info->{'nick'};
     $model->set ($model->append,
-                 _COLUMN_NICK,    $info->{'nick'},
-                 _COLUMN_DISPLAY, App::MathImage::Glib::Ex::EnumBits::to_text($enum_type,$info->{'nick'}));
+                 _COLUMN_NICK, $nick,
+                 _COLUMN_TEXT, $self->signal_emit('nick-to-text',$nick));
   }
-  Scalar::Util::weaken ($_model_for_enum{$enum_type} = $model);
+
+  # Scalar::Util::weaken ($_model_for_enum{$enum_type} = $model);
   return $model;
 }
 
@@ -188,7 +207,7 @@ App::MathImage::Gtk2::Ex::ComboBox::EnumValues -- combobox for values of a Glib:
 
  use App::MathImage::Gtk2::Ex::ComboBox::EnumValues;
  my $combo = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
-                 (enum_type => 'Glib::UserDirectory',
+                 (enum_type   => 'Glib::UserDirectory',
                   active_nick => 'home');  # initial selection
 
 =head1 WIDGET HIERARCHY
@@ -205,22 +224,27 @@ C<Gtk2::ComboBox>,
 =head1 DESCRIPTION
 
 C<App::MathImage::Gtk2::Ex::ComboBox::EnumValues> displays the values of a
-C<Glib::Enum>.  The text shown is per
-C<App::MathImage::Glib::Ex::EnumBits::to_text>, so a particular enum class
-can control how its values appear.
-
-The C<active-nick> property of the EnumValues is the user's selection.  The
+C<Glib::Enum>.  The C<active-nick> property is the user's selection.  The
 usual ComboBox C<active> property row number works too, but the nick is
-normally the interesting bit.
+normally the useful bit.
+
+The text shown for each entry is per
+C<App::MathImage::Glib::Ex::EnumBits::to_text()>, so a particular enum class
+can control how its values appear or the default is a sensible word split
+and capitalization.
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<< App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new (key=>value,...) >>
+=item C<< $combobox = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new (key=>value,...) >>
 
-Create and return a new C<EnumValues> object.  Optional key/value pairs set
-initial properties per C<< Glib::Object->new >>.
+Create and return a new C<EnumValues> combobox object.  Optional key/value
+pairs set initial properties per C<< Glib::Object->new >>.
+
+    my $combo = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
+                   (enum_type => 'Gtk2::TextDirection',
+                    active    => 0); # the first row
 
 =back
 
@@ -233,25 +257,32 @@ initial properties per C<< Glib::Object->new >>.
 The enum type to display and select from.  Until this is set the ComboBox is
 empty.
 
-When changing C<enum-type> if the current C<active-nick> also exists in the
-new type then it remains selected (possibly on a different row).  If the
-C<active-nick> doesn't exist in the new type then the combobox changes to
-nothing selected.
-
-This parameter is a C<Glib::Param::GType> in Glib-Perl 1.240 and up where
-that pspec is available, or a plain string otherwise.  At the Perl level
-both give string values, but the GType spec checks a setting really is a
-C<Glib::Enum> sub-type.
+When changing C<enum-type> if the current selected C<active-nick> also
+exists in the new type then it remains selected, possibly on a different
+row.  If the C<active-nick> doesn't exist in the new type then the combobox
+changes to nothing selected.
 
 =item C<active-nick> (string or undef, default C<undef>)
 
 The nick of the selected enum value.  The nick is the usual way an enum
 value appears at the Perl level.
 
-If there's no active row in the ComboBox or no C<enum-type> has been set
+If there's no active row in the combobox or no C<enum-type> has been set
 then C<active-nick> is C<undef>.
 
+There's no default for C<active-nick>, just as there's no default for the
+ComboBox C<active>, so when creating an EnumValues combobox it's usual to
+set the desired initial value, either by nick or perhaps just C<active> row
+0 for the first value.
+
 =back
+
+=head1 OTHER NOTES
+
+The C<enum-type> property is a C<Glib::Param::GType> in Glib-Perl 1.240 and
+up where that ParamSpec is available, or a plain string otherwise.  At the
+Perl level both are strings, but the GType spec checks a setting really is a
+C<Glib::Enum> sub-type.
 
 =head1 SEE ALSO
 

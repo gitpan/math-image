@@ -30,7 +30,10 @@ use App::MathImage::Gtk2::Ex::GdkPixbufBits;
 use App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 16;
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
+our $VERSION = 17;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -42,6 +45,11 @@ use Glib::Object::Subclass
                    'App::MathImage::Gtk2::Drawing',
                    Glib::G_PARAM_READWRITE),
                 ];
+
+sub new {
+  my $class = shift;
+  $class->SUPER::new (action => 'save', @_);
+}
 
 sub INIT_INSTANCE {
   my ($self) = @_;
@@ -86,6 +94,11 @@ sub INIT_INSTANCE {
     $combo->signal_connect ('notify::active' => \&_combo_notify_active);
     $hbox->pack_start ($combo, 0,0,0);
     $hbox->show_all;
+
+    my $type = $combo->get('type');
+    if (my $info = _get_format_from_type($type)) {
+      $self->{'old_extensions'} = $info->{'extensions'};
+    }
   }
 }
 
@@ -127,7 +140,6 @@ use constant STRFTIME_FORMAT_RFC822 => '%a, %d %b %Y %H:%M:%S %z';
 sub save {
   my ($self) = @_;
   ### Math-Image-SaveDialog save()
-  $self->hide;
 
   my $filename = $self->get_filename;
   # Gtk2-Perl 1.200 $chooser->get_filename gives back wide chars (where it
@@ -138,7 +150,7 @@ sub save {
   ### $filename
 
   my $combo = $self->{'combo'};
-  my $format = $combo->get('type');
+  my $type = $combo->get('type');
 
   my $draw = $self->get('draw');
   my $pixmap = $draw->pixmap;
@@ -156,28 +168,44 @@ sub save {
   my $title = __x('{values} drawn as {path}',
                   values => Text::Capitalize::capitalize($values),
                   path   => Text::Capitalize::capitalize($path));
-  eval {
-    $pixbuf->save
-      ($filename, $format,
-       App::MathImage::Gtk2::Ex::GdkPixbufBits::save_options
-       ($format,
-        'tEXt::Title'         => $title,
-        'tEXt::Creation Time' => POSIX::strftime (STRFTIME_FORMAT_RFC822,
-                                                  localtime(time)),
-        # 'tEXt::Description'   => '',
-        'tEXt::Software'      => "math-image, http://user42.tuxfamily.org/math-image/index.html",
-        zlib_compression      => 9,
-        tiff_compression_type => 'deflate',
-        quality_percent       => 100));
-    1;
-  } or do {
+  if (eval {
+    App::MathImage::Gtk2::Ex::GdkPixbufBits::save
+        ($pixbuf, $filename, $type,
+         'tEXt::Title'         => $title,
+         'tEXt::Creation Time' => POSIX::strftime (STRFTIME_FORMAT_RFC822,
+                                                   localtime(time)),
+         # 'tEXt::Description'   => '',
+         'tEXt::Software'      => "Math-Image, http://user42.tuxfamily.org/math-image/index.html",
+         zlib_compression      => 9,
+         tiff_compression_type => 'deflate',
+         quality_percent       => 100);
+    1 }) {
+    # success
+    $self->hide;
+  } else {
+    # failure
+    my $err = $@;
     # This die() message here might be an unholy amalgam of filename
     # charset $filename, and utf8 Glib::Error.  It probably occurs in many
     # other libraries too, and you're probably asking for trouble if your
     # filename and locale charsets are different, so leave it as just this
     # simple combination for now.
-    die "Cannot write $filename: $@";
-  };
+    my $dialog = Gtk2::MessageDialog->new
+      ($self,
+       ['modal','destroy-with-parent'], # GtkDialogFlags
+       'error', # GtkMessageType
+       'ok',    # GtkButtonsType
+       __x("Cannot save {filename}:\n\n{error}",
+           filename => Glib::filename_display_name($filename),
+           error    => "$err"));  # Glib::Error
+    $dialog->signal_connect (response => \&_message_dialog_response);
+    $dialog->present;
+  }
+}
+
+sub _message_dialog_response {
+  my ($dialog) = @_;
+  $dialog->destroy;
 }
 
 # type combobox 'active' signal handler
@@ -186,7 +214,11 @@ sub _combo_notify_active {
   my $self = $combo->get_ancestor(__PACKAGE__);
   my $type = $combo->get('type');
   my $info = _get_format_from_type($type) || return; # oops, unknown
-  _set_extension ($self, $info->{'extensions'}->[0] || '');
+
+  _change_extension ($self,
+                     $self->{'old_extensions'} || [],
+                     $info->{'extensions'});
+  $self->{'old_extensions'} = $info->{'extensions'};
 }
 
 # Set the ".xyz" extension part of the filename in $chooser.
@@ -200,20 +232,48 @@ sub _combo_notify_active {
 #
 # Is there a $chooser->get_current for the user entered part?
 #
-sub _set_extension {
-  my ($chooser, $ext, $case_sensitive) = @_;
-  unless ($ext =~ /^(\.|$)/) {
-    $ext = ".$ext";
+sub _change_extension {
+  my ($chooser, $old_aref, $new_aref, $case_sensitive) = @_;
+  ### _change_extension(): $chooser->get_filename
+  ### $old_aref
+  ### $new_aref
+
+  my ($volume, $directories, $filename)
+    = File::Spec->splitpath ($chooser->get_filename);
+
+  if (defined (_filename_has_extension($filename, $new_aref,
+                                       $case_sensitive))) {
+    # already have one of the new extensions
+    return;
   }
-  my $filename = $chooser->get_filename;
-  if ($filename =~ ($case_sensitive ? qr/\Q$ext\E$/ : qr/\Q$ext\E$/i)) {
-    return; # already right
+  if (my ($basename) = _filename_has_extension($filename, $old_aref,
+                                               $case_sensitive)) {
+    # found one of the old extensions to change
+    my $new_ext = $new_aref->[0];
+    $new_ext =~ s/^([^.])/.$1/;  # "txt" -> ".txt"
+    $filename = $basename . $new_ext;
+    $chooser->set_current_folder ($directories);
+    $chooser->set_current_name ($filename);
   }
-  (my $volume,my $directories, $filename) = File::Spec->splitpath($filename);
-  $filename =~ s/\.[^.]{0,5}$/$ext/;
-  $chooser->set_current_folder ($directories);
-  $chooser->set_current_name ($filename);
 }
+
+sub _filename_has_extension {
+  my ($filename, $aref, $case_sensitive) = @_;
+  ### _filename_has_extension()
+  ### $filename
+  ### $aref
+  foreach my $ext (@$aref) {
+    $ext =~ s/^([^.])/.$1/;  # "txt" -> ".txt"
+    if ($filename =~ ($case_sensitive
+                      ? qr/(.*)\Q$ext\E$/ : qr/(.*)\Q$ext\E$/i)) {
+      ### yes: $1
+      return $1;
+    }
+  }
+  ### no
+  return;
+}
+
 
 my $get_formats_method;
 BEGIN {

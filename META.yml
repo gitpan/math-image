@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            16
+version:            17
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -16,6 +16,7 @@ requires:
     constant::defer:      0
     Glib:                 0
     Glib::Ex::ConnectProperties:  8
+    Glib::Ex::SignalBits:  9
     Glib::Ex::SignalIds:  0
     Glib::Ex::SourceIds:  2
     Glib::Object::Subclass:  0
@@ -24,14 +25,13 @@ requires:
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  0
+    Gtk2::Ex::WidgetEvents:  21
     Image::Base:          0
     Image::Base::Gtk2::Gdk::Pixbuf:  3
     Image::Base::Gtk2::Gdk::Pixmap:  2
     Image::Base::Gtk2::Gdk::Window:  2
     Image::Base::Multiplex:  0
     Image::Base::Text:    0
-    Lingua::Any::Numbers:  0
-    Lingua::EN::Numbers:  1.01
     List::MoreUtils:      0
     Locale::Messages:     0
     Locale::TextDomain:   1.19
@@ -87,6 +87,7 @@ optional_features:
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
+            Math::Aronson:        1
             Math::Symbolic:       0
     maximum_tests:
         description:  Have "make test" do as much as possible.
@@ -109,4 +110,5 @@ recommends:
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
+    Math::Aronson:        1
     Math::Symbolic:       0

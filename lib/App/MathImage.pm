@@ -21,12 +21,13 @@ use strict;
 use warnings;
 use Carp;
 use List::Util qw(min max);
+use Locale::TextDomain 'App-MathImage';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 16;
+$VERSION = 17;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -103,8 +104,9 @@ sub getopt_long_specifications {
      'even'    => sub{_hopt($self,'gen_options','values', 'even');  },
      'all'     => sub{_hopt($self,'gen_options','values', 'all');  },
      'lines'   => sub{_hopt($self,'gen_options','values', 'lines');  },
-     # these undocumented yet ...
      'aronson' => sub{_hopt($self,'gen_options','values', 'aronson');  },
+
+     # this one undocumented yet ...
      'prime-quadratic-euler' => sub{
        _hopt($self,'gen_options','values', 'prime_quadratic_euler');
        _hopt($self,'gen_options','prime_quadratic', 'primes');
@@ -401,6 +403,8 @@ sub show_method_window {
   }
 
   my $gen_options = $self->{'gen_options'};
+  Glib::set_application_name (__('Math Image'));
+
   require App::MathImage::Gtk2::Main;
   my $toplevel = App::MathImage::Gtk2::Main->new
     (fullscreen => delete $self->{'gui_options'}->{'fullscreen'});

@@ -31,8 +31,8 @@ print "Gtk2->check_version (2,4,0) ",
   (Gtk2->check_version(2,4,0)||0), "\n";
 
 my @formats = Gtk2::Gdk::Pixbuf->get_formats;
-#   require Data::Dumper;
-#   print Data::Dumper->new([\@formats],['formats'])->Dump;
+  require Data::Dumper;
+  print Data::Dumper->new([\@formats],['formats'])->Dump;
 
 @formats = sort {$a->{'name'} cmp $b->{'name'}} @formats;
 foreach my $format (@formats) {

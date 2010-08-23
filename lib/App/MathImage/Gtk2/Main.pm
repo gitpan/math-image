@@ -35,7 +35,7 @@ use App::MathImage::Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 16;
+our $VERSION = 17;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -170,7 +170,7 @@ sub INIT_INSTANCE {
   }
   {
     my $action = Gtk2::ToggleAction->new (name => 'DrawProgressive',
-                                          label => __('_Draw Progressive'),
+                                          label => __('_Draw Progressively'),
                                           tooltip => __('Whether to draw progressively on the screen, or show the final image when ready.'));
     $actiongroup->add_action ($action);
     Glib::Ex::ConnectProperties->new ([$draw,  'draw-progressive'],
@@ -242,8 +242,8 @@ sub INIT_INSTANCE {
 <ui>
   <menubar name='MenuBar'>
     <menu action='FileMenu'>
-      <menuitem action='SaveAs'/>
       <menuitem action='SetRoot'/>
+      <menuitem action='SaveAs'/>
       <menuitem action='Quit'/>
     </menu>
     <menu action='ViewMenu'>
@@ -464,11 +464,11 @@ HERE
 
     my $entry = $self->{'expression_entry'} = Gtk2::Entry->new;
     $entry->set_width_chars (30);
-    $entry->$set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible operators and function.'));
+    $entry->$set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible operators and function.  Press Return when ready to display the expression.'));
     $toolitem->add ($entry);
     Glib::Ex::ConnectProperties->new
         ([$draw,'expression'],
-         [$entry,'text']);
+         [$entry,'text', read_signal => 'activate']);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$entry,'visible',
                                        write_only => 1,
@@ -532,17 +532,13 @@ HERE
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $combobox = Gtk2::ComboBox->new_text;
-    $combobox->append_text (__('English'));
-    $combobox->append_text (__('French'));
+    my $combobox = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::AronsonLang');
+    _set_property_if_exists ($path_combobox, tearoff_title => __('Language'));
     $combobox->$set_tooltip_text(__('The language to use for the sequence.'));
     $toolitem->add ($combobox);
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-lang'],
-                                      [$combobox,'active',
-                                       hash_in => { 'en' => 0,
-                                                    'fr' => 1 },
-                                       hash_out => { 0 => 'en',
-                                                     1 => 'fr' }]);
+                                      [$combobox,'active-nick']);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$combobox,'visible',
                                        write_only => 1,
@@ -563,6 +559,7 @@ HERE
                                        hash_in => { 'aronson' => 1 }]);
   }
 
+  $toolbar->insert (Gtk2::SeparatorToolItem->new, $toolpos++);
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
@@ -681,6 +678,8 @@ sub popup_save_as {
   $dialog->present;
 }
 
+# FIXME: better setroot with the X11::Protocol code in App::MathImage when
+# possible so as to preserve colormap entries
 sub _do_action_setroot {
   my ($action, $self) = @_;
   $self->{'draw'}->start_drawing_window ($self->get_root_window);

@@ -19,15 +19,15 @@ package App::MathImage::Iterator::Aronson;
 use 5.004;
 use strict;
 use warnings;
-use App::MathImage::Math::Aronson;
+use Math::Aronson;
 use base 'Iterator';
 
 use vars '$VERSION';
-$VERSION = 16;
+$VERSION = 17;
 
 sub new {
   my $class = shift;
-  my $it = App::MathImage::Math::Aronson->new (@_);
+  my $it = Math::Aronson->new (@_);
   return $class->SUPER::new
     (sub {
        if (defined (my $entry = $it->next)) {

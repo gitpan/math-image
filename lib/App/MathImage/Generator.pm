@@ -30,27 +30,35 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 16;
+$VERSION = 17;
+
+use constant default_options => {
+                                 values       => 'primes',  # defaults
+                                 path         => 'SquareSpiral',
+                                 scale        => 1,
+                                 width        => 10,
+                                 height       => 10,
+                                 foreground   => 'white',
+                                 background   => 'black',
+                                 fraction     => '5/29',
+                                 sqrt         => '2',
+                                 polygonal    => 5,
+                                 multiples    => 90,
+                                 pyramid_step => 2,
+                                 rings_step   => 6,
+                                 path_wider   => 0,
+                                 expression   => '3*x^2 + x + 2',
+                                 prime_quadratic => 'all',
+                                };
 
 sub new {
   my $class = shift;
   ### Generator new(): @_
-  return bless { values     => 'primes',  # defaults
-                 path       => 'SquareSpiral',
-                 scale      => 1,
-                 width      => 10,
-                 height     => 10,
-                 foreground => 'white',
-                 background => 'black',
-                 fraction   => '5/29',
-                 sqrt       => '2',
-                 polygonal  => 6,
-                 multiples  => 90,
-                 pyramid_step => 2,
-                 path_wider   => 0,
-                 expression   => '3*x^2 + x + 2',
-                 prime_quadratic => 'all',
-                 @_ }, $class;
+  my $self = bless { %{$class->default_options()}, @_ }, $class;
+  if (! defined $self->{'undrawnground'}) {
+    $self->{'undrawnground'} = $self->{'background'};
+  }
+  return $self;
 }
 
 use constant values_choices
@@ -80,7 +88,6 @@ use constant values_choices
          ln2_bits
          fraction_bits
          sqrt_bits
-         aronson
          thue_morse_evil
          thue_morse_odious
          champernowne_binary
@@ -89,6 +96,9 @@ use constant values_choices
          prime_quadratic_legendre
          prime_quadratic_honaker
          multiples),
+
+      (defined (Module::Util::find_installed('Math::Aronson'))
+       ? ('aronson') : ()),
 
       (defined (Module::Util::find_installed('Math::Symbolic'))
        ? ('expression') : ()),
@@ -159,17 +169,17 @@ sub random_options {
   }
 
   my @scales = (1, 3, 5, 10, 15, 20);
-  my $scale = $scales[int(rand(scalar(@scales)))];
+  my $scale = _rand_of_array(\@scales);
 
   require Math::Prime::XS;
   Math::Prime::XS->VERSION (0.020_001);
   my @primes = Math::Prime::XS::sieve_primes(10,100);
-  my $num = $primes[int(rand(scalar(@primes)))];
+  my $num = _rand_of_array(\@primes);
   @primes = grep {$_ != $num} @primes;
-  my $den = $primes[int(rand(scalar(@primes)))];
+  my $den = _rand_of_array(\@primes);
 
   @primes = Math::Prime::XS::sieve_primes(2,100);
-  my $sqrt = $primes[int(rand(scalar(@primes)))];
+  my $sqrt = _rand_of_array(\@primes);
 
   my $pyramid_step = 1 + int(rand(20));
   if ($pyramid_step > 12) {
@@ -186,23 +196,26 @@ sub random_options {
     $path_wider = 0; # most of the time
   }
 
-  my @prime_quadratic = ('all','primes');
-  my $prime_quadratic = $primes[int(rand(scalar(@prime_quadratic)))];
-
-  return (@{$choices[int(rand(scalar(@choices)))]},
+  return (@{_rand_of_array(\@choices)},
           scale     => $scale,
           fraction  => "$num/$den",
           polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
           sqrt      => $sqrt,
-          aronson_options => { conjunctions => int(rand(2)),
-                               lang => (int(rand(2)) ? 'en' : 'fr'),
+          aronson_options => { lang => _rand_of_array(['en','fr']),
+                               without_conjunctions => int(rand(2)),
                              },
-          prime_quadratic => $prime_quadratic,
-          path_wider   => $path_wider,
-          pyramid_step => $pyramid_step,
-          rings_step   => $rings_step,
+          prime_quadratic => _rand_of_array(['all','primes']),
+          path_wider      => $path_wider,
+          pyramid_step    => $pyramid_step,
+          rings_step      => $rings_step,
          );
 }
+
+sub _rand_of_array {
+  my ($aref) = @_;
+  return $aref->[int(rand(scalar(@$aref)))];
+}
+  
 
 sub description {
   my ($self) = @_;
@@ -326,7 +339,13 @@ sub values_make_expression {
     if ($above >= 10 || $i > $hi) {
       return undef;
     }
-    my $n = $subr->($i++);
+    my $n = eval { $subr->($i++) };
+    if (! defined $n) {
+      # eg. division by zero
+      ### expression undef: $@
+      $above++;
+      next;
+    }
     ### expression result: $n
     if ($n > $hi) {
       $above++;
@@ -337,10 +356,9 @@ sub values_make_expression {
 
 sub values_make_aronson {
   my ($self, $lo, $hi) = @_;
-  require App::MathImage::Math::Aronson;
-  my $aronson = App::MathImage::Math::Aronson->new
-    (hi => $hi,
-     %{$self->{'aronson_options'}});
+  require Math::Aronson;
+  my $aronson = Math::Aronson->new (hi => $hi,
+                                    %{$self->{'aronson_options'}});
   return sub { $aronson->next };
 }
 
@@ -1150,6 +1168,43 @@ sub make_gz {
 use constant _POINTS_CHUNKS     => 2000;  # 1000 of X,Y
 use constant _RECTANGLES_CHUNKS => 2000;  # 500 of X1,Y1,X2,Y2
 
+sub _path_covers_quads {
+  my ($path_object) = @_;
+
+  foreach my $class (qw(PyramidRows)
+
+                     # qw(SquareSpiral
+                     #                         PyramidSpiral
+                     #                         TriangleSpiral
+                     #                         TriangleSpiralSkewed
+                     #                         DiamondSpiral
+                     #                         PentSpiralSkewed
+                     #                         HexSpiral
+                     #                         HexSpiralSkewed
+                     #                         HeptSpiralSkewed
+                     #                         KnightSpiral
+                     #
+                     #                         Diagonals
+                     #                         Corner
+                     #                         PyramidSides)
+                    ) {
+    if ($path_object->isa("Math::PlanePath::$class")) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+sub covers_plane {
+  my ($self) = @_;
+  return ($self->{'background'} eq $self->{'undrawnground'}
+          || do {
+            my $path = $self->path_object;
+            ($path->figure eq 'circle'
+             || _path_covers_quads($path))
+          });
+}
+
 sub draw_Image_start {
   my ($self, $image) = @_;
 
@@ -1157,18 +1212,24 @@ sub draw_Image_start {
   my $height = $image->get('-height');
   my $scale = $self->{'scale'};
 
-  my $foreground = $self->{'foreground'};
-  my $background = $self->{'background'};
+  my $path = $self->path_object;
+  my $foreground    = $self->{'foreground'};
+  my $background    = $self->{'background'};
+  my $undrawnground = $self->{'undrawnground'};
+  my $covers = $self->covers_plane;
+
+  if ($covers) {
+    $undrawnground = $background;
+  }
   if ($image->can('add_colours')) {
-    $image->add_colours ($foreground, $background);
+    $image->add_colours ($foreground, $background, $undrawnground);
   } else {
     ### image doesn't have add_colours(): ref($image)
   }
 
   # clear
-  $image->rectangle (0, 0, $width-1, $height-1, $background, 1);
+  $image->rectangle (0, 0, $width-1, $height-1, $undrawnground, 1);
 
-  my $path = $self->path_object;
   my $coord = $self->{'coord'};
 
   my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
@@ -1185,6 +1246,7 @@ sub draw_Image_start {
   ### $n_hi
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'} = $n_hi;
+  $self->{'prev_n'} = $n_lo - 1;
 
   # origin point
   if ($scale >= 3) {
@@ -1214,12 +1276,19 @@ sub draw_Image_steps {
   ### $scale
 
   my $path = $self->path_object;
-  my $figure = ($scale == 1 ? 'point' : $path->figure);
+  my $covers = $self->covers_plane;
+  ### $covers
+  my $figure = ($scale == 1
+                ? 'point'
+                : $path->figure);
   my $coord = $self->{'coord'};
+
   my $transform = $coord->transform_proc;
 
   my @points;
   my @rectangles;
+  my @back_points;
+  my @back_rectangles;
 
   my $n_hi = $self->{'n_hi'};
   ### $n_hi
@@ -1256,12 +1325,14 @@ sub draw_Image_steps {
     my $offset = int($scale/2);
     my $iter = $self->{'values_iter'};
     my $n;
+    my $prev_n = $self->{'prev_n'};
     for (;;) {
       if ($steps-- == 0) {
         $more = 1;
         last;
       }
       $n = $iter->();
+      ### $prev_n
       ### $n
       (defined $n && $n <= $n_hi)
         or last;
@@ -1275,6 +1346,30 @@ sub draw_Image_steps {
       ### $y
 
       if ($figure eq 'point') {
+
+        if (! $covers) {
+          foreach my $n ($prev_n+1 .. $n-1) {
+            my ($x, $y) = $path->n_to_xy($n) or next;
+            ($x, $y) = $transform->($x, $y);
+            $x = POSIX::floor ($x - $offset + 0.5);
+            $y = POSIX::floor ($y - $offset + 0.5);
+            ### back_point: $n
+            ### $x
+            ### $y
+            next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+            push @back_points, $x, $y;
+
+            if (@back_points >= _POINTS_CHUNKS) {
+              App::MathImage::Image::Base::Other::xy_points
+                  ($image, $foreground, @points);
+              @points = ();
+              App::MathImage::Image::Base::Other::xy_points
+                  ($image, $background, @back_points);
+              @back_points = ();
+            }
+          }
+        }
+
         next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
         push @points, $x, $y;
 
@@ -1282,17 +1377,50 @@ sub draw_Image_steps {
           App::MathImage::Image::Base::Other::xy_points
               ($image, $foreground, @points);
           @points = ();
+          if (! $covers) {
+            App::MathImage::Image::Base::Other::xy_points
+                ($image, $background, @back_points);
+            @back_points = ();
+          }
         }
 
       } elsif ($figure eq 'square') {
+
+        if (! $covers) {
+          foreach my $n ($prev_n+1 .. $n-1) {
+            my ($x, $y) = $path->n_to_xy($n) or next;
+            ($x, $y) = $transform->($x, $y);
+            ### back_rectangle: $n
+            ### $x
+            ### $y
+            $x = POSIX::floor ($x - $offset + 0.5);
+            $y = POSIX::floor ($y - $offset + 0.5);
+            push @back_rectangles, rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
+                                                 $width,$height);
+            if (@back_rectangles >= _RECTANGLES_CHUNKS) {
+              ### back_rectangles chunk
+              App::MathImage::Image::Base::Other::rectangles
+                  ($image, $foreground, 1, @rectangles);
+              @rectangles = ();
+              App::MathImage::Image::Base::Other::rectangles
+                  ($image, $background, 1, @back_rectangles);
+              @back_rectangles = ();
+            }
+          }
+        }
+
         push @rectangles, rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
                                         $width,$height);
-
         if (@rectangles >= _RECTANGLES_CHUNKS) {
           ### rectangles chunk
           App::MathImage::Image::Base::Other::rectangles
               ($image, $foreground, 1, @rectangles);
           @rectangles = ();
+          if (! $covers) {
+            App::MathImage::Image::Base::Other::rectangles
+                ($image, $background, 1, @back_rectangles);
+            @back_rectangles = ();
+          }
         }
 
       } else {
@@ -1301,14 +1429,25 @@ sub draw_Image_steps {
           $image->ellipse (@coords, $foreground);
         }
       }
+
+      $prev_n = $n;
     }
+    $self->{'prev_n'} = $prev_n;
   }
 
   ### @points
   App::MathImage::Image::Base::Other::xy_points
       ($image, $foreground, @points);
+
+  App::MathImage::Image::Base::Other::xy_points
+      ($image, $background, @back_points);
+
   App::MathImage::Image::Base::Other::rectangles
       ($image, $foreground, 1, @rectangles);
+
+  ### final back_rectangles: scalar(@back_rectangles)
+  App::MathImage::Image::Base::Other::rectangles
+      ($image, $background, 1, @back_rectangles);
 
   ### $more
   return $more;
