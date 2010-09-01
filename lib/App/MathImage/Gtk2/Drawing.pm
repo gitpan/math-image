@@ -24,16 +24,19 @@ use Carp;
 use POSIX ();
 use Scalar::Util;
 use Time::HiRes;
-use Gtk2 1.200;
+use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
+use Locale::TextDomain ('App-MathImage');
+
 use Glib::Ex::SourceIds;
+use Gtk2::Ex::GdkBits 23; # version 23 for window_clear_region
+
 use App::MathImage::Generator;
 use App::MathImage::Gtk2::Drawing::Values;
-use Locale::TextDomain ('App-MathImage');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -50,6 +53,8 @@ BEGIN {
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
+  signals => { expose_event => \&_do_expose,
+             },
   properties => [ Glib::ParamSpec->enum
                   ('values',
                    'values',
@@ -168,7 +173,6 @@ use Glib::Object::Subclass
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  $self->signal_connect (expose_event => \&_do_expose);
   # background pixmap doesn't need double buffering
   $self->set_double_buffered (0);
 }
@@ -204,6 +208,7 @@ sub _do_expose {
   ### _pixmap_is_good: _pixmap_is_good($self)
   my $win = $self->window;
   $self->pixmap;
+  Gtk2::Ex::GdkBits::window_clear_region ($win, $event->region);
   $win->clear_area ($event->area->values);
   if (my $pixmap = $self->{'drawing'}->{'pixmap'}) {
     $win->draw_drawable ($self->style->black_gc, $pixmap,
@@ -211,7 +216,7 @@ sub _do_expose {
                          $event->area->y,
                          $event->area->values);
   }
-  return 0; # Gtk2::EVENT_PROPAGATE
+  return Gtk2::EVENT_PROPAGATE;
 }
 #   if (! _pixmap_is_good($self) && ! $self->{'idle_ids'}) {
 #     $win->set_back_pixmap (undef);
@@ -301,9 +306,8 @@ sub start_drawing_window {
      scale           => $self->get('scale'),
      fraction        => $self->get('fraction'),
      expression      => $self->get('expression'),
-     aronson_options
-     => { lang                 => $self->get('aronson_lang'),
-          without_conjunctions => ! $self->get('aronson_conjunctions') },
+     aronson_lang         => $self->get('aronson_lang'),
+     aronson_conjunctions => $self->get('aronson_conjunctions'),
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
@@ -425,10 +429,12 @@ sub _idle_handler_draw {
 sub _gettime {
   return Time::HiRes::clock_gettime (Time::HiRes::CLOCK_REALTIME());
 }
-unless (eval { _gettime(); 1 }) {
-  ### _gettime() no clock_gettime(): $@
-  no warnings;
-  *_gettime = \&Time::HiRes::time;
+BEGIN {
+  unless (eval { _gettime(); 1 }) {
+    ### _gettime() no clock_gettime(): $@
+    no warnings;
+    *_gettime = \&Time::HiRes::time;
+  }
 }
 
 sub pointer_xy_to_image_xyn {

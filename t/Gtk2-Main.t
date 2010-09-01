@@ -27,14 +27,13 @@ use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
 use Gtk2;
-BEGIN {
-  Gtk2->disable_setlocale;  # leave LC_NUMERIC alone for version nums
-  Gtk2->init_check
-    or plan skip_all => 'due to no DISPLAY available';
+Gtk2->disable_setlocale;  # leave LC_NUMERIC alone for version nums
+Gtk2->init_check
+  or plan skip_all => 'due to no DISPLAY available';
 
-  plan tests => 11;
-}
-require App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
+plan tests => 14;
+
+require App::MathImage::Gtk2::Main;
 
 
 #------------------------------------------------------------------------------
@@ -42,58 +41,69 @@ require App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
 
 my $want_version = 18;
 {
-  is ($App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox::VERSION,
+  is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->VERSION,
+  is (App::MathImage::Gtk2::Main->VERSION,
       $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::Main->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::Main->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
-  is ($combo->VERSION,  $want_version, 'VERSION object method');
+  my $main = App::MathImage::Gtk2::Main->new;
+  is ($main->VERSION,  $want_version, 'VERSION object method');
 
-  ok (eval { $combo->VERSION($want_version); 1 },
+  ok (eval { $main->VERSION($want_version); 1 },
       "VERSION object check $want_version");
-  ok (! eval { $combo->VERSION($check_version); 1 },
+  ok (! eval { $main->VERSION($check_version); 1 },
       "VERSION object check $check_version");
 }
 
 
 #-----------------------------------------------------------------------------
-# notify
+# actions (those which should always run at least)
 
 {
-  my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
-  my $saw_notify;
-  $combo->signal_connect
-    ('notify::type' => sub {
-       $saw_notify = $combo->get('type');
-     });
-  $combo->set (type => 'jpeg');
-  is ($combo->get('type'), 'jpeg', 'get() after set()');
-  is ($saw_notify, 'jpeg', 'notify from set("type")');
+  my $main = App::MathImage::Gtk2::Main->new;
+  $main->show;
+  my $actiongroup = $main->{'actiongroup'};
+  foreach my $name ('SaveAs', 'About',
+                    'Random',
+                    'Fullscreen', 'DrawProgressive',
+                    # 'Cross',
+                   ) {
+    diag "action $name";
+    my $action = $actiongroup->get_action ($name);
+    ok ($action, "action $name");
 
-#   $combo->set_active (0);
-#   is ($combo->get('type'), 'png', 'get() after set_active()');
-#   is ($saw_notify, 'png', 'notify from set_active()');
+    if ($name eq 'SaveAs') {
+      # avoid spam from the file chooser
+      local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
+      $action->activate;
+    } else {
+      $action->activate;
+    }
+  }
+  $main->destroy;
+  foreach my $toplevel (Gtk2::Window->list_toplevels) {
+    $toplevel->destroy;
+  }
+  MyTestHelpers::main_iterations();
 }
-
 
 #-----------------------------------------------------------------------------
 # Scalar::Util::weaken
 
 {
-  my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
+  my $main = App::MathImage::Gtk2::Main->new;
+  $main->destroy;
   require Scalar::Util;
-  Scalar::Util::weaken ($combo);
-  is ($combo, undef,
-      'garbage collect when weakened');
+  Scalar::Util::weaken ($main);
+  is ($main, undef, 'garbage collect when weakened');
 }
 
 #-----------------------------------------------------------------------------
@@ -105,11 +115,6 @@ if (! $have_test_weaken) {
   diag "Test::Weaken 3 not available -- $@";
 }
 
-sub my_ignore {
-  my ($ref) = @_;
-  return ($ref == App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->DEFAULT_MODEL);
-}
-
 SKIP: {
   $have_test_weaken or skip 'due to Test::Weaken 3 not available', 1;
 
@@ -119,11 +124,9 @@ SKIP: {
   {
     my $leaks = Test::Weaken::leaks
       ({ constructor => sub {
-           my $toplevel = Gtk2::Window->new ('toplevel');
-           my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
-           $toplevel->add ($combo);
-           $toplevel->show_all;
-           return $toplevel;
+           my $main = App::MathImage::Gtk2::Main->new;
+           $main->show_all;
+           return $main;
          },
          destructor => \&Test::Weaken::Gtk2::destructor_destroy,
          contents => \&Test::Weaken::Gtk2::contents_container,

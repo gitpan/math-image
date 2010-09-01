@@ -33,7 +33,7 @@ use Locale::TextDomain ('App-MathImage');
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',

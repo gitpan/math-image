@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 17;
+  my $want_version = 18;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -203,7 +203,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         174, 181, 183, 193, 199, 205, 208, 214, 220, 226,
                         231, 237, 243, 249, 254, 270, 288, 303, 307, 319,
                         323, 341 ],
-                      { aronson_options => { without_conjunctions => 1 } },
+                      { aronson_conjunctions => 0 },
                       'Math::Aronson',
                     ],
 

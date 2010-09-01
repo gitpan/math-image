@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            17
+version:            18
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -20,8 +20,9 @@ requires:
     Glib::Ex::SignalIds:  0
     Glib::Ex::SourceIds:  2
     Glib::Object::Subclass:  0
-    Gtk2:                 1.200
+    Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
+    Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  0
@@ -55,7 +56,7 @@ requires:
     perl:                 5.008
     Scalar::Util:         1.18
     Scope::Guard:         0
-    Software::License::GPL_3:  0
+    Software::License::GPL_3:  0.001
     Term::Size:           0
     Test::Weaken::Gtk2:   17
     Text::Capitalize:     0

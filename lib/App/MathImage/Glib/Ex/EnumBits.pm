@@ -35,7 +35,7 @@ our @EXPORT_OK = qw(to_text
                     to_text_default
                     to_description);
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 sub to_text {
   my ($enum_class, $nick) = @_;

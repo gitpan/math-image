@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 17;
+$VERSION = 18;
 
 use constant default_options => {
                                  values       => 'primes',  # defaults
@@ -44,6 +44,8 @@ use constant default_options => {
                                  sqrt         => '2',
                                  polygonal    => 5,
                                  multiples    => 90,
+                                 aronson_lang => 'en',
+                                 aronson_conjunctions => 1,
                                  pyramid_step => 2,
                                  rings_step   => 6,
                                  path_wider   => 0,
@@ -201,9 +203,8 @@ sub random_options {
           fraction  => "$num/$den",
           polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
           sqrt      => $sqrt,
-          aronson_options => { lang => _rand_of_array(['en','fr']),
-                               without_conjunctions => int(rand(2)),
-                             },
+          aronson_lang         => _rand_of_array(['en','fr']),
+          aronson_conjunctions => int(rand(2)),
           prime_quadratic => _rand_of_array(['all','primes']),
           path_wider      => $path_wider,
           pyramid_step    => $pyramid_step,
@@ -357,8 +358,11 @@ sub values_make_expression {
 sub values_make_aronson {
   my ($self, $lo, $hi) = @_;
   require Math::Aronson;
-  my $aronson = Math::Aronson->new (hi => $hi,
-                                    %{$self->{'aronson_options'}});
+  my $aronson = Math::Aronson->new
+    (hi => $hi,
+     lang => $self->{'aronson_lang'},
+     without_conjunctions => ! $self->{'aronson_conjunctions'},
+    );
   return sub { $aronson->next };
 }
 

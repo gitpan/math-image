@@ -26,7 +26,7 @@ use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -104,7 +104,7 @@ sub _do_motion_notify {
       };
     }
   }
-  return 0; # Gtk2::EVENT_PROPAGATE
+  return Gtk2::EVENT_PROPAGATE;
 }
 
 # 'leave-notify-event' signal on one of the widgets
@@ -114,7 +114,7 @@ sub _do_leave_notify {
     undef $self->{'x'};
     undef $self->{'y'};
   }
-  return 0; # Gtk2::EVENT_PROPAGATE
+  return Gtk2::EVENT_PROPAGATE;
 }
 
 sub _do_synccall {

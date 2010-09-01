@@ -31,7 +31,7 @@ Locale::Messages::bind_textdomain_filter
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',

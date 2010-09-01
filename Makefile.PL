@@ -32,72 +32,74 @@ MyMakeMakerExtras::WriteMakefile
    LICENSE      => 'gpl',
    SIGN         => 1,
    EXE_FILES    => [ 'math-image' ],
-   PREREQ_PM    => {
-                    'constant::defer' => 0,
-                    'Bit::Vector' => 0,
-                    'Compress::Zlib' => 0,
-                    'Glib' => 0,
-                    'Glib::Object::Subclass' => 0,
-                    'Glib::Ex::ConnectProperties' => 8, # v.8 for write_only
+   PREREQ_PM    =>
+   {
+    'constant::defer' => 0,
+    'Bit::Vector' => 0,
+    'Compress::Zlib' => 0,
+    'Glib' => 0,
+    'Glib::Object::Subclass' => 0,
+    'Glib::Ex::ConnectProperties' => 8, # v.8 for write_only
 
-                    # my Glib-Ex-ObjectBits
-                    'Glib::Ex::SourceIds'  => 2, # new in v.2
-                    'Glib::Ex::SignalIds'  => 0,
-                    'Glib::Ex::SignalBits' => 9, # new in v.9
+    # my Glib-Ex-ObjectBits
+    'Glib::Ex::SourceIds'  => 2, # new in v.2
+    'Glib::Ex::SignalIds'  => 0,
+    'Glib::Ex::SignalBits' => 9, # new in v.9
 
-                    'Gtk2' => '1.200',
+    'Gtk2' => '1.220',
 
-                    # my Gtk2-Ex-WidgetBits
-                    'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
-                    'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
-                    'Gtk2::Ex::Units'          => 13, # new in v.13
-                    'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
-                    'Test::Weaken::Gtk2'       => 17, # new in v.17
+    # my Gtk2-Ex-WidgetBits
+    'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
+    'Gtk2::Ex::GdkBits'        => 23, # version 23 window_clear_region
+    'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
+    'Gtk2::Ex::Units'          => 13, # new in v.13
+    'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
+    'Test::Weaken::Gtk2'       => 17, # new in v.17
 
-                    'Gtk2::Ex::WidgetCursor' => 0,
-                    'Image::Base' => 0,
+    'Gtk2::Ex::WidgetCursor' => 0,
+    'Image::Base' => 0,
 
-                    # my Image-Base-Other
-                    'Image::Base::Multiplex' => 0,
-                    'Image::Base::Text'      => 0,
+    # my Image-Base-Other
+    'Image::Base::Multiplex' => 0,
+    'Image::Base::Text'      => 0,
 
-                    # my Image-Base-Gtk2
-                    'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
-                    'Image::Base::Gtk2::Gdk::Window' => 2,
-                    'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
+    # my Image-Base-Gtk2
+    'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
+    'Image::Base::Gtk2::Gdk::Window' => 2,
+    'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
 
-                    'List::MoreUtils' => 0,
-                    'Locale::TextDomain' => '1.19',
-                    'Locale::Messages' => 0,
-                    'Module::Load' => 0,
-                    'Module::Util' => 0,
-                    'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
-                    'Scope::Guard' => 0,
-                    'Software::License::GPL_3' => 0,
-                    'Text::Capitalize' => 0,
-                    'Term::Size' => 0,
+    'List::MoreUtils' => 0,
+    'Locale::TextDomain' => '1.19',
+    'Locale::Messages' => 0,
+    'Module::Load' => 0,
+    'Module::Util' => 0,
+    'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
+    'Scope::Guard' => 0,
+    'Software::License::GPL_3' => '0.001', # new in 0.001
+    'Text::Capitalize' => 0,
+    'Term::Size' => 0,
 
-                    # version 0.20_01 for uninitialized array fix
-                    'Math::Prime::XS' => '0.20_01',
+    # version 0.20_01 for uninitialized array fix
+    'Math::Prime::XS' => '0.20_01',
 
-                    'Math::Libm' => 0,
-                    # 'Math::Prime::TiedArray' => 0,
-                    'Math::TriangularNumbers' => '1.012',
+    'Math::Libm' => 0,
+    # 'Math::Prime::TiedArray' => 0,
+    'Math::TriangularNumbers' => '1.012',
 
-                    # my Math-PlanePath
-                    'Math::PlanePath' => 0,
-                    'Math::PlanePath::Diagonals'    => 2, # sqrt fix
-                    'Math::PlanePath::SquareSpiral' => 5, # wider parameter
-                    'Math::PlanePath::PyramidRows'  => 4, # step parameter
-                    'Math::PlanePath::PyramidSpiral'        => 3, # new in v.3
-                    'Math::PlanePath::TriangleSpiral'       => 3,
-                    'Math::PlanePath::TriangleSpiralSkewed' => 3,
-                    'Math::PlanePath::PentSpiralSkewed'     => 3,
-                    'Math::PlanePath::PentSpiral'           => 4, # new in v.4
-                    'Math::PlanePath::HeptSpiralSkewed'     => 4,
-                    'Math::PlanePath::TheodorusSpiral'      => 6, # new in v.6
-                    'Math::PlanePath::MultipleRings'        => 7, # new in v.7
-                   },
+    # my Math-PlanePath
+    'Math::PlanePath' => 0,
+    'Math::PlanePath::Diagonals'    => 2, # sqrt fix
+    'Math::PlanePath::SquareSpiral' => 5, # wider parameter
+    'Math::PlanePath::PyramidRows'  => 4, # step parameter
+    'Math::PlanePath::PyramidSpiral'        => 3, # new in v.3
+    'Math::PlanePath::TriangleSpiral'       => 3,
+    'Math::PlanePath::TriangleSpiralSkewed' => 3,
+    'Math::PlanePath::PentSpiralSkewed'     => 3,
+    'Math::PlanePath::PentSpiral'           => 4, # new in v.4
+    'Math::PlanePath::HeptSpiralSkewed'     => 4,
+    'Math::PlanePath::TheodorusSpiral'      => 6, # new in v.6
+    'Math::PlanePath::MultipleRings'        => 7, # new in v.7
+   },
    MIN_PERL_VERSION => '5.008',
 
    META_MERGE

@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 sub run {
   my ($class, $gen_options) = @_;
@@ -505,7 +505,7 @@ sub _draw_image {
 #     }
 #     $statusbar->push ($id, $message);
 #   }
-#   return 0;                     # Prima::EVENT_PROPAGATE
+#   return 0;
 # }
 # 
 # sub SET_PROPERTY {

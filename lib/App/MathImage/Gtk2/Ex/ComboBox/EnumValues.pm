@@ -33,7 +33,7 @@ use App::MathImage::Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 17;
+our $VERSION = 18;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
@@ -183,14 +183,25 @@ sub _model_for_enum {
 
   # new model
   my $model = Gtk2::ListStore->new ('Glib::String', 'Glib::String');
-  foreach my $info (Glib::Type->list_values($enum_type)) {
-    my $nick = $info->{'nick'};
-    $model->set ($model->append,
-                 _COLUMN_NICK, $nick,
-                 _COLUMN_TEXT, $self->signal_emit('nick-to-text',$nick));
+  my @elems = map
+    { [ _COLUMN_NICK, $_->{'nick'},
+        _COLUMN_TEXT, $self->signal_emit('nick-to-text',$_->{'nick'}) ] }
+      Glib::Type->list_values($enum_type);
+  if ($self->{'sort'}) {
+    @elems = sort {$a->[3] cmp $b->[3]} @elems;
+  }
+  foreach my $elem (@elems) {
+    $model->set ($model->append, @$elem);
   }
 
+  #   foreach my $info (Glib::Type->list_values($enum_type)) {
+  #     my $nick = $info->{'nick'};
+  #     $model->set ($model->append,
+  #                  _COLUMN_NICK, $nick,
+  #                  _COLUMN_TEXT, $self->signal_emit('nick-to-text',$nick));
+  #   }
   # Scalar::Util::weaken ($_model_for_enum{$enum_type} = $model);
+
   return $model;
 }
 
