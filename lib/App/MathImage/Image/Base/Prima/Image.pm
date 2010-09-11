@@ -27,7 +27,7 @@ use vars '$VERSION', '@ISA';
 use App::MathImage::Image::Base::Prima::Drawable;
 @ISA = ('App::MathImage::Image::Base::Prima::Drawable');
 
-$VERSION = 18;
+$VERSION = 19;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -46,7 +46,7 @@ sub new {
       $params{'-drawable'} = $class->{'-drawable'}->dup;
     }
     # inherit everything else, in particular '-file'
-    %params = (%$self,
+    %params = (%$class,
                %params);
   }
 
@@ -117,7 +117,6 @@ sub load_fh {
   ### Prima-Drawable load_fh()
   $self->{'-drawable'}->load ($fh)
     or croak $@;
-}
 }
 
 sub save {

@@ -25,17 +25,22 @@ use List::Util qw(min max);
 use Module::Util;
 use Glib::Ex::ConnectProperties 8;  # v.7 for transforms, v.8 for write_only
 use Gtk2::Ex::ActionTooltips;
+use Gtk2::Ex::NumAxis 2;
+use Number::Format;
 use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
+
+use App::MathImage::Glib::Ex::ObjectBits 'set_property_maybe';
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
+use App::MathImage::Gtk2::Ex::ComboBox::ActiveText;
 use App::MathImage::Gtk2::Ex::ComboBox::EnumValues;
 use App::MathImage::Glib::Ex::EnumBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 18;
+our $VERSION = 19;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -100,13 +105,6 @@ sub _path_to_mnemonic {
           || App::MathImage::Glib::Ex::EnumBits::to_text_default($str));
 }
 
-my $set_tooltip_text;
-BEGIN {
-  $set_tooltip_text = (Gtk2::Widget->can('set_tooltip_text')
-                       ? 'set_tooltip_text'  # new in 2.12
-                       : sub {});  # dummy
-}
-
 sub INIT_INSTANCE {
   my ($self) = @_;
   
@@ -121,12 +119,24 @@ sub INIT_INSTANCE {
   
   $actiongroup->add_actions
     ([                          # name,        stock-id,  label
-      [ 'FileMenu',   undef,    dgettext('gtk20-properties','_File')  ],
-      [ 'ViewMenu',   undef,    dgettext('gtk20-properties','_View')  ],
-      [ 'ToolsMenu',  undef,    dgettext('gtk20-properties','_Tools')  ],
-      [ 'HelpMenu',   undef,    dgettext('gtk20-properties','_Help')  ],
-      
-      # name,       stock id,     label,  accelerator,  tooltip
+      { name  => 'FileMenu',
+        label => dgettext('gtk20-properties','_File'),
+      },
+      { name  => 'ViewMenu',
+        label => dgettext('gtk20-properties','_View'),
+      },
+      { name  => 'PathMenu',
+        label => dgettext('gtk20-properties','_Path'),
+      },
+      { name  => 'ValuesMenu',
+        label => dgettext('gtk20-properties','_Values'),
+      },
+      { name  => 'ToolsMenu',
+        label => dgettext('gtk20-properties','_Tools'),
+      },
+      { name  => 'HelpMenu',
+        label => dgettext('gtk20-properties','_Help'),
+      },
       
       { name     => 'SaveAs',
         stock_id => 'gtk-save-as',
@@ -138,10 +148,11 @@ sub INIT_INSTANCE {
         callback => \&_do_action_setroot,
         tooltip  => __('Set the current image as the root window background.'),
       },
-      [ 'Quit',     'gtk-quit',   undef,
-        __p('Main-accelerator-key','<Control>Q'),
-        undef, \&_do_action_quit,
-      ],
+      { name        => 'Quit',
+        stock_id    => 'gtk-quit',
+        accelerator => __p('Main-accelerator-key','<Control>Q'),
+        callback    => \&_do_action_quit,
+      },
       
       { name     => 'About',
         stock_id => 'gtk-about',
@@ -177,9 +188,15 @@ sub INIT_INSTANCE {
     Glib::Ex::ConnectProperties->new ([$draw,  'draw-progressive'],
                                       [$action,'active']);
   }
+  {
+    my $action = Gtk2::ToggleAction->new (name => 'Axes',
+                                          label => __('_Axes'),
+                                          tooltip => __('Whether to show axes beside the image.'));
+    $actiongroup->add_action ($action);
+  }
   $actiongroup->add_toggle_actions
-    ([ { name => 'Toolbar',
-         label => __('_Toolbar'),
+    ([ { name    => 'Toolbar',
+         label   => __('_Toolbar'),
          tooltip => __('Whether to show the toolbar.')},
      ]);
   
@@ -248,15 +265,20 @@ sub INIT_INSTANCE {
       <menuitem action='Quit'/>
     </menu>
     <menu action='ViewMenu'>
+      <menu action='ValuesMenu'>
 HERE
   foreach my $values (App::MathImage::Generator->values_choices) {
     $ui_str .= "      <menuitem action='Values-$values'/>\n";
   }
-  $ui_str .= "      <separator/>\n";
+  $ui_str .= <<'HERE';
+      </menu>
+      <menu action='PathMenu'>
+HERE
   foreach my $path (App::MathImage::Generator->path_choices) {
     $ui_str .= "      <menuitem action='Path-$path'/>\n";
   }
   $ui_str .= <<'HERE';
+      </menu>
     </menu>
     <menu action='ToolsMenu'>
 HERE
@@ -267,6 +289,7 @@ HERE
       <menuitem action='Fullscreen'/>
       <menuitem action='DrawProgressive'/>
       <menuitem action='Toolbar'/>
+      <menuitem action='Axes'/>
     </menu>
     <menu action='HelpMenu'>
       <menuitem action='About'/>
@@ -287,7 +310,7 @@ HERE
   my $toolbar = $self->toolbar;
   $vbox->pack_start ($toolbar, 0,0,0);
   
-  my $table = $self->{'table'} = Gtk2::Table->new (1, 1);
+  my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
   $vbox->pack_start ($table, 1,1,0);
   
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
@@ -297,12 +320,30 @@ HERE
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
   
-  my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
-  $vbox->pack_start ($statusbar, 0,0,0);
+  my $hadj = $self->{'hadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
+  my $vadj = $self->{'vadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
+  $draw->set (hadjustment => $hadj,
+              vadjustment => $vadj);
   
-  my $renderer1 = Gtk2::CellRendererText->new;
-  $renderer1->set (ypad => 0);
-  
+  {
+    my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
+                                        inverted => 1);
+    $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
+
+    my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
+                                        orientation => 'horizontal');
+    $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
+    
+    my $action = $actiongroup->get_action ('Axes');
+    Glib::Ex::ConnectProperties->new ([$vaxis,'visible'],
+                                      [$action,'active']);
+    Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
+                                      [$action,'active']);
+  } 
+  {
+    my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
+    $vbox->pack_start ($statusbar, 0,0,0);
+  }
   {
     my $action = $actiongroup->get_action ('Toolbar');
     Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
@@ -318,8 +359,9 @@ HERE
     $path_combobox = $self->{'path_combobox'}
       = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
-    _set_property_if_exists ($path_combobox, tearoff_title => __('Path'));
-    $path_combobox->$set_tooltip_text(__('The path for where to place values in the plane.'));
+    set_property_maybe ($path_combobox,
+                        tearoff_title => __('Path'),
+                        tooltip_text  => __('The path for where to place values in the plane.'));
     $toolitem->add ($path_combobox);
     
     Glib::Ex::ConnectProperties->new ([$draw,'path'],
@@ -336,12 +378,13 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'path-wider'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    $spin->$set_tooltip_text(__('Wider path.'));
+    set_property_maybe ($spin, tooltip_text => __('Wider path.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$spin,'visible',
                                        write_only => 1,
-                                       hash_in => { 'SquareSpiral' => 1 }]);
+                                       hash_in => { 'SquareSpiral' => 1,
+                                                    'ReplicatingSquares' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -354,7 +397,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'pyramid_step'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    $spin->$set_tooltip_text(__('Step width for the pyramid rows, half going to each side.'));
+    set_property_maybe ($spin, tooltip_text => __('Step width for the pyramid rows, half going to each side.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$spin,'visible',
@@ -364,7 +407,7 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (6,        # initial
                                      0, 9999,  # min,max
                                      1,10,     # steps
@@ -372,27 +415,27 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'rings-step'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    # $spin->$set_tooltip_text(__('Multiple ...'));
+    # set_property_maybe ($spin, tooltip_text => __('Multiple ...'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$spin,'visible',
                                        write_only => 1,
                                        hash_in => { 'MultipleRings' => 1 }]);
   }
-  
+
   my $values_combobox;
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     $values_combobox = $self->{'values_combobox'}
       = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Values');
     $toolitem->add ($values_combobox);
-    _set_property_if_exists ($values_combobox, tearoff_title => __('Values'));
-    
+    set_property_maybe ($values_combobox, tearoff_title => __('Values'));
+
     $values_combobox->signal_connect
-      ('notify::nick' => sub {
+      ('notify::active-nick' => sub {
          my ($values_combobox) = @_;
          my $values = $values_combobox->get('active-nick');
          my $tooltip = __('The values to display.');
@@ -407,9 +450,9 @@ HERE
                  . $desc;
          }
          ### $tooltip
-         $values_combobox->$set_tooltip_text ($tooltip);
+         set_property_maybe ($values_combobox, tooltip_text => $tooltip);
        });
-    
+
     Glib::Ex::ConnectProperties->new ([$draw,'values'],
                                       [$values_combobox,'active-nick']);
     ### values combobox initial: $values_combobox->get('active-nick')
@@ -421,14 +464,16 @@ HERE
     $liststore->set ($liststore->append, 0 => 'all',    1 => __('All'));
     $liststore->set ($liststore->append, 0 => 'primes', 1 => __('Primes'));
     my $combobox = Gtk2::ComboBox->new ($liststore);
-    _set_property_if_exists ($combobox,
-                             tearoff_title => __('Prime Quadratic Filter'));
-    $combobox->$set_tooltip_text(__('Optionally show only the primes among the prime generating polynomials.'));
+    set_property_maybe ($combobox,
+                        tearoff_title => __('Prime Quadratic Filter'),
+                        tooltip_text  => __('Optionally show only the primes among the prime generating polynomials.'));
     $toolitem->add ($combobox);
-    
-    $combobox->pack_start ($renderer1, 1);
-    $combobox->set_attributes ($renderer1, text => 1);
-    
+
+    my $renderer = Gtk2::CellRendererText->new;
+    $renderer->set (ypad => 0);
+    $combobox->pack_start ($renderer, 1);
+    $combobox->set_attributes ($renderer, text => 1);
+
     Glib::Ex::ConnectProperties->new
         ([$draw,'prime-quadratic'],
          [$combobox,'active',
@@ -446,10 +491,11 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $entry = $self->{'fraction_entry'} = Gtk2::Entry->new;
-    $entry->set_width_chars (8);
-    $entry->$set_tooltip_text(__('The fraction to show, for example 5/29.'));
+    set_property_maybe ($entry,
+                        width_chars  => 8,
+                        tooltip_text => __('The fraction to show, for example 5/29.'));
     $toolitem->add ($entry);
     Glib::Ex::ConnectProperties->new
         ([$draw,'fraction'],
@@ -462,10 +508,11 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $entry = $self->{'expression_entry'} = Gtk2::Entry->new;
-    $entry->set_width_chars (30);
-    $entry->$set_tooltip_text(__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible operators and function.  Press Return when ready to display the expression.'));
+    set_property_maybe ($entry,
+                        width_chars  => 30,
+                        tooltip_text => __('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see Math::Symbolic for possible operators and function.  Press Return when ready to display the expression.'));
     $toolitem->add ($entry);
     Glib::Ex::ConnectProperties->new
         ([$draw,'expression'],
@@ -478,7 +525,7 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (1,        # initial
                                      0, 9999999,   # min,max
                                      1,10,     # steps
@@ -486,7 +533,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'sqrt'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    $spin->$set_tooltip_text(__('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'));
+    set_property_maybe ($spin, tooltip_text => __('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
@@ -496,7 +543,7 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (1,        # initial
                                      2, 999,   # min,max
                                      1,10,     # steps
@@ -504,7 +551,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'polygonal'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    $spin->$set_tooltip_text(__('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
+    set_property_maybe ($spin, tooltip_text => __('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
@@ -514,7 +561,7 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (1,        # initial
                                      -99_999_999, 99_999_999,   # min,max
                                      1,10,     # steps
@@ -522,7 +569,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'multiples'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    $spin->$set_tooltip_text(__('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'));
+    set_property_maybe ($spin, tooltip_text => __('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
@@ -532,11 +579,12 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $combobox = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::AronsonLang');
-    _set_property_if_exists ($path_combobox, tearoff_title => __('Language'));
-    $combobox->$set_tooltip_text(__('The language to use for the sequence.'));
+    set_property_maybe ($combobox,
+                        tearoff_title => __('Language'),
+                        tooltip_text  => __('The language to use for the sequence.'));
     $toolitem->add ($combobox);
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-lang'],
                                       [$combobox,'active-nick']);
@@ -548,9 +596,37 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
+    my $combobox = App::MathImage::Gtk2::Ex::ComboBox::ActiveText->new;
+    $combobox->append_text (__('Default'));
+    foreach my $letter ('A' .. 'Z') {
+      $combobox->append_text ($letter);
+    }
+    set_property_maybe ($combobox,
+                        tearoff_title => __('Letter'),
+                        tooltip_text  => __('The language to use for the sequence.'));
+    $toolitem->add ($combobox);
+    Glib::Ex::ConnectProperties->new ([$draw,'aronson-letter'],
+                                      [$combobox,'active-text',
+                                       func_in => sub {
+                                         length($_[0]) == 1
+                                           ? $_[0] : __('Default') },
+                                       func_out => sub {
+                                         length($_[0]) == 1
+                                           ? $_[0] : '' },
+                                      ]);
+    Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
+                                      [$combobox,'visible',
+                                       write_only => 1,
+                                       hash_in => { 'aronson' => 1 }]);
+  }
+  {
+    my $toolitem = Gtk2::ToolItem->new;
+    $toolbar->insert ($toolitem, $toolpos++);
+
     my $check = Gtk2::CheckButton->new_with_label (__('Conjunctions'));
-    $check->$set_tooltip_text(__('Whether to include conjunctions "and" or "et" in the words of the sequence.'));
+    set_property_maybe ($check,
+                        tooltip_text => __('Whether to include conjunctions "and" or "et" in the words of the sequence.'));
     $toolitem->add ($check);
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-conjunctions'],
                                       [$check,'active']);
@@ -575,12 +651,12 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'scale'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    $spin->$set_tooltip_text(__('How many pixels per square.'));
+    set_property_maybe ($spin,
+                        tooltip_text => __('How many pixels per square.'));
     $hbox->pack_start ($spin, 0,0,0);
   }
 
-  Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems
-      ($actiongroup);
+  Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
 
   ### draw: $draw->get('aronson_lang')
   $vbox->show_all;
@@ -728,26 +804,11 @@ sub _do_action_crosshair {
     $self->{'draw'}->signal_connect
       ('notify::scale' => sub {
          my ($draw) = @_;
-         my $self = $draw->get_ancestor (__PACKAGE__);
          my $scale = $draw->get('scale');
          $cross->set (line_width => min($scale,3));
        });
     $self->{'draw'}->notify('scale'); # initial
   };
-}
-
-sub _set_property_if_exists {
-  my $object = shift;
-  if (@_ & 1) {
-    croak "_set_property_if_exists expect even number of propname,value arguments";
-  }
-  while (@_) {
-    my $pname = shift;
-    my $value = shift;
-    if ($object->find_property($pname)) {
-      $object->set_property ($pname, $value);
-    }
-  }
 }
 
 1;

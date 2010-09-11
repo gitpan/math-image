@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 18;
+$VERSION = 19;
 
 sub _save_to_tempfh {
   my ($image) = @_;

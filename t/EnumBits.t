@@ -29,7 +29,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 require App::MathImage::Glib::Ex::EnumBits;
 
 {
-  my $want_version = 18;
+  my $want_version = 19;
   is ($App::MathImage::Glib::Ex::EnumBits::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Glib::Ex::EnumBits->VERSION,  $want_version, 'VERSION class method');
   ok (eval { App::MathImage::Glib::Ex::EnumBits->VERSION($want_version); 1 },

@@ -34,28 +34,28 @@ BEGIN {
 
   plan tests => 11;
 }
-require App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
+require App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 18;
+my $want_version = 19;
 {
-  is ($App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox::VERSION,
+  is ($App::MathImage::Gtk2::Ex::ComboBox::PixbufType::VERSION,
       $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->VERSION,
+  is (App::MathImage::Gtk2::Ex::ComboBox::PixbufType->VERSION,
       $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::Ex::ComboBox::PixbufType->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::Ex::ComboBox::PixbufType->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
+  my $combo = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
   is ($combo->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $combo->VERSION($want_version); 1 },
@@ -69,18 +69,18 @@ my $want_version = 18;
 # notify
 
 {
-  my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
+  my $combo = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
   my $saw_notify;
   $combo->signal_connect
-    ('notify::type' => sub {
-       $saw_notify = $combo->get('type');
+    ('notify::active-type' => sub {
+       $saw_notify = $combo->get('active-type');
      });
-  $combo->set (type => 'jpeg');
-  is ($combo->get('type'), 'jpeg', 'get() after set()');
-  is ($saw_notify, 'jpeg', 'notify from set("type")');
+  $combo->set (active_type => 'jpeg');
+  is ($combo->get('active-type'), 'jpeg', 'get() after set()');
+  is ($saw_notify, 'jpeg', 'notify from set("active_type")');
 
 #   $combo->set_active (0);
-#   is ($combo->get('type'), 'png', 'get() after set_active()');
+#   is ($combo->get('active-type'), 'png', 'get() after set_active()');
 #   is ($saw_notify, 'png', 'notify from set_active()');
 }
 
@@ -89,7 +89,7 @@ my $want_version = 18;
 # Scalar::Util::weaken
 
 {
-  my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
+  my $combo = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
   require Scalar::Util;
   Scalar::Util::weaken ($combo);
   is ($combo, undef,
@@ -107,7 +107,7 @@ if (! $have_test_weaken) {
 
 sub my_ignore {
   my ($ref) = @_;
-  return ($ref == App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->DEFAULT_MODEL);
+  return ($ref == App::MathImage::Gtk2::Ex::ComboBox::PixbufType->DEFAULT_MODEL);
 }
 
 SKIP: {
@@ -120,7 +120,7 @@ SKIP: {
     my $leaks = Test::Weaken::leaks
       ({ constructor => sub {
            my $toplevel = Gtk2::Window->new ('toplevel');
-           my $combo = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
+           my $combo = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
            $toplevel->add ($combo);
            $toplevel->show_all;
            return $toplevel;

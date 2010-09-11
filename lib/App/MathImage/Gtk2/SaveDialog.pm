@@ -16,6 +16,10 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# go to no extension when combobox nothing selected ...
+
+
 package App::MathImage::Gtk2::SaveDialog;
 use 5.008;
 use strict;
@@ -25,15 +29,18 @@ use File::Spec;
 use List::Util;
 use Gtk2;
 use Gtk2::Ex::Units;
+use Glib::Ex::SignalIds;
+use Glib::Ex::ConnectProperties;
+use Locale::TextDomain ('App-MathImage');
+
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Ex::GdkPixbufBits;
-use App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox;
-use Locale::TextDomain ('App-MathImage');
+use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 18;
+our $VERSION = 19;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -87,15 +94,18 @@ sub INIT_INSTANCE {
     $hbox->pack_start ($label, 0,0, Gtk2::Ex::Units::em($label));
 
     my $combo = $self->{'combo'}
-      = App::MathImage::Gtk2::Ex::GdkPixbuf::TypeComboBox->new;
+      = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
     if ($combo->can('set_tooltip_text')) { # new in 2.12
-      $combo->set_tooltip_text(__("The file format to save in.\n(This is all the GdkPixbuf formats with \"write\" support.)"));
+      $combo->set_tooltip_text(__("The file format to save in.
+This is all the GdkPixbuf formats with \"write\" support.
+
+PNG and TIFF compress well, JPEG and BMP tend to be a bit bloated.  Note ICO only goes up to 255x255."));
     }
     $combo->signal_connect ('notify::active' => \&_combo_notify_active);
     $hbox->pack_start ($combo, 0,0,0);
     $hbox->show_all;
 
-    my $type = $combo->get('type');
+    my $type = $combo->get('active-type');
     if (my $info = _get_format_from_type($type)) {
       $self->{'old_extensions'} = $info->{'extensions'};
     }
@@ -108,7 +118,9 @@ sub SET_PROPERTY {
   $self->{$pname} = $newval;
 
   if ($pname eq 'draw') {
+    # this doesn't work in INIT_INSTANCE :-(
     $self->set (action => 'save');
+
     my $draw = $newval;
     my $scale  = $draw->get('scale');
     $self->set_current_name
@@ -116,7 +128,23 @@ sub SET_PROPERTY {
        . '-' . $draw->get('path')
        . '-' . $draw->allocation->width .'x'.$draw->allocation->height
        . ($scale != 1 ? "-s$scale" : '')
-       . '.' . $self->{'combo'}->get('type'));
+       . '.' . $self->{'combo'}->get('active-type'));
+
+    $self->{'draw_ids'} = Glib::Ex::SignalIds->new
+        ($draw,
+         $draw->signal_connect (size_allocate => sub {
+                                  my ($draw, $alloc) = @_;
+                                  $self->{'combo'}->set (for_width => $alloc->width,
+                                                         for_height => $alloc->height);
+                                }));
+
+    # FIXME: disconnect if changing to new 'draw'
+    # $self->{'draw_connections'} = $draw && [
+    #     Glib::Ex::ConnectProperties->dynamic ([$draw,'width'],
+    #                                       [$self->{'combo'},'for-width']),
+    #     Glib::Ex::ConnectProperties->dynamic ([$draw,'height'],
+    #                                       [$self->{'combo'},'for-height']),
+    # ];
   }
 }
 
@@ -150,7 +178,7 @@ sub save {
   ### $filename
 
   my $combo = $self->{'combo'};
-  my $type = $combo->get('type');
+  my $type = $combo->get('active-type');
 
   my $draw = $self->get('draw');
   my $pixmap = $draw->pixmap;
@@ -164,7 +192,7 @@ sub save {
     $values .= ' '.$draw->get($values);
   }
   my $path = $draw->get('path');
-  my $scale = $draw->get('scale');
+  # my $scale = $draw->get('scale');
   my $title = __x('{values} drawn as {path}',
                   values => Text::Capitalize::capitalize($values),
                   path   => Text::Capitalize::capitalize($path));
@@ -212,7 +240,7 @@ sub _message_dialog_response {
 sub _combo_notify_active {
   my ($combo) = @_;
   my $self = $combo->get_ancestor(__PACKAGE__);
-  my $type = $combo->get('type');
+  my $type = $combo->get('active-type');
   my $info = _get_format_from_type($type) || return; # oops, unknown
 
   _change_extension ($self,

@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 18;
+our $VERSION = 19;
 
 my %tiff_compression_types = (none    => 1,
                               huffman => 2,
@@ -88,6 +88,20 @@ sub save_options {
     push @rest, $key, $value;
   }
   return @first, @rest;
+}
+
+sub filename_to_format {
+  my ($filename) = @_;
+  return List::Util::first
+    { format_matches_filename($_, $filename) }
+      Gtk2::Gdk::Pixbuf->get_formats;
+}
+
+sub format_matches_filename {
+  my ($format, $filename) = @_;
+  return List::Util::first
+    { $filename =~ /.\Q$_\E$/i }
+      @{$format->{'extensions'}};
 }
 
 1;

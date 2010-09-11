@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            18
+version:            19
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -23,6 +23,7 @@ requires:
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
     Gtk2::Ex::GdkBits:    23
+    Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  0
@@ -111,5 +112,5 @@ recommends:
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
-    Math::Aronson:        1
+    Math::Aronson:        2
     Math::Symbolic:       0

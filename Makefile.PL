@@ -56,6 +56,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
+    'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
     'Image::Base' => 0,
 
@@ -107,7 +108,7 @@ MyMakeMakerExtras::WriteMakefile
         => { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
            },
         recommends
-        => { 'Math::Aronson'  => 1,
+        => { 'Math::Aronson'  => 2,
              'Math::Symbolic' => 0, # probably almost any ok
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,

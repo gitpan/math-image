@@ -31,9 +31,9 @@ Gtk2->disable_setlocale;  # leave LC_NUMERIC alone for version nums
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 
-plan tests => 14;
+plan tests => 9;
 
-require App::MathImage::Gtk2::Main;
+require App::MathImage::Gtk2::SaveDialog;
 
 
 #------------------------------------------------------------------------------
@@ -41,69 +41,42 @@ require App::MathImage::Gtk2::Main;
 
 my $want_version = 19;
 {
-  is ($App::MathImage::Gtk2::Main::VERSION,
+  is ($App::MathImage::Gtk2::SaveDialog::VERSION,
       $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::Main->VERSION,
+  is (App::MathImage::Gtk2::SaveDialog->VERSION,
       $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::Main->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::SaveDialog->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::Main->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::SaveDialog->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $main = App::MathImage::Gtk2::Main->new;
-  is ($main->VERSION,  $want_version, 'VERSION object method');
+  my $dialog = do {
+    # avoid spam from Gtk trying to make you buy the gnome icons
+    local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
+    App::MathImage::Gtk2::SaveDialog->new
+    };
+  is ($dialog->VERSION,  $want_version, 'VERSION object method');
 
-  ok (eval { $main->VERSION($want_version); 1 },
+  ok (eval { $dialog->VERSION($want_version); 1 },
       "VERSION object check $want_version");
-  ok (! eval { $main->VERSION($check_version); 1 },
+  ok (! eval { $dialog->VERSION($check_version); 1 },
       "VERSION object check $check_version");
 }
 
 
 #-----------------------------------------------------------------------------
-# actions (those which should always run at least)
-
-{
-  my $main = App::MathImage::Gtk2::Main->new;
-  $main->show;
-  my $actiongroup = $main->{'actiongroup'};
-  foreach my $name ('SaveAs', 'About',
-                    'Random',
-                    'Fullscreen', 'DrawProgressive',
-                    # 'Cross',
-                   ) {
-    diag "action $name";
-    my $action = $actiongroup->get_action ($name);
-    ok ($action, "action $name");
-
-    if ($name eq 'SaveAs') {
-      # avoid spam from the file chooser
-      local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
-      $action->activate;
-    } else {
-      $action->activate;
-    }
-  }
-  $main->destroy;
-  foreach my $toplevel (Gtk2::Window->list_toplevels) {
-    $toplevel->destroy;
-  }
-  MyTestHelpers::main_iterations();
-}
-
-#-----------------------------------------------------------------------------
 # Scalar::Util::weaken
 
 {
-  my $main = App::MathImage::Gtk2::Main->new;
-  $main->destroy;
+  my $dialog = App::MathImage::Gtk2::SaveDialog->new;
+  $dialog->destroy;
   require Scalar::Util;
-  Scalar::Util::weaken ($main);
-  is ($main, undef, 'garbage collect when weakened');
+  Scalar::Util::weaken ($dialog);
+  is ($dialog, undef, 'garbage collect when weakened');
 }
 
 #-----------------------------------------------------------------------------
@@ -115,6 +88,13 @@ if (! $have_test_weaken) {
   diag "Test::Weaken 3 not available -- $@";
 }
 
+# Somehow a GtkFileChooserDefault stays alive in gtk 2.20.  Is it meant to,
+# to keep global settings?  In any case ignore for now.
+sub my_ignore {
+  my ($ref) = @_;
+  return (ref($ref) =~ /::GtkFileChooserDefault$/);
+}
+
 SKIP: {
   $have_test_weaken or skip 'due to Test::Weaken 3 not available', 1;
 
@@ -124,13 +104,13 @@ SKIP: {
   {
     my $leaks = Test::Weaken::leaks
       ({ constructor => sub {
-           my $main = App::MathImage::Gtk2::Main->new;
-           $main->show_all;
-           return $main;
+           my $dialog = App::MathImage::Gtk2::SaveDialog->new;
+           $dialog->show;
+           return $dialog;
          },
          destructor => \&Test::Weaken::Gtk2::destructor_destroy,
          contents => \&Test::Weaken::Gtk2::contents_container,
-         # ignore => \&my_ignore,
+         ignore => \&my_ignore,
        });
     is ($leaks, undef, 'Test::Weaken deep garbage collection');
     if ($leaks) {

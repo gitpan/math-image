@@ -23,17 +23,16 @@ use Carp;
 use base 'App::MathImage::Image::Base::X::Drawable';
 
 use vars '$VERSION';
-$VERSION = 18;
+$VERSION = 19;
 
 sub new {
   my ($class, %params) = @_;
   ### X-Pixmap new: \%params
 
-  if (my $win = $params{'-pixmap'}) {
-    $params{'-drawable'} = delete $params{'-pixmap'};
+  if (my $pixmap = delete $params{'-pixmap'}) {
+    $params{'-drawable'} = $pixmap;
   }
   if (! exists $params{'-drawable'}) {
-    my $display = $params{'-display'};
     my $for_drawable = (delete $params{'-for_window'}
                         || delete $params{'-for_pixmap'});
     $params{'-drawable'} = X::CreatePixmap ($params{'-display'},

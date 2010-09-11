@@ -25,11 +25,12 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 use Prima 'Application';
 use App::MathImage::Generator;
+use App::MathImage::Glib::Ex::EnumBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 18;
+our $VERSION = 19;
 
 sub run {
   my ($class, $gen_options) = @_;
@@ -43,13 +44,15 @@ sub run {
                        }
                      ]
                     ] ],
-       [ ef => "~View" => [
-                           _menu_for_values(),
-                           [],  # separator
-                           _menu_for_path(),
-                          ]],
+       [ ef => "~Path" => [ _menu_for_path() ]],
 
-       [],
+       [ ef => "~Values" => [
+                             _menu_for_values(),
+                             #                            [],  # separator
+                             #                            _menu_for_path(),
+                            ]],
+
+       # [],  # separator to put Help at the right
        [ "~Help" => [ [ "~About" => "About",
                         sub {
                           require Prima::MsgBox;
@@ -105,11 +108,17 @@ sub _menu_for_values {
 
   return map {
     my $values = $_;
-    [ _values_to_mnemonic($_) => sub {
-        print $values,"\n";
-      }
+    [ $_,
+      _values_to_mnemonic($_),
+      \&_values_menu_action
     ]
   } App::MathImage::Generator->values_choices;
+}
+sub _values_menu_action {
+  my ($main, $name) = @_;
+  ### Values menu item name: $name
+  $main->{__PACKAGE__.'.gen_options'}->{'values'} = $name;
+  $main->repaint;
 }
 
 my %_path_to_mnemonic =
@@ -137,13 +146,18 @@ sub _menu_for_path {
 
   return map {
     my $path = $_;
-    [ _path_to_mnemonic($_) => sub {
-        print $path,"\n";
-      }
+    [ $_,
+      _path_to_mnemonic($_),
+      \&_path_menu_action
     ]
   } App::MathImage::Generator->path_choices;
 }
-
+sub _path_menu_action {
+  my ($main, $name) = @_;
+  ### Path menu item name: $name
+  $main->{__PACKAGE__.'.gen_options'}->{'path'} = $name;
+  $main->repaint;
+}
 
 sub _paint {
   my ($self, $canvas) = @_;

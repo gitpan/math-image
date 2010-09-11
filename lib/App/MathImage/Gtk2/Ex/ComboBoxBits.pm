@@ -15,50 +15,56 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Gtk2::Ex::GdkColorBits;
+package App::MathImage::Gtk2::Ex::ComboBoxBits;
 use 5.008;
 use strict;
 use warnings;
 
 use Exporter;
 our @ISA = ('Exporter');
-our @EXPORT_OK = qw(to_HRRGGBB);
+our @EXPORT_OK = qw(set_active_text);
 
 our $VERSION = 19;
 
-sub to_HRRGGBB {
-  my ($color) = @_;
-  return sprintf ('#%02X%02X%02X',
-                  $color->red   >> 8,
-                  $color->green >> 8,
-                  $color->blue  >> 8);
+sub set_active_text {
+  my ($combobox, $str) = @_;
+  my $n = -1;
+  $combobox->get_model->foreach
+    (sub {
+       my ($model, $path, $iter) = @_;
+       if ($str eq $model->get_value ($iter, 0)) {
+         ($n) = $path->get_indices;
+         return 1; # stop
+       }
+       return 0; # continue
+     });
+  $combobox->set_active ($n);
 }
 
 1;
 __END__
 
-=for stopwords Ryde color GdkColor Gtk Gtk2
+=for stopwords Ryde
 
 =head1 NAME
 
-App::MathImage::Gtk2::Ex::GdkColorBits -- misc GdkColor helpers
+App::MathImage::Gtk2::Ex::ComboBoxBits -- misc Gtk2::ComboBox helpers
 
 =head1 SYNOPSIS
 
- use App::MathImage::Gtk2::Ex::GdkColorBits;
+ use App::MathImage::Gtk2::Ex::ComboBoxBits;
 
 =head1 FUNCTIONS
 
 =over
 
-=item C<< $str = App::MathImage::Gtk2::Ex::GdkColorBits::to_HRRGGBB ($color) >>
+=item C<< $str = App::MathImage::Gtk2::Ex::ComboBoxBits::set_active_text ($combobox, $text) >>
 
-Return a 2-digit hex string like "#FF00AA" for the given
-C<Gtk2::Gdk::Color>, with the red, green and blue fields reduced to a range
-00 to FF for that result.
+C<$combobox> must be a simplified "text" type ComboBox.  Set the entry
+C<$text> active.
 
-See C<< $color->to_string >> for the full 4-digit form (new in Gtk 2.12 and
-Perl-Gtk 1.160).
+(As of Gtk 2.20 ComboBox has a C<get_active_text>, but no C<set_active_text>
+nor a corresponding property.)
 
 =back
 

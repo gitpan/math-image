@@ -26,6 +26,72 @@ use Smart::Comments;
 use lib 'devel/lib';
 
 
+
+{
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (fraction => '5/29',
+                                            polygonal => 3);
+  my $iter;
+  #   $iter = $gen->values_make_pronic(1);
+  #   $iter = $gen->values_make_perrin(0);
+  #   $iter = $gen->values_make_padovan(0);
+  #   $iter = $gen->values_make_twin_primes_2(6,100);
+  #   $iter = $gen->values_make_fraction(5,29);
+  #   $iter = $gen->values_make_pi_bits();
+  #   $iter = $gen->values_make_polygonal();
+  # $iter = $gen->values_make_aronson(1, 500);
+  #   $iter = $gen->values_make_semi_primes(1,500);
+  # $iter = $gen->values_make_pentagonal(1,500);
+  # $iter = $gen->values_make_pentagonal_second(1,500);
+  $iter = $gen->values_make_columns_of_pythagoras(1,50000);
+  foreach (1 .. 50) {
+    print(($iter->()//last),",");
+  }
+  exit 0;
+}
+
+{
+  sub base3 {
+    my ($n) = @_;
+    my $str = '';
+    while ($n) {
+      $str = ($n % 3) . $str;
+      $n = int($n/3);
+    }
+    return $str;
+  }
+  foreach my $n (1 .. 20) {
+    printf "%2d %4s\n", $n, base3($n);
+  }
+
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (fraction => '5/29',
+                                            polygonal => 3);
+  my $iter = $gen->values_make_ternary_without_2;
+  foreach my $i (1 .. 20) {
+    my $count = 0;
+    my $n = $iter->();
+    printf "%2d %4s\n", $n, base3($n);
+  }
+  exit 0;
+}
+
+{
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (fraction => '5/29',
+                                            polygonal => 3);
+  foreach my $limit (2*2, 4*4, 8*8, 16*16) {
+    my $iter = $gen->values_make_karatsuba(1,$limit);
+    my $count = 0;
+    while ($iter->() <= $limit) {
+      $count++;
+    }
+    print "$limit  $count\n";
+  }
+  exit 0;
+}
+
+
 {
   require Math::PlanePath::SacksSpiral;
   require Math::PlanePath::VogelFloret;
@@ -40,9 +106,10 @@ use lib 'devel/lib';
   require Math::PlanePath::KnightSpiral;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::MultipleRings;
+  require App::MathImage::PlanePath::ReplicatingSquares;
 
-  my $path = Math::PlanePath::MultipleRings->new (wider => 0,
-                                                  step => 0);;
+  my $path = App::MathImage::PlanePath::ReplicatingSquares->new (wider => 1,
+                                                                 step => 0);;
   foreach my $i (1 .. 500) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
@@ -56,6 +123,8 @@ use lib 'devel/lib';
   }
   exit 0;
 }
+
+
 
 {
   require Math::Trig;
@@ -73,8 +142,6 @@ use lib 'devel/lib';
   exit 0;
 }
 
-
-
 {
   require POSIX;
   require Math::Trig;
@@ -87,28 +154,6 @@ use lib 'devel/lib';
     $ang = Math::Trig::asin(1/$r) / (2*3.14159);
     $theta += $ang;
     $r += $ang;
-  }
-  exit 0;
-}
-
-{
-  require App::MathImage::Generator;
-  my $gen = App::MathImage::Generator->new (fraction => '5/29',
-                                            polygonal => 3);
-  my $iter;
-  #   $iter = $gen->values_make_pronic(1);
-  #   $iter = $gen->values_make_perrin(0);
-  #   $iter = $gen->values_make_padovan(0);
-  #   $iter = $gen->values_make_twin_primes_2(6,100);
-  #   $iter = $gen->values_make_fraction(5,29);
-  #   $iter = $gen->values_make_pi_bits();
-  #   $iter = $gen->values_make_polygonal();
-  # $iter = $gen->values_make_aronson(1, 500);
-  #   $iter = $gen->values_make_semi_primes(1,500);
-  $iter = $gen->values_make_pentagonal(1,500);
-  $iter = $gen->values_make_pentagonal_second(1,500);
-  foreach (1 .. 50) {
-    print(($iter->()//last),",");
   }
   exit 0;
 }

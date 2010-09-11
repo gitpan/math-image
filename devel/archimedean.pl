@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use App::MathImage::PlanePath::MultipleRings;
+use Math::PlanePath::MultipleRings;
 
 {
   my $width = 79;

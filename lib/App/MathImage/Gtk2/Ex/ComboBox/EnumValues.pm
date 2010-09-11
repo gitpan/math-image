@@ -33,7 +33,7 @@ use App::MathImage::Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 18;
+our $VERSION = 19;
 
 use Glib::Object::Subclass
   'Gtk2::ComboBox',
@@ -109,19 +109,20 @@ sub SET_PROPERTY {
   ### EnumValues SET_PROPERTY: $pname, $newval
 
   if ($pname eq 'enum_type') {
+    my $enum_type = $self->{$pname} = $newval;
+
     # preserve active by its nick, if new type has that value
-    my $nick = $self->get('active-nick');
-    $self->{$pname} = $newval;
-    $self->set_model (_model_for_enum ($self, $newval));
-    $newval = _nick_to_nth ($self, $newval);  # as if setting active-nick
-    # set_active() will notify if the active changes, in particular to -1 if
-    # nick not known in the new enum_type
+    # set_active() below will notify if the active changes, in particular to
+    # -1 if nick not known in the new enum_type
+    $newval = $self->get('active-nick');
+
+    # note: set_model() doesn't accept undef until Gtk2 1.240, so use set()
+    # (will have undef if setting enum_type to undef)
+    $self->set (model => _model_for_enum ($self, $enum_type));
   }
 
   # $pname eq 'active_nick'
-  if ($self->get_model) {
-    $self->set_active (_nick_to_nth ($self, $newval));
-  }
+  $self->set_active (_nick_to_nth ($self, $newval));
 }
 
 sub _default_nick_to_text {
@@ -154,7 +155,7 @@ sub _nick_to_nth {
   return $ret;
 }
 
-# 'changed' class closure
+# 'notify' class closure
 sub _do_notify {
   my ($self, $pspec) = @_;
   if ($pspec->get_name eq 'active') {
@@ -167,20 +168,11 @@ sub _do_notify {
 
 sub _model_for_enum {
   my ($self, $enum_type) = @_;
-
-  #   # prune any weakened away
-  #   delete @_model_for_enum{ # hash slice
-  #     grep{!$_model_for_enum{$_}} keys %_model_for_enum
-  #   };
+  ### EnumValues _model_for_enum(): $enum_type
 
   if (! defined $enum_type) {
     return undef;
   }
-
-  #   if (my $model = $_model_for_enum{$enum_type}) {
-  #     return $model;  # existing model
-  #   }
-
   # new model
   my $model = Gtk2::ListStore->new ('Glib::String', 'Glib::String');
   my @elems = map
@@ -193,6 +185,15 @@ sub _model_for_enum {
   foreach my $elem (@elems) {
     $model->set ($model->append, @$elem);
   }
+  return $model;
+
+  #   # prune any weakened away
+  #   delete @_model_for_enum{ # hash slice
+  #     grep{!$_model_for_enum{$_}} keys %_model_for_enum
+  #   };
+  #   if (my $model = $_model_for_enum{$enum_type}) {
+  #     return $model;  # existing model
+  #   }
 
   #   foreach my $info (Glib::Type->list_values($enum_type)) {
   #     my $nick = $info->{'nick'};
@@ -201,8 +202,6 @@ sub _model_for_enum {
   #                  _COLUMN_TEXT, $self->signal_emit('nick-to-text',$nick));
   #   }
   # Scalar::Util::weaken ($_model_for_enum{$enum_type} = $model);
-
-  return $model;
 }
 
 1;
@@ -285,6 +284,17 @@ There's no default for C<active-nick>, just as there's no default for the
 ComboBox C<active>, so when creating an EnumValues combobox it's usual to
 set the desired initial value, either by nick or perhaps just C<active> row
 0 for the first value.
+
+=back
+
+=head1 SIGNALS
+
+=over 4
+
+=item C<nick-to-text> (parameters: combobox, nick -- return: string)
+
+Emitted to turn an enum nick into a text display string.  The default is
+the C<to_text> of C<Glib::Ex::EnumBits>.
 
 =back
 

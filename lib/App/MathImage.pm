@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 18;
+$VERSION = 19;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -58,11 +58,11 @@ sub getopt_long_specifications {
   my ($self) = @_;
   return
     ('display=s' =>
-     sub { my ($name, $value) = @_;
+     sub { my ($optname, $value) = @_;
            _hopt($self, 'other_options', 'display', $value);  },
 
      'values=s'  =>
-     sub { my ($name, $value) = @_;
+     sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values', "$value"); },
      'primes'   => sub{_hopt($self,'gen_options','values', 'primes'); },
      'twin'     => sub{_hopt($self,'gen_options','values', 'twin_primes'); },
@@ -84,18 +84,18 @@ sub getopt_long_specifications {
      'padovan'    => sub { _hopt($self,'gen_options','values', 'padovan');  },
      'fibonacci'  => sub { _hopt($self,'gen_options','values', 'fibonacci');  },
      'fraction-bits=s' =>
-     sub { my ($name, $value) = @_;
+     sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values',   'fraction_bits');
            _hopt($self,'gen_options','fraction', $value);
          },
      'expression=s' =>
-     sub { my ($name, $value) = @_;
+     sub { my ($optname, $value) = @_;
            ### $value
            _hopt($self,'gen_options','values',     'expression');
            _hopt($self,'gen_options','expression', $value);
          },
      'polygonal=i' =>
-     sub { my ($name, $value) = @_;
+     sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values',    'polygonal');
            _hopt($self,'gen_options','polygonal', "$value"); },
      'pi'      =>sub { _hopt($self,'gen_options','values', 'pi_bits');  },
@@ -112,23 +112,24 @@ sub getopt_long_specifications {
        _hopt($self,'gen_options','prime_quadratic', 'primes');
      },
 
-     'path=s'  => sub{ my ($name, $value) = @_;
+     'path=s'  => sub{ my ($optname, $value) = @_;
                        _hopt($self,'gen_options','path', "$value");  },
      (map { my $opt = $_;
             ($opt => sub { _hopt ($self,'gen_options','path',
                                   $path_options{$opt}) })
           } keys %path_options),
 
-     'scale=i'  => sub{my ($name, $value) = @_;
+     'scale=i'  => sub{my ($optname, $value) = @_;
                        _hopt($self,'gen_options','scale', "$value");  },
 
-     'show=s'   => sub{my ($name, $value) = @_;
+     'show=s'   => sub{my ($optname, $value) = @_;
                        _hopt($self, 'gui_options', 'show', "$value");  },
      'root'     => sub{_hopt($self, 'gui_options', 'show', 'root');  },
      'root-x11-protocol' =>
      sub{ _hopt ($self, 'gui_options', 'show', 'root_x11_protocol');  },
      'root-gtk' =>
      sub{ _hopt ($self, 'gui_options', 'show', 'root_gtk');  },
+     'prima'    => sub{_hopt($self, 'gui_options', 'show', 'prima');  },
      'xpm'      => sub{_hopt($self, 'gui_options', 'show', 'xpm');  },
      'png'      => sub{_hopt($self, 'gui_options', 'show', 'png');  },
      'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png-gd');  },
@@ -154,13 +155,13 @@ sub getopt_long_specifications {
 
      'fullscreen' => sub{_hopt($self, 'gui_options', 'fullscreen', 1);  },
      'size=s' => sub {
-       my ($name, $value) = @_;
+       my ($optname, $value) = @_;
        my ($width, $height) = split /x/, $value;
        _hopt($self,'gen_options','width', $width);
        _hopt($self,'gen_options','height', $height || $width);
      },
      'size-scale=s' => sub {
-       my ($name, $value) = @_;
+       my ($optname, $value) = @_;
        my ($width, $height) = split /x/, $value;
        _hopt($self,'gen_options','width', $width);
        _hopt($self,'gen_options','height', $height || $width);
@@ -168,11 +169,11 @@ sub getopt_long_specifications {
        $self->{'gen_options'}->{'height_in_scale'} = 1;
      },
      'foreground=s'  => sub {
-       my ($name, $value) = @_;
+       my ($optname, $value) = @_;
        _hopt ($self, 'gen_options','foreground',$value);
      },
      'background=s'  => sub {
-       my ($name, $value) = @_;
+       my ($optname, $value) = @_;
        _hopt ($self, 'gen_options','background',$value);
      },
      'verbose:1'      => \$self->{'verbose'},
@@ -186,7 +187,7 @@ sub show_method_version {
 }
 
 sub show_method_help {
-  my ($self) = @_;
+  # my ($self) = @_;
   print <<'HERE';
 math-image [--options]
 Path:
@@ -230,16 +231,16 @@ HERE
 
 sub new {
   my $class = shift;
-  my $self = bless { gen_options  => {},
-                     gen_defaults => { values     => 'primes',
-                                       path       => 'SquareSpiral',
-                                       foreground => 'white',
-                                       background => 'black',
-                                     },
-                     gui_options  => {},
-                     other_options => {},
-                     verbose => 0,
-                     @_ }, $class;
+  return bless { gen_options  => {},
+                 gen_defaults => { values     => 'primes',
+                                   path       => 'SquareSpiral',
+                                   foreground => 'white',
+                                   background => 'black',
+                                 },
+                 gui_options  => {},
+                 other_options => {},
+                 verbose => 0,
+                 @_ }, $class;
 }
 
 sub command_line {

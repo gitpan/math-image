@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 18;
+$VERSION = 19;
 
 sub new {
   my $class = shift;

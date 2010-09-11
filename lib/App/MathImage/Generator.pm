@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 18;
+$VERSION = 19;
 
 use constant default_options => {
                                  values       => 'primes',  # defaults
@@ -45,6 +45,7 @@ use constant default_options => {
                                  polygonal    => 5,
                                  multiples    => 90,
                                  aronson_lang => 'en',
+                                 aronson_letter => '',
                                  aronson_conjunctions => 1,
                                  pyramid_step => 2,
                                  rings_step   => 6,
@@ -83,6 +84,7 @@ use constant values_choices
          padovan
          fibonacci
          lucas_numbers
+         columns_of_pythagoras
          odd
          even
          all
@@ -97,7 +99,11 @@ use constant values_choices
          prime_quadratic_euler
          prime_quadratic_legendre
          prime_quadratic_honaker
-         multiples),
+         multiples
+         base4_without_3
+         ternary_without_2
+         repdigit_any_base
+         repdigit_base_10),
 
       (defined (Module::Util::find_installed('Math::Aronson'))
        ? ('aronson') : ()),
@@ -123,6 +129,7 @@ use constant path_choices => qw(SquareSpiral
                                 SacksSpiral
                                 VogelFloret
                                 TheodorusSpiral
+                                MultipleRings
 
                                 DiamondSpiral
                                 PentSpiral
@@ -140,8 +147,10 @@ use constant path_choices => qw(SquareSpiral
                                 Diagonals
                                 Rows
                                 Columns
+
                                 ArchimedeanSpiral
-                                MultipleRings);
+                                ReplicatingSquares
+                              );
 
 sub random_options {
   my @choices;
@@ -360,7 +369,8 @@ sub values_make_aronson {
   require Math::Aronson;
   my $aronson = Math::Aronson->new
     (hi => $hi,
-     lang => $self->{'aronson_lang'},
+     lang   => $self->{'aronson_lang'},
+     letter => $self->{'aronson_letter'},
      without_conjunctions => ! $self->{'aronson_conjunctions'},
     );
   return sub { $aronson->next };
@@ -691,11 +701,10 @@ $values_info{'multiples'} =
   };
 sub values_make_multiples {
   my ($self, $lo, $hi) = @_;
-  my $i = -1;
   my $m = abs($self->{'multiples'});
+  my $i = POSIX::ceil ($lo / $m);
   return sub {
-    $i++;
-    return $self->{'multiples'} * $i;
+    return $m * $i++;
   };
 }
 
@@ -838,6 +847,36 @@ sub values_make_lucas_numbers {
   };
 }
 
+# http://www.research.att.com/~njas/sequences/A001333
+#    -- sqrt(2) convergents numerators
+# http://www.research.att.com/~njas/sequences/A000129
+#    -- Pell numbers, sqrt(2) convergents numerators
+# http://www.research.att.com/~njas/sequences/A002965
+#    -- interleaved
+#
+$values_info{'columns_of_pythagoras'} =
+  { subr => \&values_make_columns_of_pythagoras,
+    name => __('Columns of Pythagoras'),
+    # description => __('The ....'),
+  };
+sub values_make_columns_of_pythagoras {
+  my ($self, $lo, $hi) = @_;
+  my $a = 1;
+  my $b = 1;
+  my $c;
+  return sub {
+    if (! defined $c) {
+      $c = $a + $b;
+      return $c;
+    } else {
+      $b = $a + $c;
+      $a = $c;
+      undef $c;
+      return $b;
+    }
+  };
+}
+
 $values_info{'perrin'} =
   { subr => \&values_make_perrin,
     name => __('Perrin Numbers'),
@@ -892,8 +931,7 @@ $values_info{'odd'} =
   };
 sub values_make_odd {
   my ($self, $lo, $hi) = @_;
-  unless ($lo & 1) { $lo++; }
-  $lo -= 2;
+  $lo += -1 - ($lo & 1);
   return sub {
     return ($lo += 2);
   };
@@ -906,8 +944,7 @@ $values_info{'even'} =
   };
 sub values_make_even {
   my ($self, $lo, $hi) = @_;
-  if ($lo & 1) { $lo++; }
-  $lo -= 2;
+  $lo += ($lo & 1) - 2;
   return sub {
     return ($lo += 2);
   };
@@ -1061,6 +1098,133 @@ sub _semi_primes {
   return make_iter_arrayref ([ $vec->Index_List_Read ]);
 }
 
+$values_info{'base4_without_3'} =
+  { subr => \&values_make_base4_without_3,
+    name => __('Base 4 Without 3'),
+    # description => __('The ...'),
+  };
+sub values_make_base4_without_3 {
+  my ($self, $lo, $hi) = @_;
+  my $i = -1;
+  return sub {
+    $i++;
+    my $bit = 1;
+    my $x = $i;
+    while ($x) {
+      if (($x & 3) == 3) {
+        $i += $bit;
+        $x++;
+      }
+      $x >>= 2;
+      $bit <<= 2;
+    }
+    return $i+1;
+  };
+}
+
+$values_info{'ternary_without_2'} =
+  { subr => \&values_make_ternary_without_2,
+    name => __('Ternary without 2s'),
+    # description => __('The ...'),
+  };
+sub values_make_ternary_without_2 {
+  my ($self, $lo, $hi) = @_;
+  my $i = -1;
+  return sub {
+    do {
+      $i++;
+    } while (_any_ternary_2($i));
+    return $i;
+  };
+}
+sub _any_ternary_2 {
+  my ($n) = @_;
+  while ($n) {
+    if (($n % 3) == 2) {
+      return 1;
+    }
+    $n = int ($n / 3);
+  }
+  return 0;
+}
+
+# b^2 + b + 1 = k
+# b^2+b+0.5 = k-0.5
+# (b+0.5)^2 = (k-0.5)
+# b = sqrt(k-0.5)-0.5;
+$values_info{'repdigit_any_base'} =
+  { subr => \&values_make_repdigit_any_base,
+    name => __('Repdigits In Any Base'),
+description => __('Numbers which are a "repdigit" like 111, 222, 333 etc in any number base.'),
+  };
+sub values_make_repdigit_any_base {
+  my ($self, $lo, $hi) = @_;
+  my %ret;
+  foreach my $base (2 .. 1+int(sqrt($hi-0.5))) {
+    my $n = ($base + 1) * $base + 1;
+    while ($n <= $hi) {
+      $ret{$n} = 1;
+      foreach my $digit (2 .. $base-1) {
+        if ((my $mult = $digit * $n) < $hi) {
+          $ret{$mult} = 1;
+        }
+      }
+      $n = $n * $base + 1;
+    }
+  }
+  return make_iter_arrayref ([ sort {$a <=> $b} keys %ret ]);
+
+
+
+  #   require Math::Prime::XS;
+  #   my @upto;
+  #   my $i = 1;
+  #   my @primes = Math::Prime::XS::sieve_primes ($maxbase);
+  #   return sub {
+  #     for (;;) {
+  #       $i++;
+  #       my $base_limit = 1+int(sqrt($i/2));
+  #       foreach my $base (@primes) {
+  #         last if ($base > $base_limit);
+  #         foreach my $digit (@primes) {
+  #           last if ($digit >= $base);
+  #           my $ref = \$upto[$base]->[$digit];
+  #           $$ref ||= (($base * $digit) + $digit) * $base + $digit;
+  #           while ($$ref < $i) {
+  #             $$ref = $$ref * $base + $digit;
+  #           }
+  #           if ($$ref == $i) {
+  #             return $i;
+  #           }
+  #         }
+  #       }
+  #     }
+  #   };
+}
+
+$values_info{'repdigit_base_10'} =
+  { subr => \&values_make_repdigit_base_10,
+    name => __('Repdigits Base 10'),
+    description => __('Numbers which are a "repdigit" in base 10, meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc'),
+  };
+sub values_make_repdigit_base_10 {
+  my ($self, $lo, $hi) = @_;
+  my @upto = (1 .. 9);
+  my $last = 0;
+  return sub {
+    for (;;) {
+      ### @upto
+      foreach my $pos (0 .. 8) {
+        while ($upto[$pos] <= $last) {
+          $upto[$pos] = $upto[$pos] * 10 + $pos + 1;
+        }
+      }
+      return ($last = min(@upto));
+    }
+  };
+}
+
+
 use constant::defer bigint => sub {
   require Math::BigInt;
   Math::BigInt->import (try => 'GMP');
@@ -1107,7 +1271,6 @@ sub values_make_sqrt_bits {
 
   bigint();
   my $calcbits = int(2*$hi + 32);
-  my $total = Math::BigInt->new(0);
   $s = Math::BigInt->new($s);
   $s->blsft ($calcbits);
   $s->bsqrt();
@@ -1307,9 +1470,8 @@ sub draw_Image_steps {
         last;
       }
 
-      my ($x2, $y2) = $transform->($path->n_to_xy($n));
-      $x2 = POSIX::floor ($x2 + 0.5);
-      $y2 = POSIX::floor ($y2 + 0.5);
+      my ($x2, $y2) = $transform->($path->n_to_xy($n))
+        or next;
 
       if (my ($x1, $y1) = $transform->($path->n_to_xy($n-0.499))) {
         $x1 = POSIX::floor ($x1 + 0.5);
@@ -1317,10 +1479,11 @@ sub draw_Image_steps {
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
       }
 
-      my ($x3, $y3) = $transform->($path->n_to_xy($n+0.499));
-      $x3 = POSIX::floor ($x3 + 0.5);
-      $y3 = POSIX::floor ($y3 + 0.5);
-      _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground)
+      if (my ($x3, $y3) = $transform->($path->n_to_xy($n+0.499))) {
+        $x3 = POSIX::floor ($x3 + 0.5);
+        $y3 = POSIX::floor ($y3 + 0.5);
+        _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground)
+      }
     }
     $self->{'upto_n'} = $n;
 

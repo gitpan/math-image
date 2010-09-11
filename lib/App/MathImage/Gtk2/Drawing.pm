@@ -36,7 +36,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 18;
+our $VERSION = 19;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -98,6 +98,13 @@ use Glib::Object::Subclass
                    'aronson-lang',
                    'Blurb.',
                    'en',      # default
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->string
+                  ('aronson-letter',
+                   'aronson-letter',
+                   'Blurb.',
+                   '', # default
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->boolean
@@ -169,6 +176,18 @@ use Glib::Object::Subclass
                    App::MathImage::Generator->default_options->{'prime_quadratic'},
                    Glib::G_PARAM_READWRITE),
 
+                  Glib::ParamSpec->object
+                  ('hadjustment',
+                   'hadjustment',
+                   'Blurb.',
+                   'Gtk2::Adjustment',
+                   Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->object
+                  ('vadjustment',
+                   'vadjustment',
+                   'Blurb.',
+                   'Gtk2::Adjustment',
+                   Glib::G_PARAM_READWRITE),
                 ];
 
 sub INIT_INSTANCE {
@@ -182,8 +201,9 @@ sub SET_PROPERTY {
   ### SET_PROPERTY: $pname, $newval
 
   my $oldval = $self->get($pname);
-  if ($oldval ne $newval) {
-    $self->{$pname} = $newval;
+  $self->{$pname} = $newval;
+  if (defined($oldval) != defined($newval)
+      || (defined $oldval && $oldval ne $newval)) {
 
     if ($pname ne 'draw_progressive') {
       delete $self->{'path_object'};
@@ -306,8 +326,9 @@ sub start_drawing_window {
      scale           => $self->get('scale'),
      fraction        => $self->get('fraction'),
      expression      => $self->get('expression'),
-     aronson_lang         => $self->get('aronson_lang'),
-     aronson_conjunctions => $self->get('aronson_conjunctions'),
+     aronson_lang         => $self->get('aronson-lang'),
+     aronson_letter       => $self->get('aronson-letter'),
+     aronson_conjunctions => $self->get('aronson-conjunctions'),
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
@@ -324,6 +345,27 @@ sub start_drawing_window {
   ### $gen
   $self->{'path_object'} = $gen->path_object;
   $self->{'coord'} = $gen->{'coord'};
+
+  if (my $vadj = $self->{'vadjustment'}) {
+    my $coord = $self->{'coord'};
+    my (undef, $lower) = $coord->untransform(0,$height);
+    my (undef, $upper) = $coord->untransform(0,0);
+    ### vadj: "$lower to $upper"
+    $vadj->set (lower     => $lower,
+                upper     => $upper,
+                page_size => ($upper - $lower),
+                value     => $lower);
+  }
+  if (my $hadj = $self->{'hadjustment'}) {
+    my $coord = $self->{'coord'};
+    my ($lower, undef) = $coord->untransform(0,0);
+    my ($upper, undef) = $coord->untransform($width,0);
+    ### hadj: "$lower to $upper"
+    $hadj->set (lower     => $lower,
+                upper     => $upper,
+                page_size => ($upper - $lower),
+                value     => $lower);
+  }
 
   require Image::Base::Gtk2::Gdk::Pixmap;
   my $image = $self->{'drawing'}->{'image'}
