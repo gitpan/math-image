@@ -44,7 +44,8 @@ MyMakeMakerExtras::WriteMakefile
     # my Glib-Ex-ObjectBits
     'Glib::Ex::SourceIds'  => 2, # new in v.2
     'Glib::Ex::SignalIds'  => 0,
-    'Glib::Ex::SignalBits' => 9, # new in v.9
+    # 'Glib::Ex::SignalBits' => 9, # new in v.9
+    'Glib::Ex::EnumBits'   => 11, # new in v.11
 
     'Gtk2' => '1.220',
 
@@ -56,6 +57,8 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
+    'Gtk2::Ex::ComboBox::Enum' => 1,
+    'Gtk2::Ex::ComboBox::Text' => 1,
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
     'Image::Base' => 0,

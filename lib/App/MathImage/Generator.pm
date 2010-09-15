@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 19;
+$VERSION = 20;
 
 use constant default_options => {
                                  values       => 'primes',  # defaults
@@ -150,6 +150,8 @@ use constant path_choices => qw(SquareSpiral
 
                                 ArchimedeanSpiral
                                 ReplicatingSquares
+                                PiFloret
+                                Sqrt2Floret
                               );
 
 sub random_options {

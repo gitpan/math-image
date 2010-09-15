@@ -25,12 +25,12 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 use Prima 'Application';
 use App::MathImage::Generator;
-use App::MathImage::Glib::Ex::EnumBits;
+use Glib::Ex::EnumBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 19;
+our $VERSION = 20;
 
 sub run {
   my ($class, $gen_options) = @_;
@@ -99,7 +99,7 @@ my %_values_to_mnemonic =
 sub _values_to_mnemonic {
   my ($str) = @_;
   $str = ($_values_to_mnemonic{$str}
-          || App::MathImage::Glib::Ex::EnumBits::to_text_default(undef,$str));
+          || Glib::Ex::EnumBits::to_display_default(undef,$str));
   $str =~ tr/_/~/;
   return $str;
 }
@@ -139,7 +139,7 @@ my %_path_to_mnemonic =
 sub _path_to_mnemonic {
   my ($str) = @_;
   return ($_values_to_mnemonic{$str}
-          || App::MathImage::Glib::Ex::EnumBits::to_text_default(undef,$str));
+          || Glib::Ex::EnumBits::to_display_default(undef,$str));
 }
 sub _menu_for_path {
   my ($self) = @_;

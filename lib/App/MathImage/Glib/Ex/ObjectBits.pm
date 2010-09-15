@@ -28,7 +28,7 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(set_property_maybe);
 
-our $VERSION = 19;
+our $VERSION = 20;
 
 sub set_property_maybe {
   my $object = shift;

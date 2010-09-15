@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            19
+version:            20
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -16,12 +16,14 @@ requires:
     constant::defer:      0
     Glib:                 0
     Glib::Ex::ConnectProperties:  8
-    Glib::Ex::SignalBits:  9
+    Glib::Ex::EnumBits:   11
     Glib::Ex::SignalIds:  0
     Glib::Ex::SourceIds:  2
     Glib::Object::Subclass:  0
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
+    Gtk2::Ex::ComboBox::Enum:  1
+    Gtk2::Ex::ComboBox::Text:  1
     Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::Statusbar::MessageUntilKey:  11

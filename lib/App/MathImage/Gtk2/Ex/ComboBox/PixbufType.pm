@@ -40,7 +40,7 @@ use Locale::Messages;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 19;
+our $VERSION = 20;
 
 BEGIN {
   if (0) {
@@ -118,6 +118,7 @@ sub INIT_INSTANCE {
   $self->pack_start ($renderer, 1);
   $self->set_attributes ($renderer, text => COLUMN_DISPLAY);
 
+  $self->set_model (Gtk2::ListStore->new ('Glib::String', 'Glib::String'));
   _update_model($self);
   $self->set (active_type => 'png');  # per default above
 }
@@ -212,9 +213,9 @@ BEGIN {
        });
 }
 
-# not documented ...
 sub _update_model {
   my ($self) = @_;
+  my $type = $self->get('active-type');
 
   my @formats = grep
     {$_->$is_writable_method}
@@ -240,7 +241,8 @@ sub _update_model {
   # alphabetical by translated description
   @formats = sort { $a->{'display'} cmp $b->{'display'} } @formats;
 
-  my $model = Gtk2::ListStore->new ('Glib::String', 'Glib::String');
+  my $model = $self->get_model;
+  $model->clear;
   foreach my $format (@formats) {
     ### display: $format->{'display'}
     $model->set ($model->append,
@@ -248,8 +250,7 @@ sub _update_model {
                  COLUMN_DISPLAY, $format->{'display'});
   }
 
-  my $type = $self->get('active-type');
-  $self->set_model ($model);
+  # preserve existing setting
   $self->set (active_type => $type);
 }
 

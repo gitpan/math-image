@@ -9,6 +9,7 @@ debian/source/format
 debian/watch
 devel/archimedean.pl
 devel/bits.pl
+devel/builder-activetext.pl
 devel/camel.pl
 devel/euler.pl
 devel/gen-bits.c
@@ -33,15 +34,11 @@ inc/MyMakeMakerExtras.pm
 lib/App/MathImage.pm
 lib/App/MathImage/Coord.pm
 lib/App/MathImage/Generator.pm
-lib/App/MathImage/Glib/Ex/EnumBits.pm
 lib/App/MathImage/Glib/Ex/ObjectBits.pm
 lib/App/MathImage/Gtk2/AboutDialog.pm
 lib/App/MathImage/Gtk2/Drawing.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
-lib/App/MathImage/Gtk2/Ex/ComboBox/ActiveText.pm
-lib/App/MathImage/Gtk2/Ex/ComboBox/EnumValues.pm
 lib/App/MathImage/Gtk2/Ex/ComboBox/PixbufType.pm
-lib/App/MathImage/Gtk2/Ex/ComboBoxBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
@@ -58,7 +55,9 @@ lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
+lib/App/MathImage/PlanePath/PiFloret.pm
 lib/App/MathImage/PlanePath/ReplicatingSquares.pm
+lib/App/MathImage/PlanePath/Sqrt2Floret.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Main.pm
 Makefile.PL
@@ -72,7 +71,6 @@ t/0-Test-DistManifest.t
 t/0-Test-Pod.t
 t/0-Test-YAML-Meta.t
 t/ComboBox-PixbufType.t
-t/EnumBits.t
 t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-Main.t

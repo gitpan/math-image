@@ -36,7 +36,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 19;
+our $VERSION = 20;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -46,7 +46,7 @@ BEGIN {
 
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::AronsonLang',
                              'en', 'fr');
-  %App::MathImage::Gtk2::Drawing::AronsonLang::EnumBits_to_text
+  %App::MathImage::Gtk2::Drawing::AronsonLang::EnumBits_to_display
     = (en => __('English'),
        fr => __('French'));
 }

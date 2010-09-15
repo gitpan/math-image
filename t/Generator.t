@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 19;
+  my $want_version = 20;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -233,9 +233,9 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
         1;
       }) {
         my $err = $@;
-        diag "method=$method -- $err";
+        diag "method=$method caught error -- $err";
         if ($module && ! eval "require $module; 1") {
-          skip "method=$method no module $module", 1
+          skip "method=$method due to no module $module", 1
         }
         die $err;
       }
@@ -300,5 +300,9 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
   }
   ok ($good, "all values_choices exercised");
 }
+
+#------------------------------------------------------------------------------
+
+diag "Math::Prime::XS version ", Math::Prime::XS->VERSION;
 
 exit 0;

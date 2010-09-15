@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 19;
+$VERSION = 20;
 exit App::MathImage->command_line;
 
 __END__
@@ -375,6 +375,10 @@ L<gtk-options(7)>, L<xsetroot(1)>
 
 L<Math::PlanePath>, L<Gtk2>, L<X11::Protocol>, L<Gtk2::Ex::CrossHair>,
 L<Gtk2::Ex::ErrorTextDialog>
+
+=head1 HOME PAGE
+
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 

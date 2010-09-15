@@ -30,17 +30,18 @@ use Number::Format;
 use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 
+use Glib::Ex::EnumBits;
+use Gtk2::Ex::ComboBox::Text;
+use Gtk2::Ex::ComboBox::Enum;
+
 use App::MathImage::Glib::Ex::ObjectBits 'set_property_maybe';
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
-use App::MathImage::Gtk2::Ex::ComboBox::ActiveText;
-use App::MathImage::Gtk2::Ex::ComboBox::EnumValues;
-use App::MathImage::Glib::Ex::EnumBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 19;
+our $VERSION = 20;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -81,7 +82,7 @@ my %_values_to_mnemonic =
 sub _values_to_mnemonic {
   my ($str) = @_;
   return ($_values_to_mnemonic{$str}
-          || App::MathImage::Glib::Ex::EnumBits->to_text_default($str));
+          || Glib::Ex::EnumBits->to_display_default($str));
 }
 
 my %_path_to_mnemonic =
@@ -102,7 +103,7 @@ my %_path_to_mnemonic =
 sub _path_to_mnemonic {
   my ($str) = @_;
   return ($_path_to_mnemonic{$str}
-          || App::MathImage::Glib::Ex::EnumBits::to_text_default($str));
+          || Glib::Ex::EnumBits::to_display_default($str));
 }
 
 sub INIT_INSTANCE {
@@ -329,7 +330,7 @@ HERE
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
                                         inverted => 1);
     $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-
+    
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
                                         orientation => 'horizontal');
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
@@ -357,7 +358,7 @@ HERE
     $toolbar->insert ($toolitem, $toolpos++);
     
     $path_combobox = $self->{'path_combobox'}
-      = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
+      = Gtk2::Ex::ComboBox::Enum->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
     set_property_maybe ($path_combobox,
                         tearoff_title => __('Path'),
@@ -429,7 +430,7 @@ HERE
     $toolbar->insert ($toolitem, $toolpos++);
 
     $values_combobox = $self->{'values_combobox'}
-      = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
+      = Gtk2::Ex::ComboBox::Enum->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Values');
     $toolitem->add ($values_combobox);
     set_property_maybe ($values_combobox, tearoff_title => __('Values'));
@@ -440,9 +441,9 @@ HERE
          my $values = $values_combobox->get('active-nick');
          my $tooltip = __('The values to display.');
          my $enum_type = $values_combobox->get('enum_type');
-         if (my $desc = App::MathImage::Glib::Ex::EnumBits::to_description
+         if (my $desc = Glib::Ex::EnumBits::to_description
              ($enum_type, $values)) {
-           my $name = App::MathImage::Glib::Ex::EnumBits::to_text
+           my $name = Glib::Ex::EnumBits::to_display
              ($enum_type, $values);
            $tooltip .= "\n\n"
              . __x('Current setting: {name}', name => $name)
@@ -580,7 +581,7 @@ HERE
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $combobox = App::MathImage::Gtk2::Ex::ComboBox::EnumValues->new
+    my $combobox = Gtk2::Ex::ComboBox::Enum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::AronsonLang');
     set_property_maybe ($combobox,
                         tearoff_title => __('Language'),
@@ -597,7 +598,7 @@ HERE
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $combobox = App::MathImage::Gtk2::Ex::ComboBox::ActiveText->new;
+    my $combobox = Gtk2::Ex::ComboBox::Text->new;
     $combobox->append_text (__('Default'));
     foreach my $letter ('A' .. 'Z') {
       $combobox->append_text ($letter);
