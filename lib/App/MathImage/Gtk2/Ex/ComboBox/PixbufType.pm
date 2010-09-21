@@ -18,6 +18,20 @@
 
 # for-pixbuf-save ?
 # insensitive or omit ?
+#                   Glib::ParamSpec->object
+#                   ('for-pixbuf-save',
+#                    'for-pixbuf-save',
+#                    'Blurb.',
+#                    'Gtk2::Gdk::Pixbuf',
+#                    Glib::G_PARAM_READWRITE),
+#   if ($pname eq 'for_pixbuf_save') {
+#     Scalar::Util::weaken ($self->{$pname});
+#   }
+#     my $pixbuf = $self->{'for_pixbuf_save'};
+# ,
+#              ($pixbuf ? ($pixbuf->get_width, $pixbuf->get_height) : ())
+
+
 
 # writable => 
 # exclude_read_only => 
@@ -36,11 +50,12 @@ use Scalar::Util;
 use List::Util qw(max);
 use POSIX ();
 use Locale::Messages;
+use Gtk2::Ex::ComboBoxBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 BEGIN {
   if (0) {
@@ -48,9 +63,10 @@ BEGIN {
     # want to translate their names.
     #
     # TRANSLATORS: These format types are localized in case some non-Latin
-    # script ought to be shown instead or as well.  Latin languages will
-    # probably leave the types unchanged, even if the abbreviation would be
-    # different in the target language.
+    # script ought to be shown instead, or as well.  Latin languages will
+    # probably leave the types unchanged, as that will almost certainly make
+    # them easiest to identify, even if the abbreviation would be different
+    # in the target language.
     __('ANI');
     __('BMP');
     __('GIF');
@@ -98,17 +114,11 @@ use Glib::Object::Subclass
                    0,
                    Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->object
-                  ('for-pixbuf-save',
-                   'for-pixbuf-save',
-                   'Blurb.',
-                   'Gtk2::Gdk::Pixbuf',
-                   Glib::G_PARAM_READWRITE),
                 ];
 
 use constant { COLUMN_TYPE    => 0,   # arg string for gdk_pixbuf_save()
-                 COLUMN_DISPLAY => 1,   # translated display string
-               };
+               COLUMN_DISPLAY => 1,   # translated display string
+             };
 
 sub INIT_INSTANCE {
   my ($self) = @_;
@@ -141,34 +151,12 @@ sub SET_PROPERTY {
   ### ComboBox-PixbufType SET_PROPERTY: $pname
 
   if ($pname eq 'active_type') {
-    # Crib note: $combobox->set_active_iter() doesn't accept undef for no
-    # active until Perl-Gtk 1.240, hence nth instead
-    $self->set_active (_type_to_nth ($self, $newval));
-    return;
+    # because COLUMN_TYPE==0
+    Gtk2::Ex::ComboBoxBits::set_active_text ($self, $newval);
+  } else {
+    $self->{$pname} = $newval;
+    _update_model($self);
   }
-
-  $self->{$pname} = $newval;
-  if ($pname eq 'for_pixbuf_save') {
-    Scalar::Util::weaken ($self->{$pname});
-  }
-  _update_model($self);
-}
-
-sub _type_to_nth {
-  my ($self, $type) = @_;
-  my $ret = -1;
-  if (defined $type) {
-    $self->get_model->foreach
-      (sub {
-         my ($model, $path, $iter) = @_;
-         if ($type eq $model->get_value ($iter, COLUMN_TYPE)) {
-           ($ret) = $path->get_indices;
-           return 1; # stop
-         }
-         return 0; # continue
-       });
-  }
-  return $ret;
 }
 
 # 'notify' class closure
@@ -179,11 +167,26 @@ sub _do_notify {
   }
 }
 
+# fallback enough for the formats examinations below, including the fallback
+# $is_writable_method
+my $get_formats_method;
+BEGIN {
+  if (Gtk2::Gdk::Pixbuf->can('get_formats')) {
+    # new in Gtk 2.2
+    $get_formats_method = 'get_formats';
+  } else {
+    my @formats = ({ name => 'png' },
+                   { name => 'jpeg' });
+    $get_formats_method = sub { return @formats };
+  }
+}
+
 my $is_writable_method;
 BEGIN {
   if (Gtk2::Gdk::PixbufFormat->can('is_writable')) {
     # is_writable() new in Gtk 2.2, and not wrapped until Perl-Gtk 1.240
     $is_writable_method = 'is_writable';
+
   } else {
     my %writable = (png => 1, jpeg => 1); # Gtk 2.0 and 2.2
     if (! Gtk2->check_version (2,4,0)) {  # 2.4.0 for ico saving
@@ -202,34 +205,29 @@ BEGIN {
   }
 }
 
-my $get_formats_method;
-BEGIN {
-  $get_formats_method
-    = (Gtk2::Gdk::Pixbuf->can('get_formats')  # new in Gtk 2.2
-       ? 'get_formats'
-       : sub {
-         return ({ name => 'png' },
-                 { name => 'jpeg' });
-       });
-}
-
 sub _update_model {
   my ($self) = @_;
-  my $type = $self->get('active-type');
 
   my @formats = grep
     {$_->$is_writable_method}
       Gtk2::Gdk::Pixbuf->$get_formats_method;
 
-  # exclude ICO if bigger than 255x255
+  # exclude ICO  if bigger than 255
+  # exclude JPEG if bigger than 65500
+  # exclude PNG  if bigger than 2^31-1, per PNG spec
+  #
+  # ENHANCE-ME: libpng png_check_IHDR() has a PNG_USER_WIDTH_MAX,
+  # PNG_USER_HEIGHT_MAX which default to 1_000_000, and also width
+  # (2^32-1)/8-129 to fit RGBA rows in memory (for benefit of 32-bit systems
+  # presumably).  Could think about enforcing that.
   {
-    my $pixbuf = $self->{'for_pixbuf_save'};
-    if (max ($self->get('for-width'),
-             $self->get('for-height'),
-             ($pixbuf ? ($pixbuf->get_width, $pixbuf->get_height) : ()))
-        > 255) {
-      @formats = grep {$_->{'name'} ne 'ico'} @formats;
-    }
+    my $size = max ($self->get('for-width'),
+                    $self->get('for-height'));
+    @formats = grep {! (($size > 255 && $_->{'name'} eq 'ico')
+                        || ($size > 65500 && $_->{'name'} eq 'jpeg')
+                        || ($size > (2**31-1) && $_->{'name'} eq 'png')
+                       )}
+      @formats;
   }
 
   # translated descriptions
@@ -241,6 +239,7 @@ sub _update_model {
   # alphabetical by translated description
   @formats = sort { $a->{'display'} cmp $b->{'display'} } @formats;
 
+  my $type = $self->get('active-type');
   my $model = $self->get_model;
   $model->clear;
   foreach my $format (@formats) {

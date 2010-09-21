@@ -22,16 +22,16 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 20;
+$VERSION = 21;
 exit App::MathImage->command_line;
 
 __END__
 
-=for stopwords recurrences Gtk2 Ulam's --ulam Ulam sprial Vogel pronic
+=for stopwords recurrences Gtk Gtk2 Ulam's --ulam Ulam sprial Vogel pronic
 --pronic fibonacci --fibonacci fullscreen --fullscreen unfullscreened --png
 png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
---padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT theodorus
-Theodorus semiprimes segfault
+--padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT --theodorus
+Theodorus semiprimes segfault Aronson's --aronson startup GdkPixbuf
 
 =head1 NAME
 
@@ -109,9 +109,9 @@ though the Vogel floret is close,
 
 =item --fibonacci
 
-The Fibonacci numbers 1,1,2,3,5,8,13,21, etc.  On the Vogel floret path
-these fall on an axis going to the right.  For other spirals and paths they
-tend to grow too quickly to show much.
+The Fibonacci numbers 1,1,2,3,5,8,13,21, etc.  On the Vogel floret these
+fall on an axis going to the right.  For other spirals and paths they tend
+to grow too quickly to show much.
 
 =item --perrin
 
@@ -227,28 +227,28 @@ Run the Gtk GUI.  This is the default.
 
 =item --fullscreen
 
-Run the Gtk GUI starting in full screen mode.  Menu Tools/Fullscreen toggles
-between full screen and a normal window.  In full screen mode the menus can
-still be used, just press Alt-F, Alt-T, etc as normal.
+Run the GUI starting in full screen mode.  Menu entry Tools/Fullscreen
+toggles between full screen and a normal window.  In full screen mode the
+menus can still be used, just press Alt-F, Alt-T, etc as normal.
 
 =item --root
 
 Set the root window background to the requested image and exit.  For example
-to a random image, perhaps from your F<~/.xsession> file,
+to a random image perhaps from your F<~/.xsession> file,
 
     math-image --root --random
 
 Under X the root window is set with C<X11::Protocol> if available, or
 C<Gtk2> otherwise.  C<X11::Protocol> is preferred as it allows the
-C<--foreground> and C<--background> colours to be saved on a pseudo-colour
-screen.  C<Gtk2> on a true-colour screen is fine, as are black and white
-(being permanent in the default colormap) but other colours won't be
-preserved.
+C<--foreground> and C<--background> colours to be preserved on a
+pseudo-colour screen.  C<Gtk2> on a true-colour screen is fine, as are black
+and white (being permanent in the default colormap), but other colours won't
+be preserved.
 
 =item --display=DPY
 
 Select the X server for C<X11::Protocol> or Gtk.  The default is from the
-C<DISPLAY> environment variable which is set at X startup.
+C<DISPLAY> environment variable (normally set at X startup).
 
     math-image --display=:3
 
@@ -266,8 +266,9 @@ output requires C<Image::Xpm>.
 =item --text
 
 Write a text-only image to standard output and exit.  The default size
-follows the terminal per C<Term::Size>.  This is usually too small to see
-much, but a bigger image might be cute to send to a line printer or similar.
+follows C<Term::Size>.  A typical size 80x25 or so is usually too small to
+see much, but a bigger image might be cute to send to a line printer or
+similar.
 
     math-image --text --width=130 --height=49 | lpr
 
@@ -312,13 +313,13 @@ Set the size of the image in pixels.  A single value means that size square,
 otherwise WIDTHxHEIGHT.  For C<--root> this size is currently ignored and
 the full screen used.
 
-For the GUI this is an initial size for the window, but it may be widened to
-accommodate to the menubar.  Under C<--fullscreen> this will be the
-unfullscreened size if you switch back to that (menu Tools/Fullscreen).
+For the GUI this is an initial size for the image, though it may be widened
+to accommodate the menubar.  Under C<--fullscreen> this size is the
+unfullscreened window if you switch back to that (menu Tools/Fullscreen).
 
-The default for the GUI is about 4/5 of the screen.  The default for image
-file output is an arbitrary 200x200, or for C<--text> output the size of the
-terminal per C<Term::Size>.
+The default for the GUI is about 4/5 of the screen.  The default for PNG etc
+image file output is an arbitrary 200x200, or for C<--text> output the size
+of the terminal per C<Term::Size>.
 
 =item --scale=PIXELS
 
@@ -348,6 +349,11 @@ available,
 
 =over
 
+=item C<Gtk2::Ex::PodViewer>
+
+A "Help/POD Documentation" menu item to display this documentation and the
+C<Math::PlanePath> classes.
+
 =item C<Gtk2::Ex::CrossHair>
 
 Lines following the cursor, enabled from the Tools/Cross menu item.
@@ -365,16 +371,16 @@ C<Math::Prime::XS> is used for primes but as of version 0.20_01 it puts its
 sieve space on the stack (the C stack) which may restrict the size of images
 showing primes.  Depending on the chosen path an image 3000x3000 or so may
 overflow an 8Mb stack limit (see L<ulimit(3)>).  The symptom is usually a
-segfault.  Increase the stack if necessary and if possible, or perhaps a
-newer C<Math::Prime::XS> will use plain C<malloc> or pack more sieving into
-the bytes.
+segfault.  Increase the stack if necessary, if possible.  A future
+C<Math::Prime::XS> may use plain C<malloc> or pack more sieving into the
+bytes.
 
 =head1 SEE ALSO
 
 L<gtk-options(7)>, L<xsetroot(1)>
 
-L<Math::PlanePath>, L<Gtk2>, L<X11::Protocol>, L<Gtk2::Ex::CrossHair>,
-L<Gtk2::Ex::ErrorTextDialog>
+L<Math::PlanePath>, L<Math::Aronson>, L<Gtk2>, L<X11::Protocol>,
+L<Gtk2::Ex::PodViewer>, L<Gtk2::Ex::CrossHair>, L<Gtk2::Ex::ErrorTextDialog>
 
 =head1 HOME PAGE
 

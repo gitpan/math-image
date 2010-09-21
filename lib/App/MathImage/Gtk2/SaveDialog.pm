@@ -29,6 +29,7 @@ use File::Spec;
 use List::Util;
 use Gtk2;
 use Gtk2::Ex::Units;
+use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
 use Glib::Ex::ConnectProperties;
 use Locale::TextDomain ('App-MathImage');
@@ -40,7 +41,7 @@ use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -95,12 +96,14 @@ sub INIT_INSTANCE {
 
     my $combo = $self->{'combo'}
       = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
-    if ($combo->can('set_tooltip_text')) { # new in 2.12
-      $combo->set_tooltip_text(__("The file format to save in.
-This is all the GdkPixbuf formats with \"write\" support.
+    Glib::Ex::ObjectBits::set_property_maybe
+        ($combo,
+         # tooltip-text new in Gtk 2.12
+         tooltip_text => __('The file format to save in.
+This is all the GdkPixbuf formats with "write" support.
 
-PNG and TIFF compress well, JPEG and BMP tend to be a bit bloated.  Note ICO only goes up to 255x255."));
-    }
+PNG and TIFF compress well, JPEG and BMP tend to be a bit bloated.  Note ICO only goes up to 255x255.'));
+
     $combo->signal_connect ('notify::active' => \&_combo_notify_active);
     $hbox->pack_start ($combo, 0,0,0);
     $hbox->show_all;

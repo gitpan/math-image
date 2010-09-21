@@ -27,7 +27,7 @@ use vars '$VERSION', '@ISA';
 use App::MathImage::Image::Base::Prima::Drawable;
 @ISA = ('App::MathImage::Image::Base::Prima::Drawable');
 
-$VERSION = 20;
+$VERSION = 21;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -144,7 +144,7 @@ sub save_fh {
 1;
 __END__
 
-=for stopwords Ryde Prima png PNG JPEG
+=for stopwords Ryde Prima .png PNG JPEG filename
 
 =head1 NAME
 

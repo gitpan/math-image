@@ -25,6 +25,24 @@ use Gtk2;
 use FindBin;
 my $progname = $FindBin::Script;
 
+
+{
+  foreach my $type ('png', 'jpeg', 'ico', 'tiff', 'bmp') {
+    foreach my $i (6 .. 25) {
+      my $width = 2 ** $i;
+      my $pixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, 1);
+      if (! eval {
+        $pixbuf->save ('/tmp/xxx', $type);
+        1
+      }) {
+        print "$type $width -- $@\n";
+        last;
+      }
+    }
+  }
+  exit 0;
+}
+
 print "Gtk2::Gdk::Pixbuf->can('get_formats') ",
   Gtk2::Gdk::Pixbuf->can('get_formats'),"\n";
 print "Gtk2->check_version (2,4,0) ",

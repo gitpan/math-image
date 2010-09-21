@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 21, September 2010
+    - show POD with Gtk2::Ex::PodViewer if available
+
 Version 20, September 2010
     - ComboBoxBits split out
 

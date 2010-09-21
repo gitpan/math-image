@@ -24,6 +24,7 @@ use Carp;
 use List::Util qw(min max);
 use Module::Util;
 use Glib::Ex::ConnectProperties 8;  # v.7 for transforms, v.8 for write_only
+use Gtk2 1.220;
 use Gtk2::Ex::ActionTooltips;
 use Gtk2::Ex::NumAxis 2;
 use Number::Format;
@@ -31,17 +32,17 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 
 use Glib::Ex::EnumBits;
+use Glib::Ex::ObjectBits 'set_property_maybe';
 use Gtk2::Ex::ComboBox::Text;
 use Gtk2::Ex::ComboBox::Enum;
 
-use App::MathImage::Glib::Ex::ObjectBits 'set_property_maybe';
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -108,16 +109,16 @@ sub _path_to_mnemonic {
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  
+
   my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
   $self->add ($vbox);
-  
+
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
   $draw->show;
-  
+
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-  
+
   $actiongroup->add_actions
     ([                          # name,        stock-id,  label
       { name  => 'FileMenu',
@@ -138,7 +139,7 @@ sub INIT_INSTANCE {
       { name  => 'HelpMenu',
         label => dgettext('gtk20-properties','_Help'),
       },
-      
+
       { name     => 'SaveAs',
         stock_id => 'gtk-save-as',
         callback => \&_do_action_save_as,
@@ -154,12 +155,20 @@ sub INIT_INSTANCE {
         accelerator => __p('Main-accelerator-key','<Control>Q'),
         callback    => \&_do_action_quit,
       },
-      
+
       { name     => 'About',
         stock_id => 'gtk-about',
         callback => \&_do_action_about,
       },
-      
+
+      (defined (Module::Util::find_installed('Gtk2::Ex::PodViewer'))
+       ? { name     => 'PodDialog',
+           label    => __('_POD Documentation'),
+           callback => \&_do_action_pod_dialog,
+           tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
+         }
+       : ()),
+
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
@@ -167,7 +176,7 @@ sub INIT_INSTANCE {
       },
      ],
      $self);
-  
+
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
                                           label => __('_Fullscreen'),
@@ -200,7 +209,7 @@ sub INIT_INSTANCE {
          label   => __('_Toolbar'),
          tooltip => __('Whether to show the toolbar.')},
      ]);
-  
+
   if (Module::Util::find_installed('Gtk2::Ex::CrossHair')) {
     $actiongroup->add_toggle_actions
       # name, stock id, label, accel, tooltip, subr, is_active
@@ -216,7 +225,7 @@ sub INIT_INSTANCE {
        ],
        $self);
   }
-  
+
   {
     my $n = 0;
     my $group;
@@ -253,7 +262,7 @@ sub INIT_INSTANCE {
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-  
+
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -294,6 +303,11 @@ HERE
     </menu>
     <menu action='HelpMenu'>
       <menuitem action='About'/>
+HERE
+  if ($actiongroup->get_action('PodDialog')) {
+    $ui_str .= "<menuitem action='PodDialog'/>\n";
+  }
+  $ui_str .= <<'HERE';
     </menu>
   </menubar>
   <toolbar  name='ToolBar'>
@@ -303,44 +317,43 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-  
+
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-  
+
   my $toolbar = $self->toolbar;
   $vbox->pack_start ($toolbar, 0,0,0);
-  
+
   my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
   $vbox->pack_start ($table, 1,1,0);
-  
+
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   my $hadj = $self->{'hadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
   my $vadj = $self->{'vadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
   $draw->set (hadjustment => $hadj,
               vadjustment => $vadj);
-  
+
   {
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
                                         inverted => 1);
     $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-    
+
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
                                         orientation => 'horizontal');
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
-    
+
     my $action = $actiongroup->get_action ('Axes');
-    Glib::Ex::ConnectProperties->new ([$vaxis,'visible'],
-                                      [$action,'active']);
     Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
+                                      [$vaxis,'visible'],
                                       [$action,'active']);
-  } 
+  }
   {
     my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
     $vbox->pack_start ($statusbar, 0,0,0);
@@ -350,28 +363,29 @@ HERE
     Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
                                       [$action,'active']);
   }
-  
+
   my $toolpos = -999;
   my $path_combobox;
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     $path_combobox = $self->{'path_combobox'}
       = Gtk2::Ex::ComboBox::Enum->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
     set_property_maybe ($path_combobox,
+                        # tearoff-title new in 2.10, tooltip-text new in 2.12
                         tearoff_title => __('Path'),
                         tooltip_text  => __('The path for where to place values in the plane.'));
     $toolitem->add ($path_combobox);
-    
+
     Glib::Ex::ConnectProperties->new ([$draw,'path'],
                                       [$path_combobox,'active-nick']);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (0,       # initial
                                      0, 999,  # min,max
                                      1,10,    # steps
@@ -390,7 +404,7 @@ HERE
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (2,       # initial
                                      1, 12,   # min,max
                                      1,1,     # steps
@@ -422,6 +436,27 @@ HERE
                                       [$spin,'visible',
                                        write_only => 1,
                                        hash_in => { 'MultipleRings' => 1 }]);
+  }
+  {
+    my $toolitem = Gtk2::ToolItem->new;
+    $toolbar->insert ($toolitem, $toolpos++);
+    my $combobox = Gtk2::Ex::ComboBox::Text->new (append_text => 'phi',
+                                                  append_text => 'sqrt2',
+                                                  append_text => 'sqrt3',
+                                                  append_text => 'pi');
+    set_property_maybe ($combobox,
+                        tearoff_title => __('Rotation'),
+                        # tooltip_text  => __('')
+                       );
+    $toolitem->add ($combobox);
+
+    Glib::Ex::ConnectProperties->new
+        ([$draw,'path-rotation'],
+         [$combobox,'active-text']);
+    Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
+                                      [$combobox,'visible',
+                                       write_only => 1,
+                                       hash_in => { 'RotFloret' => 1 }]);
   }
 
   my $values_combobox;
@@ -786,6 +821,16 @@ sub popup_about {
   my $about = App::MathImage::Gtk2::AboutDialog->new
     (screen => $self->get_screen);
   $about->present;
+}
+
+sub _do_action_pod_dialog {
+  my ($action, $self) = @_;
+  require Gtk2::Ex::WidgetCursor;
+  Gtk2::Ex::WidgetCursor->busy;
+  require App::MathImage::Gtk2::PodDialog;
+  my $dialog = App::MathImage::Gtk2::PodDialog->new
+    (screen => $self->get_screen);
+  $dialog->present;
 }
 
 sub _do_action_random {

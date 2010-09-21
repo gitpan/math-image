@@ -22,12 +22,12 @@ use 5.008;
 use strict;
 use warnings;
 use Gtk2 '-init';
-use App::MathImage::Gtk2::AboutDialog;
+use App::MathImage::Gtk2::PodDialog;
 
 use FindBin;
 my $progname = $FindBin::Script;
 
-my $dialog = App::MathImage::Gtk2::AboutDialog->new;
+my $dialog = App::MathImage::Gtk2::PodDialog->new;
 $dialog->signal_connect (destroy => sub { Gtk2->main_quit });
 $dialog->present;
 Gtk2->main;

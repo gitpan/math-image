@@ -24,7 +24,7 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(to_HRRGGBB);
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 sub to_HRRGGBB {
   my ($color) = @_;
@@ -37,7 +37,7 @@ sub to_HRRGGBB {
 1;
 __END__
 
-=for stopwords Ryde color GdkColor Gtk Gtk2
+=for stopwords Ryde color GdkColor Perl-Gtk Gtk2
 
 =head1 NAME
 

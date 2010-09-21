@@ -37,12 +37,14 @@ MyMakeMakerExtras::WriteMakefile
     'constant::defer' => 0,
     'Bit::Vector' => 0,
     'Compress::Zlib' => 0,
-    'Glib' => 0,
+
+    'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,
     'Glib::Ex::ConnectProperties' => 8, # v.8 for write_only
 
     # my Glib-Ex-ObjectBits
-    'Glib::Ex::SourceIds'  => 2, # new in v.2
+    'Glib::Ex::ObjectBits' => 12, # new in v.12
+    'Glib::Ex::SourceIds'  => 2,  # new in v.2
     'Glib::Ex::SignalIds'  => 0,
     # 'Glib::Ex::SignalBits' => 9, # new in v.9
     'Glib::Ex::EnumBits'   => 11, # new in v.11
@@ -118,6 +120,7 @@ MyMakeMakerExtras::WriteMakefile
              'Image::Base::X11::Protocol::Window' => 0,
              'Gtk2::Ex::CrossHair'   => 0,
              'Gtk2::Ex::ErrorDialog' => 7, # suggest v.7 for popup control
+             'Gtk2::Ex::PodViewer'   => 0,
            },
         optional_features
         => {
@@ -127,6 +130,7 @@ MyMakeMakerExtras::WriteMakefile
                               'Gtk2::Ex::CrossHair' => 0,
                               # suggest ErrorTextDialog v.7 for popup control
                               'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
+                              'Gtk2::Ex::PodViewer'    => 0,
                               'Image::Xpm'             => 0,
                               'Image::Base::GD'        => 4, # bug fixes
                               'Image::Base::PNGwriter' => 2, # bug fixes

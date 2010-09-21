@@ -22,6 +22,7 @@ devel/pixbuf-types.pl
 devel/prima.pl
 devel/repdigit.pl
 devel/run-about.pl
+devel/run-pod.pl
 devel/run-savedialog.pl
 devel/run-savetype.pl
 devel/svg.pl
@@ -34,7 +35,6 @@ inc/MyMakeMakerExtras.pm
 lib/App/MathImage.pm
 lib/App/MathImage/Coord.pm
 lib/App/MathImage/Generator.pm
-lib/App/MathImage/Glib/Ex/ObjectBits.pm
 lib/App/MathImage/Gtk2/AboutDialog.pm
 lib/App/MathImage/Gtk2/Drawing.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
@@ -43,6 +43,7 @@ lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
 lib/App/MathImage/Gtk2/Main.pm
+lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
 lib/App/MathImage/Image/Base/Magick.pm
 lib/App/MathImage/Image/Base/Other.pm
@@ -55,9 +56,8 @@ lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
-lib/App/MathImage/PlanePath/PiFloret.pm
 lib/App/MathImage/PlanePath/ReplicatingSquares.pm
-lib/App/MathImage/PlanePath/Sqrt2Floret.pm
+lib/App/MathImage/PlanePath/RotFloret.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Main.pm
 Makefile.PL
@@ -65,15 +65,14 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 math-image
 SIGNATURE
-t/0-exe-shebang.t
-t/0-META-read.t
-t/0-Test-DistManifest.t
-t/0-Test-Pod.t
-t/0-Test-YAML-Meta.t
 t/ComboBox-PixbufType.t
 t/GdkColorBits.t
 t/Generator.t
+t/Gtk2-AboutDialog-weaken.t
+t/Gtk2-AboutDialog.t
 t/Gtk2-Main.t
+t/Gtk2-PodDialog-weaken.t
+t/Gtk2-SaveDialog-weaken.t
 t/Gtk2-SaveDialog.t
 t/Image-Base-Magick.t
 t/Image-Base-Prima-Drawable.t
@@ -81,4 +80,9 @@ t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/Test/Weaken/ExtraBits.pm
+xt/0-exe-shebang.t
+xt/0-META-read.t
+xt/0-Test-DistManifest.t
+xt/0-Test-Pod.t
+xt/0-Test-YAML-Meta.t
 META.yml                                 Module meta-data (added by MakeMaker)

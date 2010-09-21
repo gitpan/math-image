@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Gtk2-Ex-WidgetBits.  If not, see <http://www.gnu.org/licenses/>.
 
-
+use 5.008;
 use strict;
 use warnings;
 use Test::More tests => 7;
@@ -29,7 +29,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 require App::MathImage::Gtk2::Ex::GdkColorBits;
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($App::MathImage::Gtk2::Ex::GdkColorBits::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Gtk2::Ex::GdkColorBits->VERSION,  $want_version, 'VERSION class method');
   ok (eval { App::MathImage::Gtk2::Ex::GdkColorBits->VERSION($want_version); 1 },

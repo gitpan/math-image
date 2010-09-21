@@ -26,7 +26,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 20;
+$VERSION = 21;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -188,7 +188,7 @@ sub colour_to_pixel {
 1;
 __END__
 
-=for stopwords Ryde Prima RGB
+=for stopwords Ryde Prima RGB drawables
 
 =head1 NAME
 

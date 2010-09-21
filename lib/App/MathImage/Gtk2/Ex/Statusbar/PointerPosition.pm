@@ -20,13 +20,13 @@ package App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 use 5.008;
 use strict;
 use warnings;
-use Gtk2;
+use Gtk2 1.220;
 use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 
 use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

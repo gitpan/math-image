@@ -23,7 +23,10 @@ use Math::Aronson;
 use Iterator::Simple;
 
 use vars '$VERSION';
-$VERSION = 20;
+$VERSION = 21;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 sub new {
   my $class = shift;
@@ -31,10 +34,5 @@ sub new {
   return Iterator::Simple::iterator (sub { $it->next });
 }
 
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
-use vars '$VERSION';
-$VERSION = 20;
-
+1;
+__END__

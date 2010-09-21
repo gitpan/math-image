@@ -24,6 +24,7 @@ use Carp;
 use POSIX ();
 use Scalar::Util;
 use Time::HiRes;
+use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
 use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
 use Locale::TextDomain ('App-MathImage');
 
@@ -36,7 +37,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -144,6 +145,13 @@ use Glib::Object::Subclass
                    'Blurb.',
                    0, POSIX::INT_MAX(),
                    App::MathImage::Generator->default_options->{'path_wider'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->string
+                  ('path-rotation',
+                   'path-rotation',
+                   'Blurb.',
+                   App::MathImage::Generator->default_options->{'path_rotation'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -258,7 +266,7 @@ sub _do_expose {
 #     $self->pixmap;
 #     $self->queue_draw;
 #   }
-#   return 0; # Glib::SOURCE_REMOVE
+#   return Glib::SOURCE_REMOVE;
 # }
 #   $self->pixmap;
 #     $self->get_display->sync;
@@ -332,6 +340,7 @@ sub start_drawing_window {
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
+     path_rotation   => $self->get('path-rotation'),
      prime_quadratic => $self->get('prime_quadratic'),
      pyramid_step    => $self->get('pyramid-step'),
      rings_step      => $self->get('rings-step'),
@@ -415,7 +424,7 @@ sub start_drawing_window {
 
 sub _idle_handler_draw {
   my ($ref_weak_self) = @_;
-  my $self = $$ref_weak_self || return 0; # Glib::SOURCE_REMOVE
+  my $self = $$ref_weak_self || return Glib::SOURCE_REMOVE;
   ### _idle_handler_draw(): $self
   if (my $drawing = $self->{'drawing'}) {
     my $image = $drawing->{'image'};
@@ -451,7 +460,7 @@ sub _idle_handler_draw {
     delete $self->{'drawing'};
   }
   ### _idle_handler_draw() end
-  return 0; # Glib::SOURCE_REMOVE
+  return Glib::SOURCE_REMOVE;
 }
 
 # _gettime() returns a floating point count of seconds since some fixed but

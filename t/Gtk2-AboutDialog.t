@@ -33,7 +33,7 @@ Gtk2->init_check
 
 plan tests => 8;
 
-require App::MathImage::Gtk2::SaveDialog;
+require App::MathImage::Gtk2::AboutDialog;
 
 
 #------------------------------------------------------------------------------
@@ -41,24 +41,20 @@ require App::MathImage::Gtk2::SaveDialog;
 
 my $want_version = 21;
 {
-  is ($App::MathImage::Gtk2::SaveDialog::VERSION,
+  is ($App::MathImage::Gtk2::AboutDialog::VERSION,
       $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::SaveDialog->VERSION,
+  is (App::MathImage::Gtk2::AboutDialog->VERSION,
       $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::SaveDialog->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::AboutDialog->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::SaveDialog->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::AboutDialog->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $dialog = do {
-    # avoid spam from Gtk trying to make you buy the gnome icons
-    local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
-    App::MathImage::Gtk2::SaveDialog->new
-    };
+  my $dialog = App::MathImage::Gtk2::AboutDialog->new;
   is ($dialog->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $dialog->VERSION($want_version); 1 },
@@ -72,10 +68,11 @@ my $want_version = 21;
 # Scalar::Util::weaken
 
 {
-  my $dialog = App::MathImage::Gtk2::SaveDialog->new;
+  my $dialog = App::MathImage::Gtk2::AboutDialog->new;
   $dialog->destroy;
   require Scalar::Util;
   Scalar::Util::weaken ($dialog);
   is ($dialog, undef, 'garbage collect when weakened');
 }
+
 exit 0;

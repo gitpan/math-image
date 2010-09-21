@@ -30,7 +30,7 @@ use Glib::Ex::EnumBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 20;
+our $VERSION = 21;
 
 sub run {
   my ($class, $gen_options) = @_;
@@ -41,8 +41,8 @@ sub run {
      [ [ "~File" => [
                      [ "E~xit" => sub {
                          $::application->destroy;
-                       }
-                     ]
+                       },
+                     ],
                     ] ],
        [ ef => "~Path" => [ _menu_for_path() ]],
 
@@ -110,7 +110,7 @@ sub _menu_for_values {
     my $values = $_;
     [ $_,
       _values_to_mnemonic($_),
-      \&_values_menu_action
+      \&_values_menu_action,
     ]
   } App::MathImage::Generator->values_choices;
 }
@@ -148,7 +148,7 @@ sub _menu_for_path {
     my $path = $_;
     [ $_,
       _path_to_mnemonic($_),
-      \&_path_menu_action
+      \&_path_menu_action,
     ]
   } App::MathImage::Generator->path_choices;
 }

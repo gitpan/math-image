@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            20
+version:            21
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -14,9 +14,10 @@ requires:
     Bit::Vector:          0
     Compress::Zlib:       0
     constant::defer:      0
-    Glib:                 0
+    Glib:                 1.220
     Glib::Ex::ConnectProperties:  8
     Glib::Ex::EnumBits:   11
+    Glib::Ex::ObjectBits:  12
     Glib::Ex::SignalIds:  0
     Glib::Ex::SourceIds:  2
     Glib::Object::Subclass:  0
@@ -86,6 +87,7 @@ optional_features:
         requires:
             Gtk2::Ex::CrossHair:  0
             Gtk2::Ex::ErrorTextDialog::Handler:  7
+            Gtk2::Ex::PodViewer:  0
             Image::Base::GD:      4
             Image::Base::PNGwriter:  2
             Image::Base::X11::Protocol::Pixmap:  0
@@ -111,6 +113,7 @@ optional_features:
 recommends:
     Gtk2::Ex::CrossHair:  0
     Gtk2::Ex::ErrorDialog:  7
+    Gtk2::Ex::PodViewer:  0
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0

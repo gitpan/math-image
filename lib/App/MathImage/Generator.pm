@@ -30,7 +30,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 20;
+$VERSION = 21;
 
 use constant default_options => {
                                  values       => 'primes',  # defaults
@@ -47,10 +47,11 @@ use constant default_options => {
                                  aronson_lang => 'en',
                                  aronson_letter => '',
                                  aronson_conjunctions => 1,
-                                 pyramid_step => 2,
-                                 rings_step   => 6,
-                                 path_wider   => 0,
-                                 expression   => '3*x^2 + x + 2',
+                                 pyramid_step  => 2,
+                                 rings_step    => 6,
+                                 path_wider    => 0,
+                                 path_rotation => 'phi',
+                                 expression    => '3*x^2 + x + 2',
                                  prime_quadratic => 'all',
                                 };
 
@@ -150,8 +151,7 @@ use constant path_choices => qw(SquareSpiral
 
                                 ArchimedeanSpiral
                                 ReplicatingSquares
-                                PiFloret
-                                Sqrt2Floret
+                                RotFloret
                               );
 
 sub random_options {
@@ -227,7 +227,6 @@ sub _rand_of_array {
   my ($aref) = @_;
   return $aref->[int(rand(scalar(@$aref)))];
 }
-  
 
 sub description {
   my ($self) = @_;
@@ -258,29 +257,31 @@ sub description {
   return $ret . " $self->{'width'}x$self->{'height'} scale $self->{'scale'}";
 }
 
+sub path_choice_to_class {
+  my ($self, $path) = @_;
+  foreach my $class ("Math::PlanePath::$path",
+                     "App::MathImage::PlanePath::$path") {
+    if (Module::Util::find_installed ($class)) {
+      return $class;
+    }
+  }
+}
+
 sub path_object {
   my ($self) = @_;
   return ($self->{'path_object'} ||= do {
 
     my $offset = int ($self->{'scale'} / 2);
 
-    require Module::Load;
     my $path_class = $self->{'path'};
     ### $path_class
     my $err = '';
     unless ($path_class =~ /::/) {
-      foreach my $try_class ("Math::PlanePath::$path_class",
-                             "App::MathImage::PlanePath::$path_class") {
-        if (eval { Module::Load::load ($try_class); 1 }) {
-          $path_class = $try_class;
-          last;
-        } else {
-          $err .= $@;
-          ### cannot load: $@
-        }
-      }
+      $path_class = $self->path_choice_to_class ($path_class);
     }
-    unless ($path_class =~ /::/) {
+    require Module::Load;
+    unless (eval { Module::Load::load ($path_class); 1 }) {
+      ### cannot load: $@
       croak $err;
     }
 
@@ -290,7 +291,8 @@ sub path_object {
        step     => ($path_class eq 'Math::PlanePath::PyramidRows'
                     ? $self->{'pyramid_step'}
                     : $self->{'rings_step'}),
-       wider    => $self->{'path_wider'});
+       wider    => $self->{'path_wider'},
+       rotation => $self->{'path_rotation'});
     ### $path_object
 
     my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
@@ -613,9 +615,10 @@ sub values_make_polygonal {
 }
 
 $values_info{'squares'} =
-  { subr => \&values_make_squares,
-    name => __('Perfect Squares'),
+  { name => __('Perfect Squares'),
     description => __('The perfect squares 1,4,9,16,25, etc k*k.'),
+    subr => \&values_make_squares,
+    test => \&is_square,
   };
 sub values_make_squares {
   my ($self, $lo, $hi) = @_;
@@ -624,11 +627,19 @@ sub values_make_squares {
     return $i++ ** 2;
   };
 }
+sub is_square {
+  my ($self, $n) = @_;
+  return (($n >= 0)
+          && do {
+            $n = sqrt ($n);
+            $n == int($n)
+          });
+}
 
 $values_info{'prime_quadratic_euler'} =
-  { subr => \&values_make_prime_quadratic_euler,
-    name => __('Prime Generating Quadratic of Euler'),
+  { name => __('Prime Generating Quadratic of Euler'),
     description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.'),
+    subr => \&values_make_prime_quadratic_euler,
   };
 sub values_make_prime_quadratic_euler {
   my ($self, $lo, $hi) = @_;
@@ -697,9 +708,10 @@ sub _prime_quadratic_filter {
 }
 
 $values_info{'multiples'} =
-  { subr => \&values_make_multiples,
-    name => __('Multiples of a given K'),
+  { name => __('Multiples of a given K'),
     description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.'),
+    subr => \&values_make_multiples,
+    test => \&is_multiple,
   };
 sub values_make_multiples {
   my ($self, $lo, $hi) = @_;
@@ -709,11 +721,17 @@ sub values_make_multiples {
     return $m * $i++;
   };
 }
+sub is_multiple {
+  my ($self, $n) = @_;
+  my $m = abs();
+  return (($n % $self->{'multiples'}) == 0);
+}
 
 $values_info{'cubes'} =
-  { subr => \&values_make_cubes,
-    name => __('Perfect Cubes'),
+  { name => __('Perfect Cubes'),
     description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.'),
+    subr => \&values_make_cubes,
+    test => \&is_cube,
   };
 sub values_make_cubes {
   my ($self, $lo, $hi) = @_;
@@ -722,6 +740,11 @@ sub values_make_cubes {
   return sub {
     return $i++ ** 3;
   };
+}
+sub is_cube {
+  my ($self, $n) = @_;
+  $n = Math::Libm::cbrt ($n);
+  return ($n == int($n));
 }
 
 sub values_make_tetrahedral {
@@ -735,9 +758,10 @@ sub values_make_tetrahedral {
 }
 
 $values_info{'triangular'} =
-  { subr => \&values_make_triangular,
-    name => __('Triangular Numbers'),
+  { name => __('Triangular Numbers'),
     description => __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.'),
+    subr => \&values_make_triangular,
+    test => \&is_triangular,
   };
 sub values_make_triangular {
   my ($self, $lo, $hi) = @_;
@@ -747,6 +771,10 @@ sub values_make_triangular {
   return sub {
     return Math::TriangularNumbers::T($i++);
   };
+}
+sub is_triangular {
+  my ($self, $n) = @_;
+  return Math::TriangularNumbers::is_T($n);
 }
 
 $values_info{'pentagonal'} =
@@ -927,9 +955,10 @@ sub values_make_all {
 }
 
 $values_info{'odd'} =
-  { subr => \&values_make_odd,
-    name => __('Odd Integers'),
+  { name => __('Odd Integers'),
     description => __('The odd integers 1, 3, 5, 7, 9, etc.'),
+    subr => \&values_make_odd,
+    test => \&is_odd,
   };
 sub values_make_odd {
   my ($self, $lo, $hi) = @_;
@@ -938,11 +967,16 @@ sub values_make_odd {
     return ($lo += 2);
   };
 }
+sub is_odd {
+  my ($self, $n) = @_;
+  return ($n & 1);
+}
 
 $values_info{'even'} =
-  { subr => \&values_make_even,
-    name => __('Even Integers'),
+  { name => __('Even Integers'),
     description => __('The even integers 2, 4, 6, 8, 10, etc.'),
+    subr => \&values_make_even,
+    test => \&is_even,
   };
 sub values_make_even {
   my ($self, $lo, $hi) = @_;
@@ -950,6 +984,10 @@ sub values_make_even {
   return sub {
     return ($lo += 2);
   };
+}
+sub is_even {
+  my ($self, $n) = @_;
+  return ! ($n & 1);
 }
 
 $values_info{'primes'} =
@@ -1125,9 +1163,10 @@ sub values_make_base4_without_3 {
 }
 
 $values_info{'ternary_without_2'} =
-  { subr => \&values_make_ternary_without_2,
-    name => __('Ternary without 2s'),
+  { name => __('Ternary without 2s'),
     # description => __('The ...'),
+    subr => \&values_make_ternary_without_2,
+    test => \&is_ternary_without_2,
   };
 sub values_make_ternary_without_2 {
   my ($self, $lo, $hi) = @_;
@@ -1135,12 +1174,12 @@ sub values_make_ternary_without_2 {
   return sub {
     do {
       $i++;
-    } while (_any_ternary_2($i));
+    } until (is_ternary_without_2($self,$i));
     return $i;
   };
 }
-sub _any_ternary_2 {
-  my ($n) = @_;
+sub is_ternary_without_2 {
+  my ($self, $n) = @_;
   while ($n) {
     if (($n % 3) == 2) {
       return 1;
