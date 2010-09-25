@@ -55,7 +55,7 @@ use Gtk2::Ex::ComboBoxBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 21;
+our $VERSION = 22;
 
 BEGIN {
   if (0) {

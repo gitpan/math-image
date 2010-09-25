@@ -42,7 +42,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 21;
+our $VERSION = 22;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -172,7 +172,8 @@ sub INIT_INSTANCE {
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
-        tooltip  => __('Choose a random path, values, scale, etc.  Click repeatedly to see interesting things.'),
+        tooltip  => __('Choose a random path, values, scale, etc.
+Click repeatedly to see interesting things.'),
       },
      ],
      $self);
@@ -406,7 +407,7 @@ HERE
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $adj = Gtk2::Adjustment->new (2,       # initial
-                                     1, 12,   # min,max
+                                     1, 99,   # min,max
                                      1,1,     # steps
                                      0);      # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'pyramid_step'],

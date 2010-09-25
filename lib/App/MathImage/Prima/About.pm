@@ -17,17 +17,17 @@
 
 
 package App::MathImage::Prima::About;
-use 5.008;
+use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 1.19 ('App-MathImage');
+use Locale::TextDomain 'App-MathImage';
 use Prima::Label;
 use Prima::MsgBox;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 21;
+our $VERSION = 22;
 
 # use base 'Prima::Window';
 # sub init {
@@ -44,8 +44,10 @@ our $VERSION = 21;
 
 sub popup {
   my $text = Prima::MsgBox::message
-    (__x('Math Image version {version}', version => $VERSION),
-     mb::Information(), mb::Ok());
+    (__x('Math Image version {version}', version => $VERSION)
+     . "\n\n"
+     . __x('Running under Prima {version}', version => Prima->VERSION),
+     mb::Information() | mb::Ok());
 }
 
 1;

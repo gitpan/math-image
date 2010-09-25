@@ -20,17 +20,17 @@ use 5.004;
 use strict;
 use warnings;
 use Carp;
-use POSIX ();
+use POSIX 'floor', 'ceil';
 use Module::Util;
-use List::Util qw(min max);
+use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 21;
+$VERSION = 22;
 
 use constant default_options => {
                                  values       => 'primes',  # defaults
@@ -274,7 +274,7 @@ sub path_object {
     my $offset = int ($self->{'scale'} / 2);
 
     my $path_class = $self->{'path'};
-    ### $path_class
+    #### $path_class
     my $err = '';
     unless ($path_class =~ /::/) {
       $path_class = $self->path_choice_to_class ($path_class);
@@ -286,8 +286,8 @@ sub path_object {
     }
 
     my $path_object = $path_class->new
-      (width    => POSIX::ceil($self->{'width'} / $self->{'scale'}),
-       height   => POSIX::ceil($self->{'height'} / $self->{'scale'}),
+      (width    => ceil($self->{'width'} / $self->{'scale'}),
+       height   => ceil($self->{'height'} / $self->{'scale'}),
        step     => ($path_class eq 'Math::PlanePath::PyramidRows'
                     ? $self->{'pyramid_step'}
                     : $self->{'rings_step'}),
@@ -368,6 +368,11 @@ sub values_make_expression {
   };
 }
 
+$values_info{'aronson'} =
+  { subr => \&values_make_expression,
+    name => __('Aronson\'s Sequence'),
+    # description => __(''),
+  };
 sub values_make_aronson {
   my ($self, $lo, $hi) = @_;
   require Math::Aronson;
@@ -618,11 +623,11 @@ $values_info{'squares'} =
   { name => __('Perfect Squares'),
     description => __('The perfect squares 1,4,9,16,25, etc k*k.'),
     subr => \&values_make_squares,
-    test => \&is_square,
+    pred => \&is_square,
   };
 sub values_make_squares {
   my ($self, $lo, $hi) = @_;
-  my $i = POSIX::ceil (sqrt (max(0,$lo)));
+  my $i = ceil (sqrt (max(0,$lo)));
   return sub {
     return $i++ ** 2;
   };
@@ -711,19 +716,18 @@ $values_info{'multiples'} =
   { name => __('Multiples of a given K'),
     description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.'),
     subr => \&values_make_multiples,
-    test => \&is_multiple,
+    pred => \&is_multiple,
   };
 sub values_make_multiples {
   my ($self, $lo, $hi) = @_;
   my $m = abs($self->{'multiples'});
-  my $i = POSIX::ceil ($lo / $m);
+  my $i = ceil ($lo / $m);
   return sub {
     return $m * $i++;
   };
 }
 sub is_multiple {
   my ($self, $n) = @_;
-  my $m = abs();
   return (($n % $self->{'multiples'}) == 0);
 }
 
@@ -731,12 +735,12 @@ $values_info{'cubes'} =
   { name => __('Perfect Cubes'),
     description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.'),
     subr => \&values_make_cubes,
-    test => \&is_cube,
+    pred => \&is_cube,
   };
 sub values_make_cubes {
   my ($self, $lo, $hi) = @_;
   require Math::Libm;
-  my $i = POSIX::ceil (Math::Libm::cbrt (max(0,$lo)));
+  my $i = ceil (Math::Libm::cbrt (max(0,$lo)));
   return sub {
     return $i++ ** 3;
   };
@@ -761,7 +765,7 @@ $values_info{'triangular'} =
   { name => __('Triangular Numbers'),
     description => __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.'),
     subr => \&values_make_triangular,
-    test => \&is_triangular,
+    pred => \&is_triangular,
   };
 sub values_make_triangular {
   my ($self, $lo, $hi) = @_;
@@ -844,7 +848,7 @@ sub pronic_inverse_ceil {
   my ($n) = @_;
   require Math::TriangularNumbers;
   Math::TriangularNumbers->VERSION(1.012); # for Tri()
-  return Math::TriangularNumbers::Tri(POSIX::ceil($n/2));
+  return Math::TriangularNumbers::Tri(ceil($n/2));
 }
 
 $values_info{'fibonacci'} =
@@ -862,7 +866,7 @@ sub values_make_fibonacci {
   };
 }
 
-$values_info{'lucas'} =
+$values_info{'lucas_numbers'} =
   { subr => \&values_make_lucas_numbers,
     name => __('Lucas Numbers'),
     description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.'),
@@ -943,6 +947,7 @@ $values_info{'all'} =
   { subr => \&values_make_all,
     name => __('All Integers'),
     description => __('All integers 1,2,3,etc.'),
+    pred => \&is_all,
   };
 sub values_make_all {
   my ($self, $lo, $hi) = @_;
@@ -953,12 +958,13 @@ sub values_make_all {
     return $lo++;
   };
 }
+use constant is_all => 1;
 
 $values_info{'odd'} =
   { name => __('Odd Integers'),
     description => __('The odd integers 1, 3, 5, 7, 9, etc.'),
     subr => \&values_make_odd,
-    test => \&is_odd,
+    pred => \&is_odd,
   };
 sub values_make_odd {
   my ($self, $lo, $hi) = @_;
@@ -976,7 +982,7 @@ $values_info{'even'} =
   { name => __('Even Integers'),
     description => __('The even integers 2, 4, 6, 8, 10, etc.'),
     subr => \&values_make_even,
-    test => \&is_even,
+    pred => \&is_even,
   };
 sub values_make_even {
   my ($self, $lo, $hi) = @_;
@@ -1141,6 +1147,7 @@ sub _semi_primes {
 $values_info{'base4_without_3'} =
   { subr => \&values_make_base4_without_3,
     name => __('Base 4 Without 3'),
+    pred => \&is_base4_without_3,
     # description => __('The ...'),
   };
 sub values_make_base4_without_3 {
@@ -1161,12 +1168,22 @@ sub values_make_base4_without_3 {
     return $i+1;
   };
 }
+sub is_base4_without_3 {
+  my ($self, $n) = @_;
+  while ($n) {
+    if (($n & 3) == 3) {
+      return 0;
+    }
+    $n >>= 2;
+  }
+  return 1;
+}
 
 $values_info{'ternary_without_2'} =
   { name => __('Ternary without 2s'),
     # description => __('The ...'),
     subr => \&values_make_ternary_without_2,
-    test => \&is_ternary_without_2,
+    pred => \&is_ternary_without_2,
   };
 sub values_make_ternary_without_2 {
   my ($self, $lo, $hi) = @_;
@@ -1182,11 +1199,11 @@ sub is_ternary_without_2 {
   my ($self, $n) = @_;
   while ($n) {
     if (($n % 3) == 2) {
-      return 1;
+      return 0;
     }
     $n = int ($n / 3);
   }
-  return 0;
+  return 1;
 }
 
 # b^2 + b + 1 = k
@@ -1454,7 +1471,9 @@ sub draw_Image_start {
   ### $n_hi
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'} = $n_hi;
-  $self->{'prev_n'} = $n_lo - 1;
+  $self->{'n_prev'} = $n_lo - 1;
+  $self->{'count_total'} = 0;
+  $self->{'count_outside'} = 0;
 
   # origin point
   if ($scale >= 3) {
@@ -1462,16 +1481,18 @@ sub draw_Image_start {
   }
 
   if ($self->{'values'} ne 'lines') {
-    my $values_method = "values_make_$self->{'values'}";
+    my $values = $self->{'values'};
+    my $values_method = "values_make_$values";
     ### $values_method
     $self->{'values_iter'} = $self->$values_method ($n_lo, $n_hi);
+    $self->{'values_pred'} = $self->values_info($values)->{'pred'};
     ### iter: $self->{'values_iter'}
   }
 }
 
 sub draw_Image_steps {
   my ($self, $image, $steps) = @_;
-  ### draw_Image_steps: $steps
+  #### draw_Image_steps: $steps
   $steps = (defined $steps ? int($steps)+1 : -1);
 
   my $width  = $image->get('-width');
@@ -1515,32 +1536,140 @@ sub draw_Image_steps {
         or next;
 
       if (my ($x1, $y1) = $transform->($path->n_to_xy($n-0.499))) {
-        $x1 = POSIX::floor ($x1 + 0.5);
-        $y1 = POSIX::floor ($y1 + 0.5);
+        $x1 = floor ($x1 + 0.5);
+        $y1 = floor ($y1 + 0.5);
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
       }
 
       if (my ($x3, $y3) = $transform->($path->n_to_xy($n+0.499))) {
-        $x3 = POSIX::floor ($x3 + 0.5);
-        $y3 = POSIX::floor ($y3 + 0.5);
+        $x3 = floor ($x3 + 0.5);
+        $y3 = floor ($y3 + 0.5);
         _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground)
       }
     }
     $self->{'upto_n'} = $n;
 
-  } else {
 
+  } elsif ($self->{'use_xy'}) {
+    my $offset = int($scale/2);
+    my $pred = $self->{'values_pred'};
+    my $x = $self->{'x'};
+    my $x_hi = $self->{'x_hi'};
+    my $y = $self->{'y'};
+    my $n;
+    #### draw by xy
+    #### xy from: "$x,$y"
+
+    for (;;) {
+      ### use_xy: "$x,$y"
+      if ($steps-- < 0) {
+        $more = 1;
+        last;
+      }
+      if (++$x > $x_hi) {
+        if (++$y > $self->{'y_hi'}) {
+          last;
+        }
+        $x = $self->{'x_lo'};
+        #### next row: "$x,$y"
+      }
+
+      if (! defined ($n = $path->xy_to_n ($x, $y))) {
+        next; # no N for this x,y
+      }
+
+      ### path: "$x,$y  $n"
+      if (! $self->$pred($n)) {
+        if (! $covers) {
+          # background fill
+
+          my ($wx, $wy) = $transform->($x, $y);
+          $wx = floor ($wx - $offset + 0.5);
+          $wy = floor ($wy - $offset + 0.5);
+          ### win: "$wx,$wy"
+
+          if ($figure eq 'point') {
+            push @back_points, $wx, $wy;
+            if (@back_points >= _POINTS_CHUNKS) {
+              App::MathImage::Image::Base::Other::xy_points
+                  ($image, $foreground, @points);
+              @points = ();
+              App::MathImage::Image::Base::Other::xy_points
+                  ($image, $background, @back_points);
+              @back_points = ();
+            }
+          } else { # $figure eq 'square'
+            push @back_rectangles, rect_clipper ($wx, $wy,
+                                                 $wx+$scale-1, $wy+$scale-1,
+                                                 $width,$height);
+            if (@back_rectangles >= _RECTANGLES_CHUNKS) {
+              ### back_rectangles chunk
+              App::MathImage::Image::Base::Other::rectangles
+                  ($image, $foreground, 1, @rectangles);
+              @rectangles = ();
+              App::MathImage::Image::Base::Other::rectangles
+                  ($image, $background, 1, @back_rectangles);
+              @back_rectangles = ();
+            }
+          }
+        }
+        next;
+      }
+
+      my ($wx, $wy) = $transform->($x, $y);
+      $wx = floor ($wx - $offset + 0.5);
+      $wy = floor ($wy - $offset + 0.5);
+      ### win: "$wx,$wy"
+
+      if ($figure eq 'point') {
+        push @points, $wx, $wy;
+        if (@points >= _POINTS_CHUNKS) {
+          App::MathImage::Image::Base::Other::xy_points
+              ($image, $foreground, @points);
+          @points = ();
+          if (! $covers) {
+            App::MathImage::Image::Base::Other::xy_points
+                ($image, $background, @back_points);
+            @back_points = ();
+          }
+        }
+
+      } else { # $figure eq 'square'
+        push @rectangles, rect_clipper ($wx, $wy, $wx+$scale-1, $wy+$scale-1,
+                                        $width,$height);
+        if (@rectangles >= _RECTANGLES_CHUNKS) {
+          ### rectangles chunk
+          App::MathImage::Image::Base::Other::rectangles
+              ($image, $foreground, 1, @rectangles);
+          @rectangles = ();
+          if (! $covers) {
+            App::MathImage::Image::Base::Other::rectangles
+                ($image, $background, 1, @back_rectangles);
+            @back_rectangles = ();
+          }
+        }
+      }
+    }
+    $self->{'x'} = $x;
+    $self->{'y'} = $y;
+
+
+  } else {
+    #### draw by N
     my $offset = int($scale/2);
     my $iter = $self->{'values_iter'};
     my $n;
-    my $prev_n = $self->{'prev_n'};
+    my $n_prev = $self->{'n_prev'};
+    my $count_total = $self->{'count_total'};;
+    my $count_outside = $self->{'count_outside'};;
+
     for (;;) {
-      if ($steps-- == 0) {
+      if ($steps-- < 0) {
         $more = 1;
         last;
       }
       $n = $iter->();
-      ### $prev_n
+      ### $n_prev
       ### $n
       (defined $n && $n <= $n_hi)
         or last;
@@ -1548,23 +1677,29 @@ sub draw_Image_steps {
       ### path: "$x,$y"
 
       ($x, $y) = $transform->($x, $y);
-      $x = POSIX::floor ($x - $offset + 0.5);
-      $y = POSIX::floor ($y - $offset + 0.5);
+      $x = floor ($x - $offset + 0.5);
+      $y = floor ($y - $offset + 0.5);
       ### $x
       ### $y
 
       if ($figure eq 'point') {
 
         if (! $covers) {
-          foreach my $n ($prev_n+1 .. $n-1) {
-            my ($x, $y) = $path->n_to_xy($n) or next;
+          # background fill
+          foreach my $n ($n_prev+1 .. $n-1) {
+            $steps--;
+            $count_total++;
+            my ($x, $y) = $path->n_to_xy($n) or do {
+              $count_outside++;
+              next;
+            };
             ($x, $y) = $transform->($x, $y);
-            $x = POSIX::floor ($x - $offset + 0.5);
-            $y = POSIX::floor ($y - $offset + 0.5);
+            $x = floor ($x - $offset + 0.5);
+            $y = floor ($y - $offset + 0.5);
             ### back_point: $n
             ### $x
             ### $y
-            next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+            next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
             push @back_points, $x, $y;
 
             if (@back_points >= _POINTS_CHUNKS) {
@@ -1578,7 +1713,11 @@ sub draw_Image_steps {
           }
         }
 
-        next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+        $count_total++;
+        if ($x < 0 || $y < 0 || $x >= $width || $y >= $height) {
+          $count_outside++;
+          next;
+        }
         push @points, $x, $y;
 
         if (@points >= _POINTS_CHUNKS) {
@@ -1595,16 +1734,23 @@ sub draw_Image_steps {
       } elsif ($figure eq 'square') {
 
         if (! $covers) {
-          foreach my $n ($prev_n+1 .. $n-1) {
+          foreach my $n ($n_prev+1 .. $n-1) {
+            $steps--;
             my ($x, $y) = $path->n_to_xy($n) or next;
             ($x, $y) = $transform->($x, $y);
             ### back_rectangle: $n
             ### $x
             ### $y
-            $x = POSIX::floor ($x - $offset + 0.5);
-            $y = POSIX::floor ($y - $offset + 0.5);
-            push @back_rectangles, rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
-                                                 $width,$height);
+            $x = floor ($x - $offset + 0.5);
+            $y = floor ($y - $offset + 0.5);
+            $count_total++;
+            my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
+                                     $width,$height)
+              or do {
+                $count_outside++;
+                next;
+              };
+            push @back_rectangles, @rect;
             if (@back_rectangles >= _RECTANGLES_CHUNKS) {
               ### back_rectangles chunk
               App::MathImage::Image::Base::Other::rectangles
@@ -1617,8 +1763,14 @@ sub draw_Image_steps {
           }
         }
 
-        push @rectangles, rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
-                                        $width,$height);
+        $count_total++;
+        my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
+                                 $width,$height)
+          or do {
+            $count_outside++;
+            next;
+          };
+        push @rectangles, @rect;
         if (@rectangles >= _RECTANGLES_CHUNKS) {
           ### rectangles chunk
           App::MathImage::Image::Base::Other::rectangles
@@ -1638,9 +1790,36 @@ sub draw_Image_steps {
         }
       }
 
-      $prev_n = $n;
+      $n_prev = $n;
     }
-    $self->{'prev_n'} = $prev_n;
+    if ($figure ne 'circle'
+        && $count_total > 1000
+        && $count_outside > .5 * $count_total
+        && $self->{'values_pred'}
+       ) {
+      #### use_xy from now on
+      # print "use_xy from now on\n";
+      $self->{'use_xy'} = 1;
+
+      my ($x_lo, $y_hi) = $coord->untransform (0,0);
+      my ($x_hi, $y_lo) = $coord->untransform ($width,$height);
+      $x_lo = $self->{'x_lo'} = floor($x_lo);
+      $y_lo = $self->{'y_lo'} = floor($y_lo);
+      $x_hi = $self->{'x_hi'} = ceil($x_hi);
+      $y_hi = $self->{'y_hi'} = ceil($y_hi);
+
+      $self->{'x'} = $x_lo - 1;
+      $self->{'y'} = $y_lo;
+      #### x: "$x_lo to $x_hi start $self->{'x'}"
+      #### y: "$y_lo to $y_hi start $self->{'y'}"
+
+      my $x_width = $self->{'x_width'} = $x_hi - $x_lo + 1;
+      $self->{'xy_total'} = ($y_hi - $y_lo + 1) * $x_width;
+    } else {
+      $self->{'n_prev'} = $n_prev;
+      $self->{'count_total'} = $count_total;
+      $self->{'count_outside'} = $count_outside;
+    }
   }
 
   ### @points
@@ -1659,6 +1838,17 @@ sub draw_Image_steps {
 
   ### $more
   return $more;
+}
+
+sub draw_progress_fraction {
+  my ($self) = @_;
+  if ($self->{'use_xy'}) {
+    return (($self->{'x'} - $self->{'x_lo'})
+            + ($self->{'y'} - $self->{'y_lo'}) * $self->{'x_width'})
+      / $self->{'xy_total'};
+  } else {
+    return $self->{'n_prev'} / $self->{'n_hi'};
+  }
 }
 
 sub draw_Image {
@@ -1720,24 +1910,24 @@ sub line_clipper {
 
   if ($x1new < 0) {
     $x1new = 0;
-    $y1new = POSIX::floor (0.5 + ($y1 * (-$x2)
+    $y1new = floor (0.5 + ($y1 * (-$x2)
                                   + $y2 * ($x1)) / $xlen);
     ### x1 neg: "y1new to $x1new,$y1new"
   } elsif ($x1new >= $width) {
     $x1new = $width-1;
-    $y1new = POSIX::floor (0.5 + ($y1 * ($x1new-$x2)
+    $y1new = floor (0.5 + ($y1 * ($x1new-$x2)
                                   + $y2 * ($x1 - $x1new)) / $xlen);
     ### x1 big: "y1new to $x1new,$y1new"
   }
   if ($y1new < 0) {
     $y1new = 0;
-    $x1new = POSIX::floor (0.5 + ($x1 * (-$y2)
+    $x1new = floor (0.5 + ($x1 * (-$y2)
                                   + $x2 * ($y1)) / $ylen);
     ### y1 neg: "x1new to $x1new,$y1new   left ".($y1new-$y2)." right ".($y1-$y1new)
     ### x1new to: $x1new
   } elsif ($y1new >= $height) {
     $y1new = $height-1;
-    $x1new = POSIX::floor (0.5 + ($x1 * ($y1new-$y2)
+    $x1new = floor (0.5 + ($x1 * ($y1new-$y2)
                                   + $x2 * ($y1 - $y1new)) / $ylen);
     ### y1 big: "x1new to $x1new,$y1new   left ".($y1new-$y2)." right ".($y1-$y1new)
   }
@@ -1748,23 +1938,23 @@ sub line_clipper {
 
   if ($x2new < 0) {
     $x2new = 0;
-    $y2new = POSIX::floor (0.5 + ($y2 * ($x1)
+    $y2new = floor (0.5 + ($y2 * ($x1)
                                   + $y1 * (-$x2)) / $xlen);
     ### x2 neg: "y2new to $x2new,$y2new"
   } elsif ($x2new >= $width) {
     $x2new = $width-1;
-    $y2new = POSIX::floor (0.5 + ($y2 * ($x1-$x2new)
+    $y2new = floor (0.5 + ($y2 * ($x1-$x2new)
                                   + $y1 * ($x2new-$x2)) / $xlen);
     ### x2 big: "y2new to $x2new,$y2new"
   }
   if ($y2new < 0) {
     $y2new = 0;
-    $x2new = POSIX::floor (0.5 + ($x2 * ($y1)
+    $x2new = floor (0.5 + ($x2 * ($y1)
                                   + $x1 * (-$y2)) / $ylen);
     ### y2 neg: "x2new to $x2new,$y2new"
   } elsif ($y2new >= $height) {
     $y2new = $height-1;
-    $x2new = POSIX::floor (0.5 + ($x2 * ($y1-$y2new)
+    $x2new = floor (0.5 + ($x2 * ($y1-$y2new)
                                   + $x1 * ($y2new-$y2)) / $ylen);
     ### y2 big: "x2new $x2new,$y2new"
   }

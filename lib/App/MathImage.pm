@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 21;
+$VERSION = 22;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -130,6 +130,7 @@ sub getopt_long_specifications {
      'root-gtk' =>
      sub{ _hopt ($self, 'gui_options', 'show', 'root_gtk');  },
      'prima'    => sub{_hopt($self, 'gui_options', 'show', 'prima');  },
+     'curses'   => sub{_hopt($self, 'gui_options', 'show', 'curses');  },
      'xpm'      => sub{_hopt($self, 'gui_options', 'show', 'xpm');  },
      'png'      => sub{_hopt($self, 'gui_options', 'show', 'png');  },
      'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png-gd');  },
@@ -396,12 +397,12 @@ sub _output_image {
 sub show_method_window {
   my ($self) = @_;
 
-  if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
-    Glib->install_exception_handler
-      (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
-    $SIG{'__WARN__'}
-      = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
-  }
+#   if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
+#     Glib->install_exception_handler
+#       (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
+#     $SIG{'__WARN__'}
+#       = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
+#   }
 
   my $gen_options = $self->{'gen_options'};
   Glib::set_application_name (__('Math Image'));
@@ -699,7 +700,23 @@ sub show_method_text_numbers {
 sub show_method_prima {
   my ($self) = @_;
   require App::MathImage::Prima::Main;
-  App::MathImage::Prima::Main->run ($self->{'gen_options'});
+  my $gen_options = $self->{'gen_options'};
+  my $mainwin = App::MathImage::Prima::Main->new
+    (gui_options => $self->{'gui_options'},
+     gen_options => $gen_options,
+     (! defined $gen_options->{'width'}
+      ? (width  => 600,
+         height => 400)
+      : ()),
+    );
+  Prima->run;
+  return 0;
+}
+
+sub show_method_curses {
+  my ($self) = @_;
+  require App::MathImage::Curses::Main;
+  App::MathImage::Curses::Main->run ($self->{'gen_options'});
   return 0;
 }
 

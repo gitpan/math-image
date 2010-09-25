@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 38;
+use Test::More tests => 36;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 21;
+  my $want_version = 22;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -59,7 +59,7 @@ foreach my $elem
    [ ['--text', '--size=10x20'] ],
    [ ['--text', '--vogel'] ],
    [ ['--text', '--sacks'] ],
-   [ ['--text', '--random'] ],
+   # [ ['--text', '--random'] ],  # could need all modules
 
    [ ['--text-numbers'] ],
    [ ['--text-list'] ],
@@ -68,6 +68,8 @@ foreach my $elem
    [ ['--png-gtk']        ], # always have Image::Base::Gtk2::Gdk::Pixbuf
    [ ['--png-pngwriter'], module => 'Image::Base::PNGwriter' ],
    [ ['--png'],           module => 'Image::Base::GD' ],
+
+   # [ ['--prima'],         module => 'Prima' ],
   ) {
  SKIP: {
     my ($argv, %options) = @$elem;

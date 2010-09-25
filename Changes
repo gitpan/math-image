@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 22, September 2010
+    - more for --prima
+
 Version 21, September 2010
     - show POD with Gtk2::Ex::PodViewer if available
 

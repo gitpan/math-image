@@ -35,7 +35,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 21;
+  my $want_version = 22;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 

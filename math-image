@@ -1,4 +1,4 @@
-#!perl -w
+ #!perl -w
 
 # Copyright 2010 Kevin Ryde
 
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 21;
+$VERSION = 22;
 exit App::MathImage->command_line;
 
 __END__
@@ -271,6 +271,12 @@ see much, but a bigger image might be cute to send to a line printer or
 similar.
 
     math-image --text --width=130 --height=49 | lpr
+
+=item --prima
+
+Run the Prima GUI.  This requires the C<Prima> module.  The display doesn't
+yet have the full set of options the Gtk GUI does, but it works as far as it
+goes.
 
 =back
 

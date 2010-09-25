@@ -17,61 +17,243 @@
 
 
 package App::MathImage::Prima::Main;
-use 5.008;
+use 5.004;
 use strict;
 use warnings;
-use List::Util qw(min max);
+use FindBin;
 use Locale::TextDomain 1.19 ('App-MathImage');
-use Locale::Messages 'dgettext';
+
 use Prima 'Application';
+use Prima::Buttons;
+use Prima::ComboBox;
+use Prima::Label;
+use Prima::Sliders;
+use App::MathImage::Prima::Drawing;
 use App::MathImage::Generator;
-use Glib::Ex::EnumBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 21;
+use vars '@ISA';
+@ISA = ('Prima::MainWindow');
 
-sub run {
-  my ($class, $gen_options) = @_;
+our $VERSION = 22;
 
-  my $main = Prima::MainWindow->new
-    (text => 'Hello',
+sub new {
+  my ($class, %args) = @_;
+
+  my $gui_options = delete $args{'gui_options'};
+  my $gen_options = delete $args{'gen_options'};
+ $gen_options = { %{App::MathImage::Generator->default_options},
+                  %{$gen_options||{}} };
+  ### Main gen_options: $gen_options
+
+  my $self = $class->SUPER::new
+    (
+     # text => 'Hello',
      menuItems =>
      [ [ "~File" => [
-                     [ "E~xit" => sub {
+                     [ __('E~xit') => sub {
                          $::application->destroy;
                        },
                      ],
                     ] ],
        [ ef => "~Path" => [ _menu_for_path() ]],
+       [ ef => "~Values" => [ _menu_for_values() ]],
 
-       [ ef => "~Values" => [
-                             _menu_for_values(),
-                             #                            [],  # separator
-                             #                            _menu_for_path(),
-                            ]],
+       [ ef => "~Tools" => [ [ '*fullscreen', __('~Fullscreen'),
+                               \&_do_fullscreen_toggle]
+                           ]],
 
        # [],  # separator to put Help at the right
-       [ "~Help" => [ [ "~About" => "About",
+       [ "~Help" => [ [ __('~About'), \&_do_about ],
+
+                      [ __('~Program POD'),
                         sub {
-                          require Prima::MsgBox;
-                          Prima::MsgBox::message
-                              (__x('Math Image version {version}', version => $VERSION),
-                               mb::Information() + mb::Ok());
-                          # require App::MathImage::Prima::About;
-                          # App::MathImage::Prima::About->new;
+                          my ($self) = @_;
+                          ### POD: "@_"
+                          $::application->open_help ("$FindBin::Bin/$FindBin::Script");
+                        }],
+
+                      [ __('~This Path POD'),
+                        sub {
+                          my ($self) = @_;
+                          ### POD: "@_"
+                          my $path = $self->{'draw'}->gen_options->{'path'};
+                          if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
+                            $::application->open_help ($module);
+                          }
                         }],
                     ] ],
      ],
-     onPaint  => \&_paint,
+     # onPaint  => \&_paint,
+     %args
     );
 
-  $main->{__PACKAGE__.'.gen_options'} = $gen_options;
-  my $image = Prima::Image->create (owner => $main);
+  my $menu = $self->menu;
+  $menu->uncheck('fullscreen'); # initially unchecked
 
-  Prima->run;
+  my $toolbar = $self->{'toolbar'}
+    = $self->insert ('Widget',
+                     pack => { in => $self,
+                               side => 'top',
+                               fill => 'x',
+                               expand => 0,
+                               anchor => 'n',
+                             },
+                    );
+
+  $toolbar->insert ('Button',
+                    text => __('Randomize'),
+                    pack => { side => 'left' },
+                    hint  => __('Choose a random path, values, scale, etc.
+Click repeatedly to see interesting things.'),
+                    onClick  => sub {
+                      my ($button) = @_;
+                      $self->{'draw'}->gen_options (App::MathImage::Generator->random_options);
+                      _update($self);
+                    },
+                   );
+
+  my $combobox_height = do {
+    my $dummy = Prima::ComboBox->create;
+    my $height = $dummy->editHeight;
+    $dummy->destroy;
+    $height
+  };
+
+  my $path_combo = $self->{'path_combo'}
+    = $toolbar->insert ('ComboBox',
+                        # autoWidth => 1,
+                        pack   => { side => 'left',
+                                    fill => 'none',
+                                    expand => 0},
+                        hint  => __('The path for where to place values in the plane.'),
+                        style => cs::DropDown,
+                        # override dodgy height when style set
+                        height => $combobox_height,
+                        items => [ map { $_ } App::MathImage::Generator->path_choices ],
+                        onChange  => sub {
+                          my ($combo) = @_;
+                          ### Main path_combo onChange
+                          my $path = $combo->text;
+                          $self->{'draw'}->gen_options (path => $path);
+                          _update ($self);
+                        },
+                       );
+
+  $self->{'values_combo'}
+    = $toolbar->insert ('ComboBox',
+                        autoWidth => 1,
+                        pack  => { side => 'left',
+                                   fill => 'none',
+                                   expand => 0 },
+                        style  => cs::DropDown,
+                        # override dodgy height when style set
+                        height => $combobox_height,
+                        hint   => __('The values to display.'),
+                        items => [ map { $_ } App::MathImage::Generator->values_choices ],
+                        onChange  => sub {
+                          my ($combo) = @_;
+                          ### Main values combo onChange
+                          my $values = $combo->text;
+                          $self->{'draw'}->gen_options (values => $values);
+                          _update ($self);
+                        },
+                       );
+
+  {
+    $toolbar->insert ('Label',
+                      text => __('Scale'),
+                      pack => { side => 'left' },);
+    $self->{'scale_spin'}
+      = $toolbar->insert ('SpinEdit',
+                          pack => { side => 'left' },
+                          min => 1,
+                          step => 1,
+                          pageStep => 10,
+                          onChange  => sub {
+                            my ($spin) = @_;
+                            ### Main scale onChange
+                            my $scale = $spin->value;
+                            $self->{'draw'}->gen_options (scale => $scale);
+                          },
+                         );
+  }
+
+  $self->{'draw'} = $self->insert ('App::MathImage::Prima::Drawing',
+                                   gen_options => $gen_options,
+                                   width   => -1, # (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
+                                   height  => -1, # (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
+                                   pack => { expand => 1,
+                                             fill => 'both' });
+
+  #   my $toolbar = Prima::Widget->create (
+  #                                        # growMode => gm::GrowHiX(),
+  #                                        # left => 0,
+  #                                        # right => -1,
+  #                                        # top => 0,
+  #                                        # origin => [0,0],
+  #                                        owner => $self,
+  #                                       );
+  #
+
+  _update ($self);
+  return $self;
 }
+
+sub _update {
+  my ($self) = @_;
+  my $gen_options = $self->{'draw'}->gen_options;
+
+  my $menu = $self->menu;
+  foreach my $path (App::MathImage::Generator->path_choices) {
+    $menu->uncheck("path-$path");
+  }
+  $menu->check("path-$gen_options->{'path'}");
+
+  foreach my $values (App::MathImage::Generator->values_choices) {
+    $menu->uncheck("values-$values");
+  }
+  $menu->check("values-$gen_options->{'values'}");
+
+  my $path = $gen_options->{'path'};
+  if ($self->{'path_combo'}->text ne $path) {
+    $self->{'path_combo'}->text ($path);
+  }
+
+  if ($path eq 'SquareSpiral') {
+    $self->{'path_wider_spin'}
+      ||= $self->{'toolbar'}->insert ('SpinEdit',
+                                      pack => { side => 'left',
+                                                after => $self->{'path_combo'},
+                                              },
+                                      min => 0,
+                                      step => 1,
+                                      pageStep => 1,
+                                      hint => __('Wider path.'),
+                                      onChange  => sub {
+                                        my ($spin) = @_;
+                                        ### Main wider onChange
+                                        my $wider = $spin->value;
+                                        $self->{'draw'}->gen_options (path_wider => $wider);
+                                      },
+                                     );
+    $self->{'path_wider_spin'}->value ($gen_options->{'path_wider'});
+  } else {
+    if (my $spin = delete $self->{'path_wider_spin'}) {
+      $spin->destroy;
+    }
+  }
+
+  my $values = $gen_options->{'values'};
+  if ($self->{'values_combo'}->text ne $values) {
+    $self->{'values_combo'}->text ($values);
+  }
+
+  $self->{'scale_spin'}->value ($gen_options->{'scale'});
+}
+
 
 my %_values_to_mnemonic =
   (primes        => __('_Primes'),
@@ -98,8 +280,7 @@ my %_values_to_mnemonic =
   );
 sub _values_to_mnemonic {
   my ($str) = @_;
-  $str = ($_values_to_mnemonic{$str}
-          || Glib::Ex::EnumBits::to_display_default(undef,$str));
+  $str = ($_values_to_mnemonic{$str} || nick_to_display($str));
   $str =~ tr/_/~/;
   return $str;
 }
@@ -108,17 +289,18 @@ sub _menu_for_values {
 
   return map {
     my $values = $_;
-    [ $_,
+    [ "*values-$_",
       _values_to_mnemonic($_),
       \&_values_menu_action,
     ]
   } App::MathImage::Generator->values_choices;
 }
 sub _values_menu_action {
-  my ($main, $name) = @_;
-  ### Values menu item name: $name
-  $main->{__PACKAGE__.'.gen_options'}->{'values'} = $name;
-  $main->repaint;
+  my ($self, $itemname) = @_;
+  ### Values menu item name: $itemname
+  $itemname =~ s/^values-//;
+  $self->{'draw'}->gen_options (values => $itemname);
+  _update($self);
 }
 
 my %_path_to_mnemonic =
@@ -138,62 +320,88 @@ my %_path_to_mnemonic =
   );
 sub _path_to_mnemonic {
   my ($str) = @_;
-  return ($_values_to_mnemonic{$str}
-          || Glib::Ex::EnumBits::to_display_default(undef,$str));
+  return ($_values_to_mnemonic{$str} || nick_to_display($str));
 }
 sub _menu_for_path {
   my ($self) = @_;
 
   return map {
     my $path = $_;
-    [ $_,
-      _path_to_mnemonic($_),
-      \&_path_menu_action,
+    [ "*path-$_", _path_to_mnemonic($_), \&_path_menu_action,
     ]
   } App::MathImage::Generator->path_choices;
 }
 sub _path_menu_action {
-  my ($main, $name) = @_;
-  ### Path menu item name: $name
-  $main->{__PACKAGE__.'.gen_options'}->{'path'} = $name;
-  $main->repaint;
+  my ($self, $itemname) = @_;
+  ### _path_menu_action(): $itemname
+  $itemname =~ s/^path-//;
+  $self->{'draw'}->gen_options (path => $itemname);
+  _update($self);
 }
 
-sub _paint {
-  my ($self, $canvas) = @_;
-  ### _paint
-  $canvas->clear;
-  $canvas->fill_ellipse(50,50, 20,20);
-
-  _draw_image ($canvas, $self->{__PACKAGE__.'.gen_options'});
+sub nick_to_display {
+  my ($nick) = @_;
+  return join (' ',
+               map {ucfirst}
+               split(/[-_ ]+
+                    |(?<=\D)(?=\d)
+                    |(?<=\d)(?=\D)
+                    |(?<=[[:lower:]])(?=[[:upper:]])
+                     /x,
+                     $nick));
 }
 
-sub _draw_image {
-  my ($drawable, $gen_options) = @_;
-  ### _draw_image(): ref($drawable)
 
-  my $gen = App::MathImage::Generator->new
-    (%$gen_options,
-     width  => $drawable->width,
-     height => $drawable->height);
-  #      foreground => $self->style->fg($self->state)->to_string,
-  #      background => $background_colorobj->to_string,
 
-  #   $self->{'path_object'} = $gen->path_object;
-  #   $self->{'coord'} = $gen->{'coord'};
-
-  ### width:  $drawable->width
-  ### height: $drawable->height
-
-  require App::MathImage::Image::Base::Prima::Drawable;
-  my $image = App::MathImage::Image::Base::Prima::Drawable->new
-    (-drawable => $drawable);
-  ### width:  $image->get('-width')
-  ### height: $image->get('-height')
-
-  $gen->draw_Image_start ($image);
-  $gen->draw_Image_steps ($image, 99999);
+sub _do_fullscreen_toggle {
+  my ($self, $itemname) = @_;
+  ### _do_fullscreen_toggle(): "@_"
+  $self->windowState ($self->menu->toggle($itemname)
+                      ? ws::Maximized()
+                      : ws::Normal());
+  ### windowState now: $self->windowState
 }
+
+sub _do_about {
+  my ($self) = @_;
+  require App::MathImage::Prima::About;
+  App::MathImage::Prima::About->popup;
+}
+# sub _paint {
+#   my ($self, $canvas) = @_;
+#   ### _paint
+#   $canvas->clear;
+#   $canvas->fill_ellipse(50,50, 20,20);
+# 
+#   _draw_image ($canvas, _gen_options($self));
+# }
+# 
+# sub _draw_image {
+#   my ($drawable, $gen_options) = @_;
+#   ### _draw_image(): ref($drawable)
+# 
+#   my $gen = App::MathImage::Generator->new
+#     (%$gen_options,
+#      width  => $drawable->width,
+#      height => $drawable->height);
+#   #      foreground => $self->style->fg($self->state)->to_string,
+#   #      background => $background_colorobj->to_string,
+# 
+#   #   $self->{'path_object'} = $gen->path_object;
+#   #   $self->{'coord'} = $gen->{'coord'};
+# 
+#   ### width:  $drawable->width
+#   ### height: $drawable->height
+# 
+#   require App::MathImage::Image::Base::Prima::Drawable;
+#   my $image = App::MathImage::Image::Base::Prima::Drawable->new
+#     (-drawable => $drawable);
+#   ### width:  $image->get('-width')
+#   ### height: $image->get('-height')
+# 
+#   $gen->draw_Image_start ($image);
+#   $gen->draw_Image_steps ($image, 99999);
+# }
 
 # sub expose {
 #           if ( $d-> begin_paint) {
@@ -207,32 +415,11 @@ sub _draw_image {
 #           }
 
 
-
-#   properties => [ Glib::ParamSpec->boolean
-#                   ('fullscreen',
-#                    'fullscreen',
-#                    'Blurb.',
-#                    0,           # default
-#                    Glib::G_PARAM_READWRITE),
-
 # sub INIT_INSTANCE {
 #   my ($self) = @_;
 # 
-#   my $vbox = $self->{'vbox'} = Prima::VBox->new (0, 0);
-#   $vbox->show;
-#   $self->add ($vbox);
-# 
 #   my $draw = $self->{'draw'} = App::MathImage::Prima::Drawing->new;
 #   $draw->show;
-# 
-#   my $actiongroup = $self->{'actiongroup'}
-#     = Prima::ActionGroup->new ('main');
-#   $actiongroup->add_actions
-#     ([                          # name,        stock-id,  label
-#       [ 'ViewMenu',   undef,    dgettext('gtk20-properties','_View')  ],
-#       [ 'ToolsMenu',  undef,    dgettext('gtk20-properties','_Tools')  ],
-# 
-#       # name,       stock id,     label,  accelerator,  tooltip
 # 
 #       { name     => 'SaveAs',
 #         stock_id => 'gtk-save-as',
@@ -242,37 +429,10 @@ sub _draw_image {
 #         label    => 'Set _Root Window',
 #         callback => \&_do_action_setroot,
 #       },
-#       [ 'Quit',     'gtk-quit',   undef,
-#         __p('Main-accelerator-key','<Control>Q'),
-#         undef, \&_do_action_quit,
-#       ],
-# 
-#       { name     => 'About',
-#         stock_id => 'gtk-about',
-#         callback => \&_do_action_about,
-#       },
-# 
 #       { name     => 'Randomize',
 #         label    => __('Randomize'),
 #         callback => \&_do_action_randomize,
 #       },
-#      ],
-#      $self);
-# 
-#   {
-#     my $action = Prima::ToggleAction->new (name => 'Fullscreen',
-#                                           label => '_Fullscreen');
-#     $actiongroup->add_action_with_accel
-#       ($action, __p('Main-accelerator-key','<Control>F'));
-#     Glib::Ex::ConnectProperties->new ([$self,  'fullscreen'],
-#                                       [$action,'active']);
-#   }
-#   $actiongroup->add_toggle_actions
-#     # name, stock id, label, accel, tooltip, subr, is_active
-#     ([[ 'Cross', undef, __('_Cross'), __p('Main-accelerator-key','C'), undef,
-#         \&_do_action_crosshair,
-#         0                       # inactive
-#       ],
 #      ],
 #      $self);
 # 
@@ -290,10 +450,6 @@ sub _draw_image {
 #       $hash{$values} = $n;
 #       $hash{$n++} = $values;
 #     }
-#     Glib::Ex::ConnectProperties->new
-#         ([$draw,  'values'],
-#          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash ]);
-#   }
 #   {
 #     my $n = 0;
 #     my $group;
@@ -308,37 +464,9 @@ sub _draw_image {
 #       $hash{$path} = $n;
 #       $hash{$n++} = $path;
 #     }
-#     Glib::Ex::ConnectProperties->new
-#         ([$draw,  'path'],
-#          [$group, 'current-value', hash_in => \%hash,  hash_out => \%hash]);
-#   }
 # 
-#   my $ui = $self->{'ui'} = Prima::UIManager->new;
-#   $ui->insert_action_group ($actiongroup, 0);
-#   $self->add_accel_group ($ui->get_accel_group);
-#   my $ui_str = <<'HERE';
-# <ui>
-#   <menubar name='MenuBar'>
-#     <menu action='FileMenu'>
 #       <menuitem action='SaveAs'/>
 #       <menuitem action='SetRoot'/>
-#       <menuitem action='Quit'/>
-#     </menu>
-#     <menu action='ViewMenu'>
-# HERE
-#   $ui_str .= "      <separator/>\n";
-#   foreach my $path (App::MathImage::Generator->path_choices) {
-#     $ui_str .= "      <menuitem action='Path-$path'/>\n";
-#   }
-#   $ui_str .= <<'HERE';
-#     </menu>
-#     <menu action='ToolsMenu'>
-#       <menuitem action='Cross'/>
-#       <menuitem action='Fullscreen'/>
-#     </menu>
-#     <menu action='HelpMenu'>
-#       <menuitem action='About'/>
-#     </menu>
 #   </menubar>
 #   <toolbar  name='ToolBar'>
 #     <separator/>
@@ -347,19 +475,6 @@ sub _draw_image {
 # </ui>
 # HERE
 #   $ui->add_ui_from_string ($ui_str);
-# 
-#   my $menubar = $self->menubar;
-#   $menubar->show;
-#   $vbox->pack_start ($menubar, 0,0,0);
-# 
-#   my $toolbar = $self->toolbar;
-#   $vbox->pack_start ($toolbar, 0,0,0);
-# 
-#   my $table = $self->{'table'} = Prima::Table->new (1, 1);
-#   $vbox->pack_start ($table, 1,1,0);
-# 
-#   my $vbox2 = $self->{'vbox2'} = Prima::VBox->new;
-#   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
 # 
 #   $draw->add_events ('pointer-motion-mask');
 #   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
@@ -594,15 +709,6 @@ sub _draw_image {
 # # #   }
 # # }
 # 
-# sub menubar {
-#   my ($self) = @_;
-#   return $self->{'ui'}->get_widget('/MenuBar');
-# }
-# sub toolbar {
-#   my ($self) = @_;
-#   return $self->{'ui'}->get_widget('/ToolBar');
-# }
-# 
 # sub _do_action_save_as {
 #   my ($action, $self) = @_;
 #   require App::MathImage::Prima::SaveDialog;
@@ -641,48 +747,14 @@ sub _draw_image {
 #   $rootwin->set_back_pixmap ($image->get('-pixmap'));
 #   $rootwin->clear;
 # }
-# sub _do_action_quit {
-#   my ($action, $self) = @_;
-#   $self->destroy;
-# }
-# sub _do_action_about {
-#   my ($action, $self) = @_;
-#   require App::MathImage::Prima::AboutDialog;
-#   App::MathImage::Prima::AboutDialog->new->present;
-# }
-# 
+
 # sub _do_action_randomize {
 #   my ($action, $self) = @_;
 #   $self->{'draw'}->set (App::MathImage::Generator->random_options);
 # }
-# sub _do_action_crosshair {
-#   my ($action, $self) = @_;
-#   $self->{'crosshair_connect'} ||= do {
-#     require Prima::Ex::CrossHair;
-#     require Glib::Ex::ConnectProperties;
-#     my $cross = $self->{'crosshair'}
-#       = Prima::Ex::CrossHair->new (widget => $self->{'draw'},
-#                                   foreground => 'orange',
-#                                   active => 1);
-#     Glib::Ex::ConnectProperties->new ([$action,'active'],
-#                                       [$cross,'active']);
-#     $self->{'draw'}->signal_connect
-#       ('notify::scale' => sub {
-#          my ($draw) = @_;
-#          my $self = $draw->get_ancestor (__PACKAGE__);
-#          my $scale = $draw->get('scale');
-#          $cross->set (line_width => min($scale,3));
-#        });
-#     $self->{'draw'}->notify('scale'); # initial
-#   };
-# }
-# 
-# 1;
-
 
 #       my $toplevel = App::MathImage::Prima::Main->new
 #         (fullscreen => $gui_options{'fullscreen'});
-#       $toplevel->signal_connect (destroy => sub { Prima->main_quit });
 # 
 #       my $fg_color = Prima::Gdk::Color->parse (delete $gen_options{'foreground'});
 #       my $bg_color = Prima::Gdk::Color->parse (delete $gen_options{'background'});
@@ -702,9 +774,6 @@ sub _draw_image {
 #       $draw->set (%gen_options);
 #       $draw->modify_fg ('normal', $fg_color);
 #       $draw->modify_bg ('normal', $bg_color);
-# 
-#       $toplevel->show;
-#       Prima->main;
 
 1;
 __END__

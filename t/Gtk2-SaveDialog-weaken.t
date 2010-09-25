@@ -50,7 +50,11 @@ sub my_ignore {
 {
   my $leaks = Test::Weaken::leaks
     ({ constructor => sub {
-         my $dialog = App::MathImage::Gtk2::SaveDialog->new;
+         my $dialog = do {
+           # avoid spam from Gtk trying to make you buy the gnome icons
+           local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
+           App::MathImage::Gtk2::SaveDialog->new
+           };
          $dialog->show;
          MyTestHelpers::main_iterations();
          return $dialog;

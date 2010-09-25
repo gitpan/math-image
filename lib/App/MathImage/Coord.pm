@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 21;
+$VERSION = 22;
 
 sub new {
   my $class = shift;
@@ -74,7 +74,7 @@ sub untransform {
           ($y - $self->{'y_origin'}) / $self->{'y_scale'});
 }
 sub untransform_proc {
-  my ($self, $x, $y) = @_;
+  my ($self) = @_;
   my $x_scale = $self->{'x_scale'};
   my $y_scale = $self->{'y_scale'};
   my $x_origin = $self->{'x_origin'};

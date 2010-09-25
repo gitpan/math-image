@@ -115,6 +115,7 @@ MyMakeMakerExtras::WriteMakefile
         recommends
         => { 'Math::Aronson'  => 2,
              'Math::Symbolic' => 0, # probably almost any ok
+             'Image::Base' => '1.08', # for line drawing
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,
