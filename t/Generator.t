@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 66;
+use Test::More tests => 100;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require POSIX;
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
@@ -35,7 +38,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 22;
+  my $want_version = 23;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -105,6 +108,30 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     my $got = join(',',@$got_array);
     is ($got, $want, "line_clipper() ".join(',',@$args));
   }
+}
+
+#------------------------------------------------------------------------------
+# values_make_primes
+
+{
+  my $gen = App::MathImage::Generator->new;
+  my $it = $gen->values_make_primes(2, 17);
+  my $want_arrayref = [ 2, 3, 5, 7, 11, 13, 17 ];
+  my %want_hashref;
+  @want_hashref{@$want_arrayref} = ();
+
+  my $got_arrayref = [ map {$it->()} 1..7 ];
+  is_deeply ($got_arrayref, $want_arrayref,
+             'values_make_primes 2 to 17 iterator');
+
+  my %got_hashref;
+  foreach my $n (2 .. 17) {
+    if ($gen->is_iter_arrayref($n)) {
+      $got_hashref{$n} = undef;
+    }
+  }
+  is_deeply ($got_arrayref, $want_arrayref,
+             'values_make_primes 2 to 17 is_iter_arrayref()');
 }
 
 #------------------------------------------------------------------------------
@@ -221,27 +248,48 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         81, 82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103,
                         104, 107, 109, 110, 112, 115, 117, 118, 121, 122,
                         124, 127, 128 ] ],
+
+                    [ 'values_make_repdigit_base_10', 0,
+                      [ 0,
+                        1,2,3,4,5,6,7,8,9,
+                        11,22,33,44,55,66,77,88,99,
+                        111,222,333,444,555,666,777,888,999,
+                      ] ],
                    ) {
     my ($method, $lo, $want, $options, $module) = @$elem;
     if ($options) {
       %$gen = (%$gen, %$options);
     }
+    my $hi = $want->[-1];
+
   SKIP: {
       my $iter;
-      if (! eval {
-        $iter = $gen->$method ($lo, 1000);
-        1;
-      }) {
+      if (! eval { $iter = $gen->$method ($lo, $hi); 1; }) {
         my $err = $@;
         diag "method=$method caught error -- $err";
         if ($module && ! eval "require $module; 1") {
-          skip "method=$method due to no module $module", 1
+          skip "method=$method due to no module $module", 2;
         }
         die $err;
       }
 
       my $got = [ map {$iter->()} 0 .. $#$want ];
-      is_deeply ($got, $want, "$method lo=$lo");
+      is_deeply ($got, $want, "$method lo=$lo hi=$hi");
+
+      (my $pred_method = $method) =~ s/^values_make/is/;
+    SKIP: {
+        $gen->can($pred_method)
+          or skip "no predicate $pred_method()", 1;
+
+        my @got_pred;
+        foreach my $n ($lo .. $hi) {
+          ### $n
+          if ($gen->$pred_method($n)) {
+            push @got_pred, $n;
+          }
+        }
+        is_deeply (\@got_pred, $want, "$pred_method lo=$lo hi=$hi");
+      }
     }
   }
 }

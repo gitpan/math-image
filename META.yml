@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            22
+version:            23
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -15,7 +15,7 @@ requires:
     Compress::Zlib:       0
     constant::defer:      0
     Glib:                 1.220
-    Glib::Ex::ConnectProperties:  8
+    Glib::Ex::ConnectProperties:  11
     Glib::Ex::EnumBits:   11
     Glib::Ex::ObjectBits:  12
     Glib::Ex::SignalIds:  0
@@ -31,7 +31,7 @@ requires:
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  0
     Gtk2::Ex::WidgetEvents:  21
-    Image::Base:          0
+    Image::Base:          1.08
     Image::Base::Gtk2::Gdk::Pixbuf:  3
     Image::Base::Gtk2::Gdk::Pixmap:  2
     Image::Base::Gtk2::Gdk::Window:  2
@@ -44,6 +44,8 @@ requires:
     Math::PlanePath:      0
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::HeptSpiralSkewed:  4
+    Math::PlanePath::HexSpiral:  9
+    Math::PlanePath::HexSpiralSkewed:  9
     Math::PlanePath::MultipleRings:  7
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3

@@ -25,7 +25,29 @@ use Smart::Comments;
 
 use lib 'devel/lib';
 
+{
+  require Module::Util;
+  my @modules = Module::Util::find_in_namespace('');
+  print scalar(@modules),"\n";
 
+  require Pod::Simple::Search;
+  my $s = Pod::Simple::Search->new;
+  $s->verbose(1);
+  # $s->survey;
+  print $s->find ('Math::PlanePath::SquareSpiral'),"\n";
+  exit 0;
+}
+
+{
+  require Gtk2;
+  my $color = Gtk2::Gdk::Color->new(0x1234, 0x5678, 0x9ABC);
+  print $color->to_string,"\n";
+
+  require Gtk2::Ex::Units;
+  Gtk2->init;
+  print "",Gtk2::Ex::Units::width(Gtk2::Gdk::Screen->get_default,"1mm"),"\n";
+  exit 0;
+}
 
 {
   require App::MathImage::Generator;
@@ -90,41 +112,6 @@ use lib 'devel/lib';
   }
   exit 0;
 }
-
-
-{
-  require Math::PlanePath::SacksSpiral;
-  require Math::PlanePath::VogelFloret;
-  require Math::PlanePath::PyramidRows;
-  require Math::PlanePath::Diagonals;
-  require Math::PlanePath::Corner;
-  require Math::PlanePath::DiamondSpiral;
-  require Math::PlanePath::PyramidSides;
-  require Math::PlanePath::PyramidRows;
-  require Math::PlanePath::HexSpiral;
-  require Math::PlanePath::HexSpiralSkewed;
-  require Math::PlanePath::KnightSpiral;
-  require Math::PlanePath::SquareSpiral;
-  require Math::PlanePath::MultipleRings;
-  require App::MathImage::PlanePath::ReplicatingSquares;
-
-  my $path = App::MathImage::PlanePath::ReplicatingSquares->new (wider => 1,
-                                                                 step => 0);;
-  foreach my $i (1 .. 500) {
-    # $i -= 0.5;
-    my ($x, $y) = $path->n_to_xy ($i) or next;
-    # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
-    my $n = $path->xy_to_n ($x+.0, $y+.0) // 'none';
-    my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $x,$y);
-    printf "%3d %8.4f,%8.4f   %3s %s %s\n",
-      $i,  $x,$y,  $n,
-        "${n_lo}_${n_hi}",
-          ($i ne $n || $n_hi < $n ? "  ****" : "");
-  }
-  exit 0;
-}
-
-
 
 {
   require Math::Trig;
@@ -354,13 +341,6 @@ use lib 'devel/lib';
   exit 0;
 }
 
-
-{
-  require Gtk2;
-  my $color = Gtk2::Gdk::Color->new(0x1234, 0x5678, 0x9ABC);
-  print $color->to_string;
-  exit 0;
-}
 
 {
   require Math::Libm;

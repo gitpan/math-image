@@ -30,7 +30,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 22;
+$VERSION = 23;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -105,15 +105,18 @@ sub draw {
      -height => $height);
   {
     my $gen = App::MathImage::Generator->new (%$gen_options);
+    ### $gen
     $gen->draw_Image ($image);
   }
   my $str = App::MathImage::Image::Base::Other::save_string($image);
+  ### $str
   # my $str = $image->save_string;
   # ### $str
 
   my $win = $self->{'-canvasscr'};
   my $y = 1;
   foreach my $line (@{split_to_lines($str)}) {
+    # ### line: "$y  $line"
     $win->addstr($y++, 0, $line);
   }
   $win->move (0,0);

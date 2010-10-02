@@ -17,6 +17,10 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 23, September 2010
+    - draw by x,y if path goes wildly off screen
+    - HexSpiral and HexSpiralSkewed "wider" option
+
 Version 22, September 2010
     - more for --prima
 

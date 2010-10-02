@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 22;
+our $VERSION = 23;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 
@@ -142,7 +142,14 @@ sub _do_viewer_link_clicked {
   Gtk2::Ex::WidgetCursor->busy;
   ($target, my $section) = split(/\//, $target, 2);
   if ($target) {
-    (defined ($viewer->load ($target))
+    my $loaded;
+    if (eval { require Pod::Simple::Search }
+        && (my $filename = Pod::Simple::Search->new->find($target))) {
+      $loaded = $viewer->load_file ($filename);
+    } else {
+      $loaded = $viewer->load ($target);
+    }
+    (defined $loaded
      && $viewer->get_buffer->get_char_count)
       or _empty ($viewer, $target);
   }

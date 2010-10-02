@@ -39,7 +39,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 22;
+my $want_version = 23;
 {
   is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,

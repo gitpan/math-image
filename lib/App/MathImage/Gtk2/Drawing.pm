@@ -21,6 +21,7 @@ use 5.008;
 use strict;
 use warnings;
 use Carp;
+use List::Util qw(min max);
 use POSIX ();
 use Scalar::Util;
 use Time::HiRes;
@@ -37,7 +38,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 22;
+our $VERSION = 23;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -357,23 +358,25 @@ sub start_drawing_window {
 
   if (my $vadj = $self->{'vadjustment'}) {
     my $coord = $self->{'coord'};
-    my (undef, $lower) = $coord->untransform(0,$height);
-    my (undef, $upper) = $coord->untransform(0,0);
+    my (undef, $value)       = $coord->untransform(0,$height);
+    my (undef, $value_upper) = $coord->untransform(0,0);
+    my $page_size = $value_upper - $value;
     ### vadj: "$lower to $upper"
-    $vadj->set (lower     => $lower,
-                upper     => $upper,
-                page_size => ($upper - $lower),
-                value     => $lower);
+    $vadj->set (lower     => min (0, $value - 1.5 * $page_size),
+                upper     => max (0, $value_upper + 1.5 * $page_size),
+                page_size => $page_size,
+                value     => $value);
   }
   if (my $hadj = $self->{'hadjustment'}) {
     my $coord = $self->{'coord'};
-    my ($lower, undef) = $coord->untransform(0,0);
-    my ($upper, undef) = $coord->untransform($width,0);
+    my ($value,       undef) = $coord->untransform(0,0);
+    my ($value_upper, undef) = $coord->untransform($width,0);
+    my $page_size = $value_upper - $value;
     ### hadj: "$lower to $upper"
-    $hadj->set (lower     => $lower,
-                upper     => $upper,
-                page_size => ($upper - $lower),
-                value     => $lower);
+    $hadj->set (lower     => min (0, $value - 1.5 * $page_size),
+                upper     => max (0, $value_upper + 1.5 * $page_size),
+                page_size => $page_size,
+                value     => $value);
   }
 
   require Image::Base::Gtk2::Gdk::Pixmap;

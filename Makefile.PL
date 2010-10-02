@@ -40,7 +40,7 @@ MyMakeMakerExtras::WriteMakefile
 
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,
-    'Glib::Ex::ConnectProperties' => 8, # v.8 for write_only
+    'Glib::Ex::ConnectProperties' => 11, # v.11 for widget-allocation
 
     # my Glib-Ex-ObjectBits
     'Glib::Ex::ObjectBits' => 12, # new in v.12
@@ -53,7 +53,7 @@ MyMakeMakerExtras::WriteMakefile
 
     # my Gtk2-Ex-WidgetBits
     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
-    'Gtk2::Ex::GdkBits'        => 23, # version 23 window_clear_region
+    'Gtk2::Ex::GdkBits'        => 23, # version 23 window_clear_region()
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
@@ -63,7 +63,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ComboBox::Text' => 1,
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
-    'Image::Base' => 0,
+    'Image::Base' => '1.08', # version 1.08 for line drawing fixes, probably
 
     # my Image-Base-Other
     'Image::Base::Multiplex' => 0,
@@ -97,14 +97,16 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath::Diagonals'    => 2, # sqrt fix
     'Math::PlanePath::SquareSpiral' => 5, # wider parameter
     'Math::PlanePath::PyramidRows'  => 4, # step parameter
-    'Math::PlanePath::PyramidSpiral'        => 3, # new in v.3
+    'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
     'Math::PlanePath::TriangleSpiral'       => 3,
     'Math::PlanePath::TriangleSpiralSkewed' => 3,
     'Math::PlanePath::PentSpiralSkewed'     => 3,
-    'Math::PlanePath::PentSpiral'           => 4, # new in v.4
+    'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
+    'Math::PlanePath::HexSpiral'            => 9,  # wider parameter
+    'Math::PlanePath::HexSpiralSkewed'      => 9,  # wider parameter
     'Math::PlanePath::HeptSpiralSkewed'     => 4,
-    'Math::PlanePath::TheodorusSpiral'      => 6, # new in v.6
-    'Math::PlanePath::MultipleRings'        => 7, # new in v.7
+    'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
+    'Math::PlanePath::MultipleRings'        => 7,  # new in v.7
    },
    MIN_PERL_VERSION => '5.008',
 
@@ -115,7 +117,7 @@ MyMakeMakerExtras::WriteMakefile
         recommends
         => { 'Math::Aronson'  => 2,
              'Math::Symbolic' => 0, # probably almost any ok
-             'Image::Base' => '1.08', # for line drawing
+             'Image::Base' => '1.08', # 1.08 for line drawing
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,

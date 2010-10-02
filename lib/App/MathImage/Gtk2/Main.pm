@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use Carp;
 use List::Util qw(min max);
+use POSIX ();
 use Module::Util;
 use Glib::Ex::ConnectProperties 8;  # v.7 for transforms, v.8 for write_only
 use Gtk2 1.220;
@@ -42,7 +43,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 22;
+our $VERSION = 23;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -109,18 +110,18 @@ sub _path_to_mnemonic {
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-
+  
   my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
   $self->add ($vbox);
-
+  
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
   $draw->show;
-
+  
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-
+  
   $actiongroup->add_actions
-    ([                          # name,        stock-id,  label
+    ([
       { name  => 'FileMenu',
         label => dgettext('gtk20-properties','_File'),
       },
@@ -139,7 +140,7 @@ sub INIT_INSTANCE {
       { name  => 'HelpMenu',
         label => dgettext('gtk20-properties','_Help'),
       },
-
+      
       { name     => 'SaveAs',
         stock_id => 'gtk-save-as',
         callback => \&_do_action_save_as,
@@ -155,12 +156,11 @@ sub INIT_INSTANCE {
         accelerator => __p('Main-accelerator-key','<Control>Q'),
         callback    => \&_do_action_quit,
       },
-
+      
       { name     => 'About',
         stock_id => 'gtk-about',
         callback => \&_do_action_about,
       },
-
       (defined (Module::Util::find_installed('Gtk2::Ex::PodViewer'))
        ? { name     => 'PodDialog',
            label    => __('_POD Documentation'),
@@ -168,7 +168,7 @@ sub INIT_INSTANCE {
            tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
          }
        : ()),
-
+      
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
@@ -177,7 +177,7 @@ Click repeatedly to see interesting things.'),
       },
      ],
      $self);
-
+  
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
                                           label => __('_Fullscreen'),
@@ -210,7 +210,7 @@ Click repeatedly to see interesting things.'),
          label   => __('_Toolbar'),
          tooltip => __('Whether to show the toolbar.')},
      ]);
-
+  
   if (Module::Util::find_installed('Gtk2::Ex::CrossHair')) {
     $actiongroup->add_toggle_actions
       # name, stock id, label, accel, tooltip, subr, is_active
@@ -226,7 +226,7 @@ Click repeatedly to see interesting things.'),
        ],
        $self);
   }
-
+  
   {
     my $n = 0;
     my $group;
@@ -263,7 +263,7 @@ Click repeatedly to see interesting things.'),
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-
+  
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -318,38 +318,38 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-
+  
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-
+  
   my $toolbar = $self->toolbar;
   $vbox->pack_start ($toolbar, 0,0,0);
-
+  
   my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
   $vbox->pack_start ($table, 1,1,0);
-
+  
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-
+  
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-
+  
   my $hadj = $self->{'hadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
   my $vadj = $self->{'vadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
   $draw->set (hadjustment => $hadj,
               vadjustment => $vadj);
-
+  
   {
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
                                         inverted => 1);
     $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-
+    
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
                                         orientation => 'horizontal');
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
-
+    
     my $action = $actiongroup->get_action ('Axes');
     Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
                                       [$vaxis,'visible'],
@@ -364,13 +364,13 @@ HERE
     Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
                                       [$action,'active']);
   }
-
+  
   my $toolpos = -999;
   my $path_combobox;
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-
+    
     $path_combobox = $self->{'path_combobox'}
       = Gtk2::Ex::ComboBox::Enum->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
@@ -379,14 +379,14 @@ HERE
                         tearoff_title => __('Path'),
                         tooltip_text  => __('The path for where to place values in the plane.'));
     $toolitem->add ($path_combobox);
-
+    
     Glib::Ex::ConnectProperties->new ([$draw,'path'],
                                       [$path_combobox,'active-nick']);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-
+    
     my $adj = Gtk2::Adjustment->new (0,       # initial
                                      0, 999,  # min,max
                                      1,10,    # steps
@@ -396,11 +396,11 @@ HERE
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     set_property_maybe ($spin, tooltip_text => __('Wider path.'));
     $toolitem->add ($spin);
-    Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
-                                      [$spin,'visible',
-                                       write_only => 1,
-                                       hash_in => { 'SquareSpiral' => 1,
-                                                    'ReplicatingSquares' => 1 }]);
+    Glib::Ex::ConnectProperties->new
+        ([ $path_combobox, 'active-nick' ],
+         [ $spin, 'visible',
+           write_only => 1,
+           hash_in    => \%App::MathImage::Generator::pathname_has_wider ]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -410,7 +410,7 @@ HERE
                                      1, 99,   # min,max
                                      1,1,     # steps
                                      0);      # page_size
-    Glib::Ex::ConnectProperties->new ([$draw,'pyramid_step'],
+    Glib::Ex::ConnectProperties->new ([$draw,'pyramid-step'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     set_property_maybe ($spin, tooltip_text => __('Step width for the pyramid rows, half going to each side.'));
@@ -570,7 +570,8 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'sqrt'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    set_property_maybe ($spin, tooltip_text => __('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'));
+    set_property_maybe ($spin,
+                        tooltip_text => __('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
@@ -588,7 +589,8 @@ HERE
     Glib::Ex::ConnectProperties->new ([$draw,'polygonal'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
-    set_property_maybe ($spin, tooltip_text => __('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
+    set_property_maybe ($spin,
+                        tooltip_text => __('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
     $toolitem->add ($spin);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
@@ -848,13 +850,18 @@ sub _do_action_crosshair {
                                   active => 1);
     Glib::Ex::ConnectProperties->new ([$action,'active'],
                                       [$cross,'active']);
-    $self->{'draw'}->signal_connect
-      ('notify::scale' => sub {
-         my ($draw) = @_;
-         my $scale = $draw->get('scale');
-         $cross->set (line_width => min($scale,3));
-       });
-    $self->{'draw'}->notify('scale'); # initial
+    my $max_line_width = POSIX::ceil (Gtk2::Ex::Units::width("1mm"));
+    Glib::Ex::ConnectProperties->new ([$self->{'draw'},'scale'],
+                                      [$cross,'line-width',
+                                       write_only => 1,
+                                       func_in => sub { min($_[0],3) }]);
+    #     $self->{'draw'}->signal_connect
+    #       ('notify::scale' => sub {
+    #          my ($draw) = @_;
+    #          my $scale = $draw->get('scale');
+    #          $cross->set (line_width => min($scale,3));
+    #        });
+    #     $self->{'draw'}->notify('scale'); # initial
   };
 }
 

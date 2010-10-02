@@ -31,7 +31,7 @@ use Gtk2;
 use Gtk2::Ex::Units;
 use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
-use Glib::Ex::ConnectProperties;
+use Glib::Ex::ConnectProperties 11; # version 11 for widget-allocation
 use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::Gtk2::Drawing;
@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 22;
+our $VERSION = 23;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -53,6 +53,14 @@ use Glib::Object::Subclass
                    'App::MathImage::Gtk2::Drawing',
                    Glib::G_PARAM_READWRITE),
                 ];
+
+# get_widget_for_response() new in gtk 2.20
+my $get_widget_for_response = Gtk2::Dialog->can('get_widget_for_response')
+  || sub {
+    my ($dialog, $id) = @_;
+    return List::Util::first {$dialog->get_response_for_widget($_) eq $id}
+      $dialog->get_action_area->get_children;
+  };
 
 sub new {
   my $class = shift;
@@ -102,7 +110,9 @@ sub INIT_INSTANCE {
          tooltip_text => __('The file format to save in.
 This is all the GdkPixbuf formats with "write" support.
 
-PNG and TIFF compress well, JPEG and BMP tend to be a bit bloated.  Note ICO only goes up to 255x255.'));
+PNG and TIFF compress well.
+JPEG and BMP tend to be a bit bloated.
+ICO only goes up to 255x255 pixels.'));
 
     $combo->signal_connect ('notify::active' => \&_combo_notify_active);
     $hbox->pack_start ($combo, 0,0,0);
@@ -112,6 +122,12 @@ PNG and TIFF compress well, JPEG and BMP tend to be a bit bloated.  Note ICO onl
     if (my $info = _get_format_from_type($type)) {
       $self->{'old_extensions'} = $info->{'extensions'};
     }
+
+    # no Save if no active type
+    Glib::Ex::ConnectProperties->new
+        ([$combo, 'active-type'],
+         [$self->$get_widget_for_response('accept'), 'sensitive',
+          write_only => 1]);
   }
 }
 
@@ -133,21 +149,22 @@ sub SET_PROPERTY {
        . ($scale != 1 ? "-s$scale" : '')
        . '.' . $self->{'combo'}->get('active-type'));
 
-    $self->{'draw_ids'} = Glib::Ex::SignalIds->new
-        ($draw,
-         $draw->signal_connect (size_allocate => sub {
-                                  my ($draw, $alloc) = @_;
-                                  $self->{'combo'}->set (for_width => $alloc->width,
-                                                         for_height => $alloc->height);
-                                }));
+    #     $self->{'draw_ids'} = Glib::Ex::SignalIds->new
+    #       ($draw,
+    #        $draw->signal_connect (size_allocate => sub {
+    #                                 my ($draw, $alloc) = @_;
+    #                                 $self->{'combo'}->set (for_width => $alloc->width,
+    #                                                        for_height => $alloc->height);
+    #                               }));
 
-    # FIXME: disconnect if changing to new 'draw'
-    # $self->{'draw_connections'} = $draw && [
-    #     Glib::Ex::ConnectProperties->dynamic ([$draw,'width'],
-    #                                       [$self->{'combo'},'for-width']),
-    #     Glib::Ex::ConnectProperties->dynamic ([$draw,'height'],
-    #                                       [$self->{'combo'},'for-height']),
-    # ];
+    $self->{'draw_connections'} = $draw
+      && [ Glib::Ex::ConnectProperties->dynamic
+           ([$draw,            'widget-allocation#width'],
+            [$self->{'combo'}, 'for-width']),
+           Glib::Ex::ConnectProperties->dynamic
+           ([$draw,            'widget-allocation#height'],
+            [$self->{'combo'}, 'for-height']),
+         ];
   }
 }
 
@@ -269,8 +286,9 @@ sub _change_extension {
   ### $old_aref
   ### $new_aref
 
+  # get_filename() undef initially
   my ($volume, $directories, $filename)
-    = File::Spec->splitpath ($chooser->get_filename);
+    = File::Spec->splitpath ($chooser->get_filename // return);
 
   if (defined (_filename_has_extension($filename, $new_aref,
                                        $case_sensitive))) {

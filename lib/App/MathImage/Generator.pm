@@ -27,10 +27,10 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '####';
+#use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 22;
+$VERSION = 23;
 
 use constant default_options => {
                                  values       => 'primes',  # defaults
@@ -121,7 +121,7 @@ my %values_info =
             },
   );
 sub values_info {
-  my ($self, $key) = @_;
+  my ($class, $key) = @_;
   ### %values_info
   return $values_info{$key} || { name => $key };
 }
@@ -228,10 +228,15 @@ sub _rand_of_array {
   return $aref->[int(rand(scalar(@$aref)))];
 }
 
+our %pathname_has_wider = (SquareSpiral       => 1,
+                           HexSpiral          => 1,
+                           HexSpiralSkewed    => 1,
+                           ReplicatingSquares => 1);
+
 sub description {
   my ($self) = @_;
   my $ret = $self->{'path'};
-  if ($self->{'path'} eq 'SquareSpiral') {
+  if ($pathname_has_wider{$self->{'path'}}) {
     if ($self->{'path_wider'}) {
       $ret .= " wider $self->{'path_wider'}";
     }
@@ -250,6 +255,10 @@ sub description {
     $ret .= " $self->{'polygonal'}";
   } elsif ($self->{'values'} eq 'multiples') {
     $ret .= " $self->{'multiples'}";
+  } elsif ($self->{'values'} eq 'aronson') {
+    if ($self->{'aronson_lang'} ne default_options()->{'aronson_lang'}) {
+      $ret .= " $self->{'aronson_lang'}";
+    }
   } elsif ($self->{'values'} =~ /^prime_quadratic/) {
     $ret .= " $self->{'prime_quadratic'}";
   }
@@ -523,13 +532,26 @@ sub values_make_thue_morse_odious {
 #   };
 # }
 
-use constant iter_empty => undef;
+sub make_iter_empty {
+  my ($self) = @_;
+  return $self->make_iter_arrayref([]);
+}
 sub make_iter_arrayref {
-  my ($arrayref) = @_;
+  my ($self, $arrayref) = @_;
+  $self->{'iter_arrayref'} = $arrayref;
   my $i = 0;
   return sub {
     return $arrayref->[$i++];
   };
+}
+sub is_iter_arrayref {
+  my ($self, $n) = @_;
+  return exists (($self->{'iter_hashref'} ||= do {
+    my %h;
+    @h{@{delete $self->{'iter_arrayref'}}} = ();
+    #### %h
+    \%h
+  })->{$n});
 }
 
 $values_info{'fraction_bits'} =
@@ -550,7 +572,7 @@ sub values_make_fraction_bits {
                                   ([.[:digit:]]+)?
                                 )?
                                 \s*$}x)
-      or return \&iter_empty;
+      or return $self->make_iter_empty;
   if (! defined $num) { $num = 1; }
   if (! defined $den) { $den = 1; }
   ### $num
@@ -565,7 +587,7 @@ sub values_make_fraction_bits {
   }
 
   if ($den == 0) {
-    return \&iter_empty;
+    return $self->make_iter_empty;
   }
   while ($num > $den) {
     $den *= 2;
@@ -610,7 +632,7 @@ sub values_make_polygonal {
   ### $hi
   my $k = $self->{'polygonal'};
   if ($k < 3) {
-    return make_iter_arrayref ([1]);
+    return $self->make_iter_arrayref ([1]);
   }
   my $i = 0;
   return sub {
@@ -975,6 +997,7 @@ sub values_make_odd {
 }
 sub is_odd {
   my ($self, $n) = @_;
+  ### is_odd(): $n
   return ($n & 1);
 }
 
@@ -998,6 +1021,7 @@ sub is_even {
 
 $values_info{'primes'} =
   { subr => \&values_make_primes,
+    pred => \&is_iter_arrayref,
     name => __('Prime Numbers'),
     description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.'),
   };
@@ -1005,50 +1029,55 @@ sub values_make_primes {
   my ($self, $lo, $hi) = @_;
   ### values_make_primes(): $lo, $hi
   if ($hi < $lo) {
-    return \&iter_empty;
+    return $self->make_iter_empty;
   }
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
 
   # sieve_primes() in 0.20_01 doesn't allow hi==lo
-  if ($hi == $lo) {
-    if (Math::Prime::XS::is_prime($hi)) {
-      return make_iter_arrayref ([$hi]);
-    } else {
-      return \&iter_empty;
-    }
-  }
-  return make_iter_arrayref([Math::Prime::XS::sieve_primes ($lo, $hi)]);
+  if ($hi == $lo) { $hi++; }
+
+  require Math::Prime::XS;
+  Math::Prime::XS->VERSION (0.020_001);
+  return $self->make_iter_arrayref([Math::Prime::XS::sieve_primes ($lo, $hi)]);
 }
 
 $values_info{'twin_primes'} =
   { subr => \&values_make_twin_primes,
+    pred => \&is_iter_arrayref,
     name => __('Twin Primes'),
     description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.'),
   };
 sub values_make_twin_primes {
   my ($self, $lo, $hi) = @_;
+  ### values_make_twin_primes(): "$lo to $hi"
 
   require Math::Prime::XS;
   Math::Prime::XS->VERSION (0.020_001);
-  my @primes = Math::Prime::XS::sieve_primes ($lo - 2, $hi);
+  my @primes = Math::Prime::XS::sieve_primes (max (0, $lo - 2),
+                                              $hi + 2);
+  ### primes: "@primes"
 
   my $to = 0;
   for (my $i = 0; $i < $#primes; $i++) {
-    if ($primes[$i]+2 == $primes[$i+1]
-        || $primes[$i]-2 == $primes[$i-1]) {
+    if ($primes[$i]+2 == $primes[$i+1]) {
+      $primes[$to++] = $primes[$i];
+      while (++$i < $#primes && $primes[$i]+2 == $primes[$i+1]) {
+        $primes[$to++] = $primes[$i];  # run of consecutive twin primes
+      }
       $primes[$to++] = $primes[$i];
     }
   }
+  ### twin primes: "@primes"
   $#primes = $to - 1;
-  my $i = 0;
-  return sub {
-    return $primes[$i++];
-  };
+  return $self->make_iter_arrayref(\@primes);
+  #   my $i = 0;
+  #   return sub {
+  #     return $primes[$i++];
+  #   };
 }
 
 $values_info{'twin_primes_1'} =
   { subr => \&values_make_twin_primes_1,
+    pred => \&is_iter_arrayref,
     name => __('Twin Primes, first of each'),
     description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.'),
   };
@@ -1066,14 +1095,16 @@ sub values_make_twin_primes_1 {
     }
   }
   $#primes = $to - 1;
-  my $i = 0;
-  return sub {
-    return $primes[$i++];
-  };
+  return $self->make_iter_arrayref(\@primes);
+  #   my $i = 0;
+  #   return sub {
+  #     return $primes[$i++];
+  #   };
 }
 
 $values_info{'twin_primes_2'} =
   { subr => \&values_make_twin_primes_2,
+    pred => \&is_iter_arrayref,
     name => __('Twin Primes, second of each'),
     description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.'),
   };
@@ -1082,7 +1113,7 @@ sub values_make_twin_primes_2 {
 
   require Math::Prime::XS;
   Math::Prime::XS->VERSION (0.020_001);
-  my @primes = Math::Prime::XS::sieve_primes ($lo-2, $hi+2);
+  my @primes = Math::Prime::XS::sieve_primes ($lo-2, $hi);
 
   my $to = 0;
   foreach my $i (0 .. $#primes - 1) {
@@ -1091,10 +1122,11 @@ sub values_make_twin_primes_2 {
     }
   }
   $#primes = $to - 1;
-  my $i = 0;
-  return sub {
-    return $primes[$i++];
-  };
+  return $self->make_iter_arrayref(\@primes);
+  #   my $i = 0;
+  #   return sub {
+  #     return $primes[$i++];
+  #   };
 }
 
 $values_info{'semi_primes'} =
@@ -1105,22 +1137,23 @@ $values_info{'semi_primes'} =
 sub values_make_semi_primes {
   my ($self, $lo, $hi) = @_;
   ### values_make_semi_primes(): $lo, $hi
-  return _semi_primes ($lo, $hi, 2);
+  return _semi_primes ($self, $lo, $hi, 2);
 }
 
 $values_info{'semi_primes_odd'} =
   { subr => \&values_make_semi_primes_odd,
+    pred => \&is_iter_arrayref,
     name => __('Semi-Primes, Odd'),
     description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including P==Q squares of primes.'),
   };
 sub values_make_semi_primes_odd {
   my ($self, $lo, $hi) = @_;
-  return _semi_primes ($lo, $hi, 3);
+  return _semi_primes ($self, $lo, $hi, 3);
 }
 sub _semi_primes {
-  my ($lo, $hi, $prime_base) = @_;
+  my ($self, $lo, $hi, $prime_base) = @_;
   if ($hi < $lo || $hi < $prime_base*$prime_base) {
-    return \&iter_empty;
+    return $self->make_iter_empty;
   }
   require Bit::Vector;
   require Math::Prime::XS;
@@ -1141,7 +1174,7 @@ sub _semi_primes {
       }
     }
   }
-  return make_iter_arrayref ([ $vec->Index_List_Read ]);
+  return $self->make_iter_arrayref ([ $vec->Index_List_Read ]);
 }
 
 $values_info{'base4_without_3'} =
@@ -1212,6 +1245,7 @@ sub is_ternary_without_2 {
 # b = sqrt(k-0.5)-0.5;
 $values_info{'repdigit_any_base'} =
   { subr => \&values_make_repdigit_any_base,
+    pred => \&is_iter_arrayref,
     name => __('Repdigits In Any Base'),
 description => __('Numbers which are a "repdigit" like 111, 222, 333 etc in any number base.'),
   };
@@ -1230,7 +1264,7 @@ sub values_make_repdigit_any_base {
       $n = $n * $base + 1;
     }
   }
-  return make_iter_arrayref ([ sort {$a <=> $b} keys %ret ]);
+  return $self->make_iter_arrayref ([ sort {$a <=> $b} keys %ret ]);
 
 
 
@@ -1262,24 +1296,30 @@ sub values_make_repdigit_any_base {
 
 $values_info{'repdigit_base_10'} =
   { subr => \&values_make_repdigit_base_10,
+    pred => \&is_repdigit_base_10,
     name => __('Repdigits Base 10'),
     description => __('Numbers which are a "repdigit" in base 10, meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc'),
   };
 sub values_make_repdigit_base_10 {
   my ($self, $lo, $hi) = @_;
-  my @upto = (1 .. 9);
-  my $last = 0;
+  my $digit = -1;
+  my $reps = 1;
   return sub {
+    ### $digit
+    ### $reps
     for (;;) {
-      ### @upto
-      foreach my $pos (0 .. 8) {
-        while ($upto[$pos] <= $last) {
-          $upto[$pos] = $upto[$pos] * 10 + $pos + 1;
-        }
+      if (++$digit > 9) {
+        $digit = 1;
+        $reps++;
       }
-      return ($last = min(@upto));
+      return ($digit x $reps);
     }
   };
+}
+sub is_repdigit_base_10 {
+  my ($self, $n) = @_;
+  my $digit = substr($n,0,1);
+  return ($n !~ /[^$digit]/);
 }
 
 
@@ -1325,7 +1365,7 @@ sub values_make_sqrt_bits {
   my ($self, $lo, $hi) = @_;
 
   my ($s) = ($self->{'sqrt'} =~ m{^\s*(\d+)\s*$})
-    or return \&iter_empty;
+    or return $self->make_iter_empty;
 
   bigint();
   my $calcbits = int(2*$hi + 32);
@@ -1491,9 +1531,9 @@ sub draw_Image_start {
 }
 
 sub draw_Image_steps {
-  my ($self, $image, $steps) = @_;
-  #### draw_Image_steps: $steps
-  $steps = (defined $steps ? int($steps)+1 : -1);
+  my ($self, $image, $steps_limit) = @_;
+  #### draw_Image_steps: $steps_limit
+  my $steps = 0;
 
   my $width  = $image->get('-width');
   my $height = $image->get('-height');
@@ -1527,9 +1567,11 @@ sub draw_Image_steps {
     my $n = $self->{'upto_n'};
 
     for ( ; $n < $n_hi; $n++) {
-      if ($steps-- == 0) {
-        $more = 1;
-        last;
+      if (defined $steps_limit) {
+        if (++$steps > $steps_limit) {
+          $more = 1;
+          last;
+        }
       }
 
       my ($x2, $y2) = $transform->($path->n_to_xy($n))
@@ -1562,9 +1604,11 @@ sub draw_Image_steps {
 
     for (;;) {
       ### use_xy: "$x,$y"
-      if ($steps-- < 0) {
-        $more = 1;
-        last;
+      if (defined $steps_limit) {
+        if (++$steps > $steps_limit) {
+          $more = 1;
+          last;
+        }
       }
       if (++$x > $x_hi) {
         if (++$y > $self->{'y_hi'}) {
@@ -1664,9 +1708,11 @@ sub draw_Image_steps {
     my $count_outside = $self->{'count_outside'};;
 
     for (;;) {
-      if ($steps-- < 0) {
-        $more = 1;
-        last;
+      if (defined $steps_limit) {
+        if (++$steps > $steps_limit) {
+          $more = 1;
+          last;
+        }
       }
       $n = $iter->();
       ### $n_prev
@@ -1687,7 +1733,7 @@ sub draw_Image_steps {
         if (! $covers) {
           # background fill
           foreach my $n ($n_prev+1 .. $n-1) {
-            $steps--;
+            $steps++;
             $count_total++;
             my ($x, $y) = $path->n_to_xy($n) or do {
               $count_outside++;
@@ -1735,7 +1781,7 @@ sub draw_Image_steps {
 
         if (! $covers) {
           foreach my $n ($n_prev+1 .. $n-1) {
-            $steps--;
+            $steps++;
             my ($x, $y) = $path->n_to_xy($n) or next;
             ($x, $y) = $transform->($x, $y);
             ### back_rectangle: $n

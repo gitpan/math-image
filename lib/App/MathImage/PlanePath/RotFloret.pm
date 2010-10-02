@@ -62,15 +62,15 @@ sub new {
     $self->{'rotation'} = 'phi';
   }
   if ($self->{'rotation'} eq 'pi') {
-    $self->{'rot'} = 1/pi();
+    $self->{'rot'} = pi() - 3;
     $self->{'factor'} = 1.60242740883046;
 
   } elsif ($self->{'rotation'} eq 'sqrt2') {
-    $self->{'rot'} = 1/sqrt(2);
+    $self->{'rot'} = sqrt(2) - 1;
     $self->{'factor'} = 0.679984167849259;
 
   } elsif ($self->{'rotation'} =~ /^sqrt *([[:digit:].]+)$/) {
-    $self->{'rot'} = 1/sqrt($1);
+    $self->{'rot'} = sqrt($1) - int(sqrt($1));
     $self->{'factor'} = 1;
 
   } else {

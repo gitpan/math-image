@@ -37,7 +37,7 @@ use App::MathImage::Generator;
 use vars '@ISA';
 @ISA = ('Prima::MainWindow');
 
-our $VERSION = 22;
+our $VERSION = 23;
 
 sub new {
   my ($class, %args) = @_;
@@ -333,7 +333,7 @@ sub _menu_for_path {
 }
 sub _path_menu_action {
   my ($self, $itemname) = @_;
-  ### _path_menu_action(): $itemname
+  ### _path_menu_action(): "@_"
   $itemname =~ s/^path-//;
   $self->{'draw'}->gen_options (path => $itemname);
   _update($self);
