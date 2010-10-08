@@ -30,7 +30,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 23;
+$VERSION = 24;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

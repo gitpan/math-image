@@ -27,7 +27,7 @@ use vars '$VERSION', '@ISA';
 use App::MathImage::Image::Base::Prima::Drawable;
 @ISA = ('App::MathImage::Image::Base::Prima::Drawable');
 
-$VERSION = 23;
+$VERSION = 24;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

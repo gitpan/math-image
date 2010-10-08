@@ -63,7 +63,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ComboBox::Text' => 1,
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
-    'Image::Base' => '1.08', # version 1.08 for line drawing fixes, probably
+    'Image::Base' => 0,
 
     # my Image-Base-Other
     'Image::Base::Multiplex' => 0,
@@ -74,7 +74,7 @@ MyMakeMakerExtras::WriteMakefile
     'Image::Base::Gtk2::Gdk::Window' => 2,
     'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
 
-    'List::MoreUtils' => 0,
+    'List::MoreUtils' => '0.24', # 0.24 for stack growing, maybe
     'Locale::TextDomain' => '1.19',
     'Locale::Messages' => 0,
     'Module::Load' => 0,
@@ -117,7 +117,7 @@ MyMakeMakerExtras::WriteMakefile
         recommends
         => { 'Math::Aronson'  => 2,
              'Math::Symbolic' => 0, # probably almost any ok
-             'Image::Base' => '1.08', # 1.08 for line drawing
+             'Image::Base' => '1.09',  # for ellipse() fixes
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,

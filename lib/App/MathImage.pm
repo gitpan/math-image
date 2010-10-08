@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 23;
+$VERSION = 24;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -232,9 +232,12 @@ HERE
 
 sub new {
   my $class = shift;
+  require App::MathImage::Generator;
   return bless { gen_options  => {},
-                 gen_defaults => { values     => 'primes',
-                                   path       => 'SquareSpiral',
+                 gen_defaults => { values     =>
+                                   App::MathImage::Generator->default_options->{'values'},
+                                   path       =>
+                                   App::MathImage::Generator->default_options->{'path'},
                                    foreground => 'white',
                                    background => 'black',
                                  },
