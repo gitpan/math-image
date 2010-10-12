@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -207,10 +207,14 @@ sub save {
                                                      0,0, 0,0,
                                                      $pixmap->get_size);
   my $values = $draw->get('values');
-  if ($values eq 'fraction' || $values eq 'expression' || $values eq 'sqrt'
-      || $values eq 'polygonal' || $values eq 'multiples') {
-    $values .= ' '.$draw->get($values);
+  if ($values eq 'Fraction' || $values eq 'Expression'
+      || $values eq 'Polygonal' || $values eq 'Multiples'
+      || $values eq 'SqrtBits') {
+    my $pname = lc($values);
+    $pname =~ s/bits$//;
+    $values .= ' '.$draw->get($pname);
   }
+
   my $path = $draw->get('path');
   # my $scale = $draw->get('scale');
   my $title = __x('{values} drawn as {path}',

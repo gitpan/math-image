@@ -34,8 +34,8 @@ use Locale::Messages 'dgettext';
 
 use Glib::Ex::EnumBits;
 use Glib::Ex::ObjectBits 'set_property_maybe';
-use Gtk2::Ex::ComboBox::Text;
-use Gtk2::Ex::ComboBox::Enum;
+use Gtk2::Ex::ComboBox::Text 2; # version 2 for fixed MoreUtils dependency
+use Gtk2::Ex::ComboBox::Enum 2; # version 2 for fixed MoreUtils dependency
 
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -59,27 +59,27 @@ use Glib::Object::Subclass
                 ];
 
 my %_values_to_mnemonic =
-  (primes        => __('_Primes'),
-   twin_primes   => __('_Twin Primes'),
-   twin_primes_1 => __('Twin Primes _1'),
-   twin_primes_2 => __('Twin Primes _2'),
-   squares       => __('S_quares'),
-   pronic        => __('Pro_nic'),
-   triangular    => __('Trian_gular'),
-   cubes         => __('_Cubes'),
-   tetrahedral   => __('_Tetrahedral'),
-   perrin        => __('Perr_in'),
-   padovan       => __('Pado_van'),
-   fibonacci     => __('_Fibonacci'),
-   fraction_bits => __('F_raction Bits'),
-   polygonal     => __('Pol_ygonal Numbers'),
-   pi_bits       => __('_Pi Bits'),
-   ln2_bits      => __x('_Log Natural {logarg} Bits', logarg => 2),
-   ln3_bits      => __x('_Log Natural {logarg} Bits', logarg => 3),
-   ln10_bits     => __x('_Log Natural {logarg} Bits', logarg => 10),
-   odd           => __('_Odd Integers'),
-   even          => __('_Even Integers'),
-   all           => __('_All Integers'),
+  (Primes        => __('_Primes'),
+   TwinPrimes    => __('_Twin Primes'),
+   TwinPrimes1   => __('Twin Primes _1'),
+   TwinPrimes2   => __('Twin Primes _2'),
+   Squares       => __('S_quares'),
+   Pronic        => __('Pro_nic'),
+   Triangular    => __('Trian_gular'),
+   Cubes         => __('_Cubes'),
+   Tetrahedral   => __('_Tetrahedral'),
+   Perrin        => __('Perr_in'),
+   Padovan       => __('Pado_van'),
+   Fibonacci     => __('_Fibonacci'),
+   FractionBits  => __('F_raction Bits'),
+   Polygonal     => __('Pol_ygonal Numbers'),
+   PiBits        => __('_Pi Bits'),
+   Ln2Bits       => __x('_Log Natural {logarg} Bits', logarg => 2),
+   Ln3Bits       => __x('_Log Natural {logarg} Bits', logarg => 3),
+   Ln10Bits      => __x('_Log Natural {logarg} Bits', logarg => 10),
+   Odd           => __('_Odd Integers'),
+   Even          => __('_Even Integers'),
+   All           => __('_All Integers'),
   );
 sub _values_to_mnemonic {
   my ($str) = @_;
@@ -531,16 +531,16 @@ HERE
 
     my $entry = $self->{'fraction_entry'} = Gtk2::Entry->new;
     set_property_maybe ($entry,
-                        width_chars  => 8,
-                        tooltip_text => __('The fraction to show, for example 5/29.'));
+                        width_chars  => 12,
+                        tooltip_text => __('The fraction to show, for example 5/29.  Press Return when ready to display the expression.'));
     $toolitem->add ($entry);
     Glib::Ex::ConnectProperties->new
         ([$draw,'fraction'],
-         [$entry,'text']);
+         [$entry,'text', read_signal => 'activate']);
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$entry,'visible',
                                        write_only => 1,
-                                       hash_in => { 'fraction_bits' => 1 }]);
+                                       hash_in => { 'FractionBits' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -557,7 +557,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$entry,'visible',
                                        write_only => 1,
-                                       hash_in => { 'expression' => 1 }]);
+                                       hash_in => { 'Expression' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -576,7 +576,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
                                        write_only => 1,
-                                       hash_in => { 'sqrt_bits' => 1 }]);
+                                       hash_in => { 'SqrtBits' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -595,7 +595,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
                                        write_only => 1,
-                                       hash_in => { 'polygonal' => 1 }]);
+                                       hash_in => { 'Polygonal' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -613,7 +613,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$spin,'visible',
                                        write_only => 1,
-                                       hash_in => { 'multiples' => 1 }]);
+                                       hash_in => { 'Multiples' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -630,7 +630,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$combobox,'visible',
                                        write_only => 1,
-                                       hash_in => { 'aronson' => 1 }]);
+                                       hash_in => { 'Aronson' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -657,7 +657,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$combobox,'visible',
                                        write_only => 1,
-                                       hash_in => { 'aronson' => 1 }]);
+                                       hash_in => { 'Aronson' => 1 }]);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -672,7 +672,22 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$check,'visible',
                                        write_only => 1,
-                                       hash_in => { 'aronson' => 1 }]);
+                                       hash_in => { 'Aronson' => 1 }]);
+  }
+  {
+    my $toolitem = Gtk2::ToolItem->new;
+    $toolbar->insert ($toolitem, $toolpos++);
+
+    my $check = Gtk2::CheckButton->new_with_label (__('Lying'));
+    set_property_maybe ($check,
+                        tooltip_text => __('Whether to show the "lying" version of the sequence, being positions which are not "T" (or whatever requested letter).'));
+    $toolitem->add ($check);
+    Glib::Ex::ConnectProperties->new ([$draw,'aronson-lying'],
+                                      [$check,'active']);
+    Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
+                                      [$check,'visible',
+                                       write_only => 1,
+                                       hash_in => { 'Aronson' => 1 }]);
   }
 
   $toolbar->insert (Gtk2::SeparatorToolItem->new, $toolpos++);

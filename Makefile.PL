@@ -50,6 +50,7 @@ MyMakeMakerExtras::WriteMakefile
     'Glib::Ex::EnumBits'   => 11, # new in v.11
 
     'Gtk2' => '1.220',
+    'Gtk2::Pango' => 0, # part of Gtk2, used explicitly
 
     # my Gtk2-Ex-WidgetBits
     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
@@ -59,8 +60,11 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
-    'Gtk2::Ex::ComboBox::Enum' => 1,
-    'Gtk2::Ex::ComboBox::Text' => 1,
+    # my Gtk2-Ex-ComboBoxBits, version 2 for fixed MoreUtils dependency
+    'Gtk2::Ex::ComboBoxBits'   => 2,
+    'Gtk2::Ex::ComboBox::Enum' => 2,
+    'Gtk2::Ex::ComboBox::Text' => 2,
+
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
     'Image::Base' => 0,
@@ -79,14 +83,15 @@ MyMakeMakerExtras::WriteMakefile
     'Locale::Messages' => 0,
     'Module::Load' => 0,
     'Module::Util' => 0,
+    'Number::Format' => 0,
     'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
     'Scope::Guard' => 0,
     'Software::License::GPL_3' => '0.001', # new in 0.001
     'Text::Capitalize' => 0,
     'Term::Size' => 0,
 
-    # version 0.20_01 for uninitialized array fix
-    'Math::Prime::XS' => '0.20_01',
+    # version 0.21 for malloc and some fixes
+    'Math::Prime::XS' => '0.21',
 
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
@@ -115,7 +120,7 @@ MyMakeMakerExtras::WriteMakefile
         => { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
            },
         recommends
-        => { 'Math::Aronson'  => 2,
+        => { 'Math::Aronson'  => 4, # version 4 for lying option
              'Math::Symbolic' => 0, # probably almost any ok
              'Image::Base' => '1.09',  # for ellipse() fixes
              'Image::Xpm'     => 0,
@@ -139,7 +144,7 @@ MyMakeMakerExtras::WriteMakefile
                               'Image::Base::PNGwriter' => 2, # bug fixes
                               'Image::Base::X11::Protocol::Pixmap' => 0,
                               'Image::Base::X11::Protocol::Window' => 0,
-                              'Math::Aronson'  => 1,
+                              'Math::Aronson'  => 4, # version 4 for lying
                               'Math::Symbolic' => 0,
                              },
                },

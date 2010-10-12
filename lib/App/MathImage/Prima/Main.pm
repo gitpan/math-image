@@ -37,7 +37,7 @@ use App::MathImage::Generator;
 use vars '@ISA';
 @ISA = ('Prima::MainWindow');
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 sub new {
   my ($class, %args) = @_;
@@ -257,23 +257,23 @@ sub _update {
 
 my %_values_to_mnemonic =
   (primes        => __('_Primes'),
-   twin_primes   => __('_Twin Primes'),
-   twin_primes_1 => __('Twin Primes _1'),
-   twin_primes_2 => __('Twin Primes _2'),
-   squares       => __('S_quares'),
-   pronic        => __('Pro_nic'),
+   TwinPrimes    => __('_Twin Primes'),
+   TwinPrimes1   => __('Twin Primes _1'),
+   TwinPrimes2   => __('Twin Primes _2'),
+   Squares       => __('S_quares'),
+   Pronic        => __('Pro_nic'),
    triangular    => __('Trian_gular'),
    cubes         => __('_Cubes'),
-   tetrahedral   => __('_Tetrahedral'),
-   perrin        => __('Perr_in'),
-   padovan       => __('Pado_van'),
-   fibonacci     => __('_Fibonacci'),
-   fraction_bits => __('F_raction Bits'),
-   polygonal     => __('Pol_ygonal Numbers'),
-   pi_bits       => __('_Pi Bits'),
-   ln2_bits      => __x('_Log Natural {logarg} Bits', logarg => 2),
-   ln3_bits      => __x('_Log Natural {logarg} Bits', logarg => 3),
-   ln10_bits     => __x('_Log Natural {logarg} Bits', logarg => 10),
+   Tetrahedral   => __('_Tetrahedral'),
+   Perrin        => __('Perr_in'),
+   Padovan       => __('Pado_van'),
+   Fibonacci     => __('_Fibonacci'),
+   FractionBits  => __('F_raction Bits'),
+   Polygonal     => __('Pol_ygonal Numbers'),
+   PiBits        => __('_Pi Bits'),
+   Ln2Bits       => __x('_Log Natural {logarg} Bits', logarg => 2),
+   Ln3Bits       => __x('_Log Natural {logarg} Bits', logarg => 3),
+   Ln10Bits      => __x('_Log Natural {logarg} Bits', logarg => 10),
    odd           => __('_Odd Integers'),
    even          => __('_Even Integers'),
    all           => __('_All Integers'),
@@ -559,7 +559,7 @@ sub _do_about {
 #            my $active = $combobox->get_active;
 #            my $hash = App::MathImage::Prima::Drawing::Values->model_rows_hash;
 #            my $values = $hash->{$active};
-#            $entry->set (visible => ($values && $values eq 'fraction_bits'));
+#            $entry->set (visible => ($values && $values eq 'FractionBits'));
 #          });
 #     }
 #     {

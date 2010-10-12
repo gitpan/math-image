@@ -1,4 +1,4 @@
- #!perl -w
+#!perl -w
 
 # Copyright 2010 Kevin Ryde
 
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 24;
+$VERSION = 25;
 exit App::MathImage->command_line;
 
 __END__
@@ -370,16 +370,6 @@ Error messages in a dialog instead of to C<STDERR>.  Of course there
 shouldn't be any errors!
 
 =back
-
-=head1 BUGS
-
-C<Math::Prime::XS> is used for primes but as of version 0.20_01 it puts its
-sieve space on the stack (the C stack) which may restrict the size of images
-showing primes.  Depending on the chosen path an image 3000x3000 or so may
-overflow an 8Mb stack limit (see L<ulimit(3)>).  The symptom is usually a
-segfault.  Increase the stack if necessary, if possible.  A future
-C<Math::Prime::XS> may use plain C<malloc> or pack more sieving into the
-bytes.
 
 =head1 SEE ALSO
 

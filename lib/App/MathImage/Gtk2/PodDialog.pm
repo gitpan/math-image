@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 
@@ -59,6 +59,8 @@ sub INIT_INSTANCE {
   foreach my $name (App::MathImage::Generator->path_choices) {
     $combobox->append_text ($name);
   }
+  $combobox->append_text ('Math::Aronson');
+  $combobox->append_text ('Math::Symbolic');
   $combobox->set_active (0);
   $combobox->signal_connect (changed => \&_do_combo_changed);
   my $action_hbox = $self->get_action_area;
@@ -120,6 +122,8 @@ sub _do_combo_changed {
   my $name = $combobox->get_active_text;
   if ($combobox->get_active == 0) {
     $filename = "$FindBin::Bin/$name";
+  } elsif ($name =~ /::/) {
+    $filename = Module::Util::find_installed ($name);
   } else {
     foreach my $module ("Math::PlanePath::$name",
                         "App::MathImage::PlanePath::$name") {
@@ -130,9 +134,11 @@ sub _do_combo_changed {
   }
   ### $filename
   my $viewer = $self->{'viewer'};
-  (defined ($viewer->load_file ($filename))
-   && $viewer->get_buffer->get_char_count)
-    or _empty ($viewer, $filename);
+  if (! (defined $filename
+         && defined ($viewer->load_file ($filename)) # successful load
+         && $viewer->get_buffer->get_char_count)) {  # and not empty
+    _empty ($viewer, $name);
+  }
 }
 
 sub _do_viewer_link_clicked {

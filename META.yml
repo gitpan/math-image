@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            24
+version:            25
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -23,14 +23,16 @@ requires:
     Glib::Object::Subclass:  0
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
-    Gtk2::Ex::ComboBox::Enum:  1
-    Gtk2::Ex::ComboBox::Text:  1
+    Gtk2::Ex::ComboBox::Enum:  2
+    Gtk2::Ex::ComboBox::Text:  2
+    Gtk2::Ex::ComboBoxBits:  2
     Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  0
     Gtk2::Ex::WidgetEvents:  21
+    Gtk2::Pango:          0
     Image::Base:          0
     Image::Base::Gtk2::Gdk::Pixbuf:  3
     Image::Base::Gtk2::Gdk::Pixmap:  2
@@ -55,10 +57,11 @@ requires:
     Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
-    Math::Prime::XS:      0.20_01
+    Math::Prime::XS:      0.21
     Math::TriangularNumbers:  1.012
     Module::Load:         0
     Module::Util:         0
+    Number::Format:       0
     perl:                 5.008
     Scalar::Util:         1.18
     Scope::Guard:         0
@@ -95,7 +98,7 @@ optional_features:
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
-            Math::Aronson:        1
+            Math::Aronson:        4
             Math::Symbolic:       0
     maximum_tests:
         description:  Have "make test" do as much as possible.
@@ -120,5 +123,5 @@ recommends:
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
-    Math::Aronson:        2
+    Math::Aronson:        4
     Math::Symbolic:       0

@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 24;
+$VERSION = 25;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -64,51 +64,50 @@ sub getopt_long_specifications {
      'values=s'  =>
      sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values', "$value"); },
-     'primes'   => sub{_hopt($self,'gen_options','values', 'primes'); },
-     'twin'     => sub{_hopt($self,'gen_options','values', 'twin_primes'); },
-     'twin1'    => sub{_hopt($self,'gen_options','values', 'twin_primes_1'); },
-     'twin2'    => sub{_hopt($self,'gen_options','values', 'twin_primes_2'); },
+     'primes'   => sub{_hopt($self,'gen_options','values', 'Primes'); },
+     'twin'     => sub{_hopt($self,'gen_options','values', 'TwinPrimes'); },
+     'twin1'    => sub{_hopt($self,'gen_options','values', 'TwinPrimes1'); },
+     'twin2'    => sub{_hopt($self,'gen_options','values', 'TwinPrimes2'); },
      'semi-primes|semiprimes' =>
-     sub { _hopt($self,'gen_options','values', 'semi_primes'); },
+     sub { _hopt($self,'gen_options','values', 'SemiPrimes'); },
      'semi-primes-odd|semiprimes-odd|semip-odd' =>
-     sub { _hopt($self,'gen_options','values', 'semi_primes_odd'); },
+     sub { _hopt($self,'gen_options','values', 'SemiPrimesOdd'); },
 
-     'squares'    => sub { _hopt($self,'gen_options','values', 'squares');  },
-     'pronic'     => sub { _hopt($self,'gen_options','values', 'pronic');  },
-     'triangular' => sub { _hopt($self,'gen_options','values', 'triangular'); },
-     'pentagonal' => sub { _hopt($self,'gen_options','values', 'polygonal');
-                           _hopt($self,'gen_options','polygonal', 5);  },
-     'cubes'      => sub { _hopt($self,'gen_options','values', 'cubes');  },
-     'tetrahedral' => sub { _hopt($self,'gen_options','values', 'tetrahedral');},
-     'perrin'     => sub { _hopt($self,'gen_options','values', 'perrin');  },
-     'padovan'    => sub { _hopt($self,'gen_options','values', 'padovan');  },
-     'fibonacci'  => sub { _hopt($self,'gen_options','values', 'fibonacci');  },
+     'squares'    => sub { _hopt($self,'gen_options','values', 'Squares');  },
+     'pronic'     => sub { _hopt($self,'gen_options','values', 'Pronic');  },
+     'triangular' => sub { _hopt($self,'gen_options','values', 'Triangular'); },
+     'pentagonal' => sub { _hopt($self,'gen_options','values', 'Pentagonal'); },
+     'cubes'      => sub { _hopt($self,'gen_options','values', 'Cubes');  },
+     'tetrahedral'=> sub { _hopt($self,'gen_options','values', 'Tetrahedral');},
+     'perrin'     => sub { _hopt($self,'gen_options','values', 'Perrin');  },
+     'padovan'    => sub { _hopt($self,'gen_options','values', 'Padovan');  },
+     'fibonacci'  => sub { _hopt($self,'gen_options','values', 'Fibonacci');  },
      'fraction-bits=s' =>
      sub { my ($optname, $value) = @_;
-           _hopt($self,'gen_options','values',   'fraction_bits');
+           _hopt($self,'gen_options','values',   'FractionBits');
            _hopt($self,'gen_options','fraction', $value);
          },
      'expression=s' =>
      sub { my ($optname, $value) = @_;
            ### $value
-           _hopt($self,'gen_options','values',     'expression');
+           _hopt($self,'gen_options','values', 'Expression');
            _hopt($self,'gen_options','expression', $value);
          },
      'polygonal=i' =>
      sub { my ($optname, $value) = @_;
-           _hopt($self,'gen_options','values',    'polygonal');
+           _hopt($self,'gen_options','values', 'Polygonal');
            _hopt($self,'gen_options','polygonal', "$value"); },
-     'pi'      =>sub { _hopt($self,'gen_options','values', 'pi_bits');  },
-     'ln2'     => sub{_hopt($self,'gen_options','values', 'ln2_bits');  },
-     'odd'     => sub{_hopt($self,'gen_options','values', 'odd');  },
-     'even'    => sub{_hopt($self,'gen_options','values', 'even');  },
-     'all'     => sub{_hopt($self,'gen_options','values', 'all');  },
-     'lines'   => sub{_hopt($self,'gen_options','values', 'lines');  },
-     'aronson' => sub{_hopt($self,'gen_options','values', 'aronson');  },
+     'pi'      =>sub { _hopt($self,'gen_options','values', 'PiBits');  },
+     'ln2'     => sub{_hopt($self,'gen_options','values', 'Ln2Bits');  },
+     'odd'     => sub{_hopt($self,'gen_options','values', 'Odd');  },
+     'even'    => sub{_hopt($self,'gen_options','values', 'Even');  },
+     'all'     => sub{_hopt($self,'gen_options','values', 'All');  },
+     'lines'   => sub{_hopt($self,'gen_options','values', 'Lines');  },
+     'aronson' => sub{_hopt($self,'gen_options','values', 'Aronson');  },
 
      # this one undocumented yet ...
      'prime-quadratic-euler' => sub{
-       _hopt($self,'gen_options','values', 'prime_quadratic_euler');
+       _hopt($self,'gen_options','values', 'PrimeQuadraticEuler');
        _hopt($self,'gen_options','prime_quadratic', 'primes');
      },
 
@@ -285,8 +284,8 @@ sub command_line {
   if (! defined $gen_options->{'scale'}) {
     $gen_options->{'scale'}
       = ($show eq 'text'
-         ? ($gen_options->{'values'} eq 'lines' ? 2 : 1)
-         : ($gen_options->{'values'} eq 'lines' ? 5 : 3));
+         ? ($gen_options->{'values'} eq 'Lines' ? 2 : 1)
+         : ($gen_options->{'values'} eq 'Lines' ? 5 : 3));
   }
   if (defined $gen_options->{'width'} && delete $gen_options->{'width_in_scale'}) {
     $gen_options->{'width'} *= $gen_options->{'scale'};
@@ -325,7 +324,9 @@ sub command_line {
       $show = 'root_gtk';
     }
   }
-  if (@ARGV) { die "Unrecognised option(s): ",join(' ',@ARGV); }
+  if (@ARGV) {
+    die "Unrecognised option(s): ",join(' ',@ARGV);
+  }
 
   if ($self->{'verbose'}) {
     print STDERR $self->make_generator->description,"\n";
@@ -400,12 +401,12 @@ sub _output_image {
 sub show_method_window {
   my ($self) = @_;
 
-#   if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
-#     Glib->install_exception_handler
-#       (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
-#     $SIG{'__WARN__'}
-#       = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
-#   }
+  if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
+    Glib->install_exception_handler
+      (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
+    $SIG{'__WARN__'}
+      = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
+  }
 
   my $gen_options = $self->{'gen_options'};
   Glib::set_application_name (__('Math Image'));
@@ -610,11 +611,11 @@ sub show_method_text_list {
   my ($self) = @_;
   my $gen = $self->make_generator;
   my $path = $gen->path_object;
-  my $values_method = "values_make_$gen->{'values'}";
-  my $iter = $gen->$values_method (1, 1000);
+  my $values_class = $gen->values_class ($gen->{'values'});
+  my $values_obj = $values_class->new (%$gen, lo => 1, hi => 1000);
 
   my $count = 0;
-  while (defined (my $n = $iter->())) {
+  while (my ($n) = $values_obj->next) {
     next if $n < 1;
     last if $count++ > 100;
     my ($x, $y) = $path->n_to_xy ($n)
@@ -651,17 +652,17 @@ sub show_method_text_numbers {
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
 
-  my $values_method = "values_make_$gen->{'values'}";
-  my $iter = $gen->$values_method ($n_lo, $n_hi);
+  my $values_class = $gen->values_class ($gen->{'values'});
+  my $values_obj = $values_class->new (%$gen, lo => $n_lo, hi => $n_hi);
 
   my %array;
   my $x_min = 0;
   my $y_min = 0;
   my $x_max = 0;
   my $y_max = 0;
-  while (defined (my $n = $iter->())) {
+  while (my ($n) = $values_obj->next) {
+    last if ! defined $n || $n > $n_hi;
     next if $n < $n_lo;
-    last if $n > $n_hi;
     my ($x, $y) = $path->n_to_xy ($n)
       or next;
     ($array{$x}->{$y} .= "/$n") =~ s{^/}{};

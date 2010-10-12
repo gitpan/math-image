@@ -26,6 +26,92 @@ use Smart::Comments;
 use lib 'devel/lib';
 
 {
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (fraction => '5/29',
+                                            polygonal => 3);
+  my $iter;
+  #   $iter = $gen->values_make_pronic(1);
+  #   $iter = $gen->values_make_perrin(0);
+  #   $iter = $gen->values_make_padovan(0);
+  #   $iter = $gen->values_make_twin_primes_2(6,100);
+  #   $iter = $gen->values_make_fraction(5,29);
+  #   $iter = $gen->values_make_pi_bits();
+  #   $iter = $gen->values_make_polygonal();
+  # $iter = $gen->values_make_aronson(1, 500);
+  #   $iter = $gen->values_make_semi_primes(1,500);
+  # $iter = $gen->values_make_pentagonal(1,500);
+  # $iter = $gen->values_make_pentagonal_second(1,500);
+  # $iter = $gen->values_make_sophie_germain_primes(1,200);
+  my $values_class = $gen->values_class('FractionBits');
+  my $values_obj = $values_class->new(fraction => '1/3');
+  $|=1;
+  foreach (1 .. 50) {
+    my ($n) = $values_obj->next;
+    if (! defined $n) {
+      print "undef\n";
+      last;
+    }
+    print "$n,";
+  }
+  exit 0;
+}
+{
+  require App::MathImage::Values::ChampernowneBinary;
+  my $values_obj = App::MathImage::Values::ChampernowneBinary->new;
+  print $values_obj->pred(2),"\n";
+  print $values_obj->pred(3),"\n";
+  print $values_obj->pred(4),"\n";
+  # print $values_obj->pred(5),"\n";
+  print $values_obj->pred(6),"\n";
+  exit 0;
+}
+{
+  require App::MathImage::Values::ThueMorseEvil;
+  require B::Concise;
+  B::Concise::compile('-exec',\&App::MathImage::Values::ThueMorseEvil::next)->();
+  exit 0;
+}
+{
+  # # use Memoize;
+  # # memoize('bell_number');
+  # my @bell;
+  # sub bell_number {
+  #   my $n = shift;
+  #   if ($n < @bell) {
+  #     return $bell[$n];
+  #   }
+  #   return undef if $n < 0;
+  #   return 1     if $n == 0;
+  #   my $bell = 0;
+  #   for (0 .. $n - 1) {
+  #     my $bin = Math::Symbolic::AuxFunctions::binomial_coeff( $n - 1, $_ );
+  #     $bell += bell_number($_) * $bin;
+  #     ### $bin
+  #     ### $bell
+  #   }
+  #   ### return: $bell
+  #   $bell[$n] = $bell;
+  #   return $bell;
+  # }
+
+  require Math::Symbolic::AuxFunctions;
+  foreach my $i (1 .. 50) {
+    my $b = Math::Symbolic::AuxFunctions::bell_number($i);
+    # my $b = bell_number($i);
+    printf "%2d  %f\n", $i, $b;
+  }
+  exit 0;
+}
+{
+  require Module::Util;
+  my @modules = Module::Util::find_in_namespace
+    ('App::MathImage::Values');
+  ### @modules
+  exit 0;
+}
+
+
+{
   require Module::Util;
   my @modules = Module::Util::find_in_namespace('');
   print scalar(@modules),"\n";
@@ -49,28 +135,6 @@ use lib 'devel/lib';
   exit 0;
 }
 
-{
-  require App::MathImage::Generator;
-  my $gen = App::MathImage::Generator->new (fraction => '5/29',
-                                            polygonal => 3);
-  my $iter;
-  #   $iter = $gen->values_make_pronic(1);
-  #   $iter = $gen->values_make_perrin(0);
-  #   $iter = $gen->values_make_padovan(0);
-  #   $iter = $gen->values_make_twin_primes_2(6,100);
-  #   $iter = $gen->values_make_fraction(5,29);
-  #   $iter = $gen->values_make_pi_bits();
-  #   $iter = $gen->values_make_polygonal();
-  # $iter = $gen->values_make_aronson(1, 500);
-  #   $iter = $gen->values_make_semi_primes(1,500);
-  # $iter = $gen->values_make_pentagonal(1,500);
-  # $iter = $gen->values_make_pentagonal_second(1,500);
-  $iter = $gen->values_make_columns_of_pythagoras(1,50000);
-  foreach (1 .. 50) {
-    print(($iter->()//last),",");
-  }
-  exit 0;
-}
 
 {
   sub base3 {
@@ -193,7 +257,7 @@ use lib 'devel/lib';
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (width => 10,
                                             height => 10,
-                                            values => 'squares',
+                                            values => 'Squares',
                                             scale => 1,
                                             foreground => 'white',
                                             background => 'black');

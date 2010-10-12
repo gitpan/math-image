@@ -26,7 +26,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 24;
+$VERSION = 25;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

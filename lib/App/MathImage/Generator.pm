@@ -21,6 +21,7 @@ use strict;
 use warnings;
 use Carp;
 use POSIX 'floor', 'ceil';
+use Module::Load;
 use Module::Util;
 use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
@@ -30,10 +31,10 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments; # '#####';
 
 use vars '$VERSION';
-$VERSION = 24;
+$VERSION = 25;
 
 use constant default_options => {
-                                 values       => 'count_prime_factors',
+                                 values       => 'Primes',
                                  path         => 'SquareSpiral',
                                  scale        => 1,
                                  width        => 10,
@@ -44,9 +45,10 @@ use constant default_options => {
                                  sqrt         => '2',
                                  polygonal    => 5,
                                  multiples    => 90,
-                                 aronson_lang => 'en',
-                                 aronson_letter => '',
+                                 aronson_lang         => 'en',
+                                 aronson_letter       => '',
                                  aronson_conjunctions => 1,
+                                 aronson_lying        => 0,
                                  pyramid_step  => 2,
                                  rings_step    => 6,
                                  path_wider    => 0,
@@ -65,66 +67,79 @@ sub new {
   return $self;
 }
 
-use constant values_choices
-  => (qw(primes
-         count_prime_factors
-         twin_primes
-         twin_primes_1
-         twin_primes_2
-         semi_primes
-         semi_primes_odd
-         squares
-         pronic
-         triangular
-         pentagonal
-         pentagonal_second
-         pentagonal_generalized
-         polygonal
-         cubes
-         tetrahedral
-         perrin
-         padovan
-         fibonacci
-         lucas_numbers
-         columns_of_pythagoras
-         odd
-         even
-         all
-         pi_bits
-         ln2_bits
-         fraction_bits
-         sqrt_bits
-         thue_morse_evil
-         thue_morse_odious
-         champernowne_binary
-         champernowne_binary_lsb
-         prime_quadratic_euler
-         prime_quadratic_legendre
-         prime_quadratic_honaker
-         multiples
-         base4_without_3
-         ternary_without_2
-         repdigit_any_base
-         repdigit_base_10),
+# columns_of_pythagoras
+use constant values_choices => do {
+  my %choices;
+  foreach my $module (Module::Util::find_in_namespace
+                      ('App::MathImage::Values')) {
+    (my $choice = $module) =~ s/^App::MathImage::Values:://;
+    $choices{$choice} = 1;
+  }
+  if (! defined (Module::Util::find_installed('Math::Aronson'))) {
+    delete $choices{'Aronson'};
+  }
+  if (! defined (Module::Util::find_installed('Math::Symbolic'))) {
+    delete $choices{'Expression'};
+  }
+  my @choices;
+  foreach my $prefer (qw(Primes
+                         CountPrimeFactors
+                         TwinPrimes
+                         TwinPrimes1
+                         TwinPrimes2
+                         SophieGermainPrimes
+                         SemiPrimes
+                         SemiPrimesOdd
+                         Squares
+                         Pronic
+                         Triangular
+                         Pentagonal
+                         PentagonalSecond
+                         PentagonalGeneralized
+                         Polygonal
+                         Cubes
+                         Tetrahedral
+                         Perrin
+                         Padovan
+                         Fibonacci
+                         LucasNumbers
+                         PellNumbers
+                         FractionBits
+                         PiBits
+                         Ln2Bits
+                         SqrtBits
+                         Odd
+                         Even
+                         All
+                         ThueMorseEvil
+                         ThueMorseOdious
+                         ChampernowneBinary
+                         ChampernowneBinaryLsb
+                         PrimeQuadraticEuler
+                         PrimeQuadraticLegendre
+                         PrimeQuadraticHonaker
+                         Multiples
+                         Base4Without3
+                         TernaryWithout2
+                         RepdigitBase10
+                         RepdigitAnyBase
+                         MobiusFunction
+                       )) {
+    if (delete $choices{$prefer}) {
+      push @choices, $prefer;
+    }
+  }
+  delete $choices{'Lines'};
+  push @choices, sort keys %choices;
+  push @choices, 'Lines';
+  @choices
+};
 
-      (defined (Module::Util::find_installed('Math::Aronson'))
-       ? ('aronson') : ()),
-
-      (defined (Module::Util::find_installed('Math::Symbolic'))
-       ? ('expression') : ()),
-
-      qw(lines),
-     );
-
-my %values_info =
-  (lines => { name => __('Lines'),
-              description => __('No numbers, instead lines showing the path taken.'),
-            },
-  );
-sub values_info {
-  my ($class, $key) = @_;
-  ### %values_info
-  return $values_info{$key} || { name => $key };
+sub values_class {
+  my ($class, $values) = @_;
+  my $values_class = "App::MathImage::Values::$values";
+  Module::Load::load ($values_class);
+  return $values_class;
 }
 
 use constant path_choices => qw(SquareSpiral
@@ -159,20 +174,20 @@ sub random_options {
   my @choices;
   foreach my $path (App::MathImage::Generator->path_choices) {
     foreach my $values (App::MathImage::Generator->values_choices) {
-      if ($values eq 'all' || $values eq 'odd' || $values eq 'even') {
+      if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
 
-      # next if $values eq 'perrin' || $values eq 'podovan';
+      # next if $values eq 'Perrin' || $values eq 'Padovan';
 
-      if ($values eq 'squares') {
+      if ($values eq 'Squares') {
         next if $path eq 'Corner'; # just a line across the bottom
       }
-      if ($values eq 'pronic') {
+      if ($values eq 'Pronic') {
         next if $path eq 'PyramidSides' # just a vertical
           || $path eq 'PyramidRows';    # just a vertical
       }
-      if ($values eq 'triangular') {
+      if ($values eq 'Triangular') {
         next if
           $path eq 'Diagonals' # just a line across the bottom
             || $path eq 'DiamondSpiral';  # just a centre horizontal line
@@ -186,7 +201,7 @@ sub random_options {
   my $scale = _rand_of_array(\@scales);
 
   require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
+  Math::Prime::XS->VERSION (0.021);
   my @primes = Math::Prime::XS::sieve_primes(10,100);
   my $num = _rand_of_array(\@primes);
   @primes = grep {$_ != $num} @primes;
@@ -222,6 +237,7 @@ sub random_options {
           sqrt      => $sqrt,
           aronson_lang         => _rand_of_array(['en','fr']),
           aronson_conjunctions => int(rand(2)),
+          aronson_lying        => (rand() < .25), # less likely
           prime_quadratic => _rand_of_array(['all','primes']),
           path_wider      => $path_wider,
           path_rotation   => $rotation,
@@ -251,18 +267,18 @@ sub description {
     $ret .= " step $self->{'pyramid_step'}";
   }
 
-  $ret .= ' ' . $self->values_info($self->{'values'})->{'name'};
-  if ($self->{'values'} eq 'fraction') {
+  $ret .= ' ' . $self->values_class($self->{'values'})->name;
+  if ($self->{'values'} eq 'Fraction') {
     $ret .= " $self->{'fraction'}";
-  } elsif ($self->{'values'} eq 'expression') {
+  } elsif ($self->{'values'} eq 'Expression') {
     $ret .= " $self->{'expression'}";
-  } elsif ($self->{'values'} eq 'sqrt_bits') {
+  } elsif ($self->{'values'} eq 'SqrtBits') {
     $ret .= " $self->{'sqrt'}";
-  } elsif ($self->{'values'} eq 'polygonal') {
+  } elsif ($self->{'values'} eq 'Polygonal') {
     $ret .= " $self->{'polygonal'}";
-  } elsif ($self->{'values'} eq 'multiples') {
+  } elsif ($self->{'values'} eq 'Multiples') {
     $ret .= " $self->{'multiples'}";
-  } elsif ($self->{'values'} eq 'aronson') {
+  } elsif ($self->{'values'} eq 'Aronson') {
     if ($self->{'aronson_lang'} ne default_options()->{'aronson_lang'}) {
       $ret .= " $self->{'aronson_lang'}";
     }
@@ -295,7 +311,6 @@ sub path_object {
     unless ($path_class =~ /::/) {
       $path_class = $self->path_choice_to_class ($path_class);
     }
-    require Module::Load;
     unless (eval { Module::Load::load ($path_class); 1 }) {
       ### cannot load: $@
       croak $err;
@@ -334,200 +349,17 @@ sub path_object {
        y_scale  => $self->{'scale'} * $invert);
 
     ### $path_class
-       $path_object
-     });
-        }
-
-$values_info{'expression'} =
-  { subr => \&values_make_expression,
-    name => __('Arbitrary Expression'),
-    description => __('An arbitrary expression, to be parsed by Math::Symbolic.
-It should have a single variable which will be evaluated at 0,1,2, etc.
-
-An invalid expression gives a blank display and a message in the status bar.'),
-  };
-sub values_make_expression {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_expression()
-  require Math::Symbolic;
-  my $tree = Math::Symbolic->parse_from_string($self->{'expression'});
-  if (! defined $tree) {
-    croak "Cannot parse expression: $self->{'expression'}";
-  }
-  $tree = $tree->simplify;
-  my @vars = $tree->signature;
-  if (@vars != 1) {
-    croak "More than one variable in expression: $self->{'expression'}\n(simplified to $tree)";
-  }
-  ### code: $tree->to_code
-  my ($subr) = $tree->to_sub(\@vars);
-  ### $subr
-
-  my $i = 0;
-  my $above = 0;
-  return sub {
-    if ($above >= 10 || $i > $hi) {
-      return undef;
-    }
-    my $n = eval { $subr->($i++) };
-    if (! defined $n) {
-      # eg. division by zero
-      ### expression undef: $@
-      $above++;
-      next;
-    }
-    ### expression result: $n
-    if ($n > $hi) {
-      $above++;
-    }
-    return $n;
-  };
+    $path_object
+  });
 }
 
-$values_info{'aronson'} =
-  { subr => \&values_make_expression,
-    name => __('Aronson\'s Sequence'),
-    # description => __(''),
-  };
-sub values_make_aronson {
-  my ($self, $lo, $hi) = @_;
-  require Math::Aronson;
-  my $aronson = Math::Aronson->new
-    (hi => $hi,
-     lang   => $self->{'aronson_lang'},
-     letter => $self->{'aronson_letter'},
-     without_conjunctions => ! $self->{'aronson_conjunctions'},
-    );
-  return sub { $aronson->next };
-}
-
-# Champernowne sequence in binary 1s and 0s
-#   http://www.research.att.com/~njas/sequences/A030190
-#
-# as integer positions
-#   http://www.research.att.com/~njas/sequences/A030310
-#   http://www.research.att.com/~njas/sequences/A030303
-#
-# 1 10  11 100 101  110 111
-# 1 2  4,5 6   9,11 12,13 15,16,17,
-#
-#
-$values_info{'champernowne_binary'} =
-  { subr => \&values_make_champernowne_binary,
-    name => __('Champernowne Sequence'),
-    description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.'),
-  };
-sub values_make_champernowne_binary {
-  my ($self, $lo, $hi) = @_;
-
-  my $val = 0;
-  my $bitmask = 0;
-  my $n = 0;
-  return sub {
-    ### $n
-    ### $val
-    ### $bitmask
-    for (;;) {
-      if ($bitmask == 0) {
-        $val++;
-        $bitmask = 1;
-        while ($bitmask <= $val) {
-          $bitmask <<= 1;
-        }
-        $bitmask >>= 1;
-        ### $val
-        ### $bitmask
-      }
-      $n++;
-      if ($bitmask & $val) {
-        $bitmask >>= 1;
-        return $n;
-      }
-      $bitmask >>= 1;
-    }
-  };
-}
-$values_info{'champernowne_binary_lsb'} =
-  { subr => \&values_make_champernowne_binary_lsb,
-    name => __('Champernowne Sequence LSB First'),
-    description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary least significant bit first, 1 01 11 001 101 etc.'),
-  };
-sub values_make_champernowne_binary_lsb {
-  my ($self, $lo, $hi) = @_;
-
-  my $val = 0;
-  my $bitmask = 1;
-  my $n = 0;
-  return sub {
-    ### $n
-    ### $val
-    ### $bitmask
-    for (;;) {
-      if ($bitmask > $val) {
-        $val++;
-        $bitmask = 1;
-        ### $val
-      }
-      $n++;
-      if ($bitmask & $val) {
-        $bitmask <<= 1;
-        return $n;
-      }
-      $bitmask <<= 1;
-    }
-  };
-}
-
-
-# http://www.research.att.com/~njas/sequences/A026147
-# bit count per example in perlfunc unpack()
-$values_info{'thue_morse_evil'} =
-  { subr => \&values_make_thue_morse_evil,
-    name => __('Thue-Morse Evil Numbers'),
-    description => __('The Thue-Morse "evil" numbers, meaning numbers with an even number of 1s in their binary form (the opposite of the "odious"s).'),
-  };
-sub values_make_thue_morse_evil {
-  my ($self, $lo, $hi) = @_;
-  my $i = $lo-1;
-  return sub {
-    for (;;) {
-      $i++;
-      ### $i
-      ### pack: pack('I', $i)
-      ### bits: unpack('%32b*', pack('I', $i))
-      unless (1 & unpack('%32b*', pack('I', $i))) {
-        ### yes
-        return $i;
-      }
-    }
-  };
-}
-
-# http://www.research.att.com/~njas/sequences/A000069
-$values_info{'thue_morse_odious'} =
-  { subr => \&values_make_thue_morse_odious,
-    name => __('Thue-Morse Odious Numbers'),
-    description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).'),
-  };
-sub values_make_thue_morse_odious {
-  my ($self, $lo, $hi) = @_;
-  my $i = $lo-1;
-  return sub {
-    for (;;) {
-      $i++;
-      if (1 & unpack('%32b*', pack('I', $i))) {
-        return $i;
-      }
-    }
-  };
-}
 
 # binary form gets too big to prime check
 # sub values_make_binary_primes {
 #   my ($self, $lo, $hi) = @_;
 # 
 #   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.020_001);
+#   Math::Prime::XS->VERSION (0.021);
 #   my $i = 1;
 #   return sub {
 #     for (;;) {
@@ -551,174 +383,12 @@ sub make_iter_arrayref {
     return $arrayref->[$i++];
   };
 }
-sub is_iter_arrayref {
-  my ($self, $n) = @_;
-  return exists (($self->{'iter_hashref'} ||= do {
-    my %h;
-    @h{@{delete $self->{'iter_arrayref'}}} = ();
-    #### %h
-    \%h
-  })->{$n});
-}
-
-$values_info{'fraction_bits'} =
-  { subr => \&values_make_fraction_bits,
-    name => __('Fraction Bits'),
-    description => __('A given fraction number written out in binary.'),
-  };
-sub values_make_fraction_bits {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_fraction_bits()
-  ### $lo
-  ### $hi
-  my ($num, $den)
-    = ($self->{'fraction'} =~ m{^\s*
-                                ([.[:digit:]]+)?
-                                \s*
-                                (?:/\s*
-                                  ([.[:digit:]]+)?
-                                )?
-                                \s*$}x)
-      or return $self->make_iter_empty;
-  if (! defined $num) { $num = 1; }
-  if (! defined $den) { $den = 1; }
-  ### $num
-  ### $den
-
-  if ($num =~ m{(\d*)\.(\d+)}) {
-    ### expand decimal to
-    $num = $1 . $2;
-    $den *= 10 ** length($2);
-    ### $num
-    ### $den
-  }
-
-  if ($den == 0) {
-    return $self->make_iter_empty;
-  }
-  while ($num > $den) {
-    $den *= 2;
-  }
-  my $i = $lo;
-  return sub {
-    if ($num == 0) {
-      return undef;
-    }
-    for (;;) {
-      ### frac: "$num / $den"
-      $i++;
-      if ($num >= $den) {
-        $num -= $den;
-        $num *= 2;
-        return $i;
-      } else {
-        $num *= 2;
-      }
-    }
-  };
-}
-
-# ($k-2)*$i*($i+1)/2 - ($k-3)*$i
-# = ($k-2)/2*$i*i + ($k-2)/2*$i - ($k-3)*$i
-# = ($k-2)/2*$i*i + ($k - 2 - 2*$k + 6)/2*$i
-# = ($k-2)/2*$i*i + (-$k + 4)/2*$i
-# = 0.5 * (($k-2)*$i*i + (-$k +4)*$i)
-# = 0.5 * $i * (($k-2)*$i - $k + 4)
-
-# 25*i*(i+1)/2 - 24i
-# 25*i*(i+1)/2 - 48i/2
-# i/2*(25*(i+1) - 48)
-# i/2*(25*i + 25 - 48)
-# i/2*(25*i - 23)
-# 
-
-sub values_make_polygonal {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_polygonal()
-  ### $lo
-  ### $hi
-  my $k = $self->{'polygonal'};
-  if ($k < 3) {
-    return $self->make_iter_arrayref ([1]);
-  }
-  my $i = 0;
-  return sub {
-    $i++;
-    return 0.5 * $i * (($k-2)*$i - $k + 4);
-  };
-}
-
-$values_info{'squares'} =
-  { name => __('Perfect Squares'),
-    description => __('The perfect squares 1,4,9,16,25, etc k*k.'),
-    subr => \&values_make_squares,
-    pred => \&is_square,
-  };
-sub values_make_squares {
-  my ($self, $lo, $hi) = @_;
-  my $i = ceil (sqrt (max(0,$lo)));
-  return sub {
-    return $i++ ** 2;
-  };
-}
-sub is_square {
-  my ($self, $n) = @_;
-  return (($n >= 0)
-          && do {
-            $n = sqrt ($n);
-            $n == int($n)
-          });
-}
-
-$values_info{'prime_quadratic_euler'} =
-  { name => __('Prime Generating Quadratic of Euler'),
-    description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.'),
-    subr => \&values_make_prime_quadratic_euler,
-  };
-sub values_make_prime_quadratic_euler {
-  my ($self, $lo, $hi) = @_;
-  my $i = -1;
-  return _prime_quadratic_filter ($self, $hi, sub {
-                                    $i++;
-                                    return ($i + 1)*$i + 41;
-                                  });
-}
-
-# http://www.research.att.com/~njas/sequences/A007641  (the prime values)
-$values_info{'prime_quadratic_legendre'} =
-  { subr => \&values_make_prime_quadratic_legendre,
-    name => __('Prime Generating Quadratic of Legendre'),
-    description => __('The quadratic numbers 2*k^2 + 29.'),
-  };
-sub values_make_prime_quadratic_legendre {
-  my ($self, $lo, $hi) = @_;
-  my $i = -1;
-  return _prime_quadratic_filter ($self, $hi, sub {
-    $i++;
-    return 2*$i*$i + 29;
-  });
-}
-
-# http://www.research.att.com/~njas/sequences/A048988
-$values_info{'prime_quadratic_honaker'} =
-  { subr => \&values_make_prime_quadratic_honaker,
-    name => __('Prime Generating Quadratic of Honaker'),
-    description => __('The quadratic numbers 4*k^2 + k + 59.'),
-  };
-sub values_make_prime_quadratic_honaker {
-  my ($self, $lo, $hi) = @_;
-  my $i = -1;
-  return _prime_quadratic_filter ($self, $hi, sub {
-    $i++;
-    return 4*($i + 1)*$i + 59;
-  });
-}
 
 sub _prime_quadratic_filter {
   my ($self, $hi, $subr) = @_;
   if ($self->{'prime_quadratic'} eq 'primes') {
     require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.020_001);
+    Math::Prime::XS->VERSION (0.021);
     my @primes = Math::Prime::XS::sieve_primes (2, $hi);
 
     my $target = 0;
@@ -741,175 +411,6 @@ sub _prime_quadratic_filter {
   return $subr;
 }
 
-$values_info{'multiples'} =
-  { name => __('Multiples of a given K'),
-    description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.'),
-    subr => \&values_make_multiples,
-    pred => \&is_multiple,
-  };
-sub values_make_multiples {
-  my ($self, $lo, $hi) = @_;
-  my $m = abs($self->{'multiples'});
-  my $i = ceil ($lo / $m);
-  return sub {
-    return $m * $i++;
-  };
-}
-sub is_multiple {
-  my ($self, $n) = @_;
-  return (($n % $self->{'multiples'}) == 0);
-}
-
-$values_info{'cubes'} =
-  { name => __('Perfect Cubes'),
-    description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.'),
-    subr => \&values_make_cubes,
-    pred => \&is_cube,
-  };
-sub values_make_cubes {
-  my ($self, $lo, $hi) = @_;
-  require Math::Libm;
-  my $i = ceil (Math::Libm::cbrt (max(0,$lo)));
-  return sub {
-    return $i++ ** 3;
-  };
-}
-sub is_cube {
-  my ($self, $n) = @_;
-  $n = Math::Libm::cbrt ($n);
-  return ($n == int($n));
-}
-
-sub values_make_tetrahedral {
-  my ($self, $lo, $hi) = @_;
-  require Math::Libm;
-  my $i = 0;
-  return sub {
-    $i++;
-    return $i*($i+1)*($i+2)/6;
-  };
-}
-
-$values_info{'triangular'} =
-  { name => __('Triangular Numbers'),
-    description => __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.'),
-    subr => \&values_make_triangular,
-    pred => \&is_triangular,
-  };
-sub values_make_triangular {
-  my ($self, $lo, $hi) = @_;
-  require Math::TriangularNumbers;
-  Math::TriangularNumbers->VERSION(1.012); # for Tri()
-  my $i = Math::TriangularNumbers::Tri($lo);
-  return sub {
-    return Math::TriangularNumbers::T($i++);
-  };
-}
-sub is_triangular {
-  my ($self, $n) = @_;
-  return Math::TriangularNumbers::is_T($n);
-}
-
-$values_info{'pentagonal'} =
-  { subr => \&values_make_pentagonal,
-    name => __('Pentagonal Numbers'),
-    description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.'),
-  };
-sub values_make_pentagonal {
-  my ($self, $lo, $hi) = @_;
-  my $i = 0;
-  return sub {
-    $i++;
-    return (3*$i-1)*$i/2;
-  };
-}
-
-$values_info{'pentagonal_second'} =
-  { subr => \&values_make_pentagonal_second,
-    name => __('Pentagonal Numbers, second type'),
-    description => __('The pentagonal numbers 2,7,15,26, etc, (3k+1)*k/2.  The formula is the same as the plain pentagonal numbers, but taking negative k.'),
-  };
-sub values_make_pentagonal_second {
-  my ($self, $lo, $hi) = @_;
-  my $i = 0;
-  return sub {
-    $i++;
-    return (3*$i+1)*$i/2;
-  };
-}
-
-$values_info{'pentagonal_generalized'} =
-  { subr => \&values_make_pentagonal_generalized,
-    name => __('Pentagonal Numbers, generalized'),
-    description => __('The generalized pentagonal numbers 1, 2, 5, 7, 15, 22, 22, 26, etc, (3k-1)*k/2 for k positive and negative.  This is the plain pentagonal and second pentagonals taken together.'),
-  };
-sub values_make_pentagonal_generalized {
-  my ($self, $lo, $hi) = @_;
-  my $i = 0;
-  my $neg = 0;
-  return sub {
-    $neg = ! $neg;
-    if ($neg) {
-      $i++;
-      return (3*-$i+1)*-$i/2;
-    } else {
-      return (3*$i+1)*$i/2;
-    }
-  };
-}
-
-$values_info{'pronic'} =
-  { subr => \&values_make_pronic,
-    name => __('Pronic Numbers'),
-    description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k*(k+1).  These are twice the triangular numbers, and half way between perfect squares.'),
-  };
-sub values_make_pronic {
-  my ($self, $lo, $hi) = @_;
-  require Math::TriangularNumbers;
-  Math::TriangularNumbers->VERSION(1.012); # for Tri()
-
-  my $i = pronic_inverse_ceil($lo);
-  return sub {
-    return 2 * Math::TriangularNumbers::T($i++);
-  };
-}
-sub pronic_inverse_ceil {
-  my ($n) = @_;
-  require Math::TriangularNumbers;
-  Math::TriangularNumbers->VERSION(1.012); # for Tri()
-  return Math::TriangularNumbers::Tri(ceil($n/2));
-}
-
-$values_info{'fibonacci'} =
-  { subr => \&values_make_fibonacci,
-    name => __('Fibonacci Numbers'),
-    description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.'),
-  };
-sub values_make_fibonacci {
-  my ($self, $lo, $hi) = @_;
-  my $f0 = 1;
-  my $f1 = 1;
-  return sub {
-    (my $ret, $f0, $f1) = ($f0, $f1, $f0+$f1);
-    return $ret;
-  };
-}
-
-$values_info{'lucas_numbers'} =
-  { subr => \&values_make_lucas_numbers,
-    name => __('Lucas Numbers'),
-    description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.'),
-  };
-sub values_make_lucas_numbers {
-  my ($self, $lo, $hi) = @_;
-  my $f0 = 1;
-  my $f1 = 3;
-  return sub {
-    (my $ret, $f0, $f1) = ($f0, $f1, $f0+$f1);
-    return $ret;
-  };
-}
-
 # http://www.research.att.com/~njas/sequences/A001333
 #    -- sqrt(2) convergents numerators
 # http://www.research.att.com/~njas/sequences/A000129
@@ -917,11 +418,11 @@ sub values_make_lucas_numbers {
 # http://www.research.att.com/~njas/sequences/A002965
 #    -- interleaved
 #
-$values_info{'columns_of_pythagoras'} =
-  { subr => \&values_make_columns_of_pythagoras,
-    name => __('Columns of Pythagoras'),
-    # description => __('The ....'),
-  };
+# $values_info{'columns_of_pythagoras'} =
+#   { subr => \&values_make_columns_of_pythagoras,
+#     name => __('Columns of Pythagoras'),
+#     # description => __('The ....'),
+#   };
 sub values_make_columns_of_pythagoras {
   my ($self, $lo, $hi) = @_;
   my $a = 1;
@@ -940,444 +441,47 @@ sub values_make_columns_of_pythagoras {
   };
 }
 
-$values_info{'perrin'} =
-  { subr => \&values_make_perrin,
-    name => __('Perrin Numbers'),
-    description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.'),
-  };
-sub values_make_perrin {
-  my ($self, $lo, $hi) = @_;
-  my $p0 = 3;
-  my $p1 = 0;
-  my $p2 = 2;
-  return sub {
-    (my $ret, $p0, $p1, $p2) = ($p0, $p1, $p2, $p0+$p1);
-    return $ret;
-  };
-}
-
-$values_info{'padovan'} =
-  { subr => \&values_make_padovan,
-    name => __('Padovan Numbers'),
-    description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.'),
-  };
-sub values_make_padovan {
-  my ($self, $lo, $hi) = @_;
-  my $p0 = 1;
-  my $p1 = 1;
-  my $p2 = 1;
-  return sub {
-    (my $ret, $p0, $p1, $p2) = ($p0, $p1, $p2, $p0+$p1);
-    return $ret;
-  };
-}
-
-$values_info{'all'} =
-  { subr => \&values_make_all,
-    name => __('All Integers'),
-    description => __('All integers 1,2,3,etc.'),
-    pred => \&is_all,
-  };
-sub values_make_all {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_all()
-  ### $lo
-  ### $hi
-  return sub {
-    return $lo++;
-  };
-}
-use constant is_all => 1;
-
-$values_info{'odd'} =
-  { name => __('Odd Integers'),
-    description => __('The odd integers 1, 3, 5, 7, 9, etc.'),
-    subr => \&values_make_odd,
-    pred => \&is_odd,
-  };
-sub values_make_odd {
-  my ($self, $lo, $hi) = @_;
-  $lo += -1 - ($lo & 1);
-  return sub {
-    return ($lo += 2);
-  };
-}
-sub is_odd {
-  my ($self, $n) = @_;
-  ### is_odd(): $n
-  return ($n & 1);
-}
-
-$values_info{'even'} =
-  { name => __('Even Integers'),
-    description => __('The even integers 2, 4, 6, 8, 10, etc.'),
-    subr => \&values_make_even,
-    pred => \&is_even,
-  };
-sub values_make_even {
-  my ($self, $lo, $hi) = @_;
-  $lo += ($lo & 1) - 2;
-  return sub {
-    return ($lo += 2);
-  };
-}
-sub is_even {
-  my ($self, $n) = @_;
-  return ! ($n & 1);
-}
-
-$values_info{'primes'} =
-  { subr => \&values_make_primes,
-    pred => \&is_iter_arrayref,
-    name => __('Prime Numbers'),
-    description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.'),
-  };
-sub values_make_primes {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_primes(): $lo, $hi
-  if ($hi < $lo) {
-    return $self->make_iter_empty;
-  }
-
-  # sieve_primes() in 0.20_01 doesn't allow hi==lo
-  if ($hi == $lo) { $hi++; }
-
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
-  return $self->make_iter_arrayref([Math::Prime::XS::sieve_primes ($lo, $hi)]);
-}
-
-$values_info{'twin_primes'} =
-  { subr => \&values_make_twin_primes,
-    pred => \&is_iter_arrayref,
-    name => __('Twin Primes'),
-    description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.'),
-  };
-sub values_make_twin_primes {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_twin_primes(): "$lo to $hi"
-
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
-  my @primes = Math::Prime::XS::sieve_primes (max (0, $lo - 2),
-                                              $hi + 2);
-  ### primes: "@primes"
-
-  my $to = 0;
-  for (my $i = 0; $i < $#primes; $i++) {
-    if ($primes[$i]+2 == $primes[$i+1]) {
-      $primes[$to++] = $primes[$i];
-      while (++$i < $#primes && $primes[$i]+2 == $primes[$i+1]) {
-        $primes[$to++] = $primes[$i];  # run of consecutive twin primes
-      }
-      $primes[$to++] = $primes[$i];
-    }
-  }
-  ### twin primes: "@primes"
-  $#primes = $to - 1;
-  return $self->make_iter_arrayref(\@primes);
-  #   my $i = 0;
-  #   return sub {
-  #     return $primes[$i++];
-  #   };
-}
-
-$values_info{'twin_primes_1'} =
-  { subr => \&values_make_twin_primes_1,
-    pred => \&is_iter_arrayref,
-    name => __('Twin Primes, first of each'),
-    description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.'),
-  };
-sub values_make_twin_primes_1 {
-  my ($self, $lo, $hi) = @_;
-
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
-  my @primes = Math::Prime::XS::sieve_primes ($lo, $hi+2);
-
-  my $to = 0;
-  foreach my $i (0 .. $#primes - 1) {
-    if ($primes[$i]+2 == $primes[$i+1]) {
-      $primes[$to++] = $primes[$i];
-    }
-  }
-  $#primes = $to - 1;
-  return $self->make_iter_arrayref(\@primes);
-  #   my $i = 0;
-  #   return sub {
-  #     return $primes[$i++];
-  #   };
-}
-
-$values_info{'twin_primes_2'} =
-  { subr => \&values_make_twin_primes_2,
-    pred => \&is_iter_arrayref,
-    name => __('Twin Primes, second of each'),
-    description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.'),
-  };
-sub values_make_twin_primes_2 {
-  my ($self, $lo, $hi) = @_;
-
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
-  my @primes = Math::Prime::XS::sieve_primes ($lo-2, $hi);
-
-  my $to = 0;
-  foreach my $i (0 .. $#primes - 1) {
-    if ($primes[$i]+2 == $primes[$i+1]) {
-      $primes[$to++] = $primes[$i+1];
-    }
-  }
-  $#primes = $to - 1;
-  return $self->make_iter_arrayref(\@primes);
-  #   my $i = 0;
-  #   return sub {
-  #     return $primes[$i++];
-  #   };
-}
-
-$values_info{'semi_primes'} =
-  { subr => \&values_make_semi_primes,
-    name => __('Semi-Primes'),
-    description => __('The semi-primes, or bi-primes, 4, 6, 9, 15, 21, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.'),
-  };
-sub values_make_semi_primes {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_semi_primes(): $lo, $hi
-  return _semi_primes ($self, $lo, $hi, 2);
-}
-
-$values_info{'semi_primes_odd'} =
-  { subr => \&values_make_semi_primes_odd,
-    pred => \&is_iter_arrayref,
-    name => __('Semi-Primes, Odd'),
-    description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including P==Q squares of primes.'),
-  };
-sub values_make_semi_primes_odd {
-  my ($self, $lo, $hi) = @_;
-  return _semi_primes ($self, $lo, $hi, 3);
-}
-sub _semi_primes {
-  my ($self, $lo, $hi, $prime_base) = @_;
-  if ($hi < $lo || $hi < $prime_base*$prime_base) {
-    return $self->make_iter_empty;
-  }
-  require Bit::Vector;
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.020_001);
-
-  # 0.20_01 doesn't like base==limit, extend limit by 1
-  my @primes = Math::Prime::XS::sieve_primes ($prime_base,
-                                              int($hi/$prime_base) + 1);
-  my $vec = Bit::Vector->new($hi+1);
-  foreach my $i (0 .. $#primes) {
-    my $p1 = $primes[$i];
-    # $i==$j includes the prime squares
-    foreach my $j ($i .. $#primes) {
-      if ((my $prod = $p1 * $primes[$j]) <= $hi) {
-        $vec->Bit_On($prod);
-      } else  {
-        last;
-      }
-    }
-  }
-  return $self->make_iter_arrayref ([ $vec->Index_List_Read ]);
-}
-
-$values_info{'count_prime_factors'} =
-  { subr  => \&values_make_count_prime_factors,
-    pred  => \&arrayref_count1,
-    type  => 'count1',
-    name  => __('Count Prime Factors'),
-    description => __('Count of prime factors, as a grey scale of white for prime through to black for many factors (or the foreground through to background, if they\'re given in hex #RRGGBB).'),
-  };
-sub values_make_count_prime_factors {
-  my ($self, $lo, $hi) = @_;
-  ### values_make_count_prime_factors(): $lo, $hi
-
-  my @count = (0) x ($hi+1);
-  $count[1] = 1;
-  my $i = 2;
-  while ($i <= $hi) {
-    if ($count[$i] == 0) { # a prime
-      for (my $power = 1; ; $power++) {
-        my $step = $i ** $power;
-        last if ($step > $hi);
-        for (my $j = $step; $j <= $hi; $j += $step) {
-          $count[$j]++;
-        }
-      }
-      # print "applied: $i\n";
-      # for (my $j = 0; $j < @count; $j++) {
-      #   printf "  %2d %2d\n", $j, $count[$j];
-      # }
-    }
-    $i++;
-  }
-  return $self->make_iter_arrayref_count(\@count, $lo);
-}
-sub arrayref_count1 {
-  my ($self, $n) = @_;
-  return $self->{'iter_arrayref'}->[$n];
-}
-sub make_iter_arrayref_count {
-  my ($self, $arrayref, $i) = @_;
-  ### make_iter_arrayref_count(): $arrayref
-  $self->{'iter_arrayref'} = $arrayref;
-  $i ||= 0;
-  return sub {
-    ### make_iter_arrayref_count() func: "$i  $arrayref->[$i]"
-    return $arrayref->[$i++];
-  };
-}
-
-
-
-$values_info{'base4_without_3'} =
-  { subr => \&values_make_base4_without_3,
-    name => __('Base 4 Without 3'),
-    pred => \&is_base4_without_3,
-    # description => __('The ...'),
-  };
-sub values_make_base4_without_3 {
-  my ($self, $lo, $hi) = @_;
-  my $i = -1;
-  return sub {
-    $i++;
-    my $bit = 1;
-    my $x = $i;
-    while ($x) {
-      if (($x & 3) == 3) {
-        $i += $bit;
-        $x++;
-      }
-      $x >>= 2;
-      $bit <<= 2;
-    }
-    return $i+1;
-  };
-}
-sub is_base4_without_3 {
-  my ($self, $n) = @_;
-  while ($n) {
-    if (($n & 3) == 3) {
-      return 0;
-    }
-    $n >>= 2;
-  }
-  return 1;
-}
-
-$values_info{'ternary_without_2'} =
-  { name => __('Ternary without 2s'),
-    # description => __('The ...'),
-    subr => \&values_make_ternary_without_2,
-    pred => \&is_ternary_without_2,
-  };
-sub values_make_ternary_without_2 {
-  my ($self, $lo, $hi) = @_;
-  my $i = -1;
-  return sub {
-    do {
-      $i++;
-    } until (is_ternary_without_2($self,$i));
-    return $i;
-  };
-}
-sub is_ternary_without_2 {
-  my ($self, $n) = @_;
-  while ($n) {
-    if (($n % 3) == 2) {
-      return 0;
-    }
-    $n = int ($n / 3);
-  }
-  return 1;
-}
-
-# b^2 + b + 1 = k
-# b^2+b+0.5 = k-0.5
-# (b+0.5)^2 = (k-0.5)
-# b = sqrt(k-0.5)-0.5;
-$values_info{'repdigit_any_base'} =
-  { subr => \&values_make_repdigit_any_base,
-    pred => \&is_iter_arrayref,
-    name => __('Repdigits In Any Base'),
-description => __('Numbers which are a "repdigit" like 111, 222, 333 etc in any number base.'),
-  };
-sub values_make_repdigit_any_base {
-  my ($self, $lo, $hi) = @_;
-  my %ret;
-  foreach my $base (2 .. 1+int(sqrt($hi-0.5))) {
-    my $n = ($base + 1) * $base + 1;
-    while ($n <= $hi) {
-      $ret{$n} = 1;
-      foreach my $digit (2 .. $base-1) {
-        if ((my $mult = $digit * $n) < $hi) {
-          $ret{$mult} = 1;
-        }
-      }
-      $n = $n * $base + 1;
-    }
-  }
-  return $self->make_iter_arrayref ([ sort {$a <=> $b} keys %ret ]);
-
-
-
-  #   require Math::Prime::XS;
-  #   my @upto;
-  #   my $i = 1;
-  #   my @primes = Math::Prime::XS::sieve_primes ($maxbase);
-  #   return sub {
-  #     for (;;) {
-  #       $i++;
-  #       my $base_limit = 1+int(sqrt($i/2));
-  #       foreach my $base (@primes) {
-  #         last if ($base > $base_limit);
-  #         foreach my $digit (@primes) {
-  #           last if ($digit >= $base);
-  #           my $ref = \$upto[$base]->[$digit];
-  #           $$ref ||= (($base * $digit) + $digit) * $base + $digit;
-  #           while ($$ref < $i) {
-  #             $$ref = $$ref * $base + $digit;
-  #           }
-  #           if ($$ref == $i) {
-  #             return $i;
-  #           }
-  #         }
-  #       }
-  #     }
-  #   };
-}
-
-$values_info{'repdigit_base_10'} =
-  { subr => \&values_make_repdigit_base_10,
-    pred => \&is_repdigit_base_10,
-    name => __('Repdigits Base 10'),
-    description => __('Numbers which are a "repdigit" in base 10, meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc'),
-  };
-sub values_make_repdigit_base_10 {
-  my ($self, $lo, $hi) = @_;
-  my $digit = -1;
-  my $reps = 1;
-  return sub {
-    ### $digit
-    ### $reps
-    for (;;) {
-      if (++$digit > 9) {
-        $digit = 1;
-        $reps++;
-      }
-      return ($digit x $reps);
-    }
-  };
-}
-sub is_repdigit_base_10 {
-  my ($self, $n) = @_;
-  my $digit = substr($n,0,1);
-  return ($n !~ /[^$digit]/);
-}
-
+# prime to test much too big too quickly without some special strategy ...
+#
+# $values_info{'binary_primes'} =
+#   { subr => \&values_make_binary_primes,
+#     pred => \&is_binary_prime,
+#     name => __('Binary is Decimal Prime'),
+#     description => __('Numbers which when written out in binary are a decimal prime.  For example 185 is 10011101 which in decimal is a prime.'),
+#   };
+# sub values_make_binary_primes {
+#   my ($self, $lo, $hi) = @_;
+#   require Math::Prime::XS;
+#   Math::Prime::XS->VERSION (0.021);
+#   my $n = $lo-1;
+#   return sub {
+#     for (;;) {
+#       if (++$n > $hi) {
+#         return undef;
+#       }
+#       if ($self->is_binary_prime($n)) {
+#         ### return: $n
+#         return $n;
+#       }
+#     }
+#   };
+#   # require Math::BaseCnv;
+#   # ### primes hi: sprintf('%b', $hi+1)
+#   # my @array = map {Math::BaseCnv::cnv($_,2,10)}
+#   #   grep {/^[01]+$/}
+#   #   Math::Prime::XS::sieve_primes (sprintf('%b', $lo),
+#   #                                  sprintf('%b', $hi+1));
+#   # @array = @array;
+#   # return $self->make_iter_arrayref (\@array);
+# }
+# sub is_binary_prime {
+#   my ($self, $n) = @_;
+#   ### $n
+#   ### binary: sprintf('%b',$n)
+#   # my $p = Math::Prime::XS::is_prime(sprintf('%b',$n));
+#   # ### isprime: $p
+#   return Math::Prime::XS::is_prime(sprintf('%b',$n))
+# }
 
 use constant::defer bigint => sub {
   require Math::BigInt;
@@ -1410,80 +514,6 @@ sub values_make_ln3 {
   #   print $total,"\n";
   #   print $total->numify / 2**$bits,"\n";
   return binary_positions($total, $hi);
-}
-
-$values_info{'sqrt_bits'} =
-  { subr => \&values_make_sqrt_bits,
-    name => __('Square Root Bits'),
-    description => __('The square root of a given number written out in binary.'),
-  };
-sub values_make_sqrt_bits {
-  my ($self, $lo, $hi) = @_;
-
-  my ($s) = ($self->{'sqrt'} =~ m{^\s*(\d+)\s*$})
-    or return $self->make_iter_empty;
-
-  bigint();
-  my $calcbits = int(2*$hi + 32);
-  $s = Math::BigInt->new($s);
-  $s->blsft ($calcbits);
-  $s->bsqrt();
-  return binary_positions($s, $hi);
-}
-
-sub binary_positions {
-  my ($bignum, $hi) = @_;
-  my $str = $bignum->as_bin;
-  $str = substr ($str, 2); # trim 0b
-  my $pos = -1;
-  return sub {
-    $pos++;
-    for (;;) {
-      return if $pos >= length($str);
-      if (substr ($str,$pos++,1)) {
-        return $pos;
-      }
-    }
-  };
-}
-
-$values_info{'pi_bits'} =
-  { subr => \&values_make_pi_bits,
-    name => __('Pi Bits'),
-    description => __('Pi 3.141529... written out in binary.'),
-  };
-sub values_make_pi_bits {
-  my ($self, $lo, $hi) = @_;
-  return $self->make_gz ($lo, $hi, 'pi');
-}
-
-$values_info{'ln2_bits'} =
-  { subr => \&values_make_ln2_bits,
-    name => __('Log(2) Bits'),
-    description => __('Natural log(2), being 0.693147..., written out in binary.'),
-  };
-sub values_make_ln2_bits {
-  my ($self, $lo, $hi) = @_;
-  return $self->make_gz ($lo, $hi, 'ln2');
-}
-sub make_gz {
-  my ($self, $lo, $hi, $file) = @_;
-
-  require Compress::Zlib;
-  my $dir = List::Util::first {-e "$_/App/MathImage/$file.gz"} @INC
-    or croak "Oops, $file.gz not found";
-  my $gz = Compress::Zlib::gzopen("$dir/App/MathImage/$file.gz", "r");
-
-  my $n = 0;
-  my $i = 0;
-  my $buf = '';
-  return sub {
-    if ($i >= length($buf)) {
-      return if ($gz->gzread($buf) <= 0);
-      $i = 0;
-    }
-    return ($n += ord(substr($buf,$i++,1)));
-  };
 }
 
 use constant _POINTS_CHUNKS     => 2000;  # 1000 of X,Y
@@ -1524,78 +554,6 @@ sub covers_plane {
             ($path->figure eq 'circle'
              || _path_covers_quads($path))
           });
-}
-
-sub draw_Image_start {
-  my ($self, $image) = @_;
-
-  my $width  = $image->get('-width');
-  my $height = $image->get('-height');
-  my $scale = $self->{'scale'};
-
-  my $path = $self->path_object;
-  my $foreground    = $self->{'foreground'};
-  my $background    = $self->{'background'};
-  my $undrawnground = $self->{'undrawnground'};
-  my $covers = $self->covers_plane;
-
-  my @colours = ($foreground, $background);
-  if ($covers) {
-    $undrawnground = $background;
-  } else {
-    push @colours, $undrawnground;
-  }
-
-  # clear
-  $image->rectangle (0, 0, $width-1, $height-1, $undrawnground, 1);
-
-  my $coord = $self->{'coord'};
-
-  my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
-  my ($x2, $y2) = $coord->untransform ($self->{'width'} + $scale,
-                                       $self->{'height'} + $scale);
-  ### limits around:
-  ### $x1
-  ### $x2
-  ### $y1
-  ### $y2
-
-  my ($n_lo, $n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-  ### $n_lo
-  ### $n_hi
-  $self->{'upto_n'} = $n_lo;
-  $self->{'n_hi'} = $n_hi;
-  $self->{'n_prev'} = $n_lo - 1;
-  $self->{'count_total'} = 0;
-  $self->{'count_outside'} = 0;
-
-  # origin point
-  if ($scale >= 3) {
-    $image->xy ($coord->transform(0,0), $foreground);
-  }
-
-  if ($self->{'values'} ne 'lines') {
-    my $values = $self->{'values'};
-    my $values_method = "values_make_$values";
-    ### $values_method
-    $self->{'values_iter'}  = $self->$values_method ($n_lo, $n_hi);
-    my $values_info = $self->values_info($values);
-    $self->{'values_pred'}  = $values_info->{'pred'};
-    if (($values_info->{'type'}||'') eq 'count1') {
-      $self->{'use_count1_iter'} = 1;
-      $self->{'colours_offset'} = 1;
-      # $self->colours_grey_linear(8);
-      $self->colours_grey_exp;
-      push @colours, @{$self->{'colours'}};
-    }
-    ### iter: $self->{'values_iter'}
-  }
-
-  if ($image->can('add_colours')) {
-    $image->add_colours (@colours);
-  } else {
-    ### image doesn't have add_colours(): ref($image)
-  }
 }
 
 sub colours_grey_exp {
@@ -1647,11 +605,91 @@ sub colour_to_rgb {
   return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
 }
 
+sub draw_Image_start {
+  my ($self, $image) = @_;
+
+  my $width  = $image->get('-width');
+  my $height = $image->get('-height');
+  my $scale = $self->{'scale'};
+
+  my $path = $self->path_object;
+  my $foreground    = $self->{'foreground'};
+  my $background    = $self->{'background'};
+  my $undrawnground = $self->{'undrawnground'};
+  my $covers = $self->covers_plane;
+
+  my @colours = ($foreground, $background);
+  if ($covers) {
+    $undrawnground = $background;
+  } else {
+    push @colours, $undrawnground;
+  }
+
+  # clear
+  $image->rectangle (0, 0, $width-1, $height-1, $undrawnground, 1);
+
+  my $coord = $self->{'coord'};
+
+  my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
+  my ($x2, $y2) = $coord->untransform ($self->{'width'} + $scale,
+                                       $self->{'height'} + $scale);
+  ### limits around:
+  ### $x1
+  ### $x2
+  ### $y1
+  ### $y2
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+  ### $n_lo
+  ### $n_hi
+  $self->{'upto_n'} = $n_lo;
+  $self->{'n_hi'} = $n_hi;
+  $self->{'n_prev'} = $n_lo - 1;
+  $self->{'count_total'} = 0;
+  $self->{'count_outside'} = 0;
+  # $self->{'xy_bitvector'} = Bit::Vector->new ($width * $height);
+
+  # origin point
+  if ($scale >= 3) {
+    $image->xy ($coord->transform(0,0), $foreground);
+  }
+
+  if ($self->{'values'} ne 'Lines') {
+    my $values = $self->{'values'};
+    my $values_class = "App::MathImage::Values::$values";
+    Module::Load::load ($values_class);
+    my $values_obj = $self->{'values_obj'}
+      = $values_class->new (%$self,
+                            lo => $n_lo,
+                            hi => $n_hi);
+
+    # my $values_method = "values_make_$values";
+    # ### $values_method
+    # $self->{'values_obj'}  = $self->$values_method ($n_lo, $n_hi);
+    # my $values_info = $self->values_info($values);
+    # $self->{'values_pred'}  = $values_info->{'pred'};
+    if ($values_obj->type eq 'count1') {
+      $self->{'use_count1_iter'} = 1;
+      $self->{'colours_offset'} = 1;
+      # $self->colours_grey_linear(8);
+      $self->colours_grey_exp;
+      push @colours, @{$self->{'colours'}};
+    }
+    ### iter: $self->{'values_obj'}
+  }
+
+  if ($image->can('add_colours')) {
+    $image->add_colours (@colours);
+  } else {
+    ### image doesn't have add_colours(): ref($image)
+  }
+}
+
 sub draw_Image_steps {
   my ($self, $image, $steps_limit) = @_;
   #### draw_Image_steps: $steps_limit
   my $steps = 0;
-  
+
   my $width  = $image->get('-width');
   my $height = $image->get('-height');
   ### $width
@@ -1660,27 +698,24 @@ sub draw_Image_steps {
   my $background = $self->{'background'};
   my $scale = $self->{'scale'};
   ### $scale
-  
+
   my $path = $self->path_object;
   my $covers = $self->covers_plane;
   ### $covers
-  my $figure = ($scale == 1
-                ? 'point'
-                : $path->figure);
   my $coord = $self->{'coord'};
-  
+
   my $transform = $coord->transform_proc;
-  
+
   my %points_by_colour;
   my %rectangles_by_colour;
-  
+
   my $n_hi = $self->{'n_hi'};
   ### $n_hi
-  
+
   my $more = 0;
-  if ($self->{'values'} eq 'lines') {
+  if ($self->{'values'} eq 'Lines') {
     my $n = $self->{'upto_n'};
-    
+
     for ( ; $n < $n_hi; $n++) {
       if (defined $steps_limit) {
         if (++$steps > $steps_limit) {
@@ -1688,16 +723,16 @@ sub draw_Image_steps {
           last;
         }
       }
-      
+
       my ($x2, $y2) = $transform->($path->n_to_xy($n))
         or next;
-      
+
       if (my ($x1, $y1) = $transform->($path->n_to_xy($n-0.499))) {
         $x1 = floor ($x1 + 0.5);
         $y1 = floor ($y1 + 0.5);
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
       }
-      
+
       if (my ($x3, $y3) = $transform->($path->n_to_xy($n+0.499))) {
         $x3 = floor ($x3 + 0.5);
         $y3 = floor ($y3 + 0.5);
@@ -1705,18 +740,91 @@ sub draw_Image_steps {
       }
     }
     $self->{'upto_n'} = $n;
-    
-    
-  } elsif ($self->{'use_xy'}) {
-    my $offset = int($scale/2);
-    my $pred = $self->{'values_pred'};
+    return $more;
+  }
+
+  my $n_prev = $self->{'n_prev'};
+  my $offset = int($scale/2);
+  my $count_total = $self->{'count_total'};
+  my $count_outside = $self->{'count_outside'};
+  my $figure = ($scale == 1 ? 'point' : $path->figure);
+  ### $figure
+
+  my $background_fill_proc;
+  if (! $covers && $figure eq 'point') {
+    $background_fill_proc = sub {
+      my ($n_to) = @_;
+      ### background fill
+      foreach my $n ($n_prev+1 .. $n_to) {
+        $steps++;
+        $count_total++;
+        my ($x, $y) = $path->n_to_xy($n) or do {
+          $count_outside++;
+          next;
+        };
+        ($x, $y) = $transform->($x, $y);
+        $x = floor ($x - $offset + 0.5);
+        $y = floor ($y - $offset + 0.5);
+        ### back_point: $n
+        ### $x
+        ### $y
+        next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
+
+        push @{$points_by_colour{$background}}, $x, $y;
+        if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
+          foreach my $colour (keys %points_by_colour) {
+            my $aref = delete $points_by_colour{$colour};
+            App::MathImage::Image::Base::Other::xy_points
+                ($image, $colour, @$aref);
+          }
+        }
+      }
+    };
+  } elsif (! $covers && $figure eq 'square') {
+    $background_fill_proc = sub {
+      my ($n_to) = @_;
+      ### background fill
+      foreach my $n ($n_prev+1 .. $n_to) {
+        $steps++;
+        my ($x, $y) = $path->n_to_xy($n) or next;
+        ($x, $y) = $transform->($x, $y);
+        ### back_rectangle: $n
+        ### $x
+        ### $y
+        $x = floor ($x - $offset + 0.5);
+        $y = floor ($y - $offset + 0.5);
+        $count_total++;
+        my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
+                                 $width,$height)
+          or do {
+            $count_outside++;
+            next;
+          };
+        push @{$rectangles_by_colour{$background}}, @rect;
+        if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
+          ### rectangles flush
+          foreach my $colour (keys %rectangles_by_colour) {
+            my $aref = delete $rectangles_by_colour{$colour};
+            App::MathImage::Image::Base::Other::rectangles
+                ($image, $colour, 1, @$aref);
+          }
+        }
+      }
+    };
+  } else {
+    ### background_fill_proc is noop
+    $background_fill_proc = \&_noop;
+  }
+
+  if ($self->{'use_xy'}) {
+    my $values_obj = $self->{'values_obj'};
     my $x = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
     my $y = $self->{'y'};
     my $n;
     #### draw by xy
     #### xy from: "$x,$y"
-    
+
     for (;;) {
       ### use_xy: "$x,$y"
       if (defined $steps_limit) {
@@ -1732,21 +840,21 @@ sub draw_Image_steps {
         $x = $self->{'x_lo'};
         #### next row: "$x,$y"
       }
-      
+
       if (! defined ($n = $path->xy_to_n ($x, $y))) {
         next; # no N for this x,y
       }
-      
+
       ### path: "$x,$y  $n"
-      if (! $self->$pred($n)) {
+      if (! $values_obj->pred($n)) {
         if (! $covers) {
           # background fill
-          
+
           my ($wx, $wy) = $transform->($x, $y);
           $wx = floor ($wx - $offset + 0.5);
           $wy = floor ($wy - $offset + 0.5);
           ### win: "$wx,$wy"
-          
+
           if ($figure eq 'point') {
             push @{$points_by_colour{$background}}, $wx, $wy;
             if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
@@ -1773,12 +881,12 @@ sub draw_Image_steps {
         }
         next;
       }
-      
+
       my ($wx, $wy) = $transform->($x, $y);
       $wx = floor ($wx - $offset + 0.5);
       $wy = floor ($wy - $offset + 0.5);
       ### win: "$wx,$wy"
-      
+
       if ($figure eq 'point') {
         push @{$points_by_colour{$foreground}}, $wx, $wy;
         if (@{$points_by_colour{$foreground}} >= _POINTS_CHUNKS) {
@@ -1788,7 +896,7 @@ sub draw_Image_steps {
                 ($image, $colour, @$aref);
           }
         }
-        
+
       } else { # $figure eq 'square'
         push @{$rectangles_by_colour{$foreground}},
           rect_clipper ($wx, $wy,
@@ -1806,11 +914,10 @@ sub draw_Image_steps {
     }
     $self->{'x'} = $x;
     $self->{'y'} = $y;
-    
-    
+
+
   } elsif ($self->{'use_count1_xy'}) {
-    my $offset = int($scale/2);
-    my $pred = $self->{'values_pred'};
+    my $values_obj = $self->{'values_obj'};
     my $colours = $self->{'colours'};
     my $colours_offset = $self->{'colours_offset'};
     my $x = $self->{'x'};
@@ -1819,7 +926,7 @@ sub draw_Image_steps {
     my $n;
     #### draw by count1
     #### xy from: "$x,$y"
-    
+
     for (;;) {
       ### use_count1: "$x,$y"
       if (defined $steps_limit) {
@@ -1835,25 +942,25 @@ sub draw_Image_steps {
         $x = $self->{'x_lo'};
         #### next row: "$x,$y"
       }
-      
+
       if (! defined ($n = $path->xy_to_n ($x, $y))) {
         next; # no N for this x,y
       }
-      
-      my $count1 = $self->$pred($n);
+
+      my $count1 = $values_obj->pred($n);
       ### path: "$x,$y  $n  count=" . (defined($count1) && $count1)
       next if ! defined $count1;
       my $colour = $colours->[min ($#$colours,
                                    max (0, $count1 - $colours_offset))];
-      
+
       my ($wx, $wy) = $transform->($x, $y);
       $wx = floor ($wx - $offset + 0.5);
       $wy = floor ($wy - $offset + 0.5);
       ### win: "$wx,$wy  $colour"
-      
+
       if ($figure eq 'point') {
         $image->xy ($wx, $wy, $colour);
-        
+
       } else { # $figure eq 'square'
         push @{$rectangles_by_colour{$colour}},
           rect_clipper ($wx, $wy,
@@ -1871,18 +978,15 @@ sub draw_Image_steps {
     }
     $self->{'x'} = $x;
     $self->{'y'} = $y;
-    
-    
+
+
   } elsif ($self->{'use_count1_iter'}) {
     #### draw by count1_iter
-    my $offset = int($scale/2);
-    my $iter = $self->{'values_iter'};
+    my $values_obj = $self->{'values_obj'};
     my $colours = $self->{'colours'};
     my $colours_offset = $self->{'colours_offset'};
-    my $n = $self->{'n_prev'};
-    my $count_total = $self->{'count_total'};;
-    my $count_outside = $self->{'count_outside'};;
-    
+    # my $xy_bitvector = $self->{'xy_bitvector'};;
+
     for (;;) {
       if (defined $steps_limit) {
         if (++$steps > $steps_limit) {
@@ -1890,25 +994,26 @@ sub draw_Image_steps {
           last;
         }
       }
-      last if ++$n > $n_hi;
-      my $count1 = $iter->();
+      my ($n, $count1) = $values_obj->next
+        or last;
+      last if $n > $n_hi;
       ### $n
       ### $count1
       next if ! defined $count1;
-      
+
       my ($x, $y) = $path->n_to_xy($n) or next;
       ### path: "$x,$y"
-      
+
       ($x, $y) = $transform->($x, $y);
       $x = floor ($x - $offset + 0.5);
       $y = floor ($y - $offset + 0.5);
       ### $x
       ### $y
-      
+
       my $colour = $colours->[min ($#$colours,
                                    max (0, $count1 - $colours_offset))];
       ### $colour
-      
+
       if ($figure eq 'point') {
         $count_total++;
         if ($x < 0 || $y < 0 || $x >= $width || $y >= $height) {
@@ -1916,7 +1021,7 @@ sub draw_Image_steps {
           next;
         }
         $image->xy ($x, $y, $colour);
-        
+
       } elsif ($figure eq 'square') {
         $count_total++;
         my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
@@ -1934,7 +1039,7 @@ sub draw_Image_steps {
                 ($image, $colour, 1, @$aref);
           }
         }
-        
+
       } else { # circle
         if (my @coords = ellipse_clipper ($x,$y, $x+$scale-1,$y+$scale-1,
                                           $width,$height)) {
@@ -1945,30 +1050,25 @@ sub draw_Image_steps {
 
     ##### $count_total
     ##### $count_outside
-    ##### pred: $self->{'values_pred'}
     if ($figure ne 'circle'
         && $count_total > 1000
         && $count_outside > .5 * $count_total
-        && $self->{'values_pred'}
+        && $values_obj->can('pred')
        ) {
       #### use_xy from now on
       $self->use_xy($image);
       delete $self->{'use_xy'};
       $self->{'use_count1_xy'} = 1;
     } else {
-      $self->{'n_prev'} = $n;
+      # $self->{'n_prev'} = $n;
       $self->{'count_total'} = $count_total;
       $self->{'count_outside'} = $count_outside;
     }
 
   } else {
     #### draw by N
-    my $offset = int($scale/2);
-    my $iter = $self->{'values_iter'};
+    my $values_obj = $self->{'values_obj'};
     my $n;
-    my $n_prev = $self->{'n_prev'};
-    my $count_total = $self->{'count_total'};;
-    my $count_outside = $self->{'count_outside'};;
 
     for (;;) {
       if (defined $steps_limit) {
@@ -1977,11 +1077,14 @@ sub draw_Image_steps {
           last;
         }
       }
-      $n = $iter->();
+      ($n, undef) = $values_obj->next;
       ### $n_prev
       ### $n
-      (defined $n && $n <= $n_hi)
-        or last;
+      if (! defined $n || $n > $n_hi) {
+        ### final background fill
+        $background_fill_proc->($n_hi);
+        last;
+      }
       my ($x, $y) = $path->n_to_xy($n) or next;
       ### path: "$x,$y"
 
@@ -1992,34 +1095,7 @@ sub draw_Image_steps {
       ### $y
 
       if ($figure eq 'point') {
-
-        if (! $covers) {
-          # background fill
-          foreach my $n ($n_prev+1 .. $n-1) {
-            $steps++;
-            $count_total++;
-            my ($x, $y) = $path->n_to_xy($n) or do {
-              $count_outside++;
-              next;
-            };
-            ($x, $y) = $transform->($x, $y);
-            $x = floor ($x - $offset + 0.5);
-            $y = floor ($y - $offset + 0.5);
-            ### back_point: $n
-            ### $x
-            ### $y
-            next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
-
-            push @{$points_by_colour{$background}}, $x, $y;
-            if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
-              foreach my $colour (keys %points_by_colour) {
-                my $aref = delete $points_by_colour{$colour};
-                App::MathImage::Image::Base::Other::xy_points
-                    ($image, $colour, @$aref);
-              }
-            }
-          }
-        }
+        $background_fill_proc->($n-1);
 
         $count_total++;
         if ($x < 0 || $y < 0 || $x >= $width || $y >= $height) {
@@ -2036,35 +1112,7 @@ sub draw_Image_steps {
         }
 
       } elsif ($figure eq 'square') {
-
-        if (! $covers) {
-          foreach my $n ($n_prev+1 .. $n-1) {
-            $steps++;
-            my ($x, $y) = $path->n_to_xy($n) or next;
-            ($x, $y) = $transform->($x, $y);
-            ### back_rectangle: $n
-            ### $x
-            ### $y
-            $x = floor ($x - $offset + 0.5);
-            $y = floor ($y - $offset + 0.5);
-            $count_total++;
-            my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
-                                     $width,$height)
-              or do {
-                $count_outside++;
-                next;
-              };
-            push @{$rectangles_by_colour{$background}}, @rect;
-            if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
-              ### rectangles flush
-              foreach my $colour (keys %rectangles_by_colour) {
-                my $aref = delete $rectangles_by_colour{$colour};
-                App::MathImage::Image::Base::Other::rectangles
-                    ($image, $colour, 1, @$aref);
-              }
-            }
-          }
-        }
+        $background_fill_proc->($n-1);
 
         $count_total++;
         my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
@@ -2095,11 +1143,10 @@ sub draw_Image_steps {
 
     ##### $count_total
     ##### $count_outside
-    ##### pred: $self->{'values_pred'}
     if ($figure ne 'circle'
         && $count_total > 1000
         && $count_outside > .5 * $count_total
-        && $self->{'values_pred'}
+        && $values_obj->can('pred')
        ) {
       #### use_xy from now on
       $self->use_xy($image);
@@ -2151,6 +1198,8 @@ sub use_xy {
   my $x_width = $self->{'x_width'} = $x_hi - $x_lo + 1;
   $self->{'xy_total'} = ($y_hi - $y_lo + 1) * $x_width;
 }
+
+sub _noop {}
 
 sub draw_progress_fraction {
   my ($self) = @_;

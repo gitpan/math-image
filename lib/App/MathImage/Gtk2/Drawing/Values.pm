@@ -24,20 +24,21 @@ use warnings;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 24;
+our $VERSION = 25;
 our $TEXTDOMAIN = 'Math-Image';
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Values',
                            App::MathImage::Generator->values_choices);
 
+sub EnumBits_to_display {
+  my ($class, $nick) = @_;
+  require App::MathImage::Generator;
+  return App::MathImage::Generator->values_class($nick)->name;
+}
+
 sub EnumBits_to_description {
   my ($class, $nick) = @_;
   require App::MathImage::Generator;
-  if (my $info = App::MathImage::Generator->values_info($nick)) {
-    ### $info
-    return $info->{'description'};
-  } else {
-    return undef;
-  }
+  return App::MathImage::Generator->values_class($nick)->description;
 }
 
 1;

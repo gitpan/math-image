@@ -27,6 +27,7 @@ use Scalar::Util;
 use Time::HiRes;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
 use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
+use Gtk2::Pango;
 use Locale::TextDomain ('App-MathImage');
 
 use Glib::Ex::SourceIds;
@@ -38,7 +39,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -101,19 +102,23 @@ use Glib::Object::Subclass
                    'Blurb.',
                    'en',      # default
                    Glib::G_PARAM_READWRITE),
-
                   Glib::ParamSpec->string
                   ('aronson-letter',
                    'aronson-letter',
                    'Blurb.',
                    '', # default
                    Glib::G_PARAM_READWRITE),
-
                   Glib::ParamSpec->boolean
                   ('aronson-conjunctions',
                    'aronson-conjunctions',
                    'Blurb.',
                    1,      # default
+                   Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->boolean
+                  ('aronson-lying',
+                   'aronson-lying',
+                   'Blurb.',
+                   0,      # default
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -234,7 +239,8 @@ sub _drawable_size_equal {
 sub _do_expose {
   my ($self, $event) = @_;
   ### Image _do_expose(): $event->area->values
-  ### _pixmap_is_good: _pixmap_is_good($self)
+  ### $self
+  ### _pixmap_is_good says: _pixmap_is_good($self)
   my $win = $self->window;
   $self->pixmap;
   Gtk2::Ex::GdkBits::window_clear_region ($win, $event->region);
@@ -293,6 +299,7 @@ sub _do_expose {
 
 sub _pixmap_is_good {
   my ($self) = @_;
+  ### _pixmap_is_good() pixmap: $self->{'pixmap'}
   my $pixmap = $self->{'pixmap'};
   return ($pixmap && _drawable_size_equal($pixmap,$self->window));
 }
@@ -303,7 +310,6 @@ sub pixmap {
   if (! _pixmap_is_good($self)) {
     ### new pixmap
     $self->start_drawing_window ($self->window);
-    $self->{'pixmap'} = $self->{'drawing'}->{'pixmap'};
   }
   return $self->{'pixmap'};
 }
@@ -338,6 +344,7 @@ sub start_drawing_window {
      aronson_lang         => $self->get('aronson-lang'),
      aronson_letter       => $self->get('aronson-letter'),
      aronson_conjunctions => $self->get('aronson-conjunctions'),
+     aronson_lying        => $self->get('aronson-lying'),
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
@@ -361,7 +368,7 @@ sub start_drawing_window {
     my (undef, $value)       = $coord->untransform(0,$height);
     my (undef, $value_upper) = $coord->untransform(0,0);
     my $page_size = $value_upper - $value;
-    ### vadj: "$lower to $upper"
+    ### vadj: "$value to $value_upper"
     $vadj->set (lower     => min (0, $value - 1.5 * $page_size),
                 upper     => max (0, $value_upper + 1.5 * $page_size),
                 page_size => $page_size,
@@ -372,7 +379,7 @@ sub start_drawing_window {
     my ($value,       undef) = $coord->untransform(0,0);
     my ($value_upper, undef) = $coord->untransform($width,0);
     my $page_size = $value_upper - $value;
-    ### hadj: "$lower to $upper"
+    ### hadj: "$value to $value_upper"
     $hadj->set (lower     => min (0, $value - 1.5 * $page_size),
                 upper     => max (0, $value_upper + 1.5 * $page_size),
                 page_size => $page_size,
@@ -385,10 +392,13 @@ sub start_drawing_window {
       (-for_widget => $self,
        -width      => $width,
        -height     => $height);
-  $self->{'drawing'}->{'pixmap'} = $image->get('-pixmap');
+  my $pixmap = $self->{'pixmap'} = $self->{'drawing'}->{'pixmap'}
+    = $image->get('-pixmap');
+  my $background_gc = $self->style->bg_gc($self->state);
+  $pixmap->draw_rectangle ($background_gc, 1, 0,0, $pixmap->get_size);
   ### new pixmap: $self->{'drawing'}->{'pixmap'}
-  $self->{'drawing'}->{'window'} = $window;
 
+  $self->{'drawing'}->{'window'} = $window;
   my $progressive = $self->get('draw-progressive');
   if ($progressive) {
     require Image::Base::Gtk2::Gdk::Window;
@@ -413,6 +423,8 @@ sub start_drawing_window {
     }
     undef $self->{'path_object'};
     undef $self->{'coord'};
+    draw_text_centred ($self, $self->{'drawing'}->{'pixmap'}, $err);
+    _drawing_finished ($self);
     return;
   }
 
@@ -450,20 +462,27 @@ sub _idle_handler_draw {
       return 1; # Glib::SOURCE_CONTINUE
     }
     ### done, install pixmap
-    my $pixmap = $drawing->{'pixmap'};
-    my $window = $drawing->{'window'};
-    $window->set_back_pixmap ($pixmap);
-    ### set_back_pixmap: "$pixmap"
-
-    if ($drawing->{'window'} == $self->window) {
-      $self->queue_draw;
-    } else {
-      $window->clear;  # for root window
-    }
-    delete $self->{'drawing'};
+    _drawing_finished ($self);
   }
   ### _idle_handler_draw() end
   return Glib::SOURCE_REMOVE;
+}
+
+sub _drawing_finished {
+  my ($self) = @_;
+  ### _drawing_finished()
+  my $drawing = $self->{'drawing'};
+  my $pixmap = $self->{'pixmap'} = $drawing->{'pixmap'};
+  my $window = $drawing->{'window'};
+  ### set_back_pixmap: "$pixmap"
+  $window->set_back_pixmap ($pixmap);
+  if ($drawing->{'window'} == $self->window) {
+    $self->queue_draw;
+  } else {
+    $window->clear;  # for root window
+  }
+  delete $self->{'drawing'};
+  ### $self
 }
 
 # _gettime() returns a floating point count of seconds since some fixed but
@@ -505,6 +524,29 @@ sub pointer_xy_to_image_xyn {
     $py = POSIX::floor ($py + 0.5);
   }
   return ($px, $py, $path_object->xy_to_n($px,$py));
+}
+
+sub draw_text_centred {
+  my ($widget, $drawable, $str) = @_;
+  ### draw_text_centred(): $str
+  ### $drawable
+  my ($width, $height) = $drawable->get_size;
+  my $layout = $widget->create_pango_layout ($str);
+  $layout->set_wrap ('word-char');
+  $layout->set_width ($width * Gtk2::Pango::PANGO_SCALE());
+  my ($str_width, $str_height) = $layout->get_pixel_size;
+  my $x = max (0, int (($width  - $str_width)  / 2));
+  my $y = max (0, int (($height - $str_height) / 2));
+
+  ### paint: "$x,$y  $str_width x $str_height of $width x $height"
+  my $style = $widget->get_style;
+  $style->paint_layout ($drawable,
+                        $widget->state,
+                        0, # use foreground gc
+                        undef,
+                        $widget,
+                        'centred-text',
+                        $x, $y, $layout);
 }
 
 1;

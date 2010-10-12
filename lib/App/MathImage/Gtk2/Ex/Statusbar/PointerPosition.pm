@@ -26,7 +26,7 @@ use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

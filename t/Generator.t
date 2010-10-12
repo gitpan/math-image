@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 101;
+use Test::More tests => 142;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 24;
+  my $want_version = 25;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -47,58 +47,6 @@ require App::MathImage::Generator;
   my $check_version = $want_version + 1000;
   ok (! eval { App::MathImage::Generator->VERSION($check_version); 1 },
       "VERSION class check $check_version");
-}
-
-
-#------------------------------------------------------------------------------
-# values_make_count_prime_factors
-
-{
-  my $gen = App::MathImage::Generator->new;
-  my $it = $gen->values_make_count_prime_factors(1, 30);
-  my $want_arrayref = [ 1,  # 1
-                        1,  # 2
-                        1,  # 3
-                        2,  # 4
-                        1,  # 5
-                        2,  # 6
-                        1,  # 7
-                        3,  # 8
-                        2,  # 9
-                        2,  # 10
-                        1,  # 11
-                        3,  # 12
-                        1,  # 13
-                        2,  # 14
-                        2,  # 15
-                        4,  # 16
-                        1,  # 17
-                        3,  # 18
-                        1,  # 19
-                        3,  # 20
-                        2,  # 21
-                        2,  # 22
-                        1,  # 23
-                        4,  # 24
-                        2,  # 25
-                        2,  # 26
-                        3,  # 27
-                        3,  # 28
-                        1,  # 29
-                        3,  # 30
-                      ];
-  my $got_arrayref = [ map {$it->()} 1..30 ];
-  is_deeply ($got_arrayref, $want_arrayref,
-             'values_make_count_prime_factors 1 to 30 iterator');
-
-  # my %got_hashref;
-  # foreach my $n (2 .. 17) {
-  #   if ($gen->is_iter_arrayref($n)) {
-  #     $got_hashref{$n} = undef;
-  #   }
-  # }
-  # is_deeply ($got_arrayref, $want_arrayref,
-  #            'values_make_primes 2 to 17 is_iter_arrayref()');
 }
 
 
@@ -166,108 +114,111 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 #------------------------------------------------------------------------------
 # values_make_primes
 
-{
-  my $gen = App::MathImage::Generator->new;
-  my $it = $gen->values_make_primes(2, 17);
-  my $want_arrayref = [ 2, 3, 5, 7, 11, 13, 17 ];
-  my %want_hashref;
-  @want_hashref{@$want_arrayref} = ();
-
-  my $got_arrayref = [ map {$it->()} 1..7 ];
-  is_deeply ($got_arrayref, $want_arrayref,
-             'values_make_primes 2 to 17 iterator');
-
-  my %got_hashref;
-  foreach my $n (2 .. 17) {
-    if ($gen->is_iter_arrayref($n)) {
-      $got_hashref{$n} = undef;
-    }
-  }
-  is_deeply ($got_arrayref, $want_arrayref,
-             'values_make_primes 2 to 17 is_iter_arrayref()');
-}
+# {
+#   my $gen = App::MathImage::Generator->new;
+#   my $it = $gen->values_make_primes(2, 17);
+#   my $want_arrayref = [ 2, 3, 5, 7, 11, 13, 17 ];
+#   my %want_hashref;
+#   @want_hashref{@$want_arrayref} = ();
+# 
+#   my $got_arrayref = [ map {$it->()} 1..7 ];
+#   is_deeply ($got_arrayref, $want_arrayref,
+#              'values_make_primes 2 to 17 iterator');
+# 
+#   my %got_hashref;
+#   foreach my $n (2 .. 17) {
+#     if ($gen->is_iter_arrayref($n)) {
+#       $got_hashref{$n} = undef;
+#     }
+#   }
+#   is_deeply ($got_arrayref, $want_arrayref,
+#              'values_make_primes 2 to 17 is_iter_arrayref()');
+# }
 
 
 #------------------------------------------------------------------------------
 # values_make funcs
 
 {
-  my %values_choices;
-  foreach my $values (App::MathImage::Generator->values_choices) {
-    $values_choices{$values} = 1;
-  }
-
   my $gen = App::MathImage::Generator->new;
-  foreach my $elem ([ 'values_make_all', 0,
+  foreach my $elem ([ 'All', 0,
                       [ 0, 1, 2, 3, 4, 5, 6, 7 ] ],
-                    [ 'values_make_all', 17,
+                    [ 'All', 17,
                       [ 17, 18, 19 ] ],
 
-                    [ 'values_make_odd', 1,
+                    [ 'Odd', 1,
                       [ 1, 3, 5, 7, 9, 11, 13 ] ],
-                    [ 'values_make_odd', 6,
+                    [ 'Odd', 6,
                       [ 7, 9, 11, 13 ] ],
 
-                    [ 'values_make_squares', 1,
+                    [ 'Squares', 1,
                       [ 1, 4, 9, 16, 25 ] ],
-                    [ 'values_make_squares', 3,
+                    [ 'Squares', 3,
                       [ 4, 9, 16, 25 ] ],
 
-                    [ 'values_make_cubes', 1,
+                    [ 'Cubes', 1,
                       [ 1, 8, 27, 64, 125 ] ],
-                    [ 'values_make_cubes', 3,
+                    [ 'Cubes', 3,
                       [ 8, 27, 64, 125 ] ],
 
-                    [ 'values_make_tetrahedral', 1,
+                    [ 'Tetrahedral', 1,
                       [ 1, 4, 10, 20, 35, 56, 84, 120 ] ],
 
-                    [ 'values_make_triangular', 1,
+                    [ 'Triangular', 1,
                       [ 1, 3, 6, 10, 15, 21 ] ],
-                    [ 'values_make_triangular', 5,
+                    [ 'Triangular', 5,
                       [ 6, 10, 15, 21 ] ],
 
-                    [ 'values_make_pronic', 1,
+                    [ 'Pronic', 1,
                       [ 2, 6, 12, 20, 30, 42 ] ],
-                    [ 'values_make_pronic', 5,
+                    [ 'Pronic', 5,
                       [ 6, 12, 20, 30, 42 ] ],
 
-                    [ 'values_make_even', 0,
+                    [ 'Even', 0,
                       [ 0, 2, 4, 6, 8, 10, 12 ] ],
-                    [ 'values_make_even', 5,
+                    [ 'Even', 5,
                       [ 6, 8, 10, 12 ] ],
 
-                    [ 'values_make_fibonacci', 1,
+                    [ 'Fibonacci', 1,
                       [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 ] ],
 
-                    [ 'values_make_perrin', 0,
+                    [ 'Perrin', 0,
                       [ 3, 0, 2, 3, 2, 5, 5, 7, 10, 12, 17 ] ],
-                    [ 'values_make_padovan', 0,
+                    [ 'Padovan', 0,
                       [ 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, 12 ] ],
 
+                    [ 'PellNumbers', 0,
+                      [ 0, 1, 2, 5, 12, 29, 70, 169, 408, 985, 2378, 5741,
+                        13860, 33461, 80782, 195025, 470832, 1136689,
+                      ] ],
+                    [ 'PellNumbers', 6,
+                      [ 12, 29, 70, 169, 408, 985, 2378, 5741,
+                        13860, 33461, 80782, 195025, 470832, 1136689,
+                      ] ],
 
-                    [ 'values_make_primes', 1,
+                    [ 'Primes', 1,
                       [ 2, 3, 5, 7, 11, 13, 17 ] ],
-                    [ 'values_make_primes', 10,
+                    [ 'Primes', 10,
                       [ 11, 13, 17 ] ],
 
-                    [ 'values_make_twin_primes', 0,
+                    [ 'TwinPrimes', 0,
                       [ 3, 5, 7, 11, 13, 17, 19, 29, 31 ] ],
-                    [ 'values_make_twin_primes', 10,
+                    [ 'TwinPrimes', 10,
                       [ 11, 13, 17, 19, 29, 31 ] ],
 
-                    [ 'values_make_twin_primes_1', 0,
+                    [ 'TwinPrimes1', 0,
                       [ 3, 5, 11, 17, 29 ] ],
-                    [ 'values_make_twin_primes_1', 4,
+                    [ 'TwinPrimes1', 4,
                       [ 5, 11, 17, 29 ] ],
 
-                    [ 'values_make_twin_primes_2', 0,
+                    [ 'TwinPrimes2', 0,
                       [ 5, 7, 13, 19, 31 ] ],
-                    [ 'values_make_twin_primes_2', 6,
+                    [ 'TwinPrimes2', 6,
                       [ 7, 13, 19, 31 ] ],
 
                     # sloanes
                     # http://www.research.att.com/~njas/sequences/A001358
-                    [ 'values_make_semi_primes', 0,
+                    [ 'SemiPrimes', 0,
                       [ 4, 6, 9, 10, 14, 15, 21, 22, 25, 26, 33, 34, 35, 38,
                         39, 46, 49, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82,
                         85, 86, 87, 91, 93, 94, 95, 106, 111, 115, 118, 119,
@@ -275,9 +226,23 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         146, 155, 158, 159, 161, 166, 169, 177, 178, 183,
                         185, 187 ] ],
 
+                    [ 'SemiPrimesOdd', 0,
+                      [ 9, 15, 21, 25, 33, 35,
+                        39, 49, 51, 55, 57, 65, 69, 77,
+                      ] ],
+
+                    # http://www.research.att.com/~njas/sequences/A005384
+                    [ 'SophieGermainPrimes', 0,
+                      [ 2, 3, 5, 11, 23, 29, 41, 53, 83, 89, 113, 131, 173,
+                        179, 191, 233, 239, 251, 281, 293, 359, 419, 431,
+                        443, 491, 509, 593, 641, 653, 659, 683, 719, 743,
+                        761, 809, 911, 953, 1013, 1019, 1031, 1049, 1103,
+                        1223, 1229, 1289, 1409, 1439, 1451, 1481, 1499,
+                        1511, 1559 ] ],
+
                     # sloanes
                     # http://www.research.att.com/~njas/sequences/A005224
-                    [ 'values_make_aronson', 0,
+                    [ 'Aronson', 0,
                       [ 1, 4, 11, 16, 24, 29, 33, 35, 39, 45, 47, 51, 56, 58,
                         62, 64, 69, 73, 78, 80, 84, 89, 94, 99, 104, 111,
                         116, 122, 126, 131, 136, 142, 147, 158, 164, 169,
@@ -288,64 +253,138 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                       'Math::Aronson',
                     ],
 
-                    [ 'values_make_thue_morse_evil', 0,
+                    # sloanes
+                    # http://www.research.att.com/%7Enjas/sequences/A079000
+                    [ 'NumaronsonA', 0,
+                      [ 1, 4, 6, 7, 8, 9, 11, 13, 15, 16, 17, 18, 19, 20,
+                        21, 23, 25, 27, 29, 31, 33, 34, 35, 36, 37, 38, 39,
+                        40, 41, 42, 43, 44, 45, 47, 49, 51, 53, 55, 57, 59,
+                        61, 63, 65, 67, 69, 70, 71, 72, 73, 74, 75, 76, 77,
+                        78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+                        91, 92, 93, 95, 97 ],
+                    ],
+
+                    [ 'ThueMorseEvil', 0,
                       [ 0, 3, 5, 6, 9, 10, 12, 15, 17, 18, 20, 23, 24, 27,
                         29, 30, 33, 34, 36, 39, 40, 43, 45, 46, 48, 51, 53,
                         54, 57, 58, 60, 63, 65, 66, 68, 71, 72, 75, 77, 78,
                         80, 83, 85, 86, 89, 90, 92, 95, 96, 99, 101, 102,
                         105, 106, 108, 111, 113, 114, 116, 119, 120, 123,
                         125, 126, 129 ] ],
-                    [ 'values_make_thue_morse_odious', 0,
+                    [ 'ThueMorseEvil', 1, [ 3, 5, 6, 9 ] ],
+                    [ 'ThueMorseEvil', 2, [ 3, 5, 6, 9 ] ],
+                    [ 'ThueMorseEvil', 3, [ 3, 5, 6, 9 ] ],
+                    [ 'ThueMorseEvil', 4, [ 5, 6, 9 ] ],
+                    [ 'ThueMorseEvil', 5, [ 5, 6, 9 ] ],
+
+                    [ 'ThueMorseOdious', 0,
                       [ 1, 2, 4, 7, 8, 11, 13, 14, 16, 19, 21, 22, 25, 26,
                         28, 31, 32, 35, 37, 38, 41, 42, 44, 47, 49, 50, 52,
                         55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79,
                         81, 82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103,
                         104, 107, 109, 110, 112, 115, 117, 118, 121, 122,
                         124, 127, 128 ] ],
+                    [ 'ThueMorseOdious', 1, [ 1, 2, 4, 7, ] ],
+                    [ 'ThueMorseOdious', 2, [ 2, 4, 7, ] ],
+                    [ 'ThueMorseOdious', 3, [ 4, 7, ] ],
+                    [ 'ThueMorseOdious', 4, [ 4, 7, ] ],
+                    [ 'ThueMorseOdious', 5, [ 7, ] ],
 
-                    [ 'values_make_repdigit_base_10', 0,
+                    [ 'Base4Without3', 0,
+                      [ 0x00, 0x01, 0x02,    # 0,1,2
+                        0x04, 0x05, 0x06,    # 10,11,12
+                        0x08, 0x09, 0x0A,    # 20,21,22
+                        0x10, 0x11, 0x12,    # 100,101,102
+                        0x14, 0x15, 0x16,
+                      ] ],
+
+                    [ 'TernaryWithout2', 0,
+                      [ 0, 1,    # 0,1
+                        3, 4,    # 10, 11
+                        # 6, 7,    # 20, 21
+                        9, 10,   # 100, 101
+                        12, 13,  # 110, 111
+                        27, 28,  # 1000, 1001
+                      ] ],
+
+                    [ 'RepdigitBase10', 0,
                       [ 0,
                         1,2,3,4,5,6,7,8,9,
                         11,22,33,44,55,66,77,88,99,
                         111,222,333,444,555,666,777,888,999,
                       ] ],
+
+                    [ 'Pentagonal', 0,
+                      [ 0,1,5,12,22 ] ],
+                    [ 'PentagonalSecond', 0,
+                      [ 0,2,7,15,26 ] ],
+                    [ 'PentagonalGeneralized', 0,
+                      [ 0,0,1,2,5,7,12,15,22,26 ] ],
+
+                    [ 'FractionBits', 0,
+                      [ 1,2,3 ],
+                      { fraction => '7' } ],
+                    [ 'FractionBits', 0,
+                      [ 1,3,5,7,9,11,13 ],
+                      { fraction => '1/3' } ],
+
                    ) {
-    my ($method, $lo, $want, $options, $module) = @$elem;
+    my ($values, $lo, $want, $options, $module) = @$elem;
     if ($options) {
       %$gen = (%$gen, %$options);
     }
     my $hi = $want->[-1];
 
   SKIP: {
-      my $iter;
-      if (! eval { $iter = $gen->$method ($lo, $hi); 1; }) {
+      my $values_class = "App::MathImage::Values::$values";
+      my $values_obj;
+      require Module::Load;
+      if (! eval { Module::Load::load ($values_class);
+                   $values_obj = $values_class->new (lo => $lo,
+                                                     hi => $hi,
+                                                     %$options);
+                   1; }) {
         my $err = $@;
-        diag "method=$method caught error -- $err";
+        diag "values=$values caught error -- $err";
         if ($module && ! eval "require $module; 1") {
-          skip "method=$method due to no module $module", 2;
+          skip "values=$values due to no module $module", 2;
         }
         die $err;
       }
 
-      my $got = [ map {$iter->()} 0 .. $#$want ];
-      is_deeply ($got, $want, "$method lo=$lo hi=$hi");
+      my $got = [ map {($values_obj->next)[0]} 0 .. $#$want ];
+      diag "$values ".join(',',@$got);
+      is_deeply ($got, $want, "$values lo=$lo hi=$hi");
 
-      (my $pred_method = $method) =~ s/^values_make/is/;
     SKIP: {
-        $gen->can($pred_method)
-          or skip "no predicate $pred_method()", 1;
+        $values_obj->can('pred')
+          or skip "no pred() for $values_obj", 1;
 
+        if ($hi > 1000) {
+          $hi = 1000;
+          $want = [ grep {$_<=$hi} @$want ];
+        }
         my @got_pred;
         foreach my $n ($lo .. $hi) {
           ### $n
-          if ($gen->$pred_method($n)) {
+          if ($values_obj->pred($n)) {
             push @got_pred, $n;
           }
         }
-        is_deeply (\@got_pred, $want, "$pred_method lo=$lo hi=$hi");
+        ### @got_pred
+        _delete_duplicates($want);
+        ### $want
+        is_deeply (\@got_pred, $want, "$values_obj pred() lo=$lo hi=$hi");
       }
     }
   }
+}
+
+sub _delete_duplicates {
+  my ($arrayref) = @_;
+  my %seen;
+  @seen{@$arrayref} = ();
+  @$arrayref = sort {$a<=>$b} keys %seen;
 }
 
 #------------------------------------------------------------------------------
@@ -360,7 +399,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                                               height => 10,
                                               scale  => 1,
                                               path   => $path,
-                                              values => 'all');
+                                              values => 'All');
     my $image = Image::Base::Text->new
       (-width  => 10,
        -height => 10,
@@ -379,11 +418,11 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
   my $good = 1;
   foreach my $values (App::MathImage::Generator->values_choices) {
     diag "exercise values $values";
-    if ($values eq 'expression' && ! eval { require Math::Symbolic }) {
+    if ($values eq 'Expression' && ! eval { require Math::Symbolic }) {
       diag "skip $values due to no Math::Symbolic -- $@";
       next;
     }
-    if ($values eq 'aronson' && ! eval { require Math::Aronson }) {
+    if ($values eq 'Aronson' && ! eval { require Math::Aronson }) {
       diag "skip $values due to no Math::Aronson -- $@";
       next;
     }

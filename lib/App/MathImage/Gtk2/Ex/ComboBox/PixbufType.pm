@@ -50,12 +50,12 @@ use Scalar::Util;
 use List::Util qw(max);
 use POSIX ();
 use Locale::Messages;
-use Gtk2::Ex::ComboBoxBits;
+use Gtk2::Ex::ComboBoxBits 2; # version 2 for fixed MoreUtils dependency
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 24;
+our $VERSION = 25;
 
 BEGIN {
   if (0) {

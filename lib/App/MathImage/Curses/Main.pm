@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 24;
+$VERSION = 25;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -71,8 +71,8 @@ my $menu_data
       { -label => __('Values'),
         -submenu => [ map {
           my $values = $_;
-          my $info = App::MathImage::Generator->values_info ($values);
-          ({ -label       => $info->{'name'},
+          my $values_class = App::MathImage::Generator->values_class ($values);
+          ({ -label       => $values_class->name,
              -value => sub {
                my ($menu) = @_;
                _do_values_menu ($menu, $values);
