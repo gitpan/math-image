@@ -39,7 +39,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 25;
+my $want_version = 26;
 {
   is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,
@@ -134,7 +134,7 @@ SKIP: {
        });
     is ($leaks, undef, 'Test::Weaken deep garbage collection');
     if ($leaks) {
-      eval { diag "Test-Weaken ", explain $leaks }; # explain new in 0.82
+      eval { diag "Test-Weaken ", explain($leaks) }; # explain new in 0.82
 
       my $unfreed = $leaks->unfreed_proberefs;
       say "unfreed isweak ",

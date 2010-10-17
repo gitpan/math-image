@@ -27,7 +27,8 @@ use Prima::MsgBox;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 25;
+use vars '$VERSION';
+$VERSION = 26;
 
 # use base 'Prima::Window';
 # sub init {

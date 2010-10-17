@@ -34,6 +34,7 @@ use Locale::Messages 'dgettext';
 
 use Glib::Ex::EnumBits;
 use Glib::Ex::ObjectBits 'set_property_maybe';
+use Gtk2::Ex::TreeModelBits;
 use Gtk2::Ex::ComboBox::Text 2; # version 2 for fixed MoreUtils dependency
 use Gtk2::Ex::ComboBox::Enum 2; # version 2 for fixed MoreUtils dependency
 
@@ -43,7 +44,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 25;
+our $VERSION = 26;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -125,6 +126,33 @@ sub INIT_INSTANCE {
       { name  => 'FileMenu',
         label => dgettext('gtk20-properties','_File'),
       },
+      { name     => 'SaveAs',
+        stock_id => 'gtk-save-as',
+        callback => \&_do_action_save_as,
+        tooltip  => __('Save the image to a file.'),
+      },
+      { name     => 'SetRoot',
+        label    => __('Set _Root Window'),
+        callback => \&_do_action_setroot,
+        tooltip  => __('Set the current image as the root window background.'),
+      },
+      { name     => 'Print',
+        stock_id => 'gtk-print',
+        tooltip  => __('Print image to a printer.  Currently this merely draws at the screen resolution so might not scale well on a printer with limited resolution.'),
+        callback => sub {
+          my ($action, $self) = @_;
+          $self->print_image;
+        },
+      },
+      { name        => 'Quit',
+        stock_id    => 'gtk-quit',
+        accelerator => __p('Main-accelerator-key','<Control>Q'),
+        callback    => sub {
+          my ($action, $self) = @_;
+          $self->destroy;
+        },
+      },
+      
       { name  => 'ViewMenu',
         label => dgettext('gtk20-properties','_View'),
       },
@@ -134,38 +162,33 @@ sub INIT_INSTANCE {
       { name  => 'ValuesMenu',
         label => dgettext('gtk20-properties','_Values'),
       },
+      { name     => 'Centre',
+        label    => __('_Centre'),
+        tooltip  => __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
+        callback => sub {
+          my ($action, $self) = @_;
+          $self->{'draw'}->centre;
+        },
+      },
+      
       { name  => 'ToolsMenu',
         label => dgettext('gtk20-properties','_Tools'),
       },
       { name  => 'HelpMenu',
         label => dgettext('gtk20-properties','_Help'),
       },
-      
-      { name     => 'SaveAs',
-        stock_id => 'gtk-save-as',
-        callback => \&_do_action_save_as,
-        tooltip  => __('Save the image to a file.'),
-      },
-      { name     => 'SetRoot',
-        label    => 'Set _Root Window',
-        callback => \&_do_action_setroot,
-        tooltip  => __('Set the current image as the root window background.'),
-      },
-      { name        => 'Quit',
-        stock_id    => 'gtk-quit',
-        accelerator => __p('Main-accelerator-key','<Control>Q'),
-        callback    => \&_do_action_quit,
-      },
-      
       { name     => 'About',
         stock_id => 'gtk-about',
-        callback => \&_do_action_about,
+        callback => sub {
+          my ($action, $self) = @_;
+          $self->popup_about;
+        },
       },
       (defined (Module::Util::find_installed('Gtk2::Ex::PodViewer'))
        ? { name     => 'PodDialog',
            label    => __('_POD Documentation'),
-           callback => \&_do_action_pod_dialog,
            tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
+           callback => \&_do_action_pod_dialog,
          }
        : ()),
       
@@ -201,7 +224,7 @@ Click repeatedly to see interesting things.'),
   }
   {
     my $action = Gtk2::ToggleAction->new (name => 'Axes',
-                                          label => __('_Axes'),
+                                          label => __('A_xes'),
                                           tooltip => __('Whether to show axes beside the image.'));
     $actiongroup->add_action ($action);
   }
@@ -263,7 +286,7 @@ Click repeatedly to see interesting things.'),
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-  
+
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -273,6 +296,7 @@ Click repeatedly to see interesting things.'),
     <menu action='FileMenu'>
       <menuitem action='SetRoot'/>
       <menuitem action='SaveAs'/>
+      <menuitem action='Print'/>
       <menuitem action='Quit'/>
     </menu>
     <menu action='ViewMenu'>
@@ -290,6 +314,7 @@ HERE
   }
   $ui_str .= <<'HERE';
       </menu>
+    <menuitem action='Centre'/>
     </menu>
     <menu action='ToolsMenu'>
 HERE
@@ -318,42 +343,70 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-  
+
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-  
+
   my $toolbar = $self->toolbar;
   $vbox->pack_start ($toolbar, 0,0,0);
-  
+
   my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
   $vbox->pack_start ($table, 1,1,0);
-  
+
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
-  my $hadj = $self->{'hadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
-  my $vadj = $self->{'vadj'} = Gtk2::Adjustment->new (0, 0, 1, 1, 10, 1);
-  $draw->set (hadjustment => $hadj,
-              vadjustment => $vadj);
-  
+
   {
-    my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
-                                        inverted => 1);
-    $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-    
+    my $hadj = $draw->get('hadjustment');
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
                                         orientation => 'horizontal');
+    $haxis->signal_connect (button_press_event => \&_do_axis_button_press);
+    $haxis->add_events (['button-press-mask',
+                         'button-release-mask',
+                         'button-motion-mask']);
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
-    
+
+    my $vadj = $draw->get('vadjustment');
+    my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
+                                        inverted => 1);
+    $vaxis->add_events (['button-press-mask',
+                         'button-release-mask',
+                         'button-motion-mask']);
+    $vaxis->signal_connect (button_press_event => \&_do_axis_button_press);
+    $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
+
     my $action = $actiongroup->get_action ('Axes');
     Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
                                       [$vaxis,'visible'],
                                       [$action,'active']);
+
+    my $aframe = Gtk2::AspectFrame->new ('', .5, .5, 1, 0);
+    $aframe->set (label => undef,
+                  shadow_type => 'none');
+    $table->attach ($aframe, 1,2, 1,2,
+                    ['fill'],['fill'],0,0);
+    my $atable = Gtk2::Table->new (3, 3);
+    foreach my $data (['up',1,2, 0,1],
+                      ['down',1,2, 2,3],
+                      ['left', 0,1, 1,2],
+                      ['right', 2,3, 1,2],
+                     ) {
+      my $button = Gtk2::EventBox->new;
+      $button->add_events (['button-press-mask']);
+      my $arrow = Gtk2::Arrow->new ($data->[0], 'in');
+      $button->set_size_request (3,3);
+      $button->add ($arrow);
+      $atable->attach ($button, @{$data}[1,2,3,4],
+                       ['fill','expand'],['fill','expand'],0,0);
+      # $button->signal_connect (clicked => \&_do_arrow_button_clicked);
+      $button->signal_connect (button_press_event => \&_do_arrow_button_clicked);
+    }
+    $aframe->add ($atable);
   }
   {
     my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
@@ -364,29 +417,32 @@ HERE
     Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
                                       [$action,'active']);
   }
-  
+
   my $toolpos = -999;
   my $path_combobox;
   {
     my $toolitem = Gtk2::ToolItem->new;
+    $toolitem->signal_connect (create_menu_proxy
+                               => \&_do_toolbar_overflow_comboenum);
     $toolbar->insert ($toolitem, $toolpos++);
     
     $path_combobox = $self->{'path_combobox'}
       = Gtk2::Ex::ComboBox::Enum->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
-    set_property_maybe ($path_combobox,
-                        # tearoff-title new in 2.10, tooltip-text new in 2.12
-                        tearoff_title => __('Path'),
-                        tooltip_text  => __('The path for where to place values in the plane.'));
+    set_property_maybe 
+      ($path_combobox,
+       # tearoff-title new in 2.10, tooltip-text new in 2.12
+       tearoff_title => ($path_combobox->{'name'} = __('Path')),
+       tooltip_text  => __('The path for where to place values in the plane.'));
     $toolitem->add ($path_combobox);
-    
+
     Glib::Ex::ConnectProperties->new ([$draw,'path'],
                                       [$path_combobox,'active-nick']);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (0,       # initial
                                      0, 999,  # min,max
                                      1,10,    # steps
@@ -440,13 +496,15 @@ HERE
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
+    # $toolitem->signal_connect (create_menu_proxy
+    #                            => \&_do_toolbar_overflow_combotext);
     $toolbar->insert ($toolitem, $toolpos++);
     my $combobox = Gtk2::Ex::ComboBox::Text->new (append_text => 'phi',
                                                   append_text => 'sqrt2',
                                                   append_text => 'sqrt3',
                                                   append_text => 'pi');
     set_property_maybe ($combobox,
-                        tearoff_title => __('Rotation'),
+                        tearoff_title => ($combobox->{'name'} = __('Rotation')),
                         # tooltip_text  => __('')
                        );
     $toolitem->add ($combobox);
@@ -463,13 +521,17 @@ HERE
   my $values_combobox;
   {
     my $toolitem = Gtk2::ToolItem->new;
+    $toolitem->signal_connect (create_menu_proxy
+                               => \&_do_toolbar_overflow_comboenum);
     $toolbar->insert ($toolitem, $toolpos++);
 
     $values_combobox = $self->{'values_combobox'}
       = Gtk2::Ex::ComboBox::Enum->new
         (enum_type => 'App::MathImage::Gtk2::Drawing::Values');
     $toolitem->add ($values_combobox);
-    set_property_maybe ($values_combobox, tearoff_title => __('Values'));
+    set_property_maybe
+      ($values_combobox,
+       tearoff_title => ($values_combobox->{'name'} = __('Values')));
 
     $values_combobox->signal_connect
       ('notify::active-nick' => sub {
@@ -496,34 +558,19 @@ HERE
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
+    $toolitem->signal_connect (create_menu_proxy
+                               => \&_do_toolbar_overflow_comboenum);
     $toolbar->insert ($toolitem, $toolpos++);
-    my $liststore = Gtk2::ListStore->new('Glib::String','Glib::String');
-    $liststore->set ($liststore->append, 0 => 'all',    1 => __('All'));
-    $liststore->set ($liststore->append, 0 => 'primes', 1 => __('Primes'));
-    my $combobox = Gtk2::ComboBox->new ($liststore);
+
+    my $combobox = Gtk2::Ex::ComboBox::Enum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::Filters');
     set_property_maybe ($combobox,
-                        tearoff_title => __('Prime Quadratic Filter'),
-                        tooltip_text  => __('Optionally show only the primes among the prime generating polynomials.'));
+                        tearoff_title => ($combobox->{'name'} = __('Filter')),
+                        tooltip_text  => __('Filter the values to only odd, or even, or primes, etc.'));
     $toolitem->add ($combobox);
-
-    my $renderer = Gtk2::CellRendererText->new;
-    $renderer->set (ypad => 0);
-    $combobox->pack_start ($renderer, 1);
-    $combobox->set_attributes ($renderer, text => 1);
-
     Glib::Ex::ConnectProperties->new
-        ([$draw,'prime-quadratic'],
-         [$combobox,'active',
-          hash_in  => { all => 0, primes => 1 },
-          hash_out => { 0 => 'all', 1 => 'primes' } ]);
-    Glib::Ex::ConnectProperties->new
-        ([$values_combobox,'active-nick'],
-         [$combobox,'visible',
-          write_only => 1,
-          func_in => sub {
-            my ($values) = @_;
-            return ($values && $values =~ /^prime_quadratic/);
-          }]);
+        ([$draw,'filter'],
+         [$combobox,'active-nick']);
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
@@ -617,12 +664,14 @@ HERE
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
+    $toolitem->signal_connect (create_menu_proxy
+                               => \&_do_toolbar_overflow_comboenum);
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $combobox = Gtk2::Ex::ComboBox::Enum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::AronsonLang');
     set_property_maybe ($combobox,
-                        tearoff_title => __('Language'),
+                        tearoff_title => ($combobox->{'name'} = __('Language')),
                         tooltip_text  => __('The language to use for the sequence.'));
     $toolitem->add ($combobox);
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-lang'],
@@ -634,6 +683,8 @@ HERE
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
+    # $toolitem->signal_connect (create_menu_proxy
+    # => \&_do_toolbar_overflow_comboenum);
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $combobox = Gtk2::Ex::ComboBox::Text->new;
@@ -661,6 +712,8 @@ HERE
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
+    $toolitem->signal_connect (create_menu_proxy
+                               => \&_toolbarbits_create_overflow_checkbutton);
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $check = Gtk2::CheckButton->new_with_label (__('Conjunctions'));
@@ -676,6 +729,8 @@ HERE
   }
   {
     my $toolitem = Gtk2::ToolItem->new;
+    $toolitem->signal_connect (create_menu_proxy
+                               => \&_toolbarbits_create_overflow_checkbutton);
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $check = Gtk2::CheckButton->new_with_label (__('Lying'));
@@ -726,6 +781,53 @@ sub _do_destroy {
   delete $self->{'ui'};
   return shift->signal_chain_from_overridden(@_);
 }
+
+sub _do_toolbar_overflow_comboenum {
+  my ($toolitem) = @_;
+  ### _do_toolbar_overflow_comboenum()
+  my $combo = $toolitem->get_child;
+  require App::MathImage::Gtk2::Ex::Menu::EnumRadio;
+  my $menu = App::MathImage::Gtk2::Ex::Menu::EnumRadio->new
+    (enum_type   => $combo->get('enum-type'));
+  # tearoff-title new in 2.10
+  $menu->set_title (eval { $combo->get('tearoff-title') });
+  Glib::Ex::ConnectProperties->new ([$combo,'active-nick'],
+                                    [$menu,'active-nick']);
+
+  my $menuitem = Gtk2::MenuItem->new_with_label ($combo->{'name'});
+  $menuitem->set_submenu ($menu);
+  $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
+  return 1;
+}
+
+sub _toolbarbits_create_overflow_checkbutton {
+  my ($toolitem) = @_;
+  my $checkbutton = $toolitem->get_child;
+  ### _do_toolbar_overflow_checkbutton(): "$checkbutton"
+  my $buttonlabel = $checkbutton->get_child;
+  my $menuitem = Gtk2::CheckMenuItem->new_with_label ($buttonlabel->get_label);
+  Glib::Ex::ConnectProperties->new ([$checkbutton,'active'],
+                                    [$menuitem,'active']);
+  $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
+  return 1;
+}
+
+# sub _toolbarbits_create_overflow_button {
+#   my ($toolitem) = @_;
+#   my $button = $toolitem->get_child;
+#   ### _toolbarbits_create_overflow_button(): "$button"
+#   my $menuitem = Gtk2::MenuItem->new_with_label ($button->get_child->get_label);
+#   require Scalar::Util;
+#   Scalar::Util::weaken (my $weak_toolitem = $toolitem);
+#   $menuitem->signal_connect (activate => sub {
+#                                my ($menuitem, $ref_weak_toolitem) = @_;
+#                                if (my $toolitem = $$ref_weak_toolitem) {
+#                                  $toolitem->activate;
+#                                }
+#                              }, \$weak_toolitem);
+#   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
+#   return 1;
+# }
 
 sub _do_motion_notify {
   my ($draw, $event) = @_;
@@ -824,15 +926,7 @@ sub _do_action_setroot {
   my ($action, $self) = @_;
   $self->{'draw'}->start_drawing_window ($self->get_root_window);
 }
-sub _do_action_quit {
-  my ($action, $self) = @_;
-  $self->destroy;
-}
 
-sub _do_action_about {
-  my ($action, $self) = @_;
-  $self->popup_about;
-}
 sub popup_about {
   my ($self) = @_;
   require App::MathImage::Gtk2::AboutDialog;
@@ -869,7 +963,7 @@ sub _do_action_crosshair {
     Glib::Ex::ConnectProperties->new ([$self->{'draw'},'scale'],
                                       [$cross,'line-width',
                                        write_only => 1,
-                                       func_in => sub { min($_[0],3) }]);
+                                       func_in => sub { min($_[0],$max_line_width) }]);
     #     $self->{'draw'}->signal_connect
     #       ('notify::scale' => sub {
     #          my ($draw) = @_;
@@ -878,6 +972,113 @@ sub _do_action_crosshair {
     #        });
     #     $self->{'draw'}->notify('scale'); # initial
   };
+}
+
+my %type_to_adjname = (left  => 'hadjustment',
+                       right => 'hadjustment',
+                       up    => 'vadjustment',
+                       down  => 'vadjustment');
+my %type_factor = (left  => -1,
+                   right => 1,
+                   up    => -1,
+                   down  => 1);
+sub _do_arrow_button_clicked {
+  my ($button) = @_;
+  my $self = $button->get_ancestor (__PACKAGE__);
+  my $arrow = $button->get_child;
+  my $type = $arrow->get('arrow-type');
+  ### _do_arrow_button_clicked(): $type
+  my $adj = $self->{'draw'}->get($type_to_adjname{$type});
+
+  ### adj value was: $adj->value.' page='.$adj->page_size
+  ### add: $adj->step_increment
+  ### value upper limit: $adj->upper - $adj->page_size
+  $adj->set_value ($adj->value + $adj->step_increment * $type_factor{$type});
+  ### adj value now: $adj->value
+}
+
+my %orientation_to_adjname = (horizontal => 'hadjustment',
+                              vertical   => 'vadjustment');
+my %orientation_to_cursorname = (horizontal => 'sb-h-double-arrow',
+                                 vertical   => 'sb-v-double-arrow');
+# axis 'button-press-event' handler
+sub _do_axis_button_press {
+  my ($axis, $event) = @_;
+  if ($event->button == 1) {
+    my $dragger = ($axis->{'dragger'} ||= do {
+      my $self = $axis->get_ancestor (__PACKAGE__);
+      my $orientation = $axis->get('orientation');
+      my $adjname = $orientation_to_adjname{$orientation};
+      my $adj = $self->{'draw'}->get($adjname);
+      require Gtk2::Ex::Dragger;
+      Gtk2::Ex::Dragger->new (widget    => $axis,
+                              $adjname  => $adj,
+                              vinverted => 1,
+                              cursor    => $orientation_to_cursorname{$orientation})
+      });
+    $dragger->start ($event);
+  }
+  return Gtk2::EVENT_PROPAGATE;
+}
+
+#------------------------------------------------------------------------------
+# printing
+
+sub print_image {
+  my ($self) = @_;
+  my $print = Gtk2::PrintOperation->new;
+  $print->set_n_pages (1);
+  if (my $settings = $self->{'print_settings'}) {
+    $print->set_print_settings ($settings);
+  }
+  Scalar::Util::weaken (my $weak_self = $self);
+  $print->signal_connect (draw_page => \&_draw_page, \$weak_self);
+
+  my $result = $print->run ('print-dialog', $self);
+  if ($result eq 'apply') {
+    $self->{'print_settings'} = $print->get_print_settings;
+  }
+}
+
+sub _draw_page {
+  my ($print, $pcontext, $pagenum, $ref_weak_self) = @_;
+  ### _draw_page()
+  my $self = $$ref_weak_self || return;
+  my $c = $pcontext->get_cairo_context;
+
+  my $draw = $self->{'draw'};
+  my $gen = $draw->gen_object;
+  my $str = $gen->description . "\n\n";
+
+  my $pwidth = $pcontext->get_width;
+  my $layout = $pcontext->create_pango_layout;
+  $layout->set_width ($pwidth * Gtk2::Pango::PANGO_SCALE);
+  $layout->set_text ($str);
+  my (undef, $str_height) = $layout->get_pixel_size;
+  ### $str_height
+  $c->move_to (0, 0);
+  Gtk2::Pango::Cairo::show_layout ($c, $layout);
+
+  my $pixmap = $draw->pixmap;
+  my $pixmap_context = Gtk2::Gdk::Cairo::Context->create ($pixmap);
+  my ($pixmap_width, $pixmap_height) = $pixmap->get_size;
+  ### $pixmap_width
+  ### $pixmap_height
+
+  my $pheight = $pcontext->get_height - $str_height;
+  ### $pwidth
+  ### $pheight
+  $c->translate (0, $str_height);
+  my $factor = min ($pwidth / $pixmap_width,
+                    $pheight / $pixmap_height);
+
+  if ($factor < 1) {
+    $c->scale ($factor, $factor);
+  }
+  $c->set_source_surface ($pixmap_context->get_target, 0,0);
+
+  $c->rectangle (0,0, $pixmap_width,$pixmap_height);
+  $c->paint;
 }
 
 1;

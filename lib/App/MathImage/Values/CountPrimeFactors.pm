@@ -19,30 +19,30 @@ package App::MathImage::Values::CountPrimeFactors;
 use 5.004;
 use strict;
 use warnings;
+use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant name => __('Count Prime Factors');
 use constant description => __('Count of prime factors, as a grey scale of white for prime through to black for many factors (or the foreground through to background, if they\'re given in hex #RRGGBB).');
 use constant type => 'count1';
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
-use vars '$VERSION';
-$VERSION = 25;
-
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
+  $lo = max (0, $lo);
+  $hi = max (0, $hi);
 
   my $count = "\0" x ($hi+1);
-  substr ($count, 1,1, "\001");
+  substr ($count, 1,1) = "\001";
   my $i = 1;
   my $self = bless { i => $i,
                  string => \$count,
@@ -81,11 +81,17 @@ sub next {
     # }
   }
   return ($i, $ret);
-};
+}
 
 sub pred {
   my ($self, $n) = @_;
-  return ord (substr (${$self->{'string'}}, $n,1));
+  ### CountPrimeFactors pred(): $n
+  if ($self->{'i'} <= $n) {
+    ### extend from: $self->{'i'}
+    my $i;
+    while ((($i) = $self->next) && $i < $n) { }
+  }
+  return ord(substr(${$self->{'string'}}, $n,1));
 }
 
 1;

@@ -13,8 +13,10 @@ devel/camel.pl
 devel/euler.pl
 devel/gen-bits.c
 devel/image-xpm.pl
+devel/inverse.pl
 devel/magick.pl
 devel/Makefile
+devel/menu-enum.pl
 devel/misc.c
 devel/misc.pl
 devel/pixbuf-types.pl
@@ -29,6 +31,7 @@ devel/svg.pl
 devel/symbolic.pl
 devel/triangular.pl
 devel/unused.pl
+devel/unused/SemiPrimesOdd.pm
 devel/x11-protocol.pl
 inc/my_pod2html
 inc/MyMakeMakerExtras.pm
@@ -43,6 +46,7 @@ lib/App/MathImage/Gtk2/Drawing/Values.pm
 lib/App/MathImage/Gtk2/Ex/ComboBox/PixbufType.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
+lib/App/MathImage/Gtk2/Ex/Menu/EnumRadio.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
 lib/App/MathImage/Gtk2/Main.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
@@ -67,6 +71,7 @@ lib/App/MathImage/Values.pm
 lib/App/MathImage/Values/All.pm
 lib/App/MathImage/Values/Aronson.pm
 lib/App/MathImage/Values/Base4Without3.pm
+lib/App/MathImage/Values/BinaryLengths.pm
 lib/App/MathImage/Values/ChampernowneBinary.pm
 lib/App/MathImage/Values/ChampernowneBinaryLsb.pm
 lib/App/MathImage/Values/CountPrimeFactors.pm
@@ -97,8 +102,8 @@ lib/App/MathImage/Values/Primes.pm
 lib/App/MathImage/Values/Pronic.pm
 lib/App/MathImage/Values/RepdigitAnyBase.pm
 lib/App/MathImage/Values/RepdigitBase10.pm
+lib/App/MathImage/Values/SafePrimes.pm
 lib/App/MathImage/Values/SemiPrimes.pm
-lib/App/MathImage/Values/SemiPrimesOdd.pm
 lib/App/MathImage/Values/SophieGermainPrimes.pm
 lib/App/MathImage/Values/SqrtBits.pm
 lib/App/MathImage/Values/Squares.pm

@@ -25,10 +25,10 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant name => __('Mobius Function');
-# use constant description => __('');
+use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
 use constant type => 'count1';
 
 # uncomment this to run the ### lines
@@ -40,7 +40,7 @@ sub new {
   my $hi = $options{'hi'};
 
   my $count = "0" x ($hi+1);
-  substr ($count, 1,1, "\003");
+  substr ($count, 1,1) = "\003";
   my $i = min(1, $lo-1);
   my $self =  bless { i     => $i,
                      string => \$count,
@@ -86,15 +86,26 @@ sub next {
     # }
   }
   if ($ret >= 4) {
-    return ($i, undef);
+    return ($i, 0);
   } else {
     return ($i, 1+($ret & 1));
   }
-};
+}
 
 sub pred {
   my ($self, $n) = @_;
-  return ord (substr (${$self->{'string'}}, $n,1));
+  ### CountPrimeFactors pred(): $n
+  if ($self->{'i'} <= $n) {
+    ### extend from: $self->{'i'}
+    my $i;
+    while ((($i) = $self->next) && $i < $n) { }
+  }
+  my $ret = substr(${$self->{'string'}}, $n,1);
+  if ($ret >= 4) {
+    return 0;
+  } else {
+    return 1+($ret & 1);
+  }
 }
 
 1;

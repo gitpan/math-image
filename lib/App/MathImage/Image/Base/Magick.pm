@@ -31,7 +31,7 @@ use base 'Image::Base';
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 sub new {
   my ($class, %params) = @_;

@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 exit App::MathImage->command_line;
 
 __END__
@@ -30,8 +30,9 @@ __END__
 =for stopwords recurrences Gtk Gtk2 Ulam's --ulam Ulam sprial Vogel pronic
 --pronic fibonacci --fibonacci fullscreen --fullscreen unfullscreened --png
 png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
---padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT --theodorus
-Theodorus semiprimes segfault Aronson's --aronson startup GdkPixbuf
+--padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT
+--theodorus Theodorus semiprimes segfault Aronson's --aronson startup
+GdkPixbuf prima Prima --prima
 
 =head1 NAME
 

@@ -34,10 +34,9 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use vars '@ISA';
+use vars '$VERSION', '@ISA';
+$VERSION = 26;
 @ISA = ('Prima::MainWindow');
-
-our $VERSION = 25;
 
 sub new {
   my ($class, %args) = @_;
@@ -87,8 +86,7 @@ sub new {
                     ] ],
      ],
      # onPaint  => \&_paint,
-     %args
-    );
+     %args);
 
   my $menu = $self->menu;
   $menu->uncheck('fullscreen'); # initially unchecked
@@ -400,7 +398,7 @@ sub _do_about {
 #   ### height: $image->get('-height')
 # 
 #   $gen->draw_Image_start ($image);
-#   $gen->draw_Image_steps ($image, 99999);
+#   $gen->draw_Image_steps (99999);
 # }
 
 # sub expose {

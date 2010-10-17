@@ -26,6 +26,34 @@ use Smart::Comments;
 use lib 'devel/lib';
 
 {
+  require Gtk2;
+  Gtk2->init;
+  my $toplevel = Gtk2::Window->new('toplevel');
+  $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
+  my $ebox = Gtk2::EventBox->new;
+  ### border: $ebox->get('border-width')
+  my $button = Gtk2::Button->new; # ('button', 0, 100, 1);
+  $button->set (relief => 'none');
+  # $button->style_set_property
+  ### border: $button->get('border-width')
+  $toplevel->add ($button);
+  my $arrow = Gtk2::Arrow->new ('up', 'out');
+  $arrow->set_size_request (5,5);
+  ### xpad: $arrow->get('xpad')
+  ### ypad: $arrow->get('ypad')
+  $button->add ($arrow);
+  $toplevel->show_all;
+  Gtk2->main;
+  exit 0;
+}
+
+{
+  require App::MathImage::Values::PrimeQuadraticHonaker;
+  require B::Concise;
+  B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
+  exit 0;
+}
+{
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
                                             polygonal => 3);
@@ -42,8 +70,9 @@ use lib 'devel/lib';
   # $iter = $gen->values_make_pentagonal(1,500);
   # $iter = $gen->values_make_pentagonal_second(1,500);
   # $iter = $gen->values_make_sophie_germain_primes(1,200);
-  my $values_class = $gen->values_class('FractionBits');
-  my $values_obj = $values_class->new(fraction => '1/3');
+  my $values_class = $gen->values_class('BinaryLengths');
+  my $values_obj = $values_class->new (fraction => '1/3',
+                                       polygonal => 3);
   $|=1;
   foreach (1 .. 50) {
     my ($n) = $values_obj->next;
@@ -53,6 +82,13 @@ use lib 'devel/lib';
     }
     print "$n,";
   }
+  exit 0;
+}
+
+{
+  require Math::Prime::XS;
+  local $, = "\n";
+  print Math::Prime::XS::sieve_primes(2,3);
   exit 0;
 }
 {
@@ -65,12 +101,7 @@ use lib 'devel/lib';
   print $values_obj->pred(6),"\n";
   exit 0;
 }
-{
-  require App::MathImage::Values::ThueMorseEvil;
-  require B::Concise;
-  B::Concise::compile('-exec',\&App::MathImage::Values::ThueMorseEvil::next)->();
-  exit 0;
-}
+
 {
   # # use Memoize;
   # # memoize('bell_number');
@@ -264,7 +295,7 @@ use lib 'devel/lib';
   $gen->draw_Image_start ($image);
   do {
     $image->save ('/dev/stdout');
-  } while ($gen->draw_Image_steps ($image, 2));
+  } while ($gen->draw_Image_steps (2));
   exit 0;
 }
 
@@ -451,14 +482,6 @@ use lib 'devel/lib';
   foreach (1 .. 1_000_000) {
     $path->n_to_xy ($_);
   }
-  exit 0;
-}
-
-{
-  require Math::Prime::XS;
-  local $, = "\n";
-  Math::Prime::XS::sieve_primes(26568);
-  print Math::Prime::XS::sieve_primes(26568);
   exit 0;
 }
 

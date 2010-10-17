@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -52,7 +52,7 @@ my $menu_data
               ### _do_quit()
               exit 0;
             },
-          }
+          },
         ],
       },
 
@@ -79,11 +79,11 @@ my $menu_data
              },
            })
         } App::MathImage::Generator->values_choices ],
-      }
+      },
     ];
 
 sub _xterm_stderr {
-  $^F=999;
+  local $^F = 999;
   pipe (my $rh, my $wh) or die;
 
   require Fcntl;
@@ -104,7 +104,7 @@ sub _xterm_stderr {
   print STDERR "STDERR output:\n";
   return;
 }
-  
+
 sub run {
   my ($class, $gen_options) = @_;
 

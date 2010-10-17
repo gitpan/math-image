@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');
@@ -43,7 +43,7 @@ sub new {
   if ($hi >= $lo) {
     my $primes_lo = max(0, $lo - 2);
     my $primes_hi = $hi + 2;
-    # sieve_primes() in 0.20_01 doesn't allow hi==lo
+    # sieve_primes() in 0.21 doesn't allow hi==lo
     if ($primes_hi == $primes_lo) { $primes_hi++; }
 
     require Math::Prime::XS;

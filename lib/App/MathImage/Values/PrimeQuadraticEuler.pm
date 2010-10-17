@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant name => __('Prime Generating Quadratic of Euler');
 use constant description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.');
@@ -35,7 +35,7 @@ use constant description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 +
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
-  return bless { i => -1,
+  return bless { i => 0,
                }, $class;
 }
 sub next {
@@ -43,20 +43,15 @@ sub next {
   my $i = $self->{'i'}++;
   return (($i + 1)*$i + 41,
           1);
-  # _prime_quadratic_filter ($self, $hi, sub {
-  #                                     $i++;
-  #                                     return ($i + 1)*$i + 41;
-  #                                   }),
-  #           1);
 }
-# sub pred {
-#   my ($self, $n) = @_;
-#   return (($n >= 0)
-#           && do {
-#             $n = sqrt($n);
-#             $n == int($n)
-#           });
-# }
+sub pred {
+  my ($self, $n) = @_;
+  return ($n >= 41
+          && do {
+            my $i = sqrt($n - 40.75) - 0.5;
+            ($i==int($i))
+          });
+}
 
 1;
 __END__

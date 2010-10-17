@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -108,7 +108,7 @@ sub getopt_long_specifications {
      # this one undocumented yet ...
      'prime-quadratic-euler' => sub{
        _hopt($self,'gen_options','values', 'PrimeQuadraticEuler');
-       _hopt($self,'gen_options','prime_quadratic', 'primes');
+       _hopt($self,'gen_options','filter', 'Primes');
      },
 
      'path=s'  => sub{ my ($optname, $value) = @_;

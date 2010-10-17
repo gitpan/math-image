@@ -19,7 +19,7 @@ package App::MathImage::Values::SophieGermainPrimes;
 use 5.004;
 use strict;
 use warnings;
-use List::Util 'min', 'max';
+use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
@@ -28,20 +28,22 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant name => __('Sophie Germain Primes');
-use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime.');
+use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
+  my $safe_primes = $options{'safe_primes'};
+  $lo = max (0, $lo);
 
   my @array;
   if ($hi >= $lo) {
     my $primes_hi = 2*$hi+1;
-    # sieve_primes() in 0.20_01 doesn't allow hi==lo
+    # sieve_primes() in 0.21 doesn't allow hi==lo
     if ($primes_hi == $lo) { $primes_hi++; }
     require Math::Prime::XS;
     Math::Prime::XS->VERSION (0.021);
@@ -64,7 +66,7 @@ sub new {
             next;
           }
           if ($array[$p] == $target) {
-            $array[$to++] = $prime;
+            $array[$to++] = ($safe_primes ? 2*$prime+1 : $prime);
             $p++;
           }
         }

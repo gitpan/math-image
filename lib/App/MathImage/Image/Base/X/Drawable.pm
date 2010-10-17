@@ -28,7 +28,7 @@ use base 'Image::Base';
 use X11::Lib;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 sub new {
   my ($class, %params) = @_;
@@ -71,6 +71,7 @@ sub line {
 #                  _gc_colour($self,$colour),
 #                  @_);
 # }
+# FIXME: fill parameter ...
 sub rectangle {
   my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
   X::DrawRectangle ($self->{'-display'}, $self->{'-drawable'},

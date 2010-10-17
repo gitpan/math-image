@@ -20,7 +20,6 @@ package App::MathImage::Prima::Drawing;
 use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 'App-MathImage';
 
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
@@ -30,7 +29,8 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 25;
+use vars '$VERSION';
+$VERSION = 26;
 
 sub profile_default {
   my ($class) = @_;
@@ -93,7 +93,7 @@ sub _draw_image {
   ### height: $image->get('-height')
 
   $gen->draw_Image_start ($image);
-  $gen->draw_Image_steps ($image, 99999);
+  $gen->draw_Image_steps (99999);
 }
 
 # sub expose {

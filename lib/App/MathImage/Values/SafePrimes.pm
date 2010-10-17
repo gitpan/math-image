@@ -15,44 +15,26 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::PrimeQuadraticHonaker;
+package App::MathImage::Values::SafePrimes;
 use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
-
-use vars '$VERSION';
-$VERSION = 26;
-
-# http://www.research.att.com/~njas/sequences/A048988
-use constant name => __('Prime Generating Quadratic of Honaker');
-use constant description => __('The quadratic numbers 4*k^2 + k + 59.');
+use base 'App::MathImage::Values::SophieGermainPrimes';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0,
-               }, $class;
-}
-sub next {
-  my ($self) = @_;
-  my $i = $self->{'i'}++;
-  return (4*($i + 1)*$i + 59,
-          1);
-}
+use vars '$VERSION';
+$VERSION = 26;
 
-sub pred {
-  my ($self, $n) = @_;
-  return ($n >= 59
-          && do {
-            my $i = sqrt((1/4) * $n - 29/2) -1/2;
-            ($i==int($i))
-          });
+use constant name => __('Safe Primes');
+use constant description => __('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those being the Sophie Germain primes).');
+
+sub new {
+  my $class = shift;
+  return $class->SUPER::new (safe_primes => 1, @_);
 }
 
 1;

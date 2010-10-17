@@ -25,6 +25,8 @@ use List::Util qw(min max);
 use POSIX ();
 use Scalar::Util;
 use Time::HiRes;
+use List::MoreUtils;
+use Module::Load;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
 use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
 use Gtk2::Pango;
@@ -37,9 +39,9 @@ use App::MathImage::Generator;
 use App::MathImage::Gtk2::Drawing::Values;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Smart::Comments '###';
 
-our $VERSION = 25;
+our $VERSION = 26;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -47,16 +49,33 @@ BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
                              App::MathImage::Generator->path_choices);
 
+  my @langs = ('en', 'fr');
+  # Can't offer all langs as there's no "initial_string" except en and fr
+  # if (eval { require Lingua::Any::Numbers }) {
+  #   push @langs, sort map {lc} Lingua::Any::Numbers::available();
+  #   @langs = List::MoreUtils::uniq (@langs);
+  # }
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::AronsonLang',
-                             'en', 'fr');
+                             @langs);
   %App::MathImage::Gtk2::Drawing::AronsonLang::EnumBits_to_display
-    = (en => __('English'),
+    = ((map {($_,uc($_))} @langs),
+       en => __('English'),
        fr => __('French'));
+
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Filters',
+                             'All', 'Odd', 'Even', 'Primes');
+  %App::MathImage::Gtk2::Drawing::Filters::EnumBits_to_display =
+    (All    => __('No Filter'),
+     Odd    => __('Odd'),
+     Even   => __('Even'),
+     Primes => __('Primes'));
 }
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
   signals => { expose_event => \&_do_expose,
+               size_allocate => \&_do_size_allocate,
+               button_press_event => \&_do_button_press,
              },
   properties => [ Glib::ParamSpec->enum
                   ('values',
@@ -64,6 +83,14 @@ use Glib::Object::Subclass
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::Values',
                    App::MathImage::Generator->default_options->{'values'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->enum
+                  ('filter',
+                   'filter',
+                   'Blurb.',
+                   'App::MathImage::Gtk2::Drawing::Filters',
+                   App::MathImage::Generator->default_options->{'filter'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->enum
@@ -183,13 +210,6 @@ use Glib::Object::Subclass
                    1,      # default
                    Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string
-                  ('prime-quadratic',
-                   'prime-quadratic',
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'prime_quadratic'},
-                   Glib::G_PARAM_READWRITE),
-
                   Glib::ParamSpec->object
                   ('hadjustment',
                    'hadjustment',
@@ -202,13 +222,23 @@ use Glib::Object::Subclass
                    'Blurb.',
                    'Gtk2::Adjustment',
                    Glib::G_PARAM_READWRITE),
+
                 ];
 
 sub INIT_INSTANCE {
   my ($self) = @_;
+  $self->add_events (['button-press-mask','button-release-mask']);
   # background pixmap doesn't need double buffering
   $self->set_double_buffered (0);
+
+  $self->{'hadjustment'} = Gtk2::Adjustment->new (0,0,0,0,0,0);
+  $self->{'vadjustment'} = Gtk2::Adjustment->new (0,0,0,0,0,0);
+  $self->set (hadjustment => $self->{'hadjustment'},
+              vadjustment => $self->{'vadjustment'});
+
+  $self->{'path_basis'} = [ _centre_basis($self) ];
 }
+
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
@@ -225,6 +255,48 @@ sub SET_PROPERTY {
       $self->queue_draw;
     }
   }
+
+  if ($pname eq 'hadjustment' || $pname eq 'vadjustment') {
+    my $adj = $newval;
+    Scalar::Util::weaken (my $weak_self = $self);
+    $self->{"${pname}_ids"} = $adj && Glib::Ex::SignalIds->new
+      ($adj, $adj->signal_connect (value_changed => \&_adjustment_value_changed,
+                                   \$weak_self));
+    _update_adjustment_extents($self);
+  }
+  if ($pname eq 'scale' || $pname eq 'path') {
+    _update_adjustment_extents($self);
+  }
+
+  if ($pname eq 'scale') {
+    # ENHANCE-ME: keep same centre, or left/bottom relative
+  }
+
+  if ($pname eq 'path') {
+    my ($x, $y) = _centre_basis($self);
+    my ($old_x, $old_y) = @{$self->{'path_basis'}};
+    if ($x != $old_x) {
+      my $hadj = $self->{'hadjustment'};
+      my $width = $self->allocation->width;
+      my $scale = $self->get('scale');
+      ### new basis hadj
+      ### $x
+      ### $old_x
+      ### add: ($x-$old_x)*(-$width/$scale/2 - -1/2)
+      $hadj->set_value ($hadj->value + ($x-$old_x)*(-$width/$scale/2 - -1/2));
+    }
+    if ($y != $old_y) {
+      my $vadj = $self->{'vadjustment'};
+      my $height = $self->allocation->height;
+      my $scale = $self->get('scale');
+      ### new basis vadj
+      ### $y
+      ### $old_y
+      ### add: ($y-$old_y)*(-$height/$scale/2 - -1/2)
+      $vadj->set_value ($vadj->value + ($y-$old_y)*(-$height/$scale/2 - -1/2));
+    }
+    $self->{'path_basis'} = [$x,$y];
+  }
 }
 sub _drawable_size_equal {
   my ($d1, $d2) = @_;
@@ -236,11 +308,72 @@ sub _drawable_size_equal {
   return ($w1 == $w2 && $h1 == $h2);
 }
 
+sub _do_size_allocate {
+  my ($self, $alloc) = @_;
+  my $old_width = $self->allocation->width;
+  my $old_height = $self->allocation->height;
+  ### _do_size_allocate(): $alloc->width."x".$alloc->height
+  ### $old_width
+  ### $old_height
+
+  shift->signal_chain_from_overridden(@_);
+
+  _update_adjustment_extents($self);
+
+  my $scale = $self->get('scale');
+  my $path = $self->get('path');
+  my $path_class = App::MathImage::Generator->path_choice_to_class($path);
+  Module::Load::load ($path_class);
+  {
+    my $hadj = $self->{'hadjustment'};
+    my $dec = ($self->allocation->width - $old_width) / $scale / 2;
+    unless ($path_class->x_negative || $path eq 'MultipleRings') {
+      if ($dec >= 0) {
+        # don't float in the air when expand
+        if ($hadj->value >= -0.5) {
+          $dec = min ($hadj->value + .5, $dec);
+        }
+      } else {
+        # don't go negative when shrink
+        $dec = max ($hadj->value + .5, $dec);
+      }
+    }
+    ### $dec
+    $hadj->set_value ($hadj->value - $dec);
+  }
+  {
+    my $vadj = $self->{'vadjustment'};
+    my $dec = ($self->allocation->height - $old_height) / $scale / 2;
+    unless ($path_class->y_negative || $path eq 'MultipleRings') {
+      if ($dec >= 0) {
+        # don't float in the air when expand
+        if ($vadj->value >= -0.5) {
+          $dec = min ($vadj->value + .5, $dec);
+        }
+      } else {
+        # don't go negative when shrink
+        $dec = max (- ($vadj->value + .5), $dec);
+      }
+    }
+    ### $dec
+    $vadj->set_value ($vadj->value - $dec);
+  }
+}
+
+sub _adjustment_value_changed {
+  my ($adj, $ref_weak_self) = @_;
+  ### _adjustment_value_changed(): $adj->value
+  my $self = $$ref_weak_self || return;
+  _update_adjustment_extents($self);
+  delete $self->{'pixmap'}; # new image
+  $self->queue_draw;
+}
+
 sub _do_expose {
   my ($self, $event) = @_;
   ### Image _do_expose(): $event->area->values
-  ### $self
   ### _pixmap_is_good says: _pixmap_is_good($self)
+  #### $self
   my $win = $self->window;
   $self->pixmap;
   Gtk2::Ex::GdkBits::window_clear_region ($win, $event->region);
@@ -314,6 +447,43 @@ sub pixmap {
   return $self->{'pixmap'};
 }
 
+sub gen_object {
+  my ($self) = @_;
+  my $window = $self->window;
+  my ($width, $height) = $window->get_size;
+  my $background_colorobj = $self->style->bg($self->state);
+  my $foreground_colorobj = $self->style->fg($self->state);
+  my $undrawnground_colorobj = Gtk2::Gdk::Color->new
+    (map {0.9 * $background_colorobj->$_()
+            + 0.1 * $foreground_colorobj->$_()}
+     'red', 'blue', 'green');
+  return App::MathImage::Generator->new
+    (values          => $self->get('values'),
+     path            => $self->get('path'),
+     scale           => $self->get('scale'),
+     fraction        => $self->get('fraction'),
+     expression      => $self->get('expression'),
+     aronson_lang         => $self->get('aronson-lang'),
+     aronson_letter       => $self->get('aronson-letter'),
+     aronson_conjunctions => $self->get('aronson-conjunctions'),
+     aronson_lying        => $self->get('aronson-lying'),
+     sqrt            => $self->get('sqrt'),
+     polygonal       => $self->get('polygonal'),
+     multiples       => $self->get('multiples'),
+     path_rotation   => $self->get('path-rotation'),
+     pyramid_step    => $self->get('pyramid-step'),
+     rings_step      => $self->get('rings-step'),
+     path_wider      => $self->get('path-wider'),
+     width           => $width,
+     height          => $height,
+     foreground      => $foreground_colorobj->to_string,
+     background      => $background_colorobj->to_string,
+     undrawnground   => $undrawnground_colorobj->to_string,
+     filter          => $self->get('filter'),
+     x_left          => $self->{'hadjustment'}->value,
+     y_bottom        => $self->{'vadjustment'}->value,
+    );
+}
 sub start_drawing_window {
   my ($self, $window) = @_;
 
@@ -335,56 +505,31 @@ sub start_drawing_window {
   my $colormap = $self->get_colormap;
   $colormap->rgb_find_color ($undrawnground_colorobj);
 
-  my $gen = $self->{'drawing'}->{'gen'} = App::MathImage::Generator->new
-    (values          => $self->get('values'),
-     path            => $self->get('path'),
-     scale           => $self->get('scale'),
-     fraction        => $self->get('fraction'),
-     expression      => $self->get('expression'),
-     aronson_lang         => $self->get('aronson-lang'),
-     aronson_letter       => $self->get('aronson-letter'),
-     aronson_conjunctions => $self->get('aronson-conjunctions'),
-     aronson_lying        => $self->get('aronson-lying'),
-     sqrt            => $self->get('sqrt'),
-     polygonal       => $self->get('polygonal'),
-     multiples       => $self->get('multiples'),
-     path_rotation   => $self->get('path-rotation'),
-     prime_quadratic => $self->get('prime_quadratic'),
-     pyramid_step    => $self->get('pyramid-step'),
-     rings_step      => $self->get('rings-step'),
-     path_wider      => $self->get('path-wider'),
-     width           => $width,
-     height          => $height,
-     foreground      => $foreground_colorobj->to_string,
-     background      => $background_colorobj->to_string,
-     undrawnground   => $undrawnground_colorobj->to_string,
-    );
-  ### $gen
+  my $gen = $self->{'drawing'}->{'gen'} = $self->gen_object;
   $self->{'path_object'} = $gen->path_object;
   $self->{'coord'} = $gen->{'coord'};
 
-  if (my $vadj = $self->{'vadjustment'}) {
-    my $coord = $self->{'coord'};
-    my (undef, $value)       = $coord->untransform(0,$height);
-    my (undef, $value_upper) = $coord->untransform(0,0);
-    my $page_size = $value_upper - $value;
-    ### vadj: "$value to $value_upper"
-    $vadj->set (lower     => min (0, $value - 1.5 * $page_size),
-                upper     => max (0, $value_upper + 1.5 * $page_size),
-                page_size => $page_size,
-                value     => $value);
-  }
-  if (my $hadj = $self->{'hadjustment'}) {
-    my $coord = $self->{'coord'};
-    my ($value,       undef) = $coord->untransform(0,0);
-    my ($value_upper, undef) = $coord->untransform($width,0);
-    my $page_size = $value_upper - $value;
-    ### hadj: "$value to $value_upper"
-    $hadj->set (lower     => min (0, $value - 1.5 * $page_size),
-                upper     => max (0, $value_upper + 1.5 * $page_size),
-                page_size => $page_size,
-                value     => $value);
-  }
+  # if (my $vadj = $self->{'vadjustment'}) {
+  #   my $coord = $self->{'coord'};
+  #   my (undef, $value)       = $coord->untransform(0,$height);
+  #   my (undef, $value_upper) = $coord->untransform(0,0);
+  #   my $page_size = $value_upper - $value;
+  #   ### vadj: "$value to $value_upper"
+  #   $vadj->set (lower     => min (0, $value - 1.5 * $page_size),
+  #               upper     => max (0, $value_upper + 1.5 * $page_size),
+  #               page_size => $page_size,
+  #               value     => $value);
+  # }
+  # if (my $hadj = $self->{'hadjustment'}) {
+  #   my $coord = $self->{'coord'};
+  #   my ($value,       undef) = $coord->untransform(0,0);
+  #   my ($value_upper, undef) = $coord->untransform($width,0);
+  #   my $page_size = $value_upper - $value;
+  #   ### hadj: "$value to $value_upper"
+  #   $hadj->set (lower     => min (0, $value - 1.5 * $page_size),
+  #               upper     => max (0, $value_upper + 1.5 * $page_size),
+  #               page_size => $page_size);
+  # }
 
   require Image::Base::Gtk2::Gdk::Pixmap;
   my $image = $self->{'drawing'}->{'image'}
@@ -440,14 +585,15 @@ sub start_drawing_window {
 sub _idle_handler_draw {
   my ($ref_weak_self) = @_;
   my $self = $$ref_weak_self || return Glib::SOURCE_REMOVE;
-  ### _idle_handler_draw(): $self
+  ### _idle_handler_draw()
+  #### $self
   if (my $drawing = $self->{'drawing'}) {
     my $image = $drawing->{'image'};
     my $gen   = $drawing->{'gen'};
     my $steps = $drawing->{'steps'};
     ### $steps
     my $t1 = _gettime();
-    if ($gen->draw_Image_steps ($image, $steps)) {
+    if ($gen->draw_Image_steps ($steps)) {
       my $t = _gettime() - $t1;
       ### step took: $t
       if ($t < 0) {
@@ -482,7 +628,7 @@ sub _drawing_finished {
     $window->clear;  # for root window
   }
   delete $self->{'drawing'};
-  ### $self
+  #### $self
 }
 
 # _gettime() returns a floating point count of seconds since some fixed but
@@ -525,6 +671,101 @@ sub pointer_xy_to_image_xyn {
   }
   return ($px, $py, $path_object->xy_to_n($px,$py));
 }
+
+sub centre {
+  my ($self) = @_;
+  ### Drawing centre()
+  my ($x, $y) = _centre_values($self);
+  $self->{'hadjustment'}->set_value ($x);
+  $self->{'vadjustment'}->set_value ($y);
+}
+sub _centre_values {
+  my ($self) = @_;
+  my ($x, $y) = _centre_basis($self);
+  my $scale = $self->get('scale');
+  my (undef, undef, $width, $height) = $self->allocation->values;
+  return (($x ? -$width/$scale/2 : -1/2),
+          ($y ? -$height/2/$scale : -1/2));
+}
+sub _centre_basis {
+  my ($self) = @_;
+  my $path = $self->get('path');
+  my $path_class = App::MathImage::Generator->path_choice_to_class($path);
+  Module::Load::load ($path_class);
+  return (($path_class->x_negative || $path eq 'MultipleRings'),
+          ($path_class->y_negative || $path eq 'MultipleRings'));
+}
+
+sub _xy_left {
+  my ($self) = @_;
+}
+
+# 'button-press-event' class closure
+sub _do_button_press {
+  my ($self, $event) = @_;
+  ### Graph _do_button_press(): $event->button
+  my $button = $event->button;
+  if ($button == 1) {
+    _do_start_drag ($self, $button, $event);
+  }
+  return shift->signal_chain_from_overridden(@_);
+}
+sub _do_start_drag {
+  my ($self, $button, $event) = @_;
+  my $dragger = ($self->{'dragger'} ||= do {
+    require Gtk2::Ex::Dragger;
+    Gtk2::Ex::Dragger->new (widget => $self,
+                            hadjustment => $self->{'hadjustment'},
+                            vadjustment => $self->{'vadjustment'},
+                            vinverted   => 1,
+                            cursor      => 'fleur')
+    });
+  $dragger->start ($event);
+}
+
+sub _update_adjustment_extents {
+  my ($self) = @_;
+  my (undef, undef, $width, $height) = $self->allocation->values;
+  my $scale = $self->get('scale');
+  ### _update_adjustment_extents()
+  ### $width
+  ### $height
+  ### $scale
+  {
+    my $hadj = $self->{'hadjustment'};
+    my $page = $width / $scale;
+    $hadj->set (page_size      => $page,
+                page_increment => $page * .8,
+                step_increment => $page * .2,
+                upper          => max ($hadj->upper, $hadj->value + 2.5*$page),
+                lower          => min ($hadj->lower, $hadj->value - 1.5*$page),
+               );
+    ### hadj: $hadj->value.' of '.$hadj->lower.' to '.$hadj->upper.' page='.$hadj->page_size
+  }
+  {
+    my $vadj = $self->{'vadjustment'};
+    my $page = $height / $scale;
+    $vadj->set (page_size      => $page,
+                page_increment => $page * .8,
+                step_increment => $page * .2,
+                upper          => max ($vadj->upper, $vadj->value + 2.5*$page),
+                lower          => min ($vadj->lower, $vadj->value - 1.5*$page),
+               );
+    ### vadj: $vadj->value.' of '.$vadj->lower.' to '.$vadj->upper
+  }
+  #   my $coord = $self->{'coord'};
+  #   my ($value,       undef) = $coord->untransform(0,0);
+  #   my ($value_upper, undef) = $coord->untransform($width,0);
+  #   my $page_size = $value_upper - $value;
+  #   ### hadj: "$value to $value_upper"
+  #   $hadj->set (lower     => min (0, $value - 1.5 * $page_size),
+  #               upper     => max (0, $value_upper + 1.5 * $page_size),
+  #               page_size => $page_size);
+  # }
+}
+
+#------------------------------------------------------------------------------
+# generic
 
 sub draw_text_centred {
   my ($widget, $drawable, $str) = @_;

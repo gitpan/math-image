@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant name => __('Repdigits Base 10');
 use constant description => __('Numbers which are a "repdigit" in base 10, meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc');

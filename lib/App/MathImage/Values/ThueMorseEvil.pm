@@ -25,7 +25,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
+
+
+# FIXME: parameter for odd/even instead of sep series?
+# ENHANCE-ME: maybe a radix parameter, modulo sum of digits
 
 # http://www.research.att.com/~njas/sequences/A026147
 # bit count per example in perlfunc unpack()

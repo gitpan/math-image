@@ -19,15 +19,16 @@ package App::MathImage::Values::Primes;
 use 5.004;
 use strict;
 use warnings;
+use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
 
+use vars '$VERSION';
+$VERSION = 26;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-use vars '$VERSION';
-$VERSION = 25;
 
 use constant name => __('Prime Numbers');
 use constant description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.');
@@ -36,12 +37,13 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
+  $lo = max (0, $lo);
+  ### Primes: "$lo to $hi"
 
   my @array;
   if ($hi >= $lo) {
-    # sieve_primes() in 0.20_01 doesn't allow hi==lo
+    # sieve_primes() in 0.21 doesn't allow hi==lo
     if ($hi == $lo) { $hi++; }
-    ### Primes: "$lo to $hi"
 
     require Math::Prime::XS;
     Math::Prime::XS->VERSION (0.021);

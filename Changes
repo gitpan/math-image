@@ -17,8 +17,12 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 26, October 2010
+    - some printing and drag scrolling support
+    - extend filter option to values choices
+
 Version 25, October 2010
-    - mobius function, modularize the values choices
+    - new mobius function, modularize the values choices
 
 Version 24, October 2010
     - count of prime factors as grey scale

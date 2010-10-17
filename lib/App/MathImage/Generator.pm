@@ -28,10 +28,10 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
-#use Smart::Comments; # '#####';
+#use Smart::Comments '###','####';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -54,7 +54,7 @@ use constant default_options => {
                                  path_wider    => 0,
                                  path_rotation => 'phi',
                                  expression    => '3*x^2 + x + 2',
-                                 prime_quadratic => 'all',
+                                 filter        => 'All',
                                 };
 
 sub new {
@@ -88,6 +88,7 @@ use constant values_choices => do {
                          TwinPrimes1
                          TwinPrimes2
                          SophieGermainPrimes
+                         SafePrimes
                          SemiPrimes
                          SemiPrimesOdd
                          Squares
@@ -111,10 +112,12 @@ use constant values_choices => do {
                          Odd
                          Even
                          All
+                         Aronson
                          ThueMorseEvil
                          ThueMorseOdious
                          ChampernowneBinary
                          ChampernowneBinaryLsb
+                         BinaryLengths
                          PrimeQuadraticEuler
                          PrimeQuadraticLegendre
                          PrimeQuadraticHonaker
@@ -238,7 +241,9 @@ sub random_options {
           aronson_lang         => _rand_of_array(['en','fr']),
           aronson_conjunctions => int(rand(2)),
           aronson_lying        => (rand() < .25), # less likely
-          prime_quadratic => _rand_of_array(['all','primes']),
+          filter           => _rand_of_array(['All','All','All',
+                                              'All','All','All',
+                                              'Odd','Even','Primes']),
           path_wider      => $path_wider,
           path_rotation   => $rotation,
           pyramid_step    => $pyramid_step,
@@ -251,10 +256,11 @@ sub _rand_of_array {
   return $aref->[int(rand(scalar(@$aref)))];
 }
 
-our %pathname_has_wider = (SquareSpiral       => 1,
-                           HexSpiral          => 1,
-                           HexSpiralSkewed    => 1,
-                           ReplicatingSquares => 1);
+use vars '%pathname_has_wider';
+%pathname_has_wider = (SquareSpiral       => 1,
+                       HexSpiral          => 1,
+                       HexSpiralSkewed    => 1,
+                       ReplicatingSquares => 1);
 
 sub description {
   my ($self) = @_;
@@ -279,11 +285,21 @@ sub description {
   } elsif ($self->{'values'} eq 'Multiples') {
     $ret .= " $self->{'multiples'}";
   } elsif ($self->{'values'} eq 'Aronson') {
-    if ($self->{'aronson_lang'} ne default_options()->{'aronson_lang'}) {
-      $ret .= " $self->{'aronson_lang'}";
+    my $lang = $self->{'aronson_lang'};
+    if ($lang ne default_options()->{'aronson_lang'}) {
+      $ret .= " $lang";
     }
-  } elsif ($self->{'values'} =~ /^prime_quadratic/) {
-    $ret .= " $self->{'prime_quadratic'}";
+    my $default_letter = ($lang eq 'en' ? 'T'
+                          : $lang eq 'fr' ? 'E'
+                          : '');
+    my $letter = $self->{'aronson_letter'};
+    if ($letter ne '' && $letter ne $default_letter) {
+      $ret .= " \U$letter";
+    }
+  }
+  if ($self->{'filter'} ne 'All') {
+    $ret .= __x(" filtered {name}",
+                name => $self->values_class($self->{'filter'})->name);
   }
 
   return $ret . " $self->{'width'}x$self->{'height'} scale $self->{'scale'}";
@@ -297,12 +313,14 @@ sub path_choice_to_class {
       return $class;
     }
   }
+  return undef;
 }
 
 sub path_object {
   my ($self) = @_;
   return ($self->{'path_object'} ||= do {
 
+    my $scale = $self->{'scale'};
     my $offset = int ($self->{'scale'} / 2);
 
     my $path_class = $self->{'path'};
@@ -317,8 +335,8 @@ sub path_object {
     }
 
     my $path_object = $path_class->new
-      (width    => ceil($self->{'width'} / $self->{'scale'}),
-       height   => ceil($self->{'height'} / $self->{'scale'}),
+      (width    => ceil($self->{'width'} / $scale),
+       height   => ceil($self->{'height'} / $scale),
        step     => ($path_class eq 'Math::PlanePath::PyramidRows'
                     ? $self->{'pyramid_step'}
                     : $self->{'rings_step'}),
@@ -329,13 +347,17 @@ sub path_object {
     my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
                   ? -1
                   : -1);
-    my $x_origin = ($path_object->x_negative || $self->{'path'} eq 'MultipleRings'
-                    ? int ($self->{'width'} / 2)
-                    : $offset);
-    my $y_origin = ($path_object->y_negative || $self->{'path'} eq 'MultipleRings'
-                    ? int ($self->{'height'} / 2)
-                    : $invert > 0 ? $offset
-                    : $self->{'height'} - $self->{'scale'} + $offset);
+    my $x_origin
+      = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
+         : $path_object->x_negative || $self->{'path'} eq 'MultipleRings'
+         ? int ($self->{'width'} / 2)
+         : $offset);
+    my $y_origin
+      = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
+         : $path_object->y_negative || $self->{'path'} eq 'MultipleRings'
+         ? int ($self->{'height'} / 2)
+         : $invert > 0 ? $offset
+         : $self->{'height'} - $self->{'scale'} + $offset);
     ### x_negative: $path_object->x_negative
     ### y_negative: $path_object->y_negative
     ### $x_origin
@@ -349,9 +371,9 @@ sub path_object {
        y_scale  => $self->{'scale'} * $invert);
 
     ### $path_class
-    $path_object
-  });
-}
+       $path_object
+     });
+        }
 
 
 # binary form gets too big to prime check
@@ -382,33 +404,6 @@ sub make_iter_arrayref {
   return sub {
     return $arrayref->[$i++];
   };
-}
-
-sub _prime_quadratic_filter {
-  my ($self, $hi, $subr) = @_;
-  if ($self->{'prime_quadratic'} eq 'primes') {
-    require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021);
-    my @primes = Math::Prime::XS::sieve_primes (2, $hi);
-
-    my $target = 0;
-    return sub {
-      for (;;) {
-        if (! @primes) { return; }
-        if ($primes[0] == $target) {
-          $target = $subr->();
-          return shift @primes;
-        }
-        if ($primes[0] > $target) {
-          $target = $subr->();
-        } else {
-          shift @primes;
-        }
-      }
-    };
-  }
-  # 'all'
-  return $subr;
 }
 
 # http://www.research.att.com/~njas/sequences/A001333
@@ -483,38 +478,38 @@ sub values_make_columns_of_pythagoras {
 #   return Math::Prime::XS::is_prime(sprintf('%b',$n))
 # }
 
-use constant::defer bigint => sub {
-  require Math::BigInt;
-  Math::BigInt->import (try => 'GMP');
-  undef;
-};
-
-# FIXME: although this converges much too slowly
-sub values_make_ln3 {
-  my ($self, $lo, $hi) = @_;
-
-  bigint();
-  my $calcbits = int($hi * 1.5 + 20);
-  ### $calcbits
-  my $total = Math::BigInt->new(0);
-  my $num = Math::BigInt->new(1);
-  $num->blsft ($calcbits);
-  for (my $k = 0; ; $k++) {
-    my $den = 2*$k + 1;
-    my $q = $num / $den;
-    $total->badd ($q);
-    #     printf("1 / 4**%-2d * %2d   %*s\n", $k, 2*$k+1,
-    #            $calcbits/4+3, $q->as_hex);
-    $num->brsft(2);
-    if ($num < $den) {
-      last;
-    }
-  }
-  #   print $total->as_hex,"\n";
-  #   print $total,"\n";
-  #   print $total->numify / 2**$bits,"\n";
-  return binary_positions($total, $hi);
-}
+# use constant::defer bigint => sub {
+#   require Math::BigInt;
+#   Math::BigInt->import (try => 'GMP');
+#   undef;
+# };
+# 
+# # FIXME: although this converges much too slowly
+# sub values_make_ln3 {
+#   my ($self, $lo, $hi) = @_;
+# 
+#   bigint();
+#   my $calcbits = int($hi * 1.5 + 20);
+#   ### $calcbits
+#   my $total = Math::BigInt->new(0);
+#   my $num = Math::BigInt->new(1);
+#   $num->blsft ($calcbits);
+#   for (my $k = 0; ; $k++) {
+#     my $den = 2*$k + 1;
+#     my $q = $num / $den;
+#     $total->badd ($q);
+#     #     printf("1 / 4**%-2d * %2d   %*s\n", $k, 2*$k+1,
+#     #            $calcbits/4+3, $q->as_hex);
+#     $num->brsft(2);
+#     if ($num < $den) {
+#       last;
+#     }
+#   }
+#   #   print $total->as_hex,"\n";
+#   #   print $total,"\n";
+#   #   print $total->numify / 2**$bits,"\n";
+#   return binary_positions($total, $hi);
+# }
 
 use constant _POINTS_CHUNKS     => 2000;  # 1000 of X,Y
 use constant _RECTANGLES_CHUNKS => 2000;  # 500 of X1,Y1,X2,Y2
@@ -583,11 +578,19 @@ sub colours_grey_linear {
   }
   ### colours: $self->{'colours'}
 }
+
+# seven colours
 sub colours_rainbow {
   my ($self) = @_;
-  my $colours = $self->{'colours'} = [];
   # ROYGBIV
   $self->{'colours'} = [ 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'violet' ];
+  ### colours: $self->{'colours'}
+}
+
+# ENHANCE-ME: two shades of each to make radix==6
+sub colours_rgb {
+  my ($self) = @_;
+  $self->{'colours'} = [ 'red', 'green', 'blue' ];
   ### colours: $self->{'colours'}
 }
 
@@ -608,9 +611,12 @@ sub colour_to_rgb {
 sub draw_Image_start {
   my ($self, $image) = @_;
 
-  my $width  = $image->get('-width');
-  my $height = $image->get('-height');
+  $self->{'image'} = $image;
+  my $width  = $self->{'width'}  = $image->get('-width');
+  my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
+  ### $width
+  ### $height
 
   my $path = $self->path_object;
   my $foreground    = $self->{'foreground'};
@@ -640,14 +646,13 @@ sub draw_Image_start {
   ### $y2
 
   my ($n_lo, $n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+  $self->{'n_prev'} = $n_lo - 1;
+  $self->{'upto_n'} = $n_lo;
+  $self->{'n_hi'}   = $n_hi;
+  $self->{'count_total'}   = 0;
+  $self->{'count_outside'} = 0;
   ### $n_lo
   ### $n_hi
-  $self->{'upto_n'} = $n_lo;
-  $self->{'n_hi'} = $n_hi;
-  $self->{'n_prev'} = $n_lo - 1;
-  $self->{'count_total'} = 0;
-  $self->{'count_outside'} = 0;
-  # $self->{'xy_bitvector'} = Bit::Vector->new ($width * $height);
 
   # origin point
   if ($scale >= 3) {
@@ -655,27 +660,30 @@ sub draw_Image_start {
   }
 
   if ($self->{'values'} ne 'Lines') {
-    my $values = $self->{'values'};
-    my $values_class = "App::MathImage::Values::$values";
-    Module::Load::load ($values_class);
+    my $values_class = $self->values_class($self->{'values'});
     my $values_obj = $self->{'values_obj'}
       = $values_class->new (%$self,
                             lo => $n_lo,
                             hi => $n_hi);
 
-    # my $values_method = "values_make_$values";
-    # ### $values_method
-    # $self->{'values_obj'}  = $self->$values_method ($n_lo, $n_hi);
-    # my $values_info = $self->values_info($values);
-    # $self->{'values_pred'}  = $values_info->{'pred'};
     if ($values_obj->type eq 'count1') {
       $self->{'use_count1_iter'} = 1;
-      $self->{'colours_offset'} = 1;
-      # $self->colours_grey_linear(8);
-      $self->colours_grey_exp;
+      if ($image->isa('Image::Base::Text')) {
+        $self->{'colours_offset'} = 0;
+        $self->{'colours'} = [ 0 .. 9 ];
+      } else {
+        $self->{'colours_offset'} = 1;
+        # $self->colours_grey_linear(8);
+        $self->colours_grey_exp ($self);
+      }
       push @colours, @{$self->{'colours'}};
     }
-    ### iter: $self->{'values_obj'}
+    ### values_obj: $self->{'values_obj'}
+
+    my $filter = $self->{'filter'};
+    $self->{'filter_obj'} = $filter &&
+      $self->values_class($filter)->new (lo => $n_lo,
+                                         hi => $n_hi);
   }
 
   if ($image->can('add_colours')) {
@@ -686,14 +694,13 @@ sub draw_Image_start {
 }
 
 sub draw_Image_steps {
-  my ($self, $image, $steps_limit) = @_;
+  my ($self, $steps_limit) = @_;
   #### draw_Image_steps: $steps_limit
   my $steps = 0;
 
-  my $width  = $image->get('-width');
-  my $height = $image->get('-height');
-  ### $width
-  ### $height
+  my $image  = $self->{'image'};
+  my $width  = $self->{'width'};
+  my $height = $self->{'height'};
   my $foreground = $self->{'foreground'};
   my $background = $self->{'background'};
   my $scale = $self->{'scale'};
@@ -701,16 +708,29 @@ sub draw_Image_steps {
 
   my $path = $self->path_object;
   my $covers = $self->covers_plane;
-  ### $covers
   my $coord = $self->{'coord'};
+  my $values_obj = $self->{'values_obj'};
+  my $filter_obj = $self->{'filter_obj'};
 
   my $transform = $coord->transform_proc;
 
   my %points_by_colour;
   my %rectangles_by_colour;
+  my $flush = sub {
+    #### drawing rectangles flush
+    foreach my $colour (keys %points_by_colour) {
+      my $aref = delete $points_by_colour{$colour};
+      App::MathImage::Image::Base::Other::xy_points
+          ($image, $colour, @$aref);
+    }
+    foreach my $colour (keys %rectangles_by_colour) {
+      my $aref = delete $rectangles_by_colour{$colour};
+      App::MathImage::Image::Base::Other::rectangles
+          ($image, $colour, 1, @$aref);
+    }
+  };
 
   my $n_hi = $self->{'n_hi'};
-  ### $n_hi
 
   my $more = 0;
   if ($self->{'values'} eq 'Lines') {
@@ -772,11 +792,7 @@ sub draw_Image_steps {
 
         push @{$points_by_colour{$background}}, $x, $y;
         if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
-          foreach my $colour (keys %points_by_colour) {
-            my $aref = delete $points_by_colour{$colour};
-            App::MathImage::Image::Base::Other::xy_points
-                ($image, $colour, @$aref);
-          }
+          $flush->();
         }
       }
     };
@@ -802,12 +818,7 @@ sub draw_Image_steps {
           };
         push @{$rectangles_by_colour{$background}}, @rect;
         if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
-          ### rectangles flush
-          foreach my $colour (keys %rectangles_by_colour) {
-            my $aref = delete $rectangles_by_colour{$colour};
-            App::MathImage::Image::Base::Other::rectangles
-                ($image, $colour, 1, @$aref);
-          }
+          $flush->();
         }
       }
     };
@@ -817,12 +828,15 @@ sub draw_Image_steps {
   }
 
   if ($self->{'use_xy'}) {
-    my $values_obj = $self->{'values_obj'};
-    my $x = $self->{'x'};
+    my $colours = $self->{'colours'};
+    my $colours_offset = $self->{'colours_offset'};
+    my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
-    my $y = $self->{'y'};
+    my $y    = $self->{'y'};
+    my $type_count1 = $values_obj->type eq 'count1';
+    my $colour = $foreground;
     my $n;
-    #### draw by xy
+    #### draw by xy: $type_count1, $values_obj->type
     #### xy from: "$x,$y"
 
     for (;;) {
@@ -844,11 +858,13 @@ sub draw_Image_steps {
       if (! defined ($n = $path->xy_to_n ($x, $y))) {
         next; # no N for this x,y
       }
+      #### path: "$x,$y  $n"
 
-      ### path: "$x,$y  $n"
-      if (! $values_obj->pred($n)) {
+      my $count1 = $values_obj->pred($n);
+      #### $count1
+      if (! $count1 || ! $filter_obj->pred($n)) {
         if (! $covers) {
-          # background fill
+          ##### background fill
 
           my ($wx, $wy) = $transform->($x, $y);
           $wx = floor ($wx - $offset + 0.5);
@@ -858,11 +874,7 @@ sub draw_Image_steps {
           if ($figure eq 'point') {
             push @{$points_by_colour{$background}}, $wx, $wy;
             if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
-              foreach my $colour (keys %points_by_colour) {
-                my $aref = delete $points_by_colour{$colour};
-                App::MathImage::Image::Base::Other::xy_points
-                    ($image, $colour, @$aref);
-              }
+              $flush->();
             }
           } else { # $figure eq 'square'
             push @{$rectangles_by_colour{$background}},
@@ -870,12 +882,7 @@ sub draw_Image_steps {
                             $wx+$scale-1, $wy+$scale-1,
                             $width,$height);
             if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
-              ### rectangles flush
-              foreach my $colour (keys %rectangles_by_colour) {
-                my $aref = delete $rectangles_by_colour{$colour};
-                App::MathImage::Image::Base::Other::rectangles
-                    ($image, $colour, 1, @$aref);
-              }
+              $flush->();
             }
           }
         }
@@ -887,79 +894,16 @@ sub draw_Image_steps {
       $wy = floor ($wy - $offset + 0.5);
       ### win: "$wx,$wy"
 
+      if ($type_count1) {
+        $colour = $colours->[min ($#$colours,
+                                  max (0, $count1 - $colours_offset))];
+        #### $colour
+      }
       if ($figure eq 'point') {
-        push @{$points_by_colour{$foreground}}, $wx, $wy;
-        if (@{$points_by_colour{$foreground}} >= _POINTS_CHUNKS) {
-          foreach my $colour (keys %points_by_colour) {
-            my $aref = delete $points_by_colour{$colour};
-            App::MathImage::Image::Base::Other::xy_points
-                ($image, $colour, @$aref);
-          }
+        push @{$points_by_colour{$colour}}, $wx, $wy;
+        if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
+          $flush->();
         }
-
-      } else { # $figure eq 'square'
-        push @{$rectangles_by_colour{$foreground}},
-          rect_clipper ($wx, $wy,
-                        $wx+$scale-1, $wy+$scale-1,
-                        $width,$height);
-        if (@{$rectangles_by_colour{$foreground}} >= _RECTANGLES_CHUNKS) {
-          ### rectangles flush
-          foreach my $colour (keys %rectangles_by_colour) {
-            my $aref = delete $rectangles_by_colour{$colour};
-            App::MathImage::Image::Base::Other::rectangles
-                ($image, $colour, 1, @$aref);
-          }
-        }
-      }
-    }
-    $self->{'x'} = $x;
-    $self->{'y'} = $y;
-
-
-  } elsif ($self->{'use_count1_xy'}) {
-    my $values_obj = $self->{'values_obj'};
-    my $colours = $self->{'colours'};
-    my $colours_offset = $self->{'colours_offset'};
-    my $x = $self->{'x'};
-    my $x_hi = $self->{'x_hi'};
-    my $y = $self->{'y'};
-    my $n;
-    #### draw by count1
-    #### xy from: "$x,$y"
-
-    for (;;) {
-      ### use_count1: "$x,$y"
-      if (defined $steps_limit) {
-        if (++$steps > $steps_limit) {
-          $more = 1;
-          last;
-        }
-      }
-      if (++$x > $x_hi) {
-        if (++$y > $self->{'y_hi'}) {
-          last;
-        }
-        $x = $self->{'x_lo'};
-        #### next row: "$x,$y"
-      }
-
-      if (! defined ($n = $path->xy_to_n ($x, $y))) {
-        next; # no N for this x,y
-      }
-
-      my $count1 = $values_obj->pred($n);
-      ### path: "$x,$y  $n  count=" . (defined($count1) && $count1)
-      next if ! defined $count1;
-      my $colour = $colours->[min ($#$colours,
-                                   max (0, $count1 - $colours_offset))];
-
-      my ($wx, $wy) = $transform->($x, $y);
-      $wx = floor ($wx - $offset + 0.5);
-      $wy = floor ($wy - $offset + 0.5);
-      ### win: "$wx,$wy  $colour"
-
-      if ($figure eq 'point') {
-        $image->xy ($wx, $wy, $colour);
 
       } else { # $figure eq 'square'
         push @{$rectangles_by_colour{$colour}},
@@ -967,22 +911,15 @@ sub draw_Image_steps {
                         $wx+$scale-1, $wy+$scale-1,
                         $width,$height);
         if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
-          ### rectangles flush
-          foreach my $colour (keys %rectangles_by_colour) {
-            my $aref = delete $rectangles_by_colour{$colour};
-            App::MathImage::Image::Base::Other::rectangles
-                ($image, $colour, 1, @$aref);
-          }
+          $flush->();
         }
       }
     }
     $self->{'x'} = $x;
     $self->{'y'} = $y;
 
-
   } elsif ($self->{'use_count1_iter'}) {
     #### draw by count1_iter
-    my $values_obj = $self->{'values_obj'};
     my $colours = $self->{'colours'};
     my $colours_offset = $self->{'colours_offset'};
     # my $xy_bitvector = $self->{'xy_bitvector'};;
@@ -997,22 +934,25 @@ sub draw_Image_steps {
       my ($n, $count1) = $values_obj->next
         or last;
       last if $n > $n_hi;
-      ### $n
-      ### $count1
+      #### $n
+      #### $count1
       next if ! defined $count1;
 
+      if ($count1 && ! $filter_obj->pred($n)) {
+        next;
+      }
+
       my ($x, $y) = $path->n_to_xy($n) or next;
-      ### path: "$x,$y"
+      #### path: "$x, $y"
 
       ($x, $y) = $transform->($x, $y);
       $x = floor ($x - $offset + 0.5);
       $y = floor ($y - $offset + 0.5);
-      ### $x
-      ### $y
+      #### transformed: "$x, $y"
 
       my $colour = $colours->[min ($#$colours,
                                    max (0, $count1 - $colours_offset))];
-      ### $colour
+      #### $colour
 
       if ($figure eq 'point') {
         $count_total++;
@@ -1032,12 +972,7 @@ sub draw_Image_steps {
           };
         push @{$rectangles_by_colour{$colour}}, @rect;
         if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
-          ### rectangles flush
-          foreach my $colour (keys %rectangles_by_colour) {
-            my $aref = delete $rectangles_by_colour{$colour};
-            App::MathImage::Image::Base::Other::rectangles
-                ($image, $colour, 1, @$aref);
-          }
+          $flush->();
         }
 
       } else { # circle
@@ -1057,8 +992,6 @@ sub draw_Image_steps {
        ) {
       #### use_xy from now on
       $self->use_xy($image);
-      delete $self->{'use_xy'};
-      $self->{'use_count1_xy'} = 1;
     } else {
       # $self->{'n_prev'} = $n;
       $self->{'count_total'} = $count_total;
@@ -1067,7 +1000,6 @@ sub draw_Image_steps {
 
   } else {
     #### draw by N
-    my $values_obj = $self->{'values_obj'};
     my $n;
 
     for (;;) {
@@ -1085,6 +1017,8 @@ sub draw_Image_steps {
         $background_fill_proc->($n_hi);
         last;
       }
+      $filter_obj->pred($n)
+        or next;
       my ($x, $y) = $path->n_to_xy($n) or next;
       ### path: "$x,$y"
 
@@ -1104,11 +1038,7 @@ sub draw_Image_steps {
         }
         push @{$points_by_colour{$foreground}}, $x, $y;
         if (@{$points_by_colour{$foreground}} >= _POINTS_CHUNKS) {
-          foreach my $colour (keys %points_by_colour) {
-            my $aref = delete $points_by_colour{$colour};
-            App::MathImage::Image::Base::Other::xy_points
-                ($image, $colour, @$aref);
-          }
+          $flush->();
         }
 
       } elsif ($figure eq 'square') {
@@ -1123,12 +1053,7 @@ sub draw_Image_steps {
           };
         push @{$rectangles_by_colour{$foreground}}, @rect;
         if (@{$rectangles_by_colour{$foreground}} >= _RECTANGLES_CHUNKS) {
-          ### rectangles flush
-          foreach my $colour (keys %rectangles_by_colour) {
-            my $aref = delete $rectangles_by_colour{$colour};
-            App::MathImage::Image::Base::Other::rectangles
-                ($image, $colour, 1, @$aref);
-          }
+          $flush->();
         }
 
       } else {
@@ -1148,7 +1073,7 @@ sub draw_Image_steps {
         && $count_outside > .5 * $count_total
         && $values_obj->can('pred')
        ) {
-      #### use_xy from now on
+      ### use_xy from now on
       $self->use_xy($image);
     } else {
       $self->{'n_prev'} = $n_prev;
@@ -1157,19 +1082,7 @@ sub draw_Image_steps {
     }
   }
 
-  foreach my $colour (keys %points_by_colour) {
-    my $aref = delete $points_by_colour{$colour};
-    App::MathImage::Image::Base::Other::xy_points
-        ($image, $colour, @$aref);
-  }
-
-  ### %rectangles_by_colour
-  foreach my $colour (keys %rectangles_by_colour) {
-    my $aref = delete $rectangles_by_colour{$colour};
-    App::MathImage::Image::Base::Other::rectangles
-        ($image, $colour, 1, @$aref);
-  }
-
+  $flush->();
   ### $more
   return $more;
 }
@@ -1185,10 +1098,23 @@ sub use_xy {
 
   my ($x_lo, $y_hi) = $coord->untransform (0,0);
   my ($x_hi, $y_lo) = $coord->untransform ($width,$height);
-  $x_lo = $self->{'x_lo'} = floor($x_lo);
-  $y_lo = $self->{'y_lo'} = floor($y_lo);
-  $x_hi = $self->{'x_hi'} = ceil($x_hi);
-  $y_hi = $self->{'y_hi'} = ceil($y_hi);
+  $x_lo = floor($x_lo);
+  $y_lo = floor($y_lo);
+  $x_hi = ceil($x_hi);
+  $y_hi = ceil($y_hi);
+  my $path_obj = $self->path_object;
+  if (! $path_obj->x_negative) {
+    $x_lo = max (0, $x_lo);
+    $x_hi = max (0, $x_hi);
+  }
+  if (! $path_obj->y_negative) {
+    $y_lo = max (0, $y_lo);
+    $y_hi = max (0, $y_hi);
+  }
+  $self->{'x_lo'} = $x_lo;
+  $self->{'y_lo'} = $y_lo;
+  $self->{'x_hi'} = $x_hi;
+  $self->{'y_hi'} = $y_hi;
 
   $self->{'x'} = $x_lo - 1;
   $self->{'y'} = $y_lo;
@@ -1215,7 +1141,7 @@ sub draw_progress_fraction {
 sub draw_Image {
   my ($self, $image) = @_;
   $self->draw_Image_start ($image);
-  $self->draw_Image_steps ($image);
+  $self->draw_Image_steps;
 }
 
 

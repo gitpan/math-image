@@ -25,12 +25,11 @@ use Module::Util;
 use Curses 'doupdate';
 use Curses::UI::Common 'split_to_lines';
 use Curses::UI::Widget;
-use Locale::TextDomain 'App-MathImage';
 
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

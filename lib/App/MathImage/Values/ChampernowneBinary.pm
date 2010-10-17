@@ -24,7 +24,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
+
+# FIXME: parameter for endian instead of sep series?
+# ENHANCE-ME: radix parameter instead of binary
+
 
 use constant name => __('Champernowne Sequence');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
@@ -77,6 +81,8 @@ sub next {
   }
 }
 
+# ENHANCE-ME: msb 1 bit position determines next lower (k+1)*2^k.
+#
 # 0   0 1
 # 2   10 11
 # 6   100 101 110 111

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 use constant name => __('Aronson\'s Sequence');
 use constant description => __('Aronson\'s sequence of the positions of letter "T" in self-referential "T is the first, fourth, ...".  Or French "E est la premiere, deuxieme, ...".  See the Math::Aronson module for details.');
@@ -36,7 +36,6 @@ sub new {
   my ($class, %options) = @_;
   require Math::Aronson;
 
-  my $lo = $options{'lo'} || 0;
   my $aronson = Math::Aronson->new
     (hi                   => $options{'hi'},
      lang                 => ($options{'aronson_lang'} || 'en'),

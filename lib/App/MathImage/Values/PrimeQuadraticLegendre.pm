@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 # http://www.research.att.com/~njas/sequences/A007641  (the prime values)
 use constant name => __('Prime Generating Quadratic of Legendre');
@@ -43,13 +43,15 @@ sub next {
   my ($self) = @_;
   my $i = $self->{'i'}++;
   return (2*$i*$i + 29,
-          1);;
-
-  # return (_prime_quadratic_filter ($self, $hi, sub {
-  #                                   $i++;
-  #                                   return ($i + 1)*$i + 41;
-  #                                 }),
-  #         1);
+          1);
+}
+sub pred {
+  my ($self, $n) = @_;
+  return ($n >= 29
+          && do {
+            my $i = sqrt($n*.5 - 14.5);
+            ($i==int($i))
+          });
 }
 
 1;

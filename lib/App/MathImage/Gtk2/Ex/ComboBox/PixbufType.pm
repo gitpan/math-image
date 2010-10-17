@@ -55,7 +55,7 @@ use Gtk2::Ex::ComboBoxBits 2; # version 2 for fixed MoreUtils dependency
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 25;
+our $VERSION = 26;
 
 BEGIN {
   if (0) {

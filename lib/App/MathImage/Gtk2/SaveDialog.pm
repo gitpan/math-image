@@ -16,7 +16,6 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 # go to no extension when combobox nothing selected ...
 
 
@@ -41,7 +40,7 @@ use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 25;
+our $VERSION = 26;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -64,6 +63,7 @@ my $get_widget_for_response = Gtk2::Dialog->can('get_widget_for_response')
 
 sub new {
   my $class = shift;
+  # pending support for object "constructor" thingie
   $class->SUPER::new (action => 'save', @_);
 }
 
@@ -71,8 +71,7 @@ sub INIT_INSTANCE {
   my ($self) = @_;
   $self->set (destroy_with_parent => 1);
 
-  {
-    my $title = __('Save Image');
+  { my $title = __('Save Image');
     if (defined (my $appname = Glib::get_application_name())) {
       $title = "$appname: $title";
     }
@@ -177,7 +176,7 @@ sub _do_response {
 
   } elsif ($response eq 'cancel') {
     # raise 'close' as per a keyboard Esc to close, which defaults to
-    # raising 'delete-event', which in turn defaults to a destroy
+    # raising 'delete-event', which is setup as a hide() above
     $self->signal_emit ('close');
   }
 }
@@ -291,8 +290,9 @@ sub _change_extension {
   ### $new_aref
 
   # get_filename() undef initially
-  my ($volume, $directories, $filename)
-    = File::Spec->splitpath ($chooser->get_filename // return);
+  my $fullname = $chooser->get_filename;
+  if (! defined $fullname) { return; }
+  my ($volume, $directories, $filename) = File::Spec->splitpath ($fullname);
 
   if (defined (_filename_has_extension($filename, $new_aref,
                                        $case_sensitive))) {
@@ -305,7 +305,7 @@ sub _change_extension {
     my $new_ext = $new_aref->[0];
     $new_ext =~ s/^([^.])/.$1/;  # "txt" -> ".txt"
     $filename = $basename . $new_ext;
-    $chooser->set_current_folder ($directories);
+    $chooser->set_current_folder (File::Spec->catdir ($volume, $directories));
     $chooser->set_current_name ($filename);
   }
 }

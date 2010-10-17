@@ -65,6 +65,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ComboBox::Enum' => 2,
     'Gtk2::Ex::ComboBox::Text' => 2,
 
+    'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
     'Image::Base' => 0,

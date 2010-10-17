@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 25;
+our $VERSION = 26;
 
 sub save {
   my ($pixbuf, $filename, $type, @options) = @_;
@@ -112,7 +112,7 @@ sub format_matches_filename {
 1;
 __END__
 
-=for stopwords Ryde pixbuf Gtk PNG Zlib png huffman lzw jpeg lossy JPEG filename PixbufFormat
+=for stopwords Ryde pixbuf Gtk Gtk2 PNG Zlib png huffman lzw jpeg lossy JPEG filename PixbufFormat Gtk2-Perl
 
 =head1 NAME
 

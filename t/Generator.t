@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 142;
+use Test::More tests => 154;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 25;
+  my $want_version = 26;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -112,32 +112,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 }
 
 #------------------------------------------------------------------------------
-# values_make_primes
-
-# {
-#   my $gen = App::MathImage::Generator->new;
-#   my $it = $gen->values_make_primes(2, 17);
-#   my $want_arrayref = [ 2, 3, 5, 7, 11, 13, 17 ];
-#   my %want_hashref;
-#   @want_hashref{@$want_arrayref} = ();
-# 
-#   my $got_arrayref = [ map {$it->()} 1..7 ];
-#   is_deeply ($got_arrayref, $want_arrayref,
-#              'values_make_primes 2 to 17 iterator');
-# 
-#   my %got_hashref;
-#   foreach my $n (2 .. 17) {
-#     if ($gen->is_iter_arrayref($n)) {
-#       $got_hashref{$n} = undef;
-#     }
-#   }
-#   is_deeply ($got_arrayref, $want_arrayref,
-#              'values_make_primes 2 to 17 is_iter_arrayref()');
-# }
-
-
-#------------------------------------------------------------------------------
-# values_make funcs
+# App::MathImage::Values various classes
 
 {
   my $gen = App::MathImage::Generator->new;
@@ -240,6 +215,15 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         1223, 1229, 1289, 1409, 1439, 1451, 1481, 1499,
                         1511, 1559 ] ],
 
+                    # http://www.research.att.com/~njas/sequences/A005385
+                    [ 'SafePrimes', 0,
+                      [ 5, 7, 11, 23, 47, 59, 83, 107, 167, 179, 227, 263,
+                        347, 359, 383, 467, 479, 503, 563, 587, 719, 839,
+                        863, 887, 983, 1019, 1187, 1283, 1307, 1319, 1367,
+                        1439, 1487, 1523, 1619, 1823, 1907, 2027, 2039,
+                        2063, 2099, 2207, 2447, 2459, 2579, 2819, 2879, 2903,
+                        ] ],
+
                     # sloanes
                     # http://www.research.att.com/~njas/sequences/A005224
                     [ 'Aronson', 0,
@@ -290,6 +274,23 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                     [ 'ThueMorseOdious', 4, [ 4, 7, ] ],
                     [ 'ThueMorseOdious', 5, [ 7, ] ],
 
+                    # A030190 bits, A030303 positions of 1s
+                    [ 'ChampernowneBinary', 0,
+                      [ 1, 2, 4, 5, 6, 9, 11, 12, 13, 15, 16, 17, 18, 22,
+                        25, 26, 28, 30, 32, 33, 34, 35, 38, 39, 41, 42, 43,
+                        44, 46, 47, 48, 49, 50, 55, 59, 60, 63, 65, 68, 69,
+                        70, 72, 75, 77, 79, 80, 82, 83, 85, 87, 88, 89, 90,
+                        91, 95, 96, 99, 100, 101, 103, 105 ] ],
+
+                    # A083652
+                    [ 'BinaryLengths', 0,
+                      [ 1, 2, 4, 6, 9, 12, 15, 18, 22, 26, 30, 34, 38, 42,
+                        46, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+                        105, 110, 115, 120, 125, 130, 136, 142, 148, 154,
+                        160, 166, 172, 178, 184, 190, 196, 202, 208, 214,
+                        220, 226, 232, 238, 244, 250, 256, 262, 268, 274,
+                        280, 286, 292 ] ],
+
                     [ 'Base4Without3', 0,
                       [ 0x00, 0x01, 0x02,    # 0,1,2
                         0x04, 0x05, 0x06,    # 10,11,12
@@ -327,6 +328,13 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                     [ 'FractionBits', 0,
                       [ 1,3,5,7,9,11,13 ],
                       { fraction => '1/3' } ],
+
+                    [ 'PrimeQuadraticEuler', 0,
+                      [ 41, 43, 47, 53, 61, 71, 83, 97, 113, 131, 151 ] ],
+                    [ 'PrimeQuadraticLegendre', 0,
+                      [ 29, 31, 37, 47, 61, 79, 101, 127, 157, 191, 229 ] ],
+                    [ 'PrimeQuadraticHonaker', 0,
+                      [ 59, 67, 83, 107, 139, 179, 227, 283, 347, 419, 499 ] ],
 
                    ) {
     my ($values, $lo, $want, $options, $module) = @$elem;
@@ -406,6 +414,7 @@ sub _delete_duplicates {
        -cindex => { 'black' => ' ',
                     'white' => '*'});
     $gen->draw_Image ($image);
+    $gen->description; # exercise description string
   }
   ok ($good, "all path_choices exercised");
 }
@@ -438,6 +447,7 @@ sub _delete_duplicates {
        -cindex => { 'black' => ' ',
                     'white' => '*'});
     $gen->draw_Image ($image);
+    $gen->description; # exercise description string
   }
   ok ($good, "all values_choices exercised");
 }
