@@ -27,7 +27,7 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -37,6 +37,10 @@ $VERSION = 26;
 use constant figure => 'circle';
 
 use constant PHI => (1 + sqrt(5)) / 2;
+
+# 1/phi = 2/(1+sqrt(5)) = (sqrt(5)-1)/2 = phi-1
+# phi^2 = phi+1
+# 1/phi^2 = 2-phi
 
 # use constant FACTOR => do {
 #   my @c = map {
@@ -58,18 +62,18 @@ sub new {
   ### RotFloret new(): @_
 
   my $self = $class->SUPER::new (@_);
-  if (! defined $self->{'rotation'}) {
-    $self->{'rotation'} = 'phi';
+  if (! defined $self->{'rotation_type'}) {
+    $self->{'rotation_type'} = 'phi';
   }
-  if ($self->{'rotation'} eq 'pi') {
-    $self->{'rot'} = pi() - 3;
-    $self->{'factor'} = 1.60242740883046;
-
-  } elsif ($self->{'rotation'} eq 'sqrt2') {
+  if ($self->{'rotation_type'} eq 'sqrt2') {
     $self->{'rot'} = sqrt(2) - 1;
     $self->{'factor'} = 0.679984167849259;
 
-  } elsif ($self->{'rotation'} =~ /^sqrt *([[:digit:].]+)$/) {
+  } elsif ($self->{'rotation_type'} eq 'pi') {
+    $self->{'rot'} = pi() - 3;
+    $self->{'factor'} = 1.60242740883046;
+
+  } elsif ($self->{'rotation_type'} =~ /^sqrt *([[:digit:].]+)$/) {
     $self->{'rot'} = sqrt($1) - int(sqrt($1));
     $self->{'factor'} = 1;
 

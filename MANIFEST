@@ -48,6 +48,8 @@ lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/Menu/EnumRadio.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
+lib/App/MathImage/Gtk2/Ex/ToolItem/CheckButton.pm
+lib/App/MathImage/Gtk2/Ex/ToolItem/Entry.pm
 lib/App/MathImage/Gtk2/Main.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
@@ -136,6 +138,7 @@ t/Gtk2-SaveDialog.t
 t/Image-Base-Magick.t
 t/Image-Base-Prima-Drawable.t
 t/MathImage.t
+t/MobiusFunction.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/Test/Weaken/ExtraBits.pm

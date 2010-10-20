@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');
@@ -37,14 +37,16 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
-  $lo = max ($lo, 3);  # start from 3
+  $lo = max ($lo, 3);
+
+  my $offset = $options{'twin_offset'} || 0;  # for TwinPrimes2
+  ### $lo
+  ### $offset
 
   my @array;
   if ($hi >= $lo) {
     my $primes_lo = max(0, $lo - 2);
     my $primes_hi = $hi + 2;
-    # sieve_primes() in 0.21 doesn't allow hi==lo
-    if ($primes_hi == $primes_lo) { $primes_hi++; }
 
     require Math::Prime::XS;
     Math::Prime::XS->VERSION (0.021);
@@ -54,11 +56,12 @@ sub new {
     my $to = 0;
     foreach my $i (0 .. $#array - 1) {
       if ($array[$i]+2 == $array[$i+1]) {
-        $array[$to++] = $array[$i];
+        $array[$to++] = $array[$i + $offset];
       }
     }
     $#array = $to - 1;
-    while (@array && $array[0] > $lo) {
+    ### @array
+    while (@array && $array[0] < $lo) {
       shift @array;
     }
   }

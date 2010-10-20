@@ -54,7 +54,8 @@ MyMakeMakerExtras::WriteMakefile
 
     # my Gtk2-Ex-WidgetBits
     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
-    'Gtk2::Ex::GdkBits'        => 23, # version 23 window_clear_region()
+    'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
+    'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21

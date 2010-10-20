@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 26;
+our $VERSION = 27;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -69,6 +69,9 @@ BEGIN {
      Odd    => __('Odd'),
      Even   => __('Even'),
      Primes => __('Primes'));
+
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::RotationType',
+                             'phi', 'sqrt2', 'pi');
 }
 
 use Glib::Object::Subclass
@@ -180,11 +183,12 @@ use Glib::Object::Subclass
                    App::MathImage::Generator->default_options->{'path_wider'},
                    Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string
-                  ('path-rotation',
-                   'path-rotation',
+                  Glib::ParamSpec->enum
+                  ('path-rotation-type',
+                   'path-rotation-type',
                    'Blurb.',
-                   App::MathImage::Generator->default_options->{'path_rotation'},
+                   'App::MathImage::Gtk2::Drawing::RotationType',
+                   App::MathImage::Generator->default_options->{'path_rotation_type'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -269,7 +273,11 @@ sub SET_PROPERTY {
   }
 
   if ($pname eq 'scale') {
-    # ENHANCE-ME: keep same centre, or left/bottom relative
+    _update_adjustment_values ($self,
+                               $self->allocation->width / $oldval,
+                               $self->allocation->height / $oldval,
+                               $self->allocation->width / $newval,
+                               $self->allocation->height / $newval);
   }
 
   if ($pname eq 'path') {
@@ -319,44 +327,61 @@ sub _do_size_allocate {
   shift->signal_chain_from_overridden(@_);
 
   _update_adjustment_extents($self);
-
   my $scale = $self->get('scale');
-  my $path = $self->get('path');
-  my $path_class = App::MathImage::Generator->path_choice_to_class($path);
-  Module::Load::load ($path_class);
+  _update_adjustment_values ($self,
+                             $old_width / $scale,
+                             $old_height / $scale,
+                             $self->allocation->width / $scale,
+                             $self->allocation->height / $scale);
+}
+
+sub _update_adjustment_values {
+  my ($self, $old_hpage,$old_vpage, $new_hpage,$new_vpage) = @_;
   {
     my $hadj = $self->{'hadjustment'};
-    my $dec = ($self->allocation->width - $old_width) / $scale / 2;
-    unless ($path_class->x_negative || $path eq 'MultipleRings') {
+    my $value = $hadj->value;
+    my $dec = ($new_hpage - $old_hpage) / 2;
+    unless ($self->x_negative) {
       if ($dec >= 0) {
         # don't float in the air when expand
-        if ($hadj->value >= -0.5) {
-          $dec = min ($hadj->value + .5, $dec);
+        if ($value >= -0.5) {
+          $dec = min ($value + .5, $dec);
         }
       } else {
         # don't go negative when shrink
-        $dec = max ($hadj->value + .5, $dec);
+        $dec = max ($value + .5, $dec);
       }
     }
-    ### $dec
-    $hadj->set_value ($hadj->value - $dec);
+    ### hadj value: $value
+    ### hadj dec: $dec
+    $hadj->set_value ($value - $dec);
   }
   {
     my $vadj = $self->{'vadjustment'};
-    my $dec = ($self->allocation->height - $old_height) / $scale / 2;
-    unless ($path_class->y_negative || $path eq 'MultipleRings') {
-      if ($dec >= 0) {
-        # don't float in the air when expand
-        if ($vadj->value >= -0.5) {
-          $dec = min ($vadj->value + .5, $dec);
+    my $value = $vadj->value;
+    my $dec = ($new_vpage - $old_vpage) / 2;
+    my $factor = 1;
+    unless ($self->y_negative) {
+      if ($value < -0.5) {
+        # already negative, stay relative to bottom edge
+        $factor = $new_vpage / $old_vpage;
+        $dec = 0;
+      } elsif ($dec >= 0) {
+        if ($value >= -0.5) {
+          # don't float in the air when expand
+          $dec = min ($value + .5, $dec);
         }
       } else {
         # don't go negative when shrink
-        $dec = max (- ($vadj->value + .5), $dec);
+        $dec = max (- ($value + .5), $dec);
       }
     }
-    ### $dec
-    $vadj->set_value ($vadj->value - $dec);
+    ### vadj old page: $old_vpage
+    ### vadj new page: $new_vpage
+    ### vadj value: $value
+    ### vadj dec: $dec
+    ### vadj factor: $factor
+    $vadj->set_value ($factor*$value - $dec);
   }
 }
 
@@ -449,8 +474,7 @@ sub pixmap {
 
 sub gen_object {
   my ($self) = @_;
-  my $window = $self->window;
-  my ($width, $height) = $window->get_size;
+  my (undef, undef, $width, $height) = $self->allocation->values;
   my $background_colorobj = $self->style->bg($self->state);
   my $foreground_colorobj = $self->style->fg($self->state);
   my $undrawnground_colorobj = Gtk2::Gdk::Color->new
@@ -470,7 +494,7 @@ sub gen_object {
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
-     path_rotation   => $self->get('path-rotation'),
+     path_rotation_type => $self->get('path-rotation-type'),
      pyramid_step    => $self->get('pyramid-step'),
      rings_step      => $self->get('rings-step'),
      path_wider      => $self->get('path-wider'),
@@ -484,6 +508,15 @@ sub gen_object {
      y_bottom        => $self->{'vadjustment'}->value,
     );
 }
+sub x_negative {
+  my ($self) = @_;
+  return $self->gen_object->x_negative;
+}
+sub y_negative {
+  my ($self) = @_;
+  return $self->gen_object->y_negative;
+}
+
 sub start_drawing_window {
   my ($self, $window) = @_;
 

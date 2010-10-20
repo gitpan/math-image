@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            26
+version:            27
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -26,6 +26,7 @@ requires:
     Gtk2::Ex::ComboBox::Enum:  2
     Gtk2::Ex::ComboBox::Text:  2
     Gtk2::Ex::ComboBoxBits:  2
+    Gtk2::Ex::ContainerBits:  21
     Gtk2::Ex::Dragger:    2
     Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::NumAxis:    2

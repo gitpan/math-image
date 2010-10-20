@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###','####';
 
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -52,7 +52,7 @@ use constant default_options => {
                                  pyramid_step  => 2,
                                  rings_step    => 6,
                                  path_wider    => 0,
-                                 path_rotation => 'phi',
+                                 path_rotation_type => 'phi',
                                  expression    => '3*x^2 + x + 2',
                                  filter        => 'All',
                                 };
@@ -84,6 +84,7 @@ use constant values_choices => do {
   my @choices;
   foreach my $prefer (qw(Primes
                          CountPrimeFactors
+                         MobiusFunction
                          TwinPrimes
                          TwinPrimes1
                          TwinPrimes2
@@ -126,7 +127,6 @@ use constant values_choices => do {
                          TernaryWithout2
                          RepdigitBase10
                          RepdigitAnyBase
-                         MobiusFunction
                        )) {
     if (delete $choices{$prefer}) {
       push @choices, $prefer;
@@ -226,12 +226,13 @@ sub random_options {
   my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
                                    1 .. 20]);
 
-  my $rotation = _rand_of_array(['phi',
-                                 'pi',
-                                 'sqrt2','sqrt2', # bias extra
-                                 'sqrt3',
-                                 'sqrt5',
-                                 'sqrt7']);
+  my $rotation_type = _rand_of_array(['phi',
+                                      'pi',
+                                      'sqrt2','sqrt2', # bias extra
+                                      # 'sqrt3',
+                                      # 'sqrt5',
+                                      # 'sqrt7',
+                                     ]);
 
   return (@{_rand_of_array(\@choices)},
           scale     => $scale,
@@ -241,13 +242,15 @@ sub random_options {
           aronson_lang         => _rand_of_array(['en','fr']),
           aronson_conjunctions => int(rand(2)),
           aronson_lying        => (rand() < .25), # less likely
-          filter           => _rand_of_array(['All','All','All',
-                                              'All','All','All',
-                                              'Odd','Even','Primes']),
-          path_wider      => $path_wider,
-          path_rotation   => $rotation,
-          pyramid_step    => $pyramid_step,
-          rings_step      => $rings_step,
+          # FIXME: don't want to filter out everything ... have values
+          # classes declare their compositeness, parity, etc
+          # filter           => _rand_of_array(['All','All','All',
+          #                                     'All','All','All',
+          #                                     'Odd','Even','Primes']),
+          path_wider          => $path_wider,
+          path_rotation_type  => $rotation_type,
+          pyramid_step        => $pyramid_step,
+          rings_step          => $rings_step,
          );
 }
 
@@ -320,9 +323,6 @@ sub path_object {
   my ($self) = @_;
   return ($self->{'path_object'} ||= do {
 
-    my $scale = $self->{'scale'};
-    my $offset = int ($self->{'scale'} / 2);
-
     my $path_class = $self->{'path'};
     #### $path_class
     my $err = '';
@@ -334,28 +334,35 @@ sub path_object {
       croak $err;
     }
 
-    my $path_object = $path_class->new
+    my $scale = $self->{'scale'};
+    $path_class->new
       (width    => ceil($self->{'width'} / $scale),
        height   => ceil($self->{'height'} / $scale),
        step     => ($path_class eq 'Math::PlanePath::PyramidRows'
                     ? $self->{'pyramid_step'}
                     : $self->{'rings_step'}),
        wider    => $self->{'path_wider'},
-       rotation => $self->{'path_rotation'});
-    ### $path_object
+       rotation_type => $self->{'path_rotation_type'})
+    });
+}
 
+sub coord_object {
+  my ($self) = @_;
+  return ($self->{'coord_object'} ||= do {
+    my $offset = int ($self->{'scale'} / 2);
+    
+    my $path_object = $self->path_object;
+    my $scale = $self->{'scale'};
     my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
                   ? -1
                   : -1);
     my $x_origin
       = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
-         : $path_object->x_negative || $self->{'path'} eq 'MultipleRings'
-         ? int ($self->{'width'} / 2)
+         : $self->x_negative ? int ($self->{'width'} / 2)
          : $offset);
     my $y_origin
       = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
-         : $path_object->y_negative || $self->{'path'} eq 'MultipleRings'
-         ? int ($self->{'height'} / 2)
+         : $self->y_negative ? int ($self->{'height'} / 2)
          : $invert > 0 ? $offset
          : $self->{'height'} - $self->{'scale'} + $offset);
     ### x_negative: $path_object->x_negative
@@ -364,17 +371,22 @@ sub path_object {
     ### $y_origin
 
     require App::MathImage::Coord;
-    $self->{'coord'} = App::MathImage::Coord->new
-      (x_origin => $x_origin,
-       y_origin => $y_origin,
-       x_scale  => $self->{'scale'},
-       y_scale  => $self->{'scale'} * $invert);
+    App::MathImage::Coord->new
+        (x_origin => $x_origin,
+         y_origin => $y_origin,
+         x_scale  => $self->{'scale'},
+         y_scale  => $self->{'scale'} * $invert);
+});
+}
 
-    ### $path_class
-       $path_object
-     });
-        }
-
+sub x_negative {
+  my ($self) = @_;
+  return ($self->{'path'} eq 'MultipleRings' || $self->path_object->x_negative);
+}
+sub y_negative {
+  my ($self) = @_;
+  return ($self->{'path'} eq 'MultipleRings' || $self->path_object->y_negative);
+}
 
 # binary form gets too big to prime check
 # sub values_make_binary_primes {
@@ -514,42 +526,27 @@ sub values_make_columns_of_pythagoras {
 use constant _POINTS_CHUNKS     => 2000;  # 1000 of X,Y
 use constant _RECTANGLES_CHUNKS => 2000;  # 500 of X1,Y1,X2,Y2
 
-sub _path_covers_quads {
-  my ($path_object) = @_;
-
-  foreach my $class (qw(PyramidRows)
-
-                     # qw(SquareSpiral
-                     #                         PyramidSpiral
-                     #                         TriangleSpiral
-                     #                         TriangleSpiralSkewed
-                     #                         DiamondSpiral
-                     #                         PentSpiralSkewed
-                     #                         HexSpiral
-                     #                         HexSpiralSkewed
-                     #                         HeptSpiralSkewed
-                     #                         KnightSpiral
-                     #
-                     #                         Diagonals
-                     #                         Corner
-                     #                         PyramidSides)
-                    ) {
-    if ($path_object->isa("Math::PlanePath::$class")) {
-      return 0;
-    }
+sub covers_plane {
+  my ($self) = @_;
+  if ($self->{'background'} eq $self->{'undrawnground'}) {
+    return 1;
+  }
+  my $path_object = $self->path_object;
+  if ($path_object->isa("Math::PlanePath::PyramidRows")) {
+    return 0;
+  }
+  if ($path_object->figure eq 'circle') {
+    return 1;
+  }
+  my $coord_object = $self->coord_object;
+  my ($wx,$wy) = $coord_object->transform(-.5,-.5);
+  if (! $self->x_negative && $wx > 0
+      || ! $self->y_negative && $wy < $self->{'height'}-1) {
+    return 0;
   }
   return 1;
 }
 
-sub covers_plane {
-  my ($self) = @_;
-  return ($self->{'background'} eq $self->{'undrawnground'}
-          || do {
-            my $path = $self->path_object;
-            ($path->figure eq 'circle'
-             || _path_covers_quads($path))
-          });
-}
 
 sub colours_grey_exp {
   my ($self) = @_;
@@ -634,7 +631,7 @@ sub draw_Image_start {
   # clear
   $image->rectangle (0, 0, $width-1, $height-1, $undrawnground, 1);
 
-  my $coord = $self->{'coord'};
+  my $coord = $self->coord_object;
 
   my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
   my ($x2, $y2) = $coord->untransform ($self->{'width'} + $scale,
@@ -698,6 +695,14 @@ sub draw_Image_steps {
   #### draw_Image_steps: $steps_limit
   my $steps = 0;
 
+  # my $time_lo = _gettime();
+  # my $time_hi = $time_lo + $time_limit;
+  # { my $time = _gettime();
+  #   if ($time < $time_lo || $time > $time_hi) {
+  #     last;
+  #   }
+  # }
+
   my $image  = $self->{'image'};
   my $width  = $self->{'width'};
   my $height = $self->{'height'};
@@ -708,7 +713,7 @@ sub draw_Image_steps {
 
   my $path = $self->path_object;
   my $covers = $self->covers_plane;
-  my $coord = $self->{'coord'};
+  my $coord = $self->coord_object;
   my $values_obj = $self->{'values_obj'};
   my $filter_obj = $self->{'filter_obj'};
 
@@ -827,15 +832,16 @@ sub draw_Image_steps {
     $background_fill_proc = \&_noop;
   }
 
+  my $colours = $self->{'colours'};
+  my $colours_offset = $self->{'colours_offset'};
+  my $colour = $foreground;
+  my $type_count1 = $values_obj->type eq 'count1';
+  my $n;
+
   if ($self->{'use_xy'}) {
-    my $colours = $self->{'colours'};
-    my $colours_offset = $self->{'colours_offset'};
     my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
     my $y    = $self->{'y'};
-    my $type_count1 = $values_obj->type eq 'count1';
-    my $colour = $foreground;
-    my $n;
     #### draw by xy: $type_count1, $values_obj->type
     #### xy from: "$x,$y"
 
@@ -918,89 +924,8 @@ sub draw_Image_steps {
     $self->{'x'} = $x;
     $self->{'y'} = $y;
 
-  } elsif ($self->{'use_count1_iter'}) {
-    #### draw by count1_iter
-    my $colours = $self->{'colours'};
-    my $colours_offset = $self->{'colours_offset'};
-    # my $xy_bitvector = $self->{'xy_bitvector'};;
-
-    for (;;) {
-      if (defined $steps_limit) {
-        if (++$steps > $steps_limit) {
-          $more = 1;
-          last;
-        }
-      }
-      my ($n, $count1) = $values_obj->next
-        or last;
-      last if $n > $n_hi;
-      #### $n
-      #### $count1
-      next if ! defined $count1;
-
-      if ($count1 && ! $filter_obj->pred($n)) {
-        next;
-      }
-
-      my ($x, $y) = $path->n_to_xy($n) or next;
-      #### path: "$x, $y"
-
-      ($x, $y) = $transform->($x, $y);
-      $x = floor ($x - $offset + 0.5);
-      $y = floor ($y - $offset + 0.5);
-      #### transformed: "$x, $y"
-
-      my $colour = $colours->[min ($#$colours,
-                                   max (0, $count1 - $colours_offset))];
-      #### $colour
-
-      if ($figure eq 'point') {
-        $count_total++;
-        if ($x < 0 || $y < 0 || $x >= $width || $y >= $height) {
-          $count_outside++;
-          next;
-        }
-        $image->xy ($x, $y, $colour);
-
-      } elsif ($figure eq 'square') {
-        $count_total++;
-        my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
-                                 $width,$height)
-          or do {
-            $count_outside++;
-            next;
-          };
-        push @{$rectangles_by_colour{$colour}}, @rect;
-        if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
-          $flush->();
-        }
-
-      } else { # circle
-        if (my @coords = ellipse_clipper ($x,$y, $x+$scale-1,$y+$scale-1,
-                                          $width,$height)) {
-          $image->ellipse (@coords, $colour);
-        }
-      }
-    }
-
-    ##### $count_total
-    ##### $count_outside
-    if ($figure ne 'circle'
-        && $count_total > 1000
-        && $count_outside > .5 * $count_total
-        && $values_obj->can('pred')
-       ) {
-      #### use_xy from now on
-      $self->use_xy($image);
-    } else {
-      # $self->{'n_prev'} = $n;
-      $self->{'count_total'} = $count_total;
-      $self->{'count_outside'} = $count_outside;
-    }
-
   } else {
     #### draw by N
-    my $n;
 
     for (;;) {
       if (defined $steps_limit) {
@@ -1009,7 +934,7 @@ sub draw_Image_steps {
           last;
         }
       }
-      ($n, undef) = $values_obj->next;
+      ($n, my $count1) = $values_obj->next;
       ### $n_prev
       ### $n
       if (! defined $n || $n > $n_hi) {
@@ -1021,6 +946,15 @@ sub draw_Image_steps {
         or next;
       my ($x, $y) = $path->n_to_xy($n) or next;
       ### path: "$x,$y"
+
+      if ($type_count1) {
+        if (! defined $count1 || $count1 == 0) {
+          next; # background
+        }
+        $colour = $colours->[min ($#$colours,
+                                  max (0, $count1 - $colours_offset))];
+        #### $colour
+      }
 
       ($x, $y) = $transform->($x, $y);
       $x = floor ($x - $offset + 0.5);
@@ -1036,8 +970,8 @@ sub draw_Image_steps {
           $count_outside++;
           next;
         }
-        push @{$points_by_colour{$foreground}}, $x, $y;
-        if (@{$points_by_colour{$foreground}} >= _POINTS_CHUNKS) {
+        push @{$points_by_colour{$colour}}, $x, $y;
+        if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
           $flush->();
         }
 
@@ -1051,15 +985,15 @@ sub draw_Image_steps {
             $count_outside++;
             next;
           };
-        push @{$rectangles_by_colour{$foreground}}, @rect;
-        if (@{$rectangles_by_colour{$foreground}} >= _RECTANGLES_CHUNKS) {
+        push @{$rectangles_by_colour{$colour}}, @rect;
+        if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
           $flush->();
         }
 
       } else {
         if (my @coords = ellipse_clipper ($x,$y, $x+$scale-1,$y+$scale-1,
                                           $width,$height)) {
-          $image->ellipse (@coords, $foreground);
+          $image->ellipse (@coords, $colour);
         }
       }
 
@@ -1092,7 +1026,7 @@ sub use_xy {
   # print "use_xy from now on\n";
   $self->{'use_xy'} = 1;
 
-  my $coord = $self->{'coord'};
+  my $coord = $self->coord_object;
   my $width  = $image->get('-width');
   my $height = $image->get('-height');
 

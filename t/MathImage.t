@@ -26,6 +26,9 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 require App::MathImage;
 require POSIX;
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
@@ -35,7 +38,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 26;
+  my $want_version = 27;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -63,17 +66,21 @@ foreach my $elem
 
    [ ['--text-numbers'] ],
    [ ['--text-list'] ],
-   [ ['--xpm'],           module => 'Image::Xpm' ],
-   [ ['--png-gd'],        module => 'Image::Base::GD' ],
+   [ ['--xpm'],           modules => ['Image::Xpm'] ],
+   [ ['--png-gd'],        modules => ['GD::Group',
+                                      'Image::Base::GD',
+                                      ] ],
    [ ['--png-gtk']        ], # always have Image::Base::Gtk2::Gdk::Pixbuf
-   [ ['--png-pngwriter'], module => 'Image::Base::PNGwriter' ],
-   [ ['--png'],           module => 'Image::Base::GD' ],
+   [ ['--png-pngwriter'], modules => ['Image::Base::PNGwriter'] ],
+   [ ['--png'],           modules => ['GD::Group',
+                                      'Image::Base::GD'] ],
 
    # [ ['--prima'],         module => 'Prima' ],
   ) {
  SKIP: {
     my ($argv, %options) = @$elem;
-    if (my $module = $options{'module'}) {
+    foreach my $module (@{$options{'modules'}}) {
+      ### load module: $module
       if (! eval "require $module") {
         skip "due to $module not available: $@", 2;
       }

@@ -19,13 +19,13 @@ package App::MathImage::Values::CountPrimeFactors;
 use 5.004;
 use strict;
 use warnings;
-use List::Util 'max';
+use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -41,13 +41,12 @@ sub new {
   $lo = max (0, $lo);
   $hi = max (0, $hi);
 
-  my $count = "\0" x ($hi+1);
-  substr ($count, 1,1) = "\001";
   my $i = 1;
   my $self = bless { i => $i,
-                 string => \$count,
-                 hi     => $hi,
-               }, $class;
+                     string => "\0" x ($hi+1),
+                     hi     => $hi,
+                   }, $class;
+  vec ($self->{'string'}, 1,4) = 1;   # N=1 count 1
   while ($i < $lo-1) {
     $self->next;
   }
@@ -61,9 +60,9 @@ sub next {
   if ($i > $hi) {
     return;
   }
-  my $cref = $self->{'string'};
+  my $cref = \$self->{'string'};
 
-  my $ret = ord (substr ($$cref, $i,1));
+  my $ret = vec ($$cref, $i,4);
   if ($ret == 0) {
     $ret++;
     # a prime
@@ -71,13 +70,12 @@ sub next {
       my $step = $i ** $power;
       last if ($step > $hi);
       for (my $j = $step; $j <= $hi; $j += $step) {
-        substr ($$cref, $j,1,
-                chr (1 + ord(substr($$cref, $j,1))));
+        vec($$cref, $j,4) = min (15, vec($$cref,$j,4)+1);
       }
     }
     # print "applied: $i\n";
     # for (my $j = 0; $j < $hi; $j++) {
-    #   printf "  %2d %2d\n", $j, ord(substr($$cref, $j,1));
+    #   printf "  %2d %2d\n", $j, vec($$cref, $j,4));
     # }
   }
   return ($i, $ret);
@@ -91,7 +89,7 @@ sub pred {
     my $i;
     while ((($i) = $self->next) && $i < $n) { }
   }
-  return ord(substr(${$self->{'string'}}, $n,1));
+  return vec($self->{'string'}, $n,4);
 }
 
 1;

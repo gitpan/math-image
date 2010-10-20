@@ -55,7 +55,7 @@ use Gtk2::Ex::ComboBoxBits 2; # version 2 for fixed MoreUtils dependency
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 26;
+our $VERSION = 27;
 
 BEGIN {
   if (0) {
@@ -257,7 +257,7 @@ sub _update_model {
 __END__
 
 =for stopwords Gtk Gtk2 Perl-Gtk combobox ComboBox Gdk Pixbuf Gtk
-writability png jpeg ico bmp undef programmatically
+writability png jpeg ico bmp programmatically
 
 =head1 NAME
 
@@ -307,7 +307,7 @@ initial properties as per C<< Glib::Object->new >>.
 
 =over 4
 
-=item C<type> (string or undef, default "png")
+=item C<type> (string or C<undef>, default "png")
 
 The format type selected in the ComboBox.  This is the user's combobox
 choice, or setting it programmatically changes that choice.  The default

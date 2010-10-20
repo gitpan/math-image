@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 exit App::MathImage->command_line;
 
 __END__
@@ -51,6 +51,16 @@ There's lots of options for what to display, in particular including Ulam's
 spiral of prime numbers, and variations on the numbers in a path theme
 including Sacks spiral and Vogel floret.  Try C<--random> or the Randomize
 button to see interesting combinations.
+
+Most of the code is plain Perl, so it's not blindingly fast, but the GUI or
+the root window are drawn progressively so you can see what's happening.  In
+the GUI you can change the controls while drawing to start again on
+something else.
+
+Mouse button 1 in the GUI drags the image to see parts away from the origin
+and which otherwise don't fit on screen or in the window.  This can become
+slow when displaying things like prime numbers which must be calculated all
+the way up to the desired part.
 
 =head1 OPTIONS
 
@@ -349,7 +359,7 @@ one which does much for C<math-image> is C<--display> to set the X display
 
 =back
 
-=head1 OPTIONAL MODULES
+=head1 MODULES
 
 In addition to the modules noted above, the following are used in the GUI if
 available,

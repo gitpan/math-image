@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

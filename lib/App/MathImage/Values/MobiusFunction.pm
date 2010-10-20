@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
@@ -34,19 +34,27 @@ use constant type => 'count1';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+# each 2-bit vec() value is
+#    0 unset
+#    1 square factor
+#    2 even count of factors
+#    3 odd count of factors
+
+my @tranform = (0, 0, 2, 1);
+
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
 
-  my $count = "0" x ($hi+1);
-  substr ($count, 1,1) = "\003";
-  my $i = min(1, $lo-1);
-  my $self =  bless { i     => $i,
-                     string => \$count,
-                     hi     => $hi,
-                   }, $class;
-  while ($i < $lo-1) {
+  my $self =  bless { i  => 1,
+                      hi => $hi,
+                    }, $class;
+  $self->{'string'} = "\0" x (($hi+1)/4);  # 4 of 2 bits each
+  vec($self->{'string'}, 0,2) = 1;  # N=0 treated as square
+  vec($self->{'string'}, 1,2) = 2;  # N=1 treated as even
+
+  while ($self->{'i'} < $lo) {
     $self->next;
   }
   return $self;
@@ -60,52 +68,49 @@ sub next {
     return;
   }
   if ($i <= 1) {
-    if ($i <= 0) { return ($i, undef); }
-    else { return ($i, 1); }
+    if ($i <= 0) { return ($i, 0); }
+    else { return ($i, 2); }
   }
 
-  my $cref = $self->{'string'};
+  my $sref = \$self->{'string'};
 
-  my $ret = substr($$cref, $i,1);
-  if ($ret eq '0') {
-    # a prime
-    $ret = 1;
+  my $ret = vec($$sref, $i,2);
+  if ($ret == 0) {
+    ### prime: $i
+    $ret = 3; # odd
 
+    # existing squares $v==1 left alone, others toggle 2=odd,3=even
     for (my $j = $i; $j <= $hi; $j += $i) {
-      substr ($$cref, $j,1,
-              chr (2 | (1 ^ ord(substr($$cref, $j,1)))));
+      ### p: "$j ".vec($$sref, $j,2)
+      if ((my $v = vec($$sref, $j,2)) != 1) {
+        vec($$sref, $j,2) = ($v ^ 1) | 2;
+      ### set: vec($$sref, $j,2)
+      }
     }
 
+    # squares set to $v==1
     my $step = $i * $i;
     for (my $j = $step; $j <= $hi; $j += $step) {
-      substr ($$cref, $j,1, '4');  # repeated factor
+      vec($$sref, $j,2) = 1;
     }
     # print "applied: $i\n";
     # for (my $j = 0; $j < $hi; $j++) {
-    #   printf "  %2d %2d\n", $j, ord(substr($$cref, $j,1));
+    #   printf "  %2d %2d\n", $j, vec($$sref,$j,2);
     # }
   }
-  if ($ret >= 4) {
-    return ($i, 0);
-  } else {
-    return ($i, 1+($ret & 1));
-  }
+  ### ret: "$i, $ret -> ".($ret != 1 && 4-$ret)
+  return ($i, $tranform[$ret]);
 }
 
 sub pred {
   my ($self, $n) = @_;
-  ### CountPrimeFactors pred(): $n
+  ### MobiusFunction pred(): $n
   if ($self->{'i'} <= $n) {
     ### extend from: $self->{'i'}
     my $i;
     while ((($i) = $self->next) && $i < $n) { }
   }
-  my $ret = substr(${$self->{'string'}}, $n,1);
-  if ($ret >= 4) {
-    return 0;
-  } else {
-    return 1+($ret & 1);
-  }
+  return $tranform[ vec(${$self->{'string'}}, $n,2) ];
 }
 
 1;

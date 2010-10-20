@@ -26,6 +26,44 @@ use Smart::Comments;
 use lib 'devel/lib';
 
 {
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (fraction => '5/29',
+                                            polygonal => 3);
+  my $iter;
+  #   $iter = $gen->values_make_pronic(1);
+  #   $iter = $gen->values_make_perrin(0);
+  #   $iter = $gen->values_make_padovan(0);
+  #   $iter = $gen->values_make_twin_primes_2(6,100);
+  #   $iter = $gen->values_make_fraction(5,29);
+  #   $iter = $gen->values_make_pi_bits();
+  #   $iter = $gen->values_make_polygonal();
+  # $iter = $gen->values_make_aronson(1, 500);
+  #   $iter = $gen->values_make_semi_primes(1,500);
+  # $iter = $gen->values_make_pentagonal(1,500);
+  # $iter = $gen->values_make_pentagonal_second(1,500);
+  # $iter = $gen->values_make_sophie_germain_primes(1,200);
+  # my $values_class = $gen->values_class('CountPrimeFactors');
+  my $values_class = $gen->values_class('TwinPrimes2');
+  my $values_obj = $values_class->new (fraction => '1/3',
+                                       polygonal => 3,
+                                       lo => 1,
+                                       hi => 50);
+  $|=1;
+  foreach (1 .. 50) {
+    my ($n,$count1) = $values_obj->next;
+    if (! defined $n) {
+      print "undef\n";
+      last;
+    }
+    print "$n,";
+    if (defined $count1) {
+      print " $count1\n";
+    }
+  }
+  exit 0;
+}
+
+{
   require Gtk2;
   Gtk2->init;
   my $toplevel = Gtk2::Window->new('toplevel');
@@ -53,37 +91,7 @@ use lib 'devel/lib';
   B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
   exit 0;
 }
-{
-  require App::MathImage::Generator;
-  my $gen = App::MathImage::Generator->new (fraction => '5/29',
-                                            polygonal => 3);
-  my $iter;
-  #   $iter = $gen->values_make_pronic(1);
-  #   $iter = $gen->values_make_perrin(0);
-  #   $iter = $gen->values_make_padovan(0);
-  #   $iter = $gen->values_make_twin_primes_2(6,100);
-  #   $iter = $gen->values_make_fraction(5,29);
-  #   $iter = $gen->values_make_pi_bits();
-  #   $iter = $gen->values_make_polygonal();
-  # $iter = $gen->values_make_aronson(1, 500);
-  #   $iter = $gen->values_make_semi_primes(1,500);
-  # $iter = $gen->values_make_pentagonal(1,500);
-  # $iter = $gen->values_make_pentagonal_second(1,500);
-  # $iter = $gen->values_make_sophie_germain_primes(1,200);
-  my $values_class = $gen->values_class('BinaryLengths');
-  my $values_obj = $values_class->new (fraction => '1/3',
-                                       polygonal => 3);
-  $|=1;
-  foreach (1 .. 50) {
-    my ($n) = $values_obj->next;
-    if (! defined $n) {
-      print "undef\n";
-      last;
-    }
-    print "$n,";
-  }
-  exit 0;
-}
+
 
 {
   require Math::Prime::XS;

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 154;
+use Test::More tests => 152;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ require App::MathImage::Generator;
 # VERSION
 
 {
-  my $want_version = 26;
+  my $want_version = 27;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -201,10 +201,10 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         146, 155, 158, 159, 161, 166, 169, 177, 178, 183,
                         185, 187 ] ],
 
-                    [ 'SemiPrimesOdd', 0,
-                      [ 9, 15, 21, 25, 33, 35,
-                        39, 49, 51, 55, 57, 65, 69, 77,
-                      ] ],
+                    # [ 'SemiPrimesOdd', 0,
+                    #   [ 9, 15, 21, 25, 33, 35,
+                    #     39, 49, 51, 55, 57, 65, 69, 77,
+                    #   ] ],
 
                     # http://www.research.att.com/~njas/sequences/A005384
                     [ 'SophieGermainPrimes', 0,

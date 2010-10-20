@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 26;
+our $VERSION = 27;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
