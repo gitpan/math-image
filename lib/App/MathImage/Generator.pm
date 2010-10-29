@@ -28,10 +28,10 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###','####';
+#use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -92,6 +92,8 @@ use constant values_choices => do {
                          SafePrimes
                          SemiPrimes
                          SemiPrimesOdd
+                         AbundantNumbers
+                         ObstinateNumbers
                          Squares
                          Pronic
                          Triangular
@@ -106,6 +108,7 @@ use constant values_choices => do {
                          Fibonacci
                          LucasNumbers
                          PellNumbers
+                         Factorials
                          FractionBits
                          PiBits
                          Ln2Bits
@@ -114,6 +117,7 @@ use constant values_choices => do {
                          Even
                          All
                          Aronson
+                         GoldenSequence
                          ThueMorseEvil
                          ThueMorseOdious
                          ChampernowneBinary
@@ -122,11 +126,12 @@ use constant values_choices => do {
                          PrimeQuadraticEuler
                          PrimeQuadraticLegendre
                          PrimeQuadraticHonaker
-                         Multiples
-                         Base4Without3
-                         TernaryWithout2
-                         RepdigitBase10
                          RepdigitAnyBase
+                         RepdigitBase10
+                         UndulatingNumbers
+                         TernaryWithout2
+                         Base4Without3
+                         Multiples
                        )) {
     if (delete $choices{$prefer}) {
       push @choices, $prefer;
@@ -170,13 +175,13 @@ use constant path_choices => qw(SquareSpiral
 
                                 ArchimedeanSpiral
                                 ReplicatingSquares
-                                RotFloret
                               );
 
 sub random_options {
   my @choices;
   foreach my $path (App::MathImage::Generator->path_choices) {
     foreach my $values (App::MathImage::Generator->values_choices) {
+      # next if ($values eq 'Factorials'); # too sparse?
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
@@ -191,9 +196,8 @@ sub random_options {
           || $path eq 'PyramidRows';    # just a vertical
       }
       if ($values eq 'Triangular') {
-        next if
-          $path eq 'Diagonals' # just a line across the bottom
-            || $path eq 'DiamondSpiral';  # just a centre horizontal line
+        next if ($path eq 'Diagonals' # just a line across the bottom
+                 || $path eq 'DiamondSpiral');  # just a centre horizontal line
       }
 
       push @choices, [ path => $path, values => $values ];
@@ -204,7 +208,7 @@ sub random_options {
   my $scale = _rand_of_array(\@scales);
 
   require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.021);
+  Math::Prime::XS->VERSION (0.022);
   my @primes = Math::Prime::XS::sieve_primes(10,100);
   my $num = _rand_of_array(\@primes);
   @primes = grep {$_ != $num} @primes;
@@ -226,12 +230,10 @@ sub random_options {
   my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
                                    1 .. 20]);
 
-  my $rotation_type = _rand_of_array(['phi',
-                                      'pi',
-                                      'sqrt2','sqrt2', # bias extra
-                                      # 'sqrt3',
-                                      # 'sqrt5',
-                                      # 'sqrt7',
+  my $rotation_type = _rand_of_array(['phi','phi','phi','phi',
+                                      'sqrt2','sqrt2',
+                                      'sqrt3',
+                                      'sqrt5',
                                      ]);
 
   return (@{_rand_of_array(\@choices)},
@@ -249,6 +251,7 @@ sub random_options {
           #                                     'Odd','Even','Primes']),
           path_wider          => $path_wider,
           path_rotation_type  => $rotation_type,
+          # path_rotation_factor => $rotation_factor,
           pyramid_step        => $pyramid_step,
           rings_step          => $rings_step,
          );
@@ -327,7 +330,8 @@ sub path_object {
     #### $path_class
     my $err = '';
     unless ($path_class =~ /::/) {
-      $path_class = $self->path_choice_to_class ($path_class);
+      $path_class = $self->path_choice_to_class ($path_class)
+        || croak "No module for path $path_class";
     }
     unless (eval { Module::Load::load ($path_class); 1 }) {
       ### cannot load: $@
@@ -342,7 +346,9 @@ sub path_object {
                     ? $self->{'pyramid_step'}
                     : $self->{'rings_step'}),
        wider    => $self->{'path_wider'},
-       rotation_type => $self->{'path_rotation_type'})
+       rotation_type  => $self->{'path_rotation_type'},
+       rotation_factor => $self->{'path_rotation_factor'},
+       radius_factor  => $self->{'path_radius_factor'})
     });
 }
 
@@ -393,7 +399,7 @@ sub y_negative {
 #   my ($self, $lo, $hi) = @_;
 # 
 #   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.021);
+#   Math::Prime::XS->VERSION (0.022);
 #   my $i = 1;
 #   return sub {
 #     for (;;) {
@@ -459,7 +465,7 @@ sub values_make_columns_of_pythagoras {
 # sub values_make_binary_primes {
 #   my ($self, $lo, $hi) = @_;
 #   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.021);
+#   Math::Prime::XS->VERSION (0.022);
 #   my $n = $lo-1;
 #   return sub {
 #     for (;;) {
@@ -711,7 +717,7 @@ sub draw_Image_steps {
   my $scale = $self->{'scale'};
   ### $scale
 
-  my $path = $self->path_object;
+  my $path_object = $self->path_object;
   my $covers = $self->covers_plane;
   my $coord = $self->coord_object;
   my $values_obj = $self->{'values_obj'};
@@ -749,16 +755,16 @@ sub draw_Image_steps {
         }
       }
 
-      my ($x2, $y2) = $transform->($path->n_to_xy($n))
+      my ($x2, $y2) = $transform->($path_object->n_to_xy($n))
         or next;
 
-      if (my ($x1, $y1) = $transform->($path->n_to_xy($n-0.499))) {
+      if (my ($x1, $y1) = $transform->($path_object->n_to_xy($n-0.499))) {
         $x1 = floor ($x1 + 0.5);
         $y1 = floor ($y1 + 0.5);
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
       }
 
-      if (my ($x3, $y3) = $transform->($path->n_to_xy($n+0.499))) {
+      if (my ($x3, $y3) = $transform->($path_object->n_to_xy($n+0.499))) {
         $x3 = floor ($x3 + 0.5);
         $y3 = floor ($y3 + 0.5);
         _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground)
@@ -772,7 +778,7 @@ sub draw_Image_steps {
   my $offset = int($scale/2);
   my $count_total = $self->{'count_total'};
   my $count_outside = $self->{'count_outside'};
-  my $figure = ($scale == 1 ? 'point' : $path->figure);
+  my $figure = ($scale == 1 ? 'point' : $path_object->figure);
   ### $figure
 
   my $background_fill_proc;
@@ -783,7 +789,7 @@ sub draw_Image_steps {
       foreach my $n ($n_prev+1 .. $n_to) {
         $steps++;
         $count_total++;
-        my ($x, $y) = $path->n_to_xy($n) or do {
+        my ($x, $y) = $path_object->n_to_xy($n) or do {
           $count_outside++;
           next;
         };
@@ -807,7 +813,7 @@ sub draw_Image_steps {
       ### background fill
       foreach my $n ($n_prev+1 .. $n_to) {
         $steps++;
-        my ($x, $y) = $path->n_to_xy($n) or next;
+        my ($x, $y) = $path_object->n_to_xy($n) or next;
         ($x, $y) = $transform->($x, $y);
         ### back_rectangle: $n
         ### $x
@@ -855,13 +861,14 @@ sub draw_Image_steps {
       }
       if (++$x > $x_hi) {
         if (++$y > $self->{'y_hi'}) {
+          $values_obj->finish;
           last;
         }
         $x = $self->{'x_lo'};
         #### next row: "$x,$y"
       }
 
-      if (! defined ($n = $path->xy_to_n ($x, $y))) {
+      if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
         next; # no N for this x,y
       }
       #### path: "$x,$y  $n"
@@ -944,7 +951,7 @@ sub draw_Image_steps {
       }
       $filter_obj->pred($n)
         or next;
-      my ($x, $y) = $path->n_to_xy($n) or next;
+      my ($x, $y) = $path_object->n_to_xy($n) or next;
       ### path: "$x,$y"
 
       if ($type_count1) {
@@ -1002,7 +1009,7 @@ sub draw_Image_steps {
 
     ##### $count_total
     ##### $count_outside
-    if ($figure ne 'circle'
+    if ($path_object->figure ne 'circle'
         && $count_total > 1000
         && $count_outside > .5 * $count_total
         && $values_obj->can('pred')
@@ -1036,12 +1043,12 @@ sub use_xy {
   $y_lo = floor($y_lo);
   $x_hi = ceil($x_hi);
   $y_hi = ceil($y_hi);
-  my $path_obj = $self->path_object;
-  if (! $path_obj->x_negative) {
+  my $path_object = $self->path_object;
+  if (! $path_object->x_negative) {
     $x_lo = max (0, $x_lo);
     $x_hi = max (0, $x_hi);
   }
-  if (! $path_obj->y_negative) {
+  if (! $path_object->y_negative) {
     $y_lo = max (0, $y_lo);
     $y_hi = max (0, $y_hi);
   }

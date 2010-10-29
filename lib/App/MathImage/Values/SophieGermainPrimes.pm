@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Sophie Germain Primes');
 use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
@@ -43,10 +43,8 @@ sub new {
   my @array;
   if ($hi >= $lo) {
     my $primes_hi = 2*$hi+1;
-    # sieve_primes() in 0.21 doesn't allow hi==lo
-    if ($primes_hi == $lo) { $primes_hi++; }
     require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021);
+    Math::Prime::XS->VERSION (0.021); # version 0.21 for various fixes
     ### SophieGermainPrimes: "array $lo to $primes_hi"
     @array = Math::Prime::XS::sieve_primes ($lo, $primes_hi);
 

@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
@@ -47,7 +47,7 @@ sub new {
     if ($primes_hi == $primes_lo) { $primes_hi++; }
 
     require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021);
+    Math::Prime::XS->VERSION (0.021); # version 0.21 for various fixes
     ### TwinPrimes: "array $primes_lo to $primes_hi"
     @array = Math::Prime::XS::sieve_primes ($primes_lo, $primes_hi);
 

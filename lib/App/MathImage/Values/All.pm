@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('All Integers');
 use constant description => __('All integers 1,2,3,etc.');

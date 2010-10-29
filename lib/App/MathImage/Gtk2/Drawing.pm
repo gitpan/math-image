@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 27;
+our $VERSION = 28;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -71,7 +71,7 @@ BEGIN {
      Primes => __('Primes'));
 
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::RotationType',
-                             'phi', 'sqrt2', 'pi');
+                             'phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom');
 }
 
 use Glib::Object::Subclass
@@ -189,6 +189,20 @@ use Glib::Object::Subclass
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::RotationType',
                    App::MathImage::Generator->default_options->{'path_rotation_type'},
+                   Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->double
+                  ('path-rotation-factor',
+                   'path-rotation-factor',
+                   'Blurb.',
+                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
+                   0,
+                   Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->double
+                  ('path-radius-factor',
+                   'path-radius-factor',
+                   'Blurb.',
+                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
+                   0,
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -481,6 +495,7 @@ sub gen_object {
     (map {0.9 * $background_colorobj->$_()
             + 0.1 * $foreground_colorobj->$_()}
      'red', 'blue', 'green');
+  my $path_rotation_type = $self->get('path-rotation-type');
   return App::MathImage::Generator->new
     (values          => $self->get('values'),
      path            => $self->get('path'),
@@ -494,7 +509,10 @@ sub gen_object {
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
-     path_rotation_type => $self->get('path-rotation-type'),
+     ($path_rotation_type eq 'custom'
+      ? (path_rotation_factor => $self->get('path-rotation-factor'))
+      : (path_rotation_type  => $path_rotation_type)),     
+     path_radius_factor  => $self->get('path-radius-factor'),
      pyramid_step    => $self->get('pyramid-step'),
      rings_step      => $self->get('rings-step'),
      path_wider      => $self->get('path-wider'),
@@ -540,29 +558,7 @@ sub start_drawing_window {
 
   my $gen = $self->{'drawing'}->{'gen'} = $self->gen_object;
   $self->{'path_object'} = $gen->path_object;
-  $self->{'coord'} = $gen->{'coord'};
-
-  # if (my $vadj = $self->{'vadjustment'}) {
-  #   my $coord = $self->{'coord'};
-  #   my (undef, $value)       = $coord->untransform(0,$height);
-  #   my (undef, $value_upper) = $coord->untransform(0,0);
-  #   my $page_size = $value_upper - $value;
-  #   ### vadj: "$value to $value_upper"
-  #   $vadj->set (lower     => min (0, $value - 1.5 * $page_size),
-  #               upper     => max (0, $value_upper + 1.5 * $page_size),
-  #               page_size => $page_size,
-  #               value     => $value);
-  # }
-  # if (my $hadj = $self->{'hadjustment'}) {
-  #   my $coord = $self->{'coord'};
-  #   my ($value,       undef) = $coord->untransform(0,0);
-  #   my ($value_upper, undef) = $coord->untransform($width,0);
-  #   my $page_size = $value_upper - $value;
-  #   ### hadj: "$value to $value_upper"
-  #   $hadj->set (lower     => min (0, $value - 1.5 * $page_size),
-  #               upper     => max (0, $value_upper + 1.5 * $page_size),
-  #               page_size => $page_size);
-  # }
+  $self->{'coord'} = $gen->coord_object;
 
   require Image::Base::Gtk2::Gdk::Pixmap;
   my $image = $self->{'drawing'}->{'image'}

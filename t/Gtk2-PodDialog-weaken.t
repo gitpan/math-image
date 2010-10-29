@@ -26,7 +26,6 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-use App::MathImage::Gtk2::PodDialog;
 use Test::Weaken::Gtk2;
 use Test::Weaken::ExtraBits; # in 't' dir
 
@@ -34,11 +33,16 @@ use Gtk2;
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 
+eval { require Gtk2::Ex::PodViewer }
+  or plan skip_all => "due to Gtk2::Ex::PodViewer not available -- $@";
+
 # Test::Weaken 3 for "contents"
 eval "use Test::Weaken 3; 1"
-  or plan skip_all => "Test::Weaken 3 not available -- $@";
+  or plan skip_all => "due to Test::Weaken 3 not available -- $@";
 
 plan tests => 1;
+
+require App::MathImage::Gtk2::PodDialog;
 
 # Somehow a GtkFileChooserDefault stays alive in gtk 2.20.  Is it meant to,
 # to keep global settings?  In any case ignore for now.

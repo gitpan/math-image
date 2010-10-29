@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Repdigits Base 10');
 use constant description => __('Numbers which are a "repdigit" in base 10, meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc');
@@ -41,14 +41,41 @@ sub new {
 }
 sub next {
   my ($self) = @_;
+
+  # if ($radix == 2) {
+  #   return (1 << ($self->{'i'}++)) - 1;
+  # }
+  # if ($radix != 10) {
+  #   my $n = ($self->{'n'} += $self->{'inc'});
+  #   if (++$self->{'digit'} >= $radix) {
+  #     $self->{'inc'} = $self->{'inc'} * $radix + 1;  # 11...111
+  #     $n = ++$self->{'n'};  # 11...1110 -> 11...1111
+  #   }
+  #   return $n;
+  # }
+
   if (++$self->{'digit'} > 9) {
     $self->{'digit'} = 1;
     $self->{'reps'}++;
   }
   return ($self->{'digit'} x $self->{'reps'});
 }
+
 sub pred {
   my ($self, $n) = @_;
+  # if ($radix == 2) {
+  #   return ! (($n+1) & $n);
+  # }
+  # if ($radix != 10) {
+  #   my $digit = $n % $radix;
+  #   while ($n = int($n/$radix)) {
+  #     if (($n % $radix) != $digit) {
+  #       return 0;
+  #     }
+  #   }
+  #   return 1;
+  # }
+
   my $digit = substr($n,0,1);
   return ($n !~ /[^$digit]/);
 }

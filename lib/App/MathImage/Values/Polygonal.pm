@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Polygonal Numbers');
 # use constant description => __('');

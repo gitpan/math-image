@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -42,11 +42,8 @@ sub new {
 
   my @array;
   if ($hi >= $lo) {
-    # sieve_primes() in 0.21 doesn't allow hi==lo
-    if ($hi == $lo) { $hi++; }
-
     require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021);
+    Math::Prime::XS->VERSION (0.022); # version 0.22 for lo==hi
     @array = Math::Prime::XS::sieve_primes ($lo, $hi);
   }
   return bless { %options,

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Base 4 Without 3');
 use constant description => __('The integers without any 3 digits when written out in base 4.');
@@ -34,32 +34,72 @@ use constant description => __('The integers without any 3 digits when written o
 
 sub new {
   my ($class, %options) = @_;
+
   my $lo = $options{'lo'} || 0;
-  return bless { i => -1,
+  my $n = abs($lo);
+
+  # look at the base 4 digits, form $i by treating them as binary, increment
+  # any "3" digits to go to the next without 3s
+  my $i = 0; 
+  my $power = 1;
+  while ($n) {
+    my $rem = $n & 3;
+    if ($rem == 3) {
+      $n++;
+    } else {
+      $i += $rem * $power;
+    }
+    $n >>= 2;
+    $power *= 3;
+  }
+
+  if ($lo < 0) {
+    $i = -$i;
+    if ($n == $lo) {
+      $i--;
+    }
+  }
+  return bless { i => $i,
                }, $class;
 }
 sub next {
   my ($self) = @_;
-  my $i = ++$self->{'i'};
-  my $mask = 3;
-  while ($mask <= $i) {
-    if (($i & $mask) == $mask) {
-      $i += $mask/3;
-    }
-    $mask <<= 2;
+  ### Base4Without3 next(): $self->{'i'}
+  
+  # $i converted to ternary digits, built back up as base 4
+  my $i = $self->{'i'}++;
+  my $shift = 0;
+  my $ret = 0;
+  while ($i) {
+    $ret += ($i % 3) << $shift;
+    $i = int($i/3);
+    $shift += 2;
   }
-  return (($self->{'i'} = $i),
-          1);
+  return $ret;
+
+  # return $base4->from_base ($ternary->to_base ($self->{'i'}++));
+  # my $i = $self->{'i'}++;
+  # my $mask = 3;
+  # while ($mask <= $i) {
+  #   if (($i & $mask) == $mask) {
+  #     $i += $mask/3;
+  #   }
+  #   $mask <<= 2;
+  # }
+  # return (($self->{'i'} = $i),
+  #         1);
 }
 sub pred {
   my ($self, $n) = @_;
-  while ($n) {
-    if (($n & 3) == 3) {
-      return 0;
-    }
-    $n >>= 2;
-  }
-  return 1;
+  ### Base4Without3 pred(): $n
+  # 0011   3
+  # 0111   7
+  # 1011   b
+  # 1100   c
+  # 1101   d
+  # 1110   e
+  # 1111   f
+  return (sprintf('%x',$n) !~ /[37bcdef]/);
 }
 
 1;

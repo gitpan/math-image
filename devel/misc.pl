@@ -25,72 +25,89 @@ use Smart::Comments;
 
 use lib 'devel/lib';
 
+
 {
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
                                             polygonal => 3);
-  my $iter;
-  #   $iter = $gen->values_make_pronic(1);
-  #   $iter = $gen->values_make_perrin(0);
-  #   $iter = $gen->values_make_padovan(0);
-  #   $iter = $gen->values_make_twin_primes_2(6,100);
-  #   $iter = $gen->values_make_fraction(5,29);
-  #   $iter = $gen->values_make_pi_bits();
-  #   $iter = $gen->values_make_polygonal();
-  # $iter = $gen->values_make_aronson(1, 500);
-  #   $iter = $gen->values_make_semi_primes(1,500);
-  # $iter = $gen->values_make_pentagonal(1,500);
-  # $iter = $gen->values_make_pentagonal_second(1,500);
-  # $iter = $gen->values_make_sophie_germain_primes(1,200);
-  # my $values_class = $gen->values_class('CountPrimeFactors');
-  my $values_class = $gen->values_class('TwinPrimes2');
-  my $values_obj = $values_class->new (fraction => '1/3',
-                                       polygonal => 3,
-                                       lo => 1,
-                                       hi => 50);
-  $|=1;
-  foreach (1 .. 50) {
-    my ($n,$count1) = $values_obj->next;
-    if (! defined $n) {
-      print "undef\n";
-      last;
+
+  foreach my $rep (1 .. 3) {
+    my $iter;
+    #   $iter = $gen->values_make_pronic(1);
+    #   $iter = $gen->values_make_perrin(0);
+    #   $iter = $gen->values_make_padovan(0);
+    #   $iter = $gen->values_make_twin_primes_2(6,100);
+    #   $iter = $gen->values_make_fraction(5,29);
+    #   $iter = $gen->values_make_pi_bits();
+    #   $iter = $gen->values_make_polygonal();
+    # $iter = $gen->values_make_aronson(1, 500);
+    #   $iter = $gen->values_make_semi_primes(1,500);
+    # $iter = $gen->values_make_pentagonal(1,500);
+    # $iter = $gen->values_make_pentagonal_second(1,500);
+    # $iter = $gen->values_make_sophie_germain_primes(1,200);
+    # my $values_class = $gen->values_class('CountPrimeFactors');
+    # my $values_class = $gen->values_class('TwinPrimes2');
+    # my $values_class = $gen->values_class('GoldenSequence');
+    # my $values_class = $gen->values_class('GolayRudinShapiro');
+    my $values_class;
+    $values_class = $gen->values_class('Factorials');
+    $values_class = $gen->values_class('AbundantNumbers');
+    $values_class = $gen->values_class('ObstinateNumbers');
+    $values_class = $gen->values_class('Fibonacci');
+    $values_class = $gen->values_class('LucasNumbers');
+    $values_class = $gen->values_class('UndulatingNumbers');
+    my $values_obj = $values_class->new (fraction => '1/3',
+                                         polygonal => 3,
+                                         lo => 1,
+                                         hi => 200*$rep);
+    ### $values_obj
+    $|=1;
+    foreach (1 .. 500) {
+      my ($n,$count1) = $values_obj->next;
+      if (! defined $n) {
+        print "undef\n";
+        last;
+      }
+      print "$n,";
+      if (defined $count1) {
+        print " $count1";
+      }
+
+      if (! $values_obj->pred($n)) {
+        print " oops, pred false\n";
+      }
+
     }
-    print "$n,";
-    if (defined $count1) {
-      print " $count1\n";
-    }
+    print "\n";
   }
   exit 0;
 }
 
 {
-  require Gtk2;
-  Gtk2->init;
-  my $toplevel = Gtk2::Window->new('toplevel');
-  $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
-  my $ebox = Gtk2::EventBox->new;
-  ### border: $ebox->get('border-width')
-  my $button = Gtk2::Button->new; # ('button', 0, 100, 1);
-  $button->set (relief => 'none');
-  # $button->style_set_property
-  ### border: $button->get('border-width')
-  $toplevel->add ($button);
-  my $arrow = Gtk2::Arrow->new ('up', 'out');
-  $arrow->set_size_request (5,5);
-  ### xpad: $arrow->get('xpad')
-  ### ypad: $arrow->get('ypad')
-  $button->add ($arrow);
-  $toplevel->show_all;
-  Gtk2->main;
+  my @catalan = (1);
+  foreach my $i (1 .. 20) {
+    my $c = 0;
+    foreach my $j (0 .. $#catalan) {
+      $c += $catalan[$j]*$catalan[-1-$j];
+    }
+    $catalan[$i] = $c;
+    print "$c\n";
+  }
+  exit 0;
+}
+{
+  my $i;
+  sub del {
+    return 2 + ($] >= 5.006 ? 3 : 999);
+  }
+
+  require App::MathImage::Values::PrimeQuadraticHonaker;
+  require B::Concise;
+  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
+  B::Concise::compile('-exec',\&main::del)->();
   exit 0;
 }
 
-{
-  require App::MathImage::Values::PrimeQuadraticHonaker;
-  require B::Concise;
-  B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
-  exit 0;
-}
 
 
 {

@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
+use Gtk2::Ex::ComboBox::PixbufType;
 use Gtk2 '-init';
 
 use FindBin;
@@ -34,7 +34,7 @@ if (0) {
 }
 
 if (0) {
-  my @properties = Glib::Object::list_properties('App::MathImage::Gtk2::Ex::ComboBox::PixbufType');
+  my @properties = Glib::Object::list_properties('Gtk2::Ex::ComboBox::PixbufType');
   require Data::Dumper;
   print Data::Dumper->new([\@properties],['savetype properties'])->Dump;
   exit 0;
@@ -47,7 +47,7 @@ $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
 my $vbox = Gtk2::VBox->new;
 $toplevel->add ($vbox);
 
-my $combo = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
+my $combo = Gtk2::Ex::ComboBox::PixbufType->new;
 $combo->_configure_types (prefer_list => [ 'png', 'tiff', 'svg' ],
                          plus_formats => [ { name => 'svg' } ]);
 print "$progname: combo type initial @{[$combo->get('active-type')//'undef']}\n";

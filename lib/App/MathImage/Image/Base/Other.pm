@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -107,6 +107,54 @@ sub rectangles {
   while (@_) {
     $image->rectangle (shift,shift,shift,shift, $colour, $fill);
   }
+}
+
+sub diamond {
+  my ($self, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
+
+  my $w = int (($x2 - $x1) / 2);
+  my $h = int (($y2 - $y1) / 2);
+  ### $w
+  ### $h
+  ### x1+w: $x1+$w
+  ### x2-w: $x2-$w
+  ### y1+h: $y1+$h
+  ### y2-h: $y2-$h
+
+  my $x = $w;
+  my $rem = - int($h/2);
+  for (my $y = 0; $y <= $h; $y++) {
+    ### $x
+    ### $y
+    ### $rem
+    ### hline: ($x1+$x)." to ".($x2-$x)
+    if ($fill) {
+      $self->line ($x1+$x,$y1+$y, $x2-$x,$y1+$y, $colour); # upper
+      $self->line ($x1+$x,$y2-$y, $x2-$x,$y2-$y, $colour); # lower
+    } else {
+      $self->xy ($x1+$x,$y1+$y, $colour); # upper left
+      $self->xy ($x2-$x,$y1+$y, $colour); # upper right
+
+      $self->xy ($x1+$x,$y2-$y, $colour); # lower left
+      $self->xy ($x2-$x,$y2-$y, $colour); # lower right
+    }
+    if (($rem += $w) > 0) {
+      do {
+        $rem -= $h;
+        $x--;
+      } while ($rem > 0);
+    }
+  }
+  # if ($fill) {
+  # } else {
+  #   $self->line ($x1,$y1+$h, $x1+$w,$y1, 'a'); # top left
+  #   $self->line ($x2-$w,$y1, $x2,$y1+$h, 'b'); # top right
+  #
+  #   $self->line ($x1,$y2-$h, $x1+$w,$y2, 'x'); # bottom left
+  #   $self->line ($x2-$w,$y2, $x2,$y2-$h, 'y'); # bottom right
+  # }
 }
 
 1;

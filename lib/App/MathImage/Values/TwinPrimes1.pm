@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');
@@ -49,7 +49,7 @@ sub new {
     my $primes_hi = $hi + 2;
 
     require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021);
+    Math::Prime::XS->VERSION (0.021); # version 0.21 for various fixes
     ### TwinPrimes: "array $primes_lo to $primes_hi"
     @array = Math::Prime::XS::sieve_primes ($primes_lo, $primes_hi);
 

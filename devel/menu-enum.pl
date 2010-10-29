@@ -17,6 +17,11 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# gtk_radio_menu_item_activate() won't allow self to go off if no other in
+# group is on.  When turning on sets all others in group to off.
+#
+
 use 5.010;
 use strict;
 use warnings;
@@ -28,8 +33,21 @@ use Smart::Comments;
 use FindBin;
 my $progname = $FindBin::Script;
 
+if (0) {
+  # my $menuitem = Gtk2::MenuItem->new ('_hello');
+  my $menuitem = Gtk2::MenuItem->new_with_label ('hello');
+  #  my $menuitem = Glib::Object::new ('Gtk2::MenuItem');
+  ### child: $menuitem->get_child
+  ### label: $menuitem->get('label')
+  ### under: $menuitem->get('use-underline')
+  # $menuitem->set(label => undef);
+  exit 0;
+}
+
+
 Glib::Type->register_enum ('My::Test1', 'foo', 'bar-ski', 'quux',
-                           100 .. 105);
+                           # 100 .. 105,
+                          );
 
 my $toplevel = Gtk2::Window->new('toplevel');
 $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
@@ -47,7 +65,7 @@ my $menu = App::MathImage::Gtk2::Ex::Menu::EnumRadio->new
   (enum_type => 'My::Test1');
 $menu->signal_connect ('notify::active-nick' => sub {
                          my ($menu) = @_;
-                         print "$progname: active-nick now ",$menu->get('active-nick'),"\n";
+                         print "$progname: active-nick now ",$menu->get('active-nick')||'[undef]',"\n";
                        });
 $item->set_submenu ($menu);
 

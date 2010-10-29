@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 use constant name => __('Semi-Primes');
 use constant description => __('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');
@@ -49,9 +49,7 @@ sub new {
     my $vec = Bit::Vector->new($hi+1);
 
     require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021);
-    # sieve_primes() in 0.21 doesn't allow hi==lo
-    if ($primes_hi == $primes_lo) { $primes_hi++; }
+    Math::Prime::XS->VERSION (0.022); # version 0.22 for lo==hi
     my @primes = Math::Prime::XS::sieve_primes ($primes_lo, $primes_hi);
     ### @primes
 

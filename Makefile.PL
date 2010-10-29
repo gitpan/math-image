@@ -46,7 +46,7 @@ MyMakeMakerExtras::WriteMakefile
     'Glib::Ex::ObjectBits' => 12, # new in v.12
     'Glib::Ex::SourceIds'  => 2,  # new in v.2
     'Glib::Ex::SignalIds'  => 0,
-    # 'Glib::Ex::SignalBits' => 9, # new in v.9
+    'Glib::Ex::SignalBits' => 9, # new in v.9
     'Glib::Ex::EnumBits'   => 11, # new in v.11
 
     'Gtk2' => '1.220',
@@ -61,15 +61,16 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
-    # my Gtk2-Ex-ComboBoxBits, version 2 for fixed MoreUtils dependency
-    'Gtk2::Ex::ComboBoxBits'   => 2,
+    # my Gtk2-Ex-ComboBoxBits
+    'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 for fixed MoreUtils dependency
     'Gtk2::Ex::ComboBox::Enum' => 2,
     'Gtk2::Ex::ComboBox::Text' => 2,
+    'Gtk2::Ex::ComboBox::PixbufType' => 4, # new in version 4
 
     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 0,
-    'Image::Base' => 0,
+    'Image::Base' => '1.09',  # for ellipse() fixes
 
     # my Image-Base-Other
     'Image::Base::Multiplex' => 0,
@@ -92,28 +93,35 @@ MyMakeMakerExtras::WriteMakefile
     'Text::Capitalize' => 0,
     'Term::Size' => 0,
 
-    # version 0.21 for malloc and some fixes
-    'Math::Prime::XS' => '0.21',
+    'Math::Prime::XS' => '0.22', # version 0.22 for lo==hi
 
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
     'Math::TriangularNumbers' => '1.012',
 
-    # my Math-PlanePath
-    'Math::PlanePath' => 0,
-    'Math::PlanePath::Diagonals'    => 2, # sqrt fix
-    'Math::PlanePath::SquareSpiral' => 5, # wider parameter
-    'Math::PlanePath::PyramidRows'  => 4, # step parameter
-    'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
-    'Math::PlanePath::TriangleSpiral'       => 3,
-    'Math::PlanePath::TriangleSpiralSkewed' => 3,
-    'Math::PlanePath::PentSpiralSkewed'     => 3,
-    'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
-    'Math::PlanePath::HexSpiral'            => 9,  # wider parameter
-    'Math::PlanePath::HexSpiralSkewed'      => 9,  # wider parameter
-    'Math::PlanePath::HeptSpiralSkewed'     => 4,
+    'Math::PlanePath' => 1,
+    # subclasses per Generator.pm path_choices()
+    'Math::PlanePath::SquareSpiral'   => 5,  # v.5 wider parameter
+    'Math::PlanePath::SacksSpiral'    => 1,
+    'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
     'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
-    'Math::PlanePath::MultipleRings'        => 7,  # new in v.7
+    'Math::PlanePath::MultipleRings'        => 10, # v.10 fix xy_to_n
+    'Math::PlanePath::DiamondSpiral'        => 1,
+    'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
+    'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
+    'Math::PlanePath::HexSpiral'            => 9,  # v.9 wider parameter
+    'Math::PlanePath::HexSpiralSkewed'      => 9,  # v.9 wider parameter
+    'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
+    'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
+    'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
+    'Math::PlanePath::KnightSpiral'         => 1,
+    'Math::PlanePath::PyramidRows'          => 4,  # step parameter
+    'Math::PlanePath::PyramidSides'         => 1,
+    'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
+    'Math::PlanePath::Corner'               => 1,
+    'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
+    'Math::PlanePath::Rows'                 => 7,  # v.7 rect_to_n_range
+    'Math::PlanePath::Columns'              => 7,  # v.7 rect_to_n_range
    },
    MIN_PERL_VERSION => '5.008',
 
@@ -124,7 +132,6 @@ MyMakeMakerExtras::WriteMakefile
         recommends
         => { 'Math::Aronson'  => 4, # version 4 for lying option
              'Math::Symbolic' => 0, # probably almost any ok
-             'Image::Base' => '1.09',  # for ellipse() fixes
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,

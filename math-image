@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 exit App::MathImage->command_line;
 
 __END__
@@ -138,9 +138,17 @@ grow too quickly to display much in the way of patterns.
 
 The 1 bits in the binary expansion of a fraction.  For example the default
 in the GUI is 5/29 which means 9,11,12, 17, 21,22,24, 27,28,29,30, etc.
-A decimal can be given so 1.234 means 1234/1000.  A fraction is always a
-repeating pattern, with length no longer than the denominator, but can give
-interesting patterns for various paths.
+A decimal can be given so 1.234 means 1234/1000.
+
+A fraction is always a repeating pattern, with length no longer than the
+denominator, but can give interesting patterns for various paths.  For
+example
+
+    math-image --corner --fraction=1/137
+
+shows the fine structure constant 1/137 as a repeating pattern of an angry
+man with a beard and a skull wearing a hat, this no doubt having deep cosmic
+significance.
 
 =item --all
 

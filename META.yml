@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            27
+version:            28
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -18,12 +18,14 @@ requires:
     Glib::Ex::ConnectProperties:  11
     Glib::Ex::EnumBits:   11
     Glib::Ex::ObjectBits:  12
+    Glib::Ex::SignalBits:  9
     Glib::Ex::SignalIds:  0
     Glib::Ex::SourceIds:  2
     Glib::Object::Subclass:  0
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
     Gtk2::Ex::ComboBox::Enum:  2
+    Gtk2::Ex::ComboBox::PixbufType:  4
     Gtk2::Ex::ComboBox::Text:  2
     Gtk2::Ex::ComboBoxBits:  2
     Gtk2::Ex::ContainerBits:  21
@@ -35,7 +37,7 @@ requires:
     Gtk2::Ex::WidgetCursor:  0
     Gtk2::Ex::WidgetEvents:  21
     Gtk2::Pango:          0
-    Image::Base:          0
+    Image::Base:          1.09
     Image::Base::Gtk2::Gdk::Pixbuf:  3
     Image::Base::Gtk2::Gdk::Pixmap:  2
     Image::Base::Gtk2::Gdk::Window:  2
@@ -45,21 +47,29 @@ requires:
     Locale::Messages:     0
     Locale::TextDomain:   1.19
     Math::Libm:           0
-    Math::PlanePath:      0
+    Math::PlanePath:      1
+    Math::PlanePath::Columns:  7
+    Math::PlanePath::Corner:  1
     Math::PlanePath::Diagonals:  2
+    Math::PlanePath::DiamondSpiral:  1
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexSpiral:  9
     Math::PlanePath::HexSpiralSkewed:  9
-    Math::PlanePath::MultipleRings:  7
+    Math::PlanePath::KnightSpiral:  1
+    Math::PlanePath::MultipleRings:  10
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
     Math::PlanePath::PyramidRows:  4
+    Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
+    Math::PlanePath::Rows:  7
+    Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
-    Math::Prime::XS:      0.21
+    Math::PlanePath::VogelFloret:  12
+    Math::Prime::XS:      0.22
     Math::TriangularNumbers:  1.012
     Module::Load:         0
     Module::Util:         0
@@ -121,7 +131,6 @@ recommends:
     Gtk2::Ex::CrossHair:  0
     Gtk2::Ex::ErrorDialog:  7
     Gtk2::Ex::PodViewer:  0
-    Image::Base:          1.09
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0

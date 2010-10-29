@@ -31,16 +31,16 @@ use Gtk2::Ex::Units;
 use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
 use Glib::Ex::ConnectProperties 11; # version 11 for widget-allocation
+use Gtk2::Ex::ComboBox::PixbufType;
 use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Ex::GdkPixbufBits;
-use App::MathImage::Gtk2::Ex::ComboBox::PixbufType;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 27;
+our $VERSION = 28;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -101,8 +101,8 @@ sub INIT_INSTANCE {
     my $label = Gtk2::Label->new(__('File Format'));
     $hbox->pack_start ($label, 0,0, Gtk2::Ex::Units::em($label));
 
-    my $combo = $self->{'combo'}
-      = App::MathImage::Gtk2::Ex::ComboBox::PixbufType->new;
+    my $combo = $self->{'combo'} = Gtk2::Ex::ComboBox::PixbufType->new
+      (active_type => 'png');
     Glib::Ex::ObjectBits::set_property_maybe
         ($combo,
          # tooltip-text new in Gtk 2.12

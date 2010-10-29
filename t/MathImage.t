@@ -38,7 +38,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 27;
+  my $want_version = 28;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -52,7 +52,10 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 #------------------------------------------------------------------------------
 
 foreach my $elem
-  ([ ['--version'] ],
+  (
+   [ ['--text', '--vogel'] ],
+
+   [ ['--version'] ],
    [ ['--help'] ],
    [ ['--verbose', '--version'] ],
 
@@ -60,20 +63,16 @@ foreach my $elem
    [ ['--text', '--scale=5'] ],
    [ ['--text', '--size=10'] ],
    [ ['--text', '--size=10x20'] ],
-   [ ['--text', '--vogel'] ],
    [ ['--text', '--sacks'] ],
    # [ ['--text', '--random'] ],  # could need all modules
 
    [ ['--text-numbers'] ],
    [ ['--text-list'] ],
    [ ['--xpm'],           modules => ['Image::Xpm'] ],
-   [ ['--png-gd'],        modules => ['GD::Group',
-                                      'Image::Base::GD',
-                                      ] ],
+   [ ['--png-gd'],        modules => ['Image::Base::GD'] ],
    [ ['--png-gtk']        ], # always have Image::Base::Gtk2::Gdk::Pixbuf
    [ ['--png-pngwriter'], modules => ['Image::Base::PNGwriter'] ],
-   [ ['--png'],           modules => ['GD::Group',
-                                      'Image::Base::GD'] ],
+   [ ['--png'],           modules => ['Image::Base::GD'] ],
 
    # [ ['--prima'],         module => 'Prima' ],
   ) {

@@ -35,7 +35,7 @@ use App::MathImage::Values::MobiusFunction;
 # VERSION
 
 {
-  my $want_version = 27;
+  my $want_version = 28; 
   is ($App::MathImage::Values::MobiusFunction::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::MobiusFunction->VERSION,  $want_version, 'VERSION class method');
 

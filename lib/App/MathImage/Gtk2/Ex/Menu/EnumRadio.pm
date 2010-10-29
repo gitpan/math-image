@@ -23,10 +23,12 @@ use Gtk2;
 use Glib::Ex::SignalBits;
 use Glib::Ex::EnumBits;
 
+use App::MathImage::Gtk2::Ex::Menu::EnumRadio::Item;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 4;
+our $VERSION = 28;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',
@@ -113,11 +115,15 @@ sub SET_PROPERTY {
       foreach my $info (Glib::Type->list_values($enum_type)) {
         my $nick = $info->{'nick'};
         my $str = $self->signal_emit ('nick-to-display', $nick);
-        $item = Gtk2::RadioMenuItem->new_with_label ($item, $str);
+        # $item = Gtk2::RadioMenuItem->new_with_label ($item, $str);
+        $item = App::MathImage::Gtk2::Ex::Menu::EnumRadio::Item->new_with_label
+          ($str);
+        ### sig: $item->signal_connect (activate => sub { print "activate $item ", $item->get_active,"\n" });
         $item->{'nick'} = $nick;
         $item->show;
         $self->append ($item);
         $item->signal_connect (toggled => \&_do_item_toggled);
+        ### actives now: map {$_->get_active} $self->get_children
       }
     }
   }
@@ -136,6 +142,7 @@ sub SET_PROPERTY {
       }
     }
   }
+  ### actives now: map {$_->get_active} $self->get_children
 }
 
 sub _do_item_toggled {
@@ -251,8 +258,11 @@ to pick sensible ones might be good.
 =head1 SEE ALSO
 
 L<Gtk2::Menu>,
-L<Glib::Ex::EnumBits>,
-L<Gtk2::Ex::Menu::Text>
+L<Glib::Ex::EnumBits>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
