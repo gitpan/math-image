@@ -25,16 +25,16 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Arbitrary Expression');
 use constant description => __('An arbitrary expression, to be parsed by Math::Symbolic.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*x)^2 would give the even perfect squares.
 
 An invalid expression produces a blank display and a message in the status bar.');
 
-use constant parameters => { name => 'expression',
-                             type => 'string',
-                             default => '3*x^2 + x + 2',
+use constant parameters => { expression => { type => 'string',
+                                             default => '3*x^2 + x + 2',
+                                           },
                            };
 
 # uncomment this to run the ### lines
@@ -45,7 +45,7 @@ sub new {
   my $lo = $options{'lo'} || 0;
   my $expression = $options{'expression'};
   if (! defined $expression) {
-    $expression = ($class->parameters)[0]->{'default'};
+    $expression = $class->parameters->{'expression'}->{'default'};
   }
   require Math::Symbolic;
   my $tree = Math::Symbolic->parse_from_string($expression);

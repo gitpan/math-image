@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 exit App::MathImage->command_line;
 
 __END__
@@ -50,7 +50,7 @@ interface, as an image file output, or setting the root window.
 There's lots of options for what to display, in particular including Ulam's
 spiral of prime numbers, and variations on the numbers in a path theme
 including Sacks spiral and Vogel floret.  Try C<--random> or the Randomize
-button to see interesting combinations.
+button for interesting combinations.
 
 Most of the code is plain Perl, so it's not blindingly fast, but the GUI or
 the root window are drawn progressively so you can see what's happening.  In
@@ -58,9 +58,9 @@ the GUI you can change the controls while drawing to start again on
 something else.
 
 Mouse button 1 in the GUI drags the image to see parts away from the origin
-and which otherwise don't fit on screen or in the window.  This can become
-slow when displaying things like prime numbers which must be calculated all
-the way up to the desired part.
+and which otherwise don't fit on screen or in the window.  This can become a
+bit slow when displaying things like prime numbers which must be calculated
+all the way up to the desired part.
 
 =head1 OPTIONS
 
@@ -191,9 +191,9 @@ Ulam's primes in a square spiral (currently the default too).
 
 =item --vogel
 
-Vogel's floret design for the positions of seeds in a sunflower.  Try the
-following to see all the points in the pattern before applying various
-special sets of values.
+Vogel's floret design for the positions of seeds in a sunflower (see
+L<Math::PlanePath::VogelFloret>).  Try the following to see all the points
+in the pattern before applying various special sets of values.
 
     math-image --vogel --all --scale=10
 
@@ -203,23 +203,24 @@ less than all the integers a lower scale can be used.
 =item --sacks
 
 An Archimedian spiral with points going by their square root, by Robert
-Sacks.
+Sacks (see L<Math::PlanePath::SacksSpiral>).
 
 =item --theodorus
 
-The spiral of Theodorus or square-root spiral.
+The spiral of Theodorus or square-root spiral (see
+L<Math::PlanePath::TheodorusSpiral>).
 
 =item --diamond
 
-A diamond shaped spiral, see L<Math::PlanePath::DiamondSpiral>.
+A diamond shaped spiral (see L<Math::PlanePath::DiamondSpiral>).
 
 =item --pyramid
 
-The sides of a pyramid shape, see L<Math::PlanePath::PyramidSides>.
+The sides of a pyramid shape (see L<Math::PlanePath::PyramidSides>).
 
 =item --pyramid-rows
 
-A pyramid made from horizontal rows, see L<Math::PlanePath::PyramidRows>.
+A pyramid made from horizontal rows (see L<Math::PlanePath::PyramidRows>).
 
 =item --corner
 
@@ -257,12 +258,15 @@ to a random image perhaps from your F<~/.xsession> file,
 
     math-image --root --random
 
-Under X the root window is set with C<X11::Protocol> if available, or
-C<Gtk2> otherwise.  C<X11::Protocol> is preferred as it allows the
-C<--foreground> and C<--background> colours to be preserved on a
-pseudo-colour screen.  C<Gtk2> on a true-colour screen is fine, as are black
-and white (being permanent in the default colormap), but other colours won't
-be preserved.
+You can add C<--verbose> to print what was in fact chosen and displayed
+(from F<~/.xsession>) output normally goes to the F<~/.xsession-errors>
+file).
+
+Under X the root window is set with C<X11::Protocol> if available, otherwise
+C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
+C<--background> colours to be preserved on a pseudo-colour screen.  C<Gtk2>
+on a true-colour screen is fine, and black and white too (being permanent in
+the default colormap), but other colours won't be preserved.
 
 =item --display=DPY
 
@@ -276,7 +280,7 @@ C<DISPLAY> environment variable (normally set at X startup).
 =item --xpm
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
-possible using GdkPixbuf but can also use C<Image::Base::GD> or
+possible with GdkPixbuf but can also use C<Image::Base::GD> or
 C<Image::Base::PNGwriter> and their respective supporting libraries.  XPM
 output requires C<Image::Xpm>.
 
@@ -285,16 +289,16 @@ output requires C<Image::Xpm>.
 =item --text
 
 Write a text-only image to standard output and exit.  The default size
-follows C<Term::Size>.  A typical size 80x25 or so is usually too small to
-see much, but a bigger image might be cute to send to a line printer or
-similar.
+follows the terminal with C<Term::Size>.  A size like 80x25 is usually too
+small to see much, but a bigger image might be cute to send to a line
+printer or similar.
 
     math-image --text --width=130 --height=49 | lpr
 
 =item --prima
 
-Run the Prima GUI.  This requires the C<Prima> module.  The display doesn't
-yet have the full set of options the Gtk GUI does, but it works as far as it
+Run the Prima GUI.  This requires the C<Prima> module.  This doesn't yet
+have the full set of options the Gtk GUI does, but it works as far as it
 goes.
 
 =back

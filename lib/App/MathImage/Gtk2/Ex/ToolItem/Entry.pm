@@ -27,7 +27,7 @@ use Gtk2::Ex::ContainerBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -143,7 +143,9 @@ sub _do_menu_activate {
     }
     $dialog->vbox->pack_start ($entry, 1,1,0);
   }
-  $dialog->set_screen ($menuitem->get_screen);
+  if ($dialog->can('set_screen')) { # new in Gtk 2.2
+    $dialog->set_screen ($menuitem->get_screen);
+  }
   $dialog->present;
 }
 

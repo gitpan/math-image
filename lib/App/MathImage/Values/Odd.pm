@@ -19,12 +19,13 @@ package App::MathImage::Values::Odd;
 use 5.004;
 use strict;
 use warnings;
+use POSIX 'ceil';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::Values::Even';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Odd Integers');
 use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');
@@ -33,15 +34,16 @@ use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');
 #use Smart::Comments;
 
 sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => $lo-1 - ($lo & 1)
-               }, $class;
-}
-sub next {
-  my ($self) = @_;
-  return ($self->{'i'} += 2,
-          1);
+  my ($class, %self) = @_;
+  if (defined $self{'lo'}) {
+    $self{'lo'} = ceil($self{'lo'});     # next integer
+    $self{'lo'} += ! ($self{'lo'} & 1);  # next odd, if not already odd
+  } else {
+    $self{'lo'} = 1;
+  }
+  my $self = bless \%self, $class;
+  $self->rewind;
+  return $self;
 }
 sub pred {
   my ($self, $n) = @_;

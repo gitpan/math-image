@@ -26,7 +26,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::UndulatingNumbers;
+use App::MathImage::Values::Cubes;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,44 +35,35 @@ use App::MathImage::Values::UndulatingNumbers;
 # VERSION
 
 {
-  my $want_version = 29;
-  is ($App::MathImage::Values::UndulatingNumbers::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::UndulatingNumbers->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 29; 
+  is ($App::MathImage::Values::Cubes::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Values::Cubes->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::UndulatingNumbers->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Values::Cubes->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::UndulatingNumbers->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Values::Cubes->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
 
 #------------------------------------------------------------------------------
-# values
+# pred()
 
 {
-  my $hi = 13000;
-  my $values_obj = App::MathImage::Values::UndulatingNumbers->new
-    (lo => 1,
-     hi => $hi);
-  my @next = (0) x ($hi+1);
-  while (my ($n) = $values_obj->next) {
-    last if ($n > $hi);
-    $next[$n] = 1;
-  }
-  $values_obj->finish;
+  my $values_obj = App::MathImage::Values::Cubes->new;
 
-  my $good = 1;
-  foreach my $n (1 .. $hi) {
-    my $pred = ($values_obj->pred($n)?1:0);
-    my $next = $next[$n];
-    if ($pred != $next) {
-      diag "n=$n wrong pred=$pred next=$next";
-      $good = 0;
-      last;
-    }
-  }
-  ok ($good, "good");
+  ok ($values_obj->pred(27),
+      'pred() 27 is cube');
+
+  my $n = 27;
+  require Math::Libm;
+  $n = Math::Libm::cbrt ($n);
+  diag "cbrt(27) is $n";
+  my $i = int($n);
+  diag "int is $i";
+  my $eq = ($n == int($n));
+  diag "equal is $eq";
 }
 
 exit 0;

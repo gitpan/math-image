@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 # Gtk2::RadioMenuItem no good as the base class since it insists on at least
 # one item active all the time.
@@ -37,8 +37,8 @@ use Glib::Object::Subclass
   signals => { activate => \&_do_activate };
 
 our @ISA;
-use App::MathImage::Gtk2::Ex::MenuItem::Subclass;
-unshift @ISA, 'App::MathImage::Gtk2::Ex::MenuItem::Subclass';
+use Gtk2::Ex::MenuItem::Subclass;
+unshift @ISA, 'Gtk2::Ex::MenuItem::Subclass';
 
 sub INIT_INSTANCE {
   my ($self) = @_;

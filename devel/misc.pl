@@ -20,16 +20,19 @@
 use 5.010;
 use strict;
 use warnings;
+use POSIX;
 
 use Smart::Comments;
 
 use lib 'devel/lib';
 
+use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 {
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
-                                            polygonal => 3);
+                                            polygonal => 3,
+                                            radix => 16);
 
   foreach my $rep (1 .. 3) {
     my $iter;
@@ -56,10 +59,14 @@ use lib 'devel/lib';
     $values_class = $gen->values_class('Fibonacci');
     $values_class = $gen->values_class('LucasNumbers');
     $values_class = $gen->values_class('UndulatingNumbers');
+    $values_class = $gen->values_class('Emirps');
+    $values_class = $gen->values_class('Repdigits');
+    $values_class = $gen->values_class('UndulatingNumbers');
     my $values_obj = $values_class->new (fraction => '1/3',
                                          polygonal => 3,
                                          lo => 1,
-                                         hi => 200*$rep);
+                                         hi => 200*$rep,
+                                         radix => 10);
     ### $values_obj
     $|=1;
     foreach (1 .. 500) {
@@ -68,9 +75,13 @@ use lib 'devel/lib';
         print "undef\n";
         last;
       }
-      print "$n,";
       if (defined $count1) {
-        print " $count1";
+        print "$n=$count1,";
+      } else {
+        print "$n,";
+      }
+      if ($n > DBL_INT_MAX) {
+        last;
       }
 
       if (! $values_obj->pred($n)) {
@@ -79,9 +90,34 @@ use lib 'devel/lib';
 
     }
     print "\n";
+
+    if ($values_obj->can('ith')) {
+      print "by ith(): ";
+      foreach my $i (0 .. 50) {
+        my ($n,$count1) = $values_obj->ith($i);
+        if (! defined $n) {
+          print "undef\n";
+          last;
+        }
+        if (defined $count1) {
+          print "$n=$count1,";
+        } else {
+          print "$n,";
+        }
+        if ($n > DBL_INT_MAX) {
+          last;
+        }
+
+        if (! $values_obj->pred($n)) {
+          print " oops, pred false\n";
+        }
+      }
+      print "\n";
+    }
   }
   exit 0;
 }
+
 
 {
   my @catalan = (1);
@@ -110,12 +146,6 @@ use lib 'devel/lib';
 
 
 
-{
-  require Math::Prime::XS;
-  local $, = "\n";
-  print Math::Prime::XS::sieve_primes(2,3);
-  exit 0;
-}
 {
   require App::MathImage::Values::ChampernowneBinary;
   my $values_obj = App::MathImage::Values::ChampernowneBinary->new;
@@ -626,3 +656,28 @@ use lib 'devel/lib';
 #     if ($option_verbose) {
 #       print "fibonacci $count add to $add[-1]\n";
 #     }
+
+# miss 1928099
+{
+  require Math::Prime::XS;
+  my @array = Math::Prime::XS::sieve_primes (1, 2000000);
+  $,="\n";
+#  print @array;
+  exit 0;
+}
+{
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new;
+  my $values_class;
+  $values_class = $gen->values_class('SophieGermainPrimes');
+  my $values_obj = $values_class->new (lo => 1,
+                                       hi => 19391363);
+  # for (my $i = 0; $i < 10000; $i++) {
+  #   my $n = $values_obj->{'array'}->[$i];
+  #   print "$i $n\n";
+  # }
+  exit 0;
+}
+
+
+

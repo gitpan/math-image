@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 158;
+use Test::More tests => 168;
 
 use lib 't';
 use MyTestHelpers;
@@ -44,7 +44,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 28;
+  my $want_version = 29;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -146,7 +146,23 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         909,919,929,939,949,959,969,979,989,
                         1010,1212,1313,1414,1515,1616,1717,1818,1919,
                       ] ],
-
+                    
+                    # with a!=b
+                    [ 'UndulatingNumbers', 0,
+                      [ 0x0,   # 0b00
+                        0x1,   # 0b01
+                        0x2,   # 0b10
+                        0x5,   # 0b101
+                        0xA,   # 0b1010
+                        0x15,  # 0b10101
+                        0x2A,  # 0b101010
+                        0x55,  # 0b1010101
+                        0xAA,  # 0b1010_1010
+                        0x155, # 0b1_0101_0101
+                      ],
+                      { radix => 2 },
+                    ],
+                    
                     # # http://www.research.att.com/~njas/sequences/A033619
                     # # including a==b
                     # [ 'UndulatingNumbers', 0,
@@ -159,63 +175,65 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                     #     80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92,
                     #     93, 94, 95, 96, 97, 98, 99, 101, 111, 121, 131, 141,
                     #     151 ] ],
-
-                    # # http://www.research.att.com/~njas/sequences/A006567
-                    # # http://www.research.att.com/~njas/sequences/b006567.txt
-                    # [ 'Emirp', 0,
-                    #   [ 13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157,
-                    #     167, 179, 199, 311, 337, 347, 359, 389, 701, 709,
-                    #     733, 739, 743, 751, 761, 769, 907, 937, 941, 953,
-                    #     967, 971, 983, 991, 1009, 1021, 1031, 1033, 1061,
-                    #     1069, 1091, 1097, 1103, 1109, 1151, 1153, 1181, 1193
-                    #     ] ],
-
+                    
+                    # http://www.research.att.com/~njas/sequences/A006567
+                    # http://www.research.att.com/~njas/sequences/b006567.txt
+                    [ 'Emirps', 0,
+                      [ 13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157,
+                        167, 179, 199, 311, 337, 347, 359, 389, 701, 709,
+                        733, 739, 743, 751, 761, 769, 907, 937, 941, 953,
+                        967, 971, 983, 991, 1009, 1021, 1031, 1033, 1061,
+                        1069, 1091, 1097, 1103, 1109, 1151, 1153, 1181, 1193
+                      ],
+                      { bfile => 'b006567.txt' } ],
+                    
                     [ 'All', 0,
                       [ 0, 1, 2, 3, 4, 5, 6, 7 ] ],
                     [ 'All', 17,
                       [ 17, 18, 19 ] ],
-
+                    
                     [ 'Odd', 1,
                       [ 1, 3, 5, 7, 9, 11, 13 ] ],
                     [ 'Odd', 6,
                       [ 7, 9, 11, 13 ] ],
-
+                    
                     [ 'Squares', 1,
                       [ 1, 4, 9, 16, 25 ] ],
                     [ 'Squares', 3,
                       [ 4, 9, 16, 25 ] ],
-
+                    
                     [ 'Cubes', 1,
                       [ 1, 8, 27, 64, 125 ] ],
                     [ 'Cubes', 3,
                       [ 8, 27, 64, 125 ] ],
-
+                    
                     [ 'Tetrahedral', 1,
                       [ 1, 4, 10, 20, 35, 56, 84, 120 ] ],
-
+                    
                     [ 'Triangular', 1,
                       [ 1, 3, 6, 10, 15, 21 ] ],
                     [ 'Triangular', 5,
                       [ 6, 10, 15, 21 ] ],
-
+                    
                     [ 'Pronic', 1,
                       [ 2, 6, 12, 20, 30, 42 ] ],
                     [ 'Pronic', 5,
                       [ 6, 12, 20, 30, 42 ] ],
-
+                    
                     [ 'Even', 0,
                       [ 0, 2, 4, 6, 8, 10, 12 ] ],
                     [ 'Even', 5,
                       [ 6, 8, 10, 12 ] ],
-
+                    
                     [ 'Fibonacci', 1,
-                      [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 ] ],
-
+                      [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144,
+                        233, 377, 610, 987, 1597, ] ],
+                    
                     [ 'Perrin', 0,
                       [ 3, 0, 2, 3, 2, 5, 5, 7, 10, 12, 17 ] ],
                     [ 'Padovan', 0,
                       [ 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, 12 ] ],
-
+                    
                     [ 'PellNumbers', 0,
                       [ 0, 1, 2, 5, 12, 29, 70, 169, 408, 985, 2378, 5741,
                         13860, 33461, 80782, 195025, 470832, 1136689,
@@ -224,27 +242,27 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                       [ 12, 29, 70, 169, 408, 985, 2378, 5741,
                         13860, 33461, 80782, 195025, 470832, 1136689,
                       ] ],
-
+                    
                     [ 'Primes', 1,
                       [ 2, 3, 5, 7, 11, 13, 17 ] ],
                     [ 'Primes', 10,
                       [ 11, 13, 17 ] ],
-
+                    
                     [ 'TwinPrimes', 0,
                       [ 3, 5, 7, 11, 13, 17, 19, 29, 31 ] ],
                     [ 'TwinPrimes', 10,
                       [ 11, 13, 17, 19, 29, 31 ] ],
-
+                    
                     [ 'TwinPrimes1', 0,
                       [ 3, 5, 11, 17, 29 ] ],
                     [ 'TwinPrimes1', 4,
                       [ 5, 11, 17, 29 ] ],
-
+                    
                     [ 'TwinPrimes2', 0,
                       [ 5, 7, 13, 19, 31 ] ],
                     [ 'TwinPrimes2', 6,
                       [ 7, 13, 19, 31 ] ],
-
+                    
                     # sloanes
                     # http://www.research.att.com/~njas/sequences/A001358
                     [ 'SemiPrimes', 0,
@@ -254,12 +272,12 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         121, 122, 123, 129, 133, 134, 141, 142, 143, 145,
                         146, 155, 158, 159, 161, 166, 169, 177, 178, 183,
                         185, 187 ] ],
-
+                    
                     # [ 'SemiPrimesOdd', 0,
                     #   [ 9, 15, 21, 25, 33, 35,
                     #     39, 49, 51, 55, 57, 65, 69, 77,
                     #   ] ],
-
+                    
                     # http://www.research.att.com/~njas/sequences/A005384
                     [ 'SophieGermainPrimes', 0,
                       [ 2, 3, 5, 11, 23, 29, 41, 53, 83, 89, 113, 131, 173,
@@ -267,8 +285,12 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         443, 491, 509, 593, 641, 653, 659, 683, 719, 743,
                         761, 809, 911, 953, 1013, 1019, 1031, 1049, 1103,
                         1223, 1229, 1289, 1409, 1439, 1451, 1481, 1499,
-                        1511, 1559 ] ],
-
+                        1511, 1559 ],
+                      undef,
+                      # Math::Prime::XS 0.22 buggy ...
+                      # { bfile => 'b005384.txt' },
+                    ],
+                    
                     # http://www.research.att.com/~njas/sequences/A005385
                     [ 'SafePrimes', 0,
                       [ 5, 7, 11, 23, 47, 59, 83, 107, 167, 179, 227, 263,
@@ -276,8 +298,12 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         863, 887, 983, 1019, 1187, 1283, 1307, 1319, 1367,
                         1439, 1487, 1523, 1619, 1823, 1907, 2027, 2039,
                         2063, 2099, 2207, 2447, 2459, 2579, 2819, 2879, 2903,
-                      ] ],
-
+                      ],
+                      undef,
+                      # Math::Prime::XS 0.22 buggy ... maybe
+                      # { bfile => 'b005385.txt' },
+                    ],
+                    
                     # sloanes
                     # http://www.research.att.com/~njas/sequences/A005224
                     [ 'Aronson', 0,
@@ -288,9 +314,9 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         231, 237, 243, 249, 254, 270, 288, 303, 307, 319,
                         323, 341 ],
                       { aronson_conjunctions => 0 },
-                      'Math::Aronson',
+                      { module => 'Math::Aronson' },
                     ],
-
+                    
                     # sloanes
                     # http://www.research.att.com/%7Enjas/sequences/A079000
                     [ 'NumaronsonA', 0,
@@ -300,8 +326,10 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         61, 63, 65, 67, 69, 70, 71, 72, 73, 74, 75, 76, 77,
                         78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
                         91, 92, 93, 95, 97 ],
+                      undef,
+                      { bfile => 'b079000.txt' },
                     ],
-
+                    
                     [ 'ThueMorseEvil', 0,
                       [ 0, 3, 5, 6, 9, 10, 12, 15, 17, 18, 20, 23, 24, 27,
                         29, 30, 33, 34, 36, 39, 40, 43, 45, 46, 48, 51, 53,
@@ -362,12 +390,30 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         27, 28,  # 1000, 1001
                       ] ],
 
-                    [ 'RepdigitBase10', 0,
+                    [ 'Repdigits', 0,
                       [ 0,
                         1,2,3,4,5,6,7,8,9,
                         11,22,33,44,55,66,77,88,99,
                         111,222,333,444,555,666,777,888,999,
                       ] ],
+                    [ 'Repdigits', 0,
+                      [ 0,
+                        01,02,03,04,05,06,07,
+                        011,022,033,044,055,066,077,
+                        0111,0222,0333,0444,0555,0666,0777, ],
+                      { radix => 8 },
+                    ],
+                    [ 'Repdigits', 0,
+                      [ 0, 1,2,
+                        4, # 11
+                        8, # 22
+                        13, # 111
+                        26, # 222
+                        40, # 1111
+                        80, # 2222
+                      ],
+                      { radix => 3 },
+                    ],
 
                     [ 'Pentagonal', 0,
                       [ 0,1,5,12,22 ] ],
@@ -413,52 +459,76 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                         131, 134, 139, 140 ] ],
 
                    ) {
-    my ($values, $lo, $want, $options, $module) = @$elem;
-    if ($options) {
-      %$gen = (%$gen, %$options);
+    my ($values, $lo, $want, $values_options, $test_options) = @$elem;
+    if ($values_options) {
+      %$gen = (%$gen, %$values_options);
     }
-    my $hi = $want->[-1];
 
   SKIP: {
-      my $values_class = "App::MathImage::Values::$values";
-      my $values_obj;
-      require Module::Load;
-      if (! eval { Module::Load::load ($values_class);
-                   $values_obj = $values_class->new (lo => $lo,
-                                                     hi => $hi,
-                                                     %$options);
-                   1; }) {
-        my $err = $@;
-        diag "values=$values caught error -- $err";
-        if ($module && ! eval "require $module; 1") {
-          skip "values=$values due to no module $module", 2;
-        }
-        die $err;
-      }
-
-      my $got = [ map {($values_obj->next)[0]} 0 .. $#$want ];
-      diag "$values ".join(',',@$got);
-      is_deeply ($got, $want, "$values lo=$lo hi=$hi");
-
-    SKIP: {
-        $values_obj->can('pred')
-          or skip "no pred() for $values_obj", 1;
-
-        if ($hi > 1000) {
-          $hi = 1000;
-          $want = [ grep {$_<=$hi} @$want ];
-        }
-        my @got_pred;
-        foreach my $n ($lo .. $hi) {
-          ### $n
-          if ($values_obj->pred($n)) {
-            push @got_pred, $n;
-          }
-        }
-        diag "pred got ".join(',',@got_pred);
-        _delete_duplicates($want);
+      foreach my $bfile (0, 1) {
         ### $want
-        is_deeply (\@got_pred, $want, "$values_obj pred() lo=$lo hi=$hi");
+        my $hi = $want->[-1];
+        diag "$values $lo to $hi";
+
+      SKIP: {
+          my $values_class = "App::MathImage::Values::$values";
+          my $values_obj;
+          require Module::Load;
+          if (! eval { Module::Load::load ($values_class);
+                       $values_obj = $values_class->new (lo => $lo,
+                                                         hi => $hi,
+                                                         %$values_options);
+                       1; }) {
+            my $err = $@;
+            diag "values=$values caught error -- $err";
+            if (my $module = $test_options->{'module'}) {
+              if (! eval "require $module; 1") {
+                skip "values=$values due to no module $module", 2;
+              }
+              diag "But $module loads successfully";
+            }
+            die $err;
+          }
+
+          my $got = [ map {($values_obj->next)[0]} 0 .. $#$want ];
+          if (! $bfile) {
+            diag "$values ".join(',',@$got);
+          }
+          is_deeply ($got, $want, "$values lo=$lo hi=$hi");
+
+        SKIP: {
+            $values_obj->can('pred')
+              or skip "no pred() for $values_obj", 1;
+
+            if ($hi > 1000) {
+              $hi = 1000;
+              $want = [ grep {$_<=$hi} @$want ];
+            }
+            my @got_pred;
+            foreach my $n ($lo .. $hi) {
+              ### $n
+              if ($values_obj->pred($n)) {
+                push @got_pred, $n;
+              }
+            }
+            if (! $bfile) {
+              diag "pred got ".join(',',@got_pred);
+            }
+            _delete_duplicates($want);
+            ### $want
+            is_deeply (\@got_pred, $want, "$values_obj pred() lo=$lo hi=$hi");
+          }
+
+        }
+        my $bfile = $test_options->{'bfile'};
+        if (! $bfile) {
+          last;
+        }
+        if ($want = read_bfile($bfile)) {
+          $lo = 0;
+        } else {
+          skip "due to no bfile $bfile available", 2;
+        }
       }
     }
   }
@@ -470,6 +540,28 @@ sub _delete_duplicates {
   @seen{@$arrayref} = ();
   @$arrayref = sort {$a<=>$b} keys %seen;
 }
+
+sub read_bfile {
+  my ($filename) = @_;
+  $filename or return undef;
+  require File::Spec;
+  $filename = File::Spec->catfile (File::Spec->updir, 'oeis', $filename);
+  open FH, "<$filename" or return undef;
+  my @array;
+  while (defined (my $line = <FH>)) {
+    chomp $line;
+    next if $line =~ /^\s*$/;   # ignore blank lines
+    my ($i, $n) = split /\s+/, $line;
+    if (! (defined $n && $n =~ /^[0-9]+$/)) {
+      die "oops, bad line in $filename: '$line'";
+    }
+    push @array, $n;
+  }
+  close FH or die;
+  diag "$filename has ",scalar(@array)," values";
+  return \@array;
+}
+
 
 #------------------------------------------------------------------------------
 # path_choices

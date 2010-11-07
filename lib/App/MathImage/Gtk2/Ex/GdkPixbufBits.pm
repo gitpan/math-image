@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 sub save {
   my ($pixbuf, $filename, $type, @options) = @_;

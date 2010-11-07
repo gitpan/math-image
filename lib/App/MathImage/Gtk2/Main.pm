@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -129,8 +129,11 @@ sub INIT_INSTANCE {
       },
       { name     => 'SaveAs',
         stock_id => 'gtk-save-as',
-        callback => \&_do_action_save_as,
         tooltip  => __('Save the image to a file.'),
+        callback => sub {
+          my ($action, $self) = @_;
+          $self->popup_save_as;
+        },
       },
       { name     => 'SetRoot',
         label    => __('Set _Root Window'),
@@ -485,8 +488,10 @@ HERE
                         tooltip_text => __('Wider path.'));
     $toolbar->insert ($toolitem, $toolpos++);
     
-    my $adj = Gtk2::Adjustment->new (0,       # initial
-                                     0, 999,  # min,max
+    my $pspec = $draw->find_property ('path-wider');
+    my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
+                                     $pspec->get_minimum,  # min
+                                     $pspec->get_maximum,  # max
                                      1,10,    # step,page increment
                                      0);      # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'path-wider'],
@@ -508,8 +513,10 @@ HERE
                         tooltip_text => __('Step width for the pyramid rows, half going to each side.'));
     $toolbar->insert ($toolitem, $toolpos++);
     
-    my $adj = Gtk2::Adjustment->new (2,       # initial
-                                     1, 99,   # min,max
+    my $pspec = $draw->find_property ('pyramid-step');
+    my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
+                                     $pspec->get_minimum,  # min
+                                     $pspec->get_maximum,  # max
                                      1,1,     # step,page increment
                                      0);      # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'pyramid-step'],
@@ -530,8 +537,10 @@ HERE
     #                     tooltip_text => __('Multiple ...'));
     $toolbar->insert ($toolitem, $toolpos++);
     
-    my $adj = Gtk2::Adjustment->new (6,        # initial
-                                     0, 9999,  # min,max
+    my $pspec = $draw->find_property ('rings-step');
+    my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
+                                     $pspec->get_minimum,  # min
+                                     $pspec->get_maximum,  # max
                                      1,10,     # step,page increment
                                      0);       # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'rings-step'],
@@ -644,7 +653,11 @@ HERE
                                        hash_in => { 'VogelFloret' => 1 }]);
   }
   
-  $toolbar->insert (Gtk2::SeparatorToolItem->new, $toolpos++);
+  {
+    my $separator = Gtk2::SeparatorToolItem->new;
+    $separator->show;
+    $toolbar->insert ($separator, $toolpos++);
+  }
   my $values_combobox;
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
@@ -682,22 +695,30 @@ HERE
                                       [$values_combobox,'active-nick']);
     ### values combobox initial: $values_combobox->get('active-nick')
   }
-  
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::Filters');
-    $toolitem->{'name'} = __('Filter');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
+      (label => __('Radix'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
-                        tooltip_text  => __('Filter the values to only odd, or even, or primes, etc.'));
-    $toolitem->show;
+                        tooltip_text => __('Radix, ie. base, for the values calculation.  Default is decimal, base 10, or perhaps binary.'));
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $combobox = $toolitem->get_child;
-    set_property_maybe ($combobox, tearoff_title => $toolitem->{'name'});
+    my $pspec = $draw->find_property ('values-radix');
+    my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
+                                     $pspec->get_minimum,  # min
+                                     $pspec->get_maximum,  # max
+                                     1,10,     # step,page increment
+                                     0);       # page_size
+    Glib::Ex::ConnectProperties->new ([$draw,'values-radix'],
+                                      [$adj,'value']);
+    my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
+    $spin->show;
+    $toolitem->set (entry => $spin);
 
-    Glib::Ex::ConnectProperties->new
-        ([$draw,'filter'],
-         [$combobox,'active-nick']);
+    Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
+                                      [$toolitem,'visible',
+                                       write_only => 1,
+                                       hash_in => { 'Emirps' => 1,
+                                                    'Repdigits' => 1 }]);
   }
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
@@ -765,8 +786,10 @@ HERE
                         tooltip_text => __('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'));
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $adj = Gtk2::Adjustment->new (1,        # initial
-                                     2, 999,   # min,max
+    my $pspec = $draw->find_property ('polygonal');
+    my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
+                                     $pspec->get_minimum,  # min
+                                     $pspec->get_maximum,  # max
                                      1,10,     # step,page increment
                                      0);       # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'polygonal'],
@@ -787,8 +810,10 @@ HERE
                         tooltip_text => __('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'));
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $adj = Gtk2::Adjustment->new (1,        # initial
-                                     -99_999_999, 99_999_999,   # min,max
+    my $pspec = $draw->find_property ('multiples');
+    my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
+                                     $pspec->get_minimum,  # min
+                                     $pspec->get_maximum,  # max
                                      1,10,     # step,page increment
                                      0);       # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'multiples'],
@@ -866,7 +891,27 @@ HERE
     }
   }
 
-  $toolbar->insert (Gtk2::SeparatorToolItem->new, $toolpos++);
+  {
+    my $separator = Gtk2::SeparatorToolItem->new;
+    $separator->show;
+    $toolbar->insert ($separator, $toolpos++);
+  }
+  {
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::Filters');
+    $toolitem->{'name'} = __('Filter');
+    set_property_maybe ($toolitem, # tooltip-text new in 2.12
+                        tooltip_text  => __('Filter the values to only odd, or even, or primes, etc.'));
+    $toolitem->show;
+    $toolbar->insert ($toolitem, $toolpos++);
+
+    my $combobox = $toolitem->get_child;
+    set_property_maybe ($combobox, tearoff_title => $toolitem->{'name'});
+
+    Glib::Ex::ConnectProperties->new
+        ([$draw,'filter'],
+         [$combobox,'active-nick']);
+  }
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
       (label => __('Scale'));
@@ -963,10 +1008,31 @@ sub _do_motion_notify {
                            (int($y)==$y ? 0 : 2), $y);
     if (defined $n) {
       $message .= "   N=$n";
+      my $values = $draw->get('values');
+      if ($values ne 'Emirps'
+          && (my $radix = $draw->get('values-radix')) != 10) {
+        if ($draw->gen_object->values_class->parameters->{'radix'}) {
+          my $str = _my_cnv($n,$radix);
+          $message .= " ($str in base $radix)";
+        }
+      }
     }
     $statusbar->push ($id, $message);
   }
   return Gtk2::EVENT_PROPAGATE;
+}
+sub _my_cnv {
+  my ($n, $radix) = @_;
+  if ($radix <= 36) {
+    require Math::BaseCnv;
+    return Math::BaseCnv::cnv($n,10,$radix);
+  } else {
+    my $ret = '';
+    do {
+      $ret = sprintf('[%d]', $n % $radix) . $ret;
+    } while ($n = int($n/$radix));
+    return $ret;
+  }  
 }
 
 sub SET_PROPERTY {
@@ -1025,10 +1091,6 @@ sub toolbar {
   return $self->{'ui'}->get_widget('/ToolBar');
 }
 
-sub _do_action_save_as {
-  my ($action, $self) = @_;
-  $self->popup_save_as;
-}
 sub popup_save_as {
   my ($self) = @_;
   require App::MathImage::Gtk2::SaveDialog;

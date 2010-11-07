@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Sophie Germain Primes');
 use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
@@ -59,7 +59,13 @@ sub new {
       my $target = 2*$prime+1;
       for (;;) {
         if ($p <= $#array) {
+          if ($prime == 964049) {
+            print "found $target with p=$p is $array[$p]\n";
+          }
           if ($array[$p] < $target) {
+            if ($prime == 964049) {
+              print "p++\n";
+            }
             $p++;
             next;
           }

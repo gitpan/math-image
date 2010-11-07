@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Pronic Numbers');
 use constant description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k*(k+1).  These are twice the triangular numbers, and half way between perfect squares.');
@@ -46,13 +46,16 @@ sub new {
 sub next {
   my ($self) = @_;
   ### Pronic next(): $self->{'i'}
-  return (2 * Math::TriangularNumbers::T($self->{'i'}++),
-          1);
+  return $self->ith($self->{'i'}++);
 }
 sub pred {
   my ($self, $n) = @_;
   return (! ($n & 1)
           && Math::TriangularNumbers::is_T($n/2));
+}
+sub ith {
+  my ($self, $i) = @_;
+  return 2 * Math::TriangularNumbers::T($i);
 }
 
 sub pronic_inverse_ceil {

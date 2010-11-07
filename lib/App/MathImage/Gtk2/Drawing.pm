@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -163,7 +163,7 @@ use Glib::Object::Subclass
                   ('polygonal',
                    'polygonal',
                    'Blurb.',
-                   1, POSIX::INT_MAX(),
+                   2, POSIX::INT_MAX(),
                    App::MathImage::Generator->default_options->{'polygonal'},
                    Glib::G_PARAM_READWRITE),
 
@@ -173,6 +173,14 @@ use Glib::Object::Subclass
                    'Blurb.',
                    - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
                    App::MathImage::Generator->default_options->{'multiples'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->int
+                  ('values-radix',
+                   'values-radix',
+                   'Blurb.',
+                   1, POSIX::INT_MAX(),
+                   App::MathImage::Generator->default_options->{'radix'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -509,6 +517,7 @@ sub gen_object {
      sqrt            => $self->get('sqrt'),
      polygonal       => $self->get('polygonal'),
      multiples       => $self->get('multiples'),
+     radix           => $self->get('values-radix'),
      ($path_rotation_type eq 'custom'
       ? (path_rotation_factor => $self->get('path-rotation-factor'))
       : (path_rotation_type  => $path_rotation_type)),     

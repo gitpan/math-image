@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Pentagonal Numbers');
 use constant description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');
@@ -40,14 +40,16 @@ sub new {
 }
 sub next {
   my ($self) = @_;
-  my $i = $self->{'i'}++;
-  return ((3*$i-1)*$i/2,
-          1);
+  return $self->ith($self->{'i'}++);
 }
 # sub pred {
 #   my ($self, $n) = @_;
 #   return ($n & 1);
 # }
+sub ith {
+  my ($self, $i) = @_;
+  return (3*$i-1)*$i/2;
+}
 
 1;
 __END__

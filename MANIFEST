@@ -19,11 +19,13 @@ devel/inverse.pl
 devel/magick.pl
 devel/Makefile
 devel/menu-enum.pl
+devel/menu-forcombo.pl
 devel/misc.c
 devel/misc.pl
 devel/OrNone.pm
 devel/pixbuf-types.pl
 devel/prima.pl
+devel/primes.pl
 devel/rainbow.pl
 devel/repdigit.pl
 devel/run-about.pl
@@ -51,7 +53,7 @@ lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/Menu/EnumRadio.pm
 lib/App/MathImage/Gtk2/Ex/Menu/EnumRadio/Item.pm
-lib/App/MathImage/Gtk2/Ex/MenuItem/Subclass.pm
+lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/CheckButton.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/Entry.pm
@@ -84,6 +86,7 @@ lib/App/MathImage/Values/ChampernowneBinary.pm
 lib/App/MathImage/Values/ChampernowneBinaryLsb.pm
 lib/App/MathImage/Values/CountPrimeFactors.pm
 lib/App/MathImage/Values/Cubes.pm
+lib/App/MathImage/Values/Emirps.pm
 lib/App/MathImage/Values/Even.pm
 lib/App/MathImage/Values/Expression.pm
 lib/App/MathImage/Values/Factorials.pm
@@ -113,7 +116,7 @@ lib/App/MathImage/Values/PrimeQuadraticLegendre.pm
 lib/App/MathImage/Values/Primes.pm
 lib/App/MathImage/Values/Pronic.pm
 lib/App/MathImage/Values/RepdigitAnyBase.pm
-lib/App/MathImage/Values/RepdigitBase10.pm
+lib/App/MathImage/Values/Repdigits.pm
 lib/App/MathImage/Values/SafePrimes.pm
 lib/App/MathImage/Values/SemiPrimes.pm
 lib/App/MathImage/Values/SophieGermainPrimes.pm
@@ -139,11 +142,12 @@ math-image
 SIGNATURE
 t/ChampernowneBinary.t
 t/CountPrimeFactors.t
+t/Cubes.t
+t/Emirps.t
 t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
-t/Gtk2-Ex-MenuItem-Subclass.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
 t/Gtk2-SaveDialog-weaken.t

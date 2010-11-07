@@ -23,7 +23,7 @@ use Glib;
 use Gtk2;
 use Locale::TextDomain ('Math-Image');
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';
@@ -91,9 +91,10 @@ sub _do_response {
 
 sub _do_url_hook {
   my ($self, $url) = @_;
-  my $screen = $self->get_screen;
-  eval { Gtk2::show_uri ($screen, $url); 1 }
-    or print STDERR "Oops, cannot open browser for $url";
+  eval { my $screen = $self->get_screen;
+         Gtk2::show_uri ($screen, $url);
+         1 }
+    or warn "Oops, cannot open browser for $url";
 }
 
 1;

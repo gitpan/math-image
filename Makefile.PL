@@ -35,8 +35,8 @@ MyMakeMakerExtras::WriteMakefile
    PREREQ_PM    =>
    {
     'constant::defer' => 0,
-    'Bit::Vector' => 0,
-    'Compress::Zlib' => 0,
+    'Bit::Vector'     => 0,
+    'Compress::Zlib'  => 0,
 
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,
@@ -56,6 +56,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
+    'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
@@ -95,6 +96,7 @@ MyMakeMakerExtras::WriteMakefile
 
     'Math::Prime::XS' => '0.22', # version 0.22 for lo==hi
 
+    'Math::BaseCnv' => 0,
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
     'Math::TriangularNumbers' => '1.012',

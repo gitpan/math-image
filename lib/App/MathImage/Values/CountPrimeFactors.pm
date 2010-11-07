@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -94,3 +94,10 @@ sub pred {
 
 1;
 __END__
+
+
+
+# Untouchables, not sum of proper divisors of any other integer
+# p*q sum S=1+p+q
+# so sums up to hi need factorize to (hi^2)/4
+# 

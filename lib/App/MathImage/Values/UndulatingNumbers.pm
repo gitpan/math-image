@@ -24,101 +24,172 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant name => __('Undulating Numbers');
 use constant description => __('Numbers like 37373 which are a pattern of digits ABAB...');
 use constant growth => 'exponential';
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use constant parameters => { radix => { type => 'integer',
+                                        default => 10,
+                                      }
+                           };
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
-  my $radix = $options{'radix'} || 10;
-  if ($radix == 10) {
-    return bless { i     => -11,
-                   rep   => 0,
-                   radix => $radix,
-                 }, $class;
-  } else {
-    return bless { n     => -1,
-                   inc   => 1,
-                   limit => $radix * $radix - 1,
-                   radix => $radix,
-                   skip  => $radix+1,  # at 11
-                 }, $class;
-  }
-}
+  my $radix = $options{'radix'} || $class->parameters->{'radix'}->{'default'};
+  if ($radix < 2) { $radix = 10; }
 
-my @table =
-  grep {pred({radix=>10},$_)}
-  map {sprintf '%02d', $_}
-  10 .. 999;
+    return bless { radix => $radix,
+                   n     => -1,
+                   inc   => 1,
+                   a     => 0,
+                   b     => 0,
+                 }, $class;
+}
 
 sub next {
   my ($self) = @_;
-  # ### UndulatingNumbers next()
+  ### UndulatingNumbers next()
 
   my $radix = $self->{'radix'};
-  my $rep = $self->{'rep'};
-  if ($radix == 10) {
-    my $i = ++$self->{'i'};
-    if ($i < 0) {
-      return $i+10;
-    }
-    if ($i > $#table) {
-      $i = $self->{'i'} = 0;
-      $self->{'rep'} = ++$rep;
-    }
-    my $ret = $table[$i];
-    return $ret . (substr($ret,-2) x $rep);
+  my $n;
+  if ($n = ($self->{'n'} += $self->{'inc'})) {
+    $self->{'b'}++;
+    ### n: $self->{'n'}
+    ### a: $self->{'a'}
+    ### b: $self->{'b'}
 
-  } else {
-    my $n = ($self->{'n'} += $self->{'inc'});
-    if ($n >= $self->{'limit'}) {
-      $n = ($self->{'n'} += $self->{'inc'} + 1);
-      $self->{'inc'} = $self->{'inc'} * $radix + (($self->{'inc'} & 1) ^ 1);
-      $self->{'limit'} = ($self->{'limit'} + $radix * $self->{'inc'});
-      $self->{'skip'} = $radix - 1;
-      ### limit, skip to: $n
-      ### inc now: $self->{'inc'}
-      ### next limit: $self->{'limit'}
-
-    } elsif (--$self->{'skip'} < 0) {
-      $n = ($self->{'n'} += $self->{'inc'});
-      $self->{'skip'} = $radix - 1;
-      ### skip to: $n
+    if ($self->{'b'} == $self->{'a'}) {
+      $self->{'b'}++;
+      $self->{'n'} = ($n += $self->{'inc'});
+      ### skip a to b: $self->{'b'}
+      ### n now: $n
     }
 
-    return $n;
+    if ($self->{'b'} >= $radix ) {
+      $self->{'b'} = 0;
+      $self->{'n'} = ($n += ($self->{'inc'} & 1) ^ 1);
+      ### a inc
+      ### n now: $n
+
+      if (++$self->{'a'} >= $radix) {
+        # 101 -> 1010
+        # or 1010 -> 10101
+        my $low = $self->{'inc'} & 1;
+        $self->{'inc'} = $self->{'inc'} * $radix + !$low;
+        $self->{'a'} = 1;
+        $self->{'n'} = ($n += $low);
+        ### lengthen to inc: $self->{'inc'}
+        ### n now: $n
+      }
+    }
   }
+  return $n;
 }
 
 sub pred {
   my ($self, $n) = @_;
   my $radix = $self->{'radix'};
-  if ($radix == 10) {
-    return (length($n) <= 1
-            || (substr($n,0,1) ne substr($n,1,1)
-                && $n =~ /^(([0-9])[0-9])\1*\2?$/));
-  } else {
-    my $a = $n % $radix;
-    if ($n = int($n/$radix)) {
-      my $b = $n % $radix;
+  my $a = $n % $radix;
+  if ($n = int($n/$radix)) {
+    my $b = $n % $radix;
+    if ($a == $b) { return 0; }
 
-      while ($n = int($n/$radix)) {
-        if (($n % $radix) != $a) { return 0; }
+    while ($n = int($n/$radix)) {
+      if (($n % $radix) != $a) { return 0; }
 
-        $n = int($n/$radix) || last;
-        if (($n % $radix) != $b) { return 0; }
-      }
+      $n = int($n/$radix) || last;
+      if (($n % $radix) != $b) { return 0; }
     }
-    return 1;
   }
+  return 1;
+}
+
+sub ith {
+  my ($self, $i) = @_;
+  ### UndulatingNumbers ith(): $i
+  my $radix = $self->{'radix'};
+  my $rdec = $radix - 1;
+
+  my $pair_step = $rdec*$rdec;
+  my $i_pair = $i % $pair_step;
+  my $i_len = int($i/$pair_step);
+  ### $i_pair
+  ### $i_len
+  
+  my $a = int($i_pair/$rdec) + 1;
+  my $b = $i_pair % $rdec;
+  $b += ($b >= $a);
+  ### $a
+  ### $b
+  
+  my $ret = ($a*$radix + $b)*$radix + $a;
+  while ($i_len--) {
+    $ret = ($ret * $radix) + $a;
+    last unless $i_len--;
+    $ret = ($ret * $radix) + $b;
+  }
+  ### $ret
+  return $ret;
 }
 
 1;
 __END__
+
+
+  # if ($radix == 10) {
+  #   return (length($n) <= 1
+  #           || (substr($n,0,1) ne substr($n,1,1)
+  #               && $n =~ /^(([0-9])[0-9])\1*\2?$/));
+  # }
+
+  # if (0 && $radix == 10) {
+  #   return bless { i     => -11,
+  #                  rep   => 0,
+  #                  radix => $radix,
+  #                }, $class;
+  # } else {
+  # }
+
+# my @table =
+#   grep {pred({radix=>10},$_)}
+#   map {sprintf '%02d', $_}
+#   10 .. 999;
+
+  # my $rep = $self->{'rep'};
+  # if (0 && $radix == 10) {
+  #   my $i = ++$self->{'i'};
+  #   if ($i < 0) {
+  #     return $i+10;
+  #   }
+  #   if ($i > $#table) {
+  #     $i = $self->{'i'} = 0;
+  #     $self->{'rep'} = ++$rep;
+  #   }
+  #   my $ret = $table[$i];
+  #   return $ret . (substr($ret,-2) x $rep);
+  # 
+  # } else {
+
+                   # limit => $radix * $radix - 1,
+                   # skip  => $radix+1,  # at 11
+
+    # if ($n >= $self->{'limit'}) {
+    #   $n = ($self->{'n'} += $self->{'inc'} + 1);
+    #   $self->{'limit'} = ($self->{'limit'} + $radix * $self->{'inc'});
+    #   $self->{'skip'} = $radix - 1;
+    #   ### limit, skip to: $n
+    #   ### inc now: $self->{'inc'}
+    #   ### next limit: $self->{'limit'}
+    #
+    # } elsif (--$self->{'skip'} < 0) {
+    #   $n = ($self->{'n'} += $self->{'inc'});
+    #   $self->{'skip'} = $radix - 1;
+    #   ### skip to: $n
+    # }
 

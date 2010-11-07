@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('All Integers');
 use constant description => __('All integers 1,2,3,etc.');
@@ -33,17 +33,26 @@ use constant description => __('All integers 1,2,3,etc.');
 #use Smart::Comments;
 
 sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => $lo,
-               }, $class;
+  my ($class, %self) = @_;
+  $self{'lo'} ||= 0;
+  my $self = bless \%self, $class;
+  $self->rewind;
+  return $self;
+}
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = $self->{'lo'};
 }
 sub next {
   my ($self) = @_;
-  return ($self->{'i'}++,
-          1);
+  return $self->{'i'}++;
 }
+
 use constant pred => 1;
+sub ith {
+  my ($self, $i) = @_;
+  return $i;
+}
 
 1;
 __END__

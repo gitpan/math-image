@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Repdigits In Any Base');
 use constant description => __('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base (Sloane\'s A167782).');

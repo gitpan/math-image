@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');
@@ -43,12 +43,15 @@ sub new {
 }
 sub next {
   my ($self) = @_;
-  return (Math::TriangularNumbers::T($self->{'i'}++),
-          1);
+  return Math::TriangularNumbers::T($self->{'i'}++);
 }
 sub pred {
   my ($self, $n) = @_;
   return Math::TriangularNumbers::is_T($n);
+}
+sub ith {
+  my ($self, $i) = @_;
+  return Math::TriangularNumbers::T($i);
 }
 
 1;

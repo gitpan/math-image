@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Perfect Squares');
 use constant description => __('The perfect squares 1,4,9,16,25, etc k*k.');
@@ -35,16 +35,23 @@ use constant description => __('The perfect squares 1,4,9,16,25, etc k*k.');
 #use Smart::Comments;
 
 sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => ceil (sqrt (max(0,$lo))),
-               }, $class;
+  my ($class, %self) = @_;
+  require Math::Libm;
+  if (! defined $self{'lo'}) {
+    $self{'lo'} = 0;
+  }
+  my $self = bless \%self, $class;
+  $self->rewind;
+  return $self;
+}
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = ceil (sqrt (max(0,$self->{'lo'})));
 }
 sub next {
   my ($self) = @_;
   ### Squares next(): $self->{'i'}
-  return ($self->{'i'}++ ** 2,
-          1);
+  return $self->{'i'}++ ** 2;
 }
 sub pred {
   my ($self, $n) = @_;
@@ -53,6 +60,10 @@ sub pred {
             $n = sqrt($n);
             $n == int($n)
           });
+}
+sub ith {
+  my ($self, $i) = @_;
+  return $i*$i;
 }
 
 1;

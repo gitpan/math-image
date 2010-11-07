@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');
@@ -39,15 +39,17 @@ sub new {
 }
 sub next {
   my ($self) = @_;
-  my $i = $self->{'i'}++;
-  return ($i*($i+1)*($i+2)/6,
-          1);
+  return $self->ith($self->{'i'}++);
 }
 # sub pred {
 #   my ($self, $n) = @_;
 #   $n = Math::Libm::cbrt ($n);
 #   return ($n == int($n));
 # }
+sub ith {
+  my ($self, $i) = @_;
+  return $i*($i+1)*($i+2)/6;
+}
 
 1;
 __END__

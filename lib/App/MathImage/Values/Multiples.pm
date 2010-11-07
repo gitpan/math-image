@@ -26,19 +26,20 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
-use constant parameters => { name => 'multiples',
-                             type => 'integer',
-                             default => 29,
+use constant parameters => { multiples => { type => 'integer',
+                                            default => 29,
+                                          }
                            };
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
-  my $multiples = $options{'multiples'} || 29;
+  my $multiples = $options{'multiples'}
+    || $class->parameters->{'multiples'}->{'default'};
   return bless { i => ceil ($lo / abs($multiples)),
                  multiples => $multiples,
                }, $class;
@@ -51,6 +52,10 @@ sub next {
 sub pred {
   my ($self, $n) = @_;
   return (($n % $self->{'multiples'}) == 0);
+}
+sub ith {
+  my ($self, $i) = @_;
+  return $i * $self->{'multiples'};
 }
 
 1;

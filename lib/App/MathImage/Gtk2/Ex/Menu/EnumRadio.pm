@@ -28,7 +28,7 @@ use App::MathImage::Gtk2::Ex::Menu::EnumRadio::Item;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 28;
+our $VERSION = 29;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',

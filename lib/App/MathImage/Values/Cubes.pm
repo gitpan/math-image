@@ -26,26 +26,37 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');
 
 sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
+  my ($class, %self) = @_;
   require Math::Libm;
-  return bless { i => ceil (Math::Libm::cbrt (max(0,$lo))) }, $class;
+  if (! defined $self{'lo'}) {
+    $self{'lo'} = 0;
+  }
+  my $self = bless \%self, $class;
+  $self->rewind;
+  return $self;
+}
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = ceil (Math::Libm::cbrt (max(0,$self->{'lo'})));
 }
 sub next {
   my ($self) = @_;
-  return ($self->{'i'}++ ** 3,
-          1);
+  return $self->{'i'}++ ** 3;
 }
 sub pred {
   my ($self, $n) = @_;
   $n = Math::Libm::cbrt ($n);
   return ($n == int($n));
+}
+sub ith {
+  my ($self, $i) = @_;
+  return $i*$i*$i;
 }
 
 1;

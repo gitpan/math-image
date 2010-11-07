@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -45,6 +45,7 @@ use constant default_options => {
                                  sqrt         => '2',
                                  polygonal    => 5,
                                  multiples    => 90,
+                                 radix        => 10,
                                  aronson_lang         => 'en',
                                  aronson_letter       => '',
                                  aronson_conjunctions => 1,
@@ -92,6 +93,7 @@ use constant values_choices => do {
                          SafePrimes
                          SemiPrimes
                          SemiPrimesOdd
+                         Emirps
                          AbundantNumbers
                          ObstinateNumbers
                          Squares
@@ -126,8 +128,8 @@ use constant values_choices => do {
                          PrimeQuadraticEuler
                          PrimeQuadraticLegendre
                          PrimeQuadraticHonaker
+                         Repdigits
                          RepdigitAnyBase
-                         RepdigitBase10
                          UndulatingNumbers
                          TernaryWithout2
                          Base4Without3
@@ -144,7 +146,8 @@ use constant values_choices => do {
 };
 
 sub values_class {
-  my ($class, $values) = @_;
+  my ($class_or_self, $values) = @_;
+  $values ||= $class_or_self->{'values'};
   my $values_class = "App::MathImage::Values::$values";
   Module::Load::load ($values_class);
   return $values_class;
@@ -290,6 +293,8 @@ sub description {
     $ret .= " $self->{'polygonal'}";
   } elsif ($self->{'values'} eq 'Multiples') {
     $ret .= " $self->{'multiples'}";
+  } elsif ($self->values_class->parameters->{'radix'}) {
+    $ret .= " base$self->{'radix'}";
   } elsif ($self->{'values'} eq 'Aronson') {
     my $lang = $self->{'aronson_lang'};
     if ($lang ne default_options()->{'aronson_lang'}) {
@@ -387,11 +392,13 @@ sub coord_object {
 
 sub x_negative {
   my ($self) = @_;
-  return ($self->{'path'} eq 'MultipleRings' || $self->path_object->x_negative);
+  return ($self->{'path'} eq 'MultipleRings'
+          || $self->path_object->x_negative);
 }
 sub y_negative {
   my ($self) = @_;
-  return ($self->{'path'} eq 'MultipleRings' || $self->path_object->y_negative);
+  return ($self->{'path'} eq 'MultipleRings'
+          || $self->path_object->y_negative);
 }
 
 # binary form gets too big to prime check
@@ -529,8 +536,8 @@ sub values_make_columns_of_pythagoras {
 #   return binary_positions($total, $hi);
 # }
 
-use constant _POINTS_CHUNKS     => 2000;  # 1000 of X,Y
-use constant _RECTANGLES_CHUNKS => 2000;  # 500 of X1,Y1,X2,Y2
+use constant _POINTS_CHUNKS     => 200 * 2;  # of X,Y
+use constant _RECTANGLES_CHUNKS => 200 * 4;  # of X1,Y1,X2,Y2
 
 sub covers_plane {
   my ($self) = @_;
@@ -553,6 +560,13 @@ sub covers_plane {
   return 1;
 }
 
+sub figure {
+  my ($self) = @_;
+  if ($self->{'scale'} == 1) {
+    return 'point';
+  }
+  return ($self->{'figure'} || $self->path_object->figure);
+}
 
 sub colours_grey_exp {
   my ($self) = @_;
@@ -778,7 +792,7 @@ sub draw_Image_steps {
   my $offset = int($scale/2);
   my $count_total = $self->{'count_total'};
   my $count_outside = $self->{'count_outside'};
-  my $figure = ($scale == 1 ? 'point' : $path_object->figure);
+  my $figure = $self->figure;
   ### $figure
 
   my $background_fill_proc;

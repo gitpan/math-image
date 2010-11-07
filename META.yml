@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            28
+version:            29
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -31,6 +31,7 @@ requires:
     Gtk2::Ex::ContainerBits:  21
     Gtk2::Ex::Dragger:    2
     Gtk2::Ex::GdkBits:    23
+    Gtk2::Ex::MenuItem::Subclass:  29
     Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::Units:      13
@@ -46,6 +47,7 @@ requires:
     List::MoreUtils:      0.24
     Locale::Messages:     0
     Locale::TextDomain:   1.19
+    Math::BaseCnv:        0
     Math::Libm:           0
     Math::PlanePath:      1
     Math::PlanePath::Columns:  7

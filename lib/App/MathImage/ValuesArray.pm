@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 28;
+$VERSION = 29;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -41,8 +41,7 @@ sub new {
 sub next {
   my ($self) = @_;
   ### ValuesArray next(): $self->{'i'} . ' of ' . scalar(@{$self->{'array'}})
-  return ($self->{'array'}->[$self->{'i'}++],
-          1);
+  return $self->{'array'}->[$self->{'i'}++];
 }
 sub pred {
   my ($self, $n) = @_;
@@ -52,6 +51,10 @@ sub pred {
     ### %h
     \%h
   })->{$n});
+}
+sub ith {
+  my ($self, $i) = @_;
+  return $self->{'array'}->[$i];
 }
 
 1;
