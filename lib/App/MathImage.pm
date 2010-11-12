@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -132,12 +132,12 @@ sub getopt_long_specifications {
      'curses'   => sub{_hopt($self, 'gui_options', 'show', 'curses');  },
      'xpm'      => sub{_hopt($self, 'gui_options', 'show', 'xpm');  },
      'png'      => sub{_hopt($self, 'gui_options', 'show', 'png');  },
-     'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png-gd');  },
-     'png-gtk'  => sub{_hopt($self, 'gui_options', 'show', 'png-gtk');  },
-     'png-pngwriter' => sub{_hopt($self, 'gui_options', 'show', 'png-pngwriter');  },
+     'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png_gd');  },
+     'png-gtk'  => sub{_hopt($self, 'gui_options', 'show', 'png_gtk');  },
+     'png-pngwriter' => sub{_hopt($self, 'gui_options', 'show', 'png_pngwriter');  },
      'text'     => sub{_hopt($self, 'gui_options', 'show', 'text'); },
-     'text-numbers' => sub{_hopt($self, 'gui_options', 'show', 'text-numbers'); },
-     'text-list' => sub{_hopt($self, 'gui_options', 'show', 'text-list'); },
+     'text-numbers' => sub{_hopt($self, 'gui_options', 'show', 'text_numbers'); },
+     'text-list' => sub{_hopt($self, 'gui_options', 'show', 'text_list'); },
      'help|?' => sub{_hopt($self, 'gui_options', 'show', 'help'); },
      'version' => sub{_hopt($self, 'gui_options', 'show', 'version'); },
 
@@ -299,7 +299,7 @@ sub command_line {
   if ($show eq 'root') {
     ## root, try x11 protocol
     if (eval { $self->x11_protocol_object }) {
-      $show = 'root_x11_protocol'
+      $show = 'root_x11_protocol';
     } else {
       $x11_error = $@;
     }
@@ -328,10 +328,21 @@ sub command_line {
     die "Unrecognised option(s): ",join(' ',@ARGV);
   }
 
+  # force size for --root window
+  if ($show eq 'root_x11_protocol') {
+    my $X = $self->x11_protocol_object;
+    $gen_options->{'width'}  = $X->{'width_in_pixels'};
+    $gen_options->{'height'} = $X->{'height_in_pixels'};
+  }
+  if ($show eq 'root_gtk') {
+    my $rootwin = Gtk2::Gdk->get_default_root_window;
+    ($gen_options->{'width'}, $gen_options->{'height'}) = $rootwin->get_size;
+  }
+
   if ($self->{'verbose'}) {
     print STDERR $self->make_generator->description,"\n";
   }
-  (my $show_method = "show_method_$show") =~ tr/-/_/;
+  my $show_method = "show_method_$show";
   my $coderef = $self->can($show_method)
     || die "Unrecognised show option: $show";
   return $self->$coderef;
@@ -446,16 +457,31 @@ sub show_method_root_gtk {
 
   my $gen_options = $self->{'gen_options'};
   my $rootwin = Gtk2::Gdk->get_default_root_window;
-  ($gen_options->{'width'}, $gen_options->{'height'}) = $rootwin->get_size;
-  my $gen = $self->make_generator;
-  require Image::Base::Gtk2::Gdk::Pixmap;
-  my $image = Image::Base::Gtk2::Gdk::Pixmap->new
-    (-for_window => $rootwin,
-     -width  => $gen_options->{'width'},
-     -height => $gen_options->{'height'});
-  $gen->draw_Image ($image);
+  ### $rootwin
 
-  $rootwin->set_back_pixmap ($image->get('-pixmap'));
+  my $pixmap;
+  {
+    require Image::Base::Gtk2::Gdk::Window;
+    my $image_rootwin = Image::Base::Gtk2::Gdk::Window->new
+      (-window => $rootwin);
+
+    require Image::Base::Gtk2::Gdk::Pixmap;
+    my $image_pixmap = Image::Base::Gtk2::Gdk::Pixmap->new
+      (-for_drawable => $rootwin,
+       -width        => $gen_options->{'width'},
+       -height       => $gen_options->{'height'});
+    $pixmap = $image_pixmap->get('-pixmap');
+    ### $pixmap
+
+    require Image::Base::Multiplex;
+    my $image = Image::Base::Multiplex->new
+      (-images => [ $image_pixmap, $image_rootwin ]);
+
+    my $gen = $self->make_generator;
+    $gen->draw_Image ($image);
+  }
+
+  $rootwin->set_back_pixmap ($pixmap);
   $rootwin->clear;
   $rootwin->get_display->flush;
   return 0;
@@ -479,16 +505,19 @@ sub show_method_root_x11_protocol {
   my ($self) = @_;
   my $X = $self->x11_protocol_object;
   my $rootwin = $X->{'root'};
-  ### $rootwin;
 
   my $gen_options = $self->{'gen_options'};
-  my $width  = $gen_options->{'width'}  = $X->{'width_in_pixels'};
-  my $height = $gen_options->{'height'} = $X->{'height_in_pixels'};
+  my $width  = $gen_options->{'width'};
+  my $height = $gen_options->{'height'};
   my $colormap = $X->{'default_colormap'};
+  ### $rootwin
+  ### $width
+  ### $height
 
   my $pixmap;
-  my $want_save = my $root_visual_dynamic
-    = _X_visual_is_dynamic($X, $X->{'root_visual'});
+  my $want_save
+    = my $root_visual_dynamic
+      = _X_visual_is_dynamic($X, $X->{'root_visual'});
   {
     require Image::Base::X11::Protocol::Window;
     my $image_rootwin = Image::Base::X11::Protocol::Window->new

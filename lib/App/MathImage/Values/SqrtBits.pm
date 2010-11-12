@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Square Root Bits');
 use constant description => __('The square root of a given number written out in binary.');
@@ -71,10 +71,10 @@ sub next {
   for (;;) {
     my $i = ++$self->{'i'};
     if ($i >= length($self->{'string'})) {
-      return (undef, undef);
+      return;
     }
     if (substr ($self->{'string'},$i,1)) {
-      return ($i, 1);
+      return $i;
     }
   }
 }

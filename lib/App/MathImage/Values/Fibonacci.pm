@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Fibonacci Numbers');
 use constant description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.');
@@ -42,7 +42,7 @@ sub next {
   my ($self) = @_;
   (my $ret, $self->{'f0'}, $self->{'f1'})
    = ($self->{'f0'}, $self->{'f1'}, $self->{'f0'}+$self->{'f1'});
-  return ($ret, 1);
+  return $ret;
 }
 # sub pred {
 #   my ($self, $n) = @_;

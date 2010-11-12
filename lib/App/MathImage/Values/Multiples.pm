@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
@@ -46,8 +46,7 @@ sub new {
 }
 sub next {
   my ($self) = @_;
-  return ($self->{'i'}++ * $self->{'multiples'},
-          1);
+  return $self->{'i'}++ * $self->{'multiples'};
 }
 sub pred {
   my ($self, $n) = @_;

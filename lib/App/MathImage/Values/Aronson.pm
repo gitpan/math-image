@@ -22,9 +22,11 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::ValuesFile;
+use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Aronson\'s Sequence');
 use constant description => __('Aronson\'s sequence of the positions of letter "T" in self-referential "T is the first, fourth, ...".  Or French "E est la premiere, deuxieme, ...".  See the Math::Aronson module for details.');
@@ -36,21 +38,42 @@ sub new {
   my ($class, %options) = @_;
   require Math::Aronson;
 
+  my $hi = $options{'hi'};
+  my $lang = ($options{'aronson_lang'} || 'en');
+  my $letter = $options{'aronson_letter'};
+  my $conjunctions = ($options{'aronson_conjunctions'} ? 1 : 0);
+  my $lying = ($options{'aronson_lying'} ? 1 : 0);
+
+  my $letter_opt = (defined $letter ? $letter : '');
+  my $options = "$lang,$letter_opt,$conjunctions,$lying";
+
+  if (my $vf = App::MathImage::ValuesFile->new (package => __PACKAGE__,
+                                                options => $options,
+                                                hi => $hi)) {
+    ### use ValuesFile: $vf
+    return $vf;
+  }
+
   my $aronson = Math::Aronson->new
-    (hi                   => $options{'hi'},
-     lang                 => ($options{'aronson_lang'} || 'en'),
-     letter               => $options{'aronson_letter'},
-     without_conjunctions => ! $options{'aronson_conjunctions'},
-     lying                => $options{'aronson_lying'},
+    (hi                   => $hi,
+     lang                 => $lang,
+     letter               => $letter,
+     without_conjunctions => ! $conjunctions,
+     lying                => $lying,
     );
+
+  # my $vfw = App::MathImage::ValuesFileWriter->new
+  #   (package => __PACKAGE__,
+  #    hi      => $hi);
+
   return bless { aronson => $aronson,
+                 # vfw     => $vfw,
                }, $class;
 }
 sub next {
   my ($self) = @_;
   ### Aronson next(): $self->{'i'}
-  return (scalar($self->{'aronson'}->next),
-          1);
+  return $self->{'aronson'}->next;
 }
 
 1;

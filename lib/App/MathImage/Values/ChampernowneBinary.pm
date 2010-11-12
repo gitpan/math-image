@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
@@ -75,7 +75,7 @@ sub next {
     if ($bitmask & $self->{'val'}) {
       $self->{'bitmask'} = $bitmask >> 1;
       ### result: $self->{'n'}
-      return ($self->{'n'}, 1);
+      return $self->{'n'};
     }
     $bitmask >>= 1;
   }

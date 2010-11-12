@@ -245,21 +245,21 @@ sub check_ellipse {
   my ($image, %options) = @_;
   my ($width, $height) = $image->get('-width','-height');
 
-  my $func = $options{'base_ellipse_func'} || sub { 0 };
+  my $basefunc = $options{'base_ellipse_func'} || sub { 0 };
 
   foreach my $elem (@sizes) {
     my ($x1,$y1, $x2,$y2) = @$elem;
     my $name = "ellipse $x1,$y1, $x2,$y2";
 
-    if ($options{'base_ellipse'}
-        || $func->($x1,$y1, $x2,$y2)) {
-      next if $name eq 'ellipse 3,2, 4,2';   # dodgy
-      next if $name eq 'ellipse 3,2, 13,2';  # dodgy
-      next if $name eq 'ellipse 1,1, 18,8';  # dodgy
-      next if $name eq 'ellipse 3,3, 4,3';   # dodgy
-      next if $name eq 'ellipse 1,1, 2,2';   # dodgy
-      next if $name eq 'ellipse 3,3, 13,3';  # dodgy
-    }
+    # if ($options{'base_ellipse'}
+    #     || $basefunc->($x1,$y1, $x2,$y2)) {
+    #   next if $name eq 'ellipse 3,2, 4,2';   # dodgy
+    #   next if $name eq 'ellipse 3,2, 13,2';  # dodgy
+    #   next if $name eq 'ellipse 1,1, 18,8';  # dodgy
+    #   next if $name eq 'ellipse 3,3, 4,3';   # dodgy
+    #   next if $name eq 'ellipse 1,1, 2,2';   # dodgy
+    #   next if $name eq 'ellipse 3,3, 13,3';  # dodgy
+    # }
 
     $image->rectangle (0,0, $width-1,$height-1, $black, 1);
     $image->ellipse ($x1,$y1, $x2,$y2, $white);

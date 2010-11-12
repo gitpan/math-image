@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # http://www.research.att.com/~njas/sequences/A048988
 use constant name => __('Prime Generating Quadratic of Honaker');
@@ -42,8 +42,7 @@ sub new {
 sub next {
   my ($self) = @_;
   my $i = $self->{'i'}++;
-  return (4*($i + 1)*$i + 59,
-          1);
+  return 4*($i + 1)*$i + 59;
 }
 
 sub pred {

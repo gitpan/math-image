@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Perrin Numbers');
 use constant description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
@@ -50,7 +50,7 @@ sub next {
       $self->{'f1'},
       $self->{'f2'},
       $self->{'f0'}+$self->{'f1'});
-  return ($ret, 1);
+  return $ret;
 }
 # sub pred {
 #   my ($self, $n) = @_;

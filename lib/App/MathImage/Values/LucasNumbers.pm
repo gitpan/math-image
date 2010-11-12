@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Lucas Numbers');
 use constant description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.');
@@ -43,7 +43,7 @@ sub next {
   ### LucasNumbers next(): $self->{'i'}
   (my $ret, $self->{'f0'}, $self->{'f1'})
    = ($self->{'f0'}, $self->{'f1'}, $self->{'f0'}+$self->{'f1'});
-  return ($ret, 1);
+  return $ret;
 }
 # sub pred {
 #   my ($self, $n) = @_;

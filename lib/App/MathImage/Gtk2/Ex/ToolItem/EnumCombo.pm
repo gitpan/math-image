@@ -28,7 +28,7 @@ use Gtk2::Ex::ComboBox::Enum;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 29;
+our $VERSION = 30;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',

@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -181,14 +181,17 @@ use constant path_choices => qw(SquareSpiral
                               );
 
 sub random_options {
-  my @choices;
+  my @path_and_values;
   foreach my $path (App::MathImage::Generator->path_choices) {
     foreach my $values (App::MathImage::Generator->values_choices) {
-      # next if ($values eq 'Factorials'); # too sparse?
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
 
+      # too sparse?
+      # next if ($values eq 'Factorials');
+
+      # bit sparse?
       # next if $values eq 'Perrin' || $values eq 'Padovan';
 
       if ($values eq 'Squares') {
@@ -203,12 +206,31 @@ sub random_options {
                  || $path eq 'DiamondSpiral');  # just a centre horizontal line
       }
 
-      push @choices, [ path => $path, values => $values ];
+      push @path_and_values, [ $path, $values ];
     }
   }
+  my ($path, $values) = @{_rand_of_array(\@path_and_values)};
 
-  my @scales = (1, 3, 5, 10, 15, 20);
-  my $scale = _rand_of_array(\@scales);
+  my $radix;
+  if ($values eq 'Repdigits') {
+    $radix = _rand_of_array([2 .. 128,
+                             (10)x50]); # bias mostly 10
+  } else {
+    # for Emirps not too big or round up to 2^base becomes slow
+    $radix = _rand_of_array([2,3,4,8,16,
+                             10,10,10,10]); # bias mostly 10
+  }
+
+  if ($values eq 'Emirps') {
+    # not too big or round up to 2^base becomes slow
+    $radix = _rand_of_array([2,4,8,10,16]);
+  }
+
+  my $scale = _rand_of_array([1, 3, 5, 10, 15, 20]);
+  if ($values eq 'Lines') {
+    # not too small for lines to show up sensibly
+    $scale = max ($scale, 5);
+  }
 
   require Math::Prime::XS;
   Math::Prime::XS->VERSION (0.022);
@@ -233,13 +255,19 @@ sub random_options {
   my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
                                    1 .. 20]);
 
+  # gets slow very quickly when wider
+  if ($path eq 'ReplicatingSquares') {
+    $path_wider = 0; # min (1, $path_wider);
+  }
+
   my $rotation_type = _rand_of_array(['phi','phi','phi','phi',
                                       'sqrt2','sqrt2',
                                       'sqrt3',
                                       'sqrt5',
                                      ]);
 
-  return (@{_rand_of_array(\@choices)},
+  return (path      => $path,
+          values    => $values,
           scale     => $scale,
           fraction  => "$num/$den",
           polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
@@ -273,6 +301,7 @@ use vars '%pathname_has_wider';
 
 sub description {
   my ($self) = @_;
+
   my $ret = $self->{'path'};
   if ($pathname_has_wider{$self->{'path'}}) {
     if ($self->{'path_wider'}) {
@@ -282,7 +311,9 @@ sub description {
     $ret .= " step $self->{'pyramid_step'}";
   }
 
-  $ret .= ' ' . $self->values_class($self->{'values'})->name;
+  # prefer just the classname for a semi-technical descriptive summary
+  $ret .= " $self->{'values'}";
+
   if ($self->{'values'} eq 'Fraction') {
     $ret .= " $self->{'fraction'}";
   } elsif ($self->{'values'} eq 'Expression') {

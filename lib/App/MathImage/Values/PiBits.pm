@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Pi Bits');
 use constant description => __('Pi 3.141529... written out in binary.');
@@ -57,8 +57,7 @@ sub next {
     }
     $self->{'i'} = 0;
   }
-  return ($self->{'n'} += ord(substr($self->{'buf'},$self->{'i'}++,1)),
-          1);
+  return $self->{'n'} += ord(substr($self->{'buf'},$self->{'i'}++,1));
 }
 
 1;

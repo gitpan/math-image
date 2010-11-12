@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,7 +36,16 @@ sub new {
   ### ValuesFile new(): @_
   my $self = bless { @_ }, $class;
 
-  if (my $filetemp = $filetemp{$self->{'package'}}) {
+  my $package = $self->{'package'};
+  my $options = $self->{'options'};
+  if (defined $options) {
+    $options = "--$options";
+  } else {
+    $options = '';
+  }
+  my $key = "$package--$options";
+
+  if (my $filetemp = $filetemp{$key}) {
     ### filename: $filetemp->filename
     if (open my $fh, '<', $filetemp->filename) {
       if (my ($hi) = <$fh>) {

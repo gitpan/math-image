@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -120,25 +120,23 @@ sub run {
   my $menu = $self->add ('menu', 'Curses::UI::Menubar',
                          -menu => $menu_data,
                         );
-  ### $menu->getobj('__submenu_path
 
-
-  #   my $toolbar = $self->add('toolbar', 'Window',
-  #                            -y     => 1,
-  #                           );
+  # my $toolbar = $self->add('toolbar', 'Window',
+  #                          -y     => 1,
+  #                         );
   #
-  #   {
-  #     $toolbar->add ('conjunctions', 'Checkbox',
-  #                    -label => __('Conjunctions'),
-  #                    -checked => 1,
-  #                    -onchange => sub {
-  #                      my ($checkbox) = @_;
-  #                      my $self = $checkbox->parent->parent;
-  #                      my $draw = $self->getobj('draw');
-  #                      $self->getobj('draw')->change_gen
-  #                        (aronson_conjunctions => $checkbox->get);
-  #                    });
-  #   }
+  # {
+  #   $menu->add ('conjunctions', 'Checkbox',
+  #                  -label => __('Conjunctions'),
+  #                  -checked => 1,
+  #                  -onchange => sub {
+  #                    my ($checkbox) = @_;
+  #                    my $self = $checkbox->parent->parent;
+  #                    my $draw = $self->getobj('draw');
+  #                    $self->getobj('draw')->change_gen
+  #                      (aronson_conjunctions => $checkbox->get);
+  #                  });
+  # }
 
   $self->add('draw', 'App::MathImage::Curses::Drawing',
              -bfg  => 'red',

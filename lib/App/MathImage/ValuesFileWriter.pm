@@ -24,7 +24,7 @@ use File::Temp;
 use App::MathImage::ValuesFile;
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -39,16 +39,24 @@ sub new {
   my $hi = $self->{'hi'};
 
   my $package = $self->{'package'};
+  my $options = $self->{'options'};
+  if (defined $options) {
+    $options = "--$options";
+  } else {
+    $options = '';
+  }
+  my $key = "$package--$options";
+
   my $fh;
-  if (my $filetemp = $App::MathImage::ValuesFile::filetemp{$package}) {
+  if (my $filetemp = $App::MathImage::ValuesFile::filetemp{$key}) {
     my $filename = $filetemp->filename;
     ### existing file: $filename
     open $fh, '+>', $filename or die;
   } else {
-    my $basename = $package;
+    my $basename = $key;
     $basename =~ s/^App::MathImage::Values:://;
     $basename =~ tr/:/_/;
-    $fh = $App::MathImage::ValuesFile::filetemp{$package}
+    $fh = $App::MathImage::ValuesFile::filetemp{$key}
       = File::Temp->new (TEMPLATE => "${basename}_XXXXXX",
                          SUFFIX => '.data',
                          TMPDIR => 1);

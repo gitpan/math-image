@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # http://www.research.att.com/~njas/sequences/A007641  (the prime values)
 use constant name => __('Prime Generating Quadratic of Legendre');
@@ -42,8 +42,7 @@ sub new {
 sub next {
   my ($self) = @_;
   my $i = $self->{'i'}++;
-  return (2*$i*$i + 29,
-          1);
+  return 2*$i*$i + 29;
 }
 sub pred {
   my ($self, $n) = @_;

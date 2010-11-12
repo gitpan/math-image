@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Polygonal Numbers');
 # use constant description => __('');
@@ -60,13 +60,12 @@ sub next {
   my $i = $self->{'i'}++;
   if ($k < 3) {
     if ($i == 0) {
-      return (1, 1);
+      return 1;
     } else {
       return;
     }
   }
-  return (0.5 * $i * (($k-2)*$i - $k + 4),
-          1);
+  return 0.5 * $i * (($k-2)*$i - $k + 4);
 }
 sub pred {
   my ($self, $n) = @_;

@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 exit App::MathImage->command_line;
 
 __END__
@@ -300,6 +300,11 @@ printer or similar.
 Run the Prima GUI.  This requires the C<Prima> module.  This doesn't yet
 have the full set of options the Gtk GUI does, but it works as far as it
 goes.
+
+=item --curses
+
+Run the Curses interactive text interface.  This requires the C<Curses::UI>
+modules.  This is experimental and the control options are minimal.
 
 =back
 

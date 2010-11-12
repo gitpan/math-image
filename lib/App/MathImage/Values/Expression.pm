@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 use constant name => __('Arbitrary Expression');
 use constant description => __('An arbitrary expression, to be parsed by Math::Symbolic.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*x)^2 would give the even perfect squares.
@@ -87,7 +87,7 @@ sub next {
     if ($n > $self->{'hi'}) {
       $self->{'above'}++;
     }
-    return ($n, 1);
+    return $n;
   }
 }
 

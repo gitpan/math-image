@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 30, November 2010
+    - avoid big ReplicationSquares in random choice
+
 Version 29, November 2010
     - Repdigits radix, new Emirps
 

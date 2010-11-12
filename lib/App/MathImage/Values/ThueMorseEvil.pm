@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 
 # FIXME: parameter for odd/even instead of sep series?
@@ -71,8 +71,7 @@ sub next {
   }
   # search
   until ($self->pred(++$i)) { }
-  return (($self->{'i'} = $i),
-          1);
+  return ($self->{'i'} = $i);
 }
 
 sub pred {
