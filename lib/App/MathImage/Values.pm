@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 30;
+$VERSION = 31;
 
 sub name {
   my ($class_or_self) = @_;

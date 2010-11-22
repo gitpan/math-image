@@ -16,6 +16,10 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+Version 31, November 2010
+    - choice of square/circle/point figure
+    - sync to avoid flooding the server in gtk
+    - Math::TriangularNumbers disappeared
 
 Version 30, November 2010
     - avoid big ReplicationSquares in random choice

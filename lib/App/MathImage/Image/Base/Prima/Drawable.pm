@@ -26,7 +26,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 30;
+$VERSION = 31;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -108,33 +108,38 @@ sub rectangle {
                                        $x2, $y_top - $y2);
 }
 sub ellipse {
-  my ($self, $x1, $y1, $x2, $y2, $colour) = @_;
+  my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
 
   # In Prima 1.28 under X, if lineWidth==0 then a one-pixel ellipse x1==x2
   # and y1==y2 draws nothing, the same as for an unfilled rectangle above.
+  # Also trouble with diameter==1 when filled draws one pixel short at the
+  # right.  Do any width<=2 or height<=2 as a rectangle.
   #
-  my $drawable = $self->{'-drawable'};
+  my $drawable = _set_colour($self,$colour);
   my $y_top = $drawable->height - 1;
-  if ($x1==$x2 && $y1==$y2) {
-    $drawable->pixel ($x1, $y_top - $y1,
-                      $self->colour_to_pixel($colour));
+  my $dx = $x2-$x1+1; # diameters
+  my $dy = $y2-$y1+1;
+  if ($dx <= 2 || $dy <= 2) {
+    $drawable->bar ($x1, $y_top - $y1,
+                    $x2, $y_top - $y2);
   } else {
-    # The adjustment from the x1,y1 corner to the centre args for prima
-    # ellipse() are per the unix/apc_graphics.c X code.  Hope it ends up the
-    # same on different platforms.  The calculate_ellipse_divergence() looks
-    # a bit doubtful, it might be exercising the zero-width line.
+    # For an even diameter the X,Y centre is rounded down to the next lower
+    # integer.  (To be documented in a Prima post 1.28, perhaps.)  For the Y
+    # coordinate that rounding down can be applied after flipping $y_top-$y1
+    # puts Y=0 at the bottom per Prima coordinates.
     #
-    my $dx = $x2-$x1+1; # diameter
-    my $dy = $y2-$y1+1;
-    ### ellipse
-    ### centre x: $x1 + int (($dx - 1)/2)
-    ### centre y: $y_top - ($y1 + int (($dy - 1)/2))
+    my $method = ($fill ? 'fill_ellipse' : 'ellipse');
+
+    ### Prima ellipse()
     ### $dx
     ### $dy
-    _set_colour($self,$colour)->ellipse
-      ($x1 + int (($dx - 1)/2),
-       ($y_top - $y1) - int ($dy/2),
-       $dx, $dy);
+    ### x centre: $x1 + int(($dx-1)/2)
+    ### y centre: ($y_top - $y1) - int($dy/2)
+    ### $method
+
+    $drawable->$method ($x1 + int(($dx-1)/2),
+                        ($y_top - $y1) - int($dy/2),
+                        $dx, $dy);
   }
 }
 

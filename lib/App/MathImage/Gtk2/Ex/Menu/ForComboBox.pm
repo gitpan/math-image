@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 30;
+our $VERSION = 31;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',
@@ -44,9 +44,9 @@ use Glib::Object::Subclass
                   ('active-nick',
                    'active-nick',
                    'The selected enum value, as its nick.',
-                   # FIXME: default is undef, pending perl-glib 1.240 to
-                   # accept that here
-                   '', # default
+                   (eval {Glib->VERSION(1.240);1}  
+                    ? undef # default
+                    : ''),  # no undef/NULL before Perl-Glib 1.240
                    Glib::G_PARAM_READWRITE),
                 ];
 

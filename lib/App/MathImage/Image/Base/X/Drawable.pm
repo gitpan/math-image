@@ -24,11 +24,13 @@ use 5.004;
 use strict;
 use warnings;
 use Carp;
-use base 'Image::Base';
 use X11::Lib;
+use vars '$VERSION', '@ISA';
 
-use vars '$VERSION';
-$VERSION = 30;
+use Image::Base;
+@ISA = ('Image::Base');
+
+$VERSION = 31;
 
 sub new {
   my ($class, %params) = @_;
@@ -74,15 +76,20 @@ sub line {
 # FIXME: fill parameter ...
 sub rectangle {
   my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
-  X::DrawRectangle ($self->{'-display'}, $self->{'-drawable'},
+  my $func = ($fill ? \&X::FillRectangle : \&X::DrawRectangle);
+  &$func ($self->{'-display'},
+                    $self->{'-drawable'},
                     _gc_colour($self,$colour),
                     $x1, $y1, $x2-$x1+1, $y2-$y1+1);
 }
 sub ellipse {
-  my ($self, $x1, $y1, $x2, $y2, $colour) = @_;
-  X::DrawArc ($self->{'-display'}, $self->{'-drawable'},
-              _gc_colour($self,$colour),
-              $x1, $y1, $x2-$x1+1, $y2-$y1+1, 0, 360*64);
+  my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
+  my $func = ($fill ? \&X::FillArc : \&X::DrawArc);
+  &$func ($self->{'-display'},
+          $self->{'-drawable'},
+          _gc_colour($self,$colour),
+          $x1, $y1, $x2-$x1+1, $y2-$y1+1,
+          0, 360*64);
 }
 sub _gc_colour {
   my ($self, $colour) = @_;

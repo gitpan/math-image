@@ -28,7 +28,7 @@ use base 'App::MathImage::Values::TwinPrimes1';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 30;
+$VERSION = 31;
 
 use constant name => __('Twin Primes, second of each');
 use constant description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.');

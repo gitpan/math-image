@@ -29,6 +29,42 @@ use MyTestImageBase;
 
 {
   my $m = Image::Magick->new;
+  ### m: $m->Get('magick')
+  $m->Read('/usr/share/emacs/23.2/etc/images/icons/hicolor/16x16/apps/emacs.png');
+  # ### m: $m->Get('magick')
+  # $m->Set(magick => '');
+  ### m: $m->Get('magick')
+  $m->Read('/usr/share/webcheck/favicon.ico');
+  ### m: $m->Get('magick')
+
+  $m->Write('/tmp/image.data');
+  exit 0;
+}
+
+{
+  require App::MathImage::Image::Base::Magick;
+  my $image = App::MathImage::Image::Base::Magick->new
+    (-width  => 20,
+     -height => 10,
+    );
+  my $m = $image->{'-imagemagick'};
+  $m->Set (strokewidth => 0);
+  $image->rectangle (0,0, 19,9, 'black', 1);
+
+  # $m->Draw(stroke=>'white',
+  #          primitive=>'ellipse',
+  #          points=>'5,5, 4,4, 0,360');
+
+  # $image->line (1,1, 1,1, 'white');
+  # $image->rectangle (1,1, 1,1, 'white', 1);
+  # $image->ellipse (1,1, 18,8, 'white', 1);
+  $image->ellipse (1,1, 2,2, 'white', 0);
+  $m->Write ('xpm:-');
+  exit 0;
+}
+
+{
+  my $m = Image::Magick->new;
   # $m->Set(width=>10, height => 10);
   $m->Set(size=>'20x10');
   $m->ReadImage('xc:black');
@@ -37,9 +73,12 @@ use MyTestImageBase;
   say $m->Get('height');
   say $m->Get('size');
 
-  $m->Draw(fill=>'black',
-           primitive=>'rectangle',
-           points=>'5,5 5,6');
+  # $m->Draw(fill=>'white',
+  #          primitive=>'rectangle',
+  #          points=>'5,5 5,5');
+  $m->Draw(fill=>'white',
+           primitive=>'point',
+           points=>'5,5');
 
   #   $m->Draw(stroke=>'red', primitive=>'rectangle',
   #            points=>'5,5, 5,5');
@@ -52,7 +91,7 @@ use MyTestImageBase;
   say $m->GetPixel (x => 5, y => 5);
   say $m->Get ('Pixel[5,5]');
 
-  #   $m->Write ('xpm:-');
+  $m->Write ('xpm:-');
   exit 0;
 
   $m->Set (size=>'20x10');
@@ -74,26 +113,6 @@ use MyTestImageBase;
             method => 'Replace');
 
   $m->Quantize(colours => 4);
-  exit 0;
-}
-
-{
-  $ENV{'DISPLAY'} = ':0';
-  my $X = X11::Protocol->new;
-  my $win = $X->new_rsrc;
-
-  my $image = Image::Base::X11::Protocol::Pixmap->new
-    (-X      => $X,
-     -width  => 50,
-     -height => 50,
-     -depth  => 1,
-    # -for_drawable => $X->{'root'},
-    );
-  ### -colormap: $image->get('-colormap')
-  $image->rectangle (0,0, 99,99, 'clear', 1);
-
-  $image->rectangle (10,10,50,50, 'set');
-  say $image->xy (10,10);
   exit 0;
 }
 

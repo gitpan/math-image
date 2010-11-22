@@ -20,10 +20,12 @@ package App::MathImage::Image::Base::X::Pixmap;
 use strict;
 use warnings;
 use Carp;
-use base 'App::MathImage::Image::Base::X::Drawable';
+use vars '$VERSION', '@ISA';
 
-use vars '$VERSION';
-$VERSION = 30;
+use App::MathImage::Image::Base::X::Drawable;
+@ISA = ('App::MathImage::Image::Base::X::Drawable');
+
+$VERSION = 31;
 
 sub new {
   my ($class, %params) = @_;

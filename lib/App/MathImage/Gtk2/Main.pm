@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 30;
+our $VERSION = 31;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -255,6 +255,7 @@ Click repeatedly to see interesting things.'),
   }
   {
     my $action = $actiongroup->get_action ('AronsonLying');
+    $action->set (draw_as_radio => 1);
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-lying'],
                                       [$action,'active']);
   }
@@ -933,6 +934,27 @@ HERE
     $hbox->pack_start ($spin, 0,0,0);
     $toolitem->show_all;
   }
+  {
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::FigureType');
+    $toolitem->{'name'} = __('Figure');
+    set_property_maybe ($toolitem,
+                        tooltip_text  => __('The figure to show at each position.'));
+    $toolitem->show;
+    $toolbar->insert ($toolitem, $toolpos++);
+    
+    my $combobox = $toolitem->get_child;
+    set_property_maybe ($combobox, # tearoff-title new in 2.10
+                        tearoff_title => $toolitem->{'name'});
+    
+    Glib::Ex::ConnectProperties->new
+        ([$draw,'figure'],
+         [$combobox,'active-nick']);
+    Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
+                                      [$toolitem,'visible',
+                                       write_only => 1,
+                                       func_in => sub { $_[0] ne 'Lines' }]);
+  }
 
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
 }
@@ -963,18 +985,6 @@ sub _do_toolbar_overflow_comboenum {
   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
   return 1;
 }
-
-# sub _toolbarbits_create_overflow_checkbutton {
-#   my ($toolitem) = @_;
-#   my $checkbutton = $toolitem->get_child;
-#   ### _do_toolbar_overflow_checkbutton(): "$checkbutton"
-#   my $buttonlabel = $checkbutton->get_child;
-#   my $menuitem = Gtk2::CheckMenuItem->new_with_label ($buttonlabel->get_label);
-#   Glib::Ex::ConnectProperties->new ([$checkbutton,'active'],
-#                                     [$menuitem,'active']);
-#   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
-#   return 1;
-# }
 
 # sub _toolbarbits_create_overflow_button {
 #   my ($toolitem) = @_;

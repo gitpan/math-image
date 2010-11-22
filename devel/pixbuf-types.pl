@@ -27,6 +27,27 @@ my $progname = $FindBin::Script;
 
 
 {
+  print "Gtk2::Gdk::Pixbuf->can('get_formats') ",
+    Gtk2::Gdk::Pixbuf->can('get_formats'),"\n";
+  print "Gtk2->check_version (2,4,0) ",
+    (Gtk2->check_version(2,4,0)||0), "\n";
+
+  my @formats = Gtk2::Gdk::Pixbuf->get_formats;
+  require Data::Dumper;
+  print Data::Dumper->new([\@formats],['formats'])->Dump;
+
+  @formats = sort {$a->{'name'} cmp $b->{'name'}} @formats;
+  foreach my $format (@formats) {
+    print $format->{'name'},"\n";
+    if ($format->can('is_writable')) {
+      print "  is_writable() ", $format->is_writable, "\n";
+    }
+    print "  $format->{'description'}\n";
+  }
+  exit 0;
+}
+
+{
   foreach my $type ('png', 'jpeg', 'ico', 'tiff', 'bmp') {
     foreach my $i (6 .. 25) {
       my $width = 2 ** $i;
@@ -42,22 +63,3 @@ my $progname = $FindBin::Script;
   }
   exit 0;
 }
-
-print "Gtk2::Gdk::Pixbuf->can('get_formats') ",
-  Gtk2::Gdk::Pixbuf->can('get_formats'),"\n";
-print "Gtk2->check_version (2,4,0) ",
-  (Gtk2->check_version(2,4,0)||0), "\n";
-
-my @formats = Gtk2::Gdk::Pixbuf->get_formats;
-  require Data::Dumper;
-  print Data::Dumper->new([\@formats],['formats'])->Dump;
-
-@formats = sort {$a->{'name'} cmp $b->{'name'}} @formats;
-foreach my $format (@formats) {
-  print $format->{'name'},"\n";
-  if ($format->can('is_writable')) {
-    print "  is_writable() ", $format->is_writable, "\n";
-  }
-  print "  $format->{'description'}\n";
-}
-exit 0;

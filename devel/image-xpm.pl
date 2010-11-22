@@ -27,17 +27,16 @@ use Smart::Comments;
   require Image::Base::Text;
   require App::MathImage::Image::Base::Other;
 
-{
-  my $image = Image::Base::Text->new (-width => 20, -height => 10);
-  $image->App::MathImage::Image::Base::Other::diamond (0,0, 5,9, '*', 0);
+  my $image = Image::Base::Text->new (-width => 20, -height => 7);
+  $image->App::MathImage::Image::Base::Other::diamond (0,0, 3,3, '*', 1);
   print App::MathImage::Image::Base::Other::save_string($image);
+  exit 0;
 }
+
 {
   my $image = Image::Base::Text->new (-width => 20, -height => 10);
   $image->App::MathImage::Image::Base::Other::diamond (0,0, 9,5, '*', 0);
   print App::MathImage::Image::Base::Other::save_string($image);
-}
-  exit 0;
 }
 
 {

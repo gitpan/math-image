@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 30;
+$VERSION = 31;
 
 use constant name => __('Pronic Numbers');
 use constant description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k*(k+1).  These are twice the triangular numbers, and half way between perfect squares.');
@@ -36,11 +36,8 @@ use constant description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k
 
 sub new {
   my ($class, %options) = @_;
-  require Math::TriangularNumbers;
-  Math::TriangularNumbers->VERSION(1.012); # for Tri()
-
   my $lo = $options{'lo'} || 0;
-  return bless { i => pronic_inverse_ceil(max(0,$lo)),
+  return bless { i => ceil(_inverse(max(0,$lo))),
                }, $class;
 }
 sub next {
@@ -50,17 +47,18 @@ sub next {
 }
 sub pred {
   my ($self, $n) = @_;
-  return (! ($n & 1)
-          && Math::TriangularNumbers::is_T($n/2));
+  if ($n < 0) { return 0; }
+  my $i = _inverse($n);
+  return ($i == int($i));
 }
 sub ith {
   my ($self, $i) = @_;
-  return 2 * Math::TriangularNumbers::T($i);
+  return $i*($i+1);
 }
 
-sub pronic_inverse_ceil {
+sub _inverse {
   my ($n) = @_;
-  return Math::TriangularNumbers::Tri(ceil($n/2));
+  return sqrt($n + .25) - .5;
 }
 
 1;

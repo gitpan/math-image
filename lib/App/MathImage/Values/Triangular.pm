@@ -19,12 +19,14 @@ package App::MathImage::Values::Triangular;
 use 5.004;
 use strict;
 use warnings;
+use POSIX 'ceil';
+use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 30;
+$VERSION = 31;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');
@@ -34,25 +36,32 @@ use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28,
 
 sub new {
   my ($class, %options) = @_;
-  require Math::TriangularNumbers;
-  Math::TriangularNumbers->VERSION(1.012); # for Tri()
-
   my $lo = $options{'lo'} || 0;
-  return bless { i => Math::TriangularNumbers::Tri($lo),
+  return bless { i => ceil(_inverse(max(0,$lo))),
                }, $class;
 }
 sub next {
   my ($self) = @_;
-  return Math::TriangularNumbers::T($self->{'i'}++);
+  return $self->ith($self->{'i'}++);
 }
 sub pred {
   my ($self, $n) = @_;
-  return Math::TriangularNumbers::is_T($n);
+  if ($n < 0) { return 0; }
+  # FIXME: the _inverse() +.25, -.5 might be lost to rounding for very big $n
+  my $i = _inverse($n);
+  return ($i == int($i));
 }
 sub ith {
   my ($self, $i) = @_;
-  return Math::TriangularNumbers::T($i);
+  return $i*($i+1)/2;
 }
+
+sub _inverse {
+  my ($n) = @_;
+  return sqrt(2*$n + .25) - .5;
+}
+
+
 
 1;
 __END__

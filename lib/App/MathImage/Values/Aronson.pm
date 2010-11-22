@@ -26,7 +26,7 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 30;
+$VERSION = 31;
 
 use constant name => __('Aronson\'s Sequence');
 use constant description => __('Aronson\'s sequence of the positions of letter "T" in self-referential "T is the first, fourth, ...".  Or French "E est la premiere, deuxieme, ...".  See the Math::Aronson module for details.');

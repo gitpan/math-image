@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 30;
+our $VERSION = 31;
 
 sub save {
   my ($pixbuf, $filename, $type, @options) = @_;
@@ -102,10 +102,11 @@ sub filename_to_format {
       Gtk2::Gdk::Pixbuf->get_formats;
 }
 
+# $format->{'extensions'} list like ['tiff','tif'] without dots
 sub format_matches_filename {
   my ($format, $filename) = @_;
   return List::Util::first
-    { $filename =~ /.\Q$_\E$/i }
+    { $filename =~ /\Q.$_\E$/i }
       @{$format->{'extensions'}};
 }
 
@@ -178,12 +179,13 @@ For example
 
 =item C<< $format = App::MathImage::Gtk2::Ex::GdkPixbufBits::filename_to_format ($filename) >>
 
-Return the C<Gtk2::Gdk::PixbufFormat> for the given C<$filename> based on
-its extension.  For example F<foo.png> is PNG format.  If the filename is
-not recognised then return C<undef>.
+Return the C<Gtk2::Gdk::PixbufFormat> for the given C<$filename> from its
+extension.  For example F<foo.png> is PNG format.  If the filename is not
+recognised then return C<undef>.
 
 PixbufFormat is new in Gtk 2.2.  Currently C<filename_to_format> throws an
-error in Gtk 2.0.  Would returning C<undef> be better?
+error in Gtk 2.0.x.  Would returning C<undef> be better?  Or some
+compatibility fakery?
 
 =item C<< App::MathImage::Gtk2::Ex::GdkPixbufBits::format_matches_filename ($format, $filename) >>
 

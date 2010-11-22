@@ -43,11 +43,12 @@ MyMakeMakerExtras::WriteMakefile
     'Glib::Ex::ConnectProperties' => 11, # v.11 for widget-allocation
 
     # my Glib-Ex-ObjectBits
-    'Glib::Ex::ObjectBits' => 12, # new in v.12
-    'Glib::Ex::SourceIds'  => 2,  # new in v.2
-    'Glib::Ex::SignalIds'  => 0,
-    'Glib::Ex::SignalBits' => 9, # new in v.9
-    'Glib::Ex::EnumBits'   => 11, # new in v.11
+    'Glib::Ex::EnumBits'     => 11, # new in v.11
+    'Glib::Ex::FreezeNotify' => 0,
+    'Glib::Ex::ObjectBits'   => 12, # new in v.12
+    'Glib::Ex::SourceIds'    => 2,  # new in v.2
+    'Glib::Ex::SignalBits'   => 9,  # new in v.9
+    'Glib::Ex::SignalIds'    => 0,
 
     'Gtk2' => '1.220',
     'Gtk2::Pango' => 0, # part of Gtk2, used explicitly
@@ -59,18 +60,19 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::Units'          => 13, # new in v.13
+    'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
     # my Gtk2-Ex-ComboBoxBits
     'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 for fixed MoreUtils dependency
-    'Gtk2::Ex::ComboBox::Enum' => 2,
+    'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
     'Gtk2::Ex::ComboBox::Text' => 2,
     'Gtk2::Ex::ComboBox::PixbufType' => 4, # new in version 4
 
     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
     'Gtk2::Ex::NumAxis' => 2,
-    'Gtk2::Ex::WidgetCursor' => 0,
+    'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
     'Image::Base' => '1.09',  # for ellipse() fixes
 
     # my Image-Base-Other
@@ -99,7 +101,6 @@ MyMakeMakerExtras::WriteMakefile
     'Math::BaseCnv' => 0,
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
-    'Math::TriangularNumbers' => '1.012',
 
     'Math::PlanePath' => 1,
     # subclasses per Generator.pm path_choices()

@@ -24,21 +24,29 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 30;
+our $VERSION = 31;
 
-# Gtk2::RadioMenuItem no good as the base class since it insists on at least
-# one item active all the time.
+# Gtk2::RadioMenuItem is no good as the base class since it insists on at
+# least one item active all the time.
 #
 # The _do_activate() class handler here allows a parent notify without a
 # separate activate signal connection on each item.
 
 use Glib::Object::Subclass
   'Gtk2::CheckMenuItem',
-  signals => { activate => \&_do_activate };
+  signals => { activate => \&_do_activate },
+  properties => [ Glib::ParamSpec->string
+                  ('nick',
+                   'nick',
+                   'The enum nick for this item.',
+                   (eval {Glib->VERSION(1.240);1}
+                    ? undef # default
+                    : ''),  # no undef/NULL before Perl-Glib 1.240
+                   Glib::G_PARAM_READWRITE)
+                ];
 
-our @ISA;
 use Gtk2::Ex::MenuItem::Subclass;
-unshift @ISA, 'Gtk2::Ex::MenuItem::Subclass';
+unshift our @ISA, 'Gtk2::Ex::MenuItem::Subclass';
 
 sub INIT_INSTANCE {
   my ($self) = @_;
@@ -49,8 +57,9 @@ sub _do_activate {
   my ($self) = @_;
   ### EnumRadio-Item _do_activate()
   $self->signal_chain_from_overridden;
+
   if ($self->get_active) {
-    if (my $menu = $self->get_parent) {
+    if (my $menu = $self->get_parent) { # perhaps orphaned during destroy
       foreach my $menuitem ($menu->get_children) {
         if ($menuitem != $self && $menuitem->isa(__PACKAGE__)) {
           $menuitem->set_active(0);

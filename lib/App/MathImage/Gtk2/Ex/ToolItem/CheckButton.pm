@@ -1,3 +1,8 @@
+# ToggleToolButton
+
+
+
+
 # Copyright 2010 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -27,7 +32,7 @@ use List::Util qw(max);
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 30;
+our $VERSION = 31;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -56,13 +61,6 @@ sub INIT_INSTANCE {
   $checkbutton->signal_connect ('notify:active' => \&_do_checkbutton_notify);
 }
 
-sub _do_checkbutton_notify {
-  my ($checkbutton) = @_;
-  if (my $self = $checkbutton->get_parent) {
-    $self->notify('active');
-  }
-}
-
 sub GET_PROPERTY {
   my ($self, $pspec) = @_;
   # my $pname = $pspec->get_name;
@@ -79,18 +77,42 @@ sub SET_PROPERTY {
   $self->get_child->set_active($newval);
 }
 
+sub _do_checkbutton_notify {
+  my ($checkbutton, $pspec) = @_;
+  if (my $self = $checkbutton->get_parent) {
+    # my $pname = $pspec->get_name;
+    # if ($pname eq 'active') {
+
+    $self->notify('active');
+
+    if (my $menuitem = $self->get_proxy_menu_item(__PACKAGE__)) {
+      $menuitem->set_active ($checkbutton->get_active);
+    }
+  }
+}
+
 sub _do_create_menu_proxy {
   my ($self) = @_;
   my $checkbutton = $self->get_child;
   my $menuitem = Gtk2::CheckMenuItem->new_with_label ($checkbutton->get_label);
-  require Glib::Ex::ConnectProperties;
-  Glib::Ex::ConnectProperties->new ([$checkbutton,'active'],
-                                    [$menuitem,'active']);
-  Glib::Ex::ConnectProperties->new ([$checkbutton,'label'],
-                                    [$menuitem->get_child,'label',
-                                     write_only=>1]);
+
+  $checkbutton->signal_connect ('notify:active' => \&_do_checkbutton_notify);
+
+  # require Glib::Ex::ConnectProperties;
+  # Glib::Ex::ConnectProperties->new ([$checkbutton,'active'],
+  #                                   [$menuitem,'active']);
+  # Glib::Ex::ConnectProperties->new ([$checkbutton,'label'],
+  #                                   [$menuitem->get_child,'label',
+  #                                    write_only=>1]);
   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
   return 1;
+}
+
+sub _do_menuitem_notify {
+  my ($menuitem, $pspec, $ref_weak_self) = @_;
+  if (my $self = $$ref_weak_self) {
+    $self->get_child->set_active($menuitem->get_active);
+  }
 }
 
 

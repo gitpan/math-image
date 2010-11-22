@@ -29,14 +29,14 @@ BEGIN { MyTestHelpers::nowarnings() }
 eval { require Image::Magick }
   or plan skip_all => "due to no Image::Magick -- $@";
 
-plan tests => 7;
+plan tests => 1504;
 use_ok ('App::MathImage::Image::Base::Magick');
 
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 30;
+my $want_version = 31;
 is ($App::MathImage::Image::Base::Magick::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Magick->VERSION,
@@ -57,10 +57,11 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
      -height => 10);
   is ($image->get('-width'), 20);
   is ($image->get('-height'), 10);
+  my $m = $image->get('-imagemagick');
+  $m->Set (antialias => 0);
 
-  # not working yet
-  #   require MyTestImageBase;
-  #   MyTestImageBase::check_image ($image);
+  require MyTestImageBase;
+  MyTestImageBase::check_image ($image);
 }
 
 exit 0;

@@ -33,7 +33,8 @@ use Gtk2::Pango;
 use Locale::TextDomain ('App-MathImage');
 
 use Glib::Ex::SourceIds;
-use Gtk2::Ex::GdkBits 23; # version 23 for window_clear_region
+use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
+use Gtk2::Ex::GdkBits 23; # v.23 for window_clear_region()
 
 use App::MathImage::Generator;
 use App::MathImage::Gtk2::Drawing::Values;
@@ -41,7 +42,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 30;
+our $VERSION = 31;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 
@@ -72,6 +73,9 @@ BEGIN {
 
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::RotationType',
                              'phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom');
+
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::FigureType',
+                             App::MathImage::Generator->figure_choices);
 }
 
 use Glib::Object::Subclass
@@ -249,6 +253,13 @@ use Glib::Object::Subclass
                    'Gtk2::Adjustment',
                    Glib::G_PARAM_READWRITE),
 
+                  Glib::ParamSpec->enum
+                  ('figure',
+                   'figure',
+                   'Blurb.',
+                   'App::MathImage::Gtk2::Drawing::FigureType',
+                   'default',
+                   Glib::G_PARAM_READWRITE),
                 ];
 
 sub INIT_INSTANCE {
@@ -508,6 +519,7 @@ sub gen_object {
     (values          => $self->get('values'),
      path            => $self->get('path'),
      scale           => $self->get('scale'),
+     figure          => $self->get('figure'),
      fraction        => $self->get('fraction'),
      expression      => $self->get('expression'),
      aronson_lang         => $self->get('aronson-lang'),
@@ -575,8 +587,10 @@ sub start_drawing_window {
       (-for_widget => $self,
        -width      => $width,
        -height     => $height);
-  my $pixmap = $self->{'pixmap'} = $self->{'drawing'}->{'pixmap'}
-    = $image->get('-pixmap');
+  my $pixmap = $self->{'drawing'}->{'pixmap'} = $image->get('-pixmap');
+  if ($self->window && $window == $self->window) { 
+    $self->{'pixmap'} = $pixmap; # not if drawing to root window
+  }
   my $background_gc = $self->style->bg_gc($self->state);
   $pixmap->draw_rectangle ($background_gc, 1, 0,0, $pixmap->get_size);
   ### new pixmap: $self->{'drawing'}->{'pixmap'}
@@ -612,20 +626,37 @@ sub start_drawing_window {
   }
 
   $self->{'drawing'}->{'steps'} = ($progressive ? 1000 : undef);
-  Scalar::Util::weaken (my $weak_self = $self);
-  $self->{'drawing'}->{'idle_ids'}
-    = Glib::Ex::SourceIds->new
-      (Glib::Idle->add (\&_idle_handler_draw, \$weak_self,
-                        Gtk2::GDK_PRIORITY_REDRAW() + 10));
+  $self->{'drawing'}->{'idle_ids'} = Glib::Ex::SourceIds->new;
   # ### start_drawing_window: $self->{'drawing'}
+
+  Scalar::Util::weaken (my $weak_self = $self);
+  _idle_handler_draw (\$weak_self);
+}
+
+sub _sync_handler {
+  my ($ref_weak_self) = @_;
+  ### _sync_handler(): scalar(@_)
+  my ($self, $drawing);
+  if (($self = $$ref_weak_self)
+      && ($drawing = $self->{'drawing'})) {
+    $drawing->{'sync_pending'} = 0;
+    ### add idle
+    $drawing->{'idle_ids'}->add
+      (Glib::Idle->add (\&_idle_handler_draw,
+                        $ref_weak_self,
+                        Gtk2::GDK_PRIORITY_REDRAW() + 10));
+  }
 }
 
 sub _idle_handler_draw {
   my ($ref_weak_self) = @_;
-  my $self = $$ref_weak_self || return Glib::SOURCE_REMOVE;
   ### _idle_handler_draw()
-  #### $self
-  if (my $drawing = $self->{'drawing'}) {
+
+  my ($self, $drawing);
+  if (($self = $$ref_weak_self)
+      && ($drawing = $self->{'drawing'})) {
+    $drawing->{'idle_ids'}->remove;
+
     my $image = $drawing->{'image'};
     my $gen   = $drawing->{'gen'};
     my $steps = $drawing->{'steps'};
@@ -643,11 +674,18 @@ sub _idle_handler_draw {
       }
       $drawing->{'steps'} = $steps;
       ### new steps: $drawing->{'steps'}
-      return 1; # Glib::SOURCE_CONTINUE
+
+      unless ($drawing->{'sync_pending'}) {
+        ### start sync
+        Gtk2::Ex::SyncCall->sync ($self, \&_sync_handler, $ref_weak_self);
+        $drawing->{'sync_pending'} = 1;
+      }
+      return Glib::SOURCE_REMOVE;
     }
     ### done, install pixmap
     _drawing_finished ($self);
   }
+
   ### _idle_handler_draw() end
   return Glib::SOURCE_REMOVE;
 }

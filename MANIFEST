@@ -11,6 +11,7 @@ devel/archimedean.pl
 devel/arrow.pl
 devel/Base4Only01.pm
 devel/bits.pl
+devel/caca.pl
 devel/camel.pl
 devel/euler.pl
 devel/gen-bits.c
@@ -61,6 +62,7 @@ lib/App/MathImage/Gtk2/Ex/ToolItem/EnumCombo.pm
 lib/App/MathImage/Gtk2/Main.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
+lib/App/MathImage/Image/Base/Caca.pm
 lib/App/MathImage/Image/Base/Magick.pm
 lib/App/MathImage/Image/Base/Other.pm
 lib/App/MathImage/Image/Base/Prima/Drawable.pm
@@ -148,11 +150,14 @@ t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
+t/Gtk2-Ex-Menu-EnumRadio.t
+t/Gtk2-Ex-ToolItem-EnumCombo.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
 t/Gtk2-SaveDialog-weaken.t
 t/Gtk2-SaveDialog.t
 t/Image-Base-Magick.t
+t/Image-Base-Other.t
 t/Image-Base-Prima-Drawable.t
 t/MathImage.t
 t/MobiusFunction.t

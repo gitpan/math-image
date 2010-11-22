@@ -29,14 +29,14 @@ BEGIN { MyTestHelpers::nowarnings() }
 eval { require Prima }
   or plan skip_all => "due to no Prima -- $@";
 
-plan tests => 1087;
+plan tests => 1517;
 require App::MathImage::Image::Base::Prima::Drawable;
 
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 30;
+my $want_version = 31;
 is ($App::MathImage::Image::Base::Prima::Drawable::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Prima::Drawable->VERSION,
@@ -172,7 +172,6 @@ ok (! eval { App::MathImage::Image::Base::Prima::Drawable->VERSION($check_versio
   is ($image->get('-width'),  21);
   is ($image->get('-height'), 10);
 
-  # not working yet
   require MyTestImageBase;
   $prima_image->begin_paint;
   MyTestImageBase::check_image ($image);

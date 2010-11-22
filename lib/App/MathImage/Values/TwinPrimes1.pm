@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 30;
+$VERSION = 31;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');

@@ -1,22 +1,24 @@
-# drawing ops not right
+# antialias force ?
+
+# literal filename, no %03d
 
 
 # Copyright 2010 Kevin Ryde
 
-# This file is part of Image-Base-Magick.
+# This file is part of Math-Image.
 #
-# Image-Base-Magick is free software; you can redistribute it and/or modify
+# Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Image-Base-Magick is distributed in the hope that it will be useful, but
+# Math-Image is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Image-Base-Magick.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
 package App::MathImage::Image::Base::Magick;
@@ -25,13 +27,15 @@ use strict;
 use warnings;
 use Carp;
 use Image::Magick;
-use base 'Image::Base';
+use vars '$VERSION', '@ISA';
+
+use Image::Base;
+@ISA = ('Image::Base');
+
+$VERSION = 31;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
-
-use vars '$VERSION';
-$VERSION = 30;
 
 sub new {
   my ($class, %params) = @_;
@@ -69,9 +73,12 @@ sub new {
 
 my %attr_to_get = (# these not documented yet ...
                    -ncolours   => 'colors',
+                   -file_format => 'magick',
                   );
-my %attr_to_set = (-width      => 'width',
-                   -height     => 'height');
+my %attr_to_set = (-width       => 'width',
+                   -height      => 'height',
+                   # this not documented yet ...
+                   -file_format => 'magick');
 sub _get {
   my ($self, $key) = @_;
   ### Image-Base-Magick _get(): $key
@@ -123,6 +130,12 @@ sub load {
   $self->{'-imagemagick'}->Read ($filename);
 }
 
+# not yet documented ...
+sub load_fh {
+  my ($self, $fh) = @_;
+  $self->{'-imagemagick'}->Read (file => $fh);
+}
+
 sub save {
   my ($self, $filename) = @_;
   ### Image-Base-Magick save(): @_
@@ -148,14 +161,14 @@ sub xy {
     #               points => "$x,$y");
   } else {
     my @rgb = $m->GetPixel (x => $x, y => $y);
-    ### @rgb
+    #### @rgb
     return sprintf '#%02X%02X%02X', map {$_*255} @rgb;
   }
 }
 sub line {
   my ($self, $x1, $y1, $x2, $y2, $colour) = @_;
   ### Image-Base-Magick line: @_
-  $self->{'-imagemagick'}->Draw (stroke => $colour,
+  $self->{'-imagemagick'}->Draw (fill => $colour,
                                  primitive => 'line',
                                  points => "$x1,$y1 $x2,$y2");
 }
@@ -164,20 +177,38 @@ sub rectangle {
   ### Image-Base-Magick rectangle: @_
   # ### index: $self->colour_to_index($colour)
 
-  $self->{'-imagemagick'}->Draw (($fill ? 'fill' : 'stroke'), $colour,
-                                 primitive => 'rectangle',
-                                 points => "$x1,$y1 $x2,$y2");
+  my $m = $self->{'-imagemagick'};
+  if ($x1==$x2 && $y1==$y2) {
+    ### use point
+    $m->Draw (fill => $colour,
+              primitive => 'point',
+              points => "$x1,$y1");
+  } else {
+    $m->Draw (($fill ? 'fill' : 'stroke'), $colour,
+              primitive => 'rectangle',
+              points => "$x1,$y1 $x2,$y2");
+  }
 }
 
 sub ellipse {
-  my ($self, $x1, $y1, $x2, $y2, $colour) = @_;
+  my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
   ### Image-Magick ellipse: "$x1, $y1, $x2, $y2, $colour"
 
-  $self->{'-imagemagick'}->Draw
-    (stroke => $colour,
-     primitive => 'ellipse',
-     points => ((($x1+$x2)/2).','.(($y1+$y2)/2)
-                .($x2-$x1).','.($y2-$y1)));
+  my $m = $self->{'-imagemagick'};
+  if ($x1==$x2 || $y1==$y2) {
+    ### use line
+    $m->Draw (fill => $colour,
+              primitive => 'line',
+              points => "$x1,$y1 $x2,$y2");
+  } else {
+    ### ellipse: (($x1+$x2)/2).','.(($y1+$y2)/2).' '.(($x2-$x1)/2).','.(($y2-$y1)/2).' 0,360'
+    $self->{'-imagemagick'}->Draw
+      (($fill ? 'fill' : 'stroke') => $colour,
+       primitive => 'ellipse',
+       points => ((($x1+$x2)/2).','.(($y1+$y2)/2)
+                  .' '.(($x2-$x1)/2).','.(($y2-$y1)/2)
+                  .' 0,360'));
+  }
 }
 
 sub add_colours {
@@ -200,7 +231,7 @@ App::MathImage::Image::Base::Magick -- draw images using Image Magick
 
  use App::MathImage::Image::Base::Magick;
  my $image = App::MathImage::Image::Base::Magick->new (-width => 100,
-                                       -height => 100);
+                                                       -height => 100);
  $image->rectangle (0,0, 99,99, 'white');
  $image->xy (20,20, 'black');
  $image->line (50,50, 70,70, '#FF00FF');
@@ -216,8 +247,18 @@ C<App::MathImage::Image::Base::Magick> is a subclass of C<Image::Base>,
 
 =head1 DESCRIPTION
 
-C<App::MathImage::Image::Base::Magick> extends C<Image::Base> to create or update image
-files using ImageMagick through the C<Image::Magick> module.
+C<App::MathImage::Image::Base::Magick> extends C<Image::Base> to create or
+update image files using the C<Image::Magick> module.
+
+By default ImageMagick uses "anti-aliasing" to blur the edges of lines etc
+drawn.  This is unlike the other C<Image::Base> modules but currently it's
+not changed or overridden in the methods here.  Perhaps in the future that
+will change.
+
+Colour names are anything recognised by ImageMagick, as described under
+"Color Names" in its documentation.  It has several RGB and other colour
+model forms, and a table of names roughly per X11 plus a
+F<config/colors.xml> for extras.
 
 =head1 FUNCTIONS
 
@@ -234,7 +275,7 @@ Or an existing file can be read,
 
     $image = App::MathImage::Image::Base::Magick->new (-file => '/some/filename.png');
 
-Or a C<Image::Magick> object can be given,
+Or an C<Image::Magick> object can be given,
 
     $image = App::MathImage::Image::Base::Magick->new (-imagemagick => $mobj);
 
