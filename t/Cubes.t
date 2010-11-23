@@ -35,7 +35,7 @@ use App::MathImage::Values::Cubes;
 # VERSION
 
 {
-  my $want_version = 31; 
+  my $want_version = 32;
   is ($App::MathImage::Values::Cubes::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::Cubes->VERSION,  $want_version, 'VERSION class method');
 
@@ -52,18 +52,21 @@ use App::MathImage::Values::Cubes;
 
 {
   my $values_obj = App::MathImage::Values::Cubes->new;
-
   ok ($values_obj->pred(27),
       'pred() 27 is cube');
 
+}
+
+{
   my $n = 27;
+  $n = Math::Libm::cbrt(27);
   require Math::Libm;
   $n = Math::Libm::cbrt ($n);
   diag "cbrt(27) is $n";
   my $i = int($n);
-  diag "int is $i";
+  diag "int() is $i";
   my $eq = ($n == int($n));
-  diag "equal is $eq";
+  diag "equal is '$eq'";
 }
 
 exit 0;

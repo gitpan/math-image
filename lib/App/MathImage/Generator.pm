@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 31;
+$VERSION = 32;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -411,7 +411,6 @@ sub coord_object {
   my ($self) = @_;
   return ($self->{'coord_object'} ||= do {
     my $offset = int ($self->{'scale'} / 2);
-    
     my $path_object = $self->path_object;
     my $scale = $self->{'scale'};
     my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
@@ -437,7 +436,7 @@ sub coord_object {
          y_origin => $y_origin,
          x_scale  => $self->{'scale'},
          y_scale  => $self->{'scale'} * $invert);
-});
+  });
 }
 
 sub x_negative {
@@ -616,9 +615,10 @@ sub figure {
     return 'point';
   }
   my $figure = $self->{'figure'};
-  return (! $figure || $figure eq 'default'
-          ? $self->path_object->figure
-          : $figure);
+  if (! $figure || $figure eq 'default') {
+    return $self->path_object->figure;
+  }
+  return $figure;
 }
 
 sub colours_grey_exp {
@@ -725,7 +725,7 @@ sub draw_Image_start {
   ### $n_hi
 
   # origin point
-  if ($scale >= 3) {
+  if ($scale >= 3 && $self->figure ne 'point') {
     $image->xy ($coord->transform(0,0), $foreground);
   }
 
@@ -763,6 +763,10 @@ sub draw_Image_start {
   }
 }
 
+my %figure_is_circular = (diamond => 1,
+                          plus    => 1,
+                          circle  => 1,
+                          point   => 1);
 my %figure_method = (diamond => 'App::MathImage::Image::Base::Other::diamond',
                      plus    => \&_draw_plus,
                      X       => \&_draw_X,
@@ -790,7 +794,7 @@ sub draw_Image_steps {
   my ($self, $steps_limit) = @_;
   #### draw_Image_steps: $steps_limit
   my $steps = 0;
-  
+
   # my $time_lo = _gettime();
   # my $time_hi = $time_lo + $time_limit;
   # { my $time = _gettime();
@@ -798,7 +802,8 @@ sub draw_Image_steps {
   #     last;
   #   }
   # }
-  
+
+  my $path_object = $self->path_object;
   my $image  = $self->{'image'};
   my $width  = $self->{'width'};
   my $height = $self->{'height'};
@@ -806,18 +811,25 @@ sub draw_Image_steps {
   my $background = $self->{'background'};
   my $scale = $self->{'scale'};
   ### $scale
-  
-  my $path_object = $self->path_object;
+
   my $covers = $self->covers_plane;
   my $coord = $self->coord_object;
   my $values_obj = $self->{'values_obj'};
   my $filter_obj = $self->{'filter_obj'};
-  
+
   my $transform = $coord->transform_proc;
   my $figure = $self->figure;
+  my $pscale = $scale;
+  if ($path_object->figure eq 'circle' && ! $figure_is_circular{$figure}) {
+    $pscale = max (1, floor ($self->{'scale'} * (1/sqrt(2))));
+  }
+  if ($pscale == 1) {
+    $figure = 'point';
+  }
+  $pscale--;
   my $figure_method = $figure_method{$figure} || $figure;
   ### $figure
-  
+
   my %points_by_colour;
   my %rectangles_by_colour;
   my $flush = sub {
@@ -833,13 +845,13 @@ sub draw_Image_steps {
           ($image, $colour, 1, @$aref);
     }
   };
-  
+
   my $n_hi = $self->{'n_hi'};
-  
+
   my $more = 0;
   if ($self->{'values'} eq 'Lines') {
     my $n = $self->{'upto_n'};
-    
+
     for ( ; $n < $n_hi; $n++) {
       if (defined $steps_limit) {
         if (++$steps > $steps_limit) {
@@ -847,16 +859,16 @@ sub draw_Image_steps {
           last;
         }
       }
-      
+
       my ($x2, $y2) = $transform->($path_object->n_to_xy($n))
         or next;
-      
+
       if (my ($x1, $y1) = $transform->($path_object->n_to_xy($n-0.499))) {
         $x1 = floor ($x1 + 0.5);
         $y1 = floor ($y1 + 0.5);
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
       }
-      
+
       if (my ($x3, $y3) = $transform->($path_object->n_to_xy($n+0.499))) {
         $x3 = floor ($x3 + 0.5);
         $y3 = floor ($y3 + 0.5);
@@ -866,17 +878,17 @@ sub draw_Image_steps {
     $self->{'upto_n'} = $n;
     return $more;
   }
-  
+
   my $n_prev = $self->{'n_prev'};
-  my $offset = int($scale/2);
+  my $offset = ($figure eq 'point' ? 0 : int(($pscale+1)/2));
   my $count_total = $self->{'count_total'};
   my $count_outside = $self->{'count_outside'};
-  
+
   my $background_fill_proc;
   if (! $covers && $figure eq 'point') {
     $background_fill_proc = sub {
       my ($n_to) = @_;
-      ### background fill
+      ### background fill for point
       foreach my $n ($n_prev+1 .. $n_to) {
         $steps++;
         $count_total++;
@@ -891,7 +903,7 @@ sub draw_Image_steps {
         ### $x
         ### $y
         next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
-        
+
         push @{$points_by_colour{$background}}, $x, $y;
         if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
           $flush->();
@@ -901,7 +913,7 @@ sub draw_Image_steps {
   } elsif (! $covers && $figure eq 'square') {
     $background_fill_proc = sub {
       my ($n_to) = @_;
-      ### background fill
+      ### background fill for rectangle
       foreach my $n ($n_prev+1 .. $n_to) {
         $steps++;
         my ($x, $y) = $path_object->n_to_xy($n) or next;
@@ -912,7 +924,7 @@ sub draw_Image_steps {
         $x = floor ($x - $offset + 0.5);
         $y = floor ($y - $offset + 0.5);
         $count_total++;
-        my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
+        my @rect = rect_clipper ($x, $y, $x+$pscale, $y+$pscale,
                                  $width,$height)
           or do {
             $count_outside++;
@@ -928,20 +940,20 @@ sub draw_Image_steps {
     ### background_fill_proc is noop
     $background_fill_proc = \&_noop;
   }
-  
+
   my $colours = $self->{'colours'};
   my $colours_offset = $self->{'colours_offset'};
   my $colour = $foreground;
   my $type_count1 = $values_obj->type eq 'count1';
   my $n;
-  
+
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
     my $y    = $self->{'y'};
     #### draw by xy: $type_count1, $values_obj->type
     #### xy from: "$x,$y"
-    
+
     for (;;) {
       ### use_xy: "$x,$y"
       if (defined $steps_limit) {
@@ -958,37 +970,37 @@ sub draw_Image_steps {
         $x = $self->{'x_lo'};
         #### next row: "$x,$y"
       }
-      
+
       if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
         next; # no N for this x,y
       }
       #### path: "$x,$y  $n"
-      
+
       my $count1 = $values_obj->pred($n);
       #### $count1
       if (! $count1 || ! $filter_obj->pred($n)) {
         if (! $covers) {
           ##### background fill
-          
+
           my ($wx, $wy) = $transform->($x, $y);
           $wx = floor ($wx - $offset + 0.5);
           $wy = floor ($wy - $offset + 0.5);
           ### win: "$wx,$wy"
-          
+
           if ($figure eq 'point') {
             push @{$points_by_colour{$background}}, $wx, $wy;
             if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
               $flush->();
             }
           } elsif ($figure eq 'diamond') {
-            if (my @coords = ellipse_clipper ($x,$y, $x+$scale-1,$y+$scale-1,
+            if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                               $width,$height)) {
               $image->$figure_method (@coords, $colour, 1);
             }
           } else { # $figure eq 'square'
             push @{$rectangles_by_colour{$background}},
               rect_clipper ($wx, $wy,
-                            $wx+$scale-1, $wy+$scale-1,
+                            $wx+$pscale, $wy+$pscale,
                             $width,$height);
             if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
               $flush->();
@@ -1014,14 +1026,14 @@ sub draw_Image_steps {
           $flush->();
         }
       } elsif ($figure eq 'diamond') {
-        if (my @coords = ellipse_clipper ($x,$y, $x+$scale-1,$y+$scale-1,
+        if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                           $width,$height)) {
           $image->$figure_method (@coords, $colour, 1);
         }
       } else { # $figure eq 'square'
         push @{$rectangles_by_colour{$colour}},
           rect_clipper ($wx, $wy,
-                        $wx+$scale-1, $wy+$scale-1,
+                        $wx+$pscale, $wy+$pscale,
                         $width,$height);
         if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
           $flush->();
@@ -1086,7 +1098,7 @@ sub draw_Image_steps {
         $background_fill_proc->($n-1);
 
         $count_total++;
-        my @rect = rect_clipper ($x, $y, $x+$scale-1, $y+$scale-1,
+        my @rect = rect_clipper ($x, $y, $x+$pscale, $y+$pscale,
                                  $width,$height)
           or do {
             $count_outside++;
@@ -1098,7 +1110,7 @@ sub draw_Image_steps {
         }
 
       } else {
-        if (my @coords = ellipse_clipper ($x,$y, $x+$scale-1,$y+$scale-1,
+        if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                           $width,$height)) {
           $image->$figure_method (@coords, $colour, 1);
         }

@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 31;
+our $VERSION = 32;
 
 use Glib::Object::Subclass
   'Gtk2::Window',

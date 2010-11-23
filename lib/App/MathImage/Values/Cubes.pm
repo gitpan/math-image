@@ -19,14 +19,14 @@ package App::MathImage::Values::Cubes;
 use 5.004;
 use strict;
 use warnings;
-use POSIX 'ceil';
+use POSIX 'floor','ceil';
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 31;
+$VERSION = 32;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');
@@ -49,14 +49,23 @@ sub next {
   my ($self) = @_;
   return $self->{'i'}++ ** 3;
 }
-sub pred {
-  my ($self, $n) = @_;
-  $n = Math::Libm::cbrt ($n);
-  return ($n == int($n));
-}
 sub ith {
   my ($self, $i) = @_;
   return $i*$i*$i;
+}
+
+# this was a test for cbrt($n) being an integer, but found some amd64 glibc
+# where cbrt(27) was not 3 but instead 3.00000000000000044.  Dunno if an
+# exact integer can be expected from cbrt() on a cube, so instead try
+# multiplying back the integer nearest cbrt().
+#
+# FIXME: If $n is bigger than 2^53 or so then the $c*$c*$c product might be
+# rounded, making some non-cube $n look like a cube.
+#
+sub pred {
+  my ($self, $n) = @_;
+  my $c = floor (0.5 + Math::Libm::cbrt ($n));
+  return ($c*$c*$c == $n);
 }
 
 1;

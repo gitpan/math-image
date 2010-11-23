@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::All';
 
 use vars '$VERSION';
-$VERSION = 31;
+$VERSION = 32;
 
 use constant name => __('Lines');
 use constant description => __('No numbers, instead lines showing the path taken.');

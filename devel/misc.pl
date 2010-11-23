@@ -29,6 +29,21 @@ use lib 'devel/lib';
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 {
+  my $i;
+  sub del {
+    my ($n) = @_;
+    # return 2 + ($] >= 5.006 ? 3 : 999);
+    return $n * (1/sqrt(2));
+  }
+
+  require App::MathImage::Values::PrimeQuadraticHonaker;
+  require B::Concise;
+  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
+  B::Concise::compile('-exec',\&main::del)->();
+  exit 0;
+}
+
+{
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
                                             polygonal => 3,
@@ -131,18 +146,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   }
   exit 0;
 }
-{
-  my $i;
-  sub del {
-    return 2 + ($] >= 5.006 ? 3 : 999);
-  }
 
-  require App::MathImage::Values::PrimeQuadraticHonaker;
-  require B::Concise;
-  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
-  B::Concise::compile('-exec',\&main::del)->();
-  exit 0;
-}
 
 
 

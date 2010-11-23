@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 31;
+$VERSION = 32;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 31;
+$VERSION = 32;
 exit App::MathImage->command_line;
 
 __END__
