@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 32;
+$VERSION = 33;
 
 use constant name => __('Even Integers');
 use constant description => __('The even integers 2, 4, 6, 8, 10, etc.');

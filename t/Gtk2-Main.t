@@ -30,8 +30,9 @@ use Gtk2;
 Gtk2->disable_setlocale;  # leave LC_NUMERIC alone for version nums
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
+MyTestHelpers::glib_gtk_versions();
 
-plan tests => 14;
+plan tests => 13;
 
 require App::MathImage::Gtk2::Main;
 
@@ -39,7 +40,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 32;
+my $want_version = 33;
 {
   is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,
@@ -104,50 +105,6 @@ my $want_version = 32;
   require Scalar::Util;
   Scalar::Util::weaken ($main);
   is ($main, undef, 'garbage collect when weakened');
-}
-
-#-----------------------------------------------------------------------------
-# Test::Weaken
-
-# Test::Weaken 3 for "contents"
-my $have_test_weaken = eval "use Test::Weaken 3; 1";
-if (! $have_test_weaken) {
-  diag "Test::Weaken 3 not available -- $@";
-}
-
-SKIP: {
-  $have_test_weaken or skip 'due to Test::Weaken 3 not available', 1;
-
-  require Test::Weaken::Gtk2;
-  require Test::Weaken::ExtraBits;
-
-  {
-    my $leaks = Test::Weaken::leaks
-      ({ constructor => sub {
-           my $main = App::MathImage::Gtk2::Main->new;
-           $main->show_all;
-           return $main;
-         },
-         destructor => \&Test::Weaken::Gtk2::destructor_destroy,
-         contents => \&Test::Weaken::Gtk2::contents_container,
-         # ignore => \&my_ignore,
-       });
-    is ($leaks, undef, 'Test::Weaken deep garbage collection');
-    if ($leaks) {
-      eval { diag "Test-Weaken ", explain($leaks) }; # explain new in 0.82
-
-      my $unfreed = $leaks->unfreed_proberefs;
-      say "unfreed isweak ",
-        (Scalar::Util::isweak ($unfreed->[0]) ? "yes" : "no");
-      foreach my $proberef (@$unfreed) {
-        diag "  unfreed $proberef";
-      }
-      foreach my $proberef (@$unfreed) {
-        diag "  search $proberef";
-        MyTestHelpers::findrefs($proberef);
-      }
-    }
-  }
 }
 
 exit 0;

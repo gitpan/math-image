@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            32
+version:            33
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -14,6 +14,7 @@ requires:
     Bit::Vector:          0
     Compress::Zlib:       0
     constant::defer:      0
+    File::Copy:           2.14
     Glib:                 1.220
     Glib::Ex::ConnectProperties:  11
     Glib::Ex::EnumBits:   11

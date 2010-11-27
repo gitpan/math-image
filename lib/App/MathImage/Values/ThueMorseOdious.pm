@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::ThueMorseEvil';
 
 use vars '$VERSION';
-$VERSION = 32;
+$VERSION = 33;
 
 # http://www.research.att.com/~njas/sequences/A000069
 # bit count per example in perlfunc unpack()

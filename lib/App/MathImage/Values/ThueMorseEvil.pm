@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 32;
+$VERSION = 33;
 
 
 # FIXME: parameter for odd/even instead of sep series?

@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 32;
+our $VERSION = 33;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -371,25 +371,25 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-  
+
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-  
+
   my $toolbar = $self->toolbar;
   $toolbar->show;
   $vbox->pack_start ($toolbar, 0,0,0);
-  
+
   my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
   $vbox->pack_start ($table, 1,1,0);
-  
+
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   {
     my $hadj = $draw->get('hadjustment');
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
@@ -399,7 +399,7 @@ HERE
                          'button-release-mask',
                          'button-motion-mask']);
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
-    
+
     my $vadj = $draw->get('vadjustment');
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
                                         inverted => 1);
@@ -408,12 +408,12 @@ HERE
                          'button-motion-mask']);
     $vaxis->signal_connect (button_press_event => \&_do_axis_button_press);
     $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-    
+
     my $action = $actiongroup->get_action ('Axes');
     Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
                                       [$vaxis,'visible'],
                                       [$action,'active']);
-    
+
     my $aframe = Gtk2::AspectFrame->new ('', .5, .5, 1, 0);
     $aframe->set (label => undef,
                   shadow_type => 'none');
@@ -425,19 +425,22 @@ HERE
                       ['left', 0,1, 1,2],
                       ['right', 2,3, 1,2],
                      ) {
+      # my $button = Gtk2::Button->new;
+      # $button->set(border_width => 0);
       my $button = Gtk2::EventBox->new;
       $button->add_events (['button-press-mask']);
       my $arrow = Gtk2::Arrow->new ($data->[0], 'in');
       $arrow->set_name ('Math_Image_scroll_arrow');
       $button->set_size_request (3,3); # minimum size
       $button->add ($arrow);
+      $button->signal_connect (button_press_event
+                               => \&_do_arrow_button_clicked);
+      # $button->signal_connect (clicked => \&_do_arrow_button_clicked);
       $atable->attach ($button, @{$data}[1,2,3,4],
                        ['fill','expand'],['fill','expand'],0,0);
-      # $button->signal_connect (clicked => \&_do_arrow_button_clicked);
-      $button->signal_connect (button_press_event => \&_do_arrow_button_clicked);
     }
     $aframe->add ($atable);
-    
+
     Gtk2::Rc->parse_string (<<'HERE');
 style "Math_Image_style" {
   GtkArrow::arrow-scaling = 1
@@ -451,7 +454,7 @@ HERE
     # class "GtkButton" style:application "Math_Image_style"
   }
   $table->show_all;
-  
+
   {
     my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
     $statusbar->show;
@@ -462,7 +465,7 @@ HERE
     Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
                                       [$action,'active']);
   }
-  
+
   my $toolpos = -999;
   my $path_combobox;
   {
@@ -474,11 +477,11 @@ HERE
        tooltip_text  => __('The path for where to place values in the plane.'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     $path_combobox = $self->{'path_combobox'} = $toolitem->get_child;
     set_property_maybe ($path_combobox, # tearoff-title new in 2.10
                         tearoff_title => $toolitem->{'name'});
-    
+
     Glib::Ex::ConnectProperties->new ([$draw,'path'],
                                       [$toolitem,'active-nick']);
   }
@@ -488,7 +491,7 @@ HERE
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Wider path.'));
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $pspec = $draw->find_property ('path-wider');
     my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
                                      $pspec->get_minimum,  # min
@@ -500,7 +503,7 @@ HERE
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     $spin->show;
     $toolitem->set (entry => $spin);
-    
+
     Glib::Ex::ConnectProperties->new
         ([ $path_combobox, 'active-nick' ],
          [ $toolitem, 'visible',
@@ -513,7 +516,7 @@ HERE
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Step width for the pyramid rows, half going to each side.'));
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $pspec = $draw->find_property ('pyramid-step');
     my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
                                      $pspec->get_minimum,  # min
@@ -525,7 +528,7 @@ HERE
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     $spin->show;
     $toolitem->set (entry => $spin);
-    
+
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$toolitem,'visible',
                                        write_only => 1,
@@ -537,7 +540,7 @@ HERE
     # set_property_maybe ($toolitem,
     #                     tooltip_text => __('Multiple ...'));
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $pspec = $draw->find_property ('rings-step');
     my $adj = Gtk2::Adjustment->new ($pspec->get_default_value,  # initial
                                      $pspec->get_minimum,  # min
@@ -564,11 +567,11 @@ HERE
     #                     tooltip_text  => __(''));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     $rotation_type_combobox = $toolitem->get_child;
     set_property_maybe ($rotation_type_combobox, # tearoff-title new in 2.10
                         tearoff_title => $toolitem->{'name'});
-    
+
     Glib::Ex::ConnectProperties->new
         ([$draw,'path-rotation-type'],
          [$rotation_type_combobox,'active-nick']);
@@ -583,12 +586,12 @@ HERE
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'));
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $entry = $toolitem->get('entry');
     $entry->set_width_chars (10);
     $entry->show;
     $entry->set_text ('-phi');
-    
+
     $entry->signal_connect
       (activate => sub {
          my $expression = $entry->get_text;
@@ -616,10 +619,10 @@ HERE
     # Glib::Ex::ConnectProperties->new
     #     ([$draw,'path-rotation-factor'],
     #      [$entry,'text', read_signal => 'activate']);
-    
+
     my $update_sensitive = sub {
       $toolitem->set
-        (visible => 
+        (visible =>
          ($path_combobox->get('active-nick') eq 'VogelFloret'
           && $rotation_type_combobox->get('active-nick') eq 'custom'));
     };
@@ -632,7 +635,7 @@ HERE
     set_property_maybe ($toolitem,  # tooltip-text new in 2.12
                         tooltip_text => __('Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'));
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $adj = Gtk2::Adjustment->new (0,        # initial
                                      0, 999,   # min,max
                                      1,1,      # step,page increment
@@ -643,17 +646,17 @@ HERE
                                        func_in => sub { $_[0] ? 0.1 : 1.0 } ]);
     Glib::Ex::ConnectProperties->new ([$draw,'path-radius-factor'],
                                       [$adj,'value']);
-    
+
     my $spin = Gtk2::SpinButton->new ($adj, 2, 1);
     $toolitem->set (entry => $spin);
     $spin->show;
-    
+
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$toolitem,'visible',
                                        write_only => 1,
                                        hash_in => { 'VogelFloret' => 1 }]);
   }
-  
+
   {
     my $separator = Gtk2::SeparatorToolItem->new;
     $separator->show;
@@ -670,28 +673,27 @@ HERE
     $values_combobox = $self->{'values_combobox'} = $toolitem->get_child;
     set_property_maybe ($values_combobox, # tearoff-title new in 2.10
                         tearoff_title => $toolitem->{'name'});
-    
+
     $values_combobox->signal_connect
       ('notify::active-nick' => sub {
          my ($values_combobox) = @_;
-         if (my $toolitem = $values_combobox->get_parent) {
-           my $values = $values_combobox->get('active-nick');
-           my $tooltip = __('The values to display.');
-           my $enum_type = $values_combobox->get('enum_type');
-           if (my $desc = Glib::Ex::EnumBits::to_description
-               ($enum_type, $values)) {
-             my $name = Glib::Ex::EnumBits::to_display
-               ($enum_type, $values);
-             $tooltip .= "\n\n"
-               . __x('Current setting: {name}', name => $name)
-                 . "\n"
-                   . $desc;
-           }
-           ### $tooltip
-           set_property_maybe ($toolitem, tooltip_text => $tooltip);
+         my $toolitem = $values_combobox->get_parent || return;
+         my $values = $values_combobox->get('active-nick');
+         my $tooltip = __('The values to display.');
+         my $enum_type = $values_combobox->get('enum_type');
+         if (my $desc = Glib::Ex::EnumBits::to_description
+             ($enum_type, $values)) {
+           my $name = Glib::Ex::EnumBits::to_display
+             ($enum_type, $values);
+           $tooltip .= "\n\n"
+             . __x('Current setting: {name}', name => $name)
+               . "\n"
+                 . $desc;
          }
+         ### $tooltip
+         set_property_maybe ($toolitem, tooltip_text => $tooltip);
        });
-    
+
     Glib::Ex::ConnectProperties->new ([$draw,'values'],
                                       [$values_combobox,'active-nick']);
     ### values combobox initial: $values_combobox->get('active-nick')
@@ -728,7 +730,7 @@ HERE
                         tooltip_text => __('The fraction to show, for example 5/29.  Press Return when ready to display the expression.'));
     $toolbar->insert ($toolitem, $toolpos++);
     $toolitem->show_all;
-    
+
     my $entry = $toolitem->get('entry');
     $entry->set_width_chars (12);
     Glib::Ex::ConnectProperties->new
@@ -942,11 +944,11 @@ HERE
                         tooltip_text  => __('The figure to show at each position.'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
-    
+
     my $combobox = $toolitem->get_child;
     set_property_maybe ($combobox, # tearoff-title new in 2.10
                         tearoff_title => $toolitem->{'name'});
-    
+
     Glib::Ex::ConnectProperties->new
         ([$draw,'figure'],
          [$combobox,'active-nick']);

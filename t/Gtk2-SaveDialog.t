@@ -30,6 +30,7 @@ use Gtk2;
 Gtk2->disable_setlocale;  # leave LC_NUMERIC alone for version nums
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
+MyTestHelpers::glib_gtk_versions();
 
 plan tests => 8;
 
@@ -39,7 +40,7 @@ require App::MathImage::Gtk2::SaveDialog;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 32;
+my $want_version = 33;
 {
   is ($App::MathImage::Gtk2::SaveDialog::VERSION,
       $want_version,

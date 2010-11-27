@@ -32,6 +32,7 @@ use Test::Weaken::ExtraBits; # in 't' dir
 use Gtk2;
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
+MyTestHelpers::glib_gtk_versions();
 
 eval { require Gtk2::Ex::PodViewer }
   or plan skip_all => "due to Gtk2::Ex::PodViewer not available -- $@";

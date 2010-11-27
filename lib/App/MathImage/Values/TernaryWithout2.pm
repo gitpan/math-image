@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 32;
+$VERSION = 33;
 
 use constant name => __('Ternary without 2s');
 use constant description => __('The integers without any 2 digits when written out in ternary (base 3).');

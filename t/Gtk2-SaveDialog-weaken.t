@@ -33,6 +33,7 @@ use Test::Weaken::ExtraBits; # in 't' dir
 use Gtk2;
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
+MyTestHelpers::glib_gtk_versions();
 
 # Test::Weaken 3 for "contents"
 eval "use Test::Weaken 3; 1"

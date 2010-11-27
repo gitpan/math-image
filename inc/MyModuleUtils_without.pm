@@ -30,10 +30,10 @@ our $VERBOSE = 0;
 
 {
   if ($VERBOSE) {
-    print STDERR "Module::Util::find_installed() wrapped\n";
+    print STDERR "Module::Util::find_installed() now wrapped\n";
   }
   if ($VERBOSE >= 2) {
-    print STDERR "  \@INC \n",join("\n", @INC),"\n";
+    print STDERR "  \@INC currently: \n",join("\n", @INC),"\n";
   }
 
   my $orig = \&Module::Util::find_installed;
@@ -45,12 +45,16 @@ our $VERBOSE = 0;
 
     if (Test::Without::Module->can('get_forbidden_list')) {
       my $href = Test::Without::Module::get_forbidden_list();
+      if ($VERBOSE >= 2) { print STDERR "forbidden list: ",join(' ',keys %$href),"\n"; }
+      ### $href
       if (exists $href->{$module}) {
         if ($VERBOSE) {
           print STDERR "Module::Util::find_installed() wrap: $module forbidden by Test-Without-Module\n";
         }
         return undef;
       }
+    } else {
+      if ($VERBOSE >= 2) { print STDERR "Test::Without::Module not loaded\n"; }
     }
 
     my $module_path = Module::Util::module_path($module);
@@ -58,10 +62,9 @@ our $VERBOSE = 0;
       @inc = @INC;
     }
     foreach my $inc (@inc) {
-      if ($VERBOSE >= 2) {
-        print STDERR "consider $inc\n";
-      }
+      if ($VERBOSE >= 2) { print STDERR "consider $inc\n"; }
       if (ref $inc) {
+        if ($VERBOSE >= 2) { print STDERR "  is a ref\n"; }
         if (Scalar::Util::blessed($inc)
             && $inc->isa('Module::Mask')
             && $inc->is_masked($module)) {

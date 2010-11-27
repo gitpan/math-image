@@ -35,11 +35,20 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     # return 2 + ($] >= 5.006 ? 3 : 999);
     return $n * (1/sqrt(2));
   }
+  my %read_signal = ('has-screen' => 'screen-changed',
+                     style        => 'style-set',
+                     toplevel     => 'hierarchy-changed');
+  sub read_signals {
+    my ($self) = @_;
+    my $pname = $self->{'pname'};
+    return ($read_signal{$pname} || "$pname-changed")
+  }
+
 
   require App::MathImage::Values::PrimeQuadraticHonaker;
   require B::Concise;
   # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
-  B::Concise::compile('-exec',\&main::del)->();
+  B::Concise::compile('-exec',\&main::read_signals)->();
   exit 0;
 }
 

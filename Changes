@@ -16,6 +16,10 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+
+Version 33, November 2010
+    - ask for newer File::Copy to avoid some tests warnings
+
 Version 32, November 2010
     - don't rely on C library cbrt(27) being exact
     - fix for "point" centring and square/X widths

@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 32;
+$VERSION = 33;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -183,8 +183,11 @@ use constant path_choices => qw(SquareSpiral
 use constant figure_choices => qw(default
                                   point
                                   square
+                                  box
                                   circle
+                                  ring
                                   diamond
+                                  diamunf
                                   plus
                                   X);
 
@@ -766,12 +769,21 @@ sub draw_Image_start {
 my %figure_is_circular = (diamond => 1,
                           plus    => 1,
                           circle  => 1,
-                          point   => 1);
-my %figure_method = (diamond => 'App::MathImage::Image::Base::Other::diamond',
+                          point   => 1,
+                         );
+my %figure_fill = (square  => 1,
+                   circle  => 1,
+                   diamond => 1,
+                  );
+my %figure_method = (square  => 'rectangle',
+                     box     => 'rectangle',
+                     circle  => 'ellipse',
+                     ring    => 'ellipse',
+                     diamond => 'App::MathImage::Image::Base::Other::diamond',
+                     diamunf => 'App::MathImage::Image::Base::Other::diamond',
                      plus    => \&_draw_plus,
                      X       => \&_draw_X,
-                     circle  => 'ellipse',
-                     square  => 'rectangle');
+                    );
 sub _draw_plus {
   my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
   {
@@ -828,6 +840,7 @@ sub draw_Image_steps {
   }
   $pscale--;
   my $figure_method = $figure_method{$figure} || $figure;
+  my $figure_fill = $figure_fill{$figure};
   ### $figure
 
   my %points_by_colour;
@@ -995,7 +1008,7 @@ sub draw_Image_steps {
           } elsif ($figure eq 'diamond') {
             if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                               $width,$height)) {
-              $image->$figure_method (@coords, $colour, 1);
+              $image->$figure_method (@coords, $colour, $figure_fill);
             }
           } else { # $figure eq 'square'
             push @{$rectangles_by_colour{$background}},
@@ -1028,7 +1041,7 @@ sub draw_Image_steps {
       } elsif ($figure eq 'diamond') {
         if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                           $width,$height)) {
-          $image->$figure_method (@coords, $colour, 1);
+          $image->$figure_method (@coords, $colour, $figure_fill);
         }
       } else { # $figure eq 'square'
         push @{$rectangles_by_colour{$colour}},
@@ -1112,7 +1125,7 @@ sub draw_Image_steps {
       } else {
         if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                           $width,$height)) {
-          $image->$figure_method (@coords, $colour, 1);
+          $image->$figure_method (@coords, $colour, $figure_fill);
         }
       }
 

@@ -152,6 +152,7 @@ t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
 t/Gtk2-Ex-Menu-EnumRadio.t
 t/Gtk2-Ex-ToolItem-EnumCombo.t
+t/Gtk2-Main-weaken.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
 t/Gtk2-SaveDialog-weaken.t

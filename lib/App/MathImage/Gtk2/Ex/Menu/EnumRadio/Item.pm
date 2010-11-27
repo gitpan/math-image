@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 32;
+our $VERSION = 33;
 
 # Gtk2::RadioMenuItem is no good as the base class since it insists on at
 # least one item active all the time.

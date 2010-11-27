@@ -37,6 +37,11 @@ MyMakeMakerExtras::WriteMakefile
     'constant::defer' => 0,
     'Bit::Vector'     => 0,
     'Compress::Zlib'  => 0,
+    # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
+    # handles by outsmarting itself in some compares.  2.14 looks slightly
+    # better, though enquiring into the overloadedness of handles really
+    # doesn't sound like a good idea.
+    'File::Copy'      => '2.14',
 
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,

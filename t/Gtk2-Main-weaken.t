@@ -26,11 +26,8 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-use App::MathImage::Gtk2::AboutDialog;
-use Test::Weaken::Gtk2;
-use Test::Weaken::ExtraBits; # in 't' dir
-
 use Gtk2;
+Gtk2->disable_setlocale;  # leave LC_NUMERIC alone for version nums
 Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
@@ -41,24 +38,24 @@ eval "use Test::Weaken 3; 1"
 
 plan tests => 1;
 
-# Somehow a GtkFileChooserDefault stays alive in gtk 2.20.  Is it meant to,
-# to keep global settings?  In any case ignore for now.
-sub my_ignore {
-  my ($ref) = @_;
-  return (ref($ref) =~ /::GtkFileChooserDefault$/);
-}
+require App::MathImage::Gtk2::Main;
+
+#-----------------------------------------------------------------------------
+# Test::Weaken
+
+require Test::Weaken::Gtk2;
+require Test::Weaken::ExtraBits;
 
 {
   my $leaks = Test::Weaken::leaks
     ({ constructor => sub {
-         my $dialog = App::MathImage::Gtk2::AboutDialog->new;
-         $dialog->show;
-         MyTestHelpers::main_iterations();
-         return $dialog;
+         my $main = App::MathImage::Gtk2::Main->new;
+         $main->show_all;
+         return $main;
        },
        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
        contents => \&Test::Weaken::Gtk2::contents_container,
-       ignore => \&my_ignore,
+       # ignore => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
   if ($leaks) {
