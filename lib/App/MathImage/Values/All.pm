@@ -24,13 +24,15 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
-
-use constant name => __('All Integers');
-use constant description => __('All integers 1,2,3,etc.');
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant name => __('All Integers');
+use constant description => __('All integers 1,2,3,etc.');
+use constant oeis => 'A000027';   # natural numbers starting 1
+# use constant oeis => 'A001477'; # non-negatives starting 0
 
 sub new {
   my ($class, %self) = @_;

@@ -24,11 +24,13 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
-# http://www.research.att.com/~njas/sequences/A048988
 use constant name => __('Prime Generating Quadratic of Honaker');
 use constant description => __('The quadratic numbers 4*k^2 + k + 59.');
+
+# http://www.research.att.com/~njas/sequences/A048988
+# use constant oeis => 'A048988'; # the primes
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

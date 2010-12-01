@@ -24,10 +24,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant name => __('Fibonacci Numbers');
 use constant description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.');
+use constant oeis => 'A000045'; # fibonacci
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

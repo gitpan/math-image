@@ -28,10 +28,12 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
+use constant oeis => 'A001097'; # both, without repetition
+# use constant oeis => 'A077800'; # both, with repetition
 
 sub new {
   my ($class, %options) = @_;

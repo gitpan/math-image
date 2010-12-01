@@ -25,10 +25,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant name => __('Pell Numbers');
 use constant description => __('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');
+use constant oeis => 'A000129';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

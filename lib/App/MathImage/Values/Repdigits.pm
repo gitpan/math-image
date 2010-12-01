@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,6 +36,15 @@ use constant parameters => { radix => { type => 'integer',
                                         default => 10,
                                       }
                            };
+
+sub oeis {
+  my ($class_or_self) = @_;
+  if (! ref $class_or_self ||
+      $class_or_self->{'radix'} == 10) {
+    return 'A010785';
+  }
+  return undef;
+}
 
 sub new {
   my ($class, %options) = @_;

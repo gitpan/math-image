@@ -29,7 +29,7 @@ use App::MathImage::Gtk2::Ex::Menu::EnumRadio::Item;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 33;
+our $VERSION = 34;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',
@@ -43,6 +43,8 @@ use Glib::Object::Subclass
              },
   properties => [
                  # FIXME: default enum-type is undef but
+                 # Glib::ParamSpec->gtype() comes out as 'Glib::Enum'
+
                  # Glib::ParamSpec->string() doesn't allow that until
                  # Perl-Glib 1.240, in which case have
                  # Glib::ParamSpec->gtype().

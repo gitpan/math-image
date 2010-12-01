@@ -24,19 +24,20 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
-
-use constant name => __('Pentagonal Numbers, generalized');
-use constant description => __('The generalized pentagonal numbers 1, 2, 5, 7, 15, 22, 22, 26, etc, (3k-1)*k/2 for k positive and negative.  This is the plain pentagonal and second pentagonals taken together.');
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant name => __('Pentagonal Numbers, generalized');
+use constant description => __('The generalized pentagonal numbers 1, 2, 5, 7, 15, 22, 22, 26, etc, (3k-1)*k/2 for k positive and negative.  This is the plain pentagonal and second pentagonals taken together.');
+use constant oeis => 'A001318';
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   return bless { i => 0,
-                 neg => 0,
+                 neg => 1,
                }, $class;
 }
 sub next {

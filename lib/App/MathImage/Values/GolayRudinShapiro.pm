@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -44,6 +44,9 @@ $VERSION = 33;
 #
 use constant name => __('Golay Rudin Shapiro');
 use constant description => __('Numbers which have an odd number of "11" bit pairs in binary.');
+
+# http://www.research.att.com/~njas/sequences/A022155   # positions of -1s
+use constant oeis => 'A022155';
 
 use constant PHI => (1 + sqrt(5)) / 2;
 

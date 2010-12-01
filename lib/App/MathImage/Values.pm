@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 sub name {
   my ($class_or_self) = @_;
@@ -34,6 +34,7 @@ use constant type => 'seq';
 use constant description => undef;
 use constant parameters => {};
 use constant density => 'unknown';
+use constant oeis => undef;
 
 use constant finish => undef;
 

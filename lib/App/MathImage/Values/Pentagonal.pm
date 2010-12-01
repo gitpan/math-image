@@ -24,10 +24,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant name => __('Pentagonal Numbers');
 use constant description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');
+use constant oeis => 'A000326';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

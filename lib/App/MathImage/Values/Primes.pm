@@ -25,13 +25,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Prime Numbers');
 use constant description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.');
+use constant oeis => 'A000040';
 
 sub new {
   my ($class, %options) = @_;

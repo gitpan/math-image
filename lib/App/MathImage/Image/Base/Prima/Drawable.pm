@@ -26,7 +26,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -83,6 +83,7 @@ sub xy {
     return sprintf '#%06X', $drawable->pixel($x,$y);
   }
 }
+
 sub line {
   my ($self, $x1,$y1, $x2,$y2, $colour) = @_ ;
   ### Image-Base-Prima-Drawable line(): "$x1,$y1, $x2,$y2"
@@ -90,13 +91,14 @@ sub line {
   _set_colour($self,$colour)->line ($x1, $y_top-$y1,
                                     $x2, $y_top-$y2);
 }
+
 sub rectangle {
   my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
 
   # In Prima 1.28 under X, if lineWidth==0 then a one-pixel unfilled
   # rectangle x1==x2 and y1==y2 draws nothing.  This will be just the usual
   # server-dependent behaviour on a zero-width line.  Use bar() for this
-  # case so as to be sure of getting a pixel drawn whether lineWidth==0 or
+  # case so as to be sure of getting pixels drawn whether lineWidth==0 or
   # lineWidth==1.
   #
   my $method = ($fill || ($x1==$x2 && $y1==$y2)
@@ -177,18 +179,12 @@ sub colour_to_pixel {
   croak "Unrecognised colour: $colour";
 }
 
-
-# =item C<$image-E<gt>add_colours ($name, $name, ...)>
-# 
-# Add colours to the drawable's palette.  Colour names are the same for the
-# drawing functions.
-# 
-#     $image->add_colours ('red', 'green', '#FF00FF');
-# 
-# The drawing functions automatically add a colour if it doesn't already exist
-# but C<add_colours> can initialize the palette with particular desired
-# colours.
-
+# is prima_allocate_color() meant to be public?  It's not normally reached
+# unless in a paint anyway ...
+#
+# sub add_colours {
+#  ...
+# }
 
 1;
 __END__
@@ -218,16 +214,16 @@ C<App::MathImage::Image::Base::Prima::Drawable> is a subclass of C<Image::Base>,
 
 =head1 DESCRIPTION
 
-C<App::MathImage::Image::Base::Prima::Drawable> extends C<Image::Base> to draw into a
-C<Prima::Drawable> drawables, meaning a widget window, off-screen image,
-printer, etc.
+C<App::MathImage::Image::Base::Prima::Drawable> extends C<Image::Base> to
+draw into a C<Prima::Drawable> drawable, meaning a widget window, off-screen
+image, printer, etc.
 
 The native Prima drawing has lots more features, but this module is an easy
 way to point C<Image::Base> style code at a Prima image etc.
 
-Colours names for drawing are the "Blue" etc from the Prima colour constants
-C<cl::Blue> etc (see L<Prima::Drawable/Color space>), plus 2-digit #RRGGBB
-or 4-digit #RRRRGGGGBBBB hex.  Internally Prima works in 8-bit RGB
+Colours names for drawing are the "Blue" etc from the Prima colour
+constantslike C<cl::Blue> (see L<Prima::Drawable/Color space>), plus 2-digit
+#RRGGBB or 4-digit #RRRRGGGGBBBB hex.  Internally Prima works in 8-bit RGB
 components, so 4-digit values are truncated.
 
 X,Y coordinates are the usual C<Image::Base> style 0,0 at the top-left
@@ -238,8 +234,8 @@ C<App::MathImage::Image::Base::Prima::Drawable> converts.  There's no support fo
 None of the drawing functions do a C<$drawable-E<gt>begin_paint>.  That's
 left to the application, and of course happens automatically for an
 C<onPaint> handler.  The symptom of forgetting is that lines, rectangles and
-ellipses don't draw anything.  (In the current code C<xy> might come out
-since it uses C<$drawable-E<gt>pixel>, but don't rely on that.)
+ellipses don't draw anything.  In the current code C<xy> might come out
+because it uses C<$drawable-E<gt>pixel>, but don't rely on that.
 
 =head1 FUNCTIONS
 
@@ -250,7 +246,8 @@ since it uses C<$drawable-E<gt>pixel>, but don't rely on that.)
 Create and return a new image object.  A C<Prima::Drawable> object must be
 given.
 
-    $image = App::MathImage::Image::Base::Prima::Drawable->new (-drawable => $d);
+    $image = App::MathImage::Image::Base::Prima::Drawable->new
+               (-drawable => $d);
 
 =item C<$colour = $image-E<gt>xy ($x, $y)>
 

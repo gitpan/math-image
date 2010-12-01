@@ -27,7 +27,7 @@ use vars '$VERSION', '@ISA';
 use App::MathImage::Image::Base::Prima::Drawable;
 @ISA = ('App::MathImage::Image::Base::Prima::Drawable');
 
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -186,12 +186,14 @@ Create and return a new image object.  A new C<Prima::Image> object can be
 created, usually a C<-width> and C<-height> though it also works to set them
 later,
 
-    $ibase = App::MathImage::Image::Base::Prima::Image->new (-width => 200,
-                                                             -height => 100);;
+    $ibase = App::MathImage::Image::Base::Prima::Image->new
+               (-width => 200,
+                -height => 100);;
 
 Or an existing C<Prima::Image> object can be given
 
-    $ibase = App::MathImage::Image::Base::Prima::Image->new (-drawable => $pimage);
+    $ibase = App::MathImage::Image::Base::Prima::Image->new
+               (-drawable => $pimage);
 
 =item C<$image-E<gt>load>
 

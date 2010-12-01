@@ -25,17 +25,20 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 
 # FIXME: parameter for odd/even instead of sep series?
 # ENHANCE-ME: maybe a radix parameter, modulo sum of digits
 
-# http://www.research.att.com/~njas/sequences/A026147
 # bit count per example in perlfunc unpack()
 
 use constant name => __('Thue-Morse Evil Numbers');
 use constant description => __('The Thue-Morse "evil" numbers, meaning numbers with an even number of 1s in their binary form (the opposite of the "odious"s).');
+
+use constant oeis => 'A001969'; # with even 1s
+# df 'A026147'; # positions of 1s in evil
+# cf A001285 
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

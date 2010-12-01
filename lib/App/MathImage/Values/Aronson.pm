@@ -26,13 +26,23 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant name => __('Aronson\'s Sequence');
 use constant description => __('Aronson\'s sequence of the positions of letter "T" in self-referential "T is the first, fourth, ...".  Or French "E est la premiere, deuxieme, ...".  See the Math::Aronson module for details.');
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+# sub oeis {
+#   my ($class_or_self) = @_;
+#   if (ref $class_or_self) {
+#     my $aronson = $self->{'aronson'} || $class_or_self->{'options'};
+#       $class_or_self->{'radix'} == 2) {
+#     return 'A005224';
+#   }
+#   return undef;
+# }
 
 sub new {
   my ($class, %options) = @_;

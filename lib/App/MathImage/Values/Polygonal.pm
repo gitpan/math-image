@@ -24,14 +24,31 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
-
-use constant name => __('Polygonal Numbers');
-# use constant description => __('');
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant name => __('Polygonal Numbers');
+# use constant description => __('');
+
+my @radix_to_oeis = (undef, # 0
+                     undef, # 1
+                     undef, # 2
+                     'A000217', # 3 triangular
+                     'A000290', # 4 squares
+                     'A000326', # 5 pentagonal
+                     'A000384', # 6 hexagonal
+                     'A000566', # 7 heptagonal
+                     'A000567', # 8 octagonal
+                     'A001106', # 9 nonagonal
+                     'A001107', # 10 decogaonal
+                     # ... more?
+                    );
+sub oeis {
+  my ($class_or_self) = @_;
+  return $radix_to_oeis[(ref $class_or_self ? $class_or_self->{'polygonal'} : 10)];
+}
 
 # ($k-2)*$i*($i+1)/2 - ($k-3)*$i
 # = ($k-2)/2*$i*i + ($k-2)/2*$i - ($k-3)*$i

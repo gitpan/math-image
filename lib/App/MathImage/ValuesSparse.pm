@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -55,9 +55,9 @@ sub pred {
   });
   while ($n > $self->{'pred_n'}) {
     my ($pred_n) = $iter->next;
+    ### $pred_n
     next if ($pred_n < $self->{'lo'});
     $self->{'pred_hash'}->{$self->{'pred_n'}=$pred_n} = undef;
-    ### ValuesSparse pred_iter extend: $self->{'pred_n'}
   }
   ### ValuesSparse pred result: exists($self->{'pred_hash'}->{$n})
   return exists($self->{'pred_hash'}->{$n});

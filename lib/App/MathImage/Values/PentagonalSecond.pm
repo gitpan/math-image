@@ -24,13 +24,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
-
-use constant name => __('Pentagonal Numbers, second type');
-use constant description => __('The pentagonal numbers 2,7,15,26, etc, (3k+1)*k/2.  The formula is the same as the plain pentagonal numbers, but taking negative k.');
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant name => __('Pentagonal Numbers, second type');
+use constant description => __('The pentagonal numbers 2,7,15,26, etc, (3k+1)*k/2.  The formula is the same as the plain pentagonal numbers, but taking negative k.');
+use constant oeis => 'A005449';
 
 sub new {
   my ($class, %options) = @_;

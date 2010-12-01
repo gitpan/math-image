@@ -22,11 +22,109 @@ use strict;
 use warnings;
 use POSIX;
 
-use Smart::Comments;
+#use Smart::Comments;
 
 use lib 'devel/lib';
 
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
+
+
+{
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (fraction => '5/29',
+                                            polygonal => 3,
+                                            radix => 16);
+
+  foreach my $rep (1 .. 3) {
+    my $iter;
+    #   $iter = $gen->values_make_pronic(1);
+    #   $iter = $gen->values_make_perrin(0);
+    #   $iter = $gen->values_make_padovan(0);
+    #   $iter = $gen->values_make_twin_primes_2(6,100);
+    #   $iter = $gen->values_make_fraction(5,29);
+    #   $iter = $gen->values_make_pi_bits();
+    #   $iter = $gen->values_make_polygonal();
+    # $iter = $gen->values_make_aronson(1, 500);
+    #   $iter = $gen->values_make_semi_primes(1,500);
+    # $iter = $gen->values_make_pentagonal(1,500);
+    # $iter = $gen->values_make_pentagonal_second(1,500);
+    # $iter = $gen->values_make_sophie_germain_primes(1,200);
+    # my $values_class = $gen->values_class('TwinPrimes2');
+    # my $values_class = $gen->values_class('GoldenSequence');
+    # my $values_class = $gen->values_class('GolayRudinShapiro');
+    my $values_class;
+    $values_class = $gen->values_class('Factorials');
+    $values_class = $gen->values_class('AbundantNumbers');
+    $values_class = $gen->values_class('ObstinateNumbers');
+    $values_class = $gen->values_class('Fibonacci');
+    $values_class = $gen->values_class('LucasNumbers');
+    $values_class = $gen->values_class('Emirps');
+    $values_class = $gen->values_class('Repdigits');
+    $values_class = $gen->values_class('UndulatingNumbers');
+    $values_class = $gen->values_class('CountPrimeFactors');
+    $values_class = $gen->values_class('TernaryWithout2');
+    $values_class = $gen->values_class('PrimeQuadraticEuler');
+    $values_class = $gen->values_class('Polygonal');
+    $values_class = $gen->values_class('Base4Without3');
+    $values_class = $gen->values_class('PentagonalGeneralized');
+    $values_class = $gen->values_class('Tribonacci');
+    $values_class = $gen->values_class('Palindromes');
+    my $values_obj = $values_class->new (fraction => '1/3',
+                                         polygonal => 10,
+                                         lo => 1,
+                                         hi => 200*$rep,
+                                         radix => 10);
+    ### $values_obj
+    $|=1;
+    foreach (1 .. 500) {
+      my ($n,$count1) = $values_obj->next;
+      if (! defined $n) {
+        print "undef\n";
+        last;
+      }
+      if (defined $count1) {
+        # print "$count1,";
+        print "$n=$count1,";
+      } else {
+        print "$n,";
+      }
+      if ($n > DBL_INT_MAX) {
+        last;
+      }
+
+      # if (! $values_obj->pred($n)) {
+      #   print " oops, pred false\n";
+      # }
+
+    }
+    print "\n";
+
+    if ($values_obj->can('ith')) {
+      print "by ith(): ";
+      foreach my $i (35 .. 35) {
+        my ($n,$count1) = $values_obj->ith($i);
+        if (! defined $n) {
+          print "undef\n";
+          last;
+        }
+        if (defined $count1) {
+          print "$n=$count1,";
+        } else {
+          print "$n,";
+        }
+        if ($n > DBL_INT_MAX) {
+          last;
+        }
+
+        if (! $values_obj->pred($n)) {
+          print " oops, pred false\n";
+        }
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+}
 
 {
   my $i;
@@ -52,95 +150,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   exit 0;
 }
 
-{
-  require App::MathImage::Generator;
-  my $gen = App::MathImage::Generator->new (fraction => '5/29',
-                                            polygonal => 3,
-                                            radix => 16);
-
-  foreach my $rep (1 .. 3) {
-    my $iter;
-    #   $iter = $gen->values_make_pronic(1);
-    #   $iter = $gen->values_make_perrin(0);
-    #   $iter = $gen->values_make_padovan(0);
-    #   $iter = $gen->values_make_twin_primes_2(6,100);
-    #   $iter = $gen->values_make_fraction(5,29);
-    #   $iter = $gen->values_make_pi_bits();
-    #   $iter = $gen->values_make_polygonal();
-    # $iter = $gen->values_make_aronson(1, 500);
-    #   $iter = $gen->values_make_semi_primes(1,500);
-    # $iter = $gen->values_make_pentagonal(1,500);
-    # $iter = $gen->values_make_pentagonal_second(1,500);
-    # $iter = $gen->values_make_sophie_germain_primes(1,200);
-    # my $values_class = $gen->values_class('CountPrimeFactors');
-    # my $values_class = $gen->values_class('TwinPrimes2');
-    # my $values_class = $gen->values_class('GoldenSequence');
-    # my $values_class = $gen->values_class('GolayRudinShapiro');
-    my $values_class;
-    $values_class = $gen->values_class('Factorials');
-    $values_class = $gen->values_class('AbundantNumbers');
-    $values_class = $gen->values_class('ObstinateNumbers');
-    $values_class = $gen->values_class('Fibonacci');
-    $values_class = $gen->values_class('LucasNumbers');
-    $values_class = $gen->values_class('UndulatingNumbers');
-    $values_class = $gen->values_class('Emirps');
-    $values_class = $gen->values_class('Repdigits');
-    $values_class = $gen->values_class('UndulatingNumbers');
-    my $values_obj = $values_class->new (fraction => '1/3',
-                                         polygonal => 3,
-                                         lo => 1,
-                                         hi => 200*$rep,
-                                         radix => 10);
-    ### $values_obj
-    $|=1;
-    foreach (1 .. 500) {
-      my ($n,$count1) = $values_obj->next;
-      if (! defined $n) {
-        print "undef\n";
-        last;
-      }
-      if (defined $count1) {
-        print "$n=$count1,";
-      } else {
-        print "$n,";
-      }
-      if ($n > DBL_INT_MAX) {
-        last;
-      }
-
-      if (! $values_obj->pred($n)) {
-        print " oops, pred false\n";
-      }
-
-    }
-    print "\n";
-
-    if ($values_obj->can('ith')) {
-      print "by ith(): ";
-      foreach my $i (0 .. 50) {
-        my ($n,$count1) = $values_obj->ith($i);
-        if (! defined $n) {
-          print "undef\n";
-          last;
-        }
-        if (defined $count1) {
-          print "$n=$count1,";
-        } else {
-          print "$n,";
-        }
-        if ($n > DBL_INT_MAX) {
-          last;
-        }
-
-        if (! $values_obj->pred($n)) {
-          print " oops, pred false\n";
-        }
-      }
-      print "\n";
-    }
-  }
-  exit 0;
-}
 
 
 {

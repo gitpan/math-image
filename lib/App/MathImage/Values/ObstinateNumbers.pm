@@ -27,13 +27,14 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Obstinate Numbers');
 use constant description => __('Odd numbers N not representable as prime+2^k.');
+use constant oeis => 'A133122'; # obstinate
 
 # each 2-bit vec() value is
 #    bit 01 = 1 prime

@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -105,11 +105,11 @@ use constant values_choices => do {
                          Polygonal
                          Cubes
                          Tetrahedral
-                         Perrin
-                         Padovan
                          Fibonacci
                          LucasNumbers
-                         PellNumbers
+                         Perrin
+                         Padovan
+                         Tribonacci
                          Factorials
                          FractionBits
                          PiBits
@@ -119,6 +119,7 @@ use constant values_choices => do {
                          Even
                          All
                          Aronson
+                         PellNumbers
                          GoldenSequence
                          ThueMorseEvil
                          ThueMorseOdious
@@ -189,7 +190,8 @@ use constant figure_choices => qw(default
                                   diamond
                                   diamunf
                                   plus
-                                  X);
+                                  X
+                                  L);
 
 # cf Data::Random
 
@@ -783,6 +785,7 @@ my %figure_method = (square  => 'rectangle',
                      diamunf => 'App::MathImage::Image::Base::Other::diamond',
                      plus    => \&_draw_plus,
                      X       => \&_draw_X,
+                     L       => \&_draw_L,
                     );
 sub _draw_plus {
   my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
@@ -799,6 +802,11 @@ sub _draw_X {
   my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
   $image->line ($x1,$y1, $x2,$y2, $colour);
   $image->line ($x2,$y1, $x1,$y2, $colour);
+}
+sub _draw_L {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  $image->line ($x1,$y1, $x1,$y2, $colour);
+  $image->line ($x1,$y2, $x2,$y2, $colour);
 }
 
 

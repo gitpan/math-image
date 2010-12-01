@@ -17,6 +17,10 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 34, November 2010
+    - tests more care destroying toplevels
+    - Tribonacci numbers
+
 Version 33, November 2010
     - ask for newer File::Copy to avoid some tests warnings
 

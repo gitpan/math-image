@@ -32,7 +32,7 @@ use List::Util qw(max);
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 33;
+our $VERSION = 34;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',

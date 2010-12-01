@@ -26,13 +26,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
-
-use constant name => __('Perfect Squares');
-use constant description => __('The perfect squares 1,4,9,16,25, etc k*k.');
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant name => __('Perfect Squares');
+use constant description => __('The perfect squares 1,4,9,16,25, etc k*k.');
+use constant oeis => 'A000290'; # squares
 
 sub new {
   my ($class, %self) = @_;

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,6 +32,20 @@ $VERSION = 33;
 use constant name => __('Undulating Numbers');
 use constant description => __('Numbers like 37373 which are a pattern of digits ABAB...');
 use constant growth => 'exponential';
+
+# A033619 base 10 >=0 including a==b
+# A046075 base 10 >=101 with a!=b
+sub oeis {
+  my ($class_or_self) = @_;
+  # if (! ref $class_or_self ||
+  #     $class_or_self->{'radix'} == 10) {
+  #   return 'A033619'; # base 10 including a==b
+  # }
+  # if (ref $class_or_self && $class_or_self->{'radix'} == 2) {
+  #   return 'A046076';
+  # }
+  return undef;
+}
 
 use constant parameters => { radix => { type => 'integer',
                                         default => 10,

@@ -25,13 +25,23 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Emirps');
 use constant description => __('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
+
+# http://www.research.att.com/~njas/sequences/A030310  # binary 1 positions
+sub oeis {
+  my ($class_or_self) = @_;
+  if (! ref $class_or_self ||
+      $class_or_self->{'radix'} == 10) {
+    return 'A006567';
+  }
+  return undef;
+}
 
 use constant parameters => { radix => { type => 'integer',
                                         default => 10,
@@ -98,6 +108,7 @@ sub new {
   ### @primes
 
   return bless { %options,
+                 radix => $radix,
                  array => \@primes,
                }, $class;
 }

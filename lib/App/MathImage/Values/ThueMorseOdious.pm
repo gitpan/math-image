@@ -24,13 +24,16 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::ThueMorseEvil';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
-# http://www.research.att.com/~njas/sequences/A000069
 # bit count per example in perlfunc unpack()
 
 use constant name => __('Thue-Morse Odious Numbers');
 use constant description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).');
+
+# http://www.research.att.com/~njas/sequences/A000069
+use constant oeis => 'A000069'; # odious
+# A010060 - 0 or 1 bits
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

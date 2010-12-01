@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::Padovan;
+package App::MathImage::Values::Tribonacci;
 use 5.004;
 use strict;
 use warnings;
@@ -26,12 +26,12 @@ use base 'App::MathImage::ValuesSparse';
 use vars '$VERSION';
 $VERSION = 34;
 
-use constant name => __('Padovan Numbers');
-use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
-use constant oeis => 'A000931'; # padovan
-
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant name => __('Tribonacci Numbers');
+use constant description => __('Tribonacci numbers 1, 1, 1, 3, 5, 9, 17, 31, 57, 105, being T(i) = T(i-1) + T(i-2) + T(i-3) starting from 1,1,1.');
+use constant oeis => 'A000073'; # tribonacci
 
 sub new {
   my ($class, %options) = @_;
@@ -42,7 +42,7 @@ sub new {
 }
 sub next {
   my ($self) = @_;
-  ### Padovan next(): "$self->{'f0'} $self->{'f1'} $self->{'f2'}"
+  ### Tribonacci next(): "$self->{'f0'} $self->{'f1'} $self->{'f2'}"
   (my $ret,
    $self->{'f0'},
    $self->{'f1'},
@@ -50,17 +50,9 @@ sub next {
    = ($self->{'f0'},
       $self->{'f1'},
       $self->{'f2'},
-      $self->{'f0'}+$self->{'f1'});
+      $self->{'f0'}+$self->{'f1'}+$self->{'f2'});
   return $ret;
 }
-# sub pred {
-#   my ($self, $n) = @_;
-#   return (($n >= 0)
-#           && do {
-#             $n = sqrt($n);
-#             $n == int($n)
-#           });
-# }
 
 1;
 __END__

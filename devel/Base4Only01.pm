@@ -42,7 +42,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # http://www.research.att.com/~njas/sequences/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4
@@ -55,6 +55,7 @@ $VERSION = 33;
 
 use constant name => __('Base 4 only digits 0,1');
 use constant description => __('The integers with only digits 0 and 1 when written out in base 4.');
+use constant oeis => 'A000695';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

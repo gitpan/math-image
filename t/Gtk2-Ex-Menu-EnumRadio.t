@@ -41,7 +41,7 @@ Glib::Type->register_enum ('My::Test1', 'foo', 'bar-ski', 'quux');
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 33;
+my $want_version = 34;
 {
   is ($App::MathImage::Gtk2::Ex::Menu::EnumRadio::VERSION,
       $want_version,
@@ -64,6 +64,13 @@ my $want_version = 33;
   ok (! eval { $menu->VERSION($check_version); 1 },
       "VERSION object check $check_version");
 }
+
+
+#-----------------------------------------------------------------------------
+# property defaults
+
+
+
 
 
 #-----------------------------------------------------------------------------

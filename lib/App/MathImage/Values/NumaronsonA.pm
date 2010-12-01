@@ -24,10 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant oeis => 'A079000';
 
 # http://www.research.att.com/%7Enjas/sequences/b079000.txt
 # table 1 to 10000

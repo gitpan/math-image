@@ -32,7 +32,7 @@ Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
 
-plan tests => 13;
+plan tests => 17;
 
 require App::MathImage::Gtk2::Main;
 
@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 33;
+my $want_version = 34;
 {
   is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,
@@ -62,37 +62,59 @@ my $want_version = 33;
       "VERSION object check $want_version");
   ok (! eval { $main->VERSION($check_version); 1 },
       "VERSION object check $check_version");
+  
+  $main->destroy;
 }
 
 
 #-----------------------------------------------------------------------------
-# actions (those which should always run at least)
+# actions
+
+my $have_cross = Module::Util::find_installed('Gtk2::Ex::CrossHair');
+my $have_podviewer = Module::Util::find_installed('Gtk2::Ex::PodViewer');
 
 {
   my $main = App::MathImage::Gtk2::Main->new;
   $main->show;
+
   my $actiongroup = $main->{'actiongroup'};
-  foreach my $name ('SaveAs', 'About',
+  foreach my $name ('SaveAs',
+                    'About',
+                    # 'Print', # interactive run ...
                     'Random',
-                    'Fullscreen', 'DrawProgressive',
-                    # 'Cross',
+                    'Centre',
+                    'Toolbar',
+                    'Fullscreen',
+                    'DrawProgressive',
+                    ($have_cross ? 'Cross' : 'no-Cross'),
+                    ($have_podviewer ? 'PodDialog' : 'no-PodDialog'),
                    ) {
     diag "action $name";
-    my $action = $actiongroup->get_action ($name);
-    ok ($action, "action $name");
+  SKIP: {
+      if ($name =~ /^no-/) {
+        skip "due to $name", 1;
+      }
+      my $action = $actiongroup->get_action ($name);
+      ok ($action, "action $name");
 
-    if ($name eq 'SaveAs') {
-      # avoid spam from the file chooser
-      local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
-      $action->activate;
-    } else {
-      $action->activate;
+      if ($name eq 'SaveAs') {
+        # avoid spam from the file chooser
+        local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
+        $action->activate;
+      } else {
+        $action->activate;
+      }
+      foreach my $toplevel (Gtk2::Window->list_toplevels) {
+        if (ref $toplevel =~ /^App::MathImage::/
+            && $toplevel != $main) {
+          diag "destroy $toplevel";
+          $toplevel->destroy;
+        }
+      }
     }
   }
+  diag "destroy main";
   $main->destroy;
-  foreach my $toplevel (Gtk2::Window->list_toplevels) {
-    $toplevel->destroy;
-  }
   MyTestHelpers::main_iterations();
 }
 
@@ -100,7 +122,9 @@ my $want_version = 33;
 # Scalar::Util::weaken
 
 {
+  diag "weakening";
   my $main = App::MathImage::Gtk2::Main->new;
+  diag "destroy main";
   $main->destroy;
   require Scalar::Util;
   Scalar::Util::weaken ($main);

@@ -25,13 +25,13 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
-
-use constant name => __('Pi Bits');
-use constant description => __('Pi 3.141529... written out in binary.');
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use constant name => __('Pi Bits');
+use constant description => __('Pi 3.141529... written out in binary.');
 
 sub new {
   my ($class, %options) = @_;

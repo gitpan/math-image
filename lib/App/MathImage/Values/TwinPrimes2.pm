@@ -28,10 +28,11 @@ use base 'App::MathImage::Values::TwinPrimes1';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant name => __('Twin Primes, second of each');
 use constant description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.');
+use constant oeis => 'A006512'; # greater of two
 
 sub new {
   my $class = shift;

@@ -28,10 +28,14 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
+
+
+# cf. A007700 n,2n+1,4n+3 all primes
 
 use constant name => __('Sophie Germain Primes');
 use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
+use constant oeis => 'A005384';
 
 sub new {
   my ($class, %options) = @_;

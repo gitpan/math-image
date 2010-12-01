@@ -24,18 +24,29 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');
+use constant oeis => 'A000292'; # tetrahedrals
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   require Math::Libm;
-  return bless { i => 1,
-                 lo => $lo,
-               }, $class;
+
+  my $self = bless { i => 0,
+                     lo => $lo, # for ValuesSparse
+                   }, $class;
+
+  # ENHANCE-ME: cbrt() inverse to set i from requested $lo
+  my $i = 0;
+  while ($class->ith($i) < $lo) {
+    $i++;
+  }
+  $self->{'i'} = $i;
+
+  return $self;
 }
 sub next {
   my ($self) = @_;
@@ -47,7 +58,7 @@ sub next {
 #   return ($n == int($n));
 # }
 sub ith {
-  my ($self, $i) = @_;
+  my ($class_or_self, $i) = @_;
   return $i*($i+1)*($i+2)/6;
 }
 

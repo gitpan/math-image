@@ -24,6 +24,7 @@ devel/menu-forcombo.pl
 devel/misc.c
 devel/misc.pl
 devel/OrNone.pm
+devel/Palindromes.pm
 devel/pixbuf-types.pl
 devel/prima.pl
 devel/primes.pl
@@ -129,6 +130,7 @@ lib/App/MathImage/Values/Tetrahedral.pm
 lib/App/MathImage/Values/ThueMorseEvil.pm
 lib/App/MathImage/Values/ThueMorseOdious.pm
 lib/App/MathImage/Values/Triangular.pm
+lib/App/MathImage/Values/Tribonacci.pm
 lib/App/MathImage/Values/TwinPrimes.pm
 lib/App/MathImage/Values/TwinPrimes1.pm
 lib/App/MathImage/Values/TwinPrimes2.pm
@@ -167,6 +169,7 @@ t/MyTestImageBase.pm
 t/ObstinateNumbers.t
 t/Test/Weaken/ExtraBits.pm
 t/UndulatingNumbers.t
+t/Values.t
 t/ValuesFile.t
 xt/0-exe-shebang.t
 xt/0-META-read.t

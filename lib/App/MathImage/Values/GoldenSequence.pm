@@ -26,18 +26,17 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 33;
+$VERSION = 34;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Golden Sequence');
 # use constant description => __('');
+use constant oeis => 'A000201'; #  1,3,4,6,8,9,11,12
+# A003849  0,1,1,0,1,0,1
 
 use constant PHI => (1 + sqrt(5)) / 2;
-
-# A003849  0,1,1,0,1,0,1
-# A000201  1,3,4,6,8,9,11,12
 
 sub new {
   my ($class, %options) = @_;

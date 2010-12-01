@@ -35,7 +35,7 @@ use App::MathImage::Values::Emirps;
 # VERSION
 
 {
-  my $want_version = 33; 
+  my $want_version = 34; 
   is ($App::MathImage::Values::Emirps::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::Emirps->VERSION,  $want_version, 'VERSION class method');
 
