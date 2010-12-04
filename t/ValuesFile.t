@@ -36,7 +36,7 @@ use App::MathImage::ValuesFileWriter;
 # VERSION
 
 {
-  my $want_version = 34;
+  my $want_version = 35;
   is ($App::MathImage::ValuesFile::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::ValuesFile->VERSION,  $want_version, 'VERSION class method');
 

@@ -25,6 +25,8 @@ devel/misc.c
 devel/misc.pl
 devel/OrNone.pm
 devel/Palindromes.pm
+devel/perrin.c
+devel/perrin.pl
 devel/pixbuf-types.pl
 devel/prima.pl
 devel/primes.pl
@@ -75,7 +77,6 @@ lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
-lib/App/MathImage/PlanePath/ReplicatingSquares.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Drawing.pm
 lib/App/MathImage/Prima/Main.pm

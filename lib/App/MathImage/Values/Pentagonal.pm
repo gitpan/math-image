@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 34;
+$VERSION = 35;
 
 use constant name => __('Pentagonal Numbers');
 use constant description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');

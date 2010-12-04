@@ -130,6 +130,8 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
     'Math::PlanePath::Rows'                 => 7,  # v.7 rect_to_n_range
     'Math::PlanePath::Columns'              => 7,  # v.7 rect_to_n_range
+    'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
+    'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
    },
    MIN_PERL_VERSION => '5.008',
 

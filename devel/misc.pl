@@ -38,7 +38,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   foreach my $rep (1 .. 3) {
     my $iter;
     #   $iter = $gen->values_make_pronic(1);
-    #   $iter = $gen->values_make_perrin(0);
     #   $iter = $gen->values_make_padovan(0);
     #   $iter = $gen->values_make_twin_primes_2(6,100);
     #   $iter = $gen->values_make_fraction(5,29);
@@ -68,7 +67,8 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Base4Without3');
     $values_class = $gen->values_class('PentagonalGeneralized');
     $values_class = $gen->values_class('Tribonacci');
-    $values_class = $gen->values_class('Palindromes');
+    # $values_class = $gen->values_class('Palindromes');
+    $values_class = $gen->values_class('Perrin');
     my $values_obj = $values_class->new (fraction => '1/3',
                                          polygonal => 10,
                                          lo => 1,

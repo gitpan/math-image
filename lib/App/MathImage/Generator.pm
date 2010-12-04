@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 34;
+$VERSION = 35;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -176,9 +176,10 @@ use constant path_choices => qw(SquareSpiral
                                 Diagonals
                                 Rows
                                 Columns
+                                HilbertCurve
+                                ZOrderCurve
 
                                 ArchimedeanSpiral
-                                ReplicatingSquares
                               );
 
 use constant figure_choices => qw(default
@@ -275,7 +276,7 @@ sub random_options {
                                    1 .. 20]);
 
   # gets slow very quickly when wider
-  if ($path eq 'ReplicatingSquares') {
+  if ($path eq 'ZOrderCurve') {
     $path_wider = 0; # min (1, $path_wider);
   }
 
@@ -318,10 +319,10 @@ sub _rand_of_array {
 }
 
 use vars '%pathname_has_wider';
-%pathname_has_wider = (SquareSpiral       => 1,
-                       HexSpiral          => 1,
-                       HexSpiralSkewed    => 1,
-                       ReplicatingSquares => 1);
+%pathname_has_wider = (SquareSpiral    => 1,
+                       HexSpiral       => 1,
+                       HexSpiralSkewed => 1);
+# ZOrderCurve => 1  # no longer
 
 sub description {
   my ($self) = @_;
@@ -881,16 +882,20 @@ sub draw_Image_steps {
         }
       }
 
+      ### n raw: $path_object->n_to_xy($n)
       my ($x2, $y2) = $transform->($path_object->n_to_xy($n))
         or next;
+      ### npos: "$n   $x2, $y2"
 
       if (my ($x1, $y1) = $transform->($path_object->n_to_xy($n-0.499))) {
+        ### minus: "$x1, $y1"
         $x1 = floor ($x1 + 0.5);
         $y1 = floor ($y1 + 0.5);
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
       }
 
       if (my ($x3, $y3) = $transform->($path_object->n_to_xy($n+0.499))) {
+        ### plus: "$x3, $y3"
         $x3 = floor ($x3 + 0.5);
         $y3 = floor ($y3 + 0.5);
         _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground)

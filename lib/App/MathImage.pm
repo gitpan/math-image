@@ -27,11 +27,16 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 34;
+$VERSION = 35;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
-  if (defined $self->{$hashname}->{$key}) {
+  ### $hashname
+  ### $key
+  ### $value
+  ### existing: $self->{$hashname}->{$key}
+  if (defined $self->{$hashname}->{$key}
+      && $self->{$hashname}->{$key} ne $value) {
     die "Already got \"$key\" option \"$self->{$hashname}->{$key}\"\n";
   }
   $self->{$hashname}->{$key} = $value;

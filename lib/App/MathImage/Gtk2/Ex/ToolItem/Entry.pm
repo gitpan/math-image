@@ -27,7 +27,7 @@ use Gtk2::Ex::ContainerBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 34;
+our $VERSION = 35;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',

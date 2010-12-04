@@ -19,12 +19,13 @@ package App::MathImage::Coord;
 use 5.004;
 use strict;
 use warnings;
+use POSIX 'floor';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 34;
+$VERSION = 35;
 
 sub new {
   my $class = shift;
@@ -47,8 +48,8 @@ sub transform {
   ### transform(): "$x, $y"
   ### x: $x * $self->{'x_scale'} + $self->{'x_origin'}
   ### y: $y * $self->{'y_scale'} + $self->{'y_origin'}
-  return ($x * $self->{'x_scale'} + $self->{'x_origin'},
-          $y * $self->{'y_scale'} + $self->{'y_origin'});
+  return (floor (0.5 + $x * $self->{'x_scale'} + $self->{'x_origin'}),
+          floor (0.5 + $y * $self->{'y_scale'} + $self->{'y_origin'}));
 }
 sub transform_proc {
   my ($self) = @_;
@@ -58,8 +59,8 @@ sub transform_proc {
   my $y_origin = $self->{'y_origin'};
   return sub {
     return unless @_;
-    return ($_[0] * $x_scale + $x_origin,
-            $_[1] * $y_scale + $y_origin);
+    return (floor (0.5 + $_[0] * $x_scale + $x_origin),
+            floor (0.5 + $_[1] * $y_scale + $y_origin));
   };
 }
 

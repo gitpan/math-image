@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            34
+version:            35
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -60,6 +60,7 @@ requires:
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexSpiral:  9
     Math::PlanePath::HexSpiralSkewed:  9
+    Math::PlanePath::HilbertCurve:  13
     Math::PlanePath::KnightSpiral:  1
     Math::PlanePath::MultipleRings:  10
     Math::PlanePath::PentSpiral:  4
@@ -74,6 +75,7 @@ requires:
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::PlanePath::VogelFloret:  12
+    Math::PlanePath::ZOrderCurve:  13
     Math::Prime::XS:      0.22
     Module::Load:         0
     Module::Util:         0
