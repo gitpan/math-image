@@ -19,13 +19,14 @@ package App::MathImage::Values::Primes;
 use 5.004;
 use strict;
 use warnings;
-use List::Util 'max';
+use List::Util 'min', 'max';
+use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -38,18 +39,30 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
-  $lo = max (0, $lo);
-  ### Primes: "$lo to $hi"
 
-  my @array;
-  if ($hi >= $lo) {
-    require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.022); # version 0.22 for lo==hi
-    @array = Math::Prime::XS::sieve_primes ($lo, $hi);
-  }
+  my @array = _my_primes_list ($lo, $hi);
   return bless { %options,
                  array => \@array,
                }, $class;
+}
+
+use constant MAX_PRIME_XS => POSIX::UINT_MAX() / 2;
+
+sub _my_primes_list {
+  my ($lo, $hi) = @_;
+  ### _my_primes_list: "$lo to $hi"
+  $lo = max (0, $lo);
+  $hi = min ($hi, MAX_PRIME_XS);
+
+  my @array;
+  if ($hi < $lo) {
+    # Math::Prime::XS errors out if hi<lo
+    return;
+  }
+
+  require Math::Prime::XS;
+  Math::Prime::XS->VERSION (0.22); # version 0.22 for lo==hi
+  return Math::Prime::XS::sieve_primes ($lo, $hi);
 }
 
 1;

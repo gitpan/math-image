@@ -19,13 +19,14 @@ package App::MathImage::Values::Emirps;
 use 5.004;
 use strict;
 use warnings;
-use List::Util 'max';
+use List::Util 'min', 'max';
+use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,14 +34,16 @@ $VERSION = 35;
 use constant name => __('Emirps');
 use constant description => __('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
 
-# http://www.research.att.com/~njas/sequences/A030310  # binary 1 positions
+# A006567 - decimal reversal is a prime and different
+# A007500 - decimal reversal is a prime, so palindrome primes too
+#
 sub oeis {
   my ($class_or_self) = @_;
-  if (! ref $class_or_self ||
-      $class_or_self->{'radix'} == 10) {
-    return 'A006567';
-  }
-  return undef;
+  return ((ref $class_or_self
+                ? $class_or_self->{'radix'}
+                : $class_or_self->parameters->{'radix'}->{'default'}) == 10
+          ? 'A006567'
+          : undef);
 }
 
 use constant parameters => { radix => { type => 'integer',
@@ -68,9 +71,6 @@ sub new {
   my ($class, %options) = @_;
   ### Emirps new()
 
-  require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.022); # version 0.22 for lo==hi
-
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
   my $radix = $options{'radix'} || $class->parameters->{'radix'}->{'default'};
@@ -80,6 +80,7 @@ sub new {
 
   my $primes_lo = $radix ** (_digits_in_radix($lo,$radix) - 1) - 1;
   my $primes_hi = $radix ** _digits_in_radix($hi,$radix) - 1;
+  #
   ### Emirps: "$lo to $hi radix $radix"
   ### using primes: "$primes_lo to $primes_hi"
   ### digits: _digits_in_radix($lo,$radix).' to '._digits_in_radix($hi,$radix)
@@ -87,29 +88,32 @@ sub new {
   # App::MathImage::Values::Primes->new (lo => $primes_lo,
   #                                      hi => $primes_hi);
 
-  my @primes = Math::Prime::XS::sieve_primes ($primes_lo, $primes_hi);
+  require App::MathImage::Values::Primes;
+  my @array = App::MathImage::Values::Primes::_my_primes_list
+    ($primes_lo, $primes_hi);
+
   my %primes;
-  @primes{@primes} = ();
+  @primes{@array} = ();
   if ($radix == 10) {
-    @primes = grep {
+    @array = grep {
       $_ >= $lo && $_ <= $hi && do {
         my $r;
         ((($r = reverse $_) != $_) && exists $primes{$r})
       }
-    } @primes;
+    } @array;
   } else {
-    @primes = grep {
+    @array = grep {
       $_ >= $lo && $_ <= $hi && do {
         my $r;
         (($r = _reverse_in_radix($_,$radix)) != $_ && exists $primes{$r})
       }
-    } @primes;
+    } @array;
   }
-  ### @primes
+  ### @array
 
   return bless { %options,
                  radix => $radix,
-                 array => \@primes,
+                 array => \@array,
                }, $class;
 }
 

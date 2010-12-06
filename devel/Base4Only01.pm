@@ -42,7 +42,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # http://www.research.att.com/~njas/sequences/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4
@@ -88,7 +88,7 @@ sub next {
   return ($self->{'i'} = $i);
 }
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   while ($n) {
     if (($n & 3) >= 2) {
       return 0;

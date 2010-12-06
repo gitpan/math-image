@@ -63,20 +63,21 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('CountPrimeFactors');
     $values_class = $gen->values_class('TernaryWithout2');
     $values_class = $gen->values_class('PrimeQuadraticEuler');
-    $values_class = $gen->values_class('Polygonal');
     $values_class = $gen->values_class('Base4Without3');
     $values_class = $gen->values_class('PentagonalGeneralized');
     $values_class = $gen->values_class('Tribonacci');
-    # $values_class = $gen->values_class('Palindromes');
     $values_class = $gen->values_class('Perrin');
+    $values_class = $gen->values_class('Pentagonal');
+    $values_class = $gen->values_class('Polygonal');
+    $values_class = $gen->values_class('Palindromes');
     my $values_obj = $values_class->new (fraction => '1/3',
-                                         polygonal => 10,
+                                         polygonal => 8,
                                          lo => 1,
                                          hi => 200*$rep,
                                          radix => 10);
     ### $values_obj
     $|=1;
-    foreach (1 .. 500) {
+    foreach (1 .. 50) {
       my ($n,$count1) = $values_obj->next;
       if (! defined $n) {
         print "undef\n";
@@ -92,16 +93,15 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
         last;
       }
 
-      # if (! $values_obj->pred($n)) {
-      #   print " oops, pred false\n";
-      # }
-
+      if (! $values_obj->pred($n)) {
+        print " oops, pred false\n";
+      }
     }
     print "\n";
 
     if ($values_obj->can('ith')) {
       print "by ith(): ";
-      foreach my $i (35 .. 35) {
+      foreach my $i (0 .. 50) {
         my ($n,$count1) = $values_obj->ith($i);
         if (! defined $n) {
           print "undef\n";

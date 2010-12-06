@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Prime Generating Quadratic of Honaker');
 use constant description => __('The quadratic numbers 4*k^2 + k + 59.');
@@ -48,7 +48,7 @@ sub next {
 }
 
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   return ($n >= 59
           && do {
             my $i = sqrt((1/4) * $n - 29/2) -1/2;

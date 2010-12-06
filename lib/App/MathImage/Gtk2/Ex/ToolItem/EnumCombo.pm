@@ -1,4 +1,4 @@
-# label/name for overflow menu item
+# name/label to show in overflow menu item
 
 
 
@@ -32,7 +32,7 @@ use Gtk2::Ex::ComboBox::Enum 5; # v.5 for get_active_nick(),set_active_nick()
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 35;
+our $VERSION = 36;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -141,10 +141,10 @@ sub _do_create_menu_proxy {
   ### _do_create_menu_proxy()
   my $combobox = $self->get_child || return 0;  # if perhaps being destroyed
 
-  require App::MathImage::Gtk2::Ex::Menu::EnumRadio;
+  require Gtk2::Ex::Menu::EnumRadio;
   require Glib::Ex::ConnectProperties;
 
-  my $menu = App::MathImage::Gtk2::Ex::Menu::EnumRadio->new
+  my $menu = Gtk2::Ex::Menu::EnumRadio->new
     (enum_type   => $combobox->get('enum-type'));
 
   Glib::Ex::ConnectProperties->new ([$self,'active-nick'],
@@ -256,7 +256,7 @@ C<Gtk2::Ex::ComboBox::Enum> in a ToolItem.  The C<active-nick> property is
 the user's selection.
 
 A toolbar overflow menu item is provided offering the same enum choices in a
-C<App::MathImage::Gtk2::Ex::Menu::EnumRadio>.
+C<Gtk2::Ex::Menu::EnumRadio>.
 
 =head1 FUNCTIONS
 
@@ -302,7 +302,7 @@ ToolItem::EnumCombo it's usual to set the desired initial selection.
 
 L<Gtk2::ToolItem>,
 L<Glib::Ex::ComboBox::Enum>,
-L<App::MathImage::Gtk2::Ex::Menu::EnumRadio>
+L<Gtk2::Ex::Menu::EnumRadio>
 
 =head1 HOME PAGE
 

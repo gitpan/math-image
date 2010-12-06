@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -55,7 +55,7 @@ sub next {
   return $self->{'i'} += 2;
 }
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   ### Even pred(): $n
   return ! ($n & 1);
 }

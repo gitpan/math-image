@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 35;
+our $VERSION = 36;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -371,25 +371,25 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-
+  
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-
+  
   my $toolbar = $self->toolbar;
   $toolbar->show;
   $vbox->pack_start ($toolbar, 0,0,0);
-
+  
   my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
   $vbox->pack_start ($table, 1,1,0);
-
+  
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-
+  
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-
+  
   {
     my $hadj = $draw->get('hadjustment');
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
@@ -399,7 +399,7 @@ HERE
                          'button-release-mask',
                          'button-motion-mask']);
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
-
+    
     my $vadj = $draw->get('vadjustment');
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
                                         inverted => 1);
@@ -408,12 +408,12 @@ HERE
                          'button-motion-mask']);
     $vaxis->signal_connect (button_press_event => \&_do_axis_button_press);
     $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-
+    
     my $action = $actiongroup->get_action ('Axes');
     Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
                                       [$vaxis,'visible'],
                                       [$action,'active']);
-
+    
     my $aframe = Gtk2::AspectFrame->new ('', .5, .5, 1, 0);
     $aframe->set (label => undef,
                   shadow_type => 'none');
@@ -440,7 +440,7 @@ HERE
                        ['fill','expand'],['fill','expand'],0,0);
     }
     $aframe->add ($atable);
-
+    
     Gtk2::Rc->parse_string (<<'HERE');
 style "Math_Image_style" {
   GtkArrow::arrow-scaling = 1
@@ -720,8 +720,12 @@ HERE
     Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
                                       [$toolitem,'visible',
                                        write_only => 1,
-                                       hash_in => { 'Emirps' => 1,
-                                                    'Repdigits' => 1 }]);
+                                       func_in => sub {
+                                         my ($values) = @_;
+                                         ### Main values-radix visible
+                                         ### $values
+                                         return exists App::MathImage::Generator->values_class($values)->parameters->{'radix'};
+                                       }]);
   }
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
@@ -974,8 +978,8 @@ sub _do_toolbar_overflow_comboenum {
   my ($toolitem) = @_;
   ### _do_toolbar_overflow_comboenum()
   my $combo = $toolitem->get_child;
-  require App::MathImage::Gtk2::Ex::Menu::EnumRadio;
-  my $menu = App::MathImage::Gtk2::Ex::Menu::EnumRadio->new
+  require Gtk2::Ex::Menu::EnumRadio;
+  my $menu = Gtk2::Ex::Menu::EnumRadio->new
     (enum_type   => $combo->get('enum-type'));
   # tearoff-title new in 2.10, go undef if nothing
   $menu->set_title (eval { $combo->get('tearoff-title') });

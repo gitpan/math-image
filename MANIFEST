@@ -24,7 +24,6 @@ devel/menu-forcombo.pl
 devel/misc.c
 devel/misc.pl
 devel/OrNone.pm
-devel/Palindromes.pm
 devel/perrin.c
 devel/perrin.pl
 devel/pixbuf-types.pl
@@ -55,8 +54,6 @@ lib/App/MathImage/Gtk2/Drawing.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/GdkPixbufBits.pm
-lib/App/MathImage/Gtk2/Ex/Menu/EnumRadio.pm
-lib/App/MathImage/Gtk2/Ex/Menu/EnumRadio/Item.pm
 lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/CheckButton.pm
@@ -77,6 +74,7 @@ lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
+lib/App/MathImage/PlanePath/Hilbert33.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Drawing.pm
 lib/App/MathImage/Prima/Main.pm
@@ -107,6 +105,7 @@ lib/App/MathImage/Values/NumaronsonA.pm
 lib/App/MathImage/Values/ObstinateNumbers.pm
 lib/App/MathImage/Values/Odd.pm
 lib/App/MathImage/Values/Padovan.pm
+lib/App/MathImage/Values/Palindromes.pm
 lib/App/MathImage/Values/PellNumbers.pm
 lib/App/MathImage/Values/Pentagonal.pm
 lib/App/MathImage/Values/PentagonalGeneralized.pm
@@ -153,7 +152,6 @@ t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
-t/Gtk2-Ex-Menu-EnumRadio.t
 t/Gtk2-Ex-ToolItem-EnumCombo.t
 t/Gtk2-Main-weaken.t
 t/Gtk2-Main.t

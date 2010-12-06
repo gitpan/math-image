@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -47,13 +47,13 @@ sub next {
   return $self->ith($self->{'i'}++);
 }
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   if ($n < 0) { return 0; }
   my $i = _inverse($n);
   return ($i == int($i));
 }
 sub ith {
-  my ($self, $i) = @_;
+  my ($class_or_self, $i) = @_;
   return $i*($i+1);
 }
 

@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');
@@ -46,14 +46,14 @@ sub next {
   return $self->ith($self->{'i'}++);
 }
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   if ($n < 0) { return 0; }
   # FIXME: the _inverse() +.25, -.5 might be lost to rounding for very big $n
   my $i = _inverse($n);
   return ($i == int($i));
 }
 sub ith {
-  my ($self, $i) = @_;
+  my ($class_or_self, $i) = @_;
   return $i*($i+1)/2;
 }
 

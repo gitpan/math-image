@@ -26,7 +26,7 @@ use 5.010;
 use strict;
 use warnings;
 use Gtk2 '-init';
-use App::MathImage::Gtk2::Ex::Menu::EnumRadio;
+use Gtk2::Ex::Menu::EnumRadio 6; # v.6 in ComboBoxBits
 
 use Smart::Comments;
 
@@ -61,7 +61,7 @@ $vbox->pack_start ($menubar, 0,0,0);
 my $item = Gtk2::MenuItem->new_with_label ('Menu');
 $menubar->add ($item);
 
-my $menu = App::MathImage::Gtk2::Ex::Menu::EnumRadio->new
+my $menu = Gtk2::Ex::Menu::EnumRadio->new
   (enum_type => 'My::Test1');
 $menu->signal_connect ('notify::active-nick' => sub {
                          my ($menu) = @_;

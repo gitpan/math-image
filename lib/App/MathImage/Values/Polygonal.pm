@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,7 +32,7 @@ $VERSION = 35;
 use constant name => __('Polygonal Numbers');
 # use constant description => __('');
 
-my @radix_to_oeis = (undef, # 0
+my @oeis = (undef, # 0
                      undef, # 1
                      undef, # 2
                      'A000217', # 3 triangular
@@ -47,7 +47,9 @@ my @radix_to_oeis = (undef, # 0
                     );
 sub oeis {
   my ($class_or_self) = @_;
-  return $radix_to_oeis[(ref $class_or_self ? $class_or_self->{'polygonal'} : 10)];
+  return $oeis[ref $class_or_self
+               ? $class_or_self->{'k'}
+               : 2];
 }
 
 # ($k-2)*$i*($i+1)/2 - ($k-3)*$i
@@ -68,13 +70,16 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   return bless { i => 0,
-                 k => $options{'polygonal'},
+                 k => $options{'polygonal'} || 2,
                }, $class;
 }
 sub next {
   my ($self) = @_;
+  return $self->ith($self->{'i'}++);
+}
+sub ith {
+  my ($self, $i) = @_;
   my $k = $self->{'k'};
-  my $i = $self->{'i'}++;
   if ($k < 3) {
     if ($i == 0) {
       return 1;
@@ -84,9 +89,23 @@ sub next {
   }
   return 0.5 * $i * (($k-2)*$i - $k + 4);
 }
+
+# k=3  -1/2 + sqrt(2/1 * $n + 1/4)
+# k=4         sqrt(2/2 * $n      )
+# k=5   1/6 + sqrt(2/3 * $n + 1/36)
+# k=6   2/8 + sqrt(2/4 * $n + 4/64)
+# k=7  3/10 + sqrt(2/5 * $n + 9/100)
+# k=8  4/12 + sqrt(2/6 * $n + 1/9)
 sub pred {
   my ($self, $n) = @_;
-  return ($n & 1);
+  return ($n <= 0
+          ? ($n == 0)
+          : do {
+            my $k = $self->{'k'};
+            my $sqrt = (sqrt(8*($k-2) * $n + (4-$k)**2) + $k-4) / (2*($k-2));
+            (int($sqrt) == $sqrt)
+          });
+
 }
 
 1;

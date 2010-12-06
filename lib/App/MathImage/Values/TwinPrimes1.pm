@@ -20,6 +20,7 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util 'min', 'max';
+use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
@@ -28,7 +29,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');
@@ -44,28 +45,18 @@ sub new {
   ### $lo
   ### $offset
 
-  my @array;
-  if ($hi >= $lo) {
-    my $primes_lo = max(0, $lo - 2);
-    my $primes_hi = $hi + 2;
+  require App::MathImage::Values::Primes;
+  my @array = App::MathImage::Values::Primes::_my_primes_list ($lo-2, $hi+2);
 
-    require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021); # version 0.21 for various fixes
-    ### TwinPrimes: "array $primes_lo to $primes_hi"
-    @array = Math::Prime::XS::sieve_primes ($primes_lo, $primes_hi);
-
-    my $to = 0;
-    foreach my $i (0 .. $#array - 1) {
-      if ($array[$i]+2 == $array[$i+1]) {
-        $array[$to++] = $array[$i + $offset];
-      }
-    }
-    $#array = $to - 1;
-    ### @array
-    while (@array && $array[0] < $lo) {
-      shift @array;
+  my $to = 0;
+  foreach my $i (0 .. $#array - 1) {
+    if ($array[$i]+2 == $array[$i+1] && $array[$i + $offset] >= $lo) {
+      $array[$to++] = $array[$i + $offset];
     }
   }
+  $#array = $to - 1;
+  ### @array
+
   return $class->SUPER::new (%options,
                              array => \@array);
 }

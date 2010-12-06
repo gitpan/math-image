@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;

@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -180,6 +180,7 @@ use constant path_choices => qw(SquareSpiral
                                 ZOrderCurve
 
                                 ArchimedeanSpiral
+                                Hilbert33
                               );
 
 use constant figure_choices => qw(default
@@ -253,7 +254,6 @@ sub random_options {
   }
 
   require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.022);
   my @primes = Math::Prime::XS::sieve_primes(10,100);
   my $num = _rand_of_array(\@primes);
   @primes = grep {$_ != $num} @primes;
@@ -461,7 +461,7 @@ sub y_negative {
 #   my ($self, $lo, $hi) = @_;
 # 
 #   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.022);
+#   Math::Prime::XS->VERSION (0.22);
 #   my $i = 1;
 #   return sub {
 #     for (;;) {
@@ -527,7 +527,7 @@ sub values_make_columns_of_pythagoras {
 # sub values_make_binary_primes {
 #   my ($self, $lo, $hi) = @_;
 #   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.022);
+#   Math::Prime::XS->VERSION (0.22);
 #   my $n = $lo-1;
 #   return sub {
 #     for (;;) {

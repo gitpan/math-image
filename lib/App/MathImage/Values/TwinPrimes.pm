@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
@@ -41,30 +41,21 @@ sub new {
   my $hi = $options{'hi'};
   $lo = max ($lo, 3);  # start from 3
 
-  my @array;
-  if ($hi >= $lo) {
-    my $primes_lo = max(0, $lo - 2);
-    my $primes_hi = $hi + 2;
-    # sieve_primes() in 0.21 doesn't allow hi==lo
-    if ($primes_hi == $primes_lo) { $primes_hi++; }
+  require App::MathImage::Values::Primes;
+  my @array = App::MathImage::Values::Primes::_my_primes_list ($lo-2, $hi+2);
 
-    require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021); # version 0.21 for various fixes
-    ### TwinPrimes: "array $primes_lo to $primes_hi"
-    @array = Math::Prime::XS::sieve_primes ($primes_lo, $primes_hi);
-
-    my $to = 0;
-    for (my $i = 0; $i < $#array; $i++) {
-      if ($array[$i]+2 == $array[$i+1]) {
-        $array[$to++] = $array[$i];  # first of pair
-        while (++$i < $#array && $array[$i]+2 == $array[$i+1]) {
-          $array[$to++] = $array[$i];  # run of consecutive twin array
-        }
-        $array[$to++] = $array[$i];  # second of pair
+  my $to = 0;
+  for (my $i = 0; $i < $#array; $i++) {
+    if ($array[$i]+2 == $array[$i+1]) {
+      $array[$to++] = $array[$i];  # first of pair
+      while (++$i < $#array && $array[$i]+2 == $array[$i+1]) {
+        $array[$to++] = $array[$i];  # run of consecutive twin array
       }
+      $array[$to++] = $array[$i];  # second of pair
     }
-    $#array = $to - 1;
   }
+  $#array = $to - 1;
+
   return $class->SUPER::new (%options,
                              array => \@array);
 }

@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 35;
+our $VERSION = 36;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',

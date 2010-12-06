@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
@@ -112,7 +112,7 @@ sub pred {
     my $i;
     while ((($i) = $self->next) && $i < $n) { }
   }
-  return $tranform[ vec(${$self->{'string'}}, $n,2) ];
+  return $tranform[ vec($self->{'string'}, $n,2) ];
 }
 
 1;

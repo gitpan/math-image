@@ -17,7 +17,10 @@ You can get a copy of the GNU General Public License online at
 
 
 
-Version 35, November 2010
+Version 36, December 2010
+    - Palindrome numbers
+
+Version 35, December 2010
     - add Hilbert path, split out Z Order (was "Replicating Squares")
 
 Version 34, November 2010

@@ -74,6 +74,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
     'Gtk2::Ex::ComboBox::Text' => 2,
     'Gtk2::Ex::ComboBox::PixbufType' => 4, # new in version 4
+    'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
 
     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
     'Gtk2::Ex::NumAxis' => 2,

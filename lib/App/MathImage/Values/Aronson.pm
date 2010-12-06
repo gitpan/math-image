@@ -26,7 +26,7 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,15 +34,44 @@ $VERSION = 35;
 use constant name => __('Aronson\'s Sequence');
 use constant description => __('Aronson\'s sequence of the positions of letter "T" in self-referential "T is the first, fourth, ...".  Or French "E est la premiere, deuxieme, ...".  See the Math::Aronson module for details.');
 
-# sub oeis {
-#   my ($class_or_self) = @_;
-#   if (ref $class_or_self) {
-#     my $aronson = $self->{'aronson'} || $class_or_self->{'options'};
-#       $class_or_self->{'radix'} == 2) {
-#     return 'A005224';
-#   }
-#   return undef;
-# }
+# A005224    en, 'T', without_conjunctions=>1
+# A055508    letter=>'H', without_conjunctions=>1
+# A049525    letter=>'I', without_conjunctions=>1
+# A081023    lying=>1
+# A072886    lying=>1, initial_string=>"S ain't the"
+# A080520    lang=>'fr'
+#
+# A072887    complement of lying A081023
+# A081024    complement of lying "S ain't" A072886
+# A072421    Latin P
+# A072422    Latin N
+# A072423    Latin T
+
+sub oeis {
+  my ($self) = @_;
+  if (ref $self) {
+    if ($self->{'aronson_lang'} eq 'en') {
+      if (! $self->{'aronson_conjunctions'}) {
+        if ($self->{'aronson_letter'} eq 'T'
+            || $self->{'aronson_letter'} eq '') {
+          return 'A005224'; # english T
+        }
+        if ($self->{'aronson_letter'} eq 'H') {
+          return 'A055508'; # english H
+        }
+        if ($self->{'aronson_letter'} eq 'I') {
+          return 'A049525'; # english I
+        }
+      }
+    } elsif ($self->{'aronson_lang'} eq 'fr') {
+      if ($self->{'aronson_letter'} eq 'E'
+          || $self->{'aronson_letter'} eq '') {
+        return 'A080520'; # french E
+      }
+    }
+  }
+  return undef;
+}
 
 sub new {
   my ($class, %options) = @_;
@@ -77,6 +106,8 @@ sub new {
   #    hi      => $hi);
 
   return bless { aronson => $aronson,
+                 aronson_lang => $lang,
+                 aronson_letter => $aronson->{'letter'},
                  # vfw     => $vfw,
                }, $class;
 }

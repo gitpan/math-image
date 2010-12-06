@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');
@@ -51,7 +51,7 @@ sub next {
   return $self->{'i'}++ ** 3;
 }
 sub ith {
-  my ($self, $i) = @_;
+  my ($class_or_self, $i) = @_;
   return $i*$i*$i;
 }
 
@@ -64,7 +64,7 @@ sub ith {
 # rounded, making some non-cube $n look like a cube.
 #
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   my $c = floor (0.5 + Math::Libm::cbrt ($n));
   return ($c*$c*$c == $n);
 }

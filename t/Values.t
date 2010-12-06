@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use Test::More tests => 240;
+use Test::More tests => 270;
 
 use lib 't';
 use MyTestHelpers;
@@ -98,6 +98,65 @@ sub _delete_duplicates {
 {
   my $gen = App::MathImage::Generator->new;
   foreach my $elem (
+                    [ 'Palindromes', 0,
+                      [ 0,1,2,3,4,5,6,7,8,9,
+                        11,22,33,44,55,66,77,88,99,
+                        101,111,121,131,141,151,161,171,181,191,
+                        202,212,222,232,242,252,262,272,282,292,
+                        303,313,323,333,343,353,363,373,383,393,
+                        404,414,424,434,444,454,464,474,484,494,
+                        505,515,525,535,545,555,565,575,585,595,
+                        606,616,626,636,646,656,666,676,686,696,
+                        707,717,727,737,747,757,767,777,787,797,
+                        808,818,828,838,848,858,868,878,888,898,
+                        909,919,929,939,949,959,969,979,989,999,
+                        1001,1111,1221,1331,1441,1551,1661,1771,1881,1991,
+                      ] ],
+
+                    [ 'Pentagonal', 0,
+                      [ 0,1,5,12,22 ] ],
+                    [ 'PentagonalSecond', 0,
+                      [ 0,2,7,15,26 ] ],
+                    [ 'PentagonalGeneralized', 0,
+                      [ 0,1,2,5,7,12,15,22,26 ] ],
+                    
+                    [ 'Polygonal', 0,
+                      [ 0, 1, 3, 6, 10, 15, 21 ],  # triangular
+                      { polygonal => 3 },
+                    ],
+                    [ 'Polygonal', 0,
+                      [ 0, 1, 4, 9, 16 ],    # squares
+                      { polygonal => 4 },
+                    ],
+                    [ 'Polygonal', 0,
+                      [ 0,1,5,12,22 ],    # pentagonal
+                      { polygonal => 5 },
+                    ],
+                    [ 'Polygonal', 0,
+                      [ 0,1,5,12,22 ],    # pentagonal
+                      { polygonal => 5 },
+                    ],
+                    [ 'Polygonal', 0,
+                      [ 0, 1, 6, 15, 28, 45, 66 ],    # hexagonal
+                      { polygonal => 6 },
+                    ],
+                    [ 'Polygonal', 0,
+                      [ 0, 1, 7, 18, 34, 55, 81, ],    # heptagonal
+                      { polygonal => 7 },
+                    ],
+                    [ 'Polygonal', 0,
+                      [ 0, 1, 8, 21, 40, 65, 96, ],    # octagonal
+                      { polygonal => 8 },
+                    ],
+                    # [ 'Polygonal', 0,
+                    #   [ , ],    # nonagonal
+                    #   { polygonal => 9 },
+                    # ],
+                    # [ 'Polygonal', 0,
+                    #   [  ],    # decagonal
+                    #   { polygonal => 10 },
+                    # ],
+                    
                     [ 'Tetrahedral', 1,
                       [ 1, 4, 10, 20, 35, 56, 84, 120 ] ],
                     
@@ -154,8 +213,6 @@ sub _delete_duplicates {
                     #     93, 94, 95, 96, 97, 98, 99, 101, 111, 121, 131, 141,
                     #     151 ] ],
                     
-                    # http://www.research.att.com/~njas/sequences/A006567
-                    # http://www.research.att.com/~njas/sequences/b006567.txt
                     [ 'Emirps', 0,
                       [ 13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157,
                         167, 179, 199, 311, 337, 347, 359, 389, 701, 709,
@@ -193,7 +250,7 @@ sub _delete_duplicates {
                       [ 2, 6, 12, 20, 30, 42 ] ],
                     [ 'Pronic', 5,
                       [ 6, 12, 20, 30, 42 ] ],
-                    
+
                     [ 'Even', 0,
                       [ 0, 2, 4, 6, 8, 10, 12 ] ],
                     [ 'Even', 5,
@@ -406,13 +463,6 @@ sub _delete_duplicates {
                       ],
                       { radix => 3 },
                     ],
-                    
-                    [ 'Pentagonal', 0,
-                      [ 0,1,5,12,22 ] ],
-                    [ 'PentagonalSecond', 0,
-                      [ 0,2,7,15,26 ] ],
-                    [ 'PentagonalGeneralized', 0,
-                      [ 0,1,2,5,7,12,15,22,26 ] ],
                     
                     [ 'FractionBits', 0,
                       [ 1,2,3 ],

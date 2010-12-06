@@ -20,6 +20,7 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util 'max';
+use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
@@ -28,7 +29,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes
@@ -44,45 +45,33 @@ sub new {
   my $safe_primes = $options{'safe_primes'};
   $lo = max (0, $lo);
 
-  my @array;
-  if ($hi >= $lo) {
-    my $primes_hi = 2*$hi+1;
-    require Math::Prime::XS;
-    Math::Prime::XS->VERSION (0.021); # version 0.21 for various fixes
-    ### SophieGermainPrimes: "array $lo to $primes_hi"
-    @array = Math::Prime::XS::sieve_primes ($lo, $primes_hi);
+  ### SophieGermainPrimes: "array $lo to ".(2*$hi+1)
+  require App::MathImage::Values::Primes;
+  my @array = App::MathImage::Values::Primes::_my_primes_list ($lo, 2*$hi+1);
 
-    my $to = 0;
-    my $i = 0;
-    my $p = $i;
-  FILTER: for (;; $i++) {
-      last if ($i > $#array);
-      my $prime = $array[$i];
-      last if $prime > $hi;
+  my $to = 0;
+  my $i = 0;
+  my $p = 0;
+  for (my $i = 0; $i < @array; $i++) {
+    my $prime = $array[$i];
+    last if $prime > $hi;
 
-      my $target = 2*$prime+1;
-      for (;;) {
-        if ($p <= $#array) {
-          if ($prime == 964049) {
-            print "found $target with p=$p is $array[$p]\n";
-          }
-          if ($array[$p] < $target) {
-            if ($prime == 964049) {
-              print "p++\n";
-            }
-            $p++;
-            next;
-          }
-          if ($array[$p] == $target) {
-            $array[$to++] = ($safe_primes ? 2*$prime+1 : $prime);
-            $p++;
-          }
+    my $target = 2*$prime+1;
+    for (;;) {
+      if ($p <= $#array) {
+        if ($array[$p] < $target) {
+          $p++;
+          next;
         }
-        last;
+        if ($array[$p] == $target) {
+          $array[$to++] = ($safe_primes ? 2*$prime+1 : $prime);
+          $p++;
+        }
       }
+      last;
     }
-    $#array = $to - 1;
   }
+  $#array = $to - 1;
   return bless { array => \@array,
                  i     => 0,
                }, $class;

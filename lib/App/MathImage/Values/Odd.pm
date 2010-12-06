@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::Even';
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 use constant name => __('Odd Integers');
 use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');
@@ -47,7 +47,7 @@ sub new {
   return $self;
 }
 sub pred {
-  my ($self, $n) = @_;
+  my ($class_or_self, $n) = @_;
   ### Odd pred(): $n
   return ($n & 1);
 }
