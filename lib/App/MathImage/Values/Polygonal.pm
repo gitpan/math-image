@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,18 +33,31 @@ use constant name => __('Polygonal Numbers');
 # use constant description => __('');
 
 my @oeis = (undef, # 0
-                     undef, # 1
-                     undef, # 2
-                     'A000217', # 3 triangular
-                     'A000290', # 4 squares
-                     'A000326', # 5 pentagonal
-                     'A000384', # 6 hexagonal
-                     'A000566', # 7 heptagonal
-                     'A000567', # 8 octagonal
-                     'A001106', # 9 nonagonal
-                     'A001107', # 10 decogaonal
-                     # ... more?
-                    );
+            undef, # 1
+            undef, # 2
+            'A000217', # 3 triangular
+            'A000290', # 4 squares
+            'A000326', # 5 pentagonal
+            'A000384', # 6 hexagonal
+            'A000566', # 7 heptagonal
+            'A000567', # 8 octagonal
+            'A001106', # 9 nonagonal
+            'A001107', # 10 decogaonal
+            'A051682', # 11 hendecagonal
+            'A051624', # 12-gonal
+            'A051865', # 13 tridecagonal
+            'A051866', # 14-gonal
+            'A051867', # 15
+            'A051868', # 16
+            'A051869', # 17
+            'A051870', # 18
+            'A051871', # 19
+            'A051872', # 20
+            'A051873', # 21
+            'A051874', # 22
+            'A051875', # 23
+            'A051876', # 24
+           );
 sub oeis {
   my ($class_or_self) = @_;
   return $oeis[ref $class_or_self

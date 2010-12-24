@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 sub profile_default {
   my ($class) = @_;
@@ -74,7 +74,9 @@ sub _draw_image {
   ### _draw_image(): ref($drawable)
 
   my $gen = App::MathImage::Generator->new
-    (%$gen_options,
+    (step_time       => 0.25,
+     step_figures    => 1000,
+     %$gen_options,
      width  => $drawable->width,
      height => $drawable->height);
   #      foreground => $self->style->fg($self->state)->to_string,
@@ -92,8 +94,7 @@ sub _draw_image {
   ### width:  $image->get('-width')
   ### height: $image->get('-height')
 
-  $gen->draw_Image_start ($image);
-  $gen->draw_Image_steps (99999);
+  $gen->draw_Image ($image);
 }
 
 # sub expose {

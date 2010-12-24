@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,10 +36,30 @@ use constant description => __('Numbers which are "palindromes" reading the same
 # palindomric primes
 # 'A002385', # 10
 # 'A029732', # 16
-                     
+#
+my @oeis = (undef,     # 0
+            undef,     # 1
+            'A006995', # 2
+            'A014190', # 3
+            'A014192', # 4
+            'A029953', # 5
+            'A029953', # 6
+            'A029954', # 7
+            'A029803', # 8
+            'A029955', # 9
+            'A002113', # 10
+           );
+sub oeis {
+  my ($class_or_self) = @_;
+  return $oeis[ref $class_or_self
+               ? $class_or_self->{'radix'}
+               : $class_or_self->parameters->{'radix'}->{'default'}];
+}
+
+
 use constant parameters => { radix => { type => 'integer',
                                         default => 10,
-                                      }
+                                      },
                            };
 
 sub new {
@@ -63,7 +83,7 @@ sub new {
     $i = $i*$radix + pop @digits;
   }
   # ...
-  
+
   $i = 0;
   return bless { i => $i,
                  radix => $radix,

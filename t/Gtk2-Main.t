@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 36;
+my $want_version = 37;
 {
   is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,
@@ -62,7 +62,7 @@ my $want_version = 36;
       "VERSION object check $want_version");
   ok (! eval { $main->VERSION($check_version); 1 },
       "VERSION object check $check_version");
-  
+
   $main->destroy;
 }
 

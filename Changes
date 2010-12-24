@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 37, December 2010
+    - try not to hammer the X server
+
 Version 36, December 2010
     - Palindrome numbers
 

@@ -26,7 +26,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -221,8 +221,8 @@ image, printer, etc.
 The native Prima drawing has lots more features, but this module is an easy
 way to point C<Image::Base> style code at a Prima image etc.
 
-Colours names for drawing are the "Blue" etc from the Prima colour
-constantslike C<cl::Blue> (see L<Prima::Drawable/Color space>), plus 2-digit
+Colours names for drawing are the "Blue" etc from the Prima colour constants
+like C<cl::Blue> (see L<Prima::Drawable/Color space>), plus 2-digit
 #RRGGBB or 4-digit #RRRRGGGGBBBB hex.  Internally Prima works in 8-bit RGB
 components, so 4-digit values are truncated.
 

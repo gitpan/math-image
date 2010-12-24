@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 use constant name => __('Base 4 Without 3');
 use constant description => __('The integers without any 3 digits when written out in base 4.');
@@ -41,7 +41,7 @@ sub new {
 
   # look at the base 4 digits, form $i by treating them as binary, increment
   # any "3" digits to go to the next without 3s
-  my $i = 0; 
+  my $i = 0;
   my $power = 1;
   while ($n) {
     my $rem = $n & 3;
@@ -66,7 +66,7 @@ sub new {
 sub next {
   my ($self) = @_;
   ### Base4Without3 next(): $self->{'i'}
-  
+
   # $i converted to ternary digits, built back up as base 4
   my $i = $self->{'i'}++;
   my $shift = 0;

@@ -40,12 +40,12 @@ use Gtk2::Ex::ComboBox::Enum 2; # version 2 for fixed MoreUtils dependency
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Ex::ToolItem::Entry;
-use App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
+use App::MathImage::Gtk2::Ex::ToolItem::ComboEnum;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 36;
+our $VERSION = 37;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -54,7 +54,7 @@ use Glib::Object::Subclass
              },
   properties => [ Glib::ParamSpec->boolean
                   ('fullscreen',
-                   'fullscreen',
+                   __('Full screen'),
                    'Blurb.',
                    0,           # default
                    Glib::G_PARAM_READWRITE),
@@ -112,16 +112,16 @@ sub _path_to_mnemonic {
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  
+
   my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
   $vbox->show;
   $self->add ($vbox);
-  
+
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
-  
+
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-  
+
   $actiongroup->add_actions
     ([
       { name  => 'FileMenu',
@@ -156,7 +156,7 @@ sub INIT_INSTANCE {
           $self->destroy;
         },
       },
-      
+
       { name  => 'ViewMenu',
         label => dgettext('gtk20-properties','_View'),
       },
@@ -174,7 +174,7 @@ sub INIT_INSTANCE {
           $self->{'draw'}->centre;
         },
       },
-      
+
       { name  => 'ToolsMenu',
         label => dgettext('gtk20-properties','_Tools'),
       },
@@ -195,7 +195,7 @@ sub INIT_INSTANCE {
            callback => \&_do_action_pod_dialog,
          }
        : ()),
-      
+
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
@@ -204,7 +204,7 @@ Click repeatedly to see interesting things.'),
       },
      ],
      $self);
-  
+
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
                                           label => __('_Fullscreen'),
@@ -236,12 +236,12 @@ Click repeatedly to see interesting things.'),
     ([ { name    => 'Toolbar',
          label   => __('_Toolbar'),
          tooltip => __('Whether to show the toolbar.')},
-       
+
        { name    => 'AronsonConjunctions',
          label   => __('_Conjunctions'),
          tooltip => __('Whether to include conjunctions "and" or "et" in the words of the sequence.'),
        },
-       
+
        { name    => 'AronsonLying',
          label   => __('Lying'),
          tooltip => __('Whether to show the "lying" version of the sequence, being positions which are not "T" (or whatever requested letter).'),
@@ -259,7 +259,7 @@ Click repeatedly to see interesting things.'),
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-lying'],
                                       [$action,'active']);
   }
-  
+
   if (Module::Util::find_installed('Gtk2::Ex::CrossHair')) {
     $actiongroup->add_toggle_actions
       # name, stock id, label, accel, tooltip, subr, is_active
@@ -275,7 +275,7 @@ Click repeatedly to see interesting things.'),
        ],
        $self);
   }
-  
+
   {
     my $n = 0;
     my $group;
@@ -312,7 +312,7 @@ Click repeatedly to see interesting things.'),
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-  
+
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -371,25 +371,25 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-  
+
   my $menubar = $self->menubar;
   $menubar->show;
   $vbox->pack_start ($menubar, 0,0,0);
-  
+
   my $toolbar = $self->toolbar;
   $toolbar->show;
   $vbox->pack_start ($toolbar, 0,0,0);
-  
-  my $table = $self->{'table'} = Gtk2::Table->new (2, 2);
+
+  my $table = $self->{'table'} = Gtk2::Table->new (3, 2);
   $vbox->pack_start ($table, 1,1,0);
-  
+
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-  
+
   {
     my $hadj = $draw->get('hadjustment');
     my $haxis = Gtk2::Ex::NumAxis->new (adjustment => $hadj,
@@ -399,7 +399,7 @@ HERE
                          'button-release-mask',
                          'button-motion-mask']);
     $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
-    
+
     my $vadj = $draw->get('vadjustment');
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
                                         inverted => 1);
@@ -407,51 +407,27 @@ HERE
                          'button-release-mask',
                          'button-motion-mask']);
     $vaxis->signal_connect (button_press_event => \&_do_axis_button_press);
-    $table->attach ($vaxis, 1,2, 0,1, [],['expand','fill'],0,0);
-    
+    $table->attach ($vaxis, 1,3, 0,1, [],['expand','fill'],0,0);
+
     my $action = $actiongroup->get_action ('Axes');
     Glib::Ex::ConnectProperties->new ([$haxis,'visible'],
                                       [$vaxis,'visible'],
                                       [$action,'active']);
-    
+
     my $aframe = Gtk2::AspectFrame->new ('', .5, .5, 1, 0);
     $aframe->set (label => undef,
-                  shadow_type => 'none');
-    $table->attach ($aframe, 1,2, 1,2,
-                    ['fill'],['fill'],0,0);
-    my $atable = Gtk2::Table->new (3, 3);
-    foreach my $data (['up',1,2, 0,1],
-                      ['down',1,2, 2,3],
-                      ['left', 0,1, 1,2],
-                      ['right', 2,3, 1,2],
-                     ) {
-      # my $button = Gtk2::Button->new;
-      # $button->set(border_width => 0);
-      my $button = Gtk2::EventBox->new;
-      $button->add_events (['button-press-mask']);
-      my $arrow = Gtk2::Arrow->new ($data->[0], 'in');
-      $arrow->set_name ('Math_Image_scroll_arrow');
-      $button->set_size_request (3,3); # minimum size
-      $button->add ($arrow);
-      $button->signal_connect (button_press_event
-                               => \&_do_arrow_button_clicked);
-      # $button->signal_connect (clicked => \&_do_arrow_button_clicked);
-      $atable->attach ($button, @{$data}[1,2,3,4],
-                       ['fill','expand'],['fill','expand'],0,0);
-    }
-    $aframe->add ($atable);
-    
-    Gtk2::Rc->parse_string (<<'HERE');
-style "Math_Image_style" {
-  GtkArrow::arrow-scaling = 1
-}
-widget "*.Math_Image_scroll_arrow" style:application "Math_Image_style"
-HERE
-    #   GtkButton::focus-padding = 0
-    #   GtkButton::interior-focus = 0
-    #   GtkButton::focus-line-width = 0
-    #   GtkButton::image-spacing = 0
-    # class "GtkButton" style:application "Math_Image_style"
+                  shadow_type => 'none',
+                  width_request => 1,
+                  height_request => 1);
+    $table->attach ($aframe, 1,3, 1,2,
+                    ['fill','shrink'],['fill','shrink'],0,0);
+
+    require App::MathImage::Gtk2::Ex::QuadScroll;
+    my $qb = App::MathImage::Gtk2::Ex::QuadScroll->new
+      (hadjustment => $hadj,
+       vadjustment => $vadj,
+       vinverted   => 1);
+    $aframe->add ($qb);
   }
   $table->show_all;
 
@@ -469,9 +445,9 @@ HERE
   my $toolpos = -999;
   my $path_combobox;
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::Path');
-    $toolitem->{'name'} = __('Path');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::Path',
+       overflow_mnemonic => __('_Path'));
     set_property_maybe
       ($toolitem, # tooltip-text new in 2.12
        tooltip_text  => __('The path for where to place values in the plane.'));
@@ -479,8 +455,9 @@ HERE
     $toolbar->insert ($toolitem, $toolpos++);
 
     $path_combobox = $self->{'path_combobox'} = $toolitem->get_child;
-    set_property_maybe ($path_combobox, # tearoff-title new in 2.10
-                        tearoff_title => $toolitem->{'name'});
+    set_property_maybe ($path_combobox,
+                        # tearoff-title new in 2.10
+                        tearoff_title => __('Math-Image: Path'));
 
     Glib::Ex::ConnectProperties->new ([$draw,'path'],
                                       [$toolitem,'active-nick']);
@@ -488,7 +465,8 @@ HERE
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
       (label => __('Wider'));
-    set_property_maybe ($toolitem, # tooltip-text new in 2.12
+    set_property_maybe ($toolitem,
+                        # tooltip-text new in 2.12
                         tooltip_text => __('Wider path.'));
     $toolbar->insert ($toolitem, $toolpos++);
 
@@ -560,9 +538,9 @@ HERE
   }
   my $rotation_type_combobox;
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::RotationType');
-    $toolitem->{'name'} = __('Rotation Type');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::RotationType',
+       overflow_mnemonic => __(')Rotation Type'));
     # set_property_maybe ($toolitem,
     #                     tooltip_text  => __(''));
     $toolitem->show;
@@ -570,7 +548,7 @@ HERE
 
     $rotation_type_combobox = $toolitem->get_child;
     set_property_maybe ($rotation_type_combobox, # tearoff-title new in 2.10
-                        tearoff_title => $toolitem->{'name'});
+                        tearoff_title => __('Math-Image: Rotation Type'));
 
     Glib::Ex::ConnectProperties->new
         ([$draw,'path-rotation-type'],
@@ -664,15 +642,15 @@ HERE
   }
   my $values_combobox;
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::Values');
-    $toolitem->{'name'} = __('Values');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::Values',
+       overflow_mnemonic => __('Values'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
 
     $values_combobox = $self->{'values_combobox'} = $toolitem->get_child;
     set_property_maybe ($values_combobox, # tearoff-title new in 2.10
-                        tearoff_title => $toolitem->{'name'});
+                        tearoff_title => __('Math-Image: Values'));
 
     $values_combobox->signal_connect
       ('notify::active-nick' => sub {
@@ -835,16 +813,17 @@ HERE
                                        hash_in => { 'Multiples' => 1 }]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::AronsonLang');
-    $toolitem->{'name'} = __('Language');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::AronsonLang',
+       overflow_mnemonic => __('_Language'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text  => __('The language to use for the sequence.'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $combobox = $toolitem->get_child;
-    set_property_maybe ($combobox, tearoff_title => $toolitem->{'name'});
+    set_property_maybe ($combobox,
+                        tearoff_title => __('Math-Image: Aronson Language'));
 
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-lang'],
                                       [$combobox,'active-nick']);
@@ -868,7 +847,7 @@ HERE
     }
     set_property_maybe ($combobox,
                         visible => 1,
-                        tearoff_title => __('Letter'));
+                        tearoff_title => __('Math-Image: Aronson Letter'));
     $toolitem->add ($combobox);
 
     Glib::Ex::ConnectProperties->new ([$draw,'aronson-letter'],
@@ -904,16 +883,17 @@ HERE
     $toolbar->insert ($separator, $toolpos++);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::Filters');
-    $toolitem->{'name'} = __('Filter');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::Filters',
+       overflow_mnemonic => __('Filter'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text  => __('Filter the values to only odd, or even, or primes, etc.'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $combobox = $toolitem->get_child;
-    set_property_maybe ($combobox, tearoff_title => $toolitem->{'name'});
+    set_property_maybe ($combobox,
+                        tearoff_title => __('Math-Image: Filter'));
 
     Glib::Ex::ConnectProperties->new
         ([$draw,'filter'],
@@ -922,11 +902,12 @@ HERE
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
       (label => __('Scale'));
-    set_property_maybe ($toolitem, # tooltip-text new in 2.12
-                        tooltip_text => __('How many pixels per square.'));
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $hbox = Gtk2::HBox->new;
+    set_property_maybe ($toolitem,
+                        # tooltip-text new in 2.12
+                        tooltip_text => __('How many pixels per square.'));
     $toolitem->set (entry => $hbox);
 
     $hbox->pack_start (Gtk2::Label->new(__('Scale')), 0,0,0);
@@ -941,9 +922,9 @@ HERE
     $toolitem->show_all;
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
-      (enum_type => 'App::MathImage::Gtk2::Drawing::FigureType');
-    $toolitem->{'name'} = __('Figure');
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+      (enum_type => 'App::MathImage::Gtk2::Drawing::FigureType',
+       overflow_mnemonic => __('Figure'));
     set_property_maybe ($toolitem,
                         tooltip_text  => __('The figure to show at each position.'));
     $toolitem->show;
@@ -951,7 +932,7 @@ HERE
 
     my $combobox = $toolitem->get_child;
     set_property_maybe ($combobox, # tearoff-title new in 2.10
-                        tearoff_title => $toolitem->{'name'});
+                        tearoff_title => __('Math-Image: Figure'));
 
     Glib::Ex::ConnectProperties->new
         ([$draw,'figure'],
@@ -974,23 +955,23 @@ sub _do_destroy {
   return shift->signal_chain_from_overridden(@_);
 }
 
-sub _do_toolbar_overflow_comboenum {
-  my ($toolitem) = @_;
-  ### _do_toolbar_overflow_comboenum()
-  my $combo = $toolitem->get_child;
-  require Gtk2::Ex::Menu::EnumRadio;
-  my $menu = Gtk2::Ex::Menu::EnumRadio->new
-    (enum_type   => $combo->get('enum-type'));
-  # tearoff-title new in 2.10, go undef if nothing
-  $menu->set_title (eval { $combo->get('tearoff-title') });
-  Glib::Ex::ConnectProperties->new ([$combo,'active-nick'],
-                                    [$menu,'active-nick']);
-
-  my $menuitem = Gtk2::MenuItem->new_with_label ($combo->{'name'});
-  $menuitem->set_submenu ($menu);
-  $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
-  return 1;
-}
+# sub _do_toolbar_overflow_comboenum {
+#   my ($toolitem) = @_;
+#   ### _do_toolbar_overflow_comboenum()
+#   my $combo = $toolitem->get_child;
+#   require Gtk2::Ex::Menu::EnumRadio;
+#   my $menu = Gtk2::Ex::Menu::EnumRadio->new
+#     (enum_type   => $combo->get('enum-type'));
+#   # tearoff-title new in 2.10, go undef if nothing
+#   $menu->set_title (eval { $combo->get('tearoff-title') });
+#   Glib::Ex::ConnectProperties->new ([$combo,'active-nick'],
+#                                     [$menu,'active-nick']);
+#
+#   my $menuitem = Gtk2::MenuItem->new_with_label ($combo->{'name'});
+#   $menuitem->set_submenu ($menu);
+#   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
+#   return 1;
+# }
 
 # sub _toolbarbits_create_overflow_button {
 #   my ($toolitem) = @_;
@@ -1048,7 +1029,7 @@ sub _my_cnv {
       $ret = sprintf('[%d]', $n % $radix) . $ret;
     } while ($n = int($n/$radix));
     return $ret;
-  }  
+  }
 }
 
 sub SET_PROPERTY {
@@ -1121,7 +1102,16 @@ sub popup_save_as {
 # possible so as to preserve colormap entries
 sub _do_action_setroot {
   my ($action, $self) = @_;
-  $self->{'draw'}->start_drawing_window ($self->get_root_window);
+
+  my $rootwin = $self->get_root_window;
+  if ($rootwin->can('XID')) {
+    require App::MathImage::Gtk2::X11;
+    $self->{'x11'} = App::MathImage::Gtk2::X11->new
+      (gdk_window => $self->get_root_window,
+       gen        => $self->{'draw'}->gen_object);
+  } else {
+    $self->{'draw'}->start_drawing_window ($rootwin);
+  }
 }
 
 sub popup_about {
@@ -1173,28 +1163,28 @@ sub _do_action_crosshair {
   };
 }
 
-my %type_to_adjname = (left  => 'hadjustment',
-                       right => 'hadjustment',
-                       up    => 'vadjustment',
-                       down  => 'vadjustment');
-my %type_factor = (left  => -1,
-                   right => 1,
-                   up    => -1,
-                   down  => 1);
-sub _do_arrow_button_clicked {
-  my ($button) = @_;
-  my $self = $button->get_ancestor (__PACKAGE__);
-  my $arrow = $button->get_child;
-  my $type = $arrow->get('arrow-type');
-  ### _do_arrow_button_clicked(): $type
-  my $adj = $self->{'draw'}->get($type_to_adjname{$type});
-
-  ### adj value was: $adj->value.' page='.$adj->page_size
-  ### add: $adj->step_increment
-  ### value upper limit: $adj->upper - $adj->page_size
-  $adj->set_value ($adj->value + $adj->step_increment * $type_factor{$type});
-  ### adj value now: $adj->value
-}
+# my %type_to_adjname = (left  => 'hadjustment',
+#                        right => 'hadjustment',
+#                        up    => 'vadjustment',
+#                        down  => 'vadjustment');
+# my %type_factor = (left  => -1,
+#                    right => 1,
+#                    up    => -1,
+#                    down  => 1);
+# sub _do_arrow_button_clicked {
+#   my ($button) = @_;
+#   my $self = $button->get_ancestor (__PACKAGE__);
+#   my $arrow = $button->get_child;
+#   my $type = $arrow->get('arrow-type');
+#   ### _do_arrow_button_clicked(): $type
+#   my $adj = $self->{'draw'}->get($type_to_adjname{$type});
+#
+#   ### adj value was: $adj->value.' page='.$adj->page_size
+#   ### add: $adj->step_increment
+#   ### value upper limit: $adj->upper - $adj->page_size
+#   $adj->set_value ($adj->value + $adj->step_increment * $type_factor{$type});
+#   ### adj value now: $adj->value
+# }
 
 my %orientation_to_adjname = (horizontal => 'hadjustment',
                               vertical   => 'vadjustment');

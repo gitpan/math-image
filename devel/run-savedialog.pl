@@ -30,7 +30,24 @@ my $dialog = App::MathImage::Gtk2::SaveDialog->new;
 $dialog->signal_connect (destroy => sub { Gtk2->main_quit });
 $dialog->set_current_name ('foo.PNG');
 
+
+my $toplevel = Gtk2::Window->new('toplevel');
+$toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
+
+my $vbox = Gtk2::VBox->new;
+$toplevel->add ($vbox);
+
+{
+  my $button = Gtk2::Button->new_with_label ('Unset Type');
+  $button->signal_connect (clicked => sub {
+                             $dialog->{'combo'}->set (active_type => undef);
+                           });
+  $vbox->pack_start ($button, 0, 0, 0);
+}
+
+
 $dialog->show_all;
+$toplevel->show_all;
 Gtk2->main;
 
 exit 0;

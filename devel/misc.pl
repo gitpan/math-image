@@ -68,10 +68,10 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Tribonacci');
     $values_class = $gen->values_class('Perrin');
     $values_class = $gen->values_class('Pentagonal');
-    $values_class = $gen->values_class('Polygonal');
     $values_class = $gen->values_class('Palindromes');
+    $values_class = $gen->values_class('Polygonal');
     my $values_obj = $values_class->new (fraction => '1/3',
-                                         polygonal => 8,
+                                         polygonal => 13,
                                          lo => 1,
                                          hi => 200*$rep,
                                          radix => 10);
@@ -123,6 +123,32 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
       print "\n";
     }
   }
+  exit 0;
+}
+
+
+{
+  require Math::BigInt;
+  Math::BigInt->import (try => 'GMP');
+
+  require Devel::TimeThis;
+  my $t = Devel::TimeThis->new('x');
+
+  my $k = 2;
+  my $bits = 500000;
+  my $num = Math::BigInt->new($k);
+  $num->blsft ($bits);
+  ### num: "$num"
+  $num->blog();
+  # $num->bsqrt();
+  ### num: "$num"
+  my $str = $num->as_bin;
+  ### $str
+
+  # $num = Math::BigInt->new(1);
+  # $num->blsft (length($str)-1);
+  # ### num: "$num"
+
   exit 0;
 }
 
@@ -316,28 +342,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   }
   exit 0;
 }
-
-{
-  require Math::BigInt;
-  Math::BigInt->import (try => 'GMP');
-
-  my $k = 2;
-  my $bits = 50;
-  my $num = Math::BigInt->new($k);
-  $num->blsft ($bits);
-  ### num: "$num"
-  $num->bsqrt();
-  ### num: "$num"
-  my $str = $num->as_bin;
-  ### $str
-
-  $num = Math::BigInt->new(1);
-  $num->blsft (length($str)-1);
-  ### num: "$num"
-
-  exit 0;
-}
-
 
 {
   require String::Parity;

@@ -45,7 +45,7 @@ MyMakeMakerExtras::WriteMakefile
 
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,
-    'Glib::Ex::ConnectProperties' => 11, # v.11 for widget-allocation
+    'Glib::Ex::ConnectProperties' => 14, # v.14 for response-sensitive#
 
     # my Glib-Ex-ObjectBits
     'Glib::Ex::EnumBits'     => 11, # new in v.11

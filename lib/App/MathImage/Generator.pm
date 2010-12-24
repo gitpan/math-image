@@ -31,7 +31,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -103,6 +103,7 @@ use constant values_choices => do {
                          PentagonalSecond
                          PentagonalGeneralized
                          Polygonal
+                         StarNumbers
                          Cubes
                          Tetrahedral
                          Fibonacci
@@ -181,6 +182,7 @@ use constant path_choices => qw(SquareSpiral
 
                                 ArchimedeanSpiral
                                 Hilbert33
+                                OctagramSpiral
                               );
 
 use constant figure_choices => qw(default
@@ -235,7 +237,7 @@ sub random_options {
   my $radix;
   if ($values eq 'Repdigits') {
     $radix = _rand_of_array([2 .. 128,
-                             (10)x50]); # bias mostly 10
+                             (10) x 50]); # bias mostly 10
   } else {
     # for Emirps not too big or round up to 2^base becomes slow
     $radix = _rand_of_array([2,3,4,8,16,
@@ -812,17 +814,29 @@ sub _draw_L {
 
 
 sub draw_Image_steps {
-  my ($self, $steps_limit) = @_;
-  #### draw_Image_steps: $steps_limit
+  my ($self) = @_;
+  #### draw_Image_steps()
   my $steps = 0;
 
-  # my $time_lo = _gettime();
-  # my $time_hi = $time_lo + $time_limit;
-  # { my $time = _gettime();
-  #   if ($time < $time_lo || $time > $time_hi) {
-  #     last;
-  #   }
-  # }
+  my $cont_time = \&TRUE;
+  if (my $step_time = $self->{'step_time'}) {
+    my $time_lo = _gettime();
+    my $time_hi = $time_lo + $step_time;
+    $cont_time = sub {
+      my $time = _gettime();
+      return ($time >= $time_lo && $time <= $time_hi);
+    }
+  }
+  my $count_figures = 0;
+  my $cont_figures = \&TRUE;
+  if (my $step_figures = $self->{'step_figures'}) {
+    $cont_figures = sub {
+      return ($count_figures <= $step_figures);
+    }
+  }
+  my $cont = sub {
+    return &$cont_time() && &$cont_figures();
+  };
 
   my $path_object = $self->path_object;
   my $image  = $self->{'image'};
@@ -875,11 +889,9 @@ sub draw_Image_steps {
     my $n = $self->{'upto_n'};
 
     for ( ; $n < $n_hi; $n++) {
-      if (defined $steps_limit) {
-        if (++$steps > $steps_limit) {
-          $more = 1;
-          last;
-        }
+      if (! &$cont()) {
+        $more = 1;
+        last;
       }
 
       ### n raw: $path_object->n_to_xy($n)
@@ -892,13 +904,15 @@ sub draw_Image_steps {
         $x1 = floor ($x1 + 0.5);
         $y1 = floor ($y1 + 0.5);
         _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
+        $count_figures++;
       }
 
       if (my ($x3, $y3) = $transform->($path_object->n_to_xy($n+0.499))) {
         ### plus: "$x3, $y3"
         $x3 = floor ($x3 + 0.5);
         $y3 = floor ($y3 + 0.5);
-        _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground)
+        _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground);
+        $count_figures++;
       }
     }
     $self->{'upto_n'} = $n;
@@ -982,11 +996,9 @@ sub draw_Image_steps {
 
     for (;;) {
       ### use_xy: "$x,$y"
-      if (defined $steps_limit) {
-        if (++$steps > $steps_limit) {
-          $more = 1;
-          last;
-        }
+      if (! &$cont()) {
+        $more = 1;
+        last;
       }
       if (++$x > $x_hi) {
         if (++$y > $self->{'y_hi'}) {
@@ -1014,6 +1026,7 @@ sub draw_Image_steps {
           ### win: "$wx,$wy"
 
           if ($figure eq 'point') {
+            $count_figures++;
             push @{$points_by_colour{$background}}, $wx, $wy;
             if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
               $flush->();
@@ -1021,9 +1034,11 @@ sub draw_Image_steps {
           } elsif ($figure eq 'diamond') {
             if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                               $width,$height)) {
+              $count_figures++;
               $image->$figure_method (@coords, $colour, $figure_fill);
             }
           } else { # $figure eq 'square'
+            $count_figures++;
             push @{$rectangles_by_colour{$background}},
               rect_clipper ($wx, $wy,
                             $wx+$pscale, $wy+$pscale,
@@ -1047,6 +1062,7 @@ sub draw_Image_steps {
         #### $colour
       }
       if ($figure eq 'point') {
+        $count_figures++;
         push @{$points_by_colour{$colour}}, $wx, $wy;
         if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
           $flush->();
@@ -1054,9 +1070,11 @@ sub draw_Image_steps {
       } elsif ($figure eq 'diamond') {
         if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                           $width,$height)) {
+          $count_figures++;
           $image->$figure_method (@coords, $colour, $figure_fill);
         }
       } else { # $figure eq 'square'
+        $count_figures++;
         push @{$rectangles_by_colour{$colour}},
           rect_clipper ($wx, $wy,
                         $wx+$pscale, $wy+$pscale,
@@ -1073,11 +1091,9 @@ sub draw_Image_steps {
     #### draw by N
 
     for (;;) {
-      if (defined $steps_limit) {
-        if (++$steps > $steps_limit) {
-          $more = 1;
-          last;
-        }
+      if (! &$cont()) {
+        $more = 1;
+        last;
       }
       ($n, my $count1) = $values_obj->next;
       ### $n_prev
@@ -1130,6 +1146,7 @@ sub draw_Image_steps {
             $count_outside++;
             next;
           };
+        $count_figures++;
         push @{$rectangles_by_colour{$colour}}, @rect;
         if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
           $flush->();
@@ -1138,6 +1155,7 @@ sub draw_Image_steps {
       } else {
         if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
                                           $width,$height)) {
+          $count_figures++;
           $image->$figure_method (@coords, $colour, $figure_fill);
         }
       }
@@ -1204,8 +1222,6 @@ sub use_xy {
   $self->{'xy_total'} = ($y_hi - $y_lo + 1) * $x_width;
 }
 
-sub _noop {}
-
 sub draw_progress_fraction {
   my ($self) = @_;
   if ($self->{'use_xy'}) {
@@ -1219,6 +1235,8 @@ sub draw_progress_fraction {
 
 sub draw_Image {
   my ($self, $image) = @_;
+  local $self->{'step_time'} = undef;
+  local $self->{'step_figures'} = undef;
   $self->draw_Image_start ($image);
   $self->draw_Image_steps;
 }
@@ -1332,6 +1350,38 @@ sub line_clipper {
   return ($x1new,$y1new, $x2new,$y2new);
 }
 
+
+#------------------------------------------------------------------------------
+# generic
+
+use constant TRUE => 1;
+
+# _gettime() returns a floating point count of seconds since some fixed but
+# unspecified origin time.
+#
+# clock_gettime(CLOCK_REALTIME) is preferred.  clock_gettime() always
+# exists, but it croaks if there's no such C library func.  In that case
+# fall back on the hires time(), which is whatever best thing Time::HiRes
+# can do, probably gettimeofday() normally.
+#
+# Maybe it'd be worth checking clock_getres() to see it's a decent
+# resolution.  It's conceivable some old implementations might do
+# CLOCK_REALTIME just from the CLK_TCK times() counter, giving only 10
+# millisecond resolution.  That's enough for _IDLE_TIME_SLICE of 250 ms
+# though.
+#
+sub _gettime {
+  return Time::HiRes::clock_gettime (Time::HiRes::CLOCK_REALTIME());
+}
+BEGIN {
+  unless (eval { _gettime(); 1 }) {
+    ### _gettime() no clock_gettime(): $@
+    no warnings;
+    *_gettime = \&Time::HiRes::time;
+  }
+}
+
+sub _noop {}
 
 1;
 __END__

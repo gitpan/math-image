@@ -16,14 +16,14 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 package App::MathImage::ValuesFile;
-use 5.004;
+use 5.006;
 use strict;
 use warnings;
 
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

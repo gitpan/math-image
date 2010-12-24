@@ -35,7 +35,7 @@ use App::MathImage::Values::Emirps;
 # VERSION
 
 {
-  my $want_version = 36; 
+  my $want_version = 37;
   is ($App::MathImage::Values::Emirps::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::Emirps->VERSION,  $want_version, 'VERSION class method');
 
@@ -51,6 +51,7 @@ use App::MathImage::Values::Emirps;
 # _reverse_in_radix()
 
 {
+  ## no critic (ProtectPrivateSubs)
   is (App::MathImage::Values::Emirps::_reverse_in_radix(123,10),
       321);
   is (App::MathImage::Values::Emirps::_reverse_in_radix(0xAB,16),

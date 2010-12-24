@@ -27,7 +27,7 @@ use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 36;
+our $VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,14 +36,14 @@ use Glib::Object::Subclass
   'Glib::Object',
   properties => [ Glib::ParamSpec->object
                   ('widget',
-                   'widget',
+                   'Widget',
                    'Blurb.',
                    'Gtk2::Widget',
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->object
                   ('statusbar',
-                   'statusbar',
+                   'Statusbar widget',
                    'Blurb.',
                    'Gtk2::Statusbar',
                    Glib::G_PARAM_READWRITE),

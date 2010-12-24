@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 exit App::MathImage->command_line;
 
 __END__
@@ -408,7 +408,7 @@ L<Gtk2::Ex::PodViewer>, L<Gtk2::Ex::CrossHair>, L<Gtk2::Ex::ErrorTextDialog>
 
 =head1 HOME PAGE
 
-L<http://user42.tuxfamily.org/math-image/index.html>
+http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 

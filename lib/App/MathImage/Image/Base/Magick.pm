@@ -32,7 +32,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -221,7 +221,7 @@ sub add_colours {
 1;
 __END__
 
-=for stopwords PNG Magick filename undef Ryde Zlib ImageMagick
+=for stopwords PNG Magick filename undef Ryde Zlib ImageMagick RGB
 
 =head1 NAME
 

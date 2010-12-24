@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +34,7 @@ use constant description => __('Numbers which are a "repdigit", meaning 1 ... 9,
 
 use constant parameters => { radix => { type => 'integer',
                                         default => 10,
-                                      }
+                                      },
                            };
 
 sub oeis {

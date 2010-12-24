@@ -30,36 +30,28 @@ use Gtk2;
 use Gtk2::Ex::Units;
 use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
-use Glib::Ex::ConnectProperties 11; # version 11 for widget-allocation
+use Glib::Ex::ConnectProperties 14; # v.14 for response-sensitive#
 use Gtk2::Ex::ComboBox::PixbufType;
 use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::Gtk2::Drawing;
-use App::MathImage::Gtk2::Ex::GdkPixbufBits;
+use App::MathImage::Gtk2::Ex::PixbufBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 36;
+our $VERSION = 37;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
   signals => { delete_event => \&Gtk2::Widget::hide_on_delete },
   properties => [ Glib::ParamSpec->object
                   ('draw',
-                   'draw',
+                   'Drawing object',
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing',
                    Glib::G_PARAM_READWRITE),
                 ];
-
-# get_widget_for_response() new in gtk 2.20
-my $get_widget_for_response = Gtk2::Dialog->can('get_widget_for_response')
-  || sub {
-    my ($dialog, $id) = @_;
-    return List::Util::first {$dialog->get_response_for_widget($_) eq $id}
-      $dialog->get_action_area->get_children;
-  };
 
 sub new {
   my $class = shift;
@@ -125,8 +117,7 @@ ICO only goes up to 255x255 pixels.'));
     # no Save if no active type
     Glib::Ex::ConnectProperties->new
         ([$combo, 'active-type'],
-         [$self->$get_widget_for_response('accept'), 'sensitive',
-          write_only => 1]);
+         [$self, 'response-sensitive#accept', write_only => 1]);
   }
 }
 
@@ -220,7 +211,7 @@ sub save {
                   values => Text::Capitalize::capitalize($values),
                   path   => Text::Capitalize::capitalize($path));
   if (eval {
-    App::MathImage::Gtk2::Ex::GdkPixbufBits::save
+    App::MathImage::Gtk2::Ex::PixbufBits::save_adapt
         ($pixbuf, $filename, $type,
          'tEXt::Title'         => $title,
          'tEXt::Creation Time' => POSIX::strftime (STRFTIME_FORMAT_RFC822,
@@ -264,7 +255,7 @@ sub _combo_notify_active {
   my ($combo) = @_;
   my $self = $combo->get_ancestor(__PACKAGE__);
   my $type = $combo->get('active-type');
-  my $info = _get_format_from_type($type) || return; # oops, unknown
+  my $info = ($type && _get_format_from_type($type)) || return;
 
   _change_extension ($self,
                      $self->{'old_extensions'} || [],

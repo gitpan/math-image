@@ -207,100 +207,100 @@ sub rect_to_n_range {
   }
   return (0, $ret);
 
-  my $n_min = my $n_max
-    = my $x_min = my $y_min
-      = my $x_max = my $y_max
-        = ($x1 & 0); # 0 inherit
-
-  my $pos = 0;
-  my $digit = $n_min + 2;  # inherit
-  {
-    my $m = max ($x1, $x2, $y1, $y2);
-    while ($m >= $digit) {
-      $digit *= 3;
-      $pos++;
-    }
-  }
-  ### $pos
-
-  my $i_min = my $i_max = ($pos & 1) << 2;
-  $digit = int($digit/3);
-  while ($pos >= 0) {
-    {
-      my $x_cmp = $x_max + $digit;
-      my $y_cmp = $y_max + $digit;
-      my $x_cmp2 = $x_cmp + $digit;
-      my $y_cmp2 = $y_cmp + $digit;
-
-      my $nbits = -1;
-      my $yx;
-
-      my $this_yx = 0;
-      foreach my $incl (($x1 <  $x_cmp && $y1 <  $y_cmp),    # bot left
-                        ($x2 >= $x_cmp && $y1 <  $y_cmp),    # bot right
-                        ($x1 <  $x_cmp && $y2 >= $y_cmp2),    # top left
-                        ($x2 >= $x_cmp2 && $y2 >= $y_cmp2)) {  # top right
-        if ($incl) {  # sub-quadrant included in target rectangle
-          my $this_nbits = $yx_to_n[$i_max + $this_yx];
-          if ($this_nbits > $nbits) {
-            $nbits = $this_nbits;
-            $yx = $this_yx;
-          }
-        }
-        $this_yx++;
-      }
-
-      $n_max = ($n_max << 2) + $nbits;
-      $x_max += ($yx & 1) << $pos;
-      $y_max += (($yx & 2) >> 1) << $pos;
-      ### $pos
-      ### $yx
-      ### $nbits
-      ### next_i: $n_to_next_i[$i_max+$nbits]
-      ### n_max: sprintf "%#X", $n_max
-      ### bit:  sprintf "%#X", $digit
-      $i_max = $n_to_next_i[$i_max + $nbits];
-    }
-
-    {
-      my $x_cmp = $x_min + $digit;
-      my $y_cmp = $y_min + $digit;
-
-      my $nbits = 4;
-      my $yx;
-
-      my $this_yx = 0;
-      foreach my $incl (($x1 <  $x_cmp && $y1 <  $y_cmp),    # bot left
-                        ($x2 >= $x_cmp && $y1 <  $y_cmp),    # bot right
-                        ($x1 <  $x_cmp && $y2 >= $y_cmp),    # top left
-                        ($x2 >= $x_cmp && $y2 >= $y_cmp)) {  # top right
-        if ($incl) {  # sub-quadrant included in target rectangle
-          my $this_nbits = $yx_to_n[$i_min + $this_yx];
-          if ($this_nbits < $nbits) {
-            $nbits = $this_nbits;
-            $yx = $this_yx;
-          }
-        }
-        $this_yx++;
-      }
-
-      $n_min = ($n_min << 2) | $nbits;
-      $x_min += ($yx & 1) << $pos;
-      $y_min += (($yx & 2) >> 1) << $pos;
-      ### $pos
-      ### $yx
-      ### $nbits
-      ### next_i: $n_to_next_i[$i_min+$nbits]
-      ### n_min: sprintf "%#X", $n_min
-      ### bit:  sprintf "%#X", $digit
-      $i_min = $n_to_next_i[$i_min + $nbits];
-    }
-
-    $pos--;
-    $digit = int($digit/3);
-  }
-
-  return ($n_min, $n_max);
+  # my $n_min = my $n_max
+  #   = my $x_min = my $y_min
+  #     = my $x_max = my $y_max
+  #       = ($x1 & 0); # 0 inherit
+  # 
+  # my $pos = 0;
+  # my $digit = $n_min + 2;  # inherit
+  # {
+  #   my $m = max ($x1, $x2, $y1, $y2);
+  #   while ($m >= $digit) {
+  #     $digit *= 3;
+  #     $pos++;
+  #   }
+  # }
+  # ### $pos
+  # 
+  # my $i_min = my $i_max = ($pos & 1) << 2;
+  # $digit = int($digit/3);
+  # while ($pos >= 0) {
+  #   {
+  #     my $x_cmp = $x_max + $digit;
+  #     my $y_cmp = $y_max + $digit;
+  #     my $x_cmp2 = $x_cmp + $digit;
+  #     my $y_cmp2 = $y_cmp + $digit;
+  # 
+  #     my $nbits = -1;
+  #     my $yx;
+  # 
+  #     my $this_yx = 0;
+  #     foreach my $incl (($x1 <  $x_cmp && $y1 <  $y_cmp),    # bot left
+  #                       ($x2 >= $x_cmp && $y1 <  $y_cmp),    # bot right
+  #                       ($x1 <  $x_cmp && $y2 >= $y_cmp2),    # top left
+  #                       ($x2 >= $x_cmp2 && $y2 >= $y_cmp2)) {  # top right
+  #       if ($incl) {  # sub-quadrant included in target rectangle
+  #         my $this_nbits = $yx_to_n[$i_max + $this_yx];
+  #         if ($this_nbits > $nbits) {
+  #           $nbits = $this_nbits;
+  #           $yx = $this_yx;
+  #         }
+  #       }
+  #       $this_yx++;
+  #     }
+  # 
+  #     $n_max = ($n_max << 2) + $nbits;
+  #     $x_max += ($yx & 1) << $pos;
+  #     $y_max += (($yx & 2) >> 1) << $pos;
+  #     ### $pos
+  #     ### $yx
+  #     ### $nbits
+  #     ### next_i: $n_to_next_i[$i_max+$nbits]
+  #     ### n_max: sprintf "%#X", $n_max
+  #     ### bit:  sprintf "%#X", $digit
+  #     $i_max = $n_to_next_i[$i_max + $nbits];
+  #   }
+  # 
+  #   {
+  #     my $x_cmp = $x_min + $digit;
+  #     my $y_cmp = $y_min + $digit;
+  # 
+  #     my $nbits = 4;
+  #     my $yx;
+  # 
+  #     my $this_yx = 0;
+  #     foreach my $incl (($x1 <  $x_cmp && $y1 <  $y_cmp),    # bot left
+  #                       ($x2 >= $x_cmp && $y1 <  $y_cmp),    # bot right
+  #                       ($x1 <  $x_cmp && $y2 >= $y_cmp),    # top left
+  #                       ($x2 >= $x_cmp && $y2 >= $y_cmp)) {  # top right
+  #       if ($incl) {  # sub-quadrant included in target rectangle
+  #         my $this_nbits = $yx_to_n[$i_min + $this_yx];
+  #         if ($this_nbits < $nbits) {
+  #           $nbits = $this_nbits;
+  #           $yx = $this_yx;
+  #         }
+  #       }
+  #       $this_yx++;
+  #     }
+  # 
+  #     $n_min = ($n_min << 2) | $nbits;
+  #     $x_min += ($yx & 1) << $pos;
+  #     $y_min += (($yx & 2) >> 1) << $pos;
+  #     ### $pos
+  #     ### $yx
+  #     ### $nbits
+  #     ### next_i: $n_to_next_i[$i_min+$nbits]
+  #     ### n_min: sprintf "%#X", $n_min
+  #     ### bit:  sprintf "%#X", $digit
+  #     $i_min = $n_to_next_i[$i_min + $nbits];
+  #   }
+  # 
+  #   $pos--;
+  #   $digit = int($digit/3);
+  # }
+  # 
+  # return ($n_min, $n_max);
 }
 
 1;
@@ -360,7 +360,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-Image
+=for stopwords Ryde Math-Image OEIS
 
 =head1 NAME
 

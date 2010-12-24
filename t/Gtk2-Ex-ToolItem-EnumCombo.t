@@ -32,32 +32,32 @@ Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
 
-plan tests => 19;
+plan tests => 14;
 
-require App::MathImage::Gtk2::Ex::ToolItem::EnumCombo;
-diag "Buildable: ",App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->isa('Gtk2::Buildable')||0;
+require App::MathImage::Gtk2::Ex::ToolItem::ComboEnum;
+diag "Buildable: ",App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->isa('Gtk2::Buildable')||0;
 
 Glib::Type->register_enum ('My::Test1', 'foo', 'bar-ski', 'quux');
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 36;
+my $want_version = 37;
 {
-  is ($App::MathImage::Gtk2::Ex::ToolItem::EnumCombo::VERSION,
+  is ($App::MathImage::Gtk2::Ex::ToolItem::ComboEnum::VERSION,
       $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->VERSION,
+  is (App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->VERSION,
       $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new;
+  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new;
   is ($toolitem->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $toolitem->VERSION($want_version); 1 },
@@ -71,7 +71,7 @@ my $want_version = 36;
 # Scalar::Util::weaken
 
 {
-  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new;
+  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new;
   require Scalar::Util;
   Scalar::Util::weaken ($toolitem);
   is ($toolitem, undef, 'garbage collect when weakened');
@@ -82,10 +82,9 @@ my $want_version = 36;
 # active-nick
 
 {
-  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::EnumCombo->new
+  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
     (enum_type => 'My::Test1');
   is ($toolitem->get('active-nick'), undef, 'get(active-nick) initial');
-  is ($toolitem->get_active_nick, undef, 'get_active_nick() initial');
 
   my $saw_notify;
   $toolitem->signal_connect ('notify::active-nick' => sub {
@@ -93,22 +92,18 @@ my $want_version = 36;
                              });
 
   $saw_notify = 0;
-  $toolitem->set_active_nick ('quux');
+  $toolitem->set (active_nick => 'quux');
   is ($saw_notify, 1, 'set_active_nick() notify');
-  is ($toolitem->get('active-nick'), 'quux', 'set_active_nick() get()');
-  is ($toolitem->get_active_nick, 'quux', 'set_active_nick() get_active_nick()');
+  is ($toolitem->get('active-nick'), 'quux', 'set(active-nick) get()');
 
   $saw_notify = 0;
   $toolitem->set ('active-nick', 'foo');
   is ($saw_notify, 1, 'set(active-nick) notify');
-  is ($toolitem->get('active-nick'), 'foo', 'set_active_nick() get()');
-  is ($toolitem->get_active_nick, 'foo', 'set_active_nick() get_active_nick()');
+  is ($toolitem->get('active-nick'), 'foo', 'set(active-nick) get()');
 
   $saw_notify = 0;
-  $toolitem->set_active_nick ('foo');
-  is ($saw_notify, 0, 'set_active_nick() unchanged no notify');
-  is ($toolitem->get('active-nick'), 'foo', 'set_active_nick() get()');
-  is ($toolitem->get_active_nick, 'foo', 'set_active_nick() get_active_nick()');
+  $toolitem->set (active_nick => 'foo');
+  is ($toolitem->get('active-nick'), 'foo', 'set(active-nick) get()');
 }
 
 exit 0;

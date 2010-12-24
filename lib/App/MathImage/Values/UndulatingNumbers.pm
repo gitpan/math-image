@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,7 +49,7 @@ sub oeis {
 
 use constant parameters => { radix => { type => 'integer',
                                         default => 10,
-                                      }
+                                      },
                            };
 
 sub new {
@@ -135,13 +135,13 @@ sub ith {
   my $i_len = int($i/$pair_step);
   ### $i_pair
   ### $i_len
-  
+
   my $a = int($i_pair/$rdec) + 1;
   my $b = $i_pair % $rdec;
   $b += ($b >= $a);
   ### $a
   ### $b
-  
+
   my $ret = ($a*$radix + $b)*$radix + $a;
   while ($i_len--) {
     $ret = ($ret * $radix) + $a;
@@ -187,7 +187,7 @@ __END__
   #   }
   #   my $ret = $table[$i];
   #   return $ret . (substr($ret,-2) x $rep);
-  # 
+  #
   # } else {
 
                    # limit => $radix * $radix - 1,

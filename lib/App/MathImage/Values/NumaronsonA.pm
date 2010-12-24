@@ -19,12 +19,12 @@ package App::MathImage::Values::NumaronsonA;
 use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 'App-MathImage';
+# use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

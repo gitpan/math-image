@@ -25,13 +25,20 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant name => __('Square Root Bits');
 use constant description => __('The square root of a given number written out in binary.');
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+# A004539 - sqrt2 binary bits
+# A002193 - sqrt2 decimal
+#
+# A002194 - sqrt3 decimal
+# A002163 - sqrt5 decimal
+# A010470 - sqrt13 decimal
 
 sub new {
   my ($class, %options) = @_;

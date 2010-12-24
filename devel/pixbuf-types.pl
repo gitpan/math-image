@@ -39,8 +39,8 @@ my $progname = $FindBin::Script;
   @formats = sort {$a->{'name'} cmp $b->{'name'}} @formats;
   foreach my $format (@formats) {
     print $format->{'name'},"\n";
-    if ($format->can('is_writable')) {
-      print "  is_writable() ", $format->is_writable, "\n";
+    if (exists $format->{'is_writable'}) {
+      print "  is_writable ", $format->is_writable, "\n";
     }
     print "  $format->{'description'}\n";
   }

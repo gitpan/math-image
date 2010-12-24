@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Gtk2::Ex::GdkPixbufBits;
+package App::MathImage::Gtk2::Ex::PixbufBits;
 use 5.008;
 use strict;
 use warnings;
@@ -27,11 +27,15 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 36;
+our $VERSION = 37;
 
-sub save {
+
+# Could extract the tEXts from get_option() as defaults to save back.  But
+# can't list what's in there, so maybe only the png specified ones.
+
+sub save_adapt {
   my ($pixbuf, $filename, $type, @options) = @_;
-  $pixbuf->save ($filename, $type, save_options($type,@options));
+  $pixbuf->save ($filename, $type, save_adapt_options($type,@options));
 }
 
 my %tiff_compression_types = (none    => 1,
@@ -40,10 +44,10 @@ my %tiff_compression_types = (none    => 1,
                               jpeg    => 7,
                               deflate => 8);
 
-sub save_options {
+sub save_adapt_options {
   my $type = shift;
   if (@_ & 1) {
-    croak 'GdkPixbufBits save: option key without value (odd number of arguments)';
+    croak 'PixbufBits save_adapt(): option key without value (odd number of arguments)';
   }
   my @first;
   my @rest;
@@ -113,23 +117,23 @@ sub format_matches_filename {
 1;
 __END__
 
-=for stopwords Ryde pixbuf Gtk Gtk2 PNG Zlib png huffman lzw jpeg lossy JPEG filename PixbufFormat Gtk2-Perl
+=for stopwords Ryde pixbuf Gtk Gtk2 PNG Zlib png huffman lzw jpeg lossy JPEG filename PixbufFormat Gtk2-Perl fakery
 
 =head1 NAME
 
-App::MathImage::Gtk2::Ex::GdkPixbufBits -- misc pixbuf helpers
+App::MathImage::Gtk2::Ex::PixbufBits -- misc Gtk2::Gdk::Pixbuf helpers
 
 =head1 SYNOPSIS
 
- use App::MathImage::Gtk2::Ex::GdkPixbufBits;
+ use App::MathImage::Gtk2::Ex::PixbufBits;
 
 =head1 FUNCTIONS
 
 =over
 
-=item C<< App::MathImage::Gtk2::Ex::GdkPixbufBits::save ($pixbuf, $filename, $type, key => value, ...) >>
+=item C<< App::MathImage::Gtk2::Ex::PixbufBits::save_adapt ($pixbuf, $filename, $type, key => value, ...) >>
 
-=item C<< @args = App::MathImage::Gtk2::Ex::GdkPixbufBits::save_options ($type, key => value, ...) >>
+=item C<< @args = App::MathImage::Gtk2::Ex::PixbufBits::save_adapt_options ($type, key => value, ...) >>
 
 C<save()> saves a C<Gtk2::Gdk::Pixbuf> with options adapted to what the Gtk
 in use supports.  C<save_options()> adapts options and returns them.
@@ -167,7 +171,7 @@ and moved to before any C<compression> option as a workaround for a Gtk bug.
 
 For example
 
-    App::MathImage::Gtk2::Ex::GdkPixbufBits::save
+    App::MathImage::Gtk2::Ex::PixbufBits::save_adapt
       ($pixbuf,        # Gtk2::Gdk::Pixbuf object
        $user_filename, # eg. string "/tmp/foo"
        $user_type,     # eg. string "png"
@@ -177,7 +181,7 @@ For example
        tEXt:Author           => "Yorick");
        
 
-=item C<< $format = App::MathImage::Gtk2::Ex::GdkPixbufBits::filename_to_format ($filename) >>
+=item C<< $format = App::MathImage::Gtk2::Ex::PixbufBits::filename_to_format ($filename) >>
 
 Return the C<Gtk2::Gdk::PixbufFormat> for the given C<$filename> from its
 extension.  For example F<foo.png> is PNG format.  If the filename is not
@@ -187,7 +191,7 @@ PixbufFormat is new in Gtk 2.2.  Currently C<filename_to_format> throws an
 error in Gtk 2.0.x.  Would returning C<undef> be better?  Or some
 compatibility fakery?
 
-=item C<< App::MathImage::Gtk2::Ex::GdkPixbufBits::format_matches_filename ($format, $filename) >>
+=item C<< App::MathImage::Gtk2::Ex::PixbufBits::format_matches_filename ($format, $filename) >>
 
 C<$format> should be a C<Gtk2::Gdk::PixbufFormat> object.  Return true if
 one of its extensions matches C<$filename>.  For example JPEG format matches

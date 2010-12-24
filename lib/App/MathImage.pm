@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -509,137 +509,22 @@ use constant XA_PIXMAP => 20;  # pre-defined atom
 sub show_method_root_x11_protocol {
   my ($self) = @_;
   my $X = $self->x11_protocol_object;
-  my $rootwin = $X->{'root'};
 
-  my $gen_options = $self->{'gen_options'};
-  my $width  = $gen_options->{'width'};
-  my $height = $gen_options->{'height'};
+  my $rootwin = $X->{'root'};
   my $colormap = $X->{'default_colormap'};
   ### $rootwin
-  ### $width
-  ### $height
 
-  my $pixmap;
-  my $want_save
-    = my $root_visual_dynamic
-      = _X_visual_is_dynamic($X, $X->{'root_visual'});
-  {
-    require Image::Base::X11::Protocol::Window;
-    my $image_rootwin = Image::Base::X11::Protocol::Window->new
-      (-X            => $X,
-       -width        => $width,
-       -height       => $height,
-       -window       => $rootwin,
-       -colormap     => $colormap);
+  require App::MathImage::Generator::X11;
+  my $gen_options = $self->{'gen_options'};
+  my $x11gen = App::MathImage::Generator::X11->new
+    (%$gen_options,
+     X => $X,
+     window => $rootwin);
+  $x11gen->draw;
 
-    require Image::Base::X11::Protocol::Pixmap;
-    my $image_pixmap = Image::Base::X11::Protocol::Pixmap->new
-      (-X            => $X,
-       -width        => $width,
-       -height       => $height,
-       -colormap     => $colormap,
-       -for_drawable => $rootwin);
-    $pixmap = $image_pixmap->get('-pixmap');
-    ### $pixmap
-
-    require Image::Base::Multiplex;
-    my $image = Image::Base::Multiplex->new
-      (-images => [ $image_pixmap, $image_rootwin ]);
-
-    my $gen = $self->make_generator;
-    $gen->draw_Image ($image);
-
-    ### _image_pixmap_any_allocated_colours: _image_pixmap_any_allocated_colours($image_pixmap)
-    $want_save &&= _image_pixmap_any_allocated_colours($image_pixmap);
-  }
-
-  $X->ChangeWindowAttributes ($rootwin, background_pixmap => $pixmap);
-  $X->ClearArea ($rootwin, 0,0,0,0);
-  $X->FreePixmap ($pixmap);
-
-  # _XSETROOT_ID the same as xsetroot and other rootwin programs do
-  if ($root_visual_dynamic) {
-    my $atom = $X->InternAtom('_XSETROOT_ID', 0);
-    my ($value, $type, $format, $bytes_after)
-      = $X->GetProperty($rootwin, $atom,
-                        0,  # AnyPropertyType
-                        0,  # offset
-                        1,  # length
-                        1); # delete;
-    if ($type == XA_PIXMAP && $format == 32) {
-      my $resource_pixmap = unpack 'L', $value;
-      ### $value
-      ### kill resource_pixmap: sprintf('%#X', $resource_pixmap)
-      if ($resource_pixmap) { # watch out for None, maybe
-        $X->KillClient($resource_pixmap);
-      }
-    }
-
-    ### $want_save
-    if ($want_save) {
-      my $resource_pixmap = $X->new_rsrc;
-      ### save resource_pixmap: sprintf('%#X', $resource_pixmap)
-      $X->CreatePixmap ($resource_pixmap, $rootwin,
-                        1,      # depth, bitmap
-                        1, 1);  # width x height
-      $X->ChangeProperty($rootwin, $atom, XA_PIXMAP,
-                         32,  # format
-                         'Replace',
-                         pack ('L', $resource_pixmap));
-      $X->SetCloseDownMode('RetainPermanent');
-    }
-  }
   $X->QueryPointer($rootwin);  # sync
   return 0;
 }
-
-sub _image_pixmap_any_allocated_colours {
-  my ($image) = @_;
-  my $colour_to_pixel = $image->get('-colour_to_pixel')
-    || return 1;  # umm, dunno
-  %$colour_to_pixel or return 0;  # no colours at all
-
-  my $X        = $image->get('-X');
-  my $screen   = $image->get('-screen');
-  my $colormap = $image->get('-colormap') || return 0;  # no colormap
-
-  my $screen_info = $X->{'screens'}->[$screen];
-  $colormap == $screen_info->{'default_colormap'}
-    || return 1;  # private colormap
-
-  foreach my $pixel (values %$colour_to_pixel) {
-    unless ($pixel == $screen_info->{'black_pixel'}
-            || $pixel == $screen_info->{'white_pixel'}) {
-      return 1;
-    }
-  }
-  return 0; # only black and white and in the default colormap
-}
-
-my %visual_class_is_static = (StaticGray => 1,
-                              StaticColor => 1,
-                              TrueColor => 1);
-# $visual is an XID
-# return true if it has dynamic colour allocations
-sub _X_visual_is_dynamic {
-  my ($X, $visual) = @_;
-  my $visual_info = $X->{'visuals'}->{$visual}
-    || croak "Unknown visual $visual";
-  return $visual_class_is_static{$visual_info->{'class'}};
-}
-
-# # return true if $pixel is one of the screen default colormaps
-# sub _X_pixel_is_black_white {
-#   my ($X, $pixel) = @_;
-#   return ($pixel == $X->{'black_pixel'} || $pixel == $X->{'white_pixel'});
-# }
-# 
-# # return true if $colormap is one of the screen default colormaps
-# sub _X_colormap_is_default {
-#   my ($X, $colormap) = @_;
-#   return List::Util::first
-#     {$colormap == $_->{'default_colormap'}} @{$X->{'screens'}};
-# }
 
 sub show_method_text_list {
   my ($self) = @_;

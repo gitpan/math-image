@@ -30,7 +30,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 36;
+$VERSION = 37;
 
 sub new {
   my ($class, %params) = @_;
@@ -114,7 +114,7 @@ sub _gc_colour {
 
     my $mask = 0; # foreground
     my $values = X::GCValues->new; #  => $pixel
-    X:ChangeGC ($display, $gc, $mask, $values);
+    X::ChangeGC ($display, $gc, $mask, $values);
   }
   return $gc;
 }

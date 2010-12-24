@@ -29,7 +29,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes
@@ -50,7 +50,6 @@ sub new {
   my @array = App::MathImage::Values::Primes::_my_primes_list ($lo, 2*$hi+1);
 
   my $to = 0;
-  my $i = 0;
   my $p = 0;
   for (my $i = 0; $i < @array; $i++) {
     my $prime = $array[$i];

@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -42,7 +42,7 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   $lo = max (1, $lo);
-  
+
   return bless { i => ceil ($lo / PHI),
                }, $class;
 }

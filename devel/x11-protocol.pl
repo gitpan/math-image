@@ -24,6 +24,16 @@ use X11::Protocol;
 
 use Smart::Comments;
 
+{
+  my $X = X11::Protocol->new;
+  $X->GrabServer;
+  $X->GrabServer;
+  $X->UngrabServer;
+  sleep 10;
+  $X->QueryPointer ($X->{'root'});
+  exit 0;
+}
+
 use constant XA_PIXMAP => 20;  # pre-defined atom
 {
   my $X = X11::Protocol->new;

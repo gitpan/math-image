@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -139,7 +139,7 @@ sub diamond {
   ### $a
   ### $b
 
-  my $quad_point
+  my $quad
     = ($fill
        ? sub {
          ### fill: "x=$x y=$y   x ".($x1+$x).' to '.($x2-$x).' y='.($y1+$y)
@@ -162,7 +162,7 @@ sub diamond {
     ### $rem
 
     if ($fill) {
-      &$quad_point ();
+      &$quad ();
       $x -= $whole;
       if (($rem += $a) > 0) {
         $rem -= $b;
@@ -170,12 +170,12 @@ sub diamond {
       }
     } else {
       for (my $i = $whole; $i > 0; $i--) {
-        &$quad_point ();
+        &$quad ();
         $x--;
       }
       if (($rem += $a) > 0) {
         $rem -= $b;
-        &$quad_point ();
+        &$quad ();
         $x--;
       }
     }

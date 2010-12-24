@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,7 +40,7 @@ $VERSION = 36;
 # http://www.research.att.com/~njas/sequences/A020991
 #     Highest occurrance of N in the partial sums.
 #
-# 
+#
 #
 use constant name => __('Golay Rudin Shapiro');
 use constant description => __('Numbers which have an odd number of "11" bit pairs in binary.');
@@ -54,7 +54,7 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   $lo = max (0, $lo);
-  
+
   return bless { i => $lo,
                }, $class;
 }

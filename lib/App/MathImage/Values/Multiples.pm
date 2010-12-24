@@ -26,13 +26,13 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
 use constant parameters => { multiples => { type => 'integer',
                                             default => 29,
-                                          }
+                                          },
                            };
 
 sub new {

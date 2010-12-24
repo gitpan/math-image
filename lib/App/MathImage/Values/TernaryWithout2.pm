@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
 
 use constant name => __('Ternary without 2s');
 use constant description => __('The integers without any 2 digits when written out in ternary (base 3).');
@@ -41,7 +41,7 @@ sub new {
 
   # look at the base 3 digits of $n, build $i by treating them as binary,
   # increment any "2" digits to go to the next without 2s
-  my $i = 0; 
+  my $i = 0;
   my $power = 1;
   while ($n) {
     my $rem = $n % 3;

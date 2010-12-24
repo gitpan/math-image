@@ -32,18 +32,18 @@ use List::Util qw(max);
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 36;
+our $VERSION = 37;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
-  signals => { notify => \&_do_notify,
+  signals => { # notify => \&_do_notify,
                create_menu_proxy => \&_do_create_menu_proxy,
              },
   properties => [ Glib::ParamSpec->boolean
                   ('active',
                    'active',
-                   'Gdk Pixbuf file save format, such as "png".',
-                   'png',
+                   'Blurb.',
+                   1,
                    Glib::G_PARAM_READWRITE),
                 ];
 
@@ -108,7 +108,7 @@ sub _do_create_menu_proxy {
   return 1;
 }
 
-sub _do_menuitem_notify {
+sub _do_checkbutton_notify {
   my ($menuitem, $pspec, $ref_weak_self) = @_;
   if (my $self = $$ref_weak_self) {
     $self->get_child->set_active($menuitem->get_active);
@@ -119,11 +119,11 @@ sub _do_menuitem_notify {
 1;
 __END__
 
-=for stopwords Gtk Gtk2 Perl-Gtk ToolItem Gdk Pixbuf Gtk
+=for stopwords Gtk Gtk2 Perl-Gtk ToolItem Gdk Pixbuf Gtk toolitem boolean
 
 =head1 NAME
 
-App::MathImage::Gtk2::Ex::ToolItem::CheckButton -- toolitem for Gdk Pixbuf file types
+App::MathImage::Gtk2::Ex::ToolItem::CheckButton -- toolitem for a check button
 
 =head1 SYNOPSIS
 

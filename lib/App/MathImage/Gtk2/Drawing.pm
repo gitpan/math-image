@@ -42,9 +42,10 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 36;
+our $VERSION = 37;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
+use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
@@ -86,7 +87,7 @@ use Glib::Object::Subclass
              },
   properties => [ Glib::ParamSpec->enum
                   ('values',
-                   'values',
+                   'Values',
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::Values',
                    App::MathImage::Generator->default_options->{'values'},
@@ -516,7 +517,9 @@ sub gen_object {
      'red', 'blue', 'green');
   my $path_rotation_type = $self->get('path-rotation-type');
   return App::MathImage::Generator->new
-    (values          => $self->get('values'),
+    (step_time       => _IDLE_TIME_SLICE,
+     step_figures    => _IDLE_TIME_FIGURES,
+     values          => $self->get('values'),
      path            => $self->get('path'),
      scale           => $self->get('scale'),
      figure          => $self->get('figure'),
@@ -532,7 +535,7 @@ sub gen_object {
      radix           => $self->get('values-radix'),
      ($path_rotation_type eq 'custom'
       ? (path_rotation_factor => $self->get('path-rotation-factor'))
-      : (path_rotation_type  => $path_rotation_type)),     
+      : (path_rotation_type  => $path_rotation_type)),
      path_radius_factor  => $self->get('path-radius-factor'),
      pyramid_step    => $self->get('pyramid-step'),
      rings_step      => $self->get('rings-step'),
@@ -588,7 +591,7 @@ sub start_drawing_window {
        -width      => $width,
        -height     => $height);
   my $pixmap = $self->{'drawing'}->{'pixmap'} = $image->get('-pixmap');
-  if ($self->window && $window == $self->window) { 
+  if ($self->window && $window == $self->window) {
     $self->{'pixmap'} = $pixmap; # not if drawing to root window
   }
   my $background_gc = $self->style->bg_gc($self->state);
@@ -707,6 +710,7 @@ sub _drawing_finished {
   #### $self
 }
 
+
 # _gettime() returns a floating point count of seconds since some fixed but
 # unspecified origin time.
 #
@@ -770,10 +774,6 @@ sub _centre_basis {
   Module::Load::load ($path_class);
   return (($path_class->x_negative || $path eq 'MultipleRings'),
           ($path_class->y_negative || $path eq 'MultipleRings'));
-}
-
-sub _xy_left {
-  my ($self) = @_;
 }
 
 # 'button-press-event' class closure
