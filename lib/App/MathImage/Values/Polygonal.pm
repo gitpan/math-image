@@ -24,45 +24,64 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Polygonal Numbers');
 # use constant description => __('');
+use constant parameter_list => ({ name    => 'polygonal',
+                                  display => __('Polygonal'),
+                                  type    => 'integer',
+                                  default => 5,
+                                  minimum => 3,
+                                  description => __('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'),
+                                },
+                                App::MathImage::Values->parameter_common_pairs,
+                               );
 
 my @oeis = (undef, # 0
             undef, # 1
             undef, # 2
-            'A000217', # 3 triangular
-            'A000290', # 4 squares
-            'A000326', # 5 pentagonal
-            'A000384', # 6 hexagonal
-            'A000566', # 7 heptagonal
-            'A000567', # 8 octagonal
-            'A001106', # 9 nonagonal
-            'A001107', # 10 decogaonal
-            'A051682', # 11 hendecagonal
-            'A051624', # 12-gonal
-            'A051865', # 13 tridecagonal
-            'A051866', # 14-gonal
-            'A051867', # 15
-            'A051868', # 16
-            'A051869', # 17
-            'A051870', # 18
-            'A051871', # 19
-            'A051872', # 20
-            'A051873', # 21
-            'A051874', # 22
-            'A051875', # 23
-            'A051876', # 24
+            { first  =>  'A000217' }, # 3 triangular
+            { first  =>  'A000290' }, # 4 squares
+            { first  => 'A000326',   # 5 pentagonal
+              second => 'A005449',
+              both   => 'A001318',
+            },
+            { first  => 'A000384',   # 6 hexagonal
+              second => 'A014105',
+              both   => '',
+            },
+            { first  => 'A000566' }, # 7 heptagonal
+            { first  =>  'A000567' }, # 8 octagonal
+            { first  =>  'A001106' }, # 9 nonagonal
+            { first  =>  'A001107' }, # 10 decogaonal
+            { first  =>  'A051682' }, # 11 hendecagonal
+            { first  =>  'A051624' }, # 12-gonal
+            { first  =>  'A051865' }, # 13 tridecagonal
+            { first  =>  'A051866' }, # 14-gonal
+            { first  =>  'A051867' }, # 15
+            { first  =>  'A051868' }, # 16
+            { first  =>  'A051869' }, # 17
+            { first  =>  'A051870' }, # 18
+            { first  =>  'A051871' }, # 19
+            { first  =>  'A051872' }, # 20
+            { first  =>  'A051873' }, # 21
+            { first  =>  'A051874' }, # 22
+            { first  =>  'A051875' }, # 23
+            { first  =>  'A051876' }, # 24
            );
 sub oeis {
   my ($class_or_self) = @_;
-  return $oeis[ref $class_or_self
-               ? $class_or_self->{'k'}
-               : 2];
+  my $k = (ref $class_or_self
+           ? $class_or_self->{'k'}
+           : $class_or_self->parameter_default('polygonal'));
+  my $pairs = (ref $class_or_self
+               ? $class_or_self->{'pairs'}
+               : $class_or_self->parameter_default('pairs'));
+  return $oeis[$k]->{$pairs};
 }
 
 # ($k-2)*$i*($i+1)/2 - ($k-3)*$i
@@ -82,8 +101,21 @@ sub oeis {
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
-  return bless { i => 0,
-                 k => $options{'polygonal'} || 2,
+
+  my $k = $options{'polygonal'} || 2;
+  my $add = - $k + 4;
+  my $pairs = $options{'pairs'} || 'first';
+  if ($k >= 5) {
+    if ($pairs eq 'second') {
+      $add = - $add;
+    } elsif ($pairs eq 'both') {
+      $add = - abs($add);
+    }
+  }
+  return bless { pairs => $pairs,
+                 k     => $k,
+                 add   => $add,
+                 i     => 0,
                }, $class;
 }
 sub next {
@@ -100,7 +132,15 @@ sub ith {
       return;
     }
   }
-  return 0.5 * $i * (($k-2)*$i - $k + 4);
+  if ($self->{'pairs'} eq 'both') {
+    if ($i & 1) {
+      $i = ($i+1)/2;
+    } else {
+      $i = -$i/2;
+    }
+  }
+  ### $i
+  return $i * (($k-2)*$i + $self->{'add'}) * 0.5;
 }
 
 # k=3  -1/2 + sqrt(2/1 * $n + 1/4)
@@ -111,13 +151,19 @@ sub ith {
 # k=8  4/12 + sqrt(2/6 * $n + 1/9)
 sub pred {
   my ($self, $n) = @_;
-  return ($n <= 0
-          ? ($n == 0)
-          : do {
-            my $k = $self->{'k'};
-            my $sqrt = (sqrt(8*($k-2) * $n + (4-$k)**2) + $k-4) / (2*($k-2));
-            (int($sqrt) == $sqrt)
-          });
+  if ($n <= 0) {
+    return ($n == 0);
+  }
+  my $k = $self->{'k'};
+  my $sqrt = sqrt(8*($k-2) * $n + (4-$k)**2);
+  if ($self->{'pairs'} eq 'both') {
+    my $other = ($sqrt + $self->{'add'}) / (2*($k-2));
+    if (int($other) == $other) {
+      return 1;
+    }
+  }
+  $sqrt = ($sqrt - $self->{'add'}) / (2*($k-2));
+  return (int($sqrt) == $sqrt);
 
 }
 

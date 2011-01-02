@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,15 +23,17 @@ use Carp;
 use POSIX 'floor', 'ceil';
 use Module::Load;
 use Module::Util;
+use Time::HiRes;
 use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
+#use Smart::Comments;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -45,6 +47,8 @@ use constant default_options => {
                                  sqrt         => '2',
                                  polygonal    => 5,
                                  multiples    => 90,
+                                 parity       => 'odd',
+                                 pairs        => 'first',
                                  radix        => 10,
                                  aronson_lang         => 'en',
                                  aronson_letter       => '',
@@ -79,7 +83,8 @@ use constant values_choices => do {
   if (! defined (Module::Util::find_installed('Math::Aronson'))) {
     delete $choices{'Aronson'};
   }
-  if (! defined (Module::Util::find_installed('Math::Symbolic'))) {
+  if (! defined (Module::Util::find_installed('Math::Symbolic'))
+      && ! defined (Module::Util::find_installed('Math::Expression::Evaluator'))) {
     delete $choices{'Expression'};
   }
   my @choices;
@@ -87,8 +92,6 @@ use constant values_choices => do {
                          CountPrimeFactors
                          MobiusFunction
                          TwinPrimes
-                         TwinPrimes1
-                         TwinPrimes2
                          SophieGermainPrimes
                          SafePrimes
                          SemiPrimes
@@ -100,8 +103,6 @@ use constant values_choices => do {
                          Pronic
                          Triangular
                          Pentagonal
-                         PentagonalSecond
-                         PentagonalGeneralized
                          Polygonal
                          StarNumbers
                          Cubes
@@ -112,18 +113,17 @@ use constant values_choices => do {
                          Padovan
                          Tribonacci
                          Factorials
-                         FractionBits
+                         FractionDigits
+                         SqrtDigits
                          PiBits
                          Ln2Bits
-                         SqrtBits
                          Odd
                          Even
                          All
                          Aronson
                          PellNumbers
                          GoldenSequence
-                         ThueMorseEvil
-                         ThueMorseOdious
+                         ThueMorse
                          ChampernowneBinary
                          ChampernowneBinaryLsb
                          BinaryLengths
@@ -132,6 +132,7 @@ use constant values_choices => do {
                          PrimeQuadraticHonaker
                          Repdigits
                          RepdigitAnyBase
+                         Beastly
                          UndulatingNumbers
                          TernaryWithout2
                          Base4Without3
@@ -180,8 +181,9 @@ use constant path_choices => qw(SquareSpiral
                                 HilbertCurve
                                 ZOrderCurve
 
+                                PeanoCurve
+                                Staircase
                                 ArchimedeanSpiral
-                                Hilbert33
                                 OctagramSpiral
                               );
 
@@ -235,18 +237,15 @@ sub random_options {
   my ($path, $values) = @{_rand_of_array(\@path_and_values)};
 
   my $radix;
-  if ($values eq 'Repdigits') {
+  if ($values eq 'Repdigits' || $values eq 'Beastly') {
     $radix = _rand_of_array([2 .. 128,
                              (10) x 50]); # bias mostly 10
-  } else {
+  } elsif ($values eq 'Emirps') {
     # for Emirps not too big or round up to 2^base becomes slow
     $radix = _rand_of_array([2,3,4,8,16,
                              10,10,10,10]); # bias mostly 10
-  }
-
-  if ($values eq 'Emirps') {
-    # not too big or round up to 2^base becomes slow
-    $radix = _rand_of_array([2,4,8,10,16]);
+  } else {
+    $radix = _rand_of_array([2 .. 36]);
   }
 
   my $scale = _rand_of_array([1, 3, 5, 10, 15, 20]);
@@ -301,6 +300,9 @@ sub random_options {
           aronson_lang         => _rand_of_array(['en','fr']),
           aronson_conjunctions => int(rand(2)),
           aronson_lying        => (rand() < .25), # less likely
+          parity               => _rand_of_array(['odd','even']),
+          pairs                => _rand_of_array(['first','second','both']),
+          #
           # FIXME: don't want to filter out everything ... have values
           # classes declare their compositeness, parity, etc
           # filter           => _rand_of_array(['All','All','All',
@@ -341,19 +343,28 @@ sub description {
   # prefer just the classname for a semi-technical descriptive summary
   $ret .= " $self->{'values'}";
 
-  if ($self->{'values'} eq 'Fraction') {
-    $ret .= " $self->{'fraction'}";
-  } elsif ($self->{'values'} eq 'Expression') {
-    $ret .= " $self->{'expression'}";
-  } elsif ($self->{'values'} eq 'SqrtBits') {
-    $ret .= " $self->{'sqrt'}";
-  } elsif ($self->{'values'} eq 'Polygonal') {
-    $ret .= " $self->{'polygonal'}";
-  } elsif ($self->{'values'} eq 'Multiples') {
-    $ret .= " $self->{'multiples'}";
-  } elsif ($self->values_class->parameters->{'radix'}) {
-    $ret .= " base$self->{'radix'}";
-  } elsif ($self->{'values'} eq 'Aronson') {
+  my $values = $self->{'values'};
+  my $values_class = $self->values_class($values);
+
+  foreach my $pinfo ($values_class->parameter_list) {
+    $ret .= ' ';
+    my $pname = $pinfo->{'name'};
+    if (defined $self->{$pname}) {
+      if ($pname eq 'sqrt') {
+        $ret .= 'sqrt';
+      } elsif ($pname eq 'radix') {
+        $ret .= 'base';
+      }
+      $ret .= ' '.$self->{$pname};
+    }
+  }
+
+  # } elsif ($self->{'values'} eq 'ThueMorse') {
+  #   $ret .= ' '.($self->{'parity'} eq 'odd' ? __('odd') : __('even'));
+
+  # } elsif ($self->{'values'} eq 'Polygonal') {
+  #     $ret .= ' '.$self->{'pairs'};
+  if ($values eq 'Aronson') {
     my $lang = $self->{'aronson_lang'};
     if ($lang ne default_options()->{'aronson_lang'}) {
       $ret .= " $lang";
@@ -426,11 +437,11 @@ sub coord_object {
                   : -1);
     my $x_origin
       = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
-         : $self->x_negative ? int ($self->{'width'} / 2)
+         : $path_object->x_negative ? int ($self->{'width'} / 2)
          : $offset);
     my $y_origin
       = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
-         : $self->y_negative ? int ($self->{'height'} / 2)
+         : $path_object->y_negative ? int ($self->{'height'} / 2)
          : $invert > 0 ? $offset
          : $self->{'height'} - $self->{'scale'} + $offset);
     ### x_negative: $path_object->x_negative
@@ -446,152 +457,6 @@ sub coord_object {
          y_scale  => $self->{'scale'} * $invert);
   });
 }
-
-sub x_negative {
-  my ($self) = @_;
-  return ($self->{'path'} eq 'MultipleRings'
-          || $self->path_object->x_negative);
-}
-sub y_negative {
-  my ($self) = @_;
-  return ($self->{'path'} eq 'MultipleRings'
-          || $self->path_object->y_negative);
-}
-
-# binary form gets too big to prime check
-# sub values_make_binary_primes {
-#   my ($self, $lo, $hi) = @_;
-# 
-#   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.22);
-#   my $i = 1;
-#   return sub {
-#     for (;;) {
-#       $i += 2;
-#       if (Math::Prime::XS::is_prime($i)) {
-#         return $i;
-#       }
-#     }
-#   };
-# }
-
-sub make_iter_empty {
-  my ($self) = @_;
-  return $self->make_iter_arrayref([]);
-}
-sub make_iter_arrayref {
-  my ($self, $arrayref) = @_;
-  $self->{'iter_arrayref'} = $arrayref;
-  my $i = 0;
-  return sub {
-    return $arrayref->[$i++];
-  };
-}
-
-# http://www.research.att.com/~njas/sequences/A001333
-#    -- sqrt(2) convergents numerators
-# http://www.research.att.com/~njas/sequences/A000129
-#    -- Pell numbers, sqrt(2) convergents numerators
-# http://www.research.att.com/~njas/sequences/A002965
-#    -- interleaved
-#
-# $values_info{'columns_of_pythagoras'} =
-#   { subr => \&values_make_columns_of_pythagoras,
-#     name => __('Columns of Pythagoras'),
-#     # description => __('The ....'),
-#   };
-sub values_make_columns_of_pythagoras {
-  my ($self, $lo, $hi) = @_;
-  my $a = 1;
-  my $b = 1;
-  my $c;
-  return sub {
-    if (! defined $c) {
-      $c = $a + $b;
-      return $c;
-    } else {
-      $b = $a + $c;
-      $a = $c;
-      undef $c;
-      return $b;
-    }
-  };
-}
-
-# prime to test much too big too quickly without some special strategy ...
-#
-# $values_info{'binary_primes'} =
-#   { subr => \&values_make_binary_primes,
-#     pred => \&is_binary_prime,
-#     name => __('Binary is Decimal Prime'),
-#     description => __('Numbers which when written out in binary are a decimal prime.  For example 185 is 10011101 which in decimal is a prime.'),
-#   };
-# sub values_make_binary_primes {
-#   my ($self, $lo, $hi) = @_;
-#   require Math::Prime::XS;
-#   Math::Prime::XS->VERSION (0.22);
-#   my $n = $lo-1;
-#   return sub {
-#     for (;;) {
-#       if (++$n > $hi) {
-#         return undef;
-#       }
-#       if ($self->is_binary_prime($n)) {
-#         ### return: $n
-#         return $n;
-#       }
-#     }
-#   };
-#   # require Math::BaseCnv;
-#   # ### primes hi: sprintf('%b', $hi+1)
-#   # my @array = map {Math::BaseCnv::cnv($_,2,10)}
-#   #   grep {/^[01]+$/}
-#   #   Math::Prime::XS::sieve_primes (sprintf('%b', $lo),
-#   #                                  sprintf('%b', $hi+1));
-#   # @array = @array;
-#   # return $self->make_iter_arrayref (\@array);
-# }
-# sub is_binary_prime {
-#   my ($self, $n) = @_;
-#   ### $n
-#   ### binary: sprintf('%b',$n)
-#   # my $p = Math::Prime::XS::is_prime(sprintf('%b',$n));
-#   # ### isprime: $p
-#   return Math::Prime::XS::is_prime(sprintf('%b',$n))
-# }
-
-# use constant::defer bigint => sub {
-#   require Math::BigInt;
-#   Math::BigInt->import (try => 'GMP');
-#   undef;
-# };
-# 
-# # FIXME: although this converges much too slowly
-# sub values_make_ln3 {
-#   my ($self, $lo, $hi) = @_;
-# 
-#   bigint();
-#   my $calcbits = int($hi * 1.5 + 20);
-#   ### $calcbits
-#   my $total = Math::BigInt->new(0);
-#   my $num = Math::BigInt->new(1);
-#   $num->blsft ($calcbits);
-#   for (my $k = 0; ; $k++) {
-#     my $den = 2*$k + 1;
-#     my $q = $num / $den;
-#     $total->badd ($q);
-#     #     printf("1 / 4**%-2d * %2d   %*s\n", $k, 2*$k+1,
-#     #            $calcbits/4+3, $q->as_hex);
-#     $num->brsft(2);
-#     if ($num < $den) {
-#       last;
-#     }
-#   }
-#   #   print $total->as_hex,"\n";
-#   #   print $total,"\n";
-#   #   print $total->numify / 2**$bits,"\n";
-#   return binary_positions($total, $hi);
-# }
 
 use constant _POINTS_CHUNKS     => 200 * 2;  # of X,Y
 use constant _RECTANGLES_CHUNKS => 200 * 4;  # of X1,Y1,X2,Y2
@@ -610,8 +475,8 @@ sub covers_plane {
   }
   my $coord_object = $self->coord_object;
   my ($wx,$wy) = $coord_object->transform(-.5,-.5);
-  if (! $self->x_negative && $wx > 0
-      || ! $self->y_negative && $wy < $self->{'height'}-1) {
+  if (! $path_object->x_negative && $wx > 0
+      || ! $path_object->y_negative && $wy < $self->{'height'}-1) {
     return 0;
   }
   return 1;
@@ -650,7 +515,7 @@ sub colours_grey_exp {
 sub colours_grey_linear {
   my ($self, $n) = @_;
   my $colours = $self->{'colours'} = [];
-  foreach my $i (reverse 0 .. $n-1) {
+  foreach my $i (0 .. $n-1) {
     my $c = 255 * $i / ($n-1);
     push @$colours, sprintf '#%02X%02X%02X', $c, $c, $c;
   }
@@ -745,14 +610,21 @@ sub draw_Image_start {
                             hi => $n_hi);
 
     if ($values_obj->type eq 'count1') {
-      $self->{'use_count1_iter'} = 1;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours_offset'} = 0;
         $self->{'colours'} = [ 0 .. 9 ];
       } else {
         $self->{'colours_offset'} = 1;
-        # $self->colours_grey_linear(8);
         $self->colours_grey_exp ($self);
+      }
+      push @colours, @{$self->{'colours'}};
+
+    } elsif ($values_obj->type eq 'radix') {
+      $self->{'colours_offset'} = 0;
+      if ($image->isa('Image::Base::Text')) {
+        $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
+      } else {
+        $self->colours_grey_linear($values_obj->{'radix'});
       }
       push @colours, @{$self->{'colours'}};
     }
@@ -771,10 +643,11 @@ sub draw_Image_start {
   }
 }
 
-my %figure_is_circular = (diamond => 1,
-                          plus    => 1,
-                          circle  => 1,
+my %figure_is_circular = (circle  => 1,
+                          ring    => 1,
                           point   => 1,
+                          diamond => 1,
+                          plus    => 1,
                          );
 my %figure_fill = (square  => 1,
                    circle  => 1,
@@ -984,14 +857,14 @@ sub draw_Image_steps {
   my $colours = $self->{'colours'};
   my $colours_offset = $self->{'colours_offset'};
   my $colour = $foreground;
-  my $type_count1 = $values_obj->type eq 'count1';
+  my $type_use_colours = ($values_obj->type ne 'seq');
   my $n;
 
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
     my $y    = $self->{'y'};
-    #### draw by xy: $type_count1, $values_obj->type
+    #### draw by xy: $type_use_colours, $values_obj->type
     #### xy from: "$x,$y"
 
     for (;;) {
@@ -1056,7 +929,7 @@ sub draw_Image_steps {
       $wy = floor ($wy - $offset + 0.5);
       ### win: "$wx,$wy"
 
-      if ($type_count1) {
+      if ($type_use_colours) {
         $colour = $colours->[min ($#$colours,
                                   max (0, $count1 - $colours_offset))];
         #### $colour
@@ -1098,6 +971,7 @@ sub draw_Image_steps {
       ($n, my $count1) = $values_obj->next;
       ### $n_prev
       ### $n
+      ### $count1
       if (! defined $n || $n > $n_hi) {
         ### final background fill
         $background_fill_proc->($n_hi);
@@ -1108,7 +982,7 @@ sub draw_Image_steps {
       my ($x, $y) = $path_object->n_to_xy($n) or next;
       ### path: "$x,$y"
 
-      if ($type_count1) {
+      if ($type_use_colours) {
         if (! defined $count1 || $count1 == 0) {
           next; # background
         }

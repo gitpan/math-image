@@ -19,9 +19,14 @@ package App::MathImage::Values;
 use 5.004;
 use strict;
 use warnings;
+use Memoize;
+use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 sub name {
   my ($class_or_self) = @_;
@@ -32,11 +37,44 @@ sub name {
 
 use constant type => 'seq';
 use constant description => undef;
-use constant parameters => {};
+use constant parameter_list => ();
 use constant density => 'unknown';
 use constant oeis => undef;
 
 use constant finish => undef;
 
+sub parameter_hash {
+  my ($class_or_self) = @_;
+  return { map {($_->{'name'} => $_)} $class_or_self->parameter_list };
+}
+memoize('parameter_hash');
+
+sub parameter_default {
+  my ($class_or_self, $name) = @_;
+  ### Values parameter_default: @_
+  ### info: $class_or_self->parameter_hash->{$name}
+  my $info;
+  return (($info = $class_or_self->parameter_hash->{$name})
+          && $info->{'default'});
+}
+
+use constant parameter_common_radix
+  => { name    => 'radix',
+       type    => 'integer',
+       display => __('Radix'),
+       default => 10,
+       minimum => 2,
+       width   => 4,
+       description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
+     };
+use constant parameter_common_pairs
+  => { name    => 'pairs',
+       display => __('Pairs'),
+       type    => 'enum',
+       default => 'first',
+       choices => ['first','second','both'],
+       choices_display => [__('First'),__('Second'),__('Both')],
+       description => __('Which of a pair of values to show.'),
+     };
 1;
 __END__

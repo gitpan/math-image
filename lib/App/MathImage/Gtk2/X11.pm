@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -21,6 +21,7 @@ use 5.008;
 use strict;
 use warnings;
 use Carp;
+use Glib 1.220;
 use Gtk2 1.220;
 use Scalar::Util;
 
@@ -29,7 +30,7 @@ use Glib::Ex::SourceIds;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 37;
+our $VERSION = 38;
 
 sub new {
   my ($class, %self) = @_;
@@ -51,7 +52,7 @@ sub new {
                           ['in', 'hup', 'err'],
                           \&_do_read,
                           \$weak_self,
-                          Gtk2::GDK_PRIORITY_REDRAW() + 10));
+                          Gtk2::GTK_PRIORITY_RESIZE() + 10));
   ### fileno: fileno($X->{'connection'}->fh)
 
   my ($width, $height)  = $gdk_window->get_size;

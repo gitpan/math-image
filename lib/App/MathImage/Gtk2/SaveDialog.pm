@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Ex::PixbufBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 37;
+our $VERSION = 38;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -197,13 +197,13 @@ sub save {
                                                      0,0, 0,0,
                                                      $pixmap->get_size);
   my $values = $draw->get('values');
-  if ($values eq 'Fraction' || $values eq 'Expression'
-      || $values eq 'Polygonal' || $values eq 'Multiples'
-      || $values eq 'SqrtBits') {
-    my $pname = lc($values);
-    $pname =~ s/bits$//;
-    $values .= ' '.$draw->get($pname);
-  }
+  # if ($values eq 'FractionDigits' || $values eq 'Expression'
+  #     || $values eq 'Polygonal' || $values eq 'Multiples'
+  #     || $values eq 'SqrtDigits') {
+  #   my $pname = lc($values);
+  #   $pname =~ s/digits$//;
+  #   $values .= ' '.$draw->get("values-$pname");
+  # }
 
   my $path = $draw->get('path');
   # my $scale = $draw->get('scale');

@@ -38,11 +38,12 @@ use Gtk2::Ex::GdkBits 23; # v.23 for window_clear_region()
 
 use App::MathImage::Generator;
 use App::MathImage::Gtk2::Drawing::Values;
+use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 37;
+our $VERSION = 38;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -50,19 +51,6 @@ use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Path',
                              App::MathImage::Generator->path_choices);
-
-  my @langs = ('en', 'fr');
-  # Can't offer all langs as there's no "initial_string" except en and fr
-  # if (eval { require Lingua::Any::Numbers }) {
-  #   push @langs, sort map {lc} Lingua::Any::Numbers::available();
-  #   @langs = List::MoreUtils::uniq (@langs);
-  # }
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::AronsonLang',
-                             @langs);
-  %App::MathImage::Gtk2::Drawing::AronsonLang::EnumBits_to_display
-    = ((map {($_,uc($_))} @langs),
-       en => __('English'),
-       fr => __('French'));
 
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Filters',
                              'All', 'Odd', 'Even', 'Primes');
@@ -75,6 +63,11 @@ BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::RotationType',
                              'phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom');
 
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Parity',
+                             'odd', 'even');
+  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Pairs',
+                             'first', 'second', 'both');
+
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::FigureType',
                              App::MathImage::Generator->figure_choices);
 }
@@ -84,6 +77,7 @@ use Glib::Object::Subclass
   signals => { expose_event => \&_do_expose,
                size_allocate => \&_do_size_allocate,
                button_press_event => \&_do_button_press,
+               scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
              },
   properties => [ Glib::ParamSpec->enum
                   ('values',
@@ -95,15 +89,30 @@ use Glib::Object::Subclass
 
                   Glib::ParamSpec->enum
                   ('filter',
-                   'filter',
+                   'Filter',
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::Filters',
                    App::MathImage::Generator->default_options->{'filter'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->enum
+                  ('values-parity',
+                   __('Parity'),
+                   'Blurb.',
+                   'App::MathImage::Gtk2::Drawing::Parity',
+                   App::MathImage::Generator->default_options->{'parity'},
+                   Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->enum
+                  ('values-pairs',
+                   __('Pairs'),
+                   'Blurb.',
+                   'App::MathImage::Gtk2::Drawing::Pairs',
+                   App::MathImage::Generator->default_options->{'pairs'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->enum
                   ('path',
-                   'path',
+                   'Path type',
                    'Blurb.',
                    'App::MathImage::Gtk2::Drawing::Path',
                    App::MathImage::Generator->default_options->{'path'},
@@ -111,70 +120,76 @@ use Glib::Object::Subclass
 
                   Glib::ParamSpec->int
                   ('scale',
-                   'scale',
+                   'Scale pixels',
                    'Blurb.',
                    1, POSIX::INT_MAX(),
                    App::MathImage::Generator->default_options->{'scale'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
-                  ('fraction',
-                   'fraction',
+                  ('values-fraction',
+                   __('Fraction'),
                    'Blurb.',
                    App::MathImage::Generator->default_options->{'fraction'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
-                  ('expression',
-                   'expression',
+                  ('values-expression',
+                   __('Expression'),
                    'Blurb.',
                    App::MathImage::Generator->default_options->{'expression'},
                    Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->string
+                  ('values-expression-evaluator',
+                   'Expression Evaluator',
+                   'Blurb.',
+                   '',
+                   Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
-                  ('aronson-lang',
+                  ('values-aronson_lang',
                    'aronson-lang',
                    'Blurb.',
                    'en',      # default
                    Glib::G_PARAM_READWRITE),
                   Glib::ParamSpec->string
-                  ('aronson-letter',
+                  ('values-aronson_letter',
                    'aronson-letter',
                    'Blurb.',
                    '', # default
                    Glib::G_PARAM_READWRITE),
                   Glib::ParamSpec->boolean
-                  ('aronson-conjunctions',
+                  ('values-aronson_conjunctions',
                    'aronson-conjunctions',
                    'Blurb.',
                    1,      # default
                    Glib::G_PARAM_READWRITE),
                   Glib::ParamSpec->boolean
-                  ('aronson-lying',
+                  ('values-aronson_lying',
                    'aronson-lying',
                    'Blurb.',
                    0,      # default
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
-                  ('sqrt',
-                   'sqrt',
+                  ('values-sqrt',
+                   'Square root',
                    'Blurb.',
                    0, POSIX::INT_MAX(),
                    App::MathImage::Generator->default_options->{'sqrt'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
-                  ('polygonal',
-                   'polygonal',
+                  ('values-polygonal',
+                   __('Polygonal'),
                    'Blurb.',
                    2, POSIX::INT_MAX(),
                    App::MathImage::Generator->default_options->{'polygonal'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->double
-                  ('multiples',
-                   'multiples',
+                  ('values-multiples',
+                   'Multiples',
                    'Blurb.',
                    - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
                    App::MathImage::Generator->default_options->{'multiples'},
@@ -184,8 +199,8 @@ use Glib::Object::Subclass
                   ('values-radix',
                    'values-radix',
                    'Blurb.',
-                   1, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'radix'},
+                   2, POSIX::INT_MAX(),
+                   2, # App::MathImage::Generator->default_options->{'radix'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -453,7 +468,7 @@ sub _do_expose {
 #     $self->get_display->sync;
 #     $self->{'idle_ids'}= Glib::Ex::SourceIds->new
 #       (Glib::Idle->add (\&_do_idle, \$weak_self,
-#                         Gtk2::GDK_PRIORITY_REDRAW() + 2000));
+#                         Gtk2::GTK_PRIORITY_RESIZE() + 2000));
 #   }
 # sub _do_idle {
 #   my ($ref_weak_self) = @_;
@@ -523,15 +538,18 @@ sub gen_object {
      path            => $self->get('path'),
      scale           => $self->get('scale'),
      figure          => $self->get('figure'),
-     fraction        => $self->get('fraction'),
-     expression      => $self->get('expression'),
-     aronson_lang         => $self->get('aronson-lang'),
-     aronson_letter       => $self->get('aronson-letter'),
-     aronson_conjunctions => $self->get('aronson-conjunctions'),
-     aronson_lying        => $self->get('aronson-lying'),
-     sqrt            => $self->get('sqrt'),
-     polygonal       => $self->get('polygonal'),
-     multiples       => $self->get('multiples'),
+     parity          => $self->get('values-parity'),
+     pairs           => $self->get('values-pairs'),
+     fraction        => $self->get('values-fraction'),
+     expression      => $self->get('values-expression'),
+     expression_evaluator => $self->get('values-expression-evaluator'),
+     aronson_lang         => $self->get('values-aronson_lang'),
+     aronson_letter       => $self->get('values-aronson_letter'),
+     aronson_conjunctions => $self->get('values-aronson_conjunctions'),
+     aronson_lying        => $self->get('values-aronson_lying'),
+     sqrt            => $self->get('values-sqrt'),
+     polygonal       => $self->get('values-polygonal'),
+     multiples       => $self->get('values-multiples'),
      radix           => $self->get('values-radix'),
      ($path_rotation_type eq 'custom'
       ? (path_rotation_factor => $self->get('path-rotation-factor'))
@@ -552,11 +570,11 @@ sub gen_object {
 }
 sub x_negative {
   my ($self) = @_;
-  return $self->gen_object->x_negative;
+  return $self->gen_object->path_object->x_negative;
 }
 sub y_negative {
   my ($self) = @_;
-  return $self->gen_object->y_negative;
+  return $self->gen_object->path_object->y_negative;
 }
 
 sub start_drawing_window {
@@ -644,10 +662,11 @@ sub _sync_handler {
       && ($drawing = $self->{'drawing'})) {
     $drawing->{'sync_pending'} = 0;
     ### add idle
+    $self->{'drawing'}->{'idle_ids'} ||= Glib::Ex::SourceIds->new;
     $drawing->{'idle_ids'}->add
       (Glib::Idle->add (\&_idle_handler_draw,
                         $ref_weak_self,
-                        Gtk2::GDK_PRIORITY_REDRAW() + 10));
+                        Gtk2::GTK_PRIORITY_RESIZE() + 10));
   }
 }
 
@@ -655,13 +674,13 @@ sub _idle_handler_draw {
   my ($ref_weak_self) = @_;
   ### _idle_handler_draw()
 
-  my ($self, $drawing);
+  my ($self, $drawing, $gen);
   if (($self = $$ref_weak_self)
-      && ($drawing = $self->{'drawing'})) {
+      && ($drawing = $self->{'drawing'})
+      && ($gen = $drawing->{'gen'})) {
     $drawing->{'idle_ids'}->remove;
 
     my $image = $drawing->{'image'};
-    my $gen   = $drawing->{'gen'};
     my $steps = $drawing->{'steps'};
     ### $steps
     my $t1 = _gettime();
@@ -769,17 +788,40 @@ sub _centre_values {
 }
 sub _centre_basis {
   my ($self) = @_;
-  my $path = $self->get('path');
-  my $path_class = App::MathImage::Generator->path_choice_to_class($path);
-  Module::Load::load ($path_class);
-  return (($path_class->x_negative || $path eq 'MultipleRings'),
-          ($path_class->y_negative || $path eq 'MultipleRings'));
+  return ($self->x_negative,
+          $self->y_negative);
+  # return (($self->x_negative || $path eq 'MultipleRings'),
+  #         ($self->y_negative || $path eq 'MultipleRings'));
+}
+
+my %scroll_direction_to_vh = (left  => 'h',
+                              right => 'h',
+                              up   => 'v',
+                              down => 'v');
+my %scroll_direction_to_inv = (left  => 1,
+                               right => 0,
+                               up   => 1,
+                               down => 0);
+# 'scroll-event' class closure
+sub _do_scroll_event {
+  my ($self, $event) = @_;
+  ### Drawing _do_scroll_event(): "$self->{'hadjustment'}, $self->{'vadjustment'}"
+  # my $dir = $event->direction;
+  # my $vh = $scroll_direction_to_vh{$dir};
+  # App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_increment
+  #     ($self->get_property("${vh}adjustment"),
+  #      $event->state & 'control-mask' ? 'page' : 'step',
+  #      $scroll_direction_to_inv{$dir} ^ ($vh eq 'v'));
+
+  App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vhi
+      ($self, $event);
+  return $self->signal_chain_from_overridden ($event);
 }
 
 # 'button-press-event' class closure
 sub _do_button_press {
   my ($self, $event) = @_;
-  ### Graph _do_button_press(): $event->button
+  ### Drawing _do_button_press(): $event->button
   my $button = $event->button;
   if ($button == 1) {
     _do_start_drag ($self, $button, $event);

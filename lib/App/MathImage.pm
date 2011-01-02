@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -69,10 +69,13 @@ sub getopt_long_specifications {
      'values=s'  =>
      sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values', "$value"); },
-     'primes'   => sub{_hopt($self,'gen_options','values', 'Primes'); },
-     'twin'     => sub{_hopt($self,'gen_options','values', 'TwinPrimes'); },
-     'twin1'    => sub{_hopt($self,'gen_options','values', 'TwinPrimes1'); },
-     'twin2'    => sub{_hopt($self,'gen_options','values', 'TwinPrimes2'); },
+     'primes'   => sub {_hopt($self,'gen_options','values', 'Primes'); },
+     'twin'     => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
+                         _hopt($self,'gen_options','pairs', 'both'); },
+     'twin1'    => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
+                         _hopt($self,'gen_options','pairs', 'first');  },
+     'twin2'    => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
+                         _hopt($self,'gen_options','pairs', 'second'); },
      'semi-primes|semiprimes' =>
      sub { _hopt($self,'gen_options','values', 'SemiPrimes'); },
      'semi-primes-odd|semiprimes-odd|semip-odd' =>
@@ -89,7 +92,7 @@ sub getopt_long_specifications {
      'fibonacci'  => sub { _hopt($self,'gen_options','values', 'Fibonacci');  },
      'fraction-bits=s' =>
      sub { my ($optname, $value) = @_;
-           _hopt($self,'gen_options','values',   'FractionBits');
+           _hopt($self,'gen_options','values',   'FractionDigits');
            _hopt($self,'gen_options','fraction', $value);
          },
      'expression=s' =>

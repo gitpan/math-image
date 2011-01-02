@@ -26,9 +26,17 @@ use Smart::Comments;
 
 use lib 'devel/lib';
 
-my $tree = Math::Symbolic->parse_from_string('');
+my $tree = Math::Symbolic->parse_from_string('2*x^2 +x');
 ### $tree
+### string: $tree->to_string
+### string: $tree->to_string('prefix')
+### string: $tree->to_code
+
 $tree = $tree->simplify;
+### simplified
+### string: $tree->to_string
+### string: $tree->to_string('prefix')
+### string: $tree->to_code
 
 ### signature: [$tree->signature]
 

@@ -27,7 +27,7 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

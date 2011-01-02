@@ -30,7 +30,7 @@ use App::MathImage::X11::Protocol::XSetRoot;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 37;
+our $VERSION = 38;
 
 sub new {
   my $class = shift;
@@ -104,7 +104,6 @@ sub draw_steps {
          rootwin => $window,
          pixmap => $pixmap,
          allocated_pixels => _image_pixmap_any_allocated_colours($image_pixmap));
-    $self->{'X'}->FreePixmap ($pixmap);
   }
 
   return $more;

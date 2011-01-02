@@ -15,39 +15,32 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::PentagonalSecond;
+package App::MathImage::Values::ThueMorseOdious;
 use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::Values::ThueMorseEvil';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
+
+# bit count per example in perlfunc unpack()
+
+use constant name => __('Thue-Morse Odious Numbers');
+use constant description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).');
+
+# http://www.research.att.com/~njas/sequences/A000069
+use constant oeis => 'A000069'; # odious
+# A010060 - 0 or 1 bits
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Pentagonal Numbers, second type');
-use constant description => __('The pentagonal numbers 2,7,15,26, etc, (3k+1)*k/2.  The formula is the same as the plain pentagonal numbers, but taking negative k.');
-use constant oeis => 'A005449';
-
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0
-               }, $class;
+sub pred {
+  my ($self, $n) = @_;
+  return (1 & unpack('%32b*', pack('I', $n)));
 }
-sub next {
-  my ($self) = @_;
-  my $i = $self->{'i'}++;
-  return (3*$i+1)*$i/2;
-}
-# sub pred {
-#   my ($self, $n) = @_;
-#   return ($n & 1);
-# }
-
 1;
 __END__

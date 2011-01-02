@@ -42,17 +42,27 @@ sub set_background {
   if (! defined $rootwin) {
     $rootwin = $X->{'root'};
   }
-  my $pixmap = $opt{'pixmap'} || croak "No pixmap to set";
-
+  my @args;
+  my $pixmap;
+  if (defined ($pixmap = $opt{'pixmap'})) {
+    @args = (background_pixmap => $pixmap);
+  } elsif (defined (my $pixel = $opt{'pixel'})) {
+    @args = (background_pixel => $pixel);
+  } else {
+    croak "No pixmap or pixel for background";
+  }
   ### $rootwin
-  ### $pixmap
+  ### @args
 
   require App::MathImage::X11::Protocol::GrabServer;
   my $grab = App::MathImage::X11::Protocol::GrabServer->new ($X);
 
   $class->kill_id ($X, $rootwin);
 
-  $X->ChangeWindowAttributes ($rootwin, background_pixmap => $pixmap);
+  $X->ChangeWindowAttributes ($rootwin, @args);
+  if (defined $pixmap) {
+    $X->FreePixmap($pixmap);
+  }
   $X->ClearArea ($rootwin, 0,0,0,0);
 
   if ($opt{'allocated_pixels'}

@@ -26,20 +26,22 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
-use constant parameters => { multiples => { type => 'integer',
-                                            default => 29,
-                                          },
-                           };
+use constant parameter_list => ({ name => 'multiples',
+                                  type => 'integer',
+                                  default => 29,
+                                  description => __('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'),
+                                },
+                               );
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $multiples = $options{'multiples'}
-    || $class->parameters->{'multiples'}->{'default'};
+    || $class->parameter_hash->{'multiples'}->{'default'};
   return bless { i => ceil ($lo / abs($multiples)),
                  multiples => $multiples,
                }, $class;

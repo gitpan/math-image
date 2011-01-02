@@ -26,30 +26,27 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Emirps');
 use constant description => __('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
+use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
 
 # A006567 - decimal reversal is a prime and different
 # A007500 - decimal reversal is a prime, so palindrome primes too
 #
 sub oeis {
   my ($class_or_self) = @_;
-  return ((ref $class_or_self
-                ? $class_or_self->{'radix'}
-                : $class_or_self->parameters->{'radix'}->{'default'}) == 10
+  my $radix = (ref $class_or_self
+               ? $class_or_self->{'radix'}
+               : $class_or_self->parameter_default('radix'));
+  return ($radix == 10
           ? 'A006567'
           : undef);
 }
-
-use constant parameters => { radix => { type => 'integer',
-                                        default => 10,
-                                      },
-                           };
 
 sub _digits_in_radix {
   my ($n, $radix) = @_;
@@ -73,7 +70,7 @@ sub new {
 
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
-  my $radix = $options{'radix'} || $class->parameters->{'radix'}->{'default'};
+  my $radix = $options{'radix'} || $class->parameter_default('radix');
   if ($radix < 2) { $radix = 10; }
   $lo = max (10, $lo);
   $hi = max ($lo, $hi);

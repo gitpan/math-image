@@ -42,7 +42,7 @@ Glib::Type->register_enum ('My::Test1', 'foo', 'bar-ski', 'quux');
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 37;
+my $want_version = 38;
 {
   is ($App::MathImage::Gtk2::Ex::ToolItem::ComboEnum::VERSION,
       $want_version,

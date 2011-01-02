@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -47,23 +47,20 @@ sub oeis {
   return undef;
 }
 
-use constant parameters => { radix => { type => 'integer',
-                                        default => 10,
-                                      },
-                           };
+use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
-  my $radix = $options{'radix'} || $class->parameters->{'radix'}->{'default'};
+  my $radix = $options{'radix'} || $class->parameter_default('radix');
   if ($radix < 2) { $radix = 10; }
 
-    return bless { radix => $radix,
-                   n     => -1,
-                   inc   => 1,
-                   a     => 0,
-                   b     => 0,
-                 }, $class;
+  return bless { radix => $radix,
+                 n     => -1,
+                 inc   => 1,
+                 a     => 0,
+                 b     => 0,
+               }, $class;
 }
 
 sub next {

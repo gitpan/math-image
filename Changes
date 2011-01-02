@@ -1,4 +1,4 @@
-Copyright 2010 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 This file is part of math-image.
 
@@ -16,6 +16,10 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+
+Version 38, January 2011
+    - fraction,sqrt,sum digits in any radix
+    - polygonal first,second,both
 
 Version 37, December 2010
     - try not to hammer the X server

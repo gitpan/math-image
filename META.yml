@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            37
+version:            38
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -118,7 +118,8 @@ optional_features:
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
             Math::Aronson:        4
-            Math::Symbolic:       0
+            Math::Expression::Evaluator:  0
+            Math::Symbolic:       0.605
     maximum_tests:
         description:  Have "make test" do as much as possible.
         requires:
@@ -142,4 +143,5 @@ recommends:
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
     Math::Aronson:        4
-    Math::Symbolic:       0
+    Math::Expression::Evaluator:  0
+    Math::Symbolic:       0.605

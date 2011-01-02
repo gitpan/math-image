@@ -21,47 +21,55 @@ use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::Values::Polygonal';
 
 use vars '$VERSION';
-$VERSION = 37;
-
-use constant name => __('Pentagonal Numbers');
-use constant description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');
-use constant oeis => 'A000326';
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0
-               }, $class;
-}
-sub next {
-  my ($self) = @_;
-  return $self->ith($self->{'i'}++);
-}
-sub ith {
-  my ($class_or_self, $i) = @_;
-  return (3*$i-1)*$i/2;
-}
+use constant name => __('Pentagonal Numbers');
+use constant description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');
+use constant parameter_list => (App::MathImage::Values->parameter_common_pairs);
 
-# i = 1/6 + sqrt(2/3 * $n + 1/36)
-#   = 1/6 * (1 + 6*sqrt(2/3 * $n + 1/36))
-#   = 1/6 * (1 + sqrt(36 * (2/3 * $n + 1/36)))
-#   = 1/6 * (1 + sqrt(24*$n + 1)))
-#
-sub pred {
-  my ($self, $n) = @_;
-  return ($n <= 0
-          ? ($n == 0)
-          : do {
-            my $sqrt = (sqrt(24*$n+1) + 1) / 6;
-            (int($sqrt) == $sqrt)
-          });
+sub new {
+  my $class = shift;
+  return $class->SUPER::new (@_,
+                             polygonal => 5);
+  # , %options) = @_;
+  #   my $lo = $options{'lo'} || 0;
+  #   my $pairs = $options{'pairs'} || 'first';
+  #   if ($pairs eq 'second') {
+  #     $add = - $add;
+  #   }
+  #   return bless { i => 0,
+  #
+  #                }, $class;
 }
+# sub next {
+#   my ($self) = @_;
+#   return $self->ith($self->{'i'}++);
+# }
+# sub ith {
+#   my ($class_or_self, $i) = @_;
+#   return (3*$i-1)*$i/2;
+# }
+# 
+# # i = 1/6 + sqrt(2/3 * $n + 1/36)
+# #   = 1/6 * (1 + 6*sqrt(2/3 * $n + 1/36))
+# #   = 1/6 * (1 + sqrt(36 * (2/3 * $n + 1/36)))
+# #   = 1/6 * (1 + sqrt(24*$n + 1)))
+# #
+# sub pred {
+#   my ($self, $n) = @_;
+#   return ($n <= 0
+#           ? ($n == 0)
+#           : do {
+#             my $sqrt = (sqrt(24*$n+1) + 1) / 6;
+#             (int($sqrt) == $sqrt)
+#           });
+# }
 
 
 1;

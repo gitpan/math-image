@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use Test::More tests => 332;
+use Test::More tests => 290;
 
 use lib 't';
 use MyTestHelpers;
@@ -185,11 +185,14 @@ sub _delete_duplicates {
                       ] ],
 
                     [ 'Pentagonal', 0,
-                      [ 0,1,5,12,22 ] ],
-                    [ 'PentagonalSecond', 0,
-                      [ 0,2,7,15,26 ] ],
-                    [ 'PentagonalGeneralized', 0,
-                      [ 0,1,2,5,7,12,15,22,26 ] ],
+                      [ 0,1,5,12,22 ],
+                      { pairs => 'first' } ],
+                    [ 'Pentagonal', 0,
+                      [ 0,2,7,15,26 ],
+                      { pairs => 'second' } ],
+                    [ 'Pentagonal', 0,
+                      [ 0,1,2,5,7,12,15,22,26 ],
+                      { pairs => 'both' } ],
 
                     [ 'Polygonal', 0,
                       [ 0, 1, 3, 6, 10, 15, 21 ],  # triangular
@@ -377,32 +380,35 @@ sub _delete_duplicates {
 
                     [ 'TwinPrimes', 0,
                       [ 3, 5, 7, 11, 13, 17, 19, 29, 31 ],
+                      { pairs => 'both' },
                     ],
                     [ 'TwinPrimes', 10,
-                      [ 11, 13, 17, 19, 29, 31 ] ],
+                      [ 11, 13, 17, 19, 29, 31 ],
+                      { pairs => 'both' },
+                    ],
 
-                    [ 'TwinPrimes1', 0,
+                    [ 'TwinPrimes', 0,
                       [ 3, 5, 11, 17, 29 ],
-                      undef,
+                      { pairs => 'first' },
                       # Math::Prime::XS 0.22 buggy ...
                       { bfile => 'nosuch' },
                     ],
-                    [ 'TwinPrimes1', 4,
+                    [ 'TwinPrimes', 4,
                       [ 5, 11, 17, 29 ],
-                      undef,
+                      { pairs => 'first' },
                       # Math::Prime::XS 0.22 buggy ...
                       { bfile => 'nosuch' },
                     ],
 
-                    [ 'TwinPrimes2', 0,
+                    [ 'TwinPrimes', 0,
                       [ 5, 7, 13, 19, 31 ],
-                      undef,
+                      { pairs => 'second' },
                       # Math::Prime::XS 0.22 buggy ...
                       { bfile => 'nosuch' },
                     ],
-                    [ 'TwinPrimes2', 6,
+                    [ 'TwinPrimes', 6,
                       [ 7, 13, 19, 31 ],
-                      undef,
+                      { pairs => 'second' },
                       # Math::Prime::XS 0.22 buggy ...
                       { bfile => 'nosuch' },
                     ],
@@ -473,31 +479,31 @@ sub _delete_duplicates {
                       undef,
                     ],
 
-                    [ 'ThueMorseEvil', 0,
-                      [ 0, 3, 5, 6, 9, 10, 12, 15, 17, 18, 20, 23, 24, 27,
-                        29, 30, 33, 34, 36, 39, 40, 43, 45, 46, 48, 51, 53,
-                        54, 57, 58, 60, 63, 65, 66, 68, 71, 72, 75, 77, 78,
-                        80, 83, 85, 86, 89, 90, 92, 95, 96, 99, 101, 102,
-                        105, 106, 108, 111, 113, 114, 116, 119, 120, 123,
-                        125, 126, 129 ] ],
-                    [ 'ThueMorseEvil', 1, [ 3, 5, 6, 9 ] ],
-                    [ 'ThueMorseEvil', 2, [ 3, 5, 6, 9 ] ],
-                    [ 'ThueMorseEvil', 3, [ 3, 5, 6, 9 ] ],
-                    [ 'ThueMorseEvil', 4, [ 5, 6, 9 ] ],
-                    [ 'ThueMorseEvil', 5, [ 5, 6, 9 ] ],
-
-                    [ 'ThueMorseOdious', 0,
-                      [ 1, 2, 4, 7, 8, 11, 13, 14, 16, 19, 21, 22, 25, 26,
-                        28, 31, 32, 35, 37, 38, 41, 42, 44, 47, 49, 50, 52,
-                        55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79,
-                        81, 82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103,
-                        104, 107, 109, 110, 112, 115, 117, 118, 121, 122,
-                        124, 127, 128 ] ],
-                    [ 'ThueMorseOdious', 1, [ 1, 2, 4, 7, ] ],
-                    [ 'ThueMorseOdious', 2, [ 2, 4, 7, ] ],
-                    [ 'ThueMorseOdious', 3, [ 4, 7, ] ],
-                    [ 'ThueMorseOdious', 4, [ 4, 7, ] ],
-                    [ 'ThueMorseOdious', 5, [ 7, ] ],
+                    # [ 'ThueMorseEvil', 0,
+                    #   [ 0, 3, 5, 6, 9, 10, 12, 15, 17, 18, 20, 23, 24, 27,
+                    #     29, 30, 33, 34, 36, 39, 40, 43, 45, 46, 48, 51, 53,
+                    #     54, 57, 58, 60, 63, 65, 66, 68, 71, 72, 75, 77, 78,
+                    #     80, 83, 85, 86, 89, 90, 92, 95, 96, 99, 101, 102,
+                    #     105, 106, 108, 111, 113, 114, 116, 119, 120, 123,
+                    #     125, 126, 129 ] ],
+                    # [ 'ThueMorseEvil', 1, [ 3, 5, 6, 9 ] ],
+                    # [ 'ThueMorseEvil', 2, [ 3, 5, 6, 9 ] ],
+                    # [ 'ThueMorseEvil', 3, [ 3, 5, 6, 9 ] ],
+                    # [ 'ThueMorseEvil', 4, [ 5, 6, 9 ] ],
+                    # [ 'ThueMorseEvil', 5, [ 5, 6, 9 ] ],
+                    #
+                    # [ 'ThueMorseOdious', 0,
+                    #   [ 1, 2, 4, 7, 8, 11, 13, 14, 16, 19, 21, 22, 25, 26,
+                    #     28, 31, 32, 35, 37, 38, 41, 42, 44, 47, 49, 50, 52,
+                    #     55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79,
+                    #     81, 82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103,
+                    #     104, 107, 109, 110, 112, 115, 117, 118, 121, 122,
+                    #     124, 127, 128 ] ],
+                    # [ 'ThueMorseOdious', 1, [ 1, 2, 4, 7, ] ],
+                    # [ 'ThueMorseOdious', 2, [ 2, 4, 7, ] ],
+                    # [ 'ThueMorseOdious', 3, [ 4, 7, ] ],
+                    # [ 'ThueMorseOdious', 4, [ 4, 7, ] ],
+                    # [ 'ThueMorseOdious', 5, [ 7, ] ],
 
                     # A030190 bits, A030303 positions of 1s
                     [ 'ChampernowneBinary', 0,
@@ -560,6 +566,34 @@ sub _delete_duplicates {
                       { radix => 3 },
                     ],
 
+                    [ 'Beastly', 0,
+                      [ 666,
+                        1666, 2666, 3666, 4666, 5666,
+                        6660,6661,6662,6663,6664,6665,6666,6667,6668,6669,
+                        7666, 8666, 9666,
+                        10666,11666,12666,13666,14666,15666,
+                        16660,16661,16662,16663,16664,16665,16666,16667,16668,
+                        16669,
+                        17666,18666,19666,
+                        20666,21666,22666,23666,24666,25666,
+                        26660,26661,26662,26663,26664,26665,26666,26667,26668,
+                        26669,
+                        27666,28666,29666,
+                      ] ],
+                    [ 'Beastly', 0,
+                      [ 0666,
+                        01666, 02666, 03666, 04666, 05666,
+                        06660,06661,06662,06663,06664,06665,06666,06667,
+                        07666,
+                        010666,011666,012666,013666,014666,015666,
+                        016660,016661,016662,016663,016664,016665,016666,016667,
+                        017666,
+                        020666,021666,022666,023666,024666,025666,
+                        026660,026661,026662,026663,026664,026665,026666,026667,
+                        027666,
+                      ],
+                      { radix => 8 } ],
+
                     [ 'FractionBits', 0,
                       [ 1,2,3 ],
                       { fraction => '7' } ],
@@ -601,12 +635,15 @@ sub _delete_duplicates {
     if ($values_options) {
       %$gen = (%$gen, %$values_options);
     }
+    my $name = join (' ',
+                     $values,
+                     map {"$_=$values_options->{$_}"} keys %$values_options);
 
   SKIP: {
       foreach my $bfile (0, 1) {
         ### $want
         my $hi = $want->[-1];
-        diag "$values $lo to ",$hi;
+        diag "$name $lo to ",$hi;
 
         my $values_class = "App::MathImage::Values::$values";
         my $values_obj;
@@ -618,10 +655,10 @@ sub _delete_duplicates {
                                                          %$values_options);
                        1; }) {
             my $err = $@;
-            diag "values=$values caught error -- $err";
+            diag "$name caught error -- $err";
             if (my $module = $test_options->{'module'}) {
               if (! eval "require $module; 1") {
-                skip "values=$values due to no module $module", 2;
+                skip "$name due to no module $module", 2;
               }
               diag "But $module loads successfully";
             }
@@ -630,9 +667,9 @@ sub _delete_duplicates {
 
           my $got = [ map {($values_obj->next)[0]} 0 .. $#$want ];
           if (@$got < 200 || ! $bfile) {
-            diag "$values ".join(',',@$got);
+            diag "$name ". join(',', map {defined() ? $_ : 'undef'} @$got);
           }
-          is_deeply ($got, $want, "$values lo=$lo hi=$hi");
+          is_deeply ($got, $want, "$name lo=$lo hi=$hi");
 
         SKIP: {
             $values_obj->can('pred')

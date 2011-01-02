@@ -32,7 +32,7 @@ Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
 
-plan tests => 17;
+plan tests => 22;
 
 require App::MathImage::Gtk2::Main;
 
@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 37;
+my $want_version = 38;
 {
   is ($App::MathImage::Gtk2::Main::VERSION,
       $want_version,
@@ -81,7 +81,7 @@ my $have_podviewer = Module::Util::find_installed('Gtk2::Ex::PodViewer');
   foreach my $name ('SaveAs',
                     'About',
                     # 'Print', # interactive run ...
-                    'Random',
+                    'Random','Random','Random','Random','Random','Random',
                     'Centre',
                     'Toolbar',
                     'Fullscreen',

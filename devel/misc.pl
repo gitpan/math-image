@@ -30,6 +30,30 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
 {
+  my $i;
+  sub del {
+    my ($n) = @_;
+    # return 2 + ($] >= 5.006 ? 3 : 999);
+    return $n * (1/sqrt(2));
+  }
+  my %read_signal = ('has-screen' => 'screen-changed',
+                     style        => 'style-set',
+                     toplevel     => 'hierarchy-changed');
+  sub read_signals {
+    my ($self) = @_;
+    my $pname = $self->{'pname'};
+    return ($read_signal{$pname} || "$pname-changed")
+  }
+
+  require Math::PlanePath::MultipleRings;
+  require App::MathImage::Values::PrimeQuadraticHonaker;
+  require B::Concise;
+  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
+  B::Concise::compile('-exec',\&Math::PlanePath::MultipleRings::_xy_to_d)->();
+  exit 0;
+}
+
+{
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
                                             polygonal => 3,
@@ -39,7 +63,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     my $iter;
     #   $iter = $gen->values_make_pronic(1);
     #   $iter = $gen->values_make_padovan(0);
-    #   $iter = $gen->values_make_twin_primes_2(6,100);
     #   $iter = $gen->values_make_fraction(5,29);
     #   $iter = $gen->values_make_pi_bits();
     #   $iter = $gen->values_make_polygonal();
@@ -48,7 +71,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     # $iter = $gen->values_make_pentagonal(1,500);
     # $iter = $gen->values_make_pentagonal_second(1,500);
     # $iter = $gen->values_make_sophie_germain_primes(1,200);
-    # my $values_class = $gen->values_class('TwinPrimes2');
     # my $values_class = $gen->values_class('GoldenSequence');
     # my $values_class = $gen->values_class('GolayRudinShapiro');
     my $values_class;
@@ -67,14 +89,21 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('PentagonalGeneralized');
     $values_class = $gen->values_class('Tribonacci');
     $values_class = $gen->values_class('Perrin');
-    $values_class = $gen->values_class('Pentagonal');
     $values_class = $gen->values_class('Palindromes');
     $values_class = $gen->values_class('Polygonal');
-    my $values_obj = $values_class->new (fraction => '1/3',
+    $values_class = $gen->values_class('SqrtDigits');
+    $values_class = $gen->values_class('Expression');
+    $values_class = $gen->values_class('Pentagonal');
+    $values_class = $gen->values_class('TwinPrimes');
+    $values_class = $gen->values_class('DigitsModulo');
+    my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
+                                         pairs => 'first',
                                          lo => 1,
                                          hi => 200*$rep,
-                                         radix => 10);
+                                         # radix => 10,
+                                         expression => 'z=3; z*x^2 + 3*x + 2',
+                                         expression_evaluator => 'MEE');
     ### $values_obj
     $|=1;
     foreach (1 .. 50) {
@@ -93,7 +122,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
         last;
       }
 
-      if (! $values_obj->pred($n)) {
+      if ($values_obj->can('pred') && ! $values_obj->pred($n)) {
         print " oops, pred false\n";
       }
     }
@@ -152,29 +181,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   exit 0;
 }
 
-{
-  my $i;
-  sub del {
-    my ($n) = @_;
-    # return 2 + ($] >= 5.006 ? 3 : 999);
-    return $n * (1/sqrt(2));
-  }
-  my %read_signal = ('has-screen' => 'screen-changed',
-                     style        => 'style-set',
-                     toplevel     => 'hierarchy-changed');
-  sub read_signals {
-    my ($self) = @_;
-    my $pname = $self->{'pname'};
-    return ($read_signal{$pname} || "$pname-changed")
-  }
 
-
-  require App::MathImage::Values::PrimeQuadraticHonaker;
-  require B::Concise;
-  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
-  B::Concise::compile('-exec',\&main::read_signals)->();
-  exit 0;
-}
 
 
 

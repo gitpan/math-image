@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,16 +32,14 @@ $VERSION = 37;
 use constant name => __('Repdigits');
 use constant description => __('Numbers which are a "repdigit", meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc.  The default is decimal, or select a radix.');
 
-use constant parameters => { radix => { type => 'integer',
-                                        default => 10,
-                                      },
-                           };
+use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
 
 sub oeis {
   my ($class_or_self) = @_;
-  return ((ref $class_or_self
-                ? $class_or_self->{'radix'}
-                : $class_or_self->parameters->{'radix'}->{'default'}) == 10
+  my $radix = (ref $class_or_self
+               ? $class_or_self->{'radix'}
+               : $class_or_self->parameter_default('radix'));
+  return ($radix == 10
           ? 'A010785'
           : undef);
 }
@@ -50,7 +48,7 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
 
-  my $radix = $options{'radix'} || $class->parameters->{'radix'}->{'default'};
+  my $radix = $options{'radix'} || $class->parameter_default('radix');
   if ($radix < 2) { $radix = 10; }
 
   my $self = bless { radix => $radix }, $class;

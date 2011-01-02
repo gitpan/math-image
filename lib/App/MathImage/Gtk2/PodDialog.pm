@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use FindBin;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
-use Gtk2 1.200; # for Gtk2::GDK_PRIORITY_REDRAW and probably more
+use Gtk2 1.200; # for Gtk2::GTK_PRIORITY_RESIZE and probably more
 use Gtk2::Ex::PodViewer;
 use Gtk2::Ex::WidgetCursor;
 use Gtk2::Ex::Units;
@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 37;
+our $VERSION = 38;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 
@@ -61,6 +61,7 @@ sub INIT_INSTANCE {
   }
   $combobox->append_text ('Math::Aronson');
   $combobox->append_text ('Math::Symbolic');
+  $combobox->append_text ('Math::Expression::Evaluator');
   $combobox->set_active (0);
   $combobox->signal_connect (changed => \&_do_combo_changed);
   my $action_hbox = $self->get_action_area;
@@ -89,9 +90,9 @@ sub INIT_INSTANCE {
                                                    active => 1);
   Scalar::Util::weaken (my $weak_self = $self);
   Glib::Idle->add (\&_do_idle, \$weak_self,
-                   Gtk2::GDK_PRIORITY_REDRAW() + 10);
+                   Gtk2::GTK_PRIORITY_RESIZE() + 10);
   #   Glib::Timeout->add (3000, \&_do_idle, \$weak_self,
-  #                       Gtk2::GDK_PRIORITY_REDRAW() + 10);
+  #                       Gtk2::GTK_PRIORITY_RESIZE() + 10);
 }
 
 sub _do_idle {

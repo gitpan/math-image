@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -142,7 +142,8 @@ MyMakeMakerExtras::WriteMakefile
            },
         recommends
         => { 'Math::Aronson'  => 4, # version 4 for lying option
-             'Math::Symbolic' => 0, # probably almost any ok
+             'Math::Symbolic' => 0.605, # 0.605 fixing a simplify
+             'Math::Expression::Evaluator' => 0, # maybe any ok
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,
@@ -165,7 +166,8 @@ MyMakeMakerExtras::WriteMakefile
                               'Image::Base::X11::Protocol::Pixmap' => 0,
                               'Image::Base::X11::Protocol::Window' => 0,
                               'Math::Aronson'  => 4, # version 4 for lying
-                              'Math::Symbolic' => 0,
+                              'Math::Symbolic' => 0.605, # 0.605 fix a simplify
+                              'Math::Expression::Evaluator' => 0,
                              },
                },
             maximum_tests

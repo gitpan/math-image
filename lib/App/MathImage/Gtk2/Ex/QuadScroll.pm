@@ -22,10 +22,12 @@ use warnings;
 use Gtk2;
 use List::Util 'min', 'max';
 
+use App::MathImage::Gtk2::Ex::AdjustmentBits;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 37;
+our $VERSION = 38;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::QuadScroll::Amount',
@@ -37,19 +39,20 @@ BEGIN {
 use Glib::Object::Subclass
   'Gtk2::Table',
   signals => { # size_allocate => \&_do_size_allocate,
-               set_scroll_adjustments
-               => { param_types => ['Gtk2::Adjustment',
-                                    'Gtk2::Adjustment'],
-                    return_type => undef,
-                    class_closure => \&_do_set_scroll_adjustments },
+              set_scroll_adjustments
+              => { param_types => ['Gtk2::Adjustment',
+                                   'Gtk2::Adjustment'],
+                   return_type => undef,
+                   class_closure => \&_do_set_scroll_adjustments },
               scroll
               => { param_types
                    => [ 'Gtk2::Orientation',
                         'App::MathImage::Gtk2::Ex::QuadScroll::Amount',
                         'App::MathImage::Gtk2::Ex::QuadScroll::Incdec'],
                    return_type => undef,
-                   class_closure => \&_do_scroll,
+                   class_closure => \&_do_scroll_action,
                    flags => ['run-first','action'] },
+              scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
              },
   properties => [ Glib::ParamSpec->object
                   ('hadjustment',
@@ -133,7 +136,7 @@ sub _do_set_scroll_adjustments {
               vadjustment => $vadj);
 }
 
-sub _do_scroll {
+sub _do_scroll_action {
   my ($self, $orientation, $amount, $inc) = @_;
   my $vh = substr($orientation,0,1);
   my $adj = $self->{"${vh}adjustment"} || return;
@@ -142,25 +145,7 @@ sub _do_scroll {
   if (($inc eq 'dec') ^ !!$self->{"${vh}inverted"}) {
     $add = -$add;
   }
-  _adjustment_value_add ($adj, $add);
-}
-
-sub _adjustment_add_increment {
-  my ($adj, $amount, $sub) = @_;
-  $amount .= '_increment';
-  _adjustment_value_add ($adj, $adj->$amount * ($sub ? -1 : 1));
-}
-
-sub _adjustment_value_add {
-  my ($adj, $add) = @_;
-  my $oldval = $adj->value;
-  $adj->value (max ($adj->lower,
-                    min ($adj->upper - $adj->page_size,
-                         $oldval + $add)));
-  if ($adj->value != $oldval) {
-    $adj->notify ('value');
-    $adj->signal_emit ('value-changed');
-  }
+  App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_value ($adj, $add);
 }
 
 1;

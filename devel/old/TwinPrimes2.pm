@@ -15,32 +15,29 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::ThueMorseOdious;
+package App::MathImage::Values::TwinPrimes2;
 use 5.004;
 use strict;
 use warnings;
+use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values::ThueMorseEvil';
-
-use vars '$VERSION';
-$VERSION = 37;
-
-# bit count per example in perlfunc unpack()
-
-use constant name => __('Thue-Morse Odious Numbers');
-use constant description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).');
-
-# http://www.research.att.com/~njas/sequences/A000069
-use constant oeis => 'A000069'; # odious
-# A010060 - 0 or 1 bits
+use base 'App::MathImage::Values::TwinPrimes1';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub pred {
-  my ($self, $n) = @_;
-  return (1 & unpack('%32b*', pack('I', $n)));
+use vars '$VERSION';
+$VERSION = 38;
+
+use constant name => __('Twin Primes, second of each');
+use constant description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.');
+use constant oeis => 'A006512'; # greater of two
+
+sub new {
+  my $class = shift;
+  return $class->SUPER::new (twin_offset => 1, @_);
 }
+
 1;
 __END__

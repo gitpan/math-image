@@ -35,7 +35,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -254,27 +254,25 @@ sub _update {
 
 
 my %_values_to_mnemonic =
-  (primes        => __('_Primes'),
-   TwinPrimes    => __('_Twin Primes'),
-   TwinPrimes1   => __('Twin Primes _1'),
-   TwinPrimes2   => __('Twin Primes _2'),
-   Squares       => __('S_quares'),
-   Pronic        => __('Pro_nic'),
-   triangular    => __('Trian_gular'),
-   cubes         => __('_Cubes'),
-   Tetrahedral   => __('_Tetrahedral'),
-   Perrin        => __('Perr_in'),
-   Padovan       => __('Pado_van'),
-   Fibonacci     => __('_Fibonacci'),
-   FractionBits  => __('F_raction Bits'),
-   Polygonal     => __('Pol_ygonal Numbers'),
-   PiBits        => __('_Pi Bits'),
-   Ln2Bits       => __x('_Log Natural {logarg} Bits', logarg => 2),
-   Ln3Bits       => __x('_Log Natural {logarg} Bits', logarg => 3),
-   Ln10Bits      => __x('_Log Natural {logarg} Bits', logarg => 10),
-   odd           => __('_Odd Integers'),
-   even          => __('_Even Integers'),
-   all           => __('_All Integers'),
+  (primes          => __('_Primes'),
+   TwinPrimes      => __('_Twin Primes'),
+   Squares         => __('S_quares'),
+   Pronic          => __('Pro_nic'),
+   triangular      => __('Trian_gular'),
+   cubes           => __('_Cubes'),
+   Tetrahedral     => __('_Tetrahedral'),
+   Perrin          => __('Perr_in'),
+   Padovan         => __('Pado_van'),
+   Fibonacci       => __('_Fibonacci'),
+   FractionDigits  => __('F_raction Digits'),
+   Polygonal       => __('Pol_ygonal Numbers'),
+   PiBits          => __('_Pi Bits'),
+   Ln2Bits         => __x('_Log Natural {logarg} Bits', logarg => 2),
+   Ln3Bits         => __x('_Log Natural {logarg} Bits', logarg => 3),
+   Ln10Bits        => __x('_Log Natural {logarg} Bits', logarg => 10),
+   odd             => __('_Odd Integers'),
+   even            => __('_Even Integers'),
+   all             => __('_All Integers'),
   );
 sub _values_to_mnemonic {
   my ($str) = @_;
@@ -557,7 +555,7 @@ sub _do_about {
 #            my $active = $combobox->get_active;
 #            my $hash = App::MathImage::Prima::Drawing::Values->model_rows_hash;
 #            my $values = $hash->{$active};
-#            $entry->set (visible => ($values && $values eq 'FractionBits'));
+#            $entry->set (visible => ($values && $values eq 'FractionDigits'));
 #          });
 #     }
 #     {

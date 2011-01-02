@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -57,8 +57,10 @@ sub new {
     }
   }
 
-  require Math::BigInt;
-  Math::BigInt->import (try => 'GMP');
+  unless (Math::BigInt->can('new')) {
+    require Math::BigInt;
+    Math::BigInt->import (try => 'GMP');
+  }
   my $calcbits = int(2*$options{'hi'} + 32);
   $sqrt = Math::BigInt->new($sqrt);
   $sqrt->blsft ($calcbits);

@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -84,11 +84,12 @@ sub pred {
   return vec($buf, $n&7,1);
 }
 
-sub name        { return $_[0]->{'package'}->name        }
-sub type        { return $_[0]->{'package'}->type        }
-sub description { return $_[0]->{'package'}->description }
-sub parameters  { return $_[0]->{'package'}->parameters  }
-sub density     { return $_[0]->{'package'}->density     }
+sub name            { return $_[0]->{'package'}->name        }
+sub type            { return $_[0]->{'package'}->type        }
+sub description     { return $_[0]->{'package'}->description }
+sub parameter_list  { return $_[0]->{'package'}->parameter_list  }
+sub parameter_hash  { return $_[0]->{'package'}->parameter_hash  }
+sub density         { return $_[0]->{'package'}->density     }
 
 
 1;

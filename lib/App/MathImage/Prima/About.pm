@@ -28,7 +28,7 @@ use Prima::MsgBox;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # use base 'Prima::Window';
 # sub init {

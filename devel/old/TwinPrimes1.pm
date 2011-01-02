@@ -29,11 +29,11 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');
-use constant oeis => 'A001359'; # less of two
+use constant oeis => ; # less of two
 
 sub new {
   my ($class, %options) = @_;
