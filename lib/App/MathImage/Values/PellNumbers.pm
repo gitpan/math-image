@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant name => __('Pell Numbers');
 use constant description => __('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');

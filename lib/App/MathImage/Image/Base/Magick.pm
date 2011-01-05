@@ -3,7 +3,7 @@
 # literal filename, no %03d
 
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -32,7 +32,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 38;
+$VERSION = 39;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

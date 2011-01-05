@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant name => __('Fibonacci Numbers');
 use constant description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.');

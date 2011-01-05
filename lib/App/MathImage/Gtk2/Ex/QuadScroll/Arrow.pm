@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 # priority level "gtk" treating this as widget level default, for overriding
 # by application or user RC

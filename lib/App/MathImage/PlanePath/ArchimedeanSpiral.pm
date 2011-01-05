@@ -4,7 +4,7 @@
 
 
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,7 +34,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

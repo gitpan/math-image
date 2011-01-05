@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');

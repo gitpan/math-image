@@ -4,7 +4,7 @@
 
 
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -32,7 +32,7 @@ use Gtk2::Ex::ComboBox::Enum 5; # v.5 for get_active_nick(),set_active_nick()
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -322,7 +322,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the

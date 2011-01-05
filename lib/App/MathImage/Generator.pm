@@ -33,7 +33,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -171,20 +171,23 @@ use constant path_choices => qw(SquareSpiral
                                 TriangleSpiral
                                 TriangleSpiralSkewed
                                 KnightSpiral
+
                                 PyramidRows
                                 PyramidSides
                                 PyramidSpiral
                                 Corner
                                 Diagonals
+                                Staircase
                                 Rows
                                 Columns
+
+                                PeanoCurve
                                 HilbertCurve
                                 ZOrderCurve
 
-                                PeanoCurve
-                                Staircase
                                 ArchimedeanSpiral
                                 OctagramSpiral
+                                Flowsnake
                               );
 
 use constant figure_choices => qw(default

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            38
+version:            39
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -13,12 +13,10 @@ build_requires:
 requires:
     Bit::Vector:          0
     Compress::Zlib:       0
-    constant::defer:      0
     File::Copy:           2.14
     Glib:                 1.220
     Glib::Ex::ConnectProperties:  14
     Glib::Ex::EnumBits:   11
-    Glib::Ex::FreezeNotify:  0
     Glib::Ex::ObjectBits:  12
     Glib::Ex::SignalBits:  9
     Glib::Ex::SignalIds:  0
@@ -29,15 +27,14 @@ requires:
     Gtk2::Ex::ComboBox::Enum:  5
     Gtk2::Ex::ComboBox::PixbufType:  4
     Gtk2::Ex::ComboBox::Text:  2
-    Gtk2::Ex::ComboBoxBits:  2
     Gtk2::Ex::ContainerBits:  21
     Gtk2::Ex::Dragger:    2
     Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::Menu::EnumRadio:  6
-    Gtk2::Ex::MenuItem::Subclass:  29
     Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::SyncCall:   12
+    Gtk2::Ex::ToolbarBits:  34
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  15
     Gtk2::Ex::WidgetEvents:  21
@@ -63,7 +60,8 @@ requires:
     Math::PlanePath::HexSpiralSkewed:  9
     Math::PlanePath::HilbertCurve:  13
     Math::PlanePath::KnightSpiral:  1
-    Math::PlanePath::MultipleRings:  10
+    Math::PlanePath::MultipleRings:  15
+    Math::PlanePath::PeanoCurve:  16
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
     Math::PlanePath::PyramidRows:  4
@@ -72,6 +70,7 @@ requires:
     Math::PlanePath::Rows:  7
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SquareSpiral:  5
+    Math::PlanePath::Staircase:  16
     Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3

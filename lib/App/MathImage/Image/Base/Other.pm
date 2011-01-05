@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 sub _save_to_tempfh {
   my ($image) = @_;

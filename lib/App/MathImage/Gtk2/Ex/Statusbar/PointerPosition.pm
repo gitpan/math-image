@@ -1,4 +1,4 @@
-# Copyright 2009, 2010 Kevin Ryde
+# Copyright 2009, 2010, 2011 Kevin Ryde
 
 # This file is part of Gtk2-Ex-WidgetBits.
 #
@@ -27,7 +27,7 @@ use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

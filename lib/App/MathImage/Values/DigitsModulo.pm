@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 
 # ENHANCE-ME: maybe a radix parameter, modulo sum of digits

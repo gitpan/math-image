@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::Even';
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant name => __('Odd Integers');
 use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');

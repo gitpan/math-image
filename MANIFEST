@@ -14,7 +14,7 @@ devel/bits.pl
 devel/caca.pl
 devel/camel.pl
 devel/euler.pl
-devel/Flowsnake.pm
+devel/expression.pl
 devel/gen-bits.c
 devel/heatmap.pl
 devel/image-xpm.pl
@@ -25,7 +25,6 @@ devel/Makefile
 devel/maybe-decprime.pl
 devel/maybe-ln.pl
 devel/maybe-pythagoras.pl
-devel/mee.pl
 devel/menu-enum.pl
 devel/menu-forcombo.pl
 devel/misc.c
@@ -52,7 +51,6 @@ devel/run-pod.pl
 devel/run-savedialog.pl
 devel/run-savetype.pl
 devel/svg.pl
-devel/symbolic.pl
 devel/triangular.pl
 devel/unused.pl
 devel/unused/SemiPrimesOdd.pm
@@ -79,7 +77,6 @@ lib/App/MathImage/Gtk2/Ex/QuadScroll.pm
 lib/App/MathImage/Gtk2/Ex/QuadScroll/Arrow.pm
 lib/App/MathImage/Gtk2/Ex/ScrollButtons.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
-lib/App/MathImage/Gtk2/Ex/ToolbarBits.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/CheckButton.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboEnum.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/Entry.pm
@@ -100,9 +97,8 @@ lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
 lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
+lib/App/MathImage/PlanePath/Flowsnake.pm
 lib/App/MathImage/PlanePath/OctagramSpiral.pm
-lib/App/MathImage/PlanePath/PeanoCurve.pm
-lib/App/MathImage/PlanePath/Staircase.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Drawing.pm
 lib/App/MathImage/Prima/Main.pm
@@ -195,7 +191,6 @@ t/MyOEIS.pm
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
-t/PeanoCurve-oeis.t
 t/Test/Weaken/ExtraBits.pm
 t/UndulatingNumbers.t
 t/Values.t

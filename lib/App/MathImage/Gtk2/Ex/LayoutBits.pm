@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(move_maybe);
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -61,8 +61,9 @@ App::MathImage::Gtk2::Ex::LayoutBits -- misc Gtk2::Layout helpers
 Do a C<< $layout->move >> if C<$child> is not already at the given C<$x,$y>
 position.
 
-Avoiding a move if already in the right position saves a C<queue_resize>, as
-of Gtk 2.22.
+As of Gtk 2.22 a plain C<move> or C<child_set_property> always does a
+C<queue_resize>.  This function checks if the child is already in the right
+place to avoid that when not needed.
 
 =back
 

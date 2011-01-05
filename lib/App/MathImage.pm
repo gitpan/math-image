@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -136,6 +136,8 @@ sub getopt_long_specifications {
      sub{ _hopt ($self, 'gui_options', 'show', 'root_x11_protocol');  },
      'root-gtk' =>
      sub{ _hopt ($self, 'gui_options', 'show', 'root_gtk');  },
+     flash      => sub{ _hopt ($self, 'gui_options', 'flash', 1);  },
+
      'prima'    => sub{_hopt($self, 'gui_options', 'show', 'prima');  },
      'curses'   => sub{_hopt($self, 'gui_options', 'show', 'curses');  },
      'xpm'      => sub{_hopt($self, 'gui_options', 'show', 'xpm');  },
@@ -420,6 +422,7 @@ sub _output_image {
 sub show_method_window {
   my ($self) = @_;
 
+  Glib::set_application_name (__('Math Image'));
   if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
     Glib->install_exception_handler
       (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
@@ -427,14 +430,28 @@ sub show_method_window {
       = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
   }
 
-  my $gen_options = $self->{'gen_options'};
-  Glib::set_application_name (__('Math Image'));
+  if ($self->{'gui_options'}->{'flash'}) {
+    my $rootwin = Gtk2::Gdk->get_default_root_window;
+    my ($width, $height) = $rootwin->get_size;
+
+    require Image::Base::Gtk2::Gdk::Pixmap;
+    my $image = Image::Base::Gtk2::Gdk::Pixmap->new
+      (-for_drawable => $rootwin,
+       -width        => $width,
+       -height       => $height);
+    my $gen = $self->make_generator;
+    $gen->draw_Image ($image);
+
+    gtk_flash_pixmap ($image->get('-pixmap'));
+    return 0;
+  }
 
   require App::MathImage::Gtk2::Main;
   my $toplevel = App::MathImage::Gtk2::Main->new
     (fullscreen => delete $self->{'gui_options'}->{'fullscreen'});
-  $toplevel->signal_connect (destroy => sub{Gtk2->main_quit });
+  $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
 
+  my $gen_options = $self->{'gen_options'};
   my $draw = $toplevel->{'draw'};
   if (defined (my $width = delete $gen_options->{'width'})) {
     my $height = delete $gen_options->{'height'};
@@ -465,6 +482,8 @@ sub show_method_root_gtk {
 
   my $gen_options = $self->{'gen_options'};
   my $rootwin = Gtk2::Gdk->get_default_root_window;
+  my $width = $gen_options->{'width'};
+  my $height = $gen_options->{'height'};
   ### $rootwin
 
   my $pixmap;
@@ -476,8 +495,8 @@ sub show_method_root_gtk {
     require Image::Base::Gtk2::Gdk::Pixmap;
     my $image_pixmap = Image::Base::Gtk2::Gdk::Pixmap->new
       (-for_drawable => $rootwin,
-       -width        => $gen_options->{'width'},
-       -height       => $gen_options->{'height'});
+       -width        => $width,
+       -height       => $height);
     $pixmap = $image_pixmap->get('-pixmap');
     ### $pixmap
 
@@ -491,9 +510,40 @@ sub show_method_root_gtk {
 
   $rootwin->set_back_pixmap ($pixmap);
   $rootwin->clear;
+
+  if ($self->{'gui_options'}->{'flash'}) {
+    gtk_flash_pixmap ($pixmap);
+  }
+
   $rootwin->get_display->flush;
   return 0;
 }
+
+sub gtk_flash_pixmap {
+  my ($pixmap) = @_;
+  my $rootwin = Gtk2::Gdk->get_default_root_window;
+  my ($width, $height) = $pixmap->get_size;
+  my ($root_width, $root_height) = $rootwin->get_size;
+  my $x = max (0, int (($root_width - $width) / 2));
+  my $y = max (0, int (($root_height - $height) / 2));
+  my $fwin = Gtk2::Gdk::Window->new ($rootwin,
+                                     { width  => $width,
+                                       height => $height,
+                                       x => $x,
+                                       y => $y,
+                                       window_type => 'temp',
+                                       override_redirect => 1,
+                                       type_hint => 'splashscreen',
+                                     });
+  $fwin->set_back_pixmap ($pixmap);
+  $fwin->show;
+  Glib::Timeout->add (750, sub { Gtk2->main_quit;
+                                 return Glib::SOURCE_REMOVE();
+                               });
+  Gtk2->main;
+  $fwin->destroy;
+}
+
 
 sub x11_protocol_object {
   my ($self) = @_;
@@ -506,8 +556,6 @@ sub x11_protocol_object {
     X11::Protocol->new ($display)
     });
 }
-
-use constant XA_PIXMAP => 20;  # pre-defined atom
 
 sub show_method_root_x11_protocol {
   my ($self) = @_;
@@ -522,10 +570,9 @@ sub show_method_root_x11_protocol {
   my $x11gen = App::MathImage::Generator::X11->new
     (%$gen_options,
      X => $X,
-     window => $rootwin);
+     window => $rootwin,
+     flash  => $self->{'gui_options'}->{'flash'});
   $x11gen->draw;
-
-  $X->QueryPointer($rootwin);  # sync
   return 0;
 }
 
@@ -718,7 +765,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

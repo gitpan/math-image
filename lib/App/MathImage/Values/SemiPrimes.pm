@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant name => __('Semi-Primes');
 use constant description => __('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');

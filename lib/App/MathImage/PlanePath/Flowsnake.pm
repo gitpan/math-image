@@ -34,14 +34,109 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant x_negative => 0;
 use constant y_negative => 0;
+
+# i=0
+#       4-->5-->6      y=2
+#       ^       ^
+#        \       \
+#         3-->2   7    y=1
+#            /
+#           v
+#       0-->1          y=0
+#
+#     x=0 1 2 3 4 5
+#
+#
+# i=1
+#         6<--7        y=3
+#         ^
+#        /
+#       5   2          y=2
+#       ^   ^\
+#      /   /  v
+#     4-->3   1        y=1
+#             ^
+#            /
+#           0          y=0
+#
+#    -3  -1 0 1
+#
+# i=2
+#       7              y=2
+#      /
+#     v
+#     6   2-->1        y=1
+#     ^   ^   ^
+#      \   \   \
+#       5   3   0      y=0
+#       ^   ^
+#        \ /
+#         4            y=-1
+#
+#    -5  -3  -1 0
+#
+#
+# i=3
+#           1<--0      y=0
+#           ^
+#          /
+#     7   2<--3        y=-1
+#      \      ^
+#       v      \
+#       6<--5<-4       y=-2
+#
+#    -5  -3  -1 0
+#
+# i=4
+#       0            y=0
+#      /
+#     v
+#     1   3<--4      y=-1
+#     ^  /   /
+#      \v   v
+#       2   5        y=-2
+#          /
+#         v
+#     7---6          y=-3
+#
+#    -1 0 1 2 3
+#
+# i=5
+#     6<--5<--4      y=1
+#     ^      /
+#    /      v
+#   7   0   3        y=0
+#        \  ^
+#         v  \
+#         1<--2      y=-1
+#
+#  -2   0 1 2 3
+#
+my @i_to_x = (0,2,3,1,0,2,4,5,
+              0,1,0,-1,-3,-2,-1,1,
+              0,-1,-3,-2,-3,-4,-5,-4,
+              0,-2,-3,-1,0,-2,-4,-5,
+              0,-1,0,1,3,2,1,-1,
+              0,1,3,2,3,1,-1,1,
+             );
+my @i_to_y = (0,0,1,1,2,2,2,1,
+              0,1,2,1,1,2,3,3,
+              0,1,1,0,-1,0,1,2,
+              0,0,-1,-1,-2,-2,-2,-1,
+              0,-1,-2,-1,-1,-2,-3,-3,
+              0,-1,-1,0,1,1,1,0,
+             );
+my @i_next = (0, 4, 0, 2, 0, 0, 2,
+              0, 4, 0, 2, 0, 0, 2,
+             );
+my @i_inv = (0,1,0,1,0,0,1,0);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -54,117 +149,52 @@ sub n_to_xy {
     return (($x1+$x2)/2, ($y1+$y2)/2);
   }
 
+  my (@n);
+  my $scale = 1;
+  while ($n) {
+    push @n, $n % 8; $n = int($n/8);
+    $scale *= 3;
+  }
+  ### @n
+  ### $scale
+
+  my $i = 0;
   my $x = 0;
   my $y = 0;
-  my $comp = 0;
-  my $power = 1;
-  for (;;) {
-    ### $n
-    ### $power
-    {
-      my $digit = $n % 3;
-      if ($digit & 1) {
-        $y = $comp - $y;
-      }
-      $x += $power * $digit;
-    }
-    $n = int($n/3) || last;
-    $comp = (3*$comp + 2);
-    {
-      my $digit = $n % 3;
-      if ($digit & 1) {
-        $x = $comp - $x;
-      }
-      $y += $power * $digit;
-    }
-    $n = int($n/3) || last;
-    $power *= 3;
+  my $inv = 0;
+  while (@n) {
+    my $digit = pop @n;
+    $scale /= 3;
+    ### $i
+    ### $digit
+    ### $scale
+    ### dx dy: ($i_to_x[8*$i + $digit]).' '.($i_to_y[8*$i + $digit])
+    ### dx dy: ($i_to_x[8*$i + $digit] * $scale).' '.($i_to_y[8*$i + $digit] * $scale)
+    my $offset = $digit;
+    if ($inv) { $offset = 7-$offset; }
+    $offset += 8*$i;
+    $x += $i_to_x[$offset] * $scale;
+    $y += $i_to_y[$offset] * $scale + $scale-3;
+    $i = $i_next[$i+$digit];
+    $inv ^= $i_inv[$digit];
   }
+
+  ### is: "$x,$y"
   return ($x, $y);
-
-
-  # my (@n);
-  # while ($n) {
-  #   push @n, $n % 3; $n = int($n/3);
-  #   push @n, $n % 3; $n = int($n/3);
-  # }
-  #
-  # my $x = 0;
-  # my $y = 0;
-  # my $xk = 0;
-  # my $yk = 0;
-  # while (@n) {
-  #   {
-  #     my $digit = pop @n;
-  #     $xk ^= $digit;
-  #     $y = 3*$y + ($yk & 1 ? 2-$digit : $digit);
-  #   }
-  #   {
-  #     my $digit = pop @n;
-  #     $yk ^= $digit;
-  #     $x = 3*$x + ($xk & 1 ? 2-$digit : $digit);
-  #   }
-  # }
-  #
-  # ### is: "$x,$y"
-  # return ($x, $y);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### Flowsnake xy_to_n(): "$x, $y"
 
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
-  if ($x < 0 || $y < 0) {
-    return undef;
-  }
-
-  my $power = 1;
-  my $comp = 0;
-  my $xn = my $yn = ($x & 0); # inherit
-  while ($x || $y) {
-    {
-      my $digit = $x % 3;
-      if ($digit & 1) {
-        $yn = $comp - $yn;
-      }
-      $xn += $power * $digit;
-      $x = int($x/3);
-    }
-    $comp = (3*$comp + 2);
-    {
-      my $digit = $y % 3;
-      if ($digit & 1) {
-        $xn = $comp - $xn;
-      }
-      $yn += $power * $digit;
-      $y = int($y/3);
-    }
-    $power *= 3;
-  }
-
-  my $n = ($x & 0); # inherit
-  $power = 1;
-  while ($xn || $yn) {
-    $n += ($xn % 3) * $power;
-    $power *= 3;
-    $n += ($yn % 3) * $power;
-    $power *= 3;
-    $xn = int($xn/3);
-    $yn = int($yn/3);
-  }
-  return $n;
-
-
-
+  return undef;
 
   # my $pos = 0;
   # my @x;
   # my @y;
   # while ($x || $y) {
-  #   push @x, $x % 3; $x = int($x/3);
-  #   push @y, $y % 3; $y = int($y/3);
+  #   push @x, $x % 7; $x = int($x/7);
+  #   push @y, $y % 7; $y = int($y/7);
   # }
   # 
   # my $i = 0;
@@ -177,7 +207,7 @@ sub xy_to_n {
   #     if ($yk & 1) {
   #       $digit = 2 - $digit;
   #     }
-  #     $n = ($n * 3) + $digit;
+  #     $n = ($n * 7) + $digit;
   #   }
   #   {
   #     my $digit = pop @x;
@@ -185,7 +215,7 @@ sub xy_to_n {
   #     if ($xk & 1) {
   #       $digit = 2 - $digit;
   #     }
-  #     $n = ($n * 3) + $digit;
+  #     $n = ($n * 7) + $digit;
   #   }
   # }
   # 
@@ -208,12 +238,12 @@ sub rect_to_n_range {
 
   my $ret = 9;
   while ($x2) {
-    $ret *= 3;
-    $x2 = int($x2 / 3);
+    $ret *= 2;
+    $x2 = int($x2 / 2);
   }
   while ($y2) {
-    $ret *= 3;
-    $y2 = int($y2 / 3);
+    $ret *= 2;
+    $y2 = int($y2 / 2);
   }
   return (0, $ret);
 }
@@ -221,11 +251,11 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit
+=for stopwords eg Ryde OEIS
 
 =head1 NAME
 
-App::MathImage::PlanePath::Flowsnake -- self-similar quadrant traversal
+App::MathImage::PlanePath::Flowsnake -- self-similar path traversal
 
 =head1 SYNOPSIS
 

@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -35,7 +35,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 @ISA = ('Prima::MainWindow');
 
 sub new {

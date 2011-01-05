@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 
@@ -90,17 +90,17 @@ sub INIT_INSTANCE {
                                                    active => 1);
   Scalar::Util::weaken (my $weak_self = $self);
   Glib::Idle->add (\&_do_idle, \$weak_self,
-                   Gtk2::GTK_PRIORITY_RESIZE() + 10);
+                   Gtk2::GTK_PRIORITY_RESIZE() + 10);  # low priority
   #   Glib::Timeout->add (3000, \&_do_idle, \$weak_self,
   #                       Gtk2::GTK_PRIORITY_RESIZE() + 10);
 }
 
 sub _do_idle {
   my ($ref_weak_self) = @_;
-  my $self = $$ref_weak_self || return Glib::SOURCE_REMOVE;
-
-  _do_combo_changed ($self->{'combobox'});
-  delete $self->{'cursor'};
+  if (my $self = $$ref_weak_self) {
+    _do_combo_changed ($self->{'combobox'});
+    delete $self->{'cursor'};
+  }
   return Glib::SOURCE_REMOVE; # once only
 }
 

@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use Carp;
 use Scalar::Util;
+use Time::HiRes;
 
 use base 'App::MathImage::Generator';
 use App::MathImage::X11::Protocol::Extras;
@@ -30,7 +31,7 @@ use App::MathImage::X11::Protocol::XSetRoot;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 sub new {
   my $class = shift;
@@ -99,6 +100,28 @@ sub draw_steps {
 
     ### _image_pixmap_any_allocated_colours: _image_pixmap_any_allocated_colours($self->{'image_pixmap'})
 
+    if ($self->{'flash'}) {
+      my $X = $self->{'X'};
+      my $fwin = $X->new_rsrc;
+      $X->CreateWindow ($fwin,
+                        $window,          # parent
+                        'InputOutput',
+                        0,                # depth
+                        'CopyFromParent', # visual
+                        0,0,              # x,y
+                        $self->{'width'},$self->{'height'},
+                        0,                # border
+                        background_pixmap => $pixmap,
+                        override_redirect => 1,
+                        save_under => 1);
+      $self->{'X'}->QueryPointer($window);  # sync
+      $X->MapWindow ($fwin);
+      $X->flush;
+      Time::HiRes::sleep (0.75);
+      $X->DestroyWindow ($fwin);
+    }
+
+    # $self->{'X'}->QueryPointer($window);  # sync
     App::MathImage::X11::Protocol::XSetRoot->set_background
         (X => $self->{'X'},
          rootwin => $window,

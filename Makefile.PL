@@ -32,9 +32,10 @@ MyMakeMakerExtras::WriteMakefile
    LICENSE      => 'gpl',
    SIGN         => 1,
    EXE_FILES    => [ 'math-image' ],
-   PREREQ_PM    =>
+   MIN_PERL_VERSION => '5.008',
+   PREREQ_PM =>
    {
-    'constant::defer' => 0,
+    # 'constant::defer' => 0,
     'Bit::Vector'     => 0,
     'Compress::Zlib'  => 0,
     # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
@@ -49,7 +50,7 @@ MyMakeMakerExtras::WriteMakefile
 
     # my Glib-Ex-ObjectBits
     'Glib::Ex::EnumBits'     => 11, # new in v.11
-    'Glib::Ex::FreezeNotify' => 0,
+    # 'Glib::Ex::FreezeNotify' => 0,
     'Glib::Ex::ObjectBits'   => 12, # new in v.12
     'Glib::Ex::SourceIds'    => 2,  # new in v.2
     'Glib::Ex::SignalBits'   => 9,  # new in v.9
@@ -62,15 +63,16 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
-    'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
+    # 'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
+    'Gtk2::Ex::ToolbarBits'    => 34, # new in v.34
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 17, # new in v.17
 
     # my Gtk2-Ex-ComboBoxBits
-    'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 for fixed MoreUtils dependency
+    # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
     'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
     'Gtk2::Ex::ComboBox::Text' => 2,
     'Gtk2::Ex::ComboBox::PixbufType' => 4, # new in version 4
@@ -114,7 +116,7 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath::SacksSpiral'    => 1,
     'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
     'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
-    'Math::PlanePath::MultipleRings'        => 10, # v.10 fix xy_to_n
+    'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
     'Math::PlanePath::DiamondSpiral'        => 1,
     'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
     'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
@@ -124,17 +126,18 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
     'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
     'Math::PlanePath::KnightSpiral'         => 1,
-    'Math::PlanePath::PyramidRows'          => 4,  # step parameter
+    'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
     'Math::PlanePath::PyramidSides'         => 1,
     'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
     'Math::PlanePath::Corner'               => 1,
     'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
+    'Math::PlanePath::Staircase'            => 16, # new in v.16
     'Math::PlanePath::Rows'                 => 7,  # v.7 rect_to_n_range
     'Math::PlanePath::Columns'              => 7,  # v.7 rect_to_n_range
+    'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
     'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
     'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
    },
-   MIN_PERL_VERSION => '5.008',
 
    META_MERGE
    => { resources

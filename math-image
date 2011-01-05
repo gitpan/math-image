@@ -1,6 +1,6 @@
 #!perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 exit App::MathImage->command_line;
 
 __END__
@@ -412,7 +412,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Math-Image is Copyright 2010 Kevin Ryde
+Math-Image is Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

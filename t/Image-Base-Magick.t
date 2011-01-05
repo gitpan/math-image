@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -36,7 +36,7 @@ use_ok ('App::MathImage::Image::Base::Magick');
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 38;
+my $want_version = 39;
 is ($App::MathImage::Image::Base::Magick::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Magick->VERSION,

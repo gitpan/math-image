@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
 use Test::More;
@@ -69,8 +69,8 @@ sub my_ignore {
     eval { diag "Test-Weaken ", explain($leaks) }; # explain new in 0.82
 
     my $unfreed = $leaks->unfreed_proberefs;
-    say "unfreed isweak ",
-      (Scalar::Util::isweak ($unfreed->[0]) ? "yes" : "no");
+    print "unfreed isweak ",
+      (Scalar::Util::isweak ($unfreed->[0]) ? "yes" : "no"), "\n";
     foreach my $proberef (@$unfreed) {
       diag "  unfreed $proberef";
     }

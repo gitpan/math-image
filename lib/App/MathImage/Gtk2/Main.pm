@@ -41,12 +41,11 @@ use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Ex::ToolItem::Entry;
 use App::MathImage::Gtk2::Ex::ToolItem::ComboEnum;
-use App::MathImage::Gtk2::Ex::ToolbarBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -866,7 +865,8 @@ sub _do_values_changed {
             func_in => sub { values_has_pname($_[0],$pname) }]);
     }
 
-    App::MathImage::Gtk2::Ex::ToolbarBits::move_item_after ($toolbar, $toolitem, $after);
+    require Gtk2::Ex::ToolbarBits;
+    Gtk2::Ex::ToolbarBits::move_item_after ($toolbar, $toolitem, $after);
     $after = $toolitem;
   }
 }

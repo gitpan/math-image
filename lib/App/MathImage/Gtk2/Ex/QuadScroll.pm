@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::QuadScroll::Amount',
@@ -205,7 +205,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the

@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,7 +23,7 @@ use Math::Aronson;
 use base 'Iterator';
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 sub new {
   my $class = shift;

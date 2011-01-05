@@ -24,9 +24,18 @@ use warnings;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
 sub oeis_dir {
   require File::Spec;
   return File::Spec->catfile (File::Spec->updir, 'oeis');
+}
+
+sub anum_validate {
+  my ($anum) = @_;
+  unless ($anum =~ /^A[0-9]{6,}$/) {
+    require Carp;
+    Carp::croak("Bad A-number: $anum");
+  }
 }
 
 sub anum_to_bfile {
@@ -37,11 +46,17 @@ sub anum_to_bfile {
 
 sub read_values {
   my ($anum) = @_;
+  anum_validate ($anum);
 
-  unless ($anum =~ /^A[0-9]{6,}$/) {
-    require Carp;
-    Carp::croak("Bad A-number: $anum");
+  my ($aref, $filename) = _read_values($anum);
+  if (defined $aref) {
+    Test::More::diag("$filename read ",scalar(@$aref)," values");
   }
+  return $aref;
+}
+
+sub _read_values {
+  my ($anum) = @_;
 
   require POSIX;
   my $max_value = POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
@@ -52,8 +67,8 @@ sub read_values {
   ### $basefile
   ### $filename
 
-  my @array;
   if (open FH, "<$filename") {
+    my @array;
     while (defined (my $line = <FH>)) {
       chomp $line;
       next if $line =~ /^\s*$/;   # ignore blank lines
@@ -68,8 +83,11 @@ sub read_values {
       push @array, $n;
     }
     close FH or die;
-  } else {
-    $basefile = "$anum.html";
+    return (\@array, $filename);
+  }
+  ### no bfile: $!
+
+  foreach my $basefile ("$anum.html", "$anum.htm") {
     $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
@@ -85,18 +103,17 @@ sub read_values {
         Test::More::diag("$filename oops list of values not found");
         return undef;
       }
-      @array = split /[, \t\r\n]+/, $list;
+      my @array = split /[, \t\r\n]+/, $list;
       ### $list
       ### @array
-    } else {
-      return undef;
+      return (\@array, $filename);
     }
+    ### no html: $!
   }
-
-  Test::More::diag("$filename read ",scalar(@array)," values");
-  return \@array;
+  return undef;
 }
 
+# with Y reckoned increasing downwards
 sub dxdy_to_direction {
   my ($dx, $dy) = @_;
   if ($dx > 0) { return 0; }  # east

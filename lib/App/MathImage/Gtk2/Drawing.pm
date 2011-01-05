@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests

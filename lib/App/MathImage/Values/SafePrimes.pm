@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use base 'App::MathImage::Values::SophieGermainPrimes';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 use constant name => __('Safe Primes');
 use constant description => __('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those being the Sophie Germain primes).');

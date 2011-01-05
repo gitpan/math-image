@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use Test::More tests => 290;
+use Test::More tests => 286;
 
 use lib 't';
 use MyTestHelpers;
@@ -594,12 +594,12 @@ sub _delete_duplicates {
                       ],
                       { radix => 8 } ],
 
-                    [ 'FractionBits', 0,
-                      [ 1,2,3 ],
-                      { fraction => '7' } ],
-                    [ 'FractionBits', 0,
-                      [ 1,3,5,7,9,11,13 ],
-                      { fraction => '1/3' } ],
+                    # [ 'FractionBits', 0,
+                    #   [ 1,2,3 ],
+                    #   { fraction => '7' } ],
+                    # [ 'FractionBits', 0,
+                    #   [ 1,3,5,7,9,11,13 ],
+                    #   { fraction => '1/3' } ],
 
                     [ 'PrimeQuadraticEuler', 0,
                       [ 41, 43, 47, 53, 61, 71, 83, 97, 113, 131, 151 ] ],

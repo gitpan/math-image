@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(to_HRRGGBB);
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 sub to_HRRGGBB {
   my ($color) = @_;

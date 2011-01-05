@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 38;
+our $VERSION = 39;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
@@ -373,7 +373,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the

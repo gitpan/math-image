@@ -17,6 +17,10 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 39, January 2011
+    - oops, tests fix leftover FractionBits stuff
+    - Peano and Staircase split out
+
 Version 38, January 2011
     - fraction,sqrt,sum digits in any radix
     - polygonal first,second,both
