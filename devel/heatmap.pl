@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -36,22 +36,81 @@ use Smart::Comments;
                                                    -height => $h);
   foreach my $x (0 .. $w-1) {
     my $hue = ($w-1 - $x)/$w;
-    # $hue = int($hue * 7) / 7;
-    my $hsv = Convert::Color::HSV->new($hue*360, 1, 1);
-    my $rgb = $hsv->convert_to('rgb16');
-    my $colour = '#' . $rgb->hex;
 
-    # my $hsv = Graphics::Color::HSV->new ({ hue => $hue*360,
-    #                                        saturation => 1,
-    #                                        value => 1});
-    # my $rgb = $hsv->to_rgb;
-    # my $colour = $rgb->as_hex_string('#');
+  # $hue = int($hue * 7) / 7 + .5/7;  # quantize
+    my $colour = hsv($hue);
     $image->line ($x,0, $x,$h-1, $colour);
   }
   $image->save('/tmp/x.png');
   system ('xzgv /tmp/x.png');
   exit 0;
 }
+
+sub hsv {
+  my ($alpha) = @_;
+  my $hsv = Graphics::Color::HSV->new ({ hue => $alpha*360,
+                                         saturation => .9,
+                                         value => 1, # $alpha/2,
+                                       });
+  my $rgb = $hsv->to_rgb;
+  return $rgb->as_hex_string('#');
+}
+
+sub redblue {
+  my ($alpha) = @_;
+  return sprintf("#%02XCC%02x", $alpha * 51 + 204, (1 - $alpha) * 51 + 204);
+}
+
+sub grad {
+  my ($alpha) = @_;
+
+  # Color.WHITE, Color.RED, Color.YELLOW, Color.GREEN.darker(), Color.CYAN, Color.BLUE, new Color(0, 0, 0x33));
+  #       white red  yel   dgreen cyan  blue  blackish
+  my @r = (1.0, 1.0, 1.0,       0,   0,   0, 0);
+  my @g = (1.0,   0, 1.0, 100/255, 1.0,   0, 0);
+  my @b = (1.0,   0,   0,       0, 1.0, 1.0, 0x33/255);
+
+  my $s = $alpha * 6.01;
+  my $i = int($s);
+  my $frac = $s - $i;
+  my $r = $r[$i] * (1-$frac) + $r[$i+1] * $frac;
+  my $g = $g[$i] * (1-$frac) + $g[$i+1] * $frac;
+  my $b = $b[$i] * (1-$frac) + $b[$i+1] * $frac;
+  $r *= 255;
+  $g *= 255;
+  $b *= 255;
+  return sprintf ('#%02X%02X%02X', $r, $b, $g);
+}
+
+sub three {
+  my ($alpha) = @_;
+  $alpha *= 255;
+  my $r = 0;
+  my $g = 0;
+  my $b = 0;
+  ### $alpha
+  if($alpha <= 255 && $alpha >= 235){
+    my $tmp = 255-$alpha;
+    $r=255-$tmp;
+    $g=$tmp*12;
+  } elsif($alpha <= 234 && $alpha >= 200){
+    my $tmp = 234-$alpha;
+    $r=255-($tmp*8);
+    $g=255;
+  } elsif($alpha <= 199 && $alpha >= 150){
+    my $tmp = 199-$alpha;
+    $g=255;
+    $b=$tmp*5;
+  } elsif($alpha <= 149 && $alpha >= 100){
+    my $tmp = 149-$alpha;
+    $g=255-($tmp*5);
+    $b=255;
+  } else {
+    $b=255;
+  }
+  return sprintf ('#%02X%02X%02X', $r, $b, $g);
+}
+
 
 # black
 # blue    = B

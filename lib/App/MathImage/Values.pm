@@ -23,7 +23,7 @@ use Memoize;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 39;
+$VERSION = 40;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

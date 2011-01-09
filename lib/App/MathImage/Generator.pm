@@ -21,6 +21,7 @@ use strict;
 use warnings;
 use Carp;
 use POSIX 'floor', 'ceil';
+use Math::Libm 'hypot';
 use Module::Load;
 use Module::Util;
 use Time::HiRes;
@@ -33,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 39;
+$VERSION = 40;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -136,6 +137,7 @@ use constant values_choices => do {
                          UndulatingNumbers
                          TernaryWithout2
                          Base4Without3
+                         RadixWithoutDigit
                          Multiples
                        )) {
     if (delete $choices{$prefer}) {
@@ -143,8 +145,10 @@ use constant values_choices => do {
     }
   }
   delete $choices{'Lines'};
+  delete $choices{'LinesLevel'};
   push @choices, sort keys %choices;
   push @choices, 'Lines';
+  push @choices, 'LinesLevel';
   @choices
 };
 
@@ -212,6 +216,9 @@ sub random_options {
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
+      if ($values eq 'Flowsnake' || $values eq 'LinesLevel') {
+        next;  # experimental
+      }
 
       # too sparse?
       # next if ($values eq 'Factorials');
@@ -230,7 +237,7 @@ sub random_options {
         next if ($path eq 'Diagonals' # just a line across the bottom
                  || $path eq 'DiamondSpiral');  # just a centre horizontal line
       }
-      if ($values eq 'Lines') {
+      if ($values eq 'Lines' || $values eq 'LinesLevel') {
         next if $path eq 'VogelFloret'; # too much crossover
       }
 
@@ -255,6 +262,10 @@ sub random_options {
   if ($values eq 'Lines') {
     # not too small for lines to show up sensibly
     $scale = max ($scale, 5);
+  }
+  if ($values eq 'LinesLevel') {
+    # not too small for lines to show up sensibly
+    $scale = max ($scale, 2);
   }
 
   require Math::Prime::XS;
@@ -461,6 +472,32 @@ sub coord_object {
   });
 }
 
+sub affine_object {
+  my ($self) = @_;
+  return ($self->{'affine_object'} ||= do {
+    my $offset = int ($self->{'scale'} / 2);
+    my $path_object = $self->path_object;
+    my $scale = $self->{'scale'};
+    my $x_origin
+      = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
+         : $path_object->x_negative ? int ($self->{'width'} / 2)
+         : $offset);
+    my $y_origin
+      = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
+         : $path_object->y_negative ? int ($self->{'height'} / 2)
+         : $self->{'height'} - $self->{'scale'} + $offset);
+    ### x_negative: $path_object->x_negative
+    ### y_negative: $path_object->y_negative
+    ### $x_origin
+    ### $y_origin
+
+    require Geometry::AffineTransform;
+    my $affine = Geometry::AffineTransform->new;
+    $affine->scale ($self->{'scale'}, - $self->{'scale'});
+    $affine->translate ($x_origin, $y_origin);
+  });
+}
+
 use constant _POINTS_CHUNKS     => 200 * 2;  # of X,Y
 use constant _RECTANGLES_CHUNKS => 200 * 4;  # of X1,Y1,X2,Y2
 
@@ -524,6 +561,15 @@ sub colours_grey_linear {
   }
   ### colours: $self->{'colours'}
 }
+sub colours_ {
+  my ($self, $n) = @_;
+  my $colours = $self->{'colours'} = [];
+  foreach my $i (0 .. $n-1) {
+    my $c = 255 * $i / ($n-1);
+    push @$colours, sprintf '#%02X%02X%02X', $c, $c, $c;
+  }
+  ### colours: $self->{'colours'}
+}
 
 # seven colours
 sub colours_rainbow {
@@ -564,7 +610,7 @@ sub draw_Image_start {
   ### $width
   ### $height
 
-  my $path = $self->path_object;
+  my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
   my $undrawnground = $self->{'undrawnground'};
@@ -581,17 +627,108 @@ sub draw_Image_start {
   $image->rectangle (0, 0, $width-1, $height-1, $undrawnground, 1);
 
   my $coord = $self->coord_object;
+  my $affine = $self->affine_object;
 
-  my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
-  my ($x2, $y2) = $coord->untransform ($self->{'width'} + $scale,
-                                       $self->{'height'} + $scale);
-  ### limits around:
-  ### $x1
-  ### $x2
-  ### $y1
-  ### $y2
+  my ($n_lo, $n_hi);
+  if ($self->{'values'} eq 'LinesLevel') {
+    my $level = ($self->{'level'} ||= 2);
+    ($n_lo, undef) = $path_object->rect_to_n_range (0,0, 0,0);
+    ### n_range of 0,0: $path_object->rect_to_n_range (0,0, 0,0)
+    my $base = 4;
+    my $end = -1;
+    my $yfactor = 1;
+    if ($path_object->isa ('App::MathImage::PlanePath::Flowsnake')) {
+      $base = 7;
+      $yfactor = sqrt(3);
+      $end = 0;
+    } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')) {
+      $base = 9;
+    }
+    $n_hi = $base ** $self->{'level'} + $end;
+    my $n_angle = $n_hi;
+    if ($path_object->isa ('App::MathImage::PlanePath::Flowsnake')) {
+      $n_angle = 6;
+      foreach (2 .. $level) {
+        $n_angle = (7 * $n_angle + 0);
+      }
+      ### $n_hi
+      ### $n_angle
+    }
+    ### $base
+    ### $level
+    ### $yfactor
 
-  my ($n_lo, $n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    $affine = Geometry::AffineTransform->new;
+
+    my ($x, $y) = $path_object->n_to_xy ($n_angle);
+    my $theta = - atan2 ($y, $x);
+    ### $theta
+
+    ($x, $y) = $path_object->n_to_xy ($n_hi);
+    ### end raw: "$x, $y"
+    my $r = hypot ($x,$y);
+    ### $r
+
+    my $coord = $self->coord_object;
+
+    $coord->{'x_origin'} = $self->{'width'} * .15;
+    $coord->{'y_origin'} = $self->{'height'} * .5;
+    ### origin: $self->{'width'} * .15, $self->{'height'} * .5
+
+    $affine->rotate ($theta / 3.14159 * 180);
+
+    $coord->{'x_scale'} = $self->{'width'} * .7 / $r;
+    $coord->{'y_scale'} = - $self->{'width'} * .7 / $r * .3;
+    ### $coord
+    $affine->scale ($self->{'width'} * .7 / $r,
+                    - $self->{'width'} * .7 / $r * .3);
+    $affine->translate ($self->{'width'} * .15,
+                        $self->{'height'} * .5);
+
+    if (defined $self->{'x_left'}) {
+      ### x_left: $self->{'x_left'}
+      $coord->{'x_origin'} -= $self->{'x_left'} * $self->{'scale'};
+      $affine->translate (- $self->{'x_left'} * $self->{'scale'},
+                          0);
+    }
+    if (defined $self->{'y_bottom'}) {
+      ### y_bottom: $self->{'y_bottom'}
+      $coord->{'y_origin'} += $self->{'y_bottom'} * $self->{'scale'};
+      $affine->translate (0,
+                          $self->{'y_bottom'} * $self->{'scale'});
+    }
+
+
+    ($x,$y) = $path_object->n_to_xy ($n_hi);
+    ($x,$y) = $affine->transform ($x, $y);
+    ### end affine: "$x, $y"
+
+    ($x,$y) = $path_object->n_to_xy ($n_lo++);
+    ### start raw: "$x, $y"
+    ($x,$y) = $affine->transform ($x, $y);
+    $x = floor ($x + 0.5);
+    $y = floor ($y + 0.5);
+
+    $self->{'xprev'} = $x;
+    $self->{'yprev'} = $y;
+    $self->{'affine_object'} = $affine;
+    ### prev: "$x,$y"
+    ### theta degrees: $theta*180/3.14159
+    ### start: "$self->{'xprev'}, $self->{'yprev'}"
+
+  } else {
+    my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
+    my ($x2, $y2) = $coord->untransform ($self->{'width'} + $scale,
+                                         $self->{'height'} + $scale);
+    ### limits around:
+    ### $x1
+    ### $x2
+    ### $y1
+    ### $y2
+
+    ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
+  }
+
   $self->{'n_prev'} = $n_lo - 1;
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'}   = $n_hi;
@@ -602,7 +739,11 @@ sub draw_Image_start {
 
   # origin point
   if ($scale >= 3 && $self->figure ne 'point') {
-    $image->xy ($coord->transform(0,0), $foreground);
+    my ($x,$y) = $affine->transform(0,0);
+    # my ($x,$y) = $coord->transform(0,0);
+    if ($x >= 0 && $y >= 0 && $x < $width && $y < $height) {
+      $image->xy ($x, $y, $foreground);
+    }
   }
 
   if ($self->{'values'} ne 'Lines') {
@@ -725,6 +866,7 @@ sub draw_Image_steps {
 
   my $covers = $self->covers_plane;
   my $coord = $self->coord_object;
+  my $affine = $self->affine_object;
   my $values_obj = $self->{'values_obj'};
   my $filter_obj = $self->{'filter_obj'};
 
@@ -792,6 +934,46 @@ sub draw_Image_steps {
       }
     }
     $self->{'upto_n'} = $n;
+    return $more;
+  }
+
+  if ($self->{'values'} eq 'LinesLevel') {
+    ### LinesLevel step
+    my $n = $self->{'upto_n'};
+    my $xprev = $self->{'xprev'};
+    my $yprev = $self->{'yprev'};
+
+    ### $coord
+    ### upto_n: $n
+    ### $xprev
+    ### $yprev
+
+    for ( ; $n <= $n_hi; $n++) {
+      if (! &$cont()) {
+        $more = 1;
+        last;
+      }
+
+      my ($x,$y) = $path_object->n_to_xy($n)
+        or last; # no more
+      ### $n;
+      ### xy raw: "$x,$y"
+
+      ($x,$y) = $affine->transform ($x, $y);
+      ### xy affine: "$x,$y"
+
+      $x = floor ($x + 0.5);
+      $y = floor ($y + 0.5);
+      _image_line_clipped ($image, $xprev,$yprev, $x,$y,
+                           $width,$height, $foreground);
+      $count_figures++;
+
+      $xprev = $x;
+      $yprev = $y;
+    }
+    $self->{'upto_n'} = $n;
+    $self->{'xprev'} = $xprev;
+    $self->{'yprev'} = $yprev;
     return $more;
   }
 

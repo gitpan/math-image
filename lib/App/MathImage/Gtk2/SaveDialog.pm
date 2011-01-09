@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Ex::PixbufBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 39;
+our $VERSION = 40;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',

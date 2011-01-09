@@ -16,6 +16,8 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=Flowsnake --lines --scale=10
+
 # http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
 # http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
 #     Variations.
@@ -34,114 +36,42 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant y_negative => 0;
 
-# i=0
-#       4-->5-->6      y=2
+#         *
+#        / \
+#       /   \
+#      *-----*
+#
+# (b/2)^2 + h^2 = s
+# (1/2)^2 + h^2 = 1
+# h^2 = 1 - 1/4
+# h = sqrt(3)/2 = 0.866
+#
+
+
+#       4-->5-->6
 #       ^       ^
 #        \       \
-#         3-->2   7    y=1
+#         3-->2
 #            /
 #           v
-#       0-->1          y=0
-#
-#     x=0 1 2 3 4 5
-#
-#
-# i=1
-#         6<--7        y=3
-#         ^
-#        /
-#       5   2          y=2
-#       ^   ^\
-#      /   /  v
-#     4-->3   1        y=1
-#             ^
-#            /
-#           0          y=0
-#
-#    -3  -1 0 1
-#
-# i=2
-#       7              y=2
-#      /
-#     v
-#     6   2-->1        y=1
-#     ^   ^   ^
-#      \   \   \
-#       5   3   0      y=0
-#       ^   ^
-#        \ /
-#         4            y=-1
-#
-#    -5  -3  -1 0
-#
-#
-# i=3
-#           1<--0      y=0
-#           ^
-#          /
-#     7   2<--3        y=-1
-#      \      ^
-#       v      \
-#       6<--5<-4       y=-2
-#
-#    -5  -3  -1 0
-#
-# i=4
-#       0            y=0
-#      /
-#     v
-#     1   3<--4      y=-1
-#     ^  /   /
-#      \v   v
-#       2   5        y=-2
-#          /
-#         v
-#     7---6          y=-3
-#
-#    -1 0 1 2 3
-#
-# i=5
-#     6<--5<--4      y=1
-#     ^      /
-#    /      v
-#   7   0   3        y=0
-#        \  ^
-#         v  \
-#         1<--2      y=-1
-#
-#  -2   0 1 2 3
-#
-my @i_to_x = (0,2,3,1,0,2,4,5,
-              0,1,0,-1,-3,-2,-1,1,
-              0,-1,-3,-2,-3,-4,-5,-4,
-              0,-2,-3,-1,0,-2,-4,-5,
-              0,-1,0,1,3,2,1,-1,
-              0,1,3,2,3,1,-1,1,
-             );
-my @i_to_y = (0,0,1,1,2,2,2,1,
-              0,1,2,1,1,2,3,3,
-              0,1,1,0,-1,0,1,2,
-              0,0,-1,-1,-2,-2,-2,-1,
-              0,-1,-2,-1,-1,-2,-3,-3,
-              0,-1,-1,0,1,1,1,0,
-             );
-my @i_next = (0, 4, 0, 2, 0, 0, 2,
-              0, 4, 0, 2, 0, 0, 2,
-             );
-my @i_inv = (0,1,0,1,0,0,1,0);
+#       0-->1
+my @L = (1,1,2,-1,-2,0,-1);
+my @R = (0,1,1,0,0,0,1);
+my @X;
+my @Y;
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### Flowsnake n_to_xy(): $n
   return if $n < 0;
+# return if $n > 7**3 + 10;
+  ### Flowsnake n_to_xy(): $n
 
   if (int($n) != $n) {
     my ($x1,$y1) = $self->n_to_xy(floor($n));
@@ -149,77 +79,238 @@ sub n_to_xy {
     return (($x1+$x2)/2, ($y1+$y2)/2);
   }
 
-  my (@n);
-  my $scale = 1;
-  while ($n) {
-    push @n, $n % 8; $n = int($n/8);
-    $scale *= 3;
-  }
-  ### @n
-  ### $scale
+  # if ($n >= @X) {
+  #   while ($n >= @L) {
+  #     my @newL;
+  #     foreach my $i (0 .. 6) {
+  #       if ($R[$i]) {
+  #         my @part = map {$_} reverse @L;
+  #         unshift @part, - pop @part;
+  #         push @newL, @part;
+  #       } else {
+  #         push @newL, @L;
+  #       }
+  #     }
+  #     @L = @newL;
+  #   }
+  #   ### @L
+  # 
+  #   @X = ();
+  #   @Y = ();
+  #   my $x = my $y = 0;
+  #   my $dir = -1;
+  #   foreach my $ndir (@L) {
+  #     push @X, $x;
+  #     push @Y, $y;
+  # 
+  #     $dir = ($dir + $ndir) % 6;
+  #     if ($dir == 0)    { $x += 2; }
+  #     elsif ($dir == 1) { $x++, $y++; }
+  #     elsif ($dir == 2) { $x--, $y++; }
+  #     elsif ($dir == 3) { $x -= 2; }
+  #     elsif ($dir == 4) { $x--, $y--; }
+  #     elsif ($dir == 5) { $x++, $y--; }
+  #     ### at: "n=@{[scalar(@X)]} dir=$dir to $x, $y"
+  #   }
+  #   ### X len: scalar(@X)
+  #   ### Y len: scalar(@Y)
+  #   ### @X
+  #   ### @Y
+  # }
+  # ### x: $X[$n]
+  # ### y: $Y[$n]
+  # return ($X[$n],$Y[$n]);
 
-  my $i = 0;
-  my $x = 0;
-  my $y = 0;
-  my $inv = 0;
+
+
+
+
+
+
+  my (@n, @sh, @si, @sj);
+  {
+    my $sh = 1;
+    my $si = 0;
+    my $sj = 0;
+    while ($n) {
+      push @n, $n % 7;
+      $n = int($n/7);
+      push @sh, $sh;
+      push @si, $si;
+      push @sj, $sj;
+      ($sh, $si, $sj) = (2*$sh - $sj,
+                         2*$si + $sh,
+                         2*$sj + $si);
+    }
+    ### @n
+  }
+
+  #       4-->5-->6
+  #       ^       ^
+  #        \       \
+  #         3-->2
+  #            /
+  #           v
+  #       0-->1
+
+  #             6<---
+  #             ^
+  #            /
+  #       0   5<--4
+  #        \       \
+  #         v       v
+  #         1<--2<--3
+
+  #            0   1  2  3  4  5  6
+  my @pos_h = (0,  1, 1, 0, 0, 0, 1,
+               0,  0, 1, 2, 2, 1, 1);
+  my @pos_i = (0,  0, 1, 1, 1, 2, 2,
+               0,  0, 0, 0, 0, 0, 1);
+  my @pos_j = (0,  0, 0, 0, 1, 0, 0,
+               0, -1,-1,-1, 0, 0, 0);
+  my @rev   = (0,  7, 7, 0, 0, 0, 7,
+               7,  0, 0, 0, 7, 7, 0);
+  my @dir   = (0,  1, 3, 2, 0, 0, 5,
+               5,  0, 0, 2, 3, 1, 0);
+
+
+  # my @dir_h = (1, 0, 0, -1, 0, 0);
+  # my @dir_i = (0, 1, 0,  0,-1, 0);
+  # my @dir_j = (0, 0, 1,  0, 0,-1);
+
+  my $h = my $i = my $j = 0;
+  my $rev = 0;
+  my $dir = 0;
   while (@n) {
     my $digit = pop @n;
-    $scale /= 3;
-    ### $i
+    my $sh = pop @sh;
+    my $si = pop @si;
+    my $sj = pop @sj;
+    my $o = $rev + $digit;
+
     ### $digit
-    ### $scale
-    ### dx dy: ($i_to_x[8*$i + $digit]).' '.($i_to_y[8*$i + $digit])
-    ### dx dy: ($i_to_x[8*$i + $digit] * $scale).' '.($i_to_y[8*$i + $digit] * $scale)
-    my $offset = $digit;
-    if ($inv) { $offset = 7-$offset; }
-    $offset += 8*$i;
-    $x += $i_to_x[$offset] * $scale;
-    $y += $i_to_y[$offset] * $scale + $scale-3;
-    $i = $i_next[$i+$digit];
-    $inv ^= $i_inv[$digit];
+    ### step: "$sh, $si, $sj  sx=".($sh*2 + $si - $sj)." sy=".($si+$sj)
+    ### $dir
+    ### $rev
+    ### $o
+
+    # $sh *= $pos_h[$o];
+    # $si *= $pos_i[$o];
+    # $sj *= $pos_j[$o];
+
+    if ($dir == 0)    { ($sh,$si,$sj) = ($sh,$si,$sj); }
+    elsif ($dir == 1) { ($sh,$si,$sj) = (-$sj,$sh,$si); }
+    elsif ($dir == 2) { ($sh,$si,$sj) = (-$si,-$sj,$sh); }
+    elsif ($dir == 3) { ($sh,$si,$sj) = (-$sh,-$si,-$sj); }
+    elsif ($dir == 4) { ($sh,$si,$sj) = ($sj,-$sh,-$si); }
+    elsif ($dir == 5) { ($sh,$si,$sj) = ($si,$sj,-$sh); }
+
+    # $h += $sh;
+    # $i += $si;
+    # $j += $sj;
+
+    $h += $sh * $pos_h[$o]  - $sj * $pos_i[$o]  - $si * $pos_j[$o];
+    $i += $si * $pos_h[$o]  + $sh * $pos_i[$o]  - $sj * $pos_j[$o];
+    $j += $sj * $pos_h[$o]  + $si * $pos_i[$o]  + $sh * $pos_j[$o];
+
+    $rev ^= $rev[$o];
+    $dir = ($dir + $dir[$o]) % 6;
+    ### rotated step: "$sh, $si, $sj"
+    ### pos: "$pos_h[$o], $pos_i[$o], $pos_j[$o]"
+    ### to: "$h, $i, $j  x=".($h*2 + $i - $j)." y=".($i+$j)
   }
 
-  ### is: "$x,$y"
-  return ($x, $y);
+  ### ret: "$h, $i, $j  x=".($h*2 + $i - $j)." y=".($i+$j)
+  return ($h*2 + $i - $j,
+          $i+$j);
+
+
+  # #       4-->5-->6      y=2
+  # #       ^       ^
+  # #        \       \
+  # #         3-->2   7    y=1
+  # #            /
+  # #           v
+  # #       0-->1          y=0
+  # #
+  # #     x=0 1 2 3 4 5
+  # #
+  # #
+  #
+  # my $h = my $i = my $j = 0;
+  # my $bh = 1;
+  # my $bi = 0;
+  # my $bj = 0;
+  #
+  # while ($n) {
+  #   my $digit = $n % 7;
+  #   $n = int($n/7);
+  #
+  #   my $eh = 2*$bh - $bj;
+  #   my $ei = 2*$bi + $bh;
+  #   my $ej = 2*$bj + $bi;
+  #
+  #   my $rh = $eh - $h;
+  #   my $ri = $ei - $i;
+  #   my $rj = $ej - $j;
+  #
+  #   ### end: "$eh, $ei, $ej  x=".($eh*2 + $ei - $ej)." y=".($ei+$ej)
+  #   ### rev: "$rh, $ri, $rj  x=".($rh*2 + $ri - $rj)." y=".($ri+$rj)
+  #
+  #   if ($digit == 1) {
+  #     ($h,$i,$j) = ($bh  + $rh,
+  #                   $bi  + $ri,
+  #                   $bj  + $rj);
+  #
+  #   } elsif ($digit == 2) {
+  #     ($h,$i,$j) = ($bh-$bj  - $rj,
+  #                   $bi+$bh  + $rh,
+  #                   $bj+$bi  + $ri);
+  #
+  #   } elsif ($digit == 3) {
+  #     ($h,$i,$j) = (-$bj  + $h,
+  #                   $bh   + $i,
+  #                   $bi   + $j);
+  #
+  #   } elsif ($digit == 4) {
+  #     ($h,$i,$j) = (-$bj - $bi  + $h,
+  #                   $bh  - $bj  + $i,
+  #                   $bi  + $bh  + $j);
+  #
+  #   } elsif ($digit == 5) {
+  #     ($h,$i,$j) = (-2*$bj   + $h,
+  #                   2*$bh    + $i,
+  #                   2*$bi    + $j);
+  #
+  #   } elsif ($digit == 6) {
+  #     ($h,$i,$j) = (-2*$bj + $bh   + $ri,
+  #                   2*$bh  + $bi   - $rj,
+  #                   2*$bi  + $bj   - $rh);
+  #   }
+  #
+  #   ($bh, $bi, $bj) = ($eh,
+  #                      $ei,
+  #                      $ej);
+  #
+  #   # ($bh, $bi, $bj) = (2*$bh - $bj,
+  #   #                    2*$bi + $bh,
+  #   #                    2*$bj + $bi);
+  #
+  #
+  #   ### pos: "$h, $i, $j"
+  #   ### base: "$bh, $bi, $bj  x=".($bh*2 + $bi - $bj)." y=".($bi+$bj)
+  # }
+  #
+  # ### ret: "$h, $i, $j  x=".($h*2 + $i - $j)." y=".($i+$j)
+  # return ($h*2 + $i - $j,
+  #         $i+$j);
+
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### Flowsnake xy_to_n(): "$x, $y"
-
   return undef;
-
-  # my $pos = 0;
-  # my @x;
-  # my @y;
-  # while ($x || $y) {
-  #   push @x, $x % 7; $x = int($x/7);
-  #   push @y, $y % 7; $y = int($y/7);
-  # }
-  # 
-  # my $i = 0;
-  # my $xk = 0;
-  # my $yk = 0;
-  # while (@x) {
-  #   {
-  #     my $digit = pop @y;
-  #     $xk ^= $digit;
-  #     if ($yk & 1) {
-  #       $digit = 2 - $digit;
-  #     }
-  #     $n = ($n * 7) + $digit;
-  #   }
-  #   {
-  #     my $digit = pop @x;
-  #     $yk ^= $digit;
-  #     if ($xk & 1) {
-  #       $digit = 2 - $digit;
-  #     }
-  #     $n = ($n * 7) + $digit;
-  #   }
-  # }
-  # 
-  # return $n;
+  ### Flowsnake xy_to_n(): "$x, $y"
 }
 
 sub rect_to_n_range {
@@ -232,20 +323,69 @@ sub rect_to_n_range {
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  if ($x2 < 0 || $y2 < 0) {
-    return (-1, 0);
+  if ($y2 < 0) {
+    return (1, 0);
   }
 
-  my $ret = 9;
-  while ($x2) {
-    $ret *= 2;
-    $x2 = int($x2 / 2);
+  #            0  1  2  3  4  5  6  7
+  my @pos_h = (0, 1, 1, 0, 0, 0, 1, 2);
+  my @pos_i = (0, 0, 1, 1, 1, 2, 2, 1);
+  my @pos_j = (0, 0, 0, 0, 1, 0, 0, 0);
+  my $n_hi = 0;
+
+  my $sh = 1;
+  my $si = 0;
+  my $sj = 0;
+  my $n = 1;
+  my $prev_x = 0;
+  my $x_max = my $x_min = my $y_max = my $y_min = 0;
+  my ($tr, $tl);
+
+ OUTER: foreach (1 .. 10) {
+    my ($h, $i, $j, $x, $y);
+
+    foreach my $o (1 .. 7) {
+      $h = $sh * $pos_h[$o]  - $sj * $pos_i[$o]  - $si * $pos_j[$o];
+      $i = $si * $pos_h[$o]  + $sh * $pos_i[$o]  - $sj * $pos_j[$o];
+      $j = $sj * $pos_h[$o]  + $si * $pos_i[$o]  + $sh * $pos_j[$o];
+      $x = $h*2 + $i - $j;
+      $y = $i + $j;
+
+      if ($o == 6 && $x < $prev_x) {
+        $tr = 1;
+      }
+
+      if ($x >= $x2 && $y >= $y2) {
+        $tr = 1;
+      }
+      if ($x <= $x1 && $y >= $y2) {
+        $tl = 1;
+      }
+
+      if ($tr && $tl) {
+        $n *= $o;
+        last OUTER;
+      }
+    }
+
+    $n *= 7;
+    $sh = $h;
+    $si = $i;
+    $sj = $j;
+    $prev_x = $x;
   }
-  while ($y2) {
-    $ret *= 2;
-    $y2 = int($y2 / 2);
-  }
-  return (0, $ret);
+  return (0, $n);
+
+  # my $ret = 9;
+  # while ($x2) {
+  #   $ret *= 4;
+  #   $x2 = int($x2 / 2);
+  # }
+  # while ($y2) {
+  #   $ret *= 3;
+  #   $y2 = int($y2 / 2);
+  # }
+  # return (0, $ret);
 }
 
 1;
@@ -265,7 +405,78 @@ App::MathImage::PlanePath::Flowsnake -- self-similar path traversal
 
 =head1 DESCRIPTION
 
-This path ...
+This path is the flowsnake curve by William Gosper, done as a self-similar
+traversal of the plane.
+
+                         39----40----41                        8
+                           \           \                        
+          32----33----34    38----37    42                     7
+            \           \        /     /                        
+             31----30    35----36    43    47----48            6
+                  /                    \     \     \            
+          28----29    17----16----15    44    46    49...      5
+         /              \           \     \  /                  
+       27    23----22    18----19    14    45                  4
+         \     \     \        /     /                           
+          26    24    21----20    13    11----10               3
+            \  /                    \  /     /                  
+             25     4---- 5---- 6    12     9                  2
+                     \           \         /                    
+                       3---- 2     7---- 8                     1
+                           /                                    
+                    0---- 1                                  y=0
+                                                                
+     x=-4 -3 -2 -1  0  1  2  3  4  5  6  7  8  9 10 11          
+
+The points are spaced out on every second X coordinate to make little
+triangles while staying in integer coordinates.  It should be equilateral
+triangles, but on a square grid this comes out a little flatter.
+
+The basic pattern is the 7 points 0 to 6,
+
+
+        4---- 5---- 6  
+         \           \ 
+           3---- 2     
+               /       
+        0---- 1        
+
+This repeats at 7-fold increasing scale, with the 1, 2 and 6 sub-sections
+reversed (mirror image).  The next scale level can be seen in the multiple
+of 7 points 0,7,14,21,28,35,42,49.
+
+
+                                        42                
+                            -----------    ---                  
+                         35                   ---         
+             -----------                         ---            
+          28                                        49 ---
+            ---                                                 
+               ----                  14                   
+                   ---   -----------  |                         
+                      21              |                   
+                                     |                          
+                                    |                     
+                                    |                           
+                              ---- 7                      
+                         -----                                  
+                    0 ---                                 
+
+Notice this is the same shape as the 0 to 6, but rotated 20.68 degrees
+counter-clockwise.  Each level rotates further and for example after 18
+levels it goes all the way around and back to the first quadrant.  The
+effect of this is to fill the whole plane, eventually.
+
+=head2 Fractal
+
+The flowsnake can also be thought of as successively subdividing the line
+segments with suitably scaled copies of the 0 to 7 figure (or its reversal).
+
+The code here can be used for that by taking points N=0 to N=7^level.  The Y
+coordinates should be multiplied by sqrt(3) to make proper equilateral
+triangles, then a rotation and scaling to make the endpoint come out at 1,0
+or wherever desired.  With this the path is confined to a finite fractal
+boundary.
 
 =head1 FUNCTIONS
 
@@ -299,12 +510,6 @@ L<Math::PlanePath>,
 L<Math::PlanePath::HilbertCurve>
 L<Math::PlanePath::PeanoCurve>
 L<Math::PlanePath::ZOrderCurve>
-
-Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",
-Mathematische Annalen, volume 36, number 1, 1890, p157-160
-
-    DOI 10.1007/BF01199438
-    http://www.springerlink.com/content/w232301n53960133/
 
 =head1 HOME PAGE
 

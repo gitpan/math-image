@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 39;
+$VERSION = 40;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -483,7 +483,7 @@ sub show_method_root_gtk {
   my $gen_options = $self->{'gen_options'};
   my $rootwin = Gtk2::Gdk->get_default_root_window;
   my $width = $gen_options->{'width'};
-  my $height = $gen_options->{'height'};
+  my $height = $gen_options->{'height'} / 2;
   ### $rootwin
 
   my $pixmap;
@@ -512,38 +512,15 @@ sub show_method_root_gtk {
   $rootwin->clear;
 
   if ($self->{'gui_options'}->{'flash'}) {
-    gtk_flash_pixmap ($pixmap);
+    require App::MathImage::Gtk2::Ex::Splash;
+    App::MathImage::Gtk2::Ex::Splash->run (screen => $rootwin->get_screen,
+                                           pixmap => $pixmap,
+                                           time => 75)
   }
 
   $rootwin->get_display->flush;
   return 0;
 }
-
-sub gtk_flash_pixmap {
-  my ($pixmap) = @_;
-  my $rootwin = Gtk2::Gdk->get_default_root_window;
-  my ($width, $height) = $pixmap->get_size;
-  my ($root_width, $root_height) = $rootwin->get_size;
-  my $x = max (0, int (($root_width - $width) / 2));
-  my $y = max (0, int (($root_height - $height) / 2));
-  my $fwin = Gtk2::Gdk::Window->new ($rootwin,
-                                     { width  => $width,
-                                       height => $height,
-                                       x => $x,
-                                       y => $y,
-                                       window_type => 'temp',
-                                       override_redirect => 1,
-                                       type_hint => 'splashscreen',
-                                     });
-  $fwin->set_back_pixmap ($pixmap);
-  $fwin->show;
-  Glib::Timeout->add (750, sub { Gtk2->main_quit;
-                                 return Glib::SOURCE_REMOVE();
-                               });
-  Gtk2->main;
-  $fwin->destroy;
-}
-
 
 sub x11_protocol_object {
   my ($self) = @_;

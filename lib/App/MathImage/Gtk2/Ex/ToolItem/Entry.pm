@@ -27,7 +27,7 @@ use Gtk2::Ex::ContainerBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 39;
+our $VERSION = 40;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -149,6 +149,7 @@ sub _do_menu_activate {
     $dialog = $self->{'dialog'}
       = App::MathImage::Gtk2::Ex::ToolItem::OverflowDialog->new
         (toolitem => $self,
+         text => $self->get('label'),
          transient_for => $self->get_toplevel);
     Scalar::Util::weaken ($self->{'dialog'});
   }

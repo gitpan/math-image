@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,30 +28,6 @@ use lib 'devel/lib';
 
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
-
-{
-  my $i;
-  sub del {
-    my ($n) = @_;
-    # return 2 + ($] >= 5.006 ? 3 : 999);
-    return $n * (1/sqrt(2));
-  }
-  my %read_signal = ('has-screen' => 'screen-changed',
-                     style        => 'style-set',
-                     toplevel     => 'hierarchy-changed');
-  sub read_signals {
-    my ($self) = @_;
-    my $pname = $self->{'pname'};
-    return ($read_signal{$pname} || "$pname-changed")
-  }
-
-  require Math::PlanePath::MultipleRings;
-  require App::MathImage::Values::PrimeQuadraticHonaker;
-  require B::Concise;
-  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
-  B::Concise::compile('-exec',\&Math::PlanePath::MultipleRings::_xy_to_d)->();
-  exit 0;
-}
 
 {
   require App::MathImage::Generator;
@@ -86,7 +62,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('TernaryWithout2');
     $values_class = $gen->values_class('PrimeQuadraticEuler');
     $values_class = $gen->values_class('Base4Without3');
-    $values_class = $gen->values_class('PentagonalGeneralized');
     $values_class = $gen->values_class('Tribonacci');
     $values_class = $gen->values_class('Perrin');
     $values_class = $gen->values_class('Palindromes');
@@ -96,12 +71,14 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Pentagonal');
     $values_class = $gen->values_class('TwinPrimes');
     $values_class = $gen->values_class('DigitsModulo');
+    $values_class = $gen->values_class('RadixWithoutDigit');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
                                          lo => 1,
                                          hi => 200*$rep,
-                                         # radix => 10,
+                                         radix => 3,
+                                         digit => 0,
                                          expression => 'z=3; z*x^2 + 3*x + 2',
                                          expression_evaluator => 'MEE');
     ### $values_obj
@@ -152,6 +129,30 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
       print "\n";
     }
   }
+  exit 0;
+}
+
+{
+  my $i;
+  sub del {
+    my ($n) = @_;
+    # return 2 + ($] >= 5.006 ? 3 : 999);
+    return $n * (1/sqrt(2));
+  }
+  my %read_signal = ('has-screen' => 'screen-changed',
+                     style        => 'style-set',
+                     toplevel     => 'hierarchy-changed');
+  sub read_signals {
+    my ($self) = @_;
+    my $pname = $self->{'pname'};
+    return ($read_signal{$pname} || "$pname-changed")
+  }
+
+  require Math::PlanePath::MultipleRings;
+  require App::MathImage::Values::PrimeQuadraticHonaker;
+  require B::Concise;
+  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
+  B::Concise::compile('-exec',\&Math::PlanePath::MultipleRings::_xy_to_d)->();
   exit 0;
 }
 

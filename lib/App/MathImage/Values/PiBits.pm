@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 39;
+$VERSION = 40;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,6 +33,10 @@ $VERSION = 39;
 use constant name => __('Pi Bits');
 use constant description => __('Pi 3.141529... written out in binary.');
 
+# A004601 to A004608 - base 2 to 9
+# A000796 - base 10
+# A068436 to A068440 - base 11 to 15
+# A062964 - base 16
 sub new {
   my ($class, %options) = @_;
   my $file = $options{'file'} || 'pi';

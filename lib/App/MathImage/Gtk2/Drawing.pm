@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 39;
+our $VERSION = 40;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -201,6 +201,22 @@ use Glib::Object::Subclass
                    'Blurb.',
                    2, POSIX::INT_MAX(),
                    2, # App::MathImage::Generator->default_options->{'radix'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->int
+                  ('values-digit',
+                   'values-digit',
+                   'Blurb.',
+                   -1, POSIX::INT_MAX(),
+                   -1, # App::MathImage::Generator->default_options->{'digit'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->int
+                  ('values-level',
+                   'values-level',
+                   'Blurb.',
+                   0, POSIX::INT_MAX(),
+                   0, # App::MathImage::Generator->default_options->{'level'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -551,6 +567,8 @@ sub gen_object {
      polygonal       => $self->get('values-polygonal'),
      multiples       => $self->get('values-multiples'),
      radix           => $self->get('values-radix'),
+     digit           => $self->get('values-digit'),
+     level           => $self->get('values-level'),
      ($path_rotation_type eq 'custom'
       ? (path_rotation_factor => $self->get('path-rotation-factor'))
       : (path_rotation_type  => $path_rotation_type)),

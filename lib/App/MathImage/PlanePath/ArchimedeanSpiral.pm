@@ -34,7 +34,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

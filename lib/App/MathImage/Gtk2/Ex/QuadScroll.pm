@@ -27,7 +27,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 39;
+our $VERSION = 40;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::QuadScroll::Amount',

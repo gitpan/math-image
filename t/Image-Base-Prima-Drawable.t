@@ -36,7 +36,7 @@ require App::MathImage::Image::Base::Prima::Drawable;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 39;
+my $want_version = 40;
 is ($App::MathImage::Image::Base::Prima::Drawable::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Prima::Drawable->VERSION,

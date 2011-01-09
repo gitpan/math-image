@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,6 +25,16 @@ use Language::Expr;
 use Smart::Comments;
 
 # Language::Expr::Manual::Syntax
+{
+  my $le = Language::Expr->new (interpreted => 1);
+  $le->var (num => 123);
+  my $val = $le->eval(<<'HERE');
+"I have $num apples"
+HERE
+  ### $val
+  exit 0;
+}
+
 {
   my $le = Language::Expr->new (interpreted => 1);
   $le->var (x => 123);

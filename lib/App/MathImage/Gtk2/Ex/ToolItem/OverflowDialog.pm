@@ -26,7 +26,7 @@ use Scalar::Util;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 39;
+our $VERSION = 40;
 
 use Glib::Object::Subclass
   'Gtk2::MessageDialog',
@@ -64,8 +64,9 @@ sub SET_PROPERTY {
   if ($pname eq 'toolitem') {
     if (Gtk2::Widget->find_property('tooltip-text')) {
       # tooltip-text new in Gtk 2.12
-      $self->{'connp'} = $newval && Gtk2::Ex::ConnectProperties->dynamic
-        ([$newval, 'tooltip-text']
+      require Glib::Ex::ConnectProperties;
+      $self->{'connp'} = $newval && Glib::Ex::ConnectProperties->dynamic
+        ([$newval, 'tooltip-text'],
          [$self->vbox, 'tooltip-text', write_only=>1]);
     }
   }

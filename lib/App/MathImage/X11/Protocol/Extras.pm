@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,8 +23,10 @@ use warnings;
 use Carp;
 use List::Util;
 
+use vars '$VERSION', '@ISA', '@EXPORT_OK';
+$VERSION = 40;
+
 use Exporter;
-use vars '@ISA', '@EXPORT_OK';
 @ISA = ('Exporter');
 @EXPORT_OK = qw(InternAtoms
                 atoms

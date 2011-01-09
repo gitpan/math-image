@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 40, January 2011
+    - better Flowsnake
+
 Version 39, January 2011
     - oops, tests fix leftover FractionBits stuff
     - Peano and Staircase split out

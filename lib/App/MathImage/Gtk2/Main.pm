@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::ComboEnum;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 39;
+our $VERSION = 40;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -712,6 +712,12 @@ HERE
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     $hbox->pack_start ($spin, 0,0,0);
     $toolitem->show_all;
+
+    Glib::Ex::ConnectProperties->new
+        ([$values_combobox,'active-nick'],
+         [$toolitem,'visible',
+          write_only => 1,
+          func_in => sub { $_[0] ne 'LinesLevel' }]);
   }
   {
     my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
@@ -729,10 +735,12 @@ HERE
     Glib::Ex::ConnectProperties->new
         ([$draw,'figure'],
          [$combobox,'active-nick']);
-    Glib::Ex::ConnectProperties->new ([$values_combobox,'active-nick'],
-                                      [$toolitem,'visible',
-                                       write_only => 1,
-                                       func_in => sub { $_[0] ne 'Lines' }]);
+    Glib::Ex::ConnectProperties->new
+        ([$values_combobox,'active-nick'],
+         [$toolitem,'visible',
+          write_only => 1,
+          func_in => sub { $_[0] ne 'Lines'
+                             && $_[0] ne 'LinesLevel' }]);
   }
 
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
@@ -773,6 +781,7 @@ sub _do_values_changed {
   my $after = $values_toolitem;
   my $values_class = App::MathImage::Generator->values_class($values);
   foreach my $pinfo ($values_class->parameter_list) {
+    ### $pinfo
     my $pname = $pinfo->{'name'};
     my $toolitem = $self->{'toolitems'}->{$pname};
     if (! defined $toolitem) {

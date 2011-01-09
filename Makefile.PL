@@ -44,6 +44,8 @@ MyMakeMakerExtras::WriteMakefile
     # doesn't sound like a good idea.
     'File::Copy'      => '2.14',
 
+    'Geometry::AffineTransform' => 0,
+
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,
     'Glib::Ex::ConnectProperties' => 14, # v.14 for response-sensitive#

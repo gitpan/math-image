@@ -26,39 +26,40 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-eval { require Image::Magick }
-  or plan skip_all => "due to no Image::Magick -- $@";
+eval { require Imager }
+  or plan skip_all => "due to no Imager module -- $@";
 
-plan tests => 1504;
-use_ok ('App::MathImage::Image::Base::Magick');
+plan tests => 1505;
+use_ok ('App::MathImage::Image::Base::Imager');
 
 
 #------------------------------------------------------------------------------
 # VERSION
 
 my $want_version = 40;
-is ($App::MathImage::Image::Base::Magick::VERSION,
+is ($App::MathImage::Image::Base::Imager::VERSION,
     $want_version, 'VERSION variable');
-is (App::MathImage::Image::Base::Magick->VERSION,
+is (App::MathImage::Image::Base::Imager->VERSION,
     $want_version, 'VERSION class method');
 
-ok (eval { App::MathImage::Image::Base::Magick->VERSION($want_version); 1 },
+ok (eval { App::MathImage::Image::Base::Imager->VERSION($want_version); 1 },
     "VERSION class check $want_version");
 my $check_version = $want_version + 1000;
-ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
+ok (! eval { App::MathImage::Image::Base::Imager->VERSION($check_version); 1 },
     "VERSION class check $check_version");
 
 #------------------------------------------------------------------------------
 # new()
 
 {
-  my $image = App::MathImage::Image::Base::Magick->new
+  my $image = App::MathImage::Image::Base::Imager->new
     (-width  => 20,
      -height => 10);
   is ($image->get('-width'), 20);
   is ($image->get('-height'), 10);
-  my $m = $image->get('-imagemagick');
-  $m->Set (antialias => 0);
+
+  $image->xy (0,0, 'red');
+  is ($image->xy(0,0), '#FF0000');
 
   require MyTestImageBase;
   MyTestImageBase::check_image ($image);

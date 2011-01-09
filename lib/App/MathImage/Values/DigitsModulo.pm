@@ -25,12 +25,9 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 39;
+$VERSION = 40;
 
 
-# ENHANCE-ME: maybe a radix parameter, modulo sum of digits
-
-# bit count per example in perlfunc unpack()
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
@@ -48,6 +45,7 @@ use constant type => 'radix';
 # use constant oeis => 'A001969'; # with even 1s
 # df 'A026147'; # positions of 1s in evil
 # cf A001285
+# cf A053827 - base 6, full sum, not modulo
 my @oeis = (undef,
             undef,
             'A010060', # 2 binary
@@ -87,6 +85,7 @@ sub ith {
   my ($self, $i) = @_;
   my $radix = $self->{'radix'};
   if ($radix == 2) {
+    # bit count per example in perlfunc unpack()
     return ($i, unpack('%32b*', pack('I', $i)) & 1);
   } else {
     my $sum = 0;

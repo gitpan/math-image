@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,6 +25,9 @@ use App::MathImage::X11::Protocol::Extras
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+use vars '$VERSION';
+$VERSION = 40;
 
 use constant XA_PIXMAP => 20;  # pre-defined atom
 
