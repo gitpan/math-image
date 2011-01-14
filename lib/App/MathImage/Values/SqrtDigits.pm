@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -68,6 +68,13 @@ my %oeis = (2  => { 2  => 'A004539',   # sqrt2 binary digits
             14 => { 10 => 'A010471' }, # sqrt14 decimal
             15 => { 10 => 'A010472' }, # sqrt15 decimal
             17 => { 10 => 'A010473' }, # sqrt17 decimal
+            18 => { 10 => 'A010474' }, # sqrt18 decimal
+            19 => { 10 => 'A010475' }, # sqrt19 decimal
+            20 => { 10 => 'A010476' }, # sqrt20 decimal
+            21 => { 10 => 'A010477' }, # sqrt21 decimal
+            22 => { 10 => 'A010478' },
+            23 => { 10 => 'A010479' },
+            24 => { 10 => 'A010480' },
            );
 sub oeis {
   my ($class_or_self) = @_;
@@ -79,6 +86,52 @@ sub oeis {
                : $class_or_self->parameter_default('radix'));
   return $oeis{$sqrt}->{$radix};
 }
+# OEIS: A004539 sqrt=2 radix=2
+# OEIS: A004540 sqrt=2 radix=3
+# OEIS: A004541 sqrt=2 radix=4
+# OEIS: A004542 sqrt=2 radix=5
+# OEIS: A002193 sqrt=2 radix=10
+# OEIS: A002194 sqrt=3  radix=10
+# OEIS: A002163 sqrt=5  radix=10
+# OEIS: A010467 sqrt=10 radix=10
+# OEIS: A010468 sqrt=11 radix=10
+# OEIS: A010469 sqrt=12 radix=10
+# OEIS: A010470 sqrt=13 radix=10
+# OEIS: A010471 sqrt=14 radix=10
+# OEIS: A010472 sqrt=15 radix=10
+# OEIS: A010473 sqrt=17 radix=10
+# OEIS: A010474 sqrt=18 radix=10
+# OEIS: A010475 sqrt=19 radix=10
+# OEIS: A010476 sqrt=20 radix=10
+# OEIS: A010477 sqrt=21 radix=10
+# OEIS: A010478 sqrt=22 radix=10
+# OEIS: A010479 sqrt=23 radix=10
+# OEIS: A010480 sqrt=24 radix=10
+# OEIS: A010481 sqrt=26 radix=10
+# OEIS: A010482 sqrt=27 radix=10
+# OEIS: A010483 sqrt=28 radix=10
+# OEIS: A010484 sqrt=29 radix=10
+# OEIS: A010485 sqrt=30 radix=10
+# OEIS: A010486 sqrt=31 radix=10
+# OEIS: A010487 sqrt=32 radix=10
+# OEIS: A010488 sqrt=33 radix=10
+# OEIS: A010489 sqrt=34 radix=10
+# OEIS: A010490 sqrt=35 radix=10
+# OEIS: A010491 sqrt=37 radix=10
+# OEIS: A010492 sqrt=38 radix=10
+# OEIS: A010493 sqrt=39 radix=10
+# OEIS: A010494 sqrt=40 radix=10
+# OEIS: A010495 sqrt=41 radix=10
+# OEIS: A010496 sqrt=42 radix=10
+# OEIS: A010497 sqrt=43 radix=10
+# OEIS: A010498 sqrt=44 radix=10
+# OEIS: A010499 sqrt=45 radix=10
+# OEIS: A010500 sqrt=46 radix=10
+# OEIS: A010501 sqrt=47 radix=10
+# OEIS: A010502 sqrt=48 radix=10
+# OEIS: A010503 sqrt=50 radix=10
+# OEIS: A010504 sqrt=51 radix=10
+
 
 my %radix_to_stringize = (2  => 'as_bin',
                           8  => 'as_oct',

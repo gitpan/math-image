@@ -36,7 +36,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

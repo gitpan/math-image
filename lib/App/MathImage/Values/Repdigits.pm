@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -43,6 +43,7 @@ sub oeis {
           ? 'A010785'
           : undef);
 }
+# OEIS: A010785 radix=10
 
 sub new {
   my ($class, %options) = @_;

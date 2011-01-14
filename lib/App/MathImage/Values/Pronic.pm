@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,6 +34,7 @@ $VERSION = 40;
 use constant name => __('Pronic Numbers');
 use constant description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k*(k+1).  These are twice the triangular numbers, and half way between perfect squares.');
 use constant oeis => 'A002378';
+# OEIS: A002378
 
 sub new {
   my ($class, %options) = @_;

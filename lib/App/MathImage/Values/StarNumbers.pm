@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -43,6 +43,7 @@ use constant description =>  __('The star numbers 1, 13, 37, 73, 121, etc, 6*n*(
 #     A068778 - indices of the stars
 #
 use constant oeis => 'A003154';
+# OEIS: A003154
 
 # entered polygonal numbers (k*n^2-k*n+2)/2, for k = 3 through 14 sides:
 # A005448 , A001844 , A005891 , A003215 , A069099 , A016754 , A060544 ,

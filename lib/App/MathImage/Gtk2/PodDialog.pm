@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 40;
+our $VERSION = 41;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 

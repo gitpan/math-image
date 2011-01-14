@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,6 +33,7 @@ $VERSION = 40;
 use constant name => __('Even Integers');
 use constant description => __('The even integers 2, 4, 6, 8, 10, etc.');
 use constant oeis => 'A005843';
+# OEIS: A005843
 
 sub new {
   my ($class, %self) = @_;

@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 exit App::MathImage->command_line;
 
 __END__
@@ -176,6 +176,16 @@ Draw lines along the path instead of a set of selected points.  This shows
 where a path travels but you may have to increase the C<--scale> to see it
 properly.
 
+=item --values=MODULE
+
+Draw values from the given C<App::MathImage::Values> module.  For example
+
+    math-image --values=Emirps
+
+The names for the values modules are not yet settled, so expect some splits,
+mergers or renamings.  There's no way to set module parameters from the
+command line yet.
+
 =back
 
 =head2 Path Options
@@ -235,6 +245,15 @@ L<Math::PlanePath::Diagonals>.
 
 Points drawn in successive rows or columns.
 
+=item --path=MODULE
+
+Draw following the given C<Math::PlanePath> module.  For example
+
+    math-image --path=HeptSpiralSkewed
+
+This can be used for the math-image experimental paths under
+C<App::MathImage::PlanePath>, though the names there are likely to change.
+
 =back
 
 =head2 Output Options
@@ -280,26 +299,29 @@ C<DISPLAY> environment variable (normally set at X startup).
 =item --xpm
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
-possible with GdkPixbuf but can also use C<Image::Base::GD> or
-C<Image::Base::PNGwriter> and their respective supporting libraries.  XPM
-output requires C<Image::Xpm>.
+possible with GdkPixbuf but can also use C<Image::Base::GD>,
+C<Image::Base::PNGwriter> or C<Image::Base::Prima> and their respective
+supporting libraries.
 
     math-image --png >/tmp/my-file.png
+
+XPM output requires either C<Image::Xpm> or C<Image::Base::Prima>.  Prima
+for X11 requires an X server to do the drawing, of either PNG or XPM.
 
 =item --text
 
 Write a text-only image to standard output and exit.  The default size
-follows the terminal with C<Term::Size>.  A size like 80x25 is usually too
-small to see much, but a bigger image might be cute to send to a line
-printer or similar.
+follows the terminal with C<Term::Size>.  A typical tty size like 80x25 is
+usually too small to see much, but a bigger image might be cute to send to a
+line printer or similar.
 
-    math-image --text --width=130 --height=49 | lpr
+    math-image --text --size=130x49 | lpr
 
 =item --prima
 
-Run the Prima GUI.  This requires the C<Prima> module.  This doesn't yet
-have the full set of options the Gtk GUI does, but it works as far as it
-goes.
+Run the Prima GUI.  This requires the C<Prima> and C<Image::Base::Prima>
+modules.  This doesn't yet have the full set of options the Gtk GUI does,
+but it works as far as it goes.
 
 =item --curses
 
@@ -358,7 +380,7 @@ of the terminal per C<Term::Size>.
 =item --scale=PIXELS
 
 How many pixels for each value shown.  The current default is 3 to show 3x3
-pixel squares, or for C<--text> output just 1.
+pixel squares, or for C<--text> output just 1 for a pixel per character
 
 =item --help, -?
 

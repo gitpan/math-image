@@ -27,6 +27,7 @@ use Text::Capitalize;
 use File::Spec;
 use List::Util;
 use Gtk2;
+use Gtk2::Ex::PixbufBits;
 use Gtk2::Ex::Units;
 use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
@@ -35,12 +36,11 @@ use Gtk2::Ex::ComboBox::PixbufType;
 use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::Gtk2::Drawing;
-use App::MathImage::Gtk2::Ex::PixbufBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 40;
+our $VERSION = 41;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -110,7 +110,7 @@ ICO only goes up to 255x255 pixels.'));
     $hbox->show_all;
 
     my $type = $combo->get('active-type');
-    if (my $info = _get_format_from_type($type)) {
+    if (my $info = Gtk2::Ex::PixbufBits::type_to_format($type)) {
       $self->{'old_extensions'} = $info->{'extensions'};
     }
 
@@ -211,7 +211,7 @@ sub save {
                   values => Text::Capitalize::capitalize($values),
                   path   => Text::Capitalize::capitalize($path));
   if (eval {
-    App::MathImage::Gtk2::Ex::PixbufBits::save_adapt
+    Gtk2::Ex::PixbufBits::save_adapt
         ($pixbuf, $filename, $type,
          'tEXt::Title'         => $title,
          'tEXt::Creation Time' => POSIX::strftime (STRFTIME_FORMAT_RFC822,
@@ -255,7 +255,7 @@ sub _combo_notify_active {
   my ($combo) = @_;
   my $self = $combo->get_ancestor(__PACKAGE__);
   my $type = $combo->get('active-type');
-  my $info = ($type && _get_format_from_type($type)) || return;
+  my $info = ($type && Gtk2::Ex::PixbufBits::type_to_format($type)) || return;
 
   _change_extension ($self,
                      $self->{'old_extensions'} || [],
@@ -316,20 +316,6 @@ sub _filename_has_extension {
   }
   ### no
   return;
-}
-
-
-my $get_formats_method;
-BEGIN {
-  $get_formats_method = (Gtk2::Gdk::Pixbuf->can('get_formats') # new in Gtk 2.2
-                         ? 'get_formats'
-                         : sub { return () }); # empty list
-}
-sub _get_format_from_type {
-  my ($type) = @_;
-  return List::Util::first
-    {$_->{'name'} eq $type}
-      Gtk2::Gdk::Pixbuf->$get_formats_method;
 }
 
 1;

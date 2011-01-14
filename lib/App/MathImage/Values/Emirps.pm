@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -47,6 +47,7 @@ sub oeis {
           ? 'A006567'
           : undef);
 }
+# OEIS: A006567 radix=10
 
 sub _digits_in_radix {
   my ($n, $radix) = @_;
@@ -108,10 +109,9 @@ sub new {
   }
   ### @array
 
-  return bless { %options,
-                 radix => $radix,
-                 array => \@array,
-               }, $class;
+  return $class->SUPER::new (%options,
+                             radix => $radix,
+                             array => \@array);
 }
 
 1;

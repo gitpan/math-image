@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,7 +33,9 @@ $VERSION = 40;
 use constant name => __('Abundant Numbers');
 use constant description => __('Numbers N with sum of its divisors >= N, eg. 12 is divisible by 1,2,3,4,6 total 16 is >= 12.');
 use constant oeis => 'A005101';
+# OEIS: A005101
 
+# cf
 # A005100 deficient numbers sigma(n) < 2*n
 # A000396 perfect sigma(n) == 2*n
 

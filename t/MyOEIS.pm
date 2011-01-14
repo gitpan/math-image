@@ -39,8 +39,10 @@ sub anum_validate {
 }
 
 sub anum_to_bfile {
-  my ($str) = @_;
-  $str =~ s/^A(.*)/b$1.txt/;
+  my ($str, $prefix) = @_;
+  ### anum_to_bfile: @_
+  $prefix ||= 'b';
+  $str =~ s/^A(.*)/$prefix$1.txt/;
   return $str;
 }
 
@@ -62,33 +64,34 @@ sub _read_values {
   my $max_value = POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
 
   require File::Spec;
-  my $basefile = anum_to_bfile($anum);
-  my $filename = File::Spec->catfile (oeis_dir(), $basefile);
-  ### $basefile
-  ### $filename
-
-  if (open FH, "<$filename") {
-    my @array;
-    while (defined (my $line = <FH>)) {
-      chomp $line;
-      next if $line =~ /^\s*$/;   # ignore blank lines
-      my ($i, $n) = split /\s+/, $line;
-      if (! (defined $n && $n =~ /^-?[0-9]+$/)) {
-        die "oops, bad line in $filename: '$line'";
+  foreach my $basefile (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
+    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
+    ### $basefile
+    ### $filename
+    
+    if (open FH, "<$filename") {
+      my @array;
+      while (defined (my $line = <FH>)) {
+        chomp $line;
+        next if $line =~ /^\s*$/;   # ignore blank lines
+        my ($i, $n) = split /\s+/, $line;
+        if (! (defined $n && $n =~ /^-?[0-9]+$/)) {
+          die "oops, bad line in $filename: '$line'";
+        }
+        if ($n > $max_value) {
+          Test::More::diag("$filename stop at bignum value: $line");
+          last;
+        }
+        push @array, $n;
       }
-      if ($n > $max_value) {
-        Test::More::diag("$filename stop at bignum value: $line");
-        last;
-      }
-      push @array, $n;
+      close FH or die;
+      return (\@array, $filename);
     }
-    close FH or die;
-    return (\@array, $filename);
+    ### no bfile: $!
   }
-  ### no bfile: $!
 
   foreach my $basefile ("$anum.html", "$anum.htm") {
-    $filename = File::Spec->catfile (oeis_dir(), $basefile);
+    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
     if (open FH, "<$filename") {

@@ -24,11 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Factorials');
 use constant description => __('The factorials 1, 2, 6, 24, 120, etc, 1*2*...*N.');
 use constant oeis => 'A000142'; # factorials
+# OEIS: A000142
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

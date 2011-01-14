@@ -24,11 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Binary Lengths');
 use constant description => __('Cumulative length of numbers 1,2,3,etc written out in binary, giving, 1,2,4,6,9,12,15,18,22,etc.  There\'s 2 steps by 2, then 4 steps by 3, then 8 steps by 4, then 16 steps by 5, etc.');
 use constant oeis => 'A083652';
+# OEIS: A083652
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -28,7 +28,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
@@ -46,6 +46,10 @@ sub oeis {
                : $class_or_self->parameter_default('pairs'));
   return $oeis{$pairs};
 }
+# OEIS: A001359 pairs=first
+# OEIS: A006512 pairs=second,
+# OEIS: A001097 pairs=both
+# cf A077800 both, with repetition
 
 sub new {
   my ($class, %options) = @_;

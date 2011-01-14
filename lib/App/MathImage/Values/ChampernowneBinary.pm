@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
@@ -35,6 +35,7 @@ $VERSION = 40;
 use constant name => __('Champernowne Sequence');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
 use constant oeis => 'A030303';
+# OEIS: A030303
 
 # # http://www.research.att.com/~njas/sequences/A030310  # binary 1 positions
 # 

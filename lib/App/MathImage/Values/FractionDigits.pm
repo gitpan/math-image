@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');
@@ -56,6 +56,7 @@ sub oeis {
                : $class_or_self->parameter_default('radix'));
   return $oeis{$fraction}->{$radix};
 }
+# OEIS: A021739 fraction=1/735 radix=10
 
 sub new {
   my ($class, %options) = @_;

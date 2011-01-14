@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -56,6 +56,15 @@ sub oeis {
                : $class_or_self->parameter_default('radix'));
   return $oeis[$radix];
 }
+# OEIS: A006995 radix=2
+# OEIS: A014190 radix=3
+# OEIS: A014192 radix=4
+# OEIS: A029953 radix=5
+# OEIS: A029953 radix=6
+# OEIS: A029954 radix=7
+# OEIS: A029803 radix=8
+# OEIS: A029955 radix=9
+# OEIS: A002113 radix=10
 
 
 use constant parameter_list => (App::MathImage::Values->parameter_common_radix);

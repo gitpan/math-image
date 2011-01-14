@@ -29,7 +29,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes
@@ -37,6 +37,7 @@ $VERSION = 40;
 use constant name => __('Sophie Germain Primes');
 use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
 use constant oeis => 'A005384';
+# OEIS: A005384
 
 sub new {
   my ($class, %options) = @_;
@@ -71,9 +72,9 @@ sub new {
     }
   }
   $#array = $to - 1;
-  return bless { array => \@array,
-                 i     => 0,
-               }, $class;
+  return $class->SUPER::new (%options,
+                             array => \@array,
+                             i     => 0);
 }
 
 1;

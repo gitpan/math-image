@@ -22,11 +22,44 @@ use strict;
 use warnings;
 use POSIX;
 
-#use Smart::Comments;
+use Smart::Comments;
 
 use lib 'devel/lib';
 
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
+
+
+{
+  require App::MathImage::Generator;
+  require Geometry::AffineTransform;
+
+  my $affine = Geometry::AffineTransform->new;
+  $affine->scale (10, 20);
+  $affine->rotate (45+180);
+  $affine->translate (100, 200);
+  my $det = $affine->{m11}*$affine->{m22} - $affine->{m12}*$affine->{m21};
+  ### $affine
+  ### $det
+  my $x = 2;
+  my $y = 3;
+  my ($xa, $ya) = $affine->transform ($x, $y);
+  ### transform: "$xa, $ya"
+
+  my ($xu, $yu) = $affine->App::MathImage::Generator::untransform($xa,$ya);
+  ### untransform: "$xu, $yu"
+
+  my $inv = $affine->clone;
+  $inv->App::MathImage::Generator::invert;
+  ### $inv
+  ($xu, $yu) = $inv->transform ($xa, $ya);
+  ### inverse: "$xu, $yu"
+
+  my $concat = $affine->clone->concatenate($inv);
+  ### $concat
+   $concat = $inv->clone->concatenate($affine);
+  ### $concat
+  exit 0;
+}
 
 
 {
@@ -72,6 +105,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('TwinPrimes');
     $values_class = $gen->values_class('DigitsModulo');
     $values_class = $gen->values_class('RadixWithoutDigit');
+    $values_class = $gen->values_class('OEIS');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
@@ -80,8 +114,14 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
                                          radix => 3,
                                          digit => 0,
                                          expression => 'z=3; z*x^2 + 3*x + 2',
-                                         expression_evaluator => 'MEE');
+                                         expression_evaluator => 'MEE',
+                                         anum => '10059',
+                                        );
     ### $values_obj
+    print "type ",$values_obj->type,"\n";
+    if ($values_obj->type eq 'radix') {
+      print "  radix ",$values_obj->{'radix'},"\n";
+    }
     $|=1;
     foreach (1 .. 50) {
       my ($n,$count1) = $values_obj->next;

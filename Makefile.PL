@@ -39,11 +39,13 @@ MyMakeMakerExtras::WriteMakefile
     'Bit::Vector'     => 0,
     'Compress::Zlib'  => 0,
     # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
-    # handles by outsmarting itself in some compares.  2.14 looks slightly
-    # better, though enquiring into the overloadedness of handles really
-    # doesn't sound like a good idea.
+    # handles by outsmarting itself in some compares and File::Temp having a
+    # bogus numize.  File::Copy 2.14 looks slightly better, though enquiring
+    # into the overloadedness of handles really doesn't sound like a good
+    # idea.
     'File::Copy'      => '2.14',
 
+    'File::HomeDir' => 0,
     'Geometry::AffineTransform' => 0,
 
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
@@ -66,6 +68,8 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
     # 'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
+    'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
+    'Gtk2::Ex::PixbufBits'     => 35, # new in v.35
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::ToolbarBits'    => 34, # new in v.34
     'Gtk2::Ex::Units'          => 13, # new in v.13
@@ -79,10 +83,12 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ComboBox::Text' => 2,
     'Gtk2::Ex::ComboBox::PixbufType' => 4, # new in version 4
     'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
+    'Gtk2::Ex::ToolItem::ComboEnum' => 28, # new in version 28
 
     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
+
     'Image::Base' => '1.09',  # for ellipse() fixes
 
     # my Image-Base-Other
@@ -98,6 +104,7 @@ MyMakeMakerExtras::WriteMakefile
     'Locale::TextDomain' => '1.19',
     'Locale::Messages' => 0,
     'Module::Load' => 0,
+    'Module::Pluggable' => 0,
     'Module::Util' => 0,
     'Number::Format' => 0,
     'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
@@ -106,7 +113,7 @@ MyMakeMakerExtras::WriteMakefile
     'Text::Capitalize' => 0,
     'Term::Size' => 0,
 
-    'Math::Prime::XS' => '0.22', # version 0.22 for lo==hi
+    'Math::Prime::XS' => '0.23', # version 0.23 for fix 1928099
 
     'Math::BaseCnv' => 0,
     'Math::Libm' => 0,
@@ -147,8 +154,9 @@ MyMakeMakerExtras::WriteMakefile
            },
         recommends
         => { 'Math::Aronson'  => 4, # version 4 for lying option
-             'Math::Symbolic' => 0.605, # 0.605 fixing a simplify
+             'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
              'Math::Expression::Evaluator' => 0, # maybe any ok
+             'Language::Expr' => '0.14',
              'Image::Xpm'     => 0,
              'Image::Base::X11::Protocol::Pixmap' => 0,
              'Image::Base::X11::Protocol::Window' => 0,
@@ -165,14 +173,20 @@ MyMakeMakerExtras::WriteMakefile
                               # suggest ErrorTextDialog v.7 for popup control
                               'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
                               'Gtk2::Ex::PodViewer'    => 0,
+
                               'Image::Xpm'             => 0,
                               'Image::Base::GD'        => 4, # bug fixes
                               'Image::Base::PNGwriter' => 2, # bug fixes
                               'Image::Base::X11::Protocol::Pixmap' => 0,
                               'Image::Base::X11::Protocol::Window' => 0,
+
                               'Math::Aronson'  => 4, # version 4 for lying
                               'Math::Symbolic' => 0.605, # 0.605 fix a simplify
                               'Math::Expression::Evaluator' => 0,
+                              'Language::Expr' => '0.14',
+
+                              'Prima' => 0,
+                              'Image::Base::Prima' => 1,
                              },
                },
             maximum_tests
@@ -186,3 +200,18 @@ MyMakeMakerExtras::WriteMakefile
            },
       },
   );
+
+#------------------------------------------------------------------------------
+package MY;
+sub postamble {
+  my ($makemaker) = @_;
+  return MyMakeMakerExtras::postamble ($makemaker) . <<'HERE';
+
+#------------------------------------------------------------------------------
+# OEIS/Catalogue/Builtin.pm
+
+lib/App/MathImage/Values/OEIS/Catalogue/Builtin.pm: make-oeis-catalogue.pl lib/App/MathImage/Values/*.pm
+	$(PERL) make-oeis-catalogue.pl \
+	|| (rm -f lib/App/MathImage/Values/OEIS/Catalogue/Builtin.pm; false)
+HERE
+}

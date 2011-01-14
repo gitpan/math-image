@@ -65,20 +65,10 @@ sub my_ignore {
        ignore => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
-  if ($leaks) {
-    eval { diag "Test-Weaken ", explain($leaks) }; # explain new in 0.82
+  MyTestHelpers::test_weaken_show_leaks($leaks);
 
-    my $unfreed = $leaks->unfreed_proberefs;
-    print "unfreed isweak ",
-      (Scalar::Util::isweak ($unfreed->[0]) ? "yes" : "no"), "\n";
-    foreach my $proberef (@$unfreed) {
-      diag "  unfreed $proberef";
-    }
-    foreach my $proberef (@$unfreed) {
-      diag "  search $proberef";
-      MyTestHelpers::findrefs($proberef);
-    }
-  }
+  # print "unfreed isweak ",
+  #   (Scalar::Util::isweak ($unfreed->[0]) ? "yes" : "no"), "\n";
 }
 
 exit 0;

@@ -31,10 +31,10 @@ use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-#use Smart::Comments '###';
+#use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -78,7 +78,9 @@ use constant values_choices => do {
   my %choices;
   foreach my $module (Module::Util::find_in_namespace
                       ('App::MathImage::Values')) {
-    (my $choice = $module) =~ s/^App::MathImage::Values:://;
+    my $choice = $module;
+    $choice =~ s/^App::MathImage::Values:://;
+    next if $choice =~ /::/; # not sub-parts
     $choices{$choice} = 1;
   }
   if (! defined (Module::Util::find_installed('Math::Aronson'))) {
@@ -139,6 +141,7 @@ use constant values_choices => do {
                          Base4Without3
                          RadixWithoutDigit
                          Multiples
+                         OEIS
                        )) {
     if (delete $choices{$prefer}) {
       push @choices, $prefer;
@@ -149,6 +152,7 @@ use constant values_choices => do {
   push @choices, sort keys %choices;
   push @choices, 'Lines';
   push @choices, 'LinesLevel';
+  ### @choices
   @choices
 };
 
@@ -600,6 +604,37 @@ sub colour_to_rgb {
   return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
 }
 
+# ($x,$y, $x,$y, ...) = $aff->untransform($x,$y, $x,$y, ...)
+sub untransform {
+  my $self = shift;
+  my @result;
+  my $det = $self->{m11}*$self->{m22} - $self->{m12}*$self->{m21};
+  while (@_) {
+    my $x = shift() - $self->{tx};
+    my $y = shift() - $self->{ty};
+    push @result,
+      ($self->{m22} * $x - $self->{m21} * $y) / $det,
+        ($self->{m11} * $y - $self->{m12} * $x) / $det;
+  }
+  return @result;
+}
+
+# $aff = $aff->invert
+sub invert {
+  my ($self) = @_;
+  my $det = $self->{m11}*$self->{m22} - $self->{m12}*$self->{m21};
+  return $self->set_matrix_2x3
+    ($self->{m22} / $det,     # 11
+     - $self->{m12} / $det,   # 12
+     - $self->{m21} / $det,   # 21
+     $self->{m11} / $det,     # 22
+     $self->App::MathImage::Generator::untransform(0,0));
+
+  # tx,ty as full expressions instead of untransform(), if preferred
+  # ($self->{m21} * $self->{ty} - $self->{m22} * $self->{tx}) / $det,
+  # ($self->{m12} * $self->{tx} - $self->{m11} * $self->{ty}) / $det);
+}
+
 sub draw_Image_start {
   my ($self, $image) = @_;
 
@@ -668,8 +703,6 @@ sub draw_Image_start {
     ### end raw: "$x, $y"
     my $r = hypot ($x,$y);
     ### $r
-
-    my $coord = $self->coord_object;
 
     $coord->{'x_origin'} = $self->{'width'} * .15;
     $coord->{'y_origin'} = $self->{'height'} * .5;
@@ -887,12 +920,13 @@ sub draw_Image_steps {
   my %points_by_colour;
   my %rectangles_by_colour;
   my $flush = sub {
-    #### drawing rectangles flush
+    ### flush points: scalar(%points_by_colour)
     foreach my $colour (keys %points_by_colour) {
       my $aref = delete $points_by_colour{$colour};
       App::MathImage::Image::Base::Other::xy_points
           ($image, $colour, @$aref);
     }
+    ### flush rectangles: scalar(%rectangles_by_colour)
     foreach my $colour (keys %rectangles_by_colour) {
       my $aref = delete $rectangles_by_colour{$colour};
       App::MathImage::Image::Base::Other::rectangles

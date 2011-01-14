@@ -26,11 +26,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');
 use constant oeis => 'A000217';
+# OEIS: A000217
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

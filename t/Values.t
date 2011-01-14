@@ -478,26 +478,26 @@ sub _delete_duplicates {
                       [ 3, 5, 11, 17, 29 ],
                       { pairs => 'first' },
                       # Math::Prime::XS 0.22 buggy ...
-                      { bfile => 'nosuch' },
+                      # { bfile => 'nosuch' },
                     ],
                     [ 'TwinPrimes', 4,
                       [ 5, 11, 17, 29 ],
                       { pairs => 'first' },
                       # Math::Prime::XS 0.22 buggy ...
-                      { bfile => 'nosuch' },
+                      # { bfile => 'nosuch' },
                     ],
 
                     [ 'TwinPrimes', 0,
                       [ 5, 7, 13, 19, 31 ],
                       { pairs => 'second' },
                       # Math::Prime::XS 0.22 buggy ...
-                      { bfile => 'nosuch' },
+                      # { bfile => 'nosuch' },
                     ],
                     [ 'TwinPrimes', 6,
                       [ 7, 13, 19, 31 ],
                       { pairs => 'second' },
                       # Math::Prime::XS 0.22 buggy ...
-                      { bfile => 'nosuch' },
+                      # { bfile => 'nosuch' },
                     ],
 
                     # sloanes
@@ -525,7 +525,7 @@ sub _delete_duplicates {
                         1511, 1559 ],
                       undef,
                       # Math::Prime::XS 0.22 buggy ... 'b005384.txt'
-                      { bfile => 'nosuch' },
+                      # { bfile => 'nosuch' },
                     ],
 
                     # http://www.research.att.com/~njas/sequences/A005385
@@ -538,7 +538,7 @@ sub _delete_duplicates {
                       ],
                       undef,
                       # Math::Prime::XS 0.22 buggy ... maybe 'b005385.txt'
-                      { bfile => 'nosuch' },
+                      # { bfile => 'nosuch' },
                     ],
 
                     # sloanes

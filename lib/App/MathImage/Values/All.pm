@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,6 +32,9 @@ $VERSION = 40;
 use constant name => __('All Integers');
 use constant description => __('All integers 1,2,3,etc.');
 use constant oeis => 'A000027';   # natural numbers starting 1
+# OEIS: A000027
+
+# cf
 # use constant oeis => 'A001477'; # non-negatives starting 0
 
 sub new {

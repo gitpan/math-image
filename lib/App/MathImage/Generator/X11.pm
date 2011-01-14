@@ -31,7 +31,7 @@ use App::MathImage::X11::Protocol::XSetRoot;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 40;
+our $VERSION = 41;
 
 sub new {
   my $class = shift;

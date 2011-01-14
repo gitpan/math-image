@@ -36,16 +36,16 @@ use Glib::Ex::EnumBits;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 use Gtk2::Ex::ComboBox::Text 2; # version 2 for fixed MoreUtils dependency
 use Gtk2::Ex::ComboBox::Enum 2; # version 2 for fixed MoreUtils dependency
+use Gtk2::Ex::ToolItem::ComboEnum;
 
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
-use App::MathImage::Gtk2::Ex::ToolItem::Entry;
-use App::MathImage::Gtk2::Ex::ToolItem::ComboEnum;
+use App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 40;
+our $VERSION = 41;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -454,7 +454,7 @@ HERE
   my $toolpos = -999;
   my $path_combobox;
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+    my $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::Path',
        overflow_mnemonic => __('_Path'));
     set_property_maybe
@@ -472,8 +472,8 @@ HERE
                                       [$toolitem,'active-nick']);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-      (label => __('Wider'));
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+      (overflow_mnemonic=> __('_Wider'));
     set_property_maybe ($toolitem,
                         # tooltip-text new in 2.12
                         tooltip_text => __('Wider path.'));
@@ -489,7 +489,7 @@ HERE
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     $spin->show;
-    $toolitem->set (entry => $spin);
+    $toolitem->add ($spin);
 
     Glib::Ex::ConnectProperties->new
         ([ $path_combobox, 'active-nick' ],
@@ -498,8 +498,8 @@ HERE
            hash_in    => \%App::MathImage::Generator::pathname_has_wider ]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-      (label => __('Pyramid Step'));
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+      (overflow_mnemonic => __('_Pyramid Step'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Step width for the pyramid rows, half going to each side.'));
     $toolbar->insert ($toolitem, $toolpos++);
@@ -514,7 +514,7 @@ HERE
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     $spin->show;
-    $toolitem->set (entry => $spin);
+    $toolitem->add ($spin);
 
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$toolitem,'visible',
@@ -522,8 +522,8 @@ HERE
                                        hash_in => { 'PyramidRows' => 1 }]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-      (label => __('Rings Step'));
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+      (overflow_mnemonic => __('_Rings Step'));
     # set_property_maybe ($toolitem,
     #                     tooltip_text => __('Multiple ...'));
     $toolbar->insert ($toolitem, $toolpos++);
@@ -538,7 +538,7 @@ HERE
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
     $spin->show;
-    $toolitem->set (entry => $spin);
+    $toolitem->add ($spin);
 
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
                                       [$toolitem,'visible',
@@ -547,7 +547,7 @@ HERE
   }
   my $rotation_type_combobox;
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+    my $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::RotationType',
        overflow_mnemonic => __('_Rotation Type'));
     # set_property_maybe ($toolitem,
@@ -568,16 +568,17 @@ HERE
                                        hash_in => { 'VogelFloret' => 1 }]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-      (label => __('Rotation Factor'));
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+      (overflow_mnemonic => __('_Rotation Factor'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'));
     $toolbar->insert ($toolitem, $toolpos++);
 
-    my $entry = $toolitem->get('entry');
+    my $entry = Gtk2::Entry->new;
     $entry->set_width_chars (10);
     $entry->show;
     $entry->set_text ('-phi');
+    $toolitem->add ($entry);
 
     $entry->signal_connect
       (activate => sub {
@@ -617,8 +618,8 @@ HERE
     $rotation_type_combobox->signal_connect ('notify::active-nick' => $update_sensitive);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-      (label => __('Radius Factor'));
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+      (overflow_mnemonic => __('_Radius Factor'));
     set_property_maybe ($toolitem,  # tooltip-text new in 2.12
                         tooltip_text => __('Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'));
     $toolbar->insert ($toolitem, $toolpos++);
@@ -635,7 +636,7 @@ HERE
                                       [$adj,'value']);
 
     my $spin = Gtk2::SpinButton->new ($adj, 2, 1);
-    $toolitem->set (entry => $spin);
+    $toolitem->add ($spin);
     $spin->show;
 
     Glib::Ex::ConnectProperties->new ([$path_combobox,'active-nick'],
@@ -651,9 +652,9 @@ HERE
   }
   my $values_combobox;
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+    my $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::Values',
-       overflow_mnemonic => __('Values'));
+       overflow_mnemonic => __('_Values'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
 
@@ -675,7 +676,7 @@ HERE
     $toolbar->insert ($separator, $toolpos++);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+    my $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::Filters',
        overflow_mnemonic => __('Filter'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
@@ -692,15 +693,15 @@ HERE
          [$combobox,'active-nick']);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-      (label => __('Scale'));
+    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+      (overflow_mnemonic => __('_Scale'));
     $toolbar->insert ($toolitem, $toolpos++);
 
     my $hbox = Gtk2::HBox->new;
     set_property_maybe ($toolitem,
                         # tooltip-text new in 2.12
                         tooltip_text => __('How many pixels per square.'));
-    $toolitem->set (entry => $hbox);
+    $toolitem->add ($hbox);
 
     $hbox->pack_start (Gtk2::Label->new(__('Scale')), 0,0,0);
     my $adj = Gtk2::Adjustment->new (1,        # initial
@@ -720,9 +721,9 @@ HERE
           func_in => sub { $_[0] ne 'LinesLevel' }]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
+    my $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::FigureType',
-       overflow_mnemonic => __('Figure'));
+       overflow_mnemonic => __('_Figure'));
     set_property_maybe ($toolitem,
                         tooltip_text  => __('The figure to show at each position.'));
     $toolitem->show;
@@ -800,9 +801,32 @@ sub _do_values_changed {
         Glib::Ex::ConnectProperties->new ([$toolitem,'active'],
                                           [$draw,"values-$pname"]);
 
+      } elsif ($ptype eq 'enum') {
+        my $enum_type = "App::MathImage::Gtk2::Drawing::$pname";
+        my $choices = $pinfo->{'choices'};
+        Glib::Type->register_enum ($enum_type, @$choices);
+        { no strict 'refs';
+          %{"${enum_type}::EnumBits_to_display"}
+            = map {($choices->[$_] => $pinfo->{'choices_display'}->[$_])}
+              0 .. $#$choices;
+        }
+        $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
+          (enum_type => $enum_type,
+           active_nick => $choices->[0],
+           overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
+
+        my $combobox = $toolitem->get_child;
+        set_property_maybe ($combobox, # tearoff-title new in 2.10
+                            tearoff_title => __('Math-Image:').' '.$display);
+        $tooltip_extra = __('Press Return when ready to display.');
+
+        Glib::Ex::ConnectProperties->new
+            ([$combobox,'active-nick'],
+             [$draw,"values-$pname"]);
+
       } elsif ($ptype eq 'integer') {
-        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-          (label => $display);
+        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+          (overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
         my $min = $pinfo->{'minimum'};
         if (! defined $min) { $min = POSIX::INT_MIN; }
         my $max = $pinfo->{'maximum'};
@@ -820,13 +844,13 @@ sub _do_values_changed {
           $spin->set_width_chars ($width); # overriding $max
         }
         $spin->show;
-        $toolitem->set (entry => $spin);
+        $toolitem->add ($spin);
 
       } elsif ($ptype eq 'string') {
-        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::Entry->new
-          (label => $display);
+        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+          (overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
 
-        my $entry = $toolitem->get('entry');
+        my $entry = Gtk2::Entry->new;
         if (defined (my $default = $pinfo->{'default'})) {
           $entry->set_text ($default);
         }
@@ -834,29 +858,8 @@ sub _do_values_changed {
         Glib::Ex::ConnectProperties->new
             ([$entry,'text', read_signal => 'activate'],
              [$draw,"values-$pname"]);
+        $toolitem->add ($entry);
 
-      } elsif ($ptype eq 'enum') {
-        my $enum_type = "App::MathImage::Gtk2::Drawing::$pname";
-        my $choices = $pinfo->{'choices'};
-        Glib::Type->register_enum ($enum_type, @$choices);
-        { no strict 'refs';
-          %{"${enum_type}::EnumBits_to_display"}
-            = map {($choices->[$_] => $pinfo->{'choices_display'}->[$_])}
-              0 .. $#$choices;
-        }
-        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboEnum->new
-          (enum_type => $enum_type,
-           active_nick => $choices->[0],
-           overflow_mnemonic => $display);
-
-        my $combobox = $toolitem->get_child;
-        set_property_maybe ($combobox, # tearoff-title new in 2.10
-                            tearoff_title => __('Math-Image:').' '.$display);
-        $tooltip_extra = __('Press Return when ready to display.');
-
-        Glib::Ex::ConnectProperties->new
-            ([$combobox,'active-nick'],
-             [$draw,"values-$pname"]);
       } else {
         next;
       }
@@ -885,41 +888,6 @@ sub values_has_pname {
   my $values_class = App::MathImage::Generator->values_class($values);
   return exists($values_class->parameter_hash->{$pname});
 }
-
-# sub _do_toolbar_overflow_comboenum {
-#   my ($toolitem) = @_;
-#   ### _do_toolbar_overflow_comboenum()
-#   my $combo = $toolitem->get_child;
-#   require Gtk2::Ex::Menu::EnumRadio;
-#   my $menu = Gtk2::Ex::Menu::EnumRadio->new
-#     (enum_type   => $combo->get('enum-type'));
-#   # tearoff-title new in 2.10, go undef if nothing
-#   $menu->set_title (eval { $combo->get('tearoff-title') });
-#   Glib::Ex::ConnectProperties->new ([$combo,'active-nick'],
-#                                     [$menu,'active-nick']);
-#
-#   my $menuitem = Gtk2::MenuItem->new_with_label ($combo->{'name'});
-#   $menuitem->set_submenu ($menu);
-#   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
-#   return 1;
-# }
-
-# sub _toolbarbits_create_overflow_button {
-#   my ($toolitem) = @_;
-#   my $button = $toolitem->get_child;
-#   ### _toolbarbits_create_overflow_button(): "$button"
-#   my $menuitem = Gtk2::MenuItem->new_with_label ($button->get_child->get_label);
-#   require Scalar::Util;
-#   Scalar::Util::weaken (my $weak_toolitem = $toolitem);
-#   $menuitem->signal_connect (activate => sub {
-#                                my ($menuitem, $ref_weak_toolitem) = @_;
-#                                if (my $toolitem = $$ref_weak_toolitem) {
-#                                  $toolitem->activate;
-#                                }
-#                              }, \$weak_toolitem);
-#   $toolitem->set_proxy_menu_item (__PACKAGE__, $menuitem);
-#   return 1;
-# }
 
 sub _do_motion_notify {
   my ($draw, $event) = @_;

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -83,6 +83,32 @@ sub oeis {
                : $class_or_self->parameter_default('pairs'));
   return $oeis[$k]->{$pairs};
 }
+# OEIS: A000217 polygonal=3 pairs=first
+# OEIS: A000290 polygonal=4 pairs=first
+# OEIS: A000326 polygonal=5 pairs=first
+# OEIS: A005449 polygonal=5 pairs=second
+# OEIS: A001318 polygonal=5 pairs=both
+# OEIS: A000384 pairs=first     # 6 hexagonal
+# OEIS: A014105 pairs=second
+# OEIS: A000566 pairs=first  # 7 heptagonal
+# OEIS: A000567 pairs=first  # 8 octagonal
+# OEIS: A001106 pairs=first  # 9 nonagonal
+# OEIS: A001107 pairs=first  # 10 decogaonal
+# OEIS: A051682 pairs=first  # 11 hendecagonal
+# OEIS: A051624 pairs=first  # 12-gonal
+# OEIS: A051865 pairs=first  # 13 tridecagonal
+# OEIS: A051866 pairs=first  # 14-gonal
+# OEIS: A051867 pairs=first  # 15
+# OEIS: A051868 pairs=first  # 16
+# OEIS: A051869 pairs=first  # 17
+# OEIS: A051870 pairs=first  # 18
+# OEIS: A051871 pairs=first  # 19
+# OEIS: A051872 pairs=first  # 20
+# OEIS: A051873 pairs=first  # 21
+# OEIS: A051874 pairs=first  # 22
+# OEIS: A051875 pairs=first  # 23
+# OEIS: A051876 pairs=first  # 24
+
 
 # ($k-2)*$i*($i+1)/2 - ($k-3)*$i
 # = ($k-2)/2*$i*i + ($k-2)/2*$i - ($k-3)*$i
@@ -149,6 +175,8 @@ sub ith {
 # k=6   2/8 + sqrt(2/4 * $n + 4/64)
 # k=7  3/10 + sqrt(2/5 * $n + 9/100)
 # k=8  4/12 + sqrt(2/6 * $n + 1/9)
+#
+# i = 1/(2*(k-2)) * [k-4 + sqrt( 8*(k-2)*n + (4-k)^2 ) ]
 sub pred {
   my ($self, $n) = @_;
   if ($n <= 0) {

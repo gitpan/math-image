@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,6 +36,7 @@ use constant type => 'count1';
 
 use constant oeis => 'A001222'; # with multiplicity
 # use constant oeis => 'A001221'; # without multiplicity
+# OEIS: A001222
 
 sub new {
   my ($class, %options) = @_;

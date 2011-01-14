@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -58,20 +58,7 @@ require Test::Weaken::ExtraBits;
        # ignore => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
-  if ($leaks) {
-    eval { diag "Test-Weaken ", explain($leaks) }; # explain new in 0.82
-
-    my $unfreed = $leaks->unfreed_proberefs;
-    say "unfreed isweak ",
-      (Scalar::Util::isweak ($unfreed->[0]) ? "yes" : "no");
-    foreach my $proberef (@$unfreed) {
-      diag "  unfreed $proberef";
-    }
-    foreach my $proberef (@$unfreed) {
-      diag "  search $proberef";
-      MyTestHelpers::findrefs($proberef);
-    }
-  }
+  MyTestHelpers::test_weaken_show_leaks($leaks);
 }
 
 exit 0;

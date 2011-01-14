@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -47,6 +47,7 @@ use constant description => __('Numbers which have an odd number of "11" bit pai
 
 # http://www.research.att.com/~njas/sequences/A022155   # positions of -1s
 use constant oeis => 'A022155';
+# OEIS: A022155
 
 use constant PHI => (1 + sqrt(5)) / 2;
 

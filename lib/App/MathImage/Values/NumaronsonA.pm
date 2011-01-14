@@ -24,15 +24,13 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant oeis => 'A079000';
-
-# http://www.research.att.com/%7Enjas/sequences/b079000.txt
-# table 1 to 10000
+# OEIS: A079000
 
 sub new {
   my ($class, %options) = @_;

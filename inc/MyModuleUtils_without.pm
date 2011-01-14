@@ -1,6 +1,6 @@
 # MyModuleUtils_without.pm -- have Module::Utils recognise Module::Mask etc
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # MyModuleUtils_without.pm is shared by several distributions.
 #

@@ -24,11 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Padovan Numbers');
 use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
 use constant oeis => 'A000931'; # padovan
+# OEIS: A000931
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

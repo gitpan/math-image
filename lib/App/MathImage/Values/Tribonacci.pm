@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,6 +32,7 @@ $VERSION = 40;
 use constant name => __('Tribonacci Numbers');
 use constant description => __('Tribonacci numbers 1, 1, 1, 3, 5, 9, 17, 31, 57, 105, being T(i) = T(i-1) + T(i-2) + T(i-3) starting from 1,1,1.');
 use constant oeis => 'A000073'; # tribonacci
+# OEIS: A000073
 
 sub new {
   my ($class, %options) = @_;

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Champernowne Sequence LSB First');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary, least significant bit first, 1 01 11 001 101 etc.');

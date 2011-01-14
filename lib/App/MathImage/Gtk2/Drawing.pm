@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 40;
+our $VERSION = 41;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -142,6 +142,13 @@ use Glib::Object::Subclass
                   Glib::ParamSpec->string
                   ('values-expression-evaluator',
                    'Expression Evaluator',
+                   'Blurb.',
+                   '',
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->string
+                  ('values-anum',
+                   'A-number',
                    'Blurb.',
                    '',
                    Glib::G_PARAM_READWRITE),
@@ -559,6 +566,7 @@ sub gen_object {
      fraction        => $self->get('values-fraction'),
      expression      => $self->get('values-expression'),
      expression_evaluator => $self->get('values-expression-evaluator'),
+     anum            => $self->get('values-anum'),
      aronson_lang         => $self->get('values-aronson_lang'),
      aronson_letter       => $self->get('values-aronson_letter'),
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),
@@ -812,29 +820,31 @@ sub _centre_basis {
   #         ($self->y_negative || $path eq 'MultipleRings'));
 }
 
-my %scroll_direction_to_vh = (left  => 'h',
-                              right => 'h',
-                              up   => 'v',
-                              down => 'v');
-my %scroll_direction_to_inv = (left  => 1,
-                               right => 0,
-                               up   => 1,
-                               down => 0);
-# 'scroll-event' class closure
-sub _do_scroll_event {
-  my ($self, $event) = @_;
-  ### Drawing _do_scroll_event(): "$self->{'hadjustment'}, $self->{'vadjustment'}"
-  # my $dir = $event->direction;
-  # my $vh = $scroll_direction_to_vh{$dir};
-  # App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_increment
-  #     ($self->get_property("${vh}adjustment"),
-  #      $event->state & 'control-mask' ? 'page' : 'step',
-  #      $scroll_direction_to_inv{$dir} ^ ($vh eq 'v'));
-
-  App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vhi
-      ($self, $event);
-  return $self->signal_chain_from_overridden ($event);
-}
+# AdjustmentBits ...
+#
+# my %scroll_direction_to_vh = (left  => 'h',
+#                               right => 'h',
+#                               up   => 'v',
+#                               down => 'v');
+# my %scroll_direction_to_inv = (left  => 1,
+#                                right => 0,
+#                                up   => 1,
+#                                down => 0);
+# # 'scroll-event' class closure
+# sub _do_scroll_event {
+#   my ($self, $event) = @_;
+#   ### Drawing _do_scroll_event(): "$self->{'hadjustment'}, $self->{'vadjustment'}"
+#   # my $dir = $event->direction;
+#   # my $vh = $scroll_direction_to_vh{$dir};
+#   # App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_increment
+#   #     ($self->get_property("${vh}adjustment"),
+#   #      $event->state & 'control-mask' ? 'page' : 'step',
+#   #      $scroll_direction_to_inv{$dir} ^ ($vh eq 'v'));
+# 
+#   App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vhi
+#       ($self, $event);
+#   return $self->signal_chain_from_overridden ($event);
+# }
 
 # 'button-press-event' class closure
 sub _do_button_press {

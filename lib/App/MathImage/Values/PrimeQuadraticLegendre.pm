@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Prime Generating Quadratic of Legendre');
 use constant description => __('The quadratic numbers 2*k^2 + 29.');

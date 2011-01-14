@@ -35,7 +35,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -389,8 +389,8 @@ sub _do_about {
 #   ### width:  $drawable->width
 #   ### height: $drawable->height
 # 
-#   require App::MathImage::Image::Base::Prima::Drawable;
-#   my $image = App::MathImage::Image::Base::Prima::Drawable->new
+#   require Image::Base::Prima::Drawable;
+#   my $image = Image::Base::Prima::Drawable->new
 #     (-drawable => $drawable);
 #   ### width:  $image->get('-width')
 #   ### height: $image->get('-height')
@@ -733,8 +733,8 @@ sub _do_about {
 #      foreground => $draw->style->fg($self->state),
 #      background => $draw->style->bg($self->state));
 # 
-#   require App::MathImage::Image::Base::Prima::Gdk::Pixmap;
-#   my $image = App::MathImage::Image::Base::Prima::Gdk::Pixmap->new
+#   require Image::Base::Prima::Drawable;
+#   my $image = Image::Base::Prima::Drawable->new
 #     (-for_window => $rootwin,
 #      -width      => $width,
 #      -height     => $height);

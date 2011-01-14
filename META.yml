@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            40
+version:            41
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -14,6 +14,7 @@ requires:
     Bit::Vector:          0
     Compress::Zlib:       0
     File::Copy:           2.14
+    File::HomeDir:        0
     Geometry::AffineTransform:  0
     Glib:                 1.220
     Glib::Ex::ConnectProperties:  14
@@ -32,10 +33,13 @@ requires:
     Gtk2::Ex::Dragger:    2
     Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::Menu::EnumRadio:  6
+    Gtk2::Ex::MenuBits:   35
     Gtk2::Ex::NumAxis:    2
+    Gtk2::Ex::PixbufBits:  35
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::SyncCall:   12
     Gtk2::Ex::ToolbarBits:  34
+    Gtk2::Ex::ToolItem::ComboEnum:  28
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetCursor:  15
     Gtk2::Ex::WidgetEvents:  21
@@ -77,8 +81,9 @@ requires:
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::PlanePath::VogelFloret:  12
     Math::PlanePath::ZOrderCurve:  13
-    Math::Prime::XS:      0.22
+    Math::Prime::XS:      0.23
     Module::Load:         0
+    Module::Pluggable:    0
     Module::Util:         0
     Number::Format:       0
     perl:                 5.008
@@ -114,12 +119,15 @@ optional_features:
             Gtk2::Ex::PodViewer:  0
             Image::Base::GD:      4
             Image::Base::PNGwriter:  2
+            Image::Base::Prima:   1
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
+            Language::Expr:       0.14
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
             Math::Symbolic:       0.605
+            Prima:                0
     maximum_tests:
         description:  Have "make test" do as much as possible.
         requires:
@@ -142,6 +150,7 @@ recommends:
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
+    Language::Expr:       0.14
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
     Math::Symbolic:       0.605

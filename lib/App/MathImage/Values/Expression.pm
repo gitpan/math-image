@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,7 +35,10 @@ $VERSION = 40;
 use constant name => __('Arbitrary Expression');
 use constant description => __('An arbitrary expression.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*x)^2 would give the even perfect squares.
 
-Syntax is per the chosen evaluator, either Math::Symbolic or Math::Expression::Evaluator.  An invalid expression displays an error message.');
+Syntax is per the chosen evaluator, an invalid expression displays an error message.
+Math::Symbolic is like 2*x^2.
+Math::Expression::Evaluator is like t=2*x;t^2
+Language::Expr is like $k**2 + $k - 1.'); 
 
 my @evaluators;
 BEGIN {
@@ -43,12 +46,16 @@ BEGIN {
     = ((defined(Module::Util::find_installed('Math::Symbolic'))
         ? 'MS' : ()),
        (defined(Module::Util::find_installed('Math::Expression::Evaluator'))
-        ? 'MEE' : ()));
+        ? 'MEE' : ()),
+       (defined(Module::Util::find_installed('Language::Expr'))
+        ? 'LE' : ()));
 }
 use constant parameter_list => ({ name    => 'expression',
                                   display => __('Expression'),
                                   type    => 'string',
-                                  default => '3*x^2 + x + 2',
+                                  default => ($evaluators[0] eq 'LE'
+                                              ? '3*$x**2 + $x + 2'
+                                              : '3*x^2 + x + 2'),
                                   width   => 30,
                                   description => __('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see the chosen evaluator Math::Symbolic or Math::Expression::Evaluator for possible operators and function.'),
                                 },
@@ -60,9 +67,19 @@ use constant parameter_list => ({ name    => 'expression',
                                   description => __('The expression evaluator module, either MS for Math::Symbolic or MEE for Math::Expression::Evaluator.'),
                                 },
                                );
+
 ### parameter_list: parameter_list
-### parameter_hash: __PACKAGE__->parameter_hash
-### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
+  ### parameter_hash: __PACKAGE__->parameter_hash
+  ### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
+
+  {
+    package App::MathImage::Values::Expression::LanguageExpr;
+    use List::Util 'min', 'max';
+    our $pi = Math::Libm::M_PI();
+    our $e = Math::Libm::M_E();
+    our $phi = (1+sqrt(5))/2;
+    our $gam = 0.5772156649015328606065120;
+  }
 
 sub new {
   my ($class, %options) = @_;
@@ -82,7 +99,7 @@ sub new {
     require Math::Symbolic;
     my $tree = Math::Symbolic->parse_from_string($expression);
     if (! defined $tree) {
-      croak "Cannot parse expression: $expression";
+      croak "Cannot parse MS expression: $expression";
     }
 
     # simplify wrong result on x+(-5)*y before 0.605 ...
@@ -92,7 +109,7 @@ sub new {
 
     my @vars = $tree->signature;
     if (@vars > 1) {
-      croak "More than one variable in expression: $expression\n(simplified to $tree)";
+      croak "More than one variable in MS expression: $expression\n(simplified to $tree)";
     }
     ### code: $tree->to_code
     ($subr) = $tree->to_sub(\@vars);
@@ -109,13 +126,13 @@ sub new {
                .'; gam=0.5772156649015328606065120');
     $me->val;
 
-    do { $me->parse ($expression); 1 }
-      or croak "Cannot parse $expression\n$@";
+    eval { $me->parse ($expression); 1 }
+      or croak "Cannot parse MEE expression: $expression\n$@";
 
     # my @vars = $me->variables;
     my @vars = _me_free_variables($me);
     if (@vars > 1) {
-      croak "More than one variable in expression: $expression";
+      croak "More than one variable in MEE expression: $expression";
     }
 
     my $hashsub = $me->compiled;
@@ -128,6 +145,39 @@ sub new {
       $vars{$v} = $_[0];
       return &$hashsub(\%vars);
     };
+
+  } elsif ($evaluator eq 'LE') {
+    require Language::Expr;
+    my $le = Language::Expr->new;
+    my $varef;
+    eval { $varef = $le->enum_vars ($expression); 1 }
+      or croak "Cannot parse LE expression: $expression\n$@";
+    ### $varef
+    my @vars = grep {
+      do {
+        no strict;
+        ! defined ${"App::MathImage::Values::Expression::LanguageExpr::$_"}
+      }
+    } @$varef;
+    if (@vars > 1) {
+      croak "More than one variable in LE expression: $expression";
+    }
+
+    require Language::Expr::Compiler::Perl;
+    my $pe = Language::Expr::Compiler::Perl->new;
+    my $perlstr;
+    eval { $perlstr = $pe->perl ($expression); 1 }
+      or croak "Cannot parse LE expression: $expression\n$@";
+
+    my $v = $vars[0] || 'k';
+    ### $v
+    ### eval: "sub { my \$$v = \$_[0]; $perlstr }"
+    $subr = eval "package App::MathImage::Values::Expression::LanguageExpr;
+                  use strict;
+                  sub { my \$$v = \$_[0]; $perlstr }"
+      or croak "Cannot compile $expression\n$perlstr\n$@";
+    ### $subr
+    ### at zero: $subr->(0)
 
   } else {
     croak "Unknown evaluator: $evaluator";

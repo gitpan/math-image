@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,12 +36,18 @@ sub new {
     shift @$array;
   }
   ### shifted to: @$array
+  $self{'type'} ||= 'seq';
   return bless \%self, $class;
 }
 sub next {
   my ($self) = @_;
   ### ValuesArray next(): $self->{'i'} . ' of ' . scalar(@{$self->{'array'}})
-  return $self->{'array'}->[$self->{'i'}++];
+  if ($self->{'type'} eq 'seq') {
+    return $self->{'array'}->[$self->{'i'}++];
+  } else {
+    my $i = $self->{'i'}++;
+    return ($i, $self->{'array'}->[$i]);
+  }
 }
 sub pred {
   my ($self, $n) = @_;

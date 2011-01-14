@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 sub profile_default {
   my ($class) = @_;
@@ -88,8 +88,8 @@ sub _draw_image {
   ### width:  $drawable->width
   ### height: $drawable->height
 
-  require App::MathImage::Image::Base::Prima::Drawable;
-  my $image = App::MathImage::Image::Base::Prima::Drawable->new
+  require Image::Base::Prima::Drawable;
+  my $image = Image::Base::Prima::Drawable->new
     (-drawable => $drawable);
   ### width:  $image->get('-width')
   ### height: $image->get('-height')

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,6 +32,7 @@ $VERSION = 40;
 use constant name => __('Perrin Numbers');
 use constant description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
 use constant oeis => 'A001608'; # perrin
+# OEIS: A001608
 
 sub new {
   my ($class, %options) = @_;

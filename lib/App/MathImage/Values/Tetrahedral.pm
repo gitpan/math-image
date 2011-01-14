@@ -24,11 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');
 use constant oeis => 'A000292'; # tetrahedrals
+# OEIS: A000292
 
 sub new {
   my ($class, %options) = @_;

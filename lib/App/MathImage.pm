@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -144,6 +144,7 @@ sub getopt_long_specifications {
      'png'      => sub{_hopt($self, 'gui_options', 'show', 'png');  },
      'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png_gd');  },
      'png-gtk'  => sub{_hopt($self, 'gui_options', 'show', 'png_gtk');  },
+     'png-prima'=> sub{_hopt($self, 'gui_options', 'show', 'png_prima');  },
      'png-pngwriter' => sub{_hopt($self, 'gui_options', 'show', 'png_pngwriter');  },
      'text'     => sub{_hopt($self, 'gui_options', 'show', 'text'); },
      'text-numbers' => sub{_hopt($self, 'gui_options', 'show', 'text_numbers'); },
@@ -369,7 +370,17 @@ sub show_method_text {
 }
 sub show_method_xpm {
   my ($self) = @_;
-  _output_image ($self, 'Image::Xpm');
+  if (eval { require Image::Xpm }) {
+    _output_image ($self, 'Image::Xpm');
+  } elsif (eval { require Image::Base::Prima::Image }) {
+    $self->show_method_xpm_prima;
+  } else {
+    die "Need Image::Xpm or Image::Base::Prima::Image for xpm output";
+  }
+}
+sub show_method_xpm_prima {
+  my ($self) = @_;
+  _output_image ($self, 'Image::Base::Prima::Image', -file_format => 'XPM');
 }
 sub show_method_png {
   my ($self) = @_;
@@ -377,6 +388,8 @@ sub show_method_png {
     $self->show_method_png_gd;
   } elsif (eval { require Image::Base::PNGwriter }) {
     $self->show_method_png_pngwriter;
+  } elsif (eval { require Image::Base::Prima }) {
+    $self->show_method_png_prima;
   } else {
     $self->show_method_png_gtk;
   }
@@ -397,8 +410,15 @@ sub show_method_png_gtk {
   _output_image ($self, 'Image::Base::Gtk2::Gdk::Pixbuf',
                  -file_format => 'png');
 }
+sub show_method_png_prima {
+  my ($self) = @_;
+  binmode (\*STDOUT) or die;
+  _output_image ($self, 'Image::Base::Prima::Image',
+                 -file_format => 'png');
+}
 sub _output_image {
   my ($self, $image_class, @image_options) = @_;
+  ### _output_image(): $image_class
   my $gen_options = $self->{'gen_options'};
   if (! defined $gen_options->{'width'}) {
     $gen_options->{'width'} = 200;
@@ -411,9 +431,16 @@ sub _output_image {
     (-width  => $gen_options->{'width'},
      -height => $gen_options->{'height'},
      @image_options);
-  { my $gen = $self->make_generator;
-    $gen->draw_Image ($image); }
-
+  if ($image->isa('Image::Base::Prima::Drawable')) {
+    $image->get('-drawable')->begin_paint;
+  }
+  {
+    my $gen = $self->make_generator;
+    $gen->draw_Image ($image);
+  }
+  if ($image->isa('Image::Base::Prima::Drawable')) {
+    $image->get('-drawable')->end_paint;
+  }
   require App::MathImage::Image::Base::Other;
   App::MathImage::Image::Base::Other::save_fh ($image, \*STDOUT);
   return 0;
@@ -441,8 +468,12 @@ sub show_method_window {
        -height       => $height);
     my $gen = $self->make_generator;
     $gen->draw_Image ($image);
+    my $pixmap = $image->get('-pixmap');
 
-    gtk_flash_pixmap ($image->get('-pixmap'));
+    require App::MathImage::Gtk2::Ex::Splash;
+    App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
+                                           pixmap => $pixmap,
+                                           time => .75);
     return 0;
   }
 
@@ -468,7 +499,12 @@ sub show_method_window {
   $draw->modify_fg ('normal', $fg_color);
   $draw->modify_bg ('normal', $bg_color);
   ### draw set gen_options: %$gen_options
-  $draw->set (%$gen_options);
+  foreach my $key (keys %$gen_options) {
+    if ($draw->find_property("values-$key")) {
+      $key = "values-$key";
+    }
+    $draw->set ($key, $gen_options->{$key});
+  }
   ### draw values now: $draw->get('values')
 
   $toplevel->show;
@@ -483,7 +519,7 @@ sub show_method_root_gtk {
   my $gen_options = $self->{'gen_options'};
   my $rootwin = Gtk2::Gdk->get_default_root_window;
   my $width = $gen_options->{'width'};
-  my $height = $gen_options->{'height'} / 2;
+  my $height = $gen_options->{'height'};
   ### $rootwin
 
   my $pixmap;
@@ -513,9 +549,9 @@ sub show_method_root_gtk {
 
   if ($self->{'gui_options'}->{'flash'}) {
     require App::MathImage::Gtk2::Ex::Splash;
-    App::MathImage::Gtk2::Ex::Splash->run (screen => $rootwin->get_screen,
+    App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
                                            pixmap => $pixmap,
-                                           time => 75)
+                                           time => .75)
   }
 
   $rootwin->get_display->flush;

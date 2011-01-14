@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,6 +34,7 @@ $VERSION = 40;
 use constant name => __('Prime Numbers');
 use constant description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.');
 use constant oeis => 'A000040';
+# OEIS: A000040
 
 sub new {
   my ($class, %options) = @_;
@@ -41,9 +42,8 @@ sub new {
   my $hi = $options{'hi'};
 
   my @array = _my_primes_list ($lo, $hi);
-  return bless { %options,
-                 array => \@array,
-               }, $class;
+  return $class->SUPER::new (%options,
+                             array => \@array);
 }
 
 use constant MAX_PRIME_XS => POSIX::UINT_MAX() / 2;
@@ -61,7 +61,7 @@ sub _my_primes_list {
   }
 
   require Math::Prime::XS;
-  Math::Prime::XS->VERSION (0.22); # version 0.22 for lo==hi
+  Math::Prime::XS->VERSION (0.23); # version 0.23 fix 1928099
   return Math::Prime::XS::sieve_primes ($lo, $hi);
 }
 

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 use constant name => __('Radix without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
@@ -69,6 +69,20 @@ sub oeis {
   }
   return $oeis{$radix}->{$digit};
 }
+# OEIS: A032924 radix=3 digit=0  # base 3 no 0
+# OEIS: A005823 radix=3 digit=1  # base 3 no 1
+# OEIS: A005836 radix=3 digit=2  # base 3 no 2
+                
+# OEIS: A023705 radix=4 digit=0  # base 4 no 0
+# OEIS: A023709 radix=4 digit=1  # base 4 no 1
+# OEIS: A023713 radix=4 digit=2  # base 4 no 2
+# OEIS: A023717 radix=4 digit=3  # base 4 no 3
+                
+# OEIS: A023721 radix=5 digit=0  # base 5 no 0
+# OEIS: A023725 radix=5 digit=1  # base 5 no 1
+# OEIS: A023729 radix=5 digit=2  # base 5 no 2
+# OEIS: A023733 radix=5 digit=4  # base 5 no 3
+# OEIS: A023737 radix=5 digit=5  # base 5 no 4
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
