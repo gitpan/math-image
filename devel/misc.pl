@@ -31,39 +31,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 {
   require App::MathImage::Generator;
-  require Geometry::AffineTransform;
-
-  my $affine = Geometry::AffineTransform->new;
-  $affine->scale (10, 20);
-  $affine->rotate (45+180);
-  $affine->translate (100, 200);
-  my $det = $affine->{m11}*$affine->{m22} - $affine->{m12}*$affine->{m21};
-  ### $affine
-  ### $det
-  my $x = 2;
-  my $y = 3;
-  my ($xa, $ya) = $affine->transform ($x, $y);
-  ### transform: "$xa, $ya"
-
-  my ($xu, $yu) = $affine->App::MathImage::Generator::untransform($xa,$ya);
-  ### untransform: "$xu, $yu"
-
-  my $inv = $affine->clone;
-  $inv->App::MathImage::Generator::invert;
-  ### $inv
-  ($xu, $yu) = $inv->transform ($xa, $ya);
-  ### inverse: "$xu, $yu"
-
-  my $concat = $affine->clone->concatenate($inv);
-  ### $concat
-   $concat = $inv->clone->concatenate($affine);
-  ### $concat
-  exit 0;
-}
-
-
-{
-  require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
                                             polygonal => 3,
                                             radix => 16);
@@ -169,6 +136,39 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
       print "\n";
     }
   }
+  exit 0;
+}
+
+
+{
+  require App::MathImage::Generator;
+  require Geometry::AffineTransform;
+
+  my $affine = Geometry::AffineTransform->new;
+  $affine->scale (10, 20);
+  $affine->rotate (45+180);
+  $affine->translate (100, 200);
+  my $det = $affine->{m11}*$affine->{m22} - $affine->{m12}*$affine->{m21};
+  ### $affine
+  ### $det
+  my $x = 2;
+  my $y = 3;
+  my ($xa, $ya) = $affine->transform ($x, $y);
+  ### transform: "$xa, $ya"
+
+  my ($xu, $yu) = $affine->App::MathImage::Generator::untransform($xa,$ya);
+  ### untransform: "$xu, $yu"
+
+  my $inv = $affine->clone;
+  $inv->App::MathImage::Generator::invert;
+  ### $inv
+  ($xu, $yu) = $inv->transform ($xa, $ya);
+  ### inverse: "$xu, $yu"
+
+  my $concat = $affine->clone->concatenate($inv);
+  ### $concat
+   $concat = $inv->clone->concatenate($affine);
+  ### $concat
   exit 0;
 }
 

@@ -27,14 +27,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 41;
-
-BEGIN {
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::QuadScroll::Amount',
-                             'step','page');
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::QuadScroll::Incdec',
-                             'inc','dec');
-}
+our $VERSION = 42;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
@@ -44,13 +37,10 @@ use Glib::Object::Subclass
                                    'Gtk2::Adjustment'],
                    return_type => undef,
                    class_closure => \&_do_set_scroll_adjustments },
-              scroll
-              => { param_types
-                   => [ 'Gtk2::Orientation',
-                        'App::MathImage::Gtk2::Ex::QuadScroll::Amount',
-                        'App::MathImage::Gtk2::Ex::QuadScroll::Incdec'],
+              'change-value'
+              => { param_types => [ 'Gtk2::ScrollType'],
                    return_type => undef,
-                   class_closure => \&_do_scroll_action,
+                   class_closure => \&_do_change_value,
                    flags => ['run-first','action'] },
               scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
              },
@@ -87,16 +77,16 @@ use Glib::Object::Subclass
 # by application or user RC
 Gtk2::Rc->parse_string (<<'HERE');
 binding "App__MathImage__Gtk2__Ex__QuadScroll_keys" {
-  bind "Up"          { "scroll" (vertical, step, dec) }
-  bind "Down"        { "scroll" (vertical, step, inc) }
-  bind "<Ctrl>Up"    { "scroll" (vertical, page, dec) }
-  bind "<Ctrl>Down"  { "scroll" (vertical, page, inc) }
-  bind "Left"        { "scroll" (horizontal, step, dec) }
-  bind "Right"       { "scroll" (horizontal, step, inc) }
-  bind "<Ctrl>Left"  { "scroll" (horizontal, page, dec) }
-  bind "<Ctrl>Right" { "scroll" (horizontal, page, inc) }
-  bind "Page_Up"     { "scroll" (vertical, page, dec) }
-  bind "Page_Down"   { "scroll" (vertical, page, inc) }
+  bind "Up"          { "change-value" (step-up) }
+  bind "Down"        { "change-value" (step-down) }
+  bind "<Ctrl>Up"    { "change-value" (page-up) }
+  bind "<Ctrl>Down"  { "change-value" (page-down) }
+  bind "Left"        { "change-value" (step-left) }
+  bind "Right"       { "change-value" (step-right) }
+  bind "<Ctrl>Left"  { "change-value" (page-left) }
+  bind "<Ctrl>Right" { "change-value" (page-right) }
+  bind "Page_Up"     { "change-value" (page-up) }
+  bind "Page_Down"   { "change-value" (page-down) }
 }
 class "App__MathImage__Gtk2__Ex__QuadScroll" binding:gtk "App__MathImage__Gtk2__Ex__QuadScroll_keys"
 HERE
@@ -136,17 +126,52 @@ sub _do_set_scroll_adjustments {
               vadjustment => $vadj);
 }
 
-sub _do_scroll_action {
-  my ($self, $orientation, $amount, $inc) = @_;
-  my $vh = substr($orientation,0,1);
-  my $adj = $self->{"${vh}adjustment"} || return;
-  $amount .= '_increment';
-  my $add = $adj->$amount;
-  if (($inc eq 'dec') ^ !!$self->{"${vh}inverted"}) {
-    $add = -$add;
-  }
-  App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_value ($adj, $add);
+my %dir_to_neg = (left  => 1,
+                  right => 0,
+                  up    => 1,
+                  down  => 0);
+
+sub _do_change_value {
+  my ($self, $scrolltype) = @_;
+  scroll_by_type ($self->{'hadjustment'},
+                  $self->{'vadjustment'},
+                  $scrolltype,
+                  $self->{'hinvert'},
+                  $self->{'vinvert'});
+
+  # my $adj = $self->{"${vh}adjustment"} || return;
+  # if ($scrolltype =~ /(page|step)-(up|down|left|right)/) {
+  #   my $amount_method = "${1}_increment";
+  #   my $add = $adj->$amount_method;
+  #   if ($dir_to_neg{$2} ^ !!$self->{"${vh}inverted"}) {
+  #     $add = -$add;
+  #   }
+  #   App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_value ($adj, $add);
+  # }
 }
+
+my %dir_to_arg = (left  => 0,
+                  right => 0,
+                  up    => 1,
+                  down  => 1);
+
+# what of forward-page, jump, etc
+sub scroll_by_type {
+  my ($hadj, $vadj, $scroll_type, $hinv, $vinv) = @_;
+
+  if ($scroll_type =~ /(page|step)-(up|down|left|right)/) {
+    my $arg = $dir_to_arg{$2};
+    my $adj = $_[$arg];
+    my $amount_method = "${1}_increment";
+    my $add = $adj->$amount_method;
+    if ($dir_to_neg{$2} ^ !!$_[3+$arg]) {
+      $add = -$add;
+    }
+    App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_value ($adj, $add);
+  }
+}
+
+
 
 1;
 __END__

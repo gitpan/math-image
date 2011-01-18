@@ -13,7 +13,6 @@ devel/Base4Only01.pm
 devel/bits.pl
 devel/caca.pl
 devel/camel.pl
-devel/dialog.pl
 devel/euler.pl
 devel/expression.pl
 devel/gen-bits.c
@@ -29,6 +28,7 @@ devel/maybe-pythagoras.pl
 devel/menu-forcombo.pl
 devel/misc.c
 devel/misc.pl
+devel/oeis.pl
 devel/old/FractionBits.pm
 devel/old/PentagonalGeneralized.pm
 devel/old/PentagonalSecond.pm
@@ -53,6 +53,7 @@ devel/run-savetype.pl
 devel/run-splash-gdk.pl
 devel/run-splash-toplevel.pl
 devel/svg.pl
+devel/tool-combotext.pl
 devel/triangular.pl
 devel/unused.pl
 devel/unused/SemiPrimesOdd.pm
@@ -81,8 +82,10 @@ lib/App/MathImage/Gtk2/Ex/ScrollButtons.pm
 lib/App/MathImage/Gtk2/Ex/Splash.pm
 lib/App/MathImage/Gtk2/Ex/SplashGdk.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
-lib/App/MathImage/Gtk2/Ex/ToolItem/OverflowToDialog.pm
-lib/App/MathImage/Gtk2/Ex/ToolItem/OverflowToDialog/Dialog.pm
+lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText.pm
+lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuItem.pm
+lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuView.pm
+lib/App/MathImage/Gtk2/Generator.pm
 lib/App/MathImage/Gtk2/Main.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
@@ -102,6 +105,7 @@ lib/App/MathImage/PlanePath/Flowsnake.pm
 lib/App/MathImage/PlanePath/OctagramSpiral.pm
 lib/App/MathImage/Prima/About.pm
 lib/App/MathImage/Prima/Drawing.pm
+lib/App/MathImage/Prima/Generator.pm
 lib/App/MathImage/Prima/Main.pm
 lib/App/MathImage/Values.pm
 lib/App/MathImage/Values/AbundantNumbers.pm
@@ -134,7 +138,7 @@ lib/App/MathImage/Values/ObstinateNumbers.pm
 lib/App/MathImage/Values/Odd.pm
 lib/App/MathImage/Values/OEIS.pm
 lib/App/MathImage/Values/OEIS/Catalogue.pm
-lib/App/MathImage/Values/OEIS/Catalogue/Builtin.pm
+lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm
 lib/App/MathImage/Values/OEIS/File.pm
 lib/App/MathImage/Values/Padovan.pm
 lib/App/MathImage/Values/Palindromes.pm
@@ -185,8 +189,6 @@ t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
-t/Gtk2-Ex-ToolItem-OverflowToDialog-weaken.t
-t/Gtk2-Ex-ToolItem-OverflowToDialog.t
 t/Gtk2-Main-weaken.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t

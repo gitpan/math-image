@@ -67,11 +67,12 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
-    # 'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
+    'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
     'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
     'Gtk2::Ex::PixbufBits'     => 35, # new in v.35
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
-    'Gtk2::Ex::ToolbarBits'    => 34, # new in v.34
+    'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
+    'Gtk2::Ex::ToolItem::OverflowToDialog' => 36,  # new in v.36
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
@@ -210,8 +211,8 @@ sub postamble {
 #------------------------------------------------------------------------------
 # OEIS/Catalogue/Builtin.pm
 
-lib/App/MathImage/Values/OEIS/Catalogue/Builtin.pm: make-oeis-catalogue.pl lib/App/MathImage/Values/*.pm
+lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm: make-oeis-catalogue.pl lib/App/MathImage/Values/*.pm
 	$(PERL) make-oeis-catalogue.pl \
-	|| (rm -f lib/App/MathImage/Values/OEIS/Catalogue/Builtin.pm; false)
+	|| (rm -f lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm; false)
 HERE
 }

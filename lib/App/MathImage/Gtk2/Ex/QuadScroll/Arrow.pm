@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 41;
+our $VERSION = 42;
 
 # priority level "gtk" treating this as widget level default, for overriding
 # by application or user RC
@@ -89,24 +89,16 @@ sub SET_PROPERTY {
   }
 }
 
-my %arrow_type_to_orientation = (left  => 'horizontal',
-                                 right => 'horizontal',
-                                 up    => 'vertical',
-                                 down  => 'vertical');
-my %arrow_type_to_inc = (left  => 'dec',
-                         right => 'inc',
-                         up    => 'dec',
-                         down  => 'inc');
 sub _do_clicked {
   my ($self) = @_;
   ### QuadScroll-Arrow _do_clicked()
   my $parent = $self->get_parent || return;
   my $arrow_type = $self->get('arrow_type');
-  $parent->signal_emit ('scroll',
-                        $arrow_type_to_orientation{$arrow_type},
+  $parent->signal_emit ('change-value',
                         (Gtk2->get_current_event->get_state & 'control-mask'
-                         ? 'page' : 'step'),
-                        $arrow_type_to_inc{$arrow_type});
+                         ? 'page' : 'step')
+                        . '-'
+                        . $arrow_type);
 }
 
 1;

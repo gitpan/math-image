@@ -24,7 +24,7 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 41;
+$VERSION = 42;
 
 my %anum_to_class;
 foreach my $class (Module::Util::find_in_namespace
@@ -50,7 +50,7 @@ my $dump = Data::Dumper->new([\%anum_to_class])->Sortkeys(1)->Terse(1)->Indent(1
 # $dump =~ s/^{\n//;
 # $dump =~ s/}.*\n//;
 
-open my $out, '>', 'lib/App/MathImage/Values/OEIS/Catalogue/Builtin.pm' or die;
+open my $out, '>', 'lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm' or die;
 print $out <<"HERE";
 # Copyright 2011 Kevin Ryde
 
@@ -71,7 +71,7 @@ print $out <<"HERE";
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::OEIS::Catalogue::Builtin;
+package App::MathImage::Values::OEIS::Catalogue::Plugin::Builtin;
 use strict;
 use warnings;
 

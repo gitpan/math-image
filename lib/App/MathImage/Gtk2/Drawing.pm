@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 41;
+our $VERSION = 42;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -475,7 +475,7 @@ sub _do_expose {
   $self->pixmap;
   Gtk2::Ex::GdkBits::window_clear_region ($win, $event->region);
   $win->clear_area ($event->area->values);
-  if (my $pixmap = $self->{'drawing'}->{'pixmap'}) {
+  if (my $pixmap = $self->{'generator'}->{'pixmap'}) {
     $win->draw_drawable ($self->style->black_gc, $pixmap,
                          $event->area->x,
                          $event->area->y,
@@ -483,49 +483,6 @@ sub _do_expose {
   }
   return Gtk2::EVENT_PROPAGATE;
 }
-#   if (! _pixmap_is_good($self) && ! $self->{'idle_ids'}) {
-#     $win->set_back_pixmap (undef);
-#     $win->clear_area ($event->area->values);
-#     Gtk2::Ex::WidgetCursor->busy;
-#     Scalar::Util::weaken (my $weak_self = $self);
-#     $self->get_display->sync;
-#     $self->{'idle_ids'}= Glib::Ex::SourceIds->new
-#       (Glib::Idle->add (\&_do_idle, \$weak_self,
-#                         Gtk2::GTK_PRIORITY_RESIZE() + 2000));
-#   }
-# sub _do_idle {
-#   my ($ref_weak_self) = @_;
-#   my $self = $$ref_weak_self || return;
-#   ### _do_idle()
-#   ### _pixmap_is_good: _pixmap_is_good($self)
-#   delete $self->{'idle_ids'};
-#   if (! _pixmap_is_good($self)) {
-#     $self->pixmap;
-#     $self->queue_draw;
-#   }
-#   return Glib::SOURCE_REMOVE;
-# }
-#   $self->pixmap;
-#     $self->get_display->sync;
-#       $win->set_back_pixmap (undef);
-#       $win->draw_rectangle ($self->style->bg_gc($self->state), 1,
-#                             $event->area->values);
-#   my $pixmap = $self->{'pixmap'};
-#   ### win size: $win->get_size
-#   ### pixmap size: $pixmap && $pixmap->get_size
-#   ### equal: $pixmap && _drawable_size_equal($pixmap,$win)
-#   if ($pixmap && _drawable_size_equal($pixmap,$win)) {
-#     $win->clear_area ($event->area->values);
-#   } else {
-#     ### queue idle
-#     $self->{'idle_ids'} ||= do {
-#       $win->set_back_pixmap (undef);
-#       $win->draw_rectangle ($self->style->bg_gc($self->state), 1,
-#                             $event->area->values);
-#       Gtk2::Ex::WidgetCursor->busy;
-#       $self->get_display->sync;
-#     }
-#   }
 
 sub _pixmap_is_good {
   my ($self) = @_;
@@ -609,175 +566,72 @@ sub start_drawing_window {
   require Gtk2::Ex::WidgetCursor;
   Gtk2::Ex::WidgetCursor->busy;
 
-  # stop previous, so as to do nothing if draw_Image_start() fails
-  delete $self->{'drawing'}->{'idle_ids'};
+  my (undef, undef, $width, $height) = $self->allocation->values;
+  my $path_rotation_type = $self->get('path-rotation-type');
 
-  my ($width, $height) = $window->get_size;
-  my $background_colorobj = $self->style->bg($self->state);
-  my $foreground_colorobj = $self->style->fg($self->state);
+  my $style = $self->style;
+  my $background_colorobj = $style->bg($self->state);
+  my $foreground_colorobj = $style->fg($self->state);
   $window->set_background ($background_colorobj);
 
   my $undrawnground_colorobj = Gtk2::Gdk::Color->new
     (map {0.9 * $background_colorobj->$_()
             + 0.1 * $foreground_colorobj->$_()}
      'red', 'blue', 'green');
-  my $colormap = $self->get_colormap;
-  $colormap->rgb_find_color ($undrawnground_colorobj);
+  if (my $colormap = $window->get_colormap) {
+    $colormap->rgb_find_color ($undrawnground_colorobj);
+  }
 
-  my $gen = $self->{'drawing'}->{'gen'} = $self->gen_object;
+  require App::MathImage::Gtk2::Generator;
+  my $gen = $self->{'generator'} = App::MathImage::Gtk2::Generator->new
+    (widget  => $self,
+     window => $window,
+     gtkmain => $self->get_ancestor('Gtk2::Window'),
+
+     foreground       => $foreground_colorobj->to_string,
+     background       => $background_colorobj->to_string,
+     undrawnground    => $undrawnground_colorobj->to_string,
+     draw_progressive => $self->get('draw-progressive'),
+
+     values          => $self->get('values'),
+     path            => $self->get('path'),
+     scale           => $self->get('scale'),
+     figure          => $self->get('figure'),
+     parity          => $self->get('values-parity'),
+     pairs           => $self->get('values-pairs'),
+     fraction        => $self->get('values-fraction'),
+     expression      => $self->get('values-expression'),
+     expression_evaluator => $self->get('values-expression-evaluator'),
+     anum            => $self->get('values-anum'),
+     aronson_lang         => $self->get('values-aronson_lang'),
+     aronson_letter       => $self->get('values-aronson_letter'),
+     aronson_conjunctions => $self->get('values-aronson_conjunctions'),
+     aronson_lying        => $self->get('values-aronson_lying'),
+     sqrt            => $self->get('values-sqrt'),
+     polygonal       => $self->get('values-polygonal'),
+     multiples       => $self->get('values-multiples'),
+     radix           => $self->get('values-radix'),
+     digit           => $self->get('values-digit'),
+     level           => $self->get('values-level'),
+     ($path_rotation_type eq 'custom'
+      ? (path_rotation_factor => $self->get('path-rotation-factor'))
+      : (path_rotation_type  => $path_rotation_type)),
+     path_radius_factor  => $self->get('path-radius-factor'),
+     pyramid_step    => $self->get('pyramid-step'),
+     rings_step      => $self->get('rings-step'),
+     path_wider      => $self->get('path-wider'),
+     width           => $width,
+     height          => $height,
+     filter          => $self->get('filter'),
+     x_left          => $self->{'hadjustment'}->value,
+     y_bottom        => $self->{'vadjustment'}->value,
+    );
+
   $self->{'path_object'} = $gen->path_object;
   $self->{'coord'} = $gen->coord_object;
 
-  require Image::Base::Gtk2::Gdk::Pixmap;
-  my $image = $self->{'drawing'}->{'image'}
-    = Image::Base::Gtk2::Gdk::Pixmap->new
-      (-for_widget => $self,
-       -width      => $width,
-       -height     => $height);
-  my $pixmap = $self->{'drawing'}->{'pixmap'} = $image->get('-pixmap');
   if ($self->window && $window == $self->window) {
-    $self->{'pixmap'} = $pixmap; # not if drawing to root window
-  }
-  my $background_gc = $self->style->bg_gc($self->state);
-  $pixmap->draw_rectangle ($background_gc, 1, 0,0, $pixmap->get_size);
-  ### new pixmap: $self->{'drawing'}->{'pixmap'}
-
-  $self->{'drawing'}->{'window'} = $window;
-  my $progressive = $self->get('draw-progressive');
-  if ($progressive) {
-    require Image::Base::Gtk2::Gdk::Window;
-    my $image_window = Image::Base::Gtk2::Gdk::Window->new
-      (-window => $window);
-
-    require Image::Base::Multiplex;
-    $image = $self->{'drawing'}->{'image'}
-      = Image::Base::Multiplex->new
-        (-images => [ $image, $image_window ]);
-  }
-  ### $image
-  if (! eval { $gen->draw_Image_start ($image); 1 }) {
-    my $err = $@;
-    ### $err;
-    my $main;
-    if (($main = $self->get_ancestor('Gtk2::Window'))
-        && (my $statusbar = $main->{'statusbar'})) {
-      require Gtk2::Ex::Statusbar::MessageUntilKey;
-      $err =~ s/\n+$//;
-      Gtk2::Ex::Statusbar::MessageUntilKey->message($statusbar, $err);
-    }
-    undef $self->{'path_object'};
-    undef $self->{'coord'};
-    draw_text_centred ($self, $self->{'drawing'}->{'pixmap'}, $err);
-    _drawing_finished ($self);
-    return;
-  }
-
-  $self->{'drawing'}->{'steps'} = ($progressive ? 1000 : undef);
-  $self->{'drawing'}->{'idle_ids'} = Glib::Ex::SourceIds->new;
-  # ### start_drawing_window: $self->{'drawing'}
-
-  Scalar::Util::weaken (my $weak_self = $self);
-  _idle_handler_draw (\$weak_self);
-}
-
-sub _sync_handler {
-  my ($ref_weak_self) = @_;
-  ### _sync_handler(): scalar(@_)
-  my ($self, $drawing);
-  if (($self = $$ref_weak_self)
-      && ($drawing = $self->{'drawing'})) {
-    $drawing->{'sync_pending'} = 0;
-    ### add idle
-    $self->{'drawing'}->{'idle_ids'} ||= Glib::Ex::SourceIds->new;
-    $drawing->{'idle_ids'}->add
-      (Glib::Idle->add (\&_idle_handler_draw,
-                        $ref_weak_self,
-                        Gtk2::GTK_PRIORITY_RESIZE() + 10));
-  }
-}
-
-sub _idle_handler_draw {
-  my ($ref_weak_self) = @_;
-  ### _idle_handler_draw()
-
-  my ($self, $drawing, $gen);
-  if (($self = $$ref_weak_self)
-      && ($drawing = $self->{'drawing'})
-      && ($gen = $drawing->{'gen'})) {
-    $drawing->{'idle_ids'}->remove;
-
-    my $image = $drawing->{'image'};
-    my $steps = $drawing->{'steps'};
-    ### $steps
-    my $t1 = _gettime();
-    if ($gen->draw_Image_steps ($steps)) {
-      my $t = _gettime() - $t1;
-      ### step took: $t
-      if ($t < 0) {
-        # time of day change or something
-      } elsif ($t == 0) {
-        $steps *= 10;
-      } else {
-        $steps = 1 + int($steps * _IDLE_TIME_SLICE / $t);
-      }
-      $drawing->{'steps'} = $steps;
-      ### new steps: $drawing->{'steps'}
-
-      unless ($drawing->{'sync_pending'}) {
-        ### start sync
-        Gtk2::Ex::SyncCall->sync ($self, \&_sync_handler, $ref_weak_self);
-        $drawing->{'sync_pending'} = 1;
-      }
-      return Glib::SOURCE_REMOVE;
-    }
-    ### done, install pixmap
-    _drawing_finished ($self);
-  }
-
-  ### _idle_handler_draw() end
-  return Glib::SOURCE_REMOVE;
-}
-
-sub _drawing_finished {
-  my ($self) = @_;
-  ### _drawing_finished()
-  my $drawing = $self->{'drawing'};
-  my $pixmap = $self->{'pixmap'} = $drawing->{'pixmap'};
-  my $window = $drawing->{'window'};
-  ### set_back_pixmap: "$pixmap"
-  $window->set_back_pixmap ($pixmap);
-  if ($drawing->{'window'} == $self->window) {
-    $self->queue_draw;
-  } else {
-    $window->clear;  # for root window
-  }
-  delete $self->{'drawing'};
-  #### $self
-}
-
-
-# _gettime() returns a floating point count of seconds since some fixed but
-# unspecified origin time.
-#
-# clock_gettime(CLOCK_REALTIME) is preferred.  clock_gettime() always
-# exists, but it croaks if there's no such C library func.  In that case
-# fall back on the hires time(), which is whatever best thing Time::HiRes
-# can do, probably gettimeofday() normally.
-#
-# Maybe it'd be worth checking clock_getres() to see it's a decent
-# resolution.  It's conceivable some old implementations might do
-# CLOCK_REALTIME just from the CLK_TCK times() counter, giving only 10
-# millisecond resolution.  That's enough for _IDLE_TIME_SLICE of 250 ms
-# though.
-#
-sub _gettime {
-  return Time::HiRes::clock_gettime (Time::HiRes::CLOCK_REALTIME());
-}
-BEGIN {
-  unless (eval { _gettime(); 1 }) {
-    ### _gettime() no clock_gettime(): $@
-    no warnings;
-    *_gettime = \&Time::HiRes::time;
+    $self->{'pixmap'} = $gen->{'pixmap'}; # not if drawing to root window
   }
 }
 

@@ -19,20 +19,18 @@ package App::MathImage::Values::OEIS::Catalogue;
 use 5.004;
 use strict;
 use warnings;
-use Module::Pluggable require => 1, search_path => [__PACKAGE__];
+use Module::Pluggable require => 1;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 41;
+$VERSION = 42;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use App::MathImage::Values::OEIS::Catalogue::Builtin;
-
 sub anum_to_class {
   my ($class, $anum) = @_;
-  ### anum_to_class: @_
+  ### anum_to_class(): @_
   my @ret;
   foreach my $plugin ($class->plugins) {
     ### $plugin
@@ -41,8 +39,50 @@ sub anum_to_class {
       return @$aref;
     }
   }
+  foreach my $file_anum ($class->file_anum_list) {
+    if ($anum eq $file_anum) {
+      return ['OEIS','anum',$anum];
+    }
+  }
   return;
 }
+
+sub anum_to_class_hashref {
+  my ($class) = @_;
+  my $dir = App::MathImage::Values::OEIS::File::oeis_dir();
+  ### $dir
+  my %ret;
+  if (opendir DIR, $dir) {
+    while (defined (my $basename = readdir DIR)) {
+      ### $basename
+      if ($basename =~ /^A([0-9]+)\.html?$/i
+          || $basename =~ /^[ab]([0-9]+)\.txt?$/i) {
+        my $anum = "A$1";
+        $ret{$anum} = [ 'OEIS', 'anum', $anum ];
+      }
+    }
+    foreach my $anum (_file_anum_list()) {
+      $ret{$anum} ||= ['OEIS','anum',$anum];
+    }
+    closedir DIR or die "Error closing $dir: $!";
+  } else {
+    ### cannot opendir: $!
+  }
+  return \%ret;
+}
+
+sub _file_anum_list {
+  my ($class) = @_;
+  ### anum_list()
+  my %ret;
+  foreach my $plugin ($class->plugins) {
+    ### $plugin
+    my $href = $plugin->anum_to_class_hashref;
+    %ret = (%ret, %$href);
+  }
+  return sort keys %ret;
+}
+
 
 1;
 __END__

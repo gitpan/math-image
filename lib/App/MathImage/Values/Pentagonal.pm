@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::Polygonal';
 
 use vars '$VERSION';
-$VERSION = 41;
+$VERSION = 42;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

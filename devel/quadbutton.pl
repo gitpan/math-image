@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -37,11 +37,30 @@ $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
 my $vbox = Gtk2::VBox->new;
 $toplevel->add ($vbox);
 
+my $vadj = Gtk2::Adjustment->new (0,  # initial
+                                  -100,  # min
+                                  100,  # max
+                                  1,10,    # step,page increment
+                                  20);      # page_size
+my $hadj = Gtk2::Adjustment->new (0,  # initial
+                                  -100,  # min
+                                  100,  # max
+                                  1,10,    # step,page increment
+                                  20);      # page_size
 
-my $qb = App::MathImage::Gtk2::Ex::QuadScroll->new;
-$qb->signal_connect (scroll => sub {
-                       print "$progname: @_\n";
-                     });
+my $qb = App::MathImage::Gtk2::Ex::QuadScroll->new
+  (hadjustment => $hadj,
+   vadjustment => $vadj,
+   vinverted   => 1);
+$qb->signal_connect_after (change_value => sub {
+                             print "$progname: change-value @_\n";
+                             if (my $hadj = $qb->{'hadjustment'}) {
+                               print "  hadj ",$hadj->value,"\n";
+                             }
+                             if (my $vadj = $qb->{'vadjustment'}) {
+                               print "  vadj ",$vadj->value,"\n";
+                             }
+                           });
 $vbox->add ($qb);
 $qb->set_size_request (200, 200);
 

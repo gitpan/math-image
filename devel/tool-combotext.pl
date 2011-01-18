@@ -22,7 +22,7 @@ use 5.008;
 use strict;
 use warnings;
 use Gtk2 '-init';
-use App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog;
+use App::MathImage::Gtk2::Ex::ToolItem::ComboText;
 
 use Smart::Comments;
 
@@ -51,15 +51,31 @@ $vbox->pack_start ($toolbar, 0,0,0);
   $toolbar->insert($toolitem, -1);
 }
 
-my $child_widget = Gtk2::Button->new('JSDKALFJADSKFJDSKSDJKF');
-$child_widget->set (tooltip_text => 'Child tooltip');
-$child_widget->show;
+my $combobox = Gtk2::ComboBox->new_text;
+$combobox->append_text ('One');
+$combobox->append_text ('Two');
+$combobox->append_text ('Three');
+$combobox->set (tooltip_text => 'ComboBox tooltip',
+                add_tearoffs => 1);
+$combobox->show;
+$combobox->signal_connect
+  (notify => sub {
+     my ($combobox, $pspec) = @_;
+     print "$progname: combobox notify ",$pspec->get_name,"\n";
+   });
+$combobox->signal_connect
+  (changed => sub {
+     my ($combobox) = @_;
+     my $iter = $combobox->get_active_iter;
+     my $path = $iter ? $combobox->get_model->get_path($iter) : Gtk2::TreePath->new;
+     print "$progname: combobox changed active: ",$path->to_string,"\n";
+   });
 
-my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
-  (child => $child_widget,
+my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::ComboText->new
+  (child => $combobox,
    overflow_mnemonic => '_Foo',
    visible => 1,
-   tooltip_text => 'This is a tooltip');
+   tooltip_text => 'Tooltip on toolitem');
 $toolitem->show;
 $toolitem->signal_connect
   (notify => sub {
@@ -74,7 +90,7 @@ my $menuitem;
   $button->signal_connect
     (clicked => sub {
        $menuitem = $toolitem->get_proxy_menu_item
-         ('App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog');
+         ('App::MathImage::Gtk2::Ex::ToolItem::ComboText');
        ### $menuitem
        if ($menuitem) {
          $button->signal_connect (destroy => sub {
@@ -93,7 +109,7 @@ my $menuitem;
   $button->signal_connect
     (clicked => sub {
        $menuitem = $toolitem->get_proxy_menu_item
-         ('App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog');
+         ('App::MathImage::Gtk2::Ex::ToolItem::ComboText');
        require Scalar::Util;
        Scalar::Util::weaken ($menuitem);
        Scalar::Util::weaken ($toolitem);
@@ -117,7 +133,7 @@ my $menuitem;
 {
   my $button = Gtk2::CheckButton->new_with_label ('Child Sensitive');
   Glib::Ex::ConnectProperties->new
-      ([$child_widget, 'sensitive'],
+      ([$combobox, 'sensitive'],
        [$button, 'active']);
   $button->show;
   $vbox->pack_start ($button, 0, 0, 0);

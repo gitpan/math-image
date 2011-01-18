@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
 use Test::More;

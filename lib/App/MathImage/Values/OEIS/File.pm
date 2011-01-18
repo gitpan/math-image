@@ -25,10 +25,16 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 41;
+$VERSION = 42;
 
 use constant name => __('OEIS File');
-use constant description => __('OEIS sequence from B-file.');
+sub description {
+  my ($class_or_self) = @_;
+  if (ref $class_or_self && defined $class_or_self->{'description'}) {
+    return $class_or_self->{'description'};
+  }
+  return __('OEIS sequence from file.');
+}
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,6 +55,12 @@ sub new {
   ### $anum
   my $aref = _read_values($anum);
   ### $aref
+  my %info = _read_info($anum, $aref);
+  $aref ||= delete $info{'array'};
+
+  if (! $aref) {
+    croak "B-file or HTML not found for A-number \"",$anum,"\"";
+  }
 
   my $type = 'radix';
   my $max = 0;
@@ -65,7 +77,8 @@ sub new {
     $options{'radix'} = $max+1;
   }
 
-  return $class->SUPER::new (%options,
+  return $class->SUPER::new (%info,
+                             %options,
                              type => $type,
                              array => $aref);
 }
@@ -90,6 +103,51 @@ sub anum_to_html {
   $ext ||= '.html';
   $str =~ s/^A//;
   return sprintf 'A%06d%s', $str, $ext;
+}
+
+sub _read_info {
+  my ($anum, $aref) = @_;
+
+  my @ret;
+  foreach my $basefile (anum_to_html($anum), anum_to_html($anum,'.htm')) {
+    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
+    ### $basefile
+    ### $filename
+    if (open FH, "<$filename") {
+      my $contents = do { local $/; <FH> }; # slurp
+      close FH or die;
+
+      if ($contents =~
+          m{$anum\n.*?<td valign="top" align="left">\s*(.*?)\s*<(br|/td)>}s) {
+        my $description = $1;
+        $description =~ s/\s+/ /g;
+        $description =~ s/<.*?>//sg;
+        $description =~ s/&lt;/</sg;
+        $description =~ s/&gt;/>/sg;
+        $description =~ s/&amp;/&/sg;
+        $description .= "\n" . ($aref
+                                ? __('Values from B-file')
+                                : __('First few values from HTML'));
+        push @ret, 'description', $description;
+      }
+      ### @ret
+
+      if (! $aref) {
+        # fragile grep out of the html ...
+        $contents =~ s{>graph</a>.*}{};
+        $contents =~ m{.*<tt>([^<]+)</tt>};
+        my $list = $1;
+        unless ($list =~ m{^([0-9,-]|\s)+$}) {
+          croak "Oops list of values not found in ",$filename;
+        }
+        push @ret, 'array', [ split /[, \t\r\n]+/, $list ];
+      }
+      ### @ret
+      return @ret;
+    }
+    ### no html: $!
+  }
+  return;
 }
 
 sub _read_values {
@@ -121,31 +179,36 @@ sub _read_values {
     }
     ### no bfile: $!
   }
-
-  foreach my $basefile (anum_to_html($anum), anum_to_html($anum,'.htm')) {
-    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
-    ### $basefile
-    ### $filename
-    if (open FH, "<$filename") {
-      my $contents = do { local $/; <FH> }; # slurp
-      close FH or die;
-
-      # fragile grep out of the html ...
-      $contents =~ s{>graph</a>.*}{};
-      $contents =~ m{.*<tt>([^<]+)</tt>};
-      my $list = $1;
-      unless ($list =~ m{^([0-9,-]|\s)+$}) {
-        croak "Oops list of values not found in ",$filename;
-      }
-      my @array = split /[, \t\r\n]+/, $list;
-      ### $list
-      ### @array
-      return \@array;
-    }
-    ### no html: $!
-  }
-  croak "B-file or HTML not found for A-number \"",$anum,"\"";
 }
 
 1;
 __END__
+
+
+
+
+
+
+
+  # foreach my $basefile (anum_to_html($anum), anum_to_html($anum,'.htm')) {
+  #   my $filename = File::Spec->catfile (oeis_dir(), $basefile);
+  #   ### $basefile
+  #   ### $filename
+  #   if (open FH, "<$filename") {
+  #     my $contents = do { local $/; <FH> }; # slurp
+  #     close FH or die;
+  # 
+  #     # fragile grep out of the html ...
+  #     $contents =~ s{>graph</a>.*}{};
+  #     $contents =~ m{.*<tt>([^<]+)</tt>};
+  #     my $list = $1;
+  #     unless ($list =~ m{^([0-9,-]|\s)+$}) {
+  #       croak "Oops list of values not found in ",$filename;
+  #     }
+  #     my @array = split /[, \t\r\n]+/, $list;
+  #     ### $list
+  #     ### @array
+  #     return \@array;
+  #   }
+  #   ### no html: $!
+  # }

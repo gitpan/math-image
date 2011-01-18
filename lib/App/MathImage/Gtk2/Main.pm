@@ -34,18 +34,18 @@ use Locale::Messages 'dgettext';
 
 use Glib::Ex::EnumBits;
 use Glib::Ex::ObjectBits 'set_property_maybe';
+use Gtk2::Ex::ToolItem::OverflowToDialog 36; # new in v.36
 use Gtk2::Ex::ComboBox::Text 2; # version 2 for fixed MoreUtils dependency
 use Gtk2::Ex::ComboBox::Enum 2; # version 2 for fixed MoreUtils dependency
 use Gtk2::Ex::ToolItem::ComboEnum;
 
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
-use App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 41;
+our $VERSION = 42;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -132,16 +132,16 @@ sub _path_to_mnemonic {
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-
+  
   my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
   $vbox->show;
   $self->add ($vbox);
-
+  
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
-
+  
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-
+  
   $actiongroup->add_actions
     ([
       { name  => 'FileMenu',
@@ -176,7 +176,7 @@ sub INIT_INSTANCE {
           $self->destroy;
         },
       },
-
+      
       { name  => 'ViewMenu',
         label => dgettext('gtk20-properties','_View'),
       },
@@ -194,7 +194,7 @@ sub INIT_INSTANCE {
           $self->{'draw'}->centre;
         },
       },
-
+      
       { name  => 'ToolsMenu',
         label => dgettext('gtk20-properties','_Tools'),
       },
@@ -215,7 +215,7 @@ sub INIT_INSTANCE {
            callback => \&_do_action_pod_dialog,
          }
        : ()),
-
+      
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
@@ -224,7 +224,7 @@ Click repeatedly to see interesting things.'),
       },
      ],
      $self);
-
+  
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
                                           label => __('_Fullscreen'),
@@ -260,23 +260,32 @@ Click repeatedly to see interesting things.'),
          label   => __('_Toolbar'),
          tooltip => __('Whether to show the toolbar.')},
      ]);
-
-  if (Module::Util::find_installed('Gtk2::Ex::CrossHair')) {
-    $actiongroup->add_toggle_actions
-      # name, stock id, label, accel, tooltip, subr, is_active
-      ([{ name        => 'Cross',
-          label       =>  __('_Cross'),
-          # "C" as an accelerator steals that key from the Gtk2::Entry of an
-          # expression.  Is that supposed to happen?
-          #   accelerator => __p('Main-accelerator-key','C'),
-          callback    => \&_do_action_crosshair,
-          is_active   => 0,
-          tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
-        },
-       ],
-       $self);
-  }
-
+  
+  $actiongroup->add_toggle_actions
+    # name, stock id, label, accel, tooltip, subr, is_active
+    ([
+      { name        => 'ToolbarVertical',
+        label       =>  __('Toolbar _Vertical'),
+        callback    => \&_do_action_toolbar_vertical,
+        is_active   => 0,
+        # tooltip     => __('.'),
+      },
+      
+      (Module::Util::find_installed('Gtk2::Ex::CrossHair')
+       ?
+       { name        => 'Cross',
+         label       =>  __('_Cross'),
+         # "C" as an accelerator steals that key from the Gtk2::Entry of an
+         # expression.  Is that supposed to happen?
+         #   accelerator => __p('Main-accelerator-key','C'),
+         callback    => \&_do_action_crosshair,
+         is_active   => 0,
+         tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
+       }
+       : ()),
+     ],
+     $self);
+  
   {
     my $n = 0;
     my $group;
@@ -313,7 +322,7 @@ Click repeatedly to see interesting things.'),
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-
+  
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -352,6 +361,7 @@ HERE
       <menuitem action='Fullscreen'/>
       <menuitem action='DrawProgressive'/>
       <menuitem action='Toolbar'/>
+      <menuitem action='ToolbarVertical'/>
       <menuitem action='Axes'/>
     </menu>
     <menu action='HelpMenu'>
@@ -370,26 +380,30 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-
+  
   {
     my $menubar = $self->get('menubar');
     $menubar->show;
     $vbox->pack_start ($menubar, 0,0,0);
   }
-
+  
+  my $table = $self->{'table'} = Gtk2::Table->new (3, 3);
+  $vbox->pack_start ($table, 1,1,0);
+  
   my $toolbar = $self->get('toolbar');
   $toolbar->show;
-  $vbox->pack_start ($toolbar, 0,0,0);
-
-  my $table = $self->{'table'} = Gtk2::Table->new (3, 2);
-  $vbox->pack_start ($table, 1,1,0);
+  $table->attach ($toolbar, 1,3, 0,1, ['expand','fill'],[],0,0);
+  # $vbox->pack_start ($toolbar, 0,0,0);
+  Glib::Ex::ConnectProperties->new
+      ([$toolbar,'visible'],
+       [$actiongroup->get_action('ToolbarVertical'),'sensitive']);
 
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
-  $table->attach ($vbox2, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
+  $table->attach ($vbox2, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
 
   $draw->add_events ('pointer-motion-mask');
   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
-  $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
+  $table->attach ($draw, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
 
   {
     my $hadj = $draw->get('hadjustment');
@@ -402,7 +416,7 @@ HERE
                          'button-motion-mask',
                          'scroll-mask']);
     $haxis->signal_connect (button_press_event => \&_do_numaxis_button_press);
-    $table->attach ($haxis, 0,1, 1,2, ['expand','fill'],[],0,0);
+    $table->attach ($haxis, 1,2, 2,3, ['expand','fill'],[],0,0);
 
     my $vadj = $draw->get('vadjustment');
     my $vaxis = Gtk2::Ex::NumAxis->new (adjustment => $vadj,
@@ -414,7 +428,7 @@ HERE
                          'button-motion-mask',
                          'scroll-mask']);
     $vaxis->signal_connect (button_press_event => \&_do_numaxis_button_press);
-    $table->attach ($vaxis, 1,3, 0,1, [],['expand','fill'],0,0);
+    $table->attach ($vaxis, 2,3, 1,2, [],['expand','fill'],0,0);
 
     my $action = $actiongroup->get_action ('Axes');
     Glib::Ex::ConnectProperties->new ([$action,'active'],
@@ -426,7 +440,7 @@ HERE
                   shadow_type => 'none',
                   width_request => 1,
                   height_request => 1);
-    $table->attach ($aframe, 1,3, 1,2,
+    $table->attach ($aframe, 2,3, 2,3,
                     ['fill','shrink'],['fill','shrink'],0,0);
 
     require App::MathImage::Gtk2::Ex::QuadScroll;
@@ -472,7 +486,7 @@ HERE
                                       [$toolitem,'active-nick']);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+    my $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
       (overflow_mnemonic=> __('_Wider'));
     set_property_maybe ($toolitem,
                         # tooltip-text new in 2.12
@@ -498,7 +512,7 @@ HERE
            hash_in    => \%App::MathImage::Generator::pathname_has_wider ]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+    my $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
       (overflow_mnemonic => __('_Pyramid Step'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Step width for the pyramid rows, half going to each side.'));
@@ -522,7 +536,7 @@ HERE
                                        hash_in => { 'PyramidRows' => 1 }]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+    my $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
       (overflow_mnemonic => __('_Rings Step'));
     # set_property_maybe ($toolitem,
     #                     tooltip_text => __('Multiple ...'));
@@ -568,7 +582,7 @@ HERE
                                        hash_in => { 'VogelFloret' => 1 }]);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+    my $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
       (overflow_mnemonic => __('_Rotation Factor'));
     set_property_maybe ($toolitem, # tooltip-text new in 2.12
                         tooltip_text => __('Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'));
@@ -618,7 +632,7 @@ HERE
     $rotation_type_combobox->signal_connect ('notify::active-nick' => $update_sensitive);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+    my $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
       (overflow_mnemonic => __('_Radius Factor'));
     set_property_maybe ($toolitem,  # tooltip-text new in 2.12
                         tooltip_text => __('Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'));
@@ -693,7 +707,7 @@ HERE
          [$combobox,'active-nick']);
   }
   {
-    my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+    my $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
       (overflow_mnemonic => __('_Scale'));
     $toolbar->insert ($toolitem, $toolpos++);
 
@@ -825,7 +839,7 @@ sub _do_values_changed {
              [$draw,"values-$pname"]);
 
       } elsif ($ptype eq 'integer') {
-        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+        $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
           (overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
         my $min = $pinfo->{'minimum'};
         if (! defined $min) { $min = POSIX::INT_MIN; }
@@ -847,7 +861,7 @@ sub _do_values_changed {
         $toolitem->add ($spin);
 
       } elsif ($ptype eq 'string') {
-        $toolitem = App::MathImage::Gtk2::Ex::ToolItem::OverflowToDialog->new
+        $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
           (overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
 
         my $entry = Gtk2::Entry->new;
@@ -1079,6 +1093,29 @@ sub _do_action_crosshair {
     #        });
     #     $self->{'draw'}->notify('scale'); # initial
   };
+}
+sub _do_action_toolbar_vertical {
+  my ($action, $self) = @_;
+  my $vertical = $action->get_active;
+  my $toolbar = $self->get('toolbar');
+  $toolbar->set (orientation => ($vertical ? 'vertical' : 'horizontal'));
+
+  $self->{'table'}->child_set_property ($toolbar,
+                                        $vertical
+                                        ? (left_attach => 0,
+                                           right_attach => 1,
+                                           top_attach => 1,
+                                           bottom_attach => 3,
+                                           x_options => [],
+                                           y_options => ['expand','fill'],
+                                          )
+                                        : (left_attach => 1,
+                                           right_attach => 3,
+                                           top_attach => 0,
+                                           bottom_attach => 1,
+                                           x_options => ['expand','fill'],
+                                           y_options => [],
+                                          ));
 }
 
 # my %type_to_adjname = (left  => 'hadjustment',

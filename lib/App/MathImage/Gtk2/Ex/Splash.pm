@@ -23,7 +23,7 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 41;
+our $VERSION = 42;
 
 use Glib::Object::Subclass 'Gtk2::Window',
   signals => { realize => \&_do_realize,

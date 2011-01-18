@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 41;
+$VERSION = 42;
 
 use constant name => __('OEIS');
 use constant description => __('OEIS sequence, by its A-number.  There\'s code for some sequences, others look in ~/OEIS directory for a b123456.txt download (or A123456.html for just the first few values).');
@@ -35,7 +35,7 @@ use constant parameter_list
        display => __('A-number'),
        width   => 8,
        type    => 'string',
-       default => '10059', # A000290
+       default => 'A000290', # squares
       });
 sub oeis {
   my ($class_or_self) = @_;

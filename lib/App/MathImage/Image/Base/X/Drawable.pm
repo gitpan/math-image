@@ -30,7 +30,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 41;
+$VERSION = 42;
 
 sub new {
   my ($class, %params) = @_;

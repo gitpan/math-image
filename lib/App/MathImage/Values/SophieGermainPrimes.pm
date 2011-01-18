@@ -29,7 +29,7 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 41;
+$VERSION = 42;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes

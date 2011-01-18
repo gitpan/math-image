@@ -17,7 +17,7 @@
 
 
 package App::MathImage::Gtk2::Ex::AdjustmentBits;
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
 use Carp;
@@ -27,7 +27,7 @@ use List::Util 'min', 'max';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 41;
+our $VERSION = 42;
 
 sub scroll_value {
   my ($adj, $amount) = @_;

@@ -35,7 +35,7 @@ use App::MathImage::Values::UndulatingNumbers;
 # VERSION
 
 {
-  my $want_version = 41;
+  my $want_version = 42;
   is ($App::MathImage::Values::UndulatingNumbers::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::UndulatingNumbers->VERSION,  $want_version, 'VERSION class method');
 
