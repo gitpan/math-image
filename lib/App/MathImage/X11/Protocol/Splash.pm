@@ -16,6 +16,8 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# rootwin for ewmh virtual root?
+
 package App::MathImage::X11::Protocol::Splash;
 use 5.004;
 use strict;
@@ -23,7 +25,7 @@ use warnings;
 use List::Util 'max';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

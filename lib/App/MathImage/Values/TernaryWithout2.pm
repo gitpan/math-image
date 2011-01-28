@@ -24,11 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Ternary without 2s');
 use constant description => __('The integers without any 2 digits when written out in ternary (base 3).');
-use constant oeis => 'A005836'; # tetrahedrals
+use constant values_min => 1;
+use constant oeis => 'A005836';
 # OEIS: A005836
 
 # uncomment this to run the ### lines

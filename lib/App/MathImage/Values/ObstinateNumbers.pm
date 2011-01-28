@@ -27,13 +27,14 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Obstinate Numbers');
 use constant description => __('Odd numbers N not representable as prime+2^k.');
+use constant values_min => 1;
 use constant oeis => 'A133122'; # obstinate
 # OEIS: A133122
 

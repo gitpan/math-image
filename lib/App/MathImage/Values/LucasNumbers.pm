@@ -24,13 +24,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Lucas Numbers');
 use constant description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.');
+use constant values_min => 1;
 use constant oeis => 'A000204'; # starting at 1,3,...
 # OEIS: A000204
 

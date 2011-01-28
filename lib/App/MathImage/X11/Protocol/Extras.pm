@@ -24,7 +24,7 @@ use Carp;
 use List::Util;
 
 use vars '$VERSION', '@ISA', '@EXPORT_OK';
-$VERSION = 42;
+$VERSION = 43;
 
 use Exporter;
 @ISA = ('Exporter');

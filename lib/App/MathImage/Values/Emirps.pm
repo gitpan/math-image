@@ -24,16 +24,18 @@ use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Emirps');
 use constant description => __('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
+use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix);
+use constant values_min => 3;
 
 # A006567 - decimal reversal is a prime and different
 # A007500 - decimal reversal is a prime, so palindrome primes too

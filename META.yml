@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            42
+version:            43
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -46,7 +46,7 @@ requires:
     Gtk2::Ex::WidgetCursor:  15
     Gtk2::Ex::WidgetEvents:  21
     Gtk2::Pango:          0
-    Image::Base:          1.09
+    Image::Base:          1.14
     Image::Base::Gtk2::Gdk::Pixbuf:  3
     Image::Base::Gtk2::Gdk::Pixmap:  2
     Image::Base::Gtk2::Gdk::Window:  2
@@ -71,6 +71,7 @@ requires:
     Math::PlanePath::PeanoCurve:  16
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
+    Math::PlanePath::PixelRings:  19
     Math::PlanePath::PyramidRows:  4
     Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
@@ -120,6 +121,7 @@ optional_features:
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
             Image::Base::GD:      4
+            Image::Base::Imager:  0
             Image::Base::PNGwriter:  2
             Image::Base::Prima:   1
             Image::Base::X11::Protocol::Pixmap:  0

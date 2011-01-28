@@ -24,10 +24,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Base 4 Without 3');
 use constant description => __('The integers without any 3 digits when written out in base 4.');
+use constant values_min => 0;
 use constant oeis => 'A023717'; # no 3s in base 4
 # OEIS: A023717
 

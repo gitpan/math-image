@@ -24,7 +24,7 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 my %anum_to_class;
 foreach my $class (Module::Util::find_in_namespace

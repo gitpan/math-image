@@ -25,12 +25,20 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
-use constant type => 'count1';
-# use constant oeis => 'A008683'; # mobius -1,0,1
+use constant type => 'pn1';
+use constant values_min => -1;
+use constant values_max => 1;
+
+# cf A030059 the -1 positions, odd distinct primes
+#    A030229 the 1 positions, even distinct primes
+#    A013929 the 0 positions, square factor, ie. non-square-frees
+#    A005117 - square frees
+use constant oeis => 'A008683'; # mobius -1,0,1
+# OEIS: A008683
 
 
 # uncomment this to run the ### lines
@@ -42,7 +50,7 @@ use constant type => 'count1';
 #    2 even count of factors
 #    3 odd count of factors
 
-my @tranform = (0, 0, 2, 1);
+my @transform = (0, 0, 1, -1);
 
 sub new {
   my ($class, %options) = @_;
@@ -71,7 +79,7 @@ sub next {
   }
   if ($i <= 1) {
     if ($i <= 0) { return ($i, 0); }
-    else { return ($i, 2); }
+    else { return ($i, 1); }
   }
 
   my $sref = \$self->{'string'};
@@ -101,7 +109,7 @@ sub next {
     # }
   }
   ### ret: "$i, $ret -> ".($ret != 1 && 4-$ret)
-  return ($i, $tranform[$ret]);
+  return ($i, $transform[$ret]);
 }
 
 sub pred {
@@ -112,7 +120,7 @@ sub pred {
     my $i;
     while ((($i) = $self->next) && $i < $n) { }
   }
-  return $tranform[ vec($self->{'string'}, $n,2) ];
+  return $transform[ vec($self->{'string'}, $n,2) ];
 }
 
 1;

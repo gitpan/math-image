@@ -27,7 +27,7 @@ use List::Util 'min', 'max';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 sub scroll_value {
   my ($adj, $amount) = @_;

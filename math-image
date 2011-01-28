@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 exit App::MathImage->command_line;
 
 __END__
@@ -44,8 +44,8 @@ math-image -- display some mathematical images
 
 =head1 DESCRIPTION
 
-C<math-image> displays some mathematical images, either in a Gtk2 graphical
-interface, as an image file output, or setting the root window.
+C<math-image> displays some mathematical images, either in a Gtk2 GUI, as an
+image file output, or setting the root window.
 
 There's lots of options for what to display, in particular including Ulam's
 spiral of prime numbers, and variations on the numbers in a path theme
@@ -58,9 +58,9 @@ the GUI you can change the controls while drawing to start again on
 something else.
 
 Mouse button 1 in the GUI drags the image to see parts away from the origin
-and which otherwise don't fit on screen or in the window.  This can become a
-bit slow when displaying things like prime numbers which must be calculated
-all the way up to the desired part.
+and which otherwise wouldn't fit on screen.  This can become particularly
+slow when displaying things like prime numbers which must be calculated all
+the way up to the desired part.
 
 =head1 OPTIONS
 
@@ -69,6 +69,16 @@ all the way up to the desired part.
 The following control what set of values to display.
 
 =over
+
+=item --values=MODULE
+
+Draw values from the given C<App::MathImage::Values> module.  For example
+
+    math-image --values=Emirps
+
+The names for the values modules are not yet settled, so expect some splits,
+mergers or renamings.  There's no way to set module parameters from the
+command line yet (only in the GUI).
 
 =item --primes
 
@@ -136,19 +146,15 @@ grow too quickly to display much in the way of patterns.
 
 =item --fraction=1.234
 
-The 1 bits in the binary expansion of a fraction.  For example the default
+The digits in the decimal expansion of a fraction.  For example the default
 in the GUI is 5/29 which means 9,11,12, 17, 21,22,24, 27,28,29,30, etc.
-A decimal can be given so 1.234 means 1234/1000.
+A decimal like 1.234 means 1234/1000.
 
 A fraction is always a repeating pattern, with length no longer than the
 denominator, but can give interesting patterns for various paths.  For
-example
-
-    math-image --corner --fraction=1/137
-
-shows the fine structure constant 1/137 as a repeating pattern of an angry
-man with a beard and a skull wearing a hat, this no doubt having deep cosmic
-significance.
+example 1/137 in binary (choose radix 2 in the GUI) shows the fine structure
+constant 1/137 as a repeating pattern of an angry man with a beard and a
+skull wearing a hat.  No doubt this has deep cosmic significance.
 
 =item --all
 
@@ -158,7 +164,7 @@ significance.
 
 All integers, or just odd or even integers.  For the paths which fill the
 plane C<--all> will just fill the screen (slowly!), but for C<--sacks> and
-C<--vogely> it shows where all the points lie.
+C<--vogel> it shows where all the points lie.
 
 =item --aronson
 
@@ -176,16 +182,6 @@ Draw lines along the path instead of a set of selected points.  This shows
 where a path travels but you may have to increase the C<--scale> to see it
 properly.
 
-=item --values=MODULE
-
-Draw values from the given C<App::MathImage::Values> module.  For example
-
-    math-image --values=Emirps
-
-The names for the values modules are not yet settled, so expect some splits,
-mergers or renamings.  There's no way to set module parameters from the
-command line yet.
-
 =back
 
 =head2 Path Options
@@ -195,9 +191,18 @@ displayed as pixels (or circles for Sacks and Vogel).
 
 =over 4
 
+=item --path=MODULE
+
+Draw following the given C<Math::PlanePath> module.  For example
+
+    math-image --path=HeptSpiralSkewed
+
+This can also select experimental paths under C<App::MathImage::PlanePath>,
+though the names there are likely to change.
+
 =item --ulam
 
-Ulam's primes in a square spiral (currently the default too).
+Ulam's primes in a square spiral (currently the default).
 
 =item --vogel
 
@@ -212,7 +217,7 @@ less than all the integers a lower scale can be used.
 
 =item --sacks
 
-An Archimedian spiral with points going by their square root, by Robert
+An Archimedian spiral with the square root as angle of rotation, by Robert
 Sacks (see L<Math::PlanePath::SacksSpiral>).
 
 =item --theodorus
@@ -236,8 +241,7 @@ A pyramid made from horizontal rows (see L<Math::PlanePath::PyramidRows>).
 
 =item --diagonals
 
-Diagonals between the X and Y axes, per
-L<Math::PlanePath::Diagonals>.
+Diagonals between the X and Y axes, per L<Math::PlanePath::Diagonals>.
 
 =item --rows
 
@@ -245,24 +249,13 @@ L<Math::PlanePath::Diagonals>.
 
 Points drawn in successive rows or columns.
 
-=item --path=MODULE
-
-Draw following the given C<Math::PlanePath> module.  For example
-
-    math-image --path=HeptSpiralSkewed
-
-This can be used for the math-image experimental paths under
-C<App::MathImage::PlanePath>, though the names there are likely to change.
-
 =back
 
 =head2 Output Options
 
+The default is to run the Gtk GUI.
+
 =over
-
-=item --window
-
-Run the Gtk GUI.  This is the default.
 
 =item --fullscreen
 
@@ -273,23 +266,22 @@ menus can still be used, just press Alt-F, Alt-T, etc as normal.
 =item --root
 
 Set the root window background to the requested image and exit.  For example
-to a random image perhaps from your F<~/.xsession> file,
+a random image from your F<~/.xsession> file,
 
     math-image --root --random
 
-You can add C<--verbose> to print what was in fact chosen and displayed
-(from F<~/.xsession>) output normally goes to the F<~/.xsession-errors>
-file).
+Add C<--verbose> to print what was in fact chosen and displayed.  (From
+F<~/.xsession>) output normally goes to the F<~/.xsession-errors> file.)
 
 Under X the root window is set with C<X11::Protocol> if available, otherwise
 C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
 C<--background> colours to be preserved on a pseudo-colour screen.  C<Gtk2>
-on a true-colour screen is fine, and black and white too (being permanent in
-the default colormap), but other colours won't be preserved.
+is fine on a true-colour screen, or black and white (being permanent in the
+default colormap), but otherwise colours won't be preserved.
 
 =item --display=DPY
 
-Select the X server for C<X11::Protocol> or Gtk.  The default is from the
+Select the X server for X11 or Gtk output.  The default is from the
 C<DISPLAY> environment variable (normally set at X startup).
 
     math-image --display=:3
@@ -322,6 +314,9 @@ line printer or similar.
 Run the Prima GUI.  This requires the C<Prima> and C<Image::Base::Prima>
 modules.  This doesn't yet have the full set of options the Gtk GUI does,
 but it works as far as it goes.
+
+A combination C<--prima --png> means write a PNG image to standard output,
+using Prima.
 
 =item --curses
 
@@ -371,7 +366,8 @@ the full screen used.
 
 For the GUI this is an initial size for the image, though it may be widened
 to accommodate the menubar.  Under C<--fullscreen> this size is the
-unfullscreened window if you switch back to that (menu Tools/Fullscreen).
+unfullscreened window if you switch back to that (menu entry
+Tools/Fullscreen).
 
 The default for the GUI is about 4/5 of the screen.  The default for PNG etc
 image file output is an arbitrary 200x200, or for C<--text> output the size

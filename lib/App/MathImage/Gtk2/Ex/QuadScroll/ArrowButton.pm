@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Gtk2::Ex::QuadScroll::Arrow;
+package App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
 use 5.008;
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 # priority level "gtk" treating this as widget level default, for overriding
 # by application or user RC

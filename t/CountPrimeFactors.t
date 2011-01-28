@@ -32,7 +32,7 @@ use App::MathImage::Values::CountPrimeFactors;
 # VERSION
 
 {
-  my $want_version = 42;
+  my $want_version = 43;
   is ($App::MathImage::Values::CountPrimeFactors::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::CountPrimeFactors->VERSION,  $want_version, 'VERSION class method');
 

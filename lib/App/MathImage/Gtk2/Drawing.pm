@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -186,6 +186,14 @@ use Glib::Object::Subclass
                    App::MathImage::Generator->default_options->{'sqrt'},
                    Glib::G_PARAM_READWRITE),
 
+                  Glib::ParamSpec->double
+                  ('values-spectrum',
+                   'Spectrum',
+                   'Blurb.',
+                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
+                   0,
+                   Glib::G_PARAM_READWRITE),
+
                   Glib::ParamSpec->int
                   ('values-polygonal',
                    __('Polygonal'),
@@ -318,7 +326,9 @@ sub INIT_INSTANCE {
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### SET_PROPERTY: $pname, $newval
+  ### Drawing SET_PROPERTY
+  ### $pname
+  ### $newval
 
   my $oldval = $self->get($pname);
   $self->{$pname} = $newval;
@@ -529,6 +539,7 @@ sub gen_object {
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),
      aronson_lying        => $self->get('values-aronson_lying'),
      sqrt            => $self->get('values-sqrt'),
+     spectrum        => $self->get('values-spectrum'),
      polygonal       => $self->get('values-polygonal'),
      multiples       => $self->get('values-multiples'),
      radix           => $self->get('values-radix'),
@@ -608,6 +619,7 @@ sub start_drawing_window {
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),
      aronson_lying        => $self->get('values-aronson_lying'),
      sqrt            => $self->get('values-sqrt'),
+     spectrum        => $self->get('values-spectrum'),
      polygonal       => $self->get('values-polygonal'),
      multiples       => $self->get('values-multiples'),
      radix           => $self->get('values-radix'),
@@ -735,8 +747,8 @@ sub _update_adjustment_extents {
     my $hadj = $self->{'hadjustment'};
     my $page = $width / $scale;
     $hadj->set (page_size      => $page,
-                page_increment => $page * .8,
-                step_increment => $page * .2,
+                page_increment => $page * .9,
+                step_increment => $page * .1,
                 upper          => max ($hadj->upper, $hadj->value + 2.5*$page),
                 lower          => min ($hadj->lower, $hadj->value - 1.5*$page),
                );
@@ -746,8 +758,8 @@ sub _update_adjustment_extents {
     my $vadj = $self->{'vadjustment'};
     my $page = $height / $scale;
     $vadj->set (page_size      => $page,
-                page_increment => $page * .8,
-                step_increment => $page * .2,
+                page_increment => $page * .9,
+                step_increment => $page * .1,
                 upper          => max ($vadj->upper, $vadj->value + 2.5*$page),
                 lower          => min ($vadj->lower, $vadj->value - 1.5*$page),
                );

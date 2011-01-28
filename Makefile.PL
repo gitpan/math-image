@@ -90,7 +90,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
 
-    'Image::Base' => '1.09',  # for ellipse() fixes
+    'Image::Base' => '1.14',  # 1.14 for add_colours()
 
     # my Image-Base-Other
     'Image::Base::Multiplex' => 0,
@@ -127,6 +127,7 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
     'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
     'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
+    'Math::PlanePath::PixelRings'           => 19, # new in v.19
     'Math::PlanePath::DiamondSpiral'        => 1,
     'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
     'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
@@ -177,6 +178,7 @@ MyMakeMakerExtras::WriteMakefile
 
                               'Image::Xpm'             => 0,
                               'Image::Base::GD'        => 4, # bug fixes
+                              'Image::Base::Imager'    => 0,
                               'Image::Base::PNGwriter' => 2, # bug fixes
                               'Image::Base::X11::Protocol::Pixmap' => 0,
                               'Image::Base::X11::Protocol::Window' => 0,

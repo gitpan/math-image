@@ -23,16 +23,18 @@ use List::Util 'min','max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Beastly');
 use constant description => __('Numbers which contain "666".  The default is decimal, or select a radix.');
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
+use constant values_min => 666;
+use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix);
 
 
 sub oeis {

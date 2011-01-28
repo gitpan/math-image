@@ -27,7 +27,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -179,12 +179,12 @@ sub ellipse {
   }
 }
 
-sub add_colours {
-  my $self = shift;
-  ### add_colours: @_
-
-  # my $caca = $self->{'-caca'};
-}
+# sub add_colours {
+#   my $self = shift;
+#   ### add_colours: @_
+# 
+#   # my $caca = $self->{'-caca'};
+# }
 
 1;
 __END__

@@ -27,10 +27,11 @@ use base 'App::MathImage::Values::SophieGermainPrimes';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Safe Primes');
 use constant description => __('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those being the Sophie Germain primes).');
+use constant values_min => 5;
 use constant oeis => 'A005385';
 # OEIS: A005385
 

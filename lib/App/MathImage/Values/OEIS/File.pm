@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('OEIS File');
 sub description {

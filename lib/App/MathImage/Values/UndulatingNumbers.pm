@@ -22,15 +22,17 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Undulating Numbers');
 use constant description => __('Numbers like 37373 which are a pattern of digits ABAB...');
+use constant values_min => 1;
 use constant growth => 'exponential';
 
 # A033619 base 10 >=0 including a==b
@@ -47,7 +49,7 @@ sub oeis {
   return undef;
 }
 
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
+use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix);
 
 sub new {
   my ($class, %options) = @_;

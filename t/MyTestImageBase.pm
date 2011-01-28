@@ -1,6 +1,6 @@
 # MyTestImageBase.pm -- some tests for Image::Base subclasses
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # MyTestImageBase.pm is shared by several distributions.
 #
@@ -106,7 +106,7 @@ sub is_vline {
   my $bad = 0;
   foreach my $y (max(0,$y1) .. min($y2,$height-1)) {
     my $got = mung_colour($image->xy($x,$y));
-    is ($got, $colour, "vline $x,$y  $colour  on $name");
+    is ($got, $colour, "vline x=$x,y=$y want $colour  on $name");
     $bad += ($got ne $colour);
   }
   ### $bad

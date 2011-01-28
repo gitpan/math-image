@@ -22,17 +22,18 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Repdigits');
 use constant description => __('Numbers which are a "repdigit", meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc.  The default is decimal, or select a radix.');
-
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
+use constant values_min => 1;
+use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix());
 
 sub oeis {
   my ($class_or_self) = @_;

@@ -25,10 +25,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::Even';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Odd Integers');
 use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');
+use constant values_min => 1;
 use constant oeis => 'A005408'; # odds
 # OEIS: A005408
 

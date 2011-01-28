@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,6 +23,7 @@ use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
 $VERSION = 38;
@@ -34,7 +35,7 @@ $VERSION = 38;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
+use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix);
 
 # use constant parameter_list => ({ name    => 'parity',
 #                                   display => __('Parity'),

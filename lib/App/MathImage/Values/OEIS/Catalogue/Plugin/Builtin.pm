@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant anum_to_class_hashref =>
 {
@@ -218,7 +218,11 @@ use constant anum_to_class_hashref =>
     '1'
   ],
   'A005836' => [
-    'App::MathImage::Values::TernaryWithout2'
+    'App::MathImage::Values::RadixWithoutDigit',
+    'radix',
+    '3',
+    'digit',
+    '2'
   ],
   'A005843' => [
     'App::MathImage::Values::Even'

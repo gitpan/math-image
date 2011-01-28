@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,37 +34,48 @@ MyTestHelpers::glib_gtk_versions();
 
 plan tests => 8;
 
-require App::MathImage::Gtk2::SaveDialog;
+require App::MathImage::Gtk2::Ex::Splash;
 
+#------------------------------------------------------------------------------
+# properties
+
+diag "properties:";
+{
+  my %super;
+  foreach my $pspec (Gtk2::Window->list_properties) {
+    $super{$pspec->get_name} = 1;
+  }
+  foreach my $pspec (App::MathImage::Gtk2::Ex::Splash->list_properties) {
+    my $pname = $pspec->get_name;
+    next if $super{$pname};
+    diag sprintf "  %-10s %s\n", $pname, $pspec->get_nick;
+  }
+}
 
 #------------------------------------------------------------------------------
 # VERSION
 
 my $want_version = 43;
 {
-  is ($App::MathImage::Gtk2::SaveDialog::VERSION,
+  is ($App::MathImage::Gtk2::Ex::Splash::VERSION,
       $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::SaveDialog->VERSION,
+  is (App::MathImage::Gtk2::Ex::Splash->VERSION,
       $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::SaveDialog->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::Ex::Splash->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::SaveDialog->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::Ex::Splash->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $dialog = do {
-    # avoid spam from Gtk trying to make you buy the gnome icons
-    local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
-    App::MathImage::Gtk2::SaveDialog->new
-    };
-  is ($dialog->VERSION,  $want_version, 'VERSION object method');
+  my $splash = App::MathImage::Gtk2::Ex::Splash->new;
+  is ($splash->VERSION,  $want_version, 'VERSION object method');
 
-  ok (eval { $dialog->VERSION($want_version); 1 },
+  ok (eval { $splash->VERSION($want_version); 1 },
       "VERSION object check $want_version");
-  ok (! eval { $dialog->VERSION($check_version); 1 },
+  ok (! eval { $splash->VERSION($check_version); 1 },
       "VERSION object check $check_version");
 }
 
@@ -73,10 +84,11 @@ my $want_version = 43;
 # Scalar::Util::weaken
 
 {
-  my $dialog = App::MathImage::Gtk2::SaveDialog->new;
-  $dialog->destroy;
+  my $splash = App::MathImage::Gtk2::Ex::Splash->new;
+  $splash->destroy;
   require Scalar::Util;
-  Scalar::Util::weaken ($dialog);
-  is ($dialog, undef, 'garbage collect when weakened');
+  Scalar::Util::weaken ($splash);
+  is ($splash, undef, 'garbage collect when weakened');
 }
+
 exit 0;

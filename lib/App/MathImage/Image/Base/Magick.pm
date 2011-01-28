@@ -1,6 +1,5 @@
-# antialias force ?
-
 # literal filename, no %03d
+
 
 
 # Copyright 2010, 2011 Kevin Ryde
@@ -32,7 +31,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -44,6 +43,7 @@ sub new {
   # $obj->new(...) means make a copy, with some extra settings
   if (ref $class) {
     my $self = $class;
+    $class = ref $self;
     if (! defined $params{'-imagemagick'}) {
       $params{'-imagemagick'} = $self->get('-imagemagick')->Clone;
     }
@@ -52,18 +52,27 @@ sub new {
     ### copy params: \%params
   }
 
-  my $width  = delete $params{'-width'};
-  my $height = delete $params{'-height'};
-  my $size = (defined $width ? $width : 1).'x'.(defined $height ? $height : 1);
-
   if (! defined $params{'-imagemagick'}) {
-    my $m = $params{'-imagemagick'} = Image::Magick->new (size => $size);
-    $m->ReadImage('xc:black');
+    # Crib: passing attributes to new() is the same as a subsequent set()
+    # except you don't see an error return
+    my $m = $params{'-imagemagick'} = Image::Magick->new;
+
+    # must apply -width, -height as "size" before ReadImage()
+    if (exists $params{'-width'} || exists $params{'-height'}) {
+      my $width = delete $params{'-width'} || 0;
+      my $height = delete $params{'-height'} || 0;
+      if (my $err = $m->Set (size => "${width}x${height}")) {
+        croak $err;
+      }
+    }
+    if (my $err = $m->ReadImage('xc:black')) {
+      croak $err;
+    }
   }
   my $self = bless {}, $class;
   $self->set (%params);
 
-  if (defined $self->{'filename'}) {
+  if (defined $params{'-file'}) {
     $self->load;
   }
 
@@ -71,106 +80,214 @@ sub new {
   return $self;
 }
 
-my %attr_to_get = (# these not documented yet ...
-                   -ncolours   => 'colors',
-                   -file_format => 'magick',
-                  );
-my %attr_to_set = (-width       => 'width',
-                   -height      => 'height',
-                   # this not documented yet ...
-                   -file_format => 'magick');
+# "size" is the size of the canvas
+# "width" and "height" are the size of a ReadImage() file, or something
+# file:///usr/share/doc/imagemagick/www/perl-magick.html#get-attribute
+#
+sub _magic_get_width {
+  my ($m, $idx) = @_;
+  if (defined (my $size = $m->Get('size'))) {
+    # ### $size
+    # ### split: [ split /x/, $size ]
+    # ### return: (split /x/, $size)[$idx||0]
+    return (split /x/, $size)[$idx||0];
+  } else {
+    return 0;
+  }
+}
+sub _magic_get_height {
+  my ($m) = @_;
+  _magic_get_width ($m, 1);
+}
+my %attr_to_get_func = (-width  => \&_magic_get_width,
+                        -height => \&_magic_get_height,
+                       );
+my %attr_to_getset = (-file        => 'filename',
+                      # these not documented yet ...
+                      -ncolours    => 'colors',
+                      -file_format => 'magick',
+                     );
 sub _get {
   my ($self, $key) = @_;
   ### Image-Base-Magick _get(): $key
 
-  if (my $attribute = $attr_to_set{$key} || $attr_to_get{$key}) {
+  my $m = $self->{'-imagemagick'};
+  if (my $func = $attr_to_get_func{$key}) {
+    return &$func($m);
+  }
+  if (my $attribute = $attr_to_getset{$key}) {
     ### Get: $attribute
-    ### is: $self->{'-imagemagick'}->Get($attribute)
-    return  $self->{'-imagemagick'}->Get($attribute);
+    ### is: $m->Get($attribute)
+    return  $m->Get($attribute);
   }
   return $self->SUPER::_get ($key);
 }
 
 sub set {
-  my ($self, %param) = @_;
-  ### Image-Base-Magick set(): \%param
+  my ($self, %params) = @_;
+  ### Image-Base-Magick set(): \%params
 
   foreach my $key ('-ncolours') {
-    if (exists $param{$key}) {
+    if (exists $params{$key}) {
       croak "Attribute $key is read-only";
     }
   }
 
   # apply this first
-  if (my $m = delete $param{'-imagemagick'}) {
+  if (my $m = delete $params{'-imagemagick'}) {
     $self->{'-imagemagick'} = $m;
   }
 
+  my $m = $self->{'-imagemagick'};
   my @set;
-  foreach my $key (keys %param) {
-    if (my $attribute = $attr_to_set{$key}) {
-      push @set, $attribute, delete $param{$key};
+
+  if (exists $params{'-width'} || exists $params{'-height'}) {
+    # FIXME: might prefer a crop on shrink, and some sort of extend-only on
+    # grow
+
+    my @resize;
+    my $width = delete $params{'-width'};
+    if (defined $width && $width != _magic_get_width($m)) {
+      push @resize, width => $width;
+    }
+    my $height = delete $params{'-height'};
+    if (defined $height && $height != _magic_get_height($m)) {
+      push @resize, height => $height;
+    }
+    # my $width = delete $params{'-width'};
+    # my $height = delete $params{'-height'};
+    if (! defined $width)  { $width = _magic_get_width($m); }
+    if (! defined $height) { $height = _magic_get_height($m); }
+    # $m->Resize (width => $width, height => $height);
+
+    if (@resize) {
+      $m->Resize (@resize);
+    }
+    push @set, size => "${width}x${height}";
+  }
+
+  foreach my $key (keys %params) {
+    if (my $attribute = $attr_to_getset{$key}) {
+      push @set, $attribute, delete $params{$key};
     }
   }
   if (@set) {
     ### @set
-    $self->{'-imagemagick'}->Set(@set);
+    if (my $err = $m->Set(@set)) {
+      croak $err;
+    }
   }
 
-  %$self = (%$self, %param);
+  %$self = (%$self, %params);
 }
 
 sub load {
   my ($self, $filename) = @_;
-  if (@_ == 1) {
-    $filename = $self->get('-file');
-  } else {
+  if (@_ > 1) {
     $self->set('-file', $filename);
   }
-  $self->{'-imagemagick'}->Read ($filename);
+  my $m = $self->{'-imagemagick'};
+  if (my $err = $m->Read) {
+    croak $err;
+  }
+  # keep only the image read, not the XC canvas or previous image
+  @$m = ($m->[-1]);
 }
 
 # not yet documented ...
 sub load_fh {
   my ($self, $fh) = @_;
-  $self->{'-imagemagick'}->Read (file => $fh);
+  if (my $err = $self->{'-imagemagick'}->Read (file => $fh)) {
+    croak $err;
+  }
 }
 
 sub save {
   my ($self, $filename) = @_;
   ### Image-Base-Magick save(): @_
-  if (@_ == 2) {
+  if (@_ > 1) {
     $self->set('-file', $filename);
-  } else {
-    $filename = $self->get('-file');
   }
   ### $filename
-  $self->{'-imagemagick'}->Write (filename => $filename);
+
+  # FIXME: filename "%d" expands, how to disable that?
+  # file:///usr/share/doc/imagemagick/www/perl-magick.html#read
+  #
+  if (my $err = $self->{'-imagemagick'}->Write (_save_options($self))) {
+    croak $err;
+  }
+}
+
+# not yet documented ...
+sub save_fh {
+  my ($self, $fh) = @_;
+  if (my $err = $self->{'-imagemagick'}->Write (file => $fh,
+                                                _save_options($self))) {
+    croak $err;
+  }
+}
+
+sub _save_options {
+  my ($self) = @_;
+
+  # "quality" is zlib*10.  For undef or -1 omit the quality parameter.
+  # file:///usr/share/doc/imagemagick/www/command-line-options.html#quality
+  # coders/png.c WriteOnePNGImage() doing png_set_compression_level() of
+  # quality/10, or maximum 9
+  #
+  my $m = $self->{'-imagemagick'};
+  my $format = $m->Get('magick');
+  if ($format eq 'png') {
+    my $zlib_compression = $self->{'-zlib_compression'};
+    if (defined $zlib_compression && $zlib_compression >= 0) {
+      return (compression => $zlib_compression * 10);
+    }
+  }
+  return;
 }
 
 sub xy {
   my ($self, $x, $y, $colour) = @_;
-  #### Image-Base-Magick xy: $x,$y,$colour
+  ### Image-Base-Magick xy: $x,$y,$colour
   my $m = $self->{'-imagemagick'};
+  my $err;
   if (@_ == 4) {
-    $m->Draw (stroke => $colour,
-              primitive => 'rectangle',
-              points => $x.','.($y+1));
-    #     $m->Draw (stroke => $colour,
-    #               primitive => 'point',
-    #               points => "$x,$y");
+    $err = $m->set ("pixel[$x,$y]", $colour);
+
+    # $err = $m->Draw (primitive => 'rectangle',
+    #                  stroke => $colour,
+    #                  points => $x.','.($y+1));
+    # $err = $m->Draw (primitive => 'point',
+    #                  stroke => $colour,
+    #                  points => "$x,$y");
+
+    # SetPixel() takes color=>[$r,$g,$b] arrayref, not a string
+    # $err = $m->SetPixel (x=>$x, y=>$y, color=>$colour);
+
   } else {
+    # cf $m->get("pixel[123,456]") gives a string "$r,$g,$g,$a"
+
+    # GetPixel() gives list ($r,$g,$b) each in range 0 to 1
     my @rgb = $m->GetPixel (x => $x, y => $y);
-    #### @rgb
-    return sprintf '#%02X%02X%02X', map {$_*255} @rgb;
+    ### @rgb
+    if (@rgb == 1) {
+      $err = $rgb[0];
+    } else {
+      return sprintf '#%02X%02X%02X', map {$_*255} @rgb;
+    }
+  }
+  if ($err) {
+    croak $err;
   }
 }
 sub line {
   my ($self, $x1, $y1, $x2, $y2, $colour) = @_;
   ### Image-Base-Magick line: @_
-  $self->{'-imagemagick'}->Draw (fill => $colour,
-                                 primitive => 'line',
-                                 points => "$x1,$y1 $x2,$y2");
+  if (my $err = $self->{'-imagemagick'}->Draw (primitive => 'line',
+                                               fill => $colour,
+                                               points => "$x1,$y1 $x2,$y2")) {
+    croak $err;
+  }
 }
 sub rectangle {
   my ($self, $x1, $y1, $x2, $y2, $colour, $fill) = @_;
@@ -178,15 +295,24 @@ sub rectangle {
   # ### index: $self->colour_to_index($colour)
 
   my $m = $self->{'-imagemagick'};
+  my $err;
   if ($x1==$x2 && $y1==$y2) {
-    ### use point
-    $m->Draw (fill => $colour,
-              primitive => 'point',
-              points => "$x1,$y1");
+    # primitive=>rectangle of 1x1 seems to draw nothing
+
+    ### use set pixel[]
+    $err = $m->set ("pixel[$x1,$y1]", $colour);
+
+    # $err = $m->Draw (primitive => 'point',
+    #                  fill => $colour,
+    #                  points => "$x1,$y1");
+
   } else {
-    $m->Draw (($fill ? 'fill' : 'stroke'), $colour,
-              primitive => 'rectangle',
-              points => "$x1,$y1 $x2,$y2");
+    $err = $m->Draw (primitive => 'rectangle',
+                     ($fill ? 'fill' : 'stroke'), $colour,
+                     points => "$x1,$y1 $x2,$y2");
+  }
+  if ($err) {
+    croak $err;
   }
 }
 
@@ -195,28 +321,35 @@ sub ellipse {
   ### Image-Magick ellipse: "$x1, $y1, $x2, $y2, $colour"
 
   my $m = $self->{'-imagemagick'};
-  if ($x1==$x2 || $y1==$y2) {
-    ### use line
-    $m->Draw (fill => $colour,
-              primitive => 'line',
-              points => "$x1,$y1 $x2,$y2");
+  my $w = $x2 - $x1;
+  my $h = $y2 - $y1;
+  my $err;
+  if ($w || $h) {
+    ### more than 1 pixel wide and/or high, primitive=>ellipse
+    ### ellipse: (($x1+$x2)/2).','.(($y1+$y2)/2).' '.($w/2).','.($h/2).' 0,360'
+    $err = $m->Draw (primitive => 'ellipse',
+                     ($fill ? 'fill' : 'stroke') => $colour,
+                     points => ((($x1+$x2)/2).','.(($y1+$y2)/2)
+                                .' '
+                                .($w/2).','.($h/2)
+                                .' 0,360'));
   } else {
-    ### ellipse: (($x1+$x2)/2).','.(($y1+$y2)/2).' '.(($x2-$x1)/2).','.(($y2-$y1)/2).' 0,360'
-    $self->{'-imagemagick'}->Draw
-      (($fill ? 'fill' : 'stroke') => $colour,
-       primitive => 'ellipse',
-       points => ((($x1+$x2)/2).','.(($y1+$y2)/2)
-                  .' '.(($x2-$x1)/2).','.(($y2-$y1)/2)
-                  .' 0,360'));
+    ### only 1 pixel wide and/or high, primitive=>line
+    $err = $m->Draw (primitive => 'line',
+                     fill => $colour,
+                     points => "$x1,$y1 $x2,$y2");
+  }
+  if ($err) {
+    croak $err;
   }
 }
 
-sub add_colours {
-  my $self = shift;
-  ### add_colours: @_
-
-  my $m = $self->{'-imagemagick'};
-}
+# sub add_colours {
+#   my $self = shift;
+#   ### add_colours: @_
+# 
+#   my $m = $self->{'-imagemagick'};
+# }
 
 1;
 __END__
@@ -248,17 +381,19 @@ C<App::MathImage::Image::Base::Magick> is a subclass of C<Image::Base>,
 =head1 DESCRIPTION
 
 C<App::MathImage::Image::Base::Magick> extends C<Image::Base> to create or
-update image files using the C<Image::Magick> module.
+update image files using C<Image::Magick>.
+
+Colour names are anything recognised by ImageMagick,
+
+    file:///usr/share/doc/imagemagick/www/color.html
+
+It includes 1, 2 and 4-digit hex "#RGB", "#RRGGBB", "#RRRRGGGGBBBB", and
+other colour model forms, and a table of names roughly per X11 plus a
+F<config/colors.xml> for extras.
 
 By default ImageMagick uses "anti-aliasing" to blur the edges of lines etc
 drawn.  This is unlike the other C<Image::Base> modules but currently it's
-not changed or overridden in the methods here.  Perhaps in the future that
-will change.
-
-Colour names are anything recognised by ImageMagick, as described under
-"Color Names" in its documentation.  It has several RGB and other colour
-model forms, and a table of names roughly per X11 plus a
-F<config/colors.xml> for extras.
+not changed or overridden in the methods here.  Perhaps that will change.
 
 =head1 FUNCTIONS
 
@@ -294,6 +429,23 @@ Setting these changes the size of the image.
 =item C<-imagemagick>
 
 The underlying C<Image::Magick> object.
+
+=item C<-file>
+
+The filename for C<load> or C<save>, or to C<new> to create and load.  (This
+is the "filename" attribute of the imagemagick.)
+
+The current code uses ImageMagick C<Write>, which means a "%d" or "%03d" etc
+in the filename expands to a sequential number.  The intention in the future
+is to ensure C<-file> is treated literally, without such expansion, if at
+all possible, since that's how other C<Image::Base> classes behave.
+
+=item C<-zlib_compression> (integer 0-9 or -1)
+
+The amount of data compression to apply when saving.  The value is Zlib
+style 0 for no compression up to 9 for maximum effort.  -1 means Zlib's
+default, usually 6.  C<undef> means ImageMagick's default, which is 7.
+(This attribute becomes the ImageMagick "quality" parameter.)
 
 =back
 

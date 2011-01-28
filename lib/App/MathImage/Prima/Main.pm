@@ -35,7 +35,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -71,7 +71,8 @@ sub new {
                         sub {
                           my ($self) = @_;
                           ### POD: "@_"
-                          $::application->open_help ("$FindBin::Bin/$FindBin::Script");
+                          # $::application->open_help ("$FindBin::Bin/$FindBin::Script");
+                          $::application->open_help ('/tmp/foo.pod');
                         }],
 
                       [ __('~This Path POD'),
@@ -770,6 +771,22 @@ sub _do_about {
 #       $draw->set (%gen_options);
 #       $draw->modify_fg ('normal', $fg_color);
 #       $draw->modify_bg ('normal', $bg_color);
+
+
+sub command_line {
+  my ($class, $mathimage) = @_;
+  my $gen_options = $mathimage->{'gen_options'};
+  my $mainwin = $class->new
+    (gui_options => $mathimage->{'gui_options'},
+     gen_options => $gen_options,
+     (! defined $gen_options->{'width'}
+      ? (width  => 600,
+         height => 400)
+      : ()),
+    );
+  Prima->run;
+  return 0;
+}
 
 1;
 __END__

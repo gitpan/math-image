@@ -22,25 +22,13 @@ use warnings;
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::Values::Base::Radix';
 
 use vars '$VERSION';
-$VERSION = 42;
-
-
+$VERSION = 43;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
-use constant type => 'radix';
-
-# use constant parameter_list => ({ name    => 'parity',
-#                                   display => __('Parity'),
-#                                   type    => 'enum',
-#                                   choices => ['odd','even'],
-#                                   choices_display => [__('Odd'),__('Even')],
-#                                   description => __('The parity odd or even to show for the sequence.'),
-#                                 });
 
 # use constant oeis => 'A001969'; # with even 1s
 # df 'A026147'; # positions of 1s in evil

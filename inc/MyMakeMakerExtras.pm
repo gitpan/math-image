@@ -52,7 +52,8 @@ sub WriteMakefile {
 
   foreach my $opt ('MyMakeMakerExtras_Pod_Coverage',
                    'MyMakeMakerExtras_LINT_FILES',
-                   'MY_NO_HTML') {
+                   'MY_NO_HTML',
+                   'MY_EXTRA_FILE_PART_OF') {
     $my_options{$opt} = delete $opts{$opt};
   }
 
@@ -325,6 +326,15 @@ check-debug-constants:
 check-spelling:
 	if find . -type f | egrep -v '(Makefile|dist-deb)' | xargs egrep --color=always -nHi '[c]usor|[r]efering|[w]riteable|[n]ineth|\b[o]mmitt?ed|[o]mited|[$$][rd]elf|[r]equrie|[n]oticable|[c]ontinous|[e]xistant|[e]xplict|[a]gument|[d]estionation|\b[t]he the\b|\b[n]ote sure\b'; \
 	then false; else true; fi
+HERE
+
+  $post .= "\n";
+  $post .= ("MY_EXTRA_FILE_PART_OF = " 
+            . ($my_options{'MY_EXTRA_FILE_PART_OF'}||'')
+            . "\n");
+  $post .= <<'HERE';
+check-file-part-of:
+	if grep 'This file is'' part of ' -r . | egrep -iv '$(DISTNAME)$(MY_EXTRA_FILE_PART_OF)'; then false; else true; fi
 
 diff-prev:
 	rm -rf diff.tmp

@@ -22,15 +22,16 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
-use constant name => __('Radix without chosen digit');
+use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
 
 use constant parameter_list
-  => (App::MathImage::Values->parameter_common_radix,
+  => (App::MathImage::Values::Base::Radix::parameter_common_radix(),
       { name    => 'digit',
         type    => 'integer',
         display => __('Digit'),

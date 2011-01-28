@@ -24,13 +24,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('All Integers');
 use constant description => __('All integers 1,2,3,etc.');
+use constant values_min => 1;
 use constant oeis => 'A000027';   # natural numbers starting 1
 # OEIS: A000027
 

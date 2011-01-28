@@ -17,8 +17,12 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 43, January 2011
+    - PixelRings split out
+
 Version 42, January 2011
-    - tests fix the OEIS default tried
+    - fix colours for CountPrimeFactors
+    - tests fix the OEIS default sequence tried
 
 Version 41, January 2011
     - Language::Expr expressions

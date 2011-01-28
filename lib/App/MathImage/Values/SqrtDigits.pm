@@ -22,24 +22,23 @@ use warnings;
 use Carp;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::Values::Base::Radix';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Square Root Digits');
 use constant description => __('The square root of a given number written out in decimal or a given radix.');
-use constant type => 'radix';
-use constant parameter_list => ({ name    => 'sqrt',
+use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
+                                { name    => 'sqrt',
                                   display => __('Sqrt'),
                                   type    => 'integer',
                                   default => 2,
                                   description => __('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'),
                                 },
-                                App::MathImage::Values->parameter_common_radix,
                                );
 
 # A020807 - sqrt(1/50) decimal

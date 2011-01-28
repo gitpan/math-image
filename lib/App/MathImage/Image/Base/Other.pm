@@ -24,7 +24,7 @@ use warnings;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -78,6 +78,37 @@ sub load_string {
   return _load_from_tempfh ($image, $tempfh);
 }
 
+# draw a + shape in the rectangle top-left x1,y1, bottom-right x2,y2
+sub plus {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  {
+    my $xmid = int(($x1+$x2)/2);
+    $image->line ($xmid,$y1, $xmid,$y2, $colour);
+  }
+  {
+    my $ymid = int(($y1+$y2)/2);
+    $image->line ($x1,$ymid, $x2,$ymid, $colour);
+  }
+}
+
+# draw an X in the rectangle top-left x1,y1, bottom-right x2,y2
+sub draw_X {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  $image->line ($x1,$y1, $x2,$y2, $colour);
+  $image->line ($x2,$y1, $x1,$y2, $colour);
+}
+
+# draw an L in the rectangle top-left x1,y1, bottom-right x2,y2,
+# meaning simply the left and bottom edges
+sub draw_L {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  if ($y1 != $y2) {
+    $image->line ($x1,$y1, $x1,$y2-1, $colour);  # left
+  }
+  $image->line ($x1,$y2, $x2,$y2, $colour);  # bottom
+}
+
+
 
 sub xy_points {
   my ($image) = @_;
@@ -117,7 +148,7 @@ sub diamond {
 
   my $a = $x2 - $x1;
   my $b = $y2 - $y1;
-  if ($a <= 1 || $b <= 1) {
+  if ($a < 2 || $b < 2) {
     $self->rectangle ($x1,$y1, $x2,$y2, $colour, 1);
     return;
   }
@@ -139,36 +170,42 @@ sub diamond {
   ### $a
   ### $b
 
-  my $quad
-    = ($fill
-       ? sub {
-         ### fill: "x=$x y=$y   x ".($x1+$x).' to '.($x2-$x).' y='.($y1+$y)
-         $self->line ($x1+$x,$y1+$y, $x2-$x,$y1+$y, $colour); # upper
-         $self->line ($x1+$x,$y2-$y, $x2-$x,$y2-$y, $colour); # lower
-       }
-       : sub {
-         ### points: ($x1+$x).','.($y1+$y)
-         $self->xy ($x1+$x,$y1+$y, $colour); # upper left
-         $self->xy ($x2-$x,$y1+$y, $colour); # upper right
-
-         $self->xy ($x1+$x,$y2-$y, $colour); # lower left
-         $self->xy ($x2-$x,$y2-$y, $colour); # lower right
-       });
-
   my $rem = - int(($b+1)/2);
-  while ($y <= $b) {
-    ### $x
-    ### $y
-    ### $rem
+  if ($fill) {
+    my $quad = sub {
+      ### fill: "x=$x y=$y   x ".($x1+$x).' to '.($x2-$x).' y='.($y1+$y)
+      $self->line ($x1+$x,$y1+$y, $x2-$x,$y1+$y, $colour); # upper
+      $self->line ($x1+$x,$y2-$y, $x2-$x,$y2-$y, $colour); # lower
+    };
 
-    if ($fill) {
+    while ($y <= $b) {
+      ### $x
+      ### $y
+      ### $rem
+
       &$quad ();
       $x -= $whole;
       if (($rem += $a) > 0) {
         $rem -= $b;
         $x--;
       }
-    } else {
+      $y++;
+    }
+
+  } else {
+    my $quad = sub {
+      ### points: ($x1+$x).','.($y1+$y)
+      $self->xy ($x1+$x,$y1+$y, $colour); # upper left
+      $self->xy ($x2-$x,$y1+$y, $colour); # upper right
+
+      $self->xy ($x1+$x,$y2-$y, $colour); # lower left
+      $self->xy ($x2-$x,$y2-$y, $colour); # lower right
+    };
+
+    while ($y <= $b) {
+      ### $x
+      ### $y
+      ### $rem
       for (my $i = $whole; $i > 0; $i--) {
         &$quad ();
         $x--;
@@ -178,8 +215,8 @@ sub diamond {
         &$quad ();
         $x--;
       }
+      $y++;
     }
-    $y++;
   }
   # if ($fill) {
   # } else {

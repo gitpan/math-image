@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -105,6 +105,26 @@ sub _xterm_stderr {
   return;
 }
 
+sub _do_path_menu {
+  my ($menu, $path) = @_;
+  ### _do_path_menu(): "@_"
+  my $self = $menu->{'-parent'};
+  $self->getobj('draw')->change_gen (path => $path);
+}
+
+sub _do_values_menu {
+  my ($menu, $values) = @_;
+  ### _do_values_menu(): "@_"
+  my $self = $menu->{'-parent'};
+  $self->getobj('draw')->change_gen (values => $values);
+}
+
+sub command_line {
+  my ($class, $mathimage) = @_;
+  $class->run ($mathimage->{'gen_options'});
+  return 0;
+}
+
 sub run {
   my ($class, $gen_options) = @_;
 
@@ -146,20 +166,6 @@ sub run {
 
   $menu->focus();
   $cui->mainloop;
-}
-
-sub _do_path_menu {
-  my ($menu, $path) = @_;
-  ### _do_path_menu(): "@_"
-  my $self = $menu->{'-parent'};
-  $self->getobj('draw')->change_gen (path => $path);
-}
-
-sub _do_values_menu {
-  my ($menu, $values) = @_;
-  ### _do_values_menu(): "@_"
-  my $self = $menu->{'-parent'};
-  $self->getobj('draw')->change_gen (values => $values);
 }
 
 1;

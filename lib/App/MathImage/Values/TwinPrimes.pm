@@ -28,10 +28,11 @@ use base 'App::MathImage::ValuesArray';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
+use constant values_min => 3;
 use constant parameter_list => (App::MathImage::Values->parameter_common_pairs);
 
 my %oeis = (first  => 'A001359',

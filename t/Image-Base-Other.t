@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 17;
 
 use App::MathImage::Image::Base::Other;
 
@@ -47,10 +47,9 @@ my $MyGrid_flag_overlap = 1;
   }
   sub xy {
     my ($self, $x, $y, $colour) = @_;
+    die "x=$x,y=$y negative" if $x < 0 || $y < 0;
     die if $x >= $self->{'-width'};
-    die if $x < 0;
     die if $y >= $self->{'-height'};
-    die if $y < 0;
     my $pos = $x+1 + ($y+1)*($self->{'-width'}+3);
     if (@_ < 4) {
       return substr ($self->{'str'}, $pos, 1);
@@ -250,6 +249,96 @@ HERE
 | ***                |
 |  *                 |
 |                    |
+|                    |
+|                    |
+|                    |
+|                    |
++--------------------+
+HERE
+
+                  [0,0, 4,2, 1, <<'HERE'],
++--------------------+
+|  *                 |
+|XXXXX               |
+|  *                 |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
++--------------------+
+HERE
+
+                  [0,0, 2,4, 1, <<'HERE'],
++--------------------+
+| *                  |
+| *                  |
+|XXX                 |
+| *                  |
+| *                  |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
++--------------------+
+HERE
+
+                  # rounding to be pointier
+                  [0,0, 5,2, 1, <<'HERE'],
++--------------------+
+|  **                |
+|XXXXXX              |
+|  **                |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
+|                    |
++--------------------+
+HERE
+                  [0,0, 2,5, 1, <<'HERE'],
++--------------------+
+| *                  |
+| *                  |
+|***                 |
+|***                 |
+| *                  |
+| *                  |
+|                    |
+|                    |
+|                    |
+|                    |
++--------------------+
+HERE
+
+# BUGGY yet
+#                   [1,1, 9,5, 0, <<'HERE'],
+# +--------------------+
+# |                    |
+# |     *              |
+# |   ** **            |
+# | XX     XX          |
+# |   ** **            |
+# |     *              |
+# |                    |
+# |                    |
+# |                    |
+# |                    |
+# +--------------------+
+# HERE
+                  [1,1, 9,5, 1, <<'HERE'],
++--------------------+
+|                    |
+|     *              |
+|   *****            |
+| XXXXXXXXX          |
+|   *****            |
+|     *              |
 |                    |
 |                    |
 |                    |

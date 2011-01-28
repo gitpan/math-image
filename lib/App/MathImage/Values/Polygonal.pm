@@ -24,13 +24,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Polygonal Numbers');
 # use constant description => __('');
+use constant values_min => 1;
 use constant parameter_list => ({ name    => 'polygonal',
                                   display => __('Polygonal'),
                                   type    => 'integer',

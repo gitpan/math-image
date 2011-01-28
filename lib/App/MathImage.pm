@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -42,31 +42,10 @@ sub _hopt {
   $self->{$hashname}->{$key} = $value;
 }
 
-my %path_options = (ulam                    => 'SquareSpiral',
-                    'square-spiral'         => 'SquareSpiral',
-                    hex                     => 'HexSpiral',
-                    'hex-skewed'            => 'HexSpiralSkewed',
-                    'sacks'                 => 'SacksSpiral',
-                    'vogel-floret'          => 'VogelFloret',
-                    theodorus               => 'TheodorusSpiral',
-                    'diamond'               => 'DiamondSpiral',
-                    'pyramid|pyramid-sides' => 'PyramidSides',
-                    'pyramid-rows'          => 'PyramidRows',
-                    'knight-spiral'         => 'KnightSpiral',
-                    corner                  => 'Corner',
-                    diagonals               => 'Diagonals',
-                    rows                    => 'Rows',
-                    columns                 => 'Columns',
-                   );
-
 sub getopt_long_specifications {
   my ($self) = @_;
   return
-    ('display=s' =>
-     sub { my ($optname, $value) = @_;
-           _hopt($self, 'other_options', 'display', $value);  },
-
-     'values=s'  =>
+    ('values=s'  =>
      sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values', "$value"); },
      'primes'   => sub {_hopt($self,'gen_options','values', 'Primes'); },
@@ -121,38 +100,69 @@ sub getopt_long_specifications {
 
      'path=s'  => sub{ my ($optname, $value) = @_;
                        _hopt($self,'gen_options','path', "$value");  },
-     (map { my $opt = $_;
-            ($opt => sub { _hopt ($self,'gen_options','path',
-                                  $path_options{$opt}) })
-          } keys %path_options),
+     do {
+       my %path_options = (ulam             => 'SquareSpiral',
+                           'sacks'          => 'SacksSpiral',
+                           'vogel'          => 'VogelFloret',
+                           'theodorus'      => 'TheodorusSpiral',
+                           'diamond'               => 'DiamondSpiral',
+                           'pyramid|pyramid-sides' => 'PyramidSides',
+                           'pyramid-rows'          => 'PyramidRows',
+                           'corner'                => 'Corner',
+                           'diagonals'             => 'Diagonals',
+                           'rows'                  => 'Rows',
+                           'columns'               => 'Columns',
+
+                           # never documented, don't much want individual
+                           # options
+                           # hex                     => 'HexSpiral',
+                           # 'hex-skewed'            => 'HexSpiralSkewed',
+                           # 'knight-spiral'         => 'KnightSpiral',
+                           # 'square-spiral' => 'SquareSpiral',
+                          );
+       (map { my $opt = $_;
+              ($opt => sub { _hopt ($self,'gen_options','path',
+                                    $path_options{$opt}) })
+            } keys %path_options)
+     },
 
      'scale=i'  => sub{my ($optname, $value) = @_;
                        _hopt($self,'gen_options','scale', "$value");  },
 
-     'show=s'   => sub{my ($optname, $value) = @_;
-                       _hopt($self, 'gui_options', 'show', "$value");  },
-     'root'     => sub{_hopt($self, 'gui_options', 'show', 'root');  },
-     'root-x11-protocol' =>
-     sub{ _hopt ($self, 'gui_options', 'show', 'root_x11_protocol');  },
-     'root-gtk' =>
-     sub{ _hopt ($self, 'gui_options', 'show', 'root_gtk');  },
-     flash      => sub{ _hopt ($self, 'gui_options', 'flash', 1);  },
+     'output=s'   => sub{ my ($optname, $value) = @_;
+                          _hopt($self, 'gui_options', 'output', "$value");  },
+     'root'     => sub{_hopt($self, 'gui_options', 'output', 'root');  },
+     'xpm'      => sub{_hopt($self, 'gui_options', 'output', 'XPM');  },
+     'png'      => sub{_hopt($self, 'gui_options', 'output', 'PNG');  },
 
-     'prima'    => sub{_hopt($self, 'gui_options', 'show', 'prima');  },
-     'curses'   => sub{_hopt($self, 'gui_options', 'show', 'curses');  },
-     'xpm'      => sub{_hopt($self, 'gui_options', 'show', 'xpm');  },
-     'png'      => sub{_hopt($self, 'gui_options', 'show', 'png');  },
-     'png-gd'   => sub{_hopt($self, 'gui_options', 'show', 'png_gd');  },
-     'png-gtk'  => sub{_hopt($self, 'gui_options', 'show', 'png_gtk');  },
-     'png-prima'=> sub{_hopt($self, 'gui_options', 'show', 'png_prima');  },
-     'png-pngwriter' => sub{_hopt($self, 'gui_options', 'show', 'png_pngwriter');  },
-     'text'     => sub{_hopt($self, 'gui_options', 'show', 'text'); },
-     'text-numbers' => sub{_hopt($self, 'gui_options', 'show', 'text_numbers'); },
-     'text-list' => sub{_hopt($self, 'gui_options', 'show', 'text_list'); },
-     'help|?' => sub{_hopt($self, 'gui_options', 'show', 'help'); },
-     'version' => sub{_hopt($self, 'gui_options', 'show', 'version'); },
+     'module=s' => sub{ my ($optname, $value) = @_;
+                        _hopt($self, 'gui_options', 'module', "$value");  },
+     'prima'    => sub{_hopt($self, 'gui_options', 'module', 'Prima');  },
+     'curses'   => sub{_hopt($self, 'gui_options', 'module', 'Curses');  },
+     'text'     => sub{_hopt($self, 'gui_options', 'output', 'text');
+                       _hopt($self, 'gui_options', 'module', 'Text'); },
 
-     'random'   => sub {
+     # use --output=numbers
+     # use --output=list
+     # 'text-numbers' => sub{
+     #   _hopt($self, 'gui_options', 'output', 'numbers');
+     #   _hopt($self, 'gui_options', 'module', 'Text');
+     # },
+     # 'text-list' => sub{
+     #   _hopt($self, 'gui_options', 'output', 'list');
+     #   _hopt($self, 'gui_options', 'module', 'Text');
+     # },
+
+     'display=s' =>
+     sub { my ($optname, $value) = @_;
+           _hopt($self, 'other_options', 'display', $value);  },
+     'flash'      => sub{ _hopt ($self, 'gui_options', 'flash', 1);  },
+     'fullscreen' => sub{ _hopt ($self, 'gui_options', 'fullscreen', 1);  },
+
+     'help|?'  => sub{_hopt($self, 'gui_options', 'output', 'help'); },
+     'version' => sub{_hopt($self, 'gui_options', 'output', 'version'); },
+
+     'random'  => sub {
        require App::MathImage::Generator;
        my @random = App::MathImage::Generator->random_options;
        while (my ($key, $value) = splice @random,0,2) {
@@ -164,7 +174,6 @@ sub getopt_long_specifications {
        }
      },
 
-     'fullscreen' => sub{_hopt($self, 'gui_options', 'fullscreen', 1);  },
      'size=s' => sub {
        my ($optname, $value) = @_;
        my ($width, $height) = split /x/, $value;
@@ -191,13 +200,13 @@ sub getopt_long_specifications {
     );
 }
 
-sub show_method_version {
+sub output_method_version {
   my ($self) = @_;
   print "math-image version ",$self->VERSION,"\n";
   return 0;
 }
 
-sub show_method_help {
+sub output_method_help {
   # my ($self) = @_;
   print <<'HERE';
 math-image [--options]
@@ -273,10 +282,11 @@ sub command_line {
   my $other_options = $self->{'other_options'};
 
   # defaults
-  %$gui_options = (show => 'window',
+  %$gui_options = (output => 'gui',
                    %$gui_options);
   ### gui_options: $gui_options
-  my $show = $gui_options->{'show'};
+  my $output = $gui_options->{'output'};
+  my $module = $gui_options->{'module'};
 
   # cap random scale at a requested width/height
   if ($gen_defaults->{'scale'} && defined $gen_options->{'width'}) {
@@ -294,7 +304,7 @@ sub command_line {
   ### gen_options: $gen_options
   if (! defined $gen_options->{'scale'}) {
     $gen_options->{'scale'}
-      = ($show eq 'text'
+      = ($output eq 'text'
          ? ($gen_options->{'values'} eq 'Lines' ? 2 : 1)
          : ($gen_options->{'values'} eq 'Lines' ? 5 : 3));
   }
@@ -306,221 +316,123 @@ sub command_line {
   }
   ### gen_options now: $gen_options
 
-  my $x11_error;
-  if ($show eq 'root') {
-    ## root, try x11 protocol
-    if (eval { $self->x11_protocol_object }) {
-      $show = 'root_x11_protocol';
-    } else {
-      $x11_error = $@;
-    }
-  }
-
-  if ($show eq 'window' || $show eq 'root' || $show eq 'root_gtk') {
-    ## window or root, try gtk
-    if (defined $other_options->{'display'}) {
-      unshift @ARGV, '--display', $other_options->{'display'};
-    }
-    ### Gtk2 init
-    ### @ARGV
-    unless (eval { require Gtk2 } && Gtk2->init_check) {
-      if ($show eq 'root') {
-        die "Cannot use X11::Protocol nor Gtk2 for root:\n",$x11_error;
-      } else {
-        die "Cannot initialize Gtk2\n$@\n";
+  if (! defined $module) {
+    if ($output eq 'gui') {
+      if (eval { require Image::Base::Prima::Image }) {
+        $module = 'Prima';
       }
     }
-    if ($show eq 'root') {
-      # gtk initialized successfully, use it for the root
-      $show = 'root_gtk';
-    }
-  }
-  if (@ARGV) {
-    die "Unrecognised option(s): ",join(' ',@ARGV);
   }
 
-  # force size for --root window
-  if ($show eq 'root_x11_protocol') {
-    my $X = $self->x11_protocol_object;
-    $gen_options->{'width'}  = $X->{'width_in_pixels'};
-    $gen_options->{'height'} = $X->{'height_in_pixels'};
-  }
-  if ($show eq 'root_gtk') {
-    my $rootwin = Gtk2::Gdk->get_default_root_window;
-    ($gen_options->{'width'}, $gen_options->{'height'}) = $rootwin->get_size;
+  if (@ARGV) {
+    die "Unrecognised option(s): ",join(' ',@ARGV);
   }
 
   if ($self->{'verbose'}) {
     print STDERR $self->make_generator->description,"\n";
   }
-  my $show_method = "show_method_$show";
-  my $coderef = $self->can($show_method)
-    || die "Unrecognised show option: $show";
+  my $output_method = "output_method_\L$output";
+  my $coderef = $self->can($output_method)
+    || die "Unrecognised output option: $output";
   return $self->$coderef;
 }
 
-sub show_method_text {
+sub try_gtk {
   my ($self) = @_;
-  $self->term_size;
-  #   $gen_options->{'foreground'} = '*';
-  #   $gen_options->{'background'} = ' ';
-  #   @image_options = (-cindex => { $gen_options->{'foreground'} => '*',
-  #                                  $gen_options->{'background'} => ' ' });
-  _output_image ($self, 'Image::Base::Text');
-}
-sub show_method_xpm {
-  my ($self) = @_;
-  if (eval { require Image::Xpm }) {
-    _output_image ($self, 'Image::Xpm');
-  } elsif (eval { require Image::Base::Prima::Image }) {
-    $self->show_method_xpm_prima;
-  } else {
-    die "Need Image::Xpm or Image::Base::Prima::Image for xpm output";
-  }
-}
-sub show_method_xpm_prima {
-  my ($self) = @_;
-  _output_image ($self, 'Image::Base::Prima::Image', -file_format => 'XPM');
-}
-sub show_method_png {
-  my ($self) = @_;
-  if (eval { require Image::Base::GD }) {
-    $self->show_method_png_gd;
-  } elsif (eval { require Image::Base::PNGwriter }) {
-    $self->show_method_png_pngwriter;
-  } elsif (eval { require Image::Base::Prima }) {
-    $self->show_method_png_prima;
-  } else {
-    $self->show_method_png_gtk;
-  }
-}
-sub show_method_png_pngwriter {
-  my ($self) = @_;
-  binmode (\*STDOUT) or die;
-  _output_image ($self, 'Image::Base::PNGwriter');
-}
-sub show_method_png_gd {
-  my ($self) = @_;
-  binmode (\*STDOUT) or die;
-  _output_image ($self, 'Image::Base::GD');
-}
-sub show_method_png_gtk {
-  my ($self) = @_;
-  binmode (\*STDOUT) or die;
-  _output_image ($self, 'Image::Base::Gtk2::Gdk::Pixbuf',
-                 -file_format => 'png');
-}
-sub show_method_png_prima {
-  my ($self) = @_;
-  binmode (\*STDOUT) or die;
-  _output_image ($self, 'Image::Base::Prima::Image',
-                 -file_format => 'png');
-}
-sub _output_image {
-  my ($self, $image_class, @image_options) = @_;
-  ### _output_image(): $image_class
-  my $gen_options = $self->{'gen_options'};
-  if (! defined $gen_options->{'width'}) {
-    $gen_options->{'width'} = 200;
-    $gen_options->{'height'} = 200;
-  }
-  require Module::Load;
-  Module::Load::load ($image_class);
-
-  my $image = $image_class->new
-    (-width  => $gen_options->{'width'},
-     -height => $gen_options->{'height'},
-     @image_options);
-  if ($image->isa('Image::Base::Prima::Drawable')) {
-    $image->get('-drawable')->begin_paint;
-  }
-  {
-    my $gen = $self->make_generator;
-    $gen->draw_Image ($image);
-  }
-  if ($image->isa('Image::Base::Prima::Drawable')) {
-    $image->get('-drawable')->end_paint;
-  }
-  require App::MathImage::Image::Base::Other;
-  App::MathImage::Image::Base::Other::save_fh ($image, \*STDOUT);
-  return 0;
-}
-
-sub show_method_window {
-  my ($self) = @_;
-
-  Glib::set_application_name (__('Math Image'));
-  if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
-    Glib->install_exception_handler
-      (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
-    $SIG{'__WARN__'}
-      = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
-  }
-
-  if ($self->{'gui_options'}->{'flash'}) {
-    my $rootwin = Gtk2::Gdk->get_default_root_window;
-    my ($width, $height) = $rootwin->get_size;
-
-    require Image::Base::Gtk2::Gdk::Pixmap;
-    my $image = Image::Base::Gtk2::Gdk::Pixmap->new
-      (-for_drawable => $rootwin,
-       -width        => $width,
-       -height       => $height);
-    my $gen = $self->make_generator;
-    $gen->draw_Image ($image);
-    my $pixmap = $image->get('-pixmap');
-
-    require App::MathImage::Gtk2::Ex::Splash;
-    App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
-                                           pixmap => $pixmap,
-                                           time => .75);
+  if ($self->{'gtk_tried'}) {
     return 0;
   }
+  if (defined (my $display = $self->{'other_options'}->{'display'})) {
+    unshift @ARGV, '--display', $display;
+  }
+  ### Gtk2 init
+  ### @ARGV
+  $self->{'gtk_tried'} = 1;
+  return (eval { require Gtk2 } && Gtk2->init_check && 1);
+}
 
-  require App::MathImage::Gtk2::Main;
-  my $toplevel = App::MathImage::Gtk2::Main->new
-    (fullscreen => delete $self->{'gui_options'}->{'fullscreen'});
-  $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
+sub output_method_gui {
+  my ($self) = @_;
 
-  my $gen_options = $self->{'gen_options'};
-  my $draw = $toplevel->{'draw'};
-  if (defined (my $width = delete $gen_options->{'width'})) {
-    my $height = delete $gen_options->{'height'};
-    require Gtk2::Ex::Units;
-    Gtk2::Ex::Units::set_default_size_with_subsizes
-        ($toplevel, [ $draw, $width, $height ]);
+  my $gui_options = $self->{'gui_options'};
+  my $module = $gui_options->{'module'};
+  if (defined $module) {
+    $module = ucfirst ($module);
   } else {
-    $toplevel->set_default_size
-      (map {$_*0.8} $toplevel->get_root_window->get_size);
+    $module = 'Gtk2';
   }
-  ### draw set: $gen_options
-  my $fg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'foreground'});
-  my $bg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'background'});
-  $draw->modify_fg ('normal', $fg_color);
-  $draw->modify_bg ('normal', $bg_color);
-  ### draw set gen_options: %$gen_options
-  foreach my $key (keys %$gen_options) {
-    if ($draw->find_property("values-$key")) {
-      $key = "values-$key";
-    }
-    $draw->set ($key, $gen_options->{$key});
+  my $class = "App::MathImage::${module}::Main";
+  if (! Module::Util::find_installed ($class)) {
+    die "No such GUI module: $module";
   }
-  ### draw values now: $draw->get('values')
+  require Module::Load;
+  Module::Load::load ($class);
+  return $class->command_line ($self);
+}
 
-  $toplevel->show;
-  Gtk2->main;
+sub output_method_root {
+  my ($self) = @_;
+  ### output_method_root()
+  my $gui_options = $self->{'gui_options'};
+
+  if (! defined $gui_options->{'module'}) {
+    my $x11_error;
+    if (eval { $self->x11_protocol_object }) {
+      $gui_options->{'module'} = 'X11';
+    } else {
+      $x11_error = $@;
+      if ($self->try_gtk) {
+        $gui_options->{'module'} = 'Gtk2';
+      } else {
+        die "Cannot use X11::Protocol nor Gtk2 for root:\n",$x11_error;
+      }
+    }
+  }
+
+  my $module = ucfirst ($gui_options->{'module'});
+  my $method = "output_method_root_$module";
+  if ($self->can($method)) {
+    $self->$method;
+  } else {
+    die "Unrecognised root window output module: $module";
+  }
+}
+
+sub output_method_root_X11 {
+  my ($self) = @_;
+
+  my $X = $self->x11_protocol_object;
+  my $gen_options = $self->{'gen_options'};
+  $gen_options->{'width'}  = $X->{'width_in_pixels'};
+  $gen_options->{'height'} = $X->{'height_in_pixels'};
+
+  my $rootwin = $X->{'root'};
+  my $colormap = $X->{'default_colormap'};
+  ### $rootwin
+
+  require App::MathImage::X11::Generator;
+  my $x11gen = App::MathImage::X11::Generator->new
+    (%$gen_options,
+     X => $X,
+     window => $rootwin,
+     flash  => $self->{'gui_options'}->{'flash'});
+  $x11gen->draw;
   return 0;
 }
 
-sub show_method_root_gtk {
+*output_method_root_Gtk = \&output_method_root_Gtk2;
+sub output_method_root_Gtk2 {
   my ($self) = @_;
-  ### root using Gtk
+  $self->try_gtk || die "Cannot initialize Gtk";
 
-  my $gen_options = $self->{'gen_options'};
   my $rootwin = Gtk2::Gdk->get_default_root_window;
-  my $width = $gen_options->{'width'};
-  my $height = $gen_options->{'height'};
   ### $rootwin
+
+  # force size for root window
+  my ($width, $height) = $rootwin->get_size;
+  my $gen_options = $self->{'gen_options'};
+  $gen_options->{'width'} = $width;
+  $gen_options->{'height'} = $height;
 
   my $pixmap;
   {
@@ -552,9 +464,101 @@ sub show_method_root_gtk {
     App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
                                            pixmap => $pixmap,
                                            time => .75)
-  }
+    }
 
   $rootwin->get_display->flush;
+  return 0;
+}
+
+my %image_modules = (Prima => 'Image::Base::Prima::Image',
+                     Gtk2  => 'Image::Base::Gtk2::Gdk::Pixbuf',
+                     Xpm   => 'Image::Xpm',
+                    );
+sub output_method_png {
+  my ($self) = @_;
+  binmode (\*STDOUT) or die;
+  foreach my $module (defined $self->{'gui_options'}->{'module'}
+                      ? $self->{'gui_options'}->{'module'}
+                      : ('GD',
+                         'PNGwriter',
+                         'Imager',
+                         'Gtk2::Gdk::Pixbuf',
+                         'Prima',
+                        )) {
+    if ($self->try_module($module)) {
+      $self->output_image ($module, -file_format => 'PNG');
+      return 0;
+    }
+  }
+  die "Output module(s) not available";
+}
+sub output_method_xpm {
+  my ($self) = @_;
+  # Imager 0.80 can't write xpm
+  foreach my $module (defined $self->{'gui_options'}->{'module'}
+                      ? $self->{'gui_options'}->{'module'}
+                      : ('Xpm',
+                         'Prima')) {
+    if ($self->try_module($module)) {
+      $self->output_image ($module, -file_format => 'XPM');
+      return 0;
+    }
+  }
+  die "Output module(s) not available";
+}
+
+sub module_image_class {
+  my ($self, $module) = @_;
+  foreach my $bclass ("Image::Base::$module",
+                      $image_modules{$module},
+                      ($module =~ /::/ ? ($module) : ())) {
+    foreach my $class ($bclass,
+                       "App::MathImage::$bclass") {
+      if (Module::Util::find_installed ($class)) {
+        return $class;
+      }
+    }
+  }
+  return undef;
+}
+
+sub try_module {
+  my ($self, $module) = @_;
+  my $image_class = $self->module_image_class($module) || return 0;
+  require Module::Load;
+  return eval { Module::Load::load ($image_class); 1 };
+}  
+
+sub output_image {
+  my ($self, $module, @image_options) = @_;
+  my $image_class = $self->module_image_class($module)
+    || die "No such image module: ",$module;
+  ### output_image(): $image_class
+  require Module::Load;
+  Module::Load::load ($image_class);
+
+  my $gen_options = $self->{'gen_options'};
+  if (! defined $gen_options->{'width'}) {
+    $gen_options->{'width'} = 200;
+    $gen_options->{'height'} = 200;
+  }
+
+  my $image = $image_class->new
+    (-width  => $gen_options->{'width'},
+     -height => $gen_options->{'height'},
+     @image_options);
+  if ($image->isa('Image::Base::Prima::Drawable')) {
+    $image->get('-drawable')->begin_paint;
+  }
+  {
+    my $gen = $self->make_generator;
+    $gen->draw_Image ($image);
+  }
+  if ($image->isa('Image::Base::Prima::Drawable')) {
+    $image->get('-drawable')->end_paint;
+  }
+  require App::MathImage::Image::Base::Other;
+  App::MathImage::Image::Base::Other::save_fh ($image, \*STDOUT);
   return 0;
 }
 
@@ -570,26 +574,16 @@ sub x11_protocol_object {
     });
 }
 
-sub show_method_root_x11_protocol {
+sub output_method_text {
   my ($self) = @_;
-  my $X = $self->x11_protocol_object;
-
-  my $rootwin = $X->{'root'};
-  my $colormap = $X->{'default_colormap'};
-  ### $rootwin
-
-  require App::MathImage::Generator::X11;
-  my $gen_options = $self->{'gen_options'};
-  my $x11gen = App::MathImage::Generator::X11->new
-    (%$gen_options,
-     X => $X,
-     window => $rootwin,
-     flash  => $self->{'gui_options'}->{'flash'});
-  $x11gen->draw;
-  return 0;
+  $self->term_size;
+  #   $gen_options->{'foreground'} = '*';
+  #   $gen_options->{'background'} = ' ';
+  #   @image_options = (-cindex => { $gen_options->{'foreground'} => '*',
+  #                                  $gen_options->{'background'} => ' ' });
+  $self->output_image ('Text');
 }
-
-sub show_method_text_list {
+sub output_method_list {
   my ($self) = @_;
   my $gen = $self->make_generator;
   my $path = $gen->path_object;
@@ -606,8 +600,7 @@ sub show_method_text_list {
   }
   return 0;
 }
-
-sub show_method_text_numbers {
+sub output_method_numbers {
   my ($self) = @_;
   $self->term_size;
   my $gen = $self->make_generator;
@@ -680,29 +673,6 @@ sub show_method_text_numbers {
     }
     print "\n";
   }
-  return 0;
-}
-
-sub show_method_prima {
-  my ($self) = @_;
-  require App::MathImage::Prima::Main;
-  my $gen_options = $self->{'gen_options'};
-  my $mainwin = App::MathImage::Prima::Main->new
-    (gui_options => $self->{'gui_options'},
-     gen_options => $gen_options,
-     (! defined $gen_options->{'width'}
-      ? (width  => 600,
-         height => 400)
-      : ()),
-    );
-  Prima->run;
-  return 0;
-}
-
-sub show_method_curses {
-  my ($self) = @_;
-  require App::MathImage::Curses::Main;
-  App::MathImage::Curses::Main->run ($self->{'gen_options'});
   return 0;
 }
 

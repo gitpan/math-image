@@ -42,7 +42,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # http://www.research.att.com/~njas/sequences/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4

@@ -24,10 +24,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::PiBits';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Log(2) Bits');
 use constant description => __('Natural log(2), being 0.693147..., written out in binary.');
+use constant values_min => 0;
 
 sub new {
   my $class = shift;

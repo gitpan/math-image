@@ -26,6 +26,7 @@ use Test::More tests => 306;
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+use MyOEIS;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -477,27 +478,19 @@ sub _delete_duplicates {
                     [ 'TwinPrimes', 0,
                       [ 3, 5, 11, 17, 29 ],
                       { pairs => 'first' },
-                      # Math::Prime::XS 0.22 buggy ...
-                      # { bfile => 'nosuch' },
                     ],
                     [ 'TwinPrimes', 4,
                       [ 5, 11, 17, 29 ],
                       { pairs => 'first' },
-                      # Math::Prime::XS 0.22 buggy ...
-                      # { bfile => 'nosuch' },
                     ],
 
                     [ 'TwinPrimes', 0,
                       [ 5, 7, 13, 19, 31 ],
                       { pairs => 'second' },
-                      # Math::Prime::XS 0.22 buggy ...
-                      # { bfile => 'nosuch' },
                     ],
                     [ 'TwinPrimes', 6,
                       [ 7, 13, 19, 31 ],
                       { pairs => 'second' },
-                      # Math::Prime::XS 0.22 buggy ...
-                      # { bfile => 'nosuch' },
                     ],
 
                     # sloanes
@@ -523,9 +516,6 @@ sub _delete_duplicates {
                         761, 809, 911, 953, 1013, 1019, 1031, 1049, 1103,
                         1223, 1229, 1289, 1409, 1439, 1451, 1481, 1499,
                         1511, 1559 ],
-                      undef,
-                      # Math::Prime::XS 0.22 buggy ... 'b005384.txt'
-                      # { bfile => 'nosuch' },
                     ],
 
                     # http://www.research.att.com/~njas/sequences/A005385
@@ -536,9 +526,6 @@ sub _delete_duplicates {
                         1439, 1487, 1523, 1619, 1823, 1907, 2027, 2039,
                         2063, 2099, 2207, 2447, 2459, 2579, 2819, 2879, 2903,
                       ],
-                      undef,
-                      # Math::Prime::XS 0.22 buggy ... maybe 'b005385.txt'
-                      # { bfile => 'nosuch' },
                     ],
 
                     # sloanes
@@ -766,17 +753,16 @@ sub _delete_duplicates {
           }
         }
 
-        my $bfile = $test_options->{'bfile'} || ($values_obj
+        my $anum = $test_options->{'anum'} || ($values_obj
                                                  && $values_obj->can('oeis')
-                                                 &&  $values_obj->oeis);
-        if (! $bfile) {
+                                               &&  $values_obj->oeis);
+        if (! $anum) {
           last;
         }
-        $bfile =~ s/A(.*)/b$1.txt/;
-        if ($want = read_bfile($bfile)) {
+        if ($want = MyOEIS::read_values($anum)) {
           $lo = 0;
         } else {
-          skip "due to no bfile $bfile available", 2;
+          skip "due to no oeis bfile or html available", 2;
         }
         splice @$want, 0, ($test_options->{'bfile_offset'} || 0);
       }

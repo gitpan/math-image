@@ -24,11 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Prime Generating Quadratic of Euler');
 use constant description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.');
-# use constant oeis => 'A005846'; # the primes
+use constant values_min => 41;
+# use constant oeis => 'A005846'; # the prime ones
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

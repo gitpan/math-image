@@ -36,7 +36,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -94,7 +94,7 @@ sub n_to_xy {
   #     @L = @newL;
   #   }
   #   ### @L
-  # 
+  #
   #   @X = ();
   #   @Y = ();
   #   my $x = my $y = 0;
@@ -102,7 +102,7 @@ sub n_to_xy {
   #   foreach my $ndir (@L) {
   #     push @X, $x;
   #     push @Y, $y;
-  # 
+  #
   #     $dir = ($dir + $ndir) % 6;
   #     if ($dir == 0)    { $x += 2; }
   #     elsif ($dir == 1) { $x++, $y++; }
@@ -405,75 +405,83 @@ App::MathImage::PlanePath::Flowsnake -- self-similar path traversal
 
 =head1 DESCRIPTION
 
-This path is the flowsnake curve by William Gosper, done as a self-similar
-traversal of the plane.
+No C<xy_to_n> yet.  And C<rect_to_n_range> is an under-estimate.  A full
+range would be N=1e14 or more to cover Y from say -500 to +500, which is
+nearly past the accuracy of 53-bit floats ...
+
+
+This path is an integer version of the flowsnake curve by William Gosper,
+making a self-similar traversal of the plane.
 
                          39----40----41                        8
-                           \           \                        
+                           \           \
           32----33----34    38----37    42                     7
-            \           \        /     /                        
+            \           \        /     /
              31----30    35----36    43    47----48            6
-                  /                    \     \     \            
+                  /                    \     \     \
           28----29    17----16----15    44    46    49...      5
-         /              \           \     \  /                  
+         /              \           \     \  /
        27    23----22    18----19    14    45                  4
-         \     \     \        /     /                           
+         \     \     \        /     /
           26    24    21----20    13    11----10               3
-            \  /                    \  /     /                  
+            \  /                    \  /     /
              25     4---- 5---- 6    12     9                  2
-                     \           \         /                    
+                     \           \         /
                        3---- 2     7---- 8                     1
-                           /                                    
+                           /
                     0---- 1                                  y=0
-                                                                
-     x=-4 -3 -2 -1  0  1  2  3  4  5  6  7  8  9 10 11          
 
-The points are spaced out on every second X coordinate to make little
-triangles while staying in integer coordinates.  It should be equilateral
+     x=-4 -3 -2 -1  0  1  2  3  4  5  6  7  8  9 10 11
+
+The points are spread out on every second X coordinate to make little
+triangles but staying in integer coordinates.  It should be equilateral
 triangles, but on a square grid this comes out a little flatter.
 
-The basic pattern is the 7 points 0 to 6,
+The basic pattern is the seven points 0 to 6,
 
-
-        4---- 5---- 6  
-         \           \ 
-           3---- 2     
-               /       
-        0---- 1        
+        4---- 5---- 6
+         \           \
+           3---- 2
+               /
+        0---- 1
 
 This repeats at 7-fold increasing scale, with the 1, 2 and 6 sub-sections
-reversed (mirror image).  The next scale level can be seen in the multiple
+reversed (mirror image).  The next scale level can be seen at the multiple
 of 7 points 0,7,14,21,28,35,42,49.
 
-
-                                        42                
-                            -----------    ---                  
-                         35                   ---         
-             -----------                         ---            
+                                        42
+                            -----------    ---
+                         35                   ---
+             -----------                         ---
           28                                        49 ---
-            ---                                                 
-               ----                  14                   
-                   ---   -----------  |                         
-                      21              |                   
-                                     |                          
-                                    |                     
-                                    |                           
-                              ---- 7                      
-                         -----                                  
-                    0 ---                                 
+            ---
+               ----                  14
+                   ---   -----------  |
+                      21              |
+                                     |
+                                    |
+                                    |
+                              ---- 7
+                         -----
+                    0 ---
 
 Notice this is the same shape as the 0 to 6, but rotated 20.68 degrees
 counter-clockwise.  Each level rotates further and for example after 18
-levels it goes all the way around and back to the first quadrant.  The
-effect of this is to fill the whole plane, eventually.
+levels it goes all the way around and back to the first quadrant.
+
+The effect of the rotation is to fill the whole plane, eventually.  For
+example at N=8592 it returns to the X axis at X=-82,Y=0 and starts to go
+into YE<lt>0 shortly after.  Getting all the way around to fill the fourth
+quadrant XE<gt>0,YE<lt>0 takes a long time though, something on the order
+N=7^17 (which is close to rounding off in 53-bit floats).
 
 =head2 Fractal
 
 The flowsnake can also be thought of as successively subdividing the line
 segments with suitably scaled copies of the 0 to 7 figure (or its reversal).
 
-The code here can be used for that by taking points N=0 to N=7^level.  The Y
-coordinates should be multiplied by sqrt(3) to make proper equilateral
+The code here could be used for that by taking points N=0 to N=7^level.  The
+Y coordinates should be multiplied by sqrt(3) to make proper equilateral
 triangles, then a rotation and scaling to make the endpoint come out at 1,0
 or wherever desired.  With this the path is confined to a finite fractal
 boundary.
@@ -495,12 +503,6 @@ Fractional positions give an X,Y position along a straight line between the
 integer positions.  Integer positions are always just 1 apart either
 horizontally or vertically, so the effect is that the fraction part appears
 either added to or subtracted from X or Y.
-
-=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
-
-Return an integer point number for coordinates C<$x,$y>.  Each integer N is
-considered the centre of a unit square an C<$x,$y> within that square
-returns N.
 
 =back
 

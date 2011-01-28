@@ -25,13 +25,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Pi Bits');
 use constant description => __('Pi 3.141529... written out in binary.');
+use constant values_min => 0;
 
 # A004601 to A004608 - base 2 to 9
 # A000796 - base 10

@@ -22,22 +22,21 @@ use warnings;
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::Values::Base::Radix';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');
-use constant type => 'radix';
-use constant parameter_list => ({ name    => 'fraction',
+use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
+                                { name    => 'fraction',
                                   display => __('Fraction'),
                                   type    => 'string',
                                   width   => 12,
                                   default => '5/29',
                                   description => __('The fraction to show, for example 5/29.  Press Return when ready to display the expression.'),
                                 },
-                                App::MathImage::Values->parameter_common_radix,
                                );
 
 # uncomment this to run the ### lines

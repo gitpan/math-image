@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
@@ -47,20 +47,28 @@ use Glib::Object::Subclass
                           },
              },
   properties => [ Glib::ParamSpec->double
-                   ('xalign',
-                    'Horizontal alignment',  # dgettext('gtk20-properties')
-                    'Blurb.',
-                    0, 1.0, # min,max
-                    0.5,    # default
-                    Glib::G_PARAM_READWRITE),
+                  ('xalign',
+                   (do {
+                     my $str = 'Horizontal alignment';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
+                   'Blurb.',
+                   0, 1.0, # min,max
+                   0.5,    # default
+                   Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->double
-                   ('yalign',
-                    'Vertical alignment',  # dgettext('gtk20-properties')
-                    'Blurb.',
-                    0, 1.0, # min,max
-                    0.5,    # default
-                    Glib::G_PARAM_READWRITE),
+                  ('yalign',
+                   (do {
+                     my $str = 'Vertical alignment';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
+                   'Blurb.',
+                   0, 1.0, # min,max
+                   0.5,    # default
+                   Glib::G_PARAM_READWRITE),
 
                 ];
 

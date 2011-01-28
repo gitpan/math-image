@@ -26,7 +26,7 @@ use Locale::Messages 'dgettext';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
@@ -34,7 +34,11 @@ use Glib::Object::Subclass
              },
   properties => [ Glib::ParamSpec->enum
                   ('orientation',
-                   dgettext('gtk20-properties','Orientation'),
+                   (do {
+                     my $str = 'Orientation';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
                    'Horizontal or vertical button positioning.',
                    'Gtk2::Orientation',
                    'horizontal',
@@ -57,7 +61,11 @@ use Glib::Object::Subclass
 
                   Glib::ParamSpec->boolean
                   ('inverted',
-                   dgettext('gtk20-properties','Inverted'),
+                   (do {
+                     my $str = 'Inverted';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
                    'Whether to invert the movement direction on the adjustment.',
                    0, # default no
                    Glib::G_PARAM_READWRITE),

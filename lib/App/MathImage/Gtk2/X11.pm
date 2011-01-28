@@ -30,7 +30,7 @@ use Glib::Ex::SourceIds;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 sub new {
   my ($class, %self) = @_;
@@ -57,8 +57,8 @@ sub new {
 
   my ($width, $height)  = $gdk_window->get_size;
 
-  require App::MathImage::Generator::X11;
-  $self->{'x11gen'} = App::MathImage::Generator::X11->new
+  require App::MathImage::X11::Generator;
+  $self->{'x11gen'} = App::MathImage::X11::Generator->new
     (%{$self->{'gen'}},
      X => $X,
      window => $x11_window,

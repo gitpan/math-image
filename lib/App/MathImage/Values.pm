@@ -23,7 +23,7 @@ use Memoize;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,6 +40,8 @@ use constant description => undef;
 use constant parameter_list => ();
 use constant density => 'unknown';
 use constant oeis => undef;
+use constant values_min => undef;
+use constant values_max => undef;
 
 use constant finish => undef;
 
@@ -58,15 +60,6 @@ sub parameter_default {
           && $info->{'default'});
 }
 
-use constant parameter_common_radix
-  => { name    => 'radix',
-       type    => 'integer',
-       display => __('Radix'),
-       default => 10,
-       minimum => 2,
-       width   => 4,
-       description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
-     };
 use constant parameter_common_pairs
   => { name    => 'pairs',
        display => __('Pairs'),

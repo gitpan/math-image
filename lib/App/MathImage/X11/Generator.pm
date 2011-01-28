@@ -16,7 +16,7 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package App::MathImage::Generator::X11;
+package App::MathImage::X11::Generator;
 use 5.008;
 use strict;
 use warnings;
@@ -31,7 +31,7 @@ use App::MathImage::X11::Protocol::XSetRoot;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 sub new {
   my $class = shift;

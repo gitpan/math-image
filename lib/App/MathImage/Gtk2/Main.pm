@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -800,7 +800,9 @@ sub _do_values_changed {
     my $pname = $pinfo->{'name'};
     my $toolitem = $self->{'toolitems'}->{$pname};
     if (! defined $toolitem) {
-      ### new toolitem: $pname, $pinfo->{'type'}
+      ### new toolitem
+      ### $pname
+      ### type: $pinfo->{'type'}
       my $ptype = $pinfo->{'type'};
       my $draw = $self->{'draw'};
       my $display = ($pinfo->{'display'} || $pname);
@@ -853,6 +855,29 @@ sub _do_values_changed {
         Glib::Ex::ConnectProperties->new ([$adj,'value'],
                                           [$draw,"values-$pname"]);
         my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
+        $spin->set (xalign => 1);
+        if (defined (my $width = $pinfo->{'width'})) {
+          $spin->set_width_chars ($width); # overriding $max
+        }
+        $spin->show;
+        $toolitem->add ($spin);
+
+      } elsif ($ptype eq 'float') {
+        $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
+          (overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
+        my $min = $pinfo->{'minimum'};
+        if (! defined $min) { $min = POSIX::DBL_MIN; }
+        my $max = $pinfo->{'maximum'};
+        if (! defined $max) { $max = POSIX::DBL_MAX; }
+        my $adj = Gtk2::Adjustment->new ($pinfo->{'default'} || 0,  # initial
+                                         $min,
+                                         $max,
+                                         .1, 1,    # step,page increment
+                                         0);       # page_size
+        Glib::Ex::ConnectProperties->new ([$adj,'value'],
+                                          [$draw,"values-$pname"]);
+        my $spin = Gtk2::SpinButton->new ($adj, 1,
+                                          8); # digits
         $spin->set (xalign => 1);
         if (defined (my $width = $pinfo->{'width'})) {
           $spin->set_width_chars ($width); # overriding $max
@@ -1224,6 +1249,71 @@ sub _draw_page {
 
   $c->rectangle (0,0, $pixmap_width,$pixmap_height);
   $c->paint;
+}
+
+sub command_line {
+  my ($class, $mathimage) = @_;
+  $mathimage->try_gtk || die "Cannot initialize Gtk";
+
+  Glib::set_application_name (__('Math Image'));
+  if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
+    Glib->install_exception_handler
+      (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
+    $SIG{'__WARN__'}
+      = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
+  }
+
+  if ($mathimage->{'gui_options'}->{'flash'}) {
+    my $rootwin = Gtk2::Gdk->get_default_root_window;
+    my ($width, $height) = $rootwin->get_size;
+
+    require Image::Base::Gtk2::Gdk::Pixmap;
+    my $image = Image::Base::Gtk2::Gdk::Pixmap->new
+      (-for_drawable => $rootwin,
+       -width        => $width,
+       -height       => $height);
+    my $gen = $mathimage->make_generator;
+    $gen->draw_Image ($image);
+    my $pixmap = $image->get('-pixmap');
+
+    require App::MathImage::Gtk2::Ex::Splash;
+    App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
+                                           pixmap => $pixmap,
+                                           time => .75);
+    return 0;
+  }
+
+  my $toplevel = $class->new
+    (fullscreen => delete $mathimage->{'gui_options'}->{'fullscreen'});
+  $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
+
+  my $gen_options = $mathimage->{'gen_options'};
+  my $draw = $toplevel->{'draw'};
+  if (defined (my $width = delete $gen_options->{'width'})) {
+    my $height = delete $gen_options->{'height'};
+    require Gtk2::Ex::Units;
+    Gtk2::Ex::Units::set_default_size_with_subsizes
+        ($toplevel, [ $draw, $width, $height ]);
+  } else {
+    $toplevel->set_default_size
+      (map {$_*0.8} $toplevel->get_root_window->get_size);
+  }
+  ### draw set: $gen_options
+  my $fg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'foreground'});
+  my $bg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'background'});
+  $draw->modify_fg ('normal', $fg_color);
+  $draw->modify_bg ('normal', $bg_color);
+  ### draw set gen_options: $gen_options
+  foreach my $key (keys %$gen_options) {
+    my $pname = ($draw->find_property("values-$key")
+                 ? "values-$key" : $key);
+    $draw->set ($pname, $gen_options->{$key});
+  }
+  ### draw values now: $draw->get('values')
+
+  $toplevel->show;
+  Gtk2->main;
+  return 0;
 }
 
 1;

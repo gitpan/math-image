@@ -24,10 +24,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Prime Generating Quadratic of Legendre');
 use constant description => __('The quadratic numbers 2*k^2 + 29.');
+use constant values_min => 29;
 
 # http://www.research.att.com/~njas/sequences/A007641  (the prime values)
 # use constant oeis => 'A007641';

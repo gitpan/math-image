@@ -27,7 +27,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
@@ -46,14 +46,22 @@ use Glib::Object::Subclass
              },
   properties => [ Glib::ParamSpec->object
                   ('hadjustment',
-                   'Horizontal adjustment',
+                   (do {
+                     my $str = 'Horizontal adjustment';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
                    'Blurb.',
                    'Gtk2::Adjustment',
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->object
                   ('vadjustment',
-                   'Vertical adjustment',
+                   (do {
+                     my $str = 'Vertical adjustment';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
                    'Blurb.',
                    'Gtk2::Adjustment',
                    Glib::G_PARAM_READWRITE),
@@ -70,6 +78,30 @@ use Glib::Object::Subclass
                    'Vertical inverted',
                    'Blurb.',
                    0, # default
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->double
+                  ('xalign',
+                   (do {
+                     my $str = 'Horizontal alignment';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
+                   'Blurb.',
+                   0, 1.0, # min,max
+                   0.5,    # default
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->double
+                  ('yalign',
+                   (do {
+                     my $str = 'Vertical alignment';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
+                   'Blurb.',
+                   0, 1.0, # min,max
+                   0.5,    # default
                    Glib::G_PARAM_READWRITE),
                 ];
 
@@ -106,11 +138,12 @@ sub INIT_INSTANCE {
   ### QuadScroll INIT_INSTANCE()
   $self->can_focus (1);
 
-  require App::MathImage::Gtk2::Ex::QuadScroll::Arrow;
+  require App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
   foreach my $dir (_DIRECTIONS) {
     my $arrow = $self->{$dir}
-      = App::MathImage::Gtk2::Ex::QuadScroll::Arrow->new (arrow_type => $dir,
-                                                          visible => 1);
+      = App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton->new
+        (arrow_type => $dir,
+         visible => 1);
     my $x = $dir_to_x{$dir};
     my $y = $dir_to_y{$dir};
     $self->attach ($arrow, $x,$x+1, $y,$y+1,

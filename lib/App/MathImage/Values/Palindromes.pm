@@ -23,14 +23,16 @@ use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::Values';
+use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Palindromes');
+use constant values_min => 0;
 use constant description => __('Numbers which are "palindromes" reading the same backwards or forwards, like 153351.  Default is decimal, or select a radix.');
 
 # palindomric primes
@@ -42,7 +44,7 @@ my @oeis = (undef,     # 0
             'A006995', # 2
             'A014190', # 3
             'A014192', # 4
-            'A029953', # 5
+            'A029952', # 5
             'A029953', # 6
             'A029954', # 7
             'A029803', # 8
@@ -59,7 +61,7 @@ sub oeis {
 # OEIS: A006995 radix=2
 # OEIS: A014190 radix=3
 # OEIS: A014192 radix=4
-# OEIS: A029953 radix=5
+# OEIS: A029952 radix=5
 # OEIS: A029953 radix=6
 # OEIS: A029954 radix=7
 # OEIS: A029803 radix=8
@@ -67,7 +69,7 @@ sub oeis {
 # OEIS: A002113 radix=10
 
 
-use constant parameter_list => (App::MathImage::Values->parameter_common_radix);
+use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix);
 
 sub new {
   my ($class, %options) = @_;

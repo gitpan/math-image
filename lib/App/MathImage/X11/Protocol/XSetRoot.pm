@@ -27,7 +27,7 @@ use App::MathImage::X11::Protocol::Extras
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant XA_PIXMAP => 20;  # pre-defined atom
 

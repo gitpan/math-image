@@ -23,7 +23,7 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 use Glib::Object::Subclass 'Gtk2::Window',
   signals => { realize => \&_do_realize,
@@ -37,19 +37,31 @@ use Glib::Object::Subclass 'Gtk2::Window',
                                            Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->object ('pixmap',
-                                           'Pixmap',
+                                           (do {
+                                             my $str = 'Pixmap';
+                                             eval { require Locale::Messages;
+                                                    Locale::Messages::dgettext('gtk20-properties',$str)
+                                                    } || $str }),
                                            'Blurb.',
                                            'Gtk2::Gdk::Pixmap',
                                            Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->object ('pixbuf',
-                                           'Pixbuf',
+                                           (do {
+                                             my $str = 'Pixbuf';
+                                             eval { require Locale::Messages;
+                                                    Locale::Messages::dgettext('gtk20-properties',$str)
+                                                    } || $str }),
                                            'Blurb.',
                                            'Gtk2::Gdk::Pixbuf',
                                            Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string ('filename',
-                                           'Filename',
+                                           (do {
+                                             my $str = 'Filename';
+                                             eval { require Locale::Messages;
+                                                    Locale::Messages::dgettext('gtk20-properties',$str)
+                                                    } || $str }),
                                            'Blurb.',
                                            (eval {Glib->VERSION(1.240);1}
                                             ? undef # default
@@ -75,8 +87,14 @@ sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   ### Splash SET_PROPERTY: $pspec->get_name
   my $pname = $pspec->get_name;
-  $self->{$pname} = $newval;
 
+  if ($pname eq 'root') {
+    if ($self->can('set_screen')) {
+      $self->set_screen ($newval->get_screen);
+    }
+  } else {
+    $self->{$pname} = $newval;
+  }
   _update_pixmap ($self);
 }
 

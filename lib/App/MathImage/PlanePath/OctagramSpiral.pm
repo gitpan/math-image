@@ -1,19 +1,19 @@
 # Copyright 2010, 2011 Kevin Ryde
 
-# This file is part of Math-PlanePath.
+# This file is part of Math-Image.
 #
-# Math-PlanePath is free software; you can redistribute it and/or modify
+# Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-PlanePath is distributed in the hope that it will be useful, but
+# Math-Image is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
 package App::MathImage::PlanePath::OctagramSpiral;
@@ -26,74 +26,16 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-# http://d4maths.lowtech.org/mirage/ulam.htm
-# http://d4maths.lowtech.org/mirage/img/ulam.gif
-#     sample gif of primes made by APL or something
-#
-# http://www.sciencenews.org/view/generic/id/2696/title/Prime_Spirals
-#     Ulam's sprial of primes
-#
-# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/primeSpiral.htm
-# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
-#     Pulchritudinous Primes of Ulam sprial.
-
-# wider==0
-# base from bottom-right corner
-#   d = [ 1,  2,  3,  4 ]
-#   N = [ 2, 10, 26, 50 ]
-#   N = (4 d^2 - 4 d + 2)
-#   d = 1/2 + sqrt(1/4 * $n + -4/16)
-#
-# wider==1
-# base from bottom-right corner
-#   d = [ 1,  2,  3,  4 ]
-#   N = [ 3, 13, 31, 57 ]
-#   N = (4 d^2 - 2 d + 1)
-#   d = 1/4 + sqrt(1/4 * $n + -3/16)
-#
-# wider==2
-# base from bottom-right corner
-#   d = [ 1,  2,  3, 4 ]
-#   N = [ 4, 16, 36, 64 ]
-#   N = (4 d^2)
-#   d = 0 + sqrt(1/4 * $n + 0)
-#
-# wider==3
-# base from bottom-right corner
-#   d = [ 1,  2,  3 ]
-#   N = [ 5, 19, 41 ]
-#   N = (4 d^2 + 2 d - 1)
-#   d = -1/4 + sqrt(1/4 * $n + 5/16)
-#
-# N = 4*d^2 + (-4+2*w)*d + (2-w)
-#   = 4*$d*$d + (-4+2*$w)*$d + (2-$w)
-# d = 1/2-w/4 + sqrt(1/4*$n + b^2-4ac)
-# (b^2-4ac)/(2a)^2 = [ (2w-4)^2 - 4*4*(2-w) ] / 64
-#                  = [ 4w^2 - 16w + 16 - 32 + 16w ] / 64
-#                  = [ 4w^2 - 16 ] / 64
-#                  = [ w^2 - 4 ] / 16
-# d = 1/2-w/4 + sqrt(1/4*$n + (w^2 - 4) / 16)
-#   = 1/4 * (2-w + sqrt(4*$n + w^2 - 4))
-#   = 0.25 * (2-$w + sqrt(4*$n + $w*$w - 4))
-#
-# then offset the base by +4*$d+$w-1 for top left corner for +/- remainder
-# rem = $n - (4*$d*$d + (-4+2*$w)*$d + (2-$w) + 4*$d + $w - 1)
-#     = $n - (4*$d*$d + (-4+2*$w)*$d + 2 - $w + 4*$d + $w - 1)
-#     = $n - (4*$d*$d + (-4+2*$w)*$d + 1 - $w + 4*$d + $w)
-#     = $n - (4*$d*$d + (-4+2*$w)*$d + 1 + 4*$d)
-#     = $n - (4*$d*$d + (2*$w)*$d + 1)
-#     = $n - ((4*$d + 2*$w)*$d + 1)
-#
-
 sub n_to_xy {
   my ($self, $n) = @_;
   #### OctagramSpiral n_to_xy: $n
+
   if ($n <= 2) {
     if ($n < 1) {
       return;
@@ -275,6 +217,33 @@ App::MathImage::PlanePath::OctagramSpiral -- integer points drawn around a squar
 
 This path makes a spiral around an octagram (8-pointed star),
 
+            28              24                      4
+             |  \         /  |
+            29  27      25  23      ...-54--53      3       
+             |     \   /     |            /
+    32--31--30   7  26   5  22--21--20  52          2
+      \          | \   / |         /  /
+        33   9-- 8   6   4-- 3  19  51              1
+          \   \            /   /  /
+            34  10   1---2  18  50             <- y=0
+          /   /              |   |    
+        35  11--12  14  16--17  49                 -1
+      /          | /   \ |         \   
+    36--37--38  13  42  15  46--47--48             -2
+             |    /   \      |
+            39  41      43  45                     -3
+             | /          \  |
+            40              44                     -4
+
+                     ^
+    -4  -3  -2  -1  x=0  1   2   3   4   5  ...
+
+
+
+
+
+
+
             29             25                       4
              |  \         /  |
             30  28      26  24      ...-56--55      3       
@@ -296,87 +265,13 @@ This path makes a spiral around an octagram (8-pointed star),
                      ^
     -4  -3  -2  -1  x=0  1   2   3   4   5  ...
 
-This path is well known from Stanislaw Ulam finding interesting straight
-lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
-in the sources for a program generating that, or see L<math-image> using
-this OctagramSpiral to draw Ulam's pattern and more.
-
-=head2 Straight Lines
-
-The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
-squares going to the upper left and the odd ones to the lower right.  The
-pronic numbers 2,6,12,20,30,42 etc k^2+k half way between the squares fall
-on similar diagonals to the upper right and lower left.  The decagonal
-numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right at y=-1.
-
-In general straight lines and diagonals are 4*k^2 + b*k + c.  b=0 is the
-even perfect squares up to the left, then b is an eighth turn
-counter-clockwise, or clockwise if negative.  So b=1 is horizontally to the
-left, b=2 diagonally down to the left, b=3 down vertically, etc.
-
-Honaker's prime-generating polynomial 4*k^2 + 4*k + 59 goes down to the
-right, after the first 30 or so values loop around a bit.
-
-=head2 Wider
-
-An optional C<wider> parameter makes the path wider, becoming a rectangle
-spiral instead of a square.  For example
-
-    $path = App::MathImage::PlanePath::OctagramSpiral->new (wider => 3);
-
-gives
-
-    29--28--27--26--25--24--23--22        2
-     |                           |
-    30  11--10-- 9-- 8-- 7-- 6  21        1
-     |   |                   |   |
-    31  12   1-- 2-- 3-- 4-- 5  20   <- y=0
-     |   |                       |
-    32  13--14--15--16--17--18--19       -1
-     |
-    33--34--35--36-...                   -2
-
-                     ^
-    -4  -3  -2  -1  x=0  1   2   3
-
-The centre horizontal 1 to 2 is extended by C<wider> many further places,
-then the path loops around that shape.  The starting point 1 is shifted to
-the left by wider/2 places (rounded up to an integer) to keep the spiral
-centred on the origin x=0,y=0.
-
-Widening doesn't change the nature of the straight lines which arise, it
-just rotates them around.  For example in this wider=3 example the perfect
-squares are still on diagonals, but the even squares go towards the bottom
-left (instead of top left when wider=0) and the odd squares to the top right
-(instead of the bottom right).
-
-Each loop is still 8 longer than the previous, as the widening is basically
-a constant amount added into each loop.
-
-=head2 Corners
-
-Other spirals can be formed by cutting the corners of the square so as to go
-around faster.  See the following modules,
-
-    Corners Cut    Class
-    -----------    -----
-         1        HeptSpiralSkewed
-         2        HexSpiralSkewed
-         3        PentSpiralSkewed
-         4        DiamondSpiral
-
-The PyramidSpiral is a re-shaped OctagramSpiral looping at the same rate.
-
 =head1 FUNCTIONS
 
 =over 4
 
 =item C<$path = App::MathImage::PlanePath::OctagramSpiral-E<gt>new ()>
 
-=item C<$path = App::MathImage::PlanePath::OctagramSpiral-E<gt>new (wider =E<gt> $w)>
-
-Create and return a new square spiral object.  An optional C<wider>
-parameter widens the spiral path, it defaults to 0 which is no widening.
+Create and return a new square spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -397,32 +292,7 @@ covered.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::PyramidSpiral>
-
-L<Math::PlanePath::DiamondSpiral>,
-L<Math::PlanePath::PentSpiralSkewed>,
-L<Math::PlanePath::HexSpiralSkewed>,
-L<Math::PlanePath::HeptSpiralSkewed>
-
-=head1 HOME PAGE
-
-http://user42.tuxfamily.org/math-planepath/index.html
-
-=head1 LICENSE
-
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
-
-Math-PlanePath is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the Free
-Software Foundation; either version 3, or (at your option) any later
-version.
-
-Math-PlanePath is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-more details.
-
-You should have received a copy of the GNU General Public License along with
-Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut

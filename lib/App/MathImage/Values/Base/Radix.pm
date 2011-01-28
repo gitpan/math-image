@@ -15,27 +15,31 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Iterator::Aronson;
+package App::MathImage::Values::Base::Radix;
 use 5.004;
 use strict;
 use warnings;
-use Math::Aronson;
-use base 'Iterator';
+use Locale::TextDomain 'App-MathImage';
+
+use base 'App::MathImage::Values';
 
 use vars '$VERSION';
 $VERSION = 43;
 
-sub new {
-  my $class = shift;
-  my $it = Math::Aronson->new (@_);
-  return $class->SUPER::new
-    (sub {
-       if (defined (my $entry = $it->next)) {
-         return $entry;
-       }
-       Iterator::is_done();
-     });
+use constant type => 'radix';
+use constant values_min => 0;
+sub values_max {
+  my ($self) = @_;
+  return $self->{'radix'} - 1;
 }
 
-1;
-__END__
+use constant parameter_common_radix
+  => { name    => 'radix',
+       type    => 'integer',
+       display => __('Radix'),
+       default => 10,
+       minimum => 2,
+       width   => 4,
+       description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
+     };
+use constant parameter_list => (parameter_common_radix);

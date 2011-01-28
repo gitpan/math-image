@@ -29,10 +29,11 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
+use constant _PRIORITY => Glib::G_PRIORITY_LOW();  # below redraw
 
 sub new {
   my $class = shift;
@@ -104,7 +105,7 @@ sub _sync_handler {
   $self->{'idle_ids'}->remove;
   $self->{'idle_ids'}->add (Glib::Idle->add (\&_idle_handler_draw,
                                              $ref_weak_self,
-                                             Gtk2::GTK_PRIORITY_RESIZE() + 10));
+                                             _PRIORITY));
 }
 
 sub _idle_handler_draw {

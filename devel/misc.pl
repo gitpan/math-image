@@ -91,14 +91,14 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     }
     $|=1;
     foreach (1 .. 50) {
-      my ($n,$count1) = $values_obj->next;
+      my ($n,$count) = $values_obj->next;
       if (! defined $n) {
         print "undef\n";
         last;
       }
-      if (defined $count1) {
-        # print "$count1,";
-        print "$n=$count1,";
+      if (defined $count) {
+        # print "$count,";
+        print "$n=$count,";
       } else {
         print "$n,";
       }
@@ -115,13 +115,13 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     if ($values_obj->can('ith')) {
       print "by ith(): ";
       foreach my $i (0 .. 50) {
-        my ($n,$count1) = $values_obj->ith($i);
+        my ($n,$count) = $values_obj->ith($i);
         if (! defined $n) {
           print "undef\n";
           last;
         }
-        if (defined $count1) {
-          print "$n=$count1,";
+        if (defined $count) {
+          print "$n=$count,";
         } else {
           print "$n,";
         }

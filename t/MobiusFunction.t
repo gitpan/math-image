@@ -35,7 +35,7 @@ use App::MathImage::Values::MobiusFunction;
 # VERSION
 
 {
-  my $want_version = 42;
+  my $want_version = 43;
   is ($App::MathImage::Values::MobiusFunction::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::MobiusFunction->VERSION,  $want_version, 'VERSION class method');
 
@@ -53,36 +53,36 @@ use App::MathImage::Values::MobiusFunction;
 {
   my $values_obj = App::MathImage::Values::MobiusFunction->new (lo => 1,
                                                                 hi => 30);
-  my $want_arrayref = [ [  1, 2 ],
-                        [  2, 1 ],
-                        [  3, 1 ],
+  my $want_arrayref = [ [  1, 1 ],
+                        [  2, -1 ],
+                        [  3, -1 ],
                         [  4, 0 ],
-                        [  5, 1 ],
-                        [  6, 2 ],
-                        [  7, 1 ],
+                        [  5, -1 ],
+                        [  6, 1 ],
+                        [  7, -1 ],
                         [  8, 0 ],
                         [  9, 0 ],
-                        [ 10, 2 ],
-                        [ 11, 1 ],
+                        [ 10, 1 ],
+                        [ 11, -1 ],
                         [ 12, 0 ],
-                        [ 13, 1 ],
-                        [ 14, 2 ],
-                        [ 15, 2 ],
+                        [ 13, -1 ],
+                        [ 14, 1 ],
+                        [ 15, 1 ],
                         [ 16, 0 ],
-                        [ 17, 1 ],
+                        [ 17, -1 ],
                         [ 18, 0 ],
-                        [ 19, 1 ],
+                        [ 19, -1 ],
                         [ 20, 0 ],
-                        [ 21, 2 ],
-                        [ 22, 2 ],
-                        [ 23, 1 ],
+                        [ 21, 1 ],
+                        [ 22, 1 ],
+                        [ 23, -1 ],
                         [ 24, 0 ],
                         [ 25, 0 ],
-                        [ 26, 2 ],
+                        [ 26, 1 ],
                         [ 27, 0 ],
                         [ 28, 0 ],
-                        [ 29, 1 ],
-                        [ 30, 1 ],
+                        [ 29, -1 ],
+                        [ 30, -1 ],
                       ];
   my $got_arrayref = [ map {[$values_obj->next]} 1..30 ];
   ### $got_arrayref

@@ -1,19 +1,19 @@
 # Copyright 2009, 2010, 2011 Kevin Ryde
 
-# This file is part of Gtk2-Ex-WidgetBits.
+# This file is part of Math-Image.
 #
-# Gtk2-Ex-WidgetBits is free software; you can redistribute it and/or modify
+# Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Gtk2-Ex-WidgetBits is distributed in the hope that it will be useful, but
+# Math-Image is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Gtk2-Ex-WidgetBits.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
 package App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
@@ -27,7 +27,7 @@ use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 42;
+our $VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,7 +36,11 @@ use Glib::Object::Subclass
   'Glib::Object',
   properties => [ Glib::ParamSpec->object
                   ('widget',
-                   'Widget',
+                   (do {
+                     my $str = 'Widget';
+                     eval { require Locale::Messages;
+                            Locale::Messages::dgettext('gtk20-properties',$str)
+                            } || $str }),
                    'Blurb.',
                    'Gtk2::Widget',
                    Glib::G_PARAM_READWRITE),

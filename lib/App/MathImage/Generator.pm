@@ -24,9 +24,11 @@ use POSIX 'floor', 'ceil';
 use Math::Libm 'hypot';
 use Module::Load;
 use Module::Util;
+use Image::Base 1.14;
 use Time::HiRes;
 use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
+
 use App::MathImage::Image::Base::Other;
 
 # uncomment this to run the ### lines
@@ -34,7 +36,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -46,6 +48,7 @@ use constant default_options => {
                                  background   => 'black',
                                  fraction     => '5/29',
                                  sqrt         => '2',
+                                 spectrum     => (sqrt(5)+1)/2,
                                  polygonal    => 5,
                                  multiples    => 90,
                                  parity       => 'odd',
@@ -87,7 +90,8 @@ use constant values_choices => do {
     delete $choices{'Aronson'};
   }
   if (! defined (Module::Util::find_installed('Math::Symbolic'))
-      && ! defined (Module::Util::find_installed('Math::Expression::Evaluator'))) {
+      && ! defined (Module::Util::find_installed('Math::Expression::Evaluator'))
+      && ! defined (Module::Util::find_installed('Language::Expr'))) {
     delete $choices{'Expression'};
   }
   my @choices;
@@ -164,39 +168,55 @@ sub values_class {
   return $values_class;
 }
 
-use constant path_choices => qw(SquareSpiral
-                                SacksSpiral
-                                VogelFloret
-                                TheodorusSpiral
-                                MultipleRings
+use constant path_choices => do {
+  my @choices = qw(SquareSpiral
+                   SacksSpiral
+                   VogelFloret
+                   TheodorusSpiral
+                   MultipleRings
 
-                                DiamondSpiral
-                                PentSpiral
-                                PentSpiralSkewed
-                                HexSpiral
-                                HexSpiralSkewed
-                                HeptSpiralSkewed
-                                TriangleSpiral
-                                TriangleSpiralSkewed
-                                KnightSpiral
+                   DiamondSpiral
+                   PentSpiral
+                   PentSpiralSkewed
+                   HexSpiral
+                   HexSpiralSkewed
+                   HeptSpiralSkewed
+                   TriangleSpiral
+                   TriangleSpiralSkewed
+                   KnightSpiral
 
-                                PyramidRows
-                                PyramidSides
-                                PyramidSpiral
-                                Corner
-                                Diagonals
-                                Staircase
-                                Rows
-                                Columns
+                   PyramidRows
+                   PyramidSides
+                   PyramidSpiral
+                   Corner
+                   Diagonals
+                   Staircase
+                   Rows
+                   Columns
 
-                                PeanoCurve
-                                HilbertCurve
-                                ZOrderCurve
+                   PeanoCurve
+                   HilbertCurve
+                   ZOrderCurve
 
-                                ArchimedeanSpiral
-                                OctagramSpiral
-                                Flowsnake
-                              );
+                   ArchimedeanSpiral
+                   OctagramSpiral
+                   Flowsnake
+                 );
+  my %choices;
+  foreach my $base ('Math::PlanePath', 'App::MathImage::PlanePath') {
+    foreach my $module (Module::Util::find_in_namespace($base)) {
+      my $choice = $module;
+      $choice =~ s/^\Q$base\E:://;
+      next if $choice =~ /::/; # not sub-parts
+      $choices{$choice} = 1;
+    }
+  }
+  delete @choices{@choices};
+  ### path extras: %choices
+  push @choices, sort keys %choices;
+  ### path choices: @choices
+  @choices
+};
 
 use constant figure_choices => qw(default
                                   point
@@ -315,6 +335,7 @@ sub random_options {
           fraction  => "$num/$den",
           polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
           sqrt      => $sqrt,
+          # spectrum  => $spectrum,
           aronson_lang         => _rand_of_array(['en','fr']),
           aronson_conjunctions => int(rand(2)),
           aronson_lying        => (rand() < .25), # less likely
@@ -554,7 +575,7 @@ sub colours_grey_exp {
     last if ($f < 1/255);
     $f = 0.6 * $f;
   }
-  ### colours: $self->{'colours'}
+  ### grey exp colours: $self->{'colours'}
 }
 sub colours_grey_linear {
   my ($self, $n) = @_;
@@ -563,7 +584,7 @@ sub colours_grey_linear {
     my $c = 255 * $i / ($n-1);
     push @$colours, sprintf '#%02X%02X%02X', $c, $c, $c;
   }
-  ### colours: $self->{'colours'}
+  ### colours_grey_linear: $self->{'colours'}
 }
 sub colours_ {
   my ($self, $n) = @_;
@@ -786,15 +807,35 @@ sub draw_Image_start {
                             lo => $n_lo,
                             hi => $n_hi);
 
-    if ($values_obj->type eq 'count1') {
+    if ($values_obj->type eq 'pn1') {
       if ($image->isa('Image::Base::Text')) {
-        $self->{'colours_offset'} = 0;
+        $self->{'colours'} = [ '-',' ','+' ];
+      } else {
+        $self->colours_grey_linear(3);
+        my $colours = $self->{'colours'};
+        $self->{'colours'} = [ $colours->[1],  # grey
+                               $background,
+                               $colours->[2],  # white
+                             ];
+      }
+      $self->{'colours_offset'} = 1;
+      ### pn1
+      ### colours: $self->{'colours'}
+      ### colours_offset: $self->{'colours_offset'}
+
+    } elsif ($values_obj->type eq 'count') {
+      $self->{'colours_offset'} = 0;
+      if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9 ];
       } else {
-        $self->{'colours_offset'} = 1;
         $self->colours_grey_exp ($self);
       }
       push @colours, @{$self->{'colours'}};
+      $self->{'colours_offset'} = - $values_obj->values_min;
+      ### type "count"
+      ### colours_offset: $self->{'colours_offset'}
+      ### per values_min: $values_obj->values_min
+      ### colours: $self->{'colours'}
 
     } elsif ($values_obj->type eq 'radix') {
       $self->{'colours_offset'} = 0;
@@ -813,11 +854,7 @@ sub draw_Image_start {
                                          hi => $n_hi);
   }
 
-  if ($image->can('add_colours')) {
-    $image->add_colours (@colours);
-  } else {
-    ### image doesn't have add_colours(): ref($image)
-  }
+  $image->add_colours (@colours);
 }
 
 my %figure_is_circular = (circle  => 1,
@@ -834,58 +871,45 @@ my %figure_method = (square  => 'rectangle',
                      box     => 'rectangle',
                      circle  => 'ellipse',
                      ring    => 'ellipse',
-                     diamond => 'App::MathImage::Image::Base::Other::diamond',
-                     diamunf => 'App::MathImage::Image::Base::Other::diamond',
-                     plus    => \&_draw_plus,
-                     X       => \&_draw_X,
-                     L       => \&_draw_L,
+                     diamond => \&App::MathImage::Image::Base::Other::diamond,
+                     diamunf => \&App::MathImage::Image::Base::Other::diamond,
+                     plus    => \&App::MathImage::Image::Base::Other::plus,
+                     X       => \&App::MathImage::Image::Base::Other::draw_X,
+                     L       => \&App::MathImage::Image::Base::Other::draw_L,
                     );
-sub _draw_plus {
-  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
-  {
-    my $xmid = int(($x1+$x2)/2);
-    $image->line ($xmid,$y1, $xmid,$y2, $colour);
-  }
-  {
-    my $ymid = int(($y1+$y2)/2);
-    $image->line ($x1,$ymid, $x2,$ymid, $colour);
-  }
-}
-sub _draw_X {
-  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
-  $image->line ($x1,$y1, $x2,$y2, $colour);
-  $image->line ($x2,$y1, $x1,$y2, $colour);
-}
-sub _draw_L {
-  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
-  $image->line ($x1,$y1, $x1,$y2, $colour);
-  $image->line ($x1,$y2, $x2,$y2, $colour);
-}
-
 
 sub draw_Image_steps {
   my ($self) = @_;
   #### draw_Image_steps()
   my $steps = 0;
 
-  my $cont_time = \&TRUE;
-  if (my $step_time = $self->{'step_time'}) {
-    my $time_lo = _gettime();
-    my $time_hi = $time_lo + $step_time;
-    $cont_time = sub {
-      my $time = _gettime();
-      return ($time >= $time_lo && $time <= $time_hi);
-    }
-  }
+  my $step_figures = $self->{'step_figures'};
+  my $step_time = $self->{'step_time'};
   my $count_figures = 0;
-  my $cont_figures = \&TRUE;
-  if (my $step_figures = $self->{'step_figures'}) {
-    $cont_figures = sub {
-      return ($count_figures <= $step_figures);
-    }
-  }
+  my ($time_lo, $time_hi);
+  my $more = 0;
   my $cont = sub {
-    return &$cont_time() && &$cont_figures();
+    if (defined $step_figures) {
+      if ($count_figures >= $step_figures) {
+        $more = 1;
+        return 0; # don't continue
+      }
+    }
+    if (defined $step_time) {
+      if (defined $time_lo) {
+        my $time = _gettime();
+        if ($time < $time_lo  # oops, time gone backwards
+            || $time > $time_hi) {
+          $more = 1;
+          return 0; # don't continue
+        }
+      } else {
+        $time_lo = _gettime();
+        $time_hi = $time_lo + $step_time;
+        # at least one iteration no matter how long the initializers take
+      }
+    }
+    return 1; # continue
   };
 
   my $path_object = $self->path_object;
@@ -921,6 +945,7 @@ sub draw_Image_steps {
   my %rectangles_by_colour;
   my $flush = sub {
     ### flush points: scalar(%points_by_colour)
+    ### colours: keys %points_by_colour
     foreach my $colour (keys %points_by_colour) {
       my $aref = delete $points_by_colour{$colour};
       App::MathImage::Image::Base::Other::xy_points
@@ -936,15 +961,11 @@ sub draw_Image_steps {
 
   my $n_hi = $self->{'n_hi'};
 
-  my $more = 0;
   if ($self->{'values'} eq 'Lines') {
     my $n = $self->{'upto_n'};
 
     for ( ; $n < $n_hi; $n++) {
-      if (! &$cont()) {
-        $more = 1;
-        last;
-      }
+      &$cont() or last;
 
       ### n raw: $path_object->n_to_xy($n)
       my ($x2, $y2) = $transform->($path_object->n_to_xy($n))
@@ -983,10 +1004,7 @@ sub draw_Image_steps {
     ### $yprev
 
     for ( ; $n <= $n_hi; $n++) {
-      if (! &$cont()) {
-        $more = 1;
-        last;
-      }
+      &$cont() or last;
 
       my ($x,$y) = $path_object->n_to_xy($n)
         or last; # no more
@@ -1078,6 +1096,8 @@ sub draw_Image_steps {
   my $colour = $foreground;
   my $type_use_colours = ($values_obj->type ne 'seq');
   my $n;
+  ### $type_use_colours
+  ### $colours_offset
 
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
@@ -1088,10 +1108,8 @@ sub draw_Image_steps {
 
     for (;;) {
       ### use_xy: "$x,$y"
-      if (! &$cont()) {
-        $more = 1;
-        last;
-      }
+      &$cont() or last;
+
       if (++$x > $x_hi) {
         if (++$y > $self->{'y_hi'}) {
           $values_obj->finish;
@@ -1106,9 +1124,9 @@ sub draw_Image_steps {
       }
       #### path: "$x,$y  $n"
 
-      my $count1 = $values_obj->pred($n);
-      #### $count1
-      if (! $count1 || ! $filter_obj->pred($n)) {
+      my $count = $values_obj->pred($n);
+      #### $count
+      if (! $count || ! $filter_obj->pred($n)) {
         if (! $covers) {
           ##### background fill
 
@@ -1150,7 +1168,7 @@ sub draw_Image_steps {
 
       if ($type_use_colours) {
         $colour = $colours->[min ($#$colours,
-                                  max (0, $count1 - $colours_offset))];
+                                  max (0, $count + $colours_offset))];
         #### $colour
       }
       if ($figure eq 'point') {
@@ -1183,14 +1201,12 @@ sub draw_Image_steps {
     #### draw by N
 
     for (;;) {
-      if (! &$cont()) {
-        $more = 1;
-        last;
-      }
-      ($n, my $count1) = $values_obj->next;
+      &$cont() or last;
+
+      ($n, my $count) = $values_obj->next;
       ### $n_prev
       ### $n
-      ### $count1
+      ### $count
       if (! defined $n || $n > $n_hi) {
         ### final background fill
         $background_fill_proc->($n_hi);
@@ -1202,12 +1218,13 @@ sub draw_Image_steps {
       ### path: "$x,$y"
 
       if ($type_use_colours) {
-        if (! defined $count1 || $count1 == 0) {
+        if (! defined $count || $count == 0) {
           next; # background
         }
         $colour = $colours->[min ($#$colours,
-                                  max (0, $count1 - $colours_offset))];
+                                  max (0, $count + $colours_offset))];
         #### $colour
+        #### at index: $count + $colours_offset
       }
 
       ($x, $y) = $transform->($x, $y);
@@ -1221,6 +1238,7 @@ sub draw_Image_steps {
 
         $count_total++;
         if ($x < 0 || $y < 0 || $x >= $width || $y >= $height) {
+          ### skip, outside width,height
           $count_outside++;
           next;
         }

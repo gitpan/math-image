@@ -26,10 +26,11 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
+use constant values_min => 0;
 use constant parameter_list => ({ name => 'multiples',
                                   type => 'integer',
                                   default => 29,
