@@ -25,7 +25,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 sub new {
   my $class = shift;
@@ -89,3 +89,39 @@ sub untransform_proc {
 
 1;
 __END__
+
+
+
+
+sub coord_object {
+  my ($self) = @_;
+  return ($self->{'coord_object'} ||= do {
+    my $offset = int ($self->{'scale'} / 2);
+    my $path_object = $self->path_object;
+    my $scale = $self->{'scale'};
+    my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
+                  ? -1
+                  : -1);
+    my $x_origin
+      = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
+         : $path_object->x_negative ? int ($self->{'width'} / 2)
+         : $offset);
+    my $y_origin
+      = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
+         : $self->y_negative ? int ($self->{'height'} / 2)
+         : $invert > 0 ? $offset
+         : $self->{'height'} - $self->{'scale'} + $offset);
+    ### x_negative: $self->x_negative
+    ### y_negative: $self->y_negative
+    ### $x_origin
+    ### $y_origin
+
+    require App::MathImage::Coord;
+    App::MathImage::Coord->new
+        (x_origin => $x_origin,
+         y_origin => $y_origin,
+         x_scale  => $self->{'scale'},
+         y_scale  => $self->{'scale'} * $invert);
+  });
+}
+

@@ -26,7 +26,7 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,45 +34,45 @@ $VERSION = 43;
 use constant name => __('Aronson\'s Sequence');
 use constant description => __('Aronson\'s sequence of the positions of letter "T" in self-referential "T is the first, fourth, ...".  Or French "E est la premiere, deuxieme, ...".  See the Math::Aronson module for details.');
 use constant values_min => 1;
-use constant parameter_list
-  => ({
-       name    => 'aronson_lang',
-       display => __('Language'),
-       type    => 'enum',
-       default => '',
-       # Can't offer all langs as there's no "initial_string" except en and fr
-       # if (eval { require Lingua::Any::Numbers }) {
-       #   push @langs, sort map {lc} Lingua::Any::Numbers::available();
-       #   @langs = List::MoreUtils::uniq (@langs);
-       # }
-       choices => ['en','fr'],
-       choices_display => [__('EN'),__('FR')],
-       #        en => __('English'),
-       #        fr => __('French'));
-       # %App::MathImage::Gtk2::Drawing::aronson_lang::EnumBits_to_display
-       #   = ((map {($_,uc($_))} @langs),
-      },
-      {
-       name    => 'aronson_letter',
-       display => __('Letter'),
-       type    => 'enum',
-       default => '',
-       choices => ['', 'A' .. 'Z'],
-      },
-      {
-       name    => 'aronson_conjunctions',
-       display => __('Conjunctions'),
-       type    => 'boolean',
-       default => 0,
-       description => __('Whether to include conjunctions "and" or "et" in the words of the sequence.'),
-      },
-      {
-       name    => 'aronson_lying',
-       display => __('Lying'),
-       type    => 'boolean',
-       default => 0,
-       description => __('Whether to show the "lying" version of the sequence, being positions which are not "T" (or whatever requested letter).'),
-      });
+use constant parameter_list =>
+  ({
+    name    => 'aronson_lang',
+    display => __('Language'),
+    type    => 'enum',
+    default => '',
+    # Can't offer all langs as there's no "initial_string" except en and fr
+    # if (eval { require Lingua::Any::Numbers }) {
+    #   push @langs, sort map {lc} Lingua::Any::Numbers::available();
+    #   @langs = List::MoreUtils::uniq (@langs);
+    # }
+    choices => ['en','fr'],
+    choices_display => [__('EN'),__('FR')],
+    #        en => __('English'),
+    #        fr => __('French'));
+    # %App::MathImage::Gtk2::Drawing::aronson_lang::EnumBits_to_display
+    #   = ((map {($_,uc($_))} @langs),
+   },
+   {
+    name    => 'aronson_letter',
+    display => __('Letter'),
+    type    => 'enum',
+    default => '',
+    choices => ['', 'A' .. 'Z'],
+   },
+   {
+    name    => 'aronson_conjunctions',
+    display => __('Conjunctions'),
+    type    => 'boolean',
+    default => 0,
+    description => __('Whether to include conjunctions "and" or "et" in the words of the sequence.'),
+   },
+   {
+    name    => 'aronson_lying',
+    display => __('Lying'),
+    type    => 'boolean',
+    default => 0,
+    description => __('Whether to show the "lying" version of the sequence, being positions which are not "T" (or whatever requested letter).'),
+   });
 
 # A005224    en, 'T', without_conjunctions=>1
 # A055508    letter=>'H', without_conjunctions=>1

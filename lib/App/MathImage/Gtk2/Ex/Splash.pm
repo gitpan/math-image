@@ -23,7 +23,7 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use Glib::Object::Subclass 'Gtk2::Window',
   signals => { realize => \&_do_realize,
@@ -274,8 +274,8 @@ don't rely on more than C<Gtk2::Widget> for now.
 
 =item C<< $splash = App::MathImage::Gtk2::Ex::Splash->new (key=>value,...) >>
 
-Create and return a new C<Splash> widget.  Optional key/value pairs set
-initial properties per C<< Glib::Object->new >>.
+Create and return a new Splash widget.  Optional key/value pairs set initial
+properties per C<< Glib::Object->new >>.
 
     my $splash = App::MathImage::Gtk2::Ex::Splash->new;
 

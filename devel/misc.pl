@@ -29,6 +29,8 @@ use lib 'devel/lib';
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
+
+
 {
   require App::MathImage::Generator;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
@@ -72,6 +74,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('TwinPrimes');
     $values_class = $gen->values_class('DigitsModulo');
     $values_class = $gen->values_class('RadixWithoutDigit');
+    $values_class = $gen->values_class('PlanePathDelta');
     $values_class = $gen->values_class('OEIS');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
@@ -82,7 +85,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
                                          digit => 0,
                                          expression => 'z=3; z*x^2 + 3*x + 2',
                                          expression_evaluator => 'MEE',
-                                         anum => '10059',
+                                         oeis_number => '10059',
                                         );
     ### $values_obj
     print "type ",$values_obj->type,"\n";
@@ -136,6 +139,22 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
       print "\n";
     }
   }
+  exit 0;
+}
+
+
+{
+  require App::MathImage::Values::Tribonacci;
+  my $values_obj = App::MathImage::Values::Tribonacci->new (hi => 13);
+  my @next = [ $values_obj->next,
+               $values_obj->next,
+               $values_obj->next,
+               $values_obj->next,
+               $values_obj->next,
+               $values_obj->next ];
+  ### @next
+  print $values_obj->pred(12),"\n";
+  ### $values_obj
   exit 0;
 }
 
@@ -241,17 +260,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
 
-
-{
-  require App::MathImage::Values::ChampernowneBinary;
-  my $values_obj = App::MathImage::Values::ChampernowneBinary->new;
-  print $values_obj->pred(2),"\n";
-  print $values_obj->pred(3),"\n";
-  print $values_obj->pred(4),"\n";
-  # print $values_obj->pred(5),"\n";
-  print $values_obj->pred(6),"\n";
-  exit 0;
-}
 
 {
   # # use Memoize;

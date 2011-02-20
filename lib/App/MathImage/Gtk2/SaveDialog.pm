@@ -27,7 +27,7 @@ use Text::Capitalize;
 use File::Spec;
 use List::Util;
 use Gtk2;
-use Gtk2::Ex::PixbufBits;
+use Gtk2::Ex::PixbufBits 37; # v.37 fix save_adapt()
 use Gtk2::Ex::Units;
 use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',

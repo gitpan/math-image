@@ -28,7 +28,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -69,7 +69,6 @@ sub new {
     # }
     # 
     # undef $self->{'path_object'};
-    # undef $self->{'coord'};
     # App::MathImage::Prima::Drawing::draw_text_centred
     #     ($self->{'widget'}, $self->{'pixmap'}, $err);
     _drawing_finished ($self);

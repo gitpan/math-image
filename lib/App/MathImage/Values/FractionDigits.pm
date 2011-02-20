@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values::Base::Radix';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');
@@ -55,7 +55,28 @@ sub oeis {
                : $class_or_self->parameter_default('radix'));
   return $oeis{$fraction}->{$radix};
 }
+
+# cf
+# A010701 fraction=10/3 radix=10
+#     - being constant digits 3,3,3,... but better ways to generate that
+# 
+# OEIS: A020806 fraction=1/7 radix=10
+# OEIS: A068028 fraction=22/7 radix=10
+# OEIS: A010680 fraction=1/11 radix=10 # and duplicate in A021015
+# in general 1/k decimal for k=11 to 999 is 21004+k
+# OEIS: A021016 fraction=1/12 radix=10
+# OEIS: A021017 fraction=1/13 radix=10
+# OEIS: A021018 fraction=1/14 radix=10
+# OEIS: A021019 fraction=1/15 radix=10
+# OEIS: A021711 fraction=1/707 radix=10
+# OEIS: A021736 fraction=1/732 radix=10
+# OEIS: A021737 fraction=1/733 radix=10
+# OEIS: A021738 fraction=1/734 radix=10
 # OEIS: A021739 fraction=1/735 radix=10
+# OEIS: A021740 fraction=1/736 radix=10
+# OEIS: A021741 fraction=1/737 radix=10
+# OEIS: A021742 fraction=1/738 radix=10
+# OEIS: A022003 fraction=1/999 radix=10
 
 sub new {
   my ($class, %options) = @_;

@@ -36,7 +36,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -64,6 +64,9 @@ use constant default_options => {
                                  path_rotation_type => 'phi',
                                  expression    => '3*x^2 + x + 2',
                                  filter        => 'All',
+                                 oeis_number   => 290,
+                                 planepath_class => 'SquareSpiral',
+                                 delta_type      => 'X',
                                 };
 
 sub new {
@@ -198,7 +201,7 @@ use constant path_choices => do {
                    HilbertCurve
                    ZOrderCurve
 
-                   ArchimedeanSpiral
+                   ArchimedeanChords
                    OctagramSpiral
                    Flowsnake
                  );
@@ -464,37 +467,20 @@ sub path_object {
        radius_factor  => $self->{'path_radius_factor'})
     });
 }
-
-sub coord_object {
+sub x_negative {
   my ($self) = @_;
-  return ($self->{'coord_object'} ||= do {
-    my $offset = int ($self->{'scale'} / 2);
-    my $path_object = $self->path_object;
-    my $scale = $self->{'scale'};
-    my $invert = ($self->{'path'} eq 'Rows' || $self->{'path'} eq 'Columns'
-                  ? -1
-                  : -1);
-    my $x_origin
-      = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
-         : $path_object->x_negative ? int ($self->{'width'} / 2)
-         : $offset);
-    my $y_origin
-      = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
-         : $path_object->y_negative ? int ($self->{'height'} / 2)
-         : $invert > 0 ? $offset
-         : $self->{'height'} - $self->{'scale'} + $offset);
-    ### x_negative: $path_object->x_negative
-    ### y_negative: $path_object->y_negative
-    ### $x_origin
-    ### $y_origin
+  return $self->path_object->x_negative;
+}
+sub y_negative {
+  my ($self) = @_;
+  my $path_object = $self->path_object;
 
-    require App::MathImage::Coord;
-    App::MathImage::Coord->new
-        (x_origin => $x_origin,
-         y_origin => $y_origin,
-         x_scale  => $self->{'scale'},
-         y_scale  => $self->{'scale'} * $invert);
-  });
+  # override flowsnake looping around to negatives takes a very long time
+  if ($path_object->isa('App::MathImage::PlanePath::Flowsnake')) {
+    return 0;
+  } 
+
+  return $self->path_object->y_negative;
 }
 
 sub affine_object {
@@ -505,14 +491,14 @@ sub affine_object {
     my $scale = $self->{'scale'};
     my $x_origin
       = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
-         : $path_object->x_negative ? int ($self->{'width'} / 2)
+         : $self->x_negative ? int ($self->{'width'} / 2)
          : $offset);
     my $y_origin
       = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
-         : $path_object->y_negative ? int ($self->{'height'} / 2)
+         : $self->y_negative ? int ($self->{'height'} / 2)
          : $self->{'height'} - $self->{'scale'} + $offset);
-    ### x_negative: $path_object->x_negative
-    ### y_negative: $path_object->y_negative
+    ### x_negative: $self->x_negative
+    ### y_negative: $self->y_negative
     ### $x_origin
     ### $y_origin
 
@@ -538,10 +524,10 @@ sub covers_plane {
   if ($path_object->figure eq 'circle') {
     return 1;
   }
-  my $coord_object = $self->coord_object;
-  my ($wx,$wy) = $coord_object->transform(-.5,-.5);
-  if (! $path_object->x_negative && $wx > 0
-      || ! $path_object->y_negative && $wy < $self->{'height'}-1) {
+  my $affine_object = $self->affine_object;
+  my ($wx,$wy) = $affine_object->transform(-.5,-.5);
+  if (! $self->x_negative && $wx > 0
+      || ! $self->y_negative && $wy < $self->{'height'}-1) {
     return 0;
   }
   return 1;
@@ -625,39 +611,41 @@ sub colour_to_rgb {
   return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
 }
 
-# ($x,$y, $x,$y, ...) = $aff->untransform($x,$y, $x,$y, ...)
-sub untransform {
-  my $self = shift;
-  my @result;
-  my $det = $self->{m11}*$self->{m22} - $self->{m12}*$self->{m21};
-  while (@_) {
-    my $x = shift() - $self->{tx};
-    my $y = shift() - $self->{ty};
-    push @result,
-      ($self->{m22} * $x - $self->{m21} * $y) / $det,
-        ($self->{m11} * $y - $self->{m12} * $x) / $det;
-  }
-  return @result;
-}
-
-# $aff = $aff->invert
-sub invert {
-  my ($self) = @_;
-  my $det = $self->{m11}*$self->{m22} - $self->{m12}*$self->{m21};
-  return $self->set_matrix_2x3
-    ($self->{m22} / $det,     # 11
-     - $self->{m12} / $det,   # 12
-     - $self->{m21} / $det,   # 21
-     $self->{m11} / $det,     # 22
-     $self->App::MathImage::Generator::untransform(0,0));
-
-  # tx,ty as full expressions instead of untransform(), if preferred
-  # ($self->{m21} * $self->{ty} - $self->{m22} * $self->{tx}) / $det,
-  # ($self->{m12} * $self->{tx} - $self->{m11} * $self->{ty}) / $det);
-}
+# # ($x,$y, $x,$y, ...) = $aff->untransform($x,$y, $x,$y, ...)
+# sub untransform {
+#   my $self = shift;
+#   my @result;
+#   my $det = $self->{m11}*$self->{m22} - $self->{m12}*$self->{m21};
+#   while (@_) {
+#     my $x = shift() - $self->{tx};
+#     my $y = shift() - $self->{ty};
+#     push @result,
+#       ($self->{m22} * $x - $self->{m21} * $y) / $det,
+#         ($self->{m11} * $y - $self->{m12} * $x) / $det;
+#   }
+#   return @result;
+# }
+# 
+# # $aff = $aff->invert
+# sub invert {
+#   my ($self) = @_;
+#   my $det = $self->{m11}*$self->{m22} - $self->{m12}*$self->{m21};
+#   return $self->set_matrix_2x3
+#     ($self->{m22} / $det,     # 11
+#      - $self->{m12} / $det,   # 12
+#      - $self->{m21} / $det,   # 21
+#      $self->{m11} / $det,     # 22
+#      $self->App::MathImage::Generator::untransform(0,0));
+# 
+#   # tx,ty as full expressions instead of untransform(), if preferred
+#   # ($self->{m21} * $self->{ty} - $self->{m22} * $self->{tx}) / $det,
+#   # ($self->{m12} * $self->{tx} - $self->{m11} * $self->{ty}) / $det);
+# }
 
 sub draw_Image_start {
   my ($self, $image) = @_;
+  ### draw_Image_start()
+  ### values: $self->{'values'}
 
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
@@ -681,8 +669,6 @@ sub draw_Image_start {
 
   # clear
   $image->rectangle (0, 0, $width-1, $height-1, $undrawnground, 1);
-
-  my $coord = $self->coord_object;
   my $affine = $self->affine_object;
 
   my ($n_lo, $n_hi);
@@ -725,15 +711,8 @@ sub draw_Image_start {
     my $r = hypot ($x,$y);
     ### $r
 
-    $coord->{'x_origin'} = $self->{'width'} * .15;
-    $coord->{'y_origin'} = $self->{'height'} * .5;
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
-
     $affine->rotate ($theta / 3.14159 * 180);
-
-    $coord->{'x_scale'} = $self->{'width'} * .7 / $r;
-    $coord->{'y_scale'} = - $self->{'width'} * .7 / $r * .3;
-    ### $coord
     $affine->scale ($self->{'width'} * .7 / $r,
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * .15,
@@ -741,21 +720,14 @@ sub draw_Image_start {
 
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
-      $coord->{'x_origin'} -= $self->{'x_left'} * $self->{'scale'};
       $affine->translate (- $self->{'x_left'} * $self->{'scale'},
                           0);
     }
     if (defined $self->{'y_bottom'}) {
       ### y_bottom: $self->{'y_bottom'}
-      $coord->{'y_origin'} += $self->{'y_bottom'} * $self->{'scale'};
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-
-
-    ($x,$y) = $path_object->n_to_xy ($n_hi);
-    ($x,$y) = $affine->transform ($x, $y);
-    ### end affine: "$x, $y"
 
     ($x,$y) = $path_object->n_to_xy ($n_lo++);
     ### start raw: "$x, $y"
@@ -771,9 +743,10 @@ sub draw_Image_start {
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
 
   } else {
-    my ($x1, $y1) = $coord->untransform (-$scale, -$scale);
-    my ($x2, $y2) = $coord->untransform ($self->{'width'} + $scale,
-                                         $self->{'height'} + $scale);
+    my $affine_inv = $affine->clone->invert;
+    my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
+    my ($x2, $y2) = $affine_inv->transform ($self->{'width'} + $scale,
+                                            $self->{'height'} + $scale);
     ### limits around:
     ### $x1
     ### $x2
@@ -794,13 +767,24 @@ sub draw_Image_start {
   # origin point
   if ($scale >= 3 && $self->figure ne 'point') {
     my ($x,$y) = $affine->transform(0,0);
-    # my ($x,$y) = $coord->transform(0,0);
+    $x = floor ($x + 0.5);
+    $y = floor ($y + 0.5);
     if ($x >= 0 && $y >= 0 && $x < $width && $y < $height) {
       $image->xy ($x, $y, $foreground);
     }
   }
 
-  if ($self->{'values'} ne 'Lines') {
+  if ($self->{'values'} eq 'Lines') {
+    foreach my $class ('App::MathImage::PlanePath::Flowsnake',
+                       'App::MathImage::PlanePath::OctagramSpiral',
+                      ) {
+      if ($path_object->isa($class)) {
+        $self->{'lines_full_step'} = 1;
+      }
+    }
+    ### lines_full_step: $self->{'lines_full_step'}
+
+  } else {
     my $values_class = $self->values_class($self->{'values'});
     my $values_obj = $self->{'values_obj'}
       = $values_class->new (%$self,
@@ -855,6 +839,9 @@ sub draw_Image_start {
   }
 
   $image->add_colours (@colours);
+
+
+  #  $self->use_xy($image);
 }
 
 my %figure_is_circular = (circle  => 1,
@@ -922,12 +909,10 @@ sub draw_Image_steps {
   ### $scale
 
   my $covers = $self->covers_plane;
-  my $coord = $self->coord_object;
   my $affine = $self->affine_object;
   my $values_obj = $self->{'values_obj'};
   my $filter_obj = $self->{'filter_obj'};
 
-  my $transform = $coord->transform_proc;
   my $figure = $self->figure;
   my $pscale = $scale;
   if ($path_object->figure eq 'circle' && ! $figure_is_circular{$figure}) {
@@ -964,28 +949,59 @@ sub draw_Image_steps {
   if ($self->{'values'} eq 'Lines') {
     my $n = $self->{'upto_n'};
 
-    for ( ; $n < $n_hi; $n++) {
-      &$cont() or last;
-
+    if ($self->{'lines_full_step'}) {
       ### n raw: $path_object->n_to_xy($n)
-      my ($x2, $y2) = $transform->($path_object->n_to_xy($n))
-        or next;
-      ### npos: "$n   $x2, $y2"
+      my ($x1, $y1) = $path_object->n_to_xy($n)
+        or return 0; # no more
+      ($x1, $y1) = $affine->transform ($x1, $y1);
+      $x1 = floor ($x1 + 0.5);
+      $y1 = floor ($y1 + 0.5);
 
-      if (my ($x1, $y1) = $transform->($path_object->n_to_xy($n-0.499))) {
-        ### minus: "$x1, $y1"
-        $x1 = floor ($x1 + 0.5);
-        $y1 = floor ($y1 + 0.5);
-        _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
-        $count_figures++;
+      for (;;) {
+        &$cont() or last;
+        last if ++$n > $n_hi;
+
+        my ($x2, $y2) = $path_object->n_to_xy($n)
+          or last;
+        ($x2, $y2) = $affine->transform ($x2, $y2);
+        $x2 = floor ($x2 + 0.5);
+        $y2 = floor ($y2 + 0.5);
+
+        _image_line_clipped ($image, $x1,$y1, $x2,$y2,
+                             $width,$height, $foreground);
+        $x1 = $x2;
+        $y1 = $y2;
       }
 
-      if (my ($x3, $y3) = $transform->($path_object->n_to_xy($n+0.499))) {
-        ### plus: "$x3, $y3"
-        $x3 = floor ($x3 + 0.5);
-        $y3 = floor ($y3 + 0.5);
-        _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground);
-        $count_figures++;
+    } else {
+      for ( ; $n < $n_hi; $n++) {
+        &$cont() or last;
+
+        ### n raw: $path_object->n_to_xy($n)
+        my ($x2, $y2) = $path_object->n_to_xy($n)
+          or next;
+        ($x2, $y2) = $affine->transform ($x2, $y2);
+        ### npos: "$n   $x2, $y2"
+        $x2 = floor ($x2 + 0.5);
+        $y2 = floor ($y2 + 0.5);
+
+        if (my ($x1, $y1) = $path_object->n_to_xy($n-0.499)) {
+          ($x1, $y1) = $affine->transform ($x1, $y1);
+          ### minus: "$x1, $y1"
+          $x1 = floor ($x1 + 0.5);
+          $y1 = floor ($y1 + 0.5);
+          _image_line_clipped ($image, $x1,$y1, $x2,$y2, $width,$height, $foreground);
+          $count_figures++;
+        }
+
+        if (my ($x3, $y3) = $path_object->n_to_xy($n+0.499)) {
+          ($x3, $y3) = $affine->transform ($x3, $y3);
+          ### plus: "$x3, $y3"
+          $x3 = floor ($x3 + 0.5);
+          $y3 = floor ($y3 + 0.5);
+          _image_line_clipped ($image, $x2,$y2, $x3,$y3, $width,$height, $foreground);
+          $count_figures++;
+        }
       }
     }
     $self->{'upto_n'} = $n;
@@ -998,7 +1014,6 @@ sub draw_Image_steps {
     my $xprev = $self->{'xprev'};
     my $yprev = $self->{'yprev'};
 
-    ### $coord
     ### upto_n: $n
     ### $xprev
     ### $yprev
@@ -1013,9 +1028,9 @@ sub draw_Image_steps {
 
       ($x,$y) = $affine->transform ($x, $y);
       ### xy affine: "$x,$y"
-
       $x = floor ($x + 0.5);
       $y = floor ($y + 0.5);
+
       _image_line_clipped ($image, $xprev,$yprev, $x,$y,
                            $width,$height, $foreground);
       $count_figures++;
@@ -1046,7 +1061,7 @@ sub draw_Image_steps {
           $count_outside++;
           next;
         };
-        ($x, $y) = $transform->($x, $y);
+        ($x, $y) = $affine->transform($x, $y);
         $x = floor ($x - $offset + 0.5);
         $y = floor ($y - $offset + 0.5);
         ### back_point: $n
@@ -1067,10 +1082,8 @@ sub draw_Image_steps {
       foreach my $n ($n_prev+1 .. $n_to) {
         $steps++;
         my ($x, $y) = $path_object->n_to_xy($n) or next;
-        ($x, $y) = $transform->($x, $y);
-        ### back_rectangle: $n
-        ### $x
-        ### $y
+        ($x, $y) = $affine->transform($x, $y);
+        ### back_rectangle: "$n   $x,$y"
         $x = floor ($x - $offset + 0.5);
         $y = floor ($y - $offset + 0.5);
         $count_total++;
@@ -1130,7 +1143,7 @@ sub draw_Image_steps {
         if (! $covers) {
           ##### background fill
 
-          my ($wx, $wy) = $transform->($x, $y);
+          my ($wx, $wy) = $affine->transform($x, $y);
           $wx = floor ($wx - $offset + 0.5);
           $wy = floor ($wy - $offset + 0.5);
           ### win: "$wx,$wy"
@@ -1161,7 +1174,7 @@ sub draw_Image_steps {
         next;
       }
 
-      my ($wx, $wy) = $transform->($x, $y);
+      my ($wx, $wy) = $affine->transform($x, $y);
       $wx = floor ($wx - $offset + 0.5);
       $wy = floor ($wy - $offset + 0.5);
       ### win: "$wx,$wy"
@@ -1227,7 +1240,7 @@ sub draw_Image_steps {
         #### at index: $count + $colours_offset
       }
 
-      ($x, $y) = $transform->($x, $y);
+      ($x, $y) = $affine->transform($x, $y);
       $x = floor ($x - $offset + 0.5);
       $y = floor ($y - $offset + 0.5);
       ### $x
@@ -1300,22 +1313,24 @@ sub use_xy {
   # print "use_xy from now on\n";
   $self->{'use_xy'} = 1;
 
-  my $coord = $self->coord_object;
+  my $affine = $self->affine_object;
+  my $affine_inv = $affine->clone->invert;
   my $width  = $image->get('-width');
   my $height = $image->get('-height');
 
-  my ($x_lo, $y_hi) = $coord->untransform (0,0);
-  my ($x_hi, $y_lo) = $coord->untransform ($width,$height);
+  my ($x_lo, $y_hi) = $affine_inv->transform (0,0);
+  my ($x_hi, $y_lo) = $affine_inv->transform ($width,$height);
+
   $x_lo = floor($x_lo);
   $y_lo = floor($y_lo);
   $x_hi = ceil($x_hi);
   $y_hi = ceil($y_hi);
   my $path_object = $self->path_object;
-  if (! $path_object->x_negative) {
+  if (! $self->x_negative) {
     $x_lo = max (0, $x_lo);
     $x_hi = max (0, $x_hi);
   }
-  if (! $path_object->y_negative) {
+  if (! $self->y_negative) {
     $y_lo = max (0, $y_lo);
     $y_hi = max (0, $y_hi);
   }

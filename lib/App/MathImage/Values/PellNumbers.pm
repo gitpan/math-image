@@ -18,14 +18,14 @@
 package App::MathImage::Values::PellNumbers;
 use 5.004;
 use strict;
-use warnings;
+
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesSparse';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant name => __('Pell Numbers');
 use constant description => __('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');

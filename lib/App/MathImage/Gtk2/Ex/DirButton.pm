@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
@@ -355,7 +355,7 @@ C<Gtk2::DrawingArea>, but don't rely on more than C<Gtk2::Widget> for now.
 
 =item C<< $qb = App::MathImage::Gtk2::Ex::DirButton->new (key=>value,...) >>
 
-Create and return a new C<DirButton> object.  Optional key/value pairs set
+Create and return a new C<DirButton> widget.  Optional key/value pairs set
 initial properties per C<< Glib::Object->new >>.
 
     my $qb = App::MathImage::Gtk2::Ex::DirButton->new;

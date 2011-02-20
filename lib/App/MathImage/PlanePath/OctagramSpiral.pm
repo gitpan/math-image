@@ -26,11 +26,11 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Smart::Comments;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -94,118 +94,79 @@ sub n_to_xy {
   return (3*$d+2 - $n, -2*$d-1 + $n);
 }
 
-         #         29             25
-         #          |  \         /  |
-         #         30  28      26  24      ...-56--55       
-         #          |     \   /     |            /
-         # 33--32--31   7  27   5  23--22--21  54          2
-         #   \          | \   / |         /  /
-         #     34   9-- 8   6   4-- 3  20  53              1
-         #       \   \            /   /  /
-         #         35  10   1---2  19  52             <- y=0
-         #       /   /                \   \  
-         #     36  11--12  14  16--17--18  51             -1
-         #   /          | /   \ |            \
-         # 37--38--39  13  43  15  47--48--49--50         -2
-         #          |    /   \      |
-         #         40  42      44  46
-         #          | /          \  |
-         #         41              45
-         # 
-         #                  ^
-         #     -3  -2  -1  x=0  1   2   3
-
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  return undef;
 
-  # $x = floor ($x + 0.5);
-  # $y = floor ($y + 0.5);
-  # ### xy_to_n: "x=$x, y=$y"
-  # 
-  # my $d;
-  # if (($d = $x) > abs($y)) {
-  #   ### right vertical
-  #   ### $d
-  #   #
-  #   # base bottom right per above
-  #   ### BR: 4*$d*$d + (-4+2*$w)*$d + (2-$w)
-  #   # then +$d-1 for the y=0 point
-  #   # N_Y0  = 4*$d*$d + (-4+2*$w)*$d + (2-$w) + $d-1
-  #   #       = 4*$d*$d + (-3+2*$w)*$d + (2-$w) + -1
-  #   #       = 4*$d*$d + (-3+2*$w)*$d +  1-$w
-  #   ### N_Y0: (4*$d + -3 + 2*$w)*$d + 1-$w
-  #   #
-  #   return (4*$d + -3)*$d + 1 + $y;
-  # }
-  # 
-  # if (($d = -$x) > abs($y)) {
-  #   ### left vertical
-  #   ### $d
-  #   #
-  #   # top left per above
-  #   ### TL: 4*$d*$d + (2*$w)*$d + 1
-  #   # then +$d for the y=0 point
-  #   # N_Y0  = 4*$d*$d + (2*$w)*$d + 1 + $d
-  #   #       = 4*$d*$d + (1 + 2*$w)*$d + 1
-  #   ### N_Y0: (4*$d + 1 + 2*$w)*$d + 1
-  #   #
-  #   return (4*$d + 1)*$d + 1 - $y;
-  # }
-  # 
-  # $d = abs($y);
-  # if ($y > 0) {
-  #   ### top horizontal
-  #   ### $d
-  #   #
-  #   # top left per above
-  #   ### TL: 4*$d*$d + (2*$w)*$d + 1
-  #   # then -($d) for the x=0 point
-  #   # N_X0  = 4*$d*$d + (2*$w)*$d + 1 + -($d)
-  #   #       = 4*$d*$d + (-1 + 2*$w)*$d + 1
-  #   ### N_Y0: (4*$d - 1 + 2*$w)*$d + 1
-  #   #
-  #   return (4*$d - 1)*$d + 1 - $x;
-  # }
-  # 
-  # ### bottom horizontal, and centre y=0
-  # ### $d
-  # #
-  # # top left per above
-  # ### TL: 4*$d*$d + (2*$w)*$d + 1
-  # # then +2*$d to bottom left, +$d for the x=0 point
-  # # N_X0  = 4*$d*$d + (2*$w)*$d + 1 + 2*$d + $d)
-  # #       = 4*$d*$d + (3 + 2*$w)*$d + 1
-  # ### N_Y0: (4*$d + 3 + 2*$w)*$d + 1
-  # #
-  # return (4*$d + 3)*$d + 1 + $x;
+  $x = floor ($x + 0.5);
+  $y = floor ($y + 0.5);
+  ### xy_to_n: "x=$x, y=$y"
+
+  my $n;
+  if ($x > 0 && $y < 0 && -2*$y < $x) {
+    ### longer bottom right horiz
+    $x--;
+    $n = 1;
+  } else {
+    $n = 0;
+  }
+
+  my $d_offset = 0;
+  if ($y < 0) {
+    $y = -$y;
+    $x = -$x;
+    $d_offset = 8;
+    ### rotate 180 back: "$x, $y"
+  }
+  if ($x < 0) {
+    ($x, $y) = ($y, -$x);
+    $d_offset += 4;
+    ### rotate 90 back: "$x, $y"
+  }
+  if ($y > $x) {
+    ($x, $y) = ($y, $y-$x);
+    $d_offset += 2;
+    ### rotate 45 back: "$x, $y"
+  }
+  
+  my $d;
+  if (2*$y < $x) {
+    ### diag up
+    $d = $x - $y;
+    $n += $y;
+  } else {
+    ### horiz back
+    $d = $y;
+    $n -= $x;
+    $d_offset += 3;
+  }
+  ### final
+  ### $d
+  ### $d_offset
+  ### $n
+
+  # horiz base 2,19,54,...
+  return $n + (8*$d - 7 + $d_offset)*$d + 1;
 }
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  my $d = 1 + max (1,
-                   floor(0.5 + max(abs($y1),abs($y2))),
-                   (map {$_ = floor(0.5 + $_);
-                         max ($_,
-                              -$_)}
-                    ($x1, $x2)));
-  ### $s
-  ### is: $s*$s
+  my $d = max (1, map {abs(floor($_+0.5))} $x1,$y1,$x2,$y2);
+  ### $d
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          (4*$d + -4)*$d + 2);  # bottom-right
+          (8*$d + 7)*$d + 1);  # bottom-right inner corner 16,47,94,...
 }
 
 1;
 __END__
 
-=for stopwords Ulam OctagramSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal octagram
+=for stopwords OctagramSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows PyramidSpiral octagram
 
 =head1 NAME
 
-App::MathImage::PlanePath::OctagramSpiral -- integer points drawn around a square (or rectangle)
+App::MathImage::PlanePath::OctagramSpiral -- integer points drawn around an octagram
 
 =head1 SYNOPSIS
 
@@ -217,53 +178,35 @@ App::MathImage::PlanePath::OctagramSpiral -- integer points drawn around a squar
 
 This path makes a spiral around an octagram (8-pointed star),
 
-            28              24                      4
-             |  \         /  |
-            29  27      25  23      ...-54--53      3       
-             |     \   /     |            /
-    32--31--30   7  26   5  22--21--20  52          2
-      \          | \   / |         /  /
-        33   9-- 8   6   4-- 3  19  51              1
-          \   \            /   /  /
-            34  10   1---2  18  50             <- y=0
-          /   /              |   |    
-        35  11--12  14  16--17  49                 -1
-      /          | /   \ |         \   
-    36--37--38  13  42  15  46--47--48             -2
-             |    /   \      |
-            39  41      43  45                     -3
-             | /          \  |
-            40              44                     -4
+          29          25                  4
+           | \       / |
+          30 28    26 24    ...56-55      3       
+           |   \  /    |         /
+    33-32-31  7 27  5 23-22-21 54         2
+      \       |\  / |      /  /
+       34  9- 8  6  4- 3 20 53            1
+         \  \        /  /  /
+          35 10  1--2 19 52          <- y=0
+         /  /           \  \  
+       36 11-12 14 16-17-18 51           -1
+      /       |/  \ |         \
+    37-38-39 13 43 15 47-48-49-50        -2
+           |   /  \    |
+          40 42    44 46                 -3
+           |/        \ |
+          41          45                 -4
 
-                     ^
-    -4  -3  -2  -1  x=0  1   2   3   4   5  ...
+                 ^
+    -4 -3 -2 -1 x=0 1  2  3  4  5 ...
 
+Each loop is 16 longer than the previous.  The 18-gonal numbers are the
+horizontal 18,51,100,etc at Y=-1.
 
-
-
-
-
-
-            29             25                       4
-             |  \         /  |
-            30  28      26  24      ...-56--55      3       
-             |     \   /     |            /
-    33--32--31   7  27   5  23--22--21  54          2
-      \          | \   / |         /  /
-        34   9-- 8   6   4-- 3  20  53              1
-          \   \            /   /  /
-            35  10   1---2  19  52             <- y=0
-          /   /                \   \  
-        36  11--12  14  16--17--18  51             -1
-      /          | /   \ |            \
-    37--38--39  13  43  15  47--48--49--50         -2
-             |    /   \      |
-            40  42      44  46                     -3
-             | /          \  |
-            41              45                     -4
-
-                     ^
-    -4  -3  -2  -1  x=0  1   2   3   4   5  ...
+The inner corners like 23, 31, 39, 47 are like the SquareSpiral path, but
+instead of going directly between those points the octagram takes a detour
+out to make the points of the star.  Those 8 excursions each successive
+loops 1 longer, hence a step of 16 here as compared to 8 for the
+SquareSpiral.
 
 =head1 FUNCTIONS
 
@@ -271,7 +214,7 @@ This path makes a spiral around an octagram (8-pointed star),
 
 =item C<$path = App::MathImage::PlanePath::OctagramSpiral-E<gt>new ()>
 
-Create and return a new square spiral object.
+Create and return a new octagram spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -296,3 +239,63 @@ L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::PyramidSpiral>
 
 =cut
+
+
+
+
+
+
+    #         29              25                      4
+    #          |  \         /  |
+    #         30  28      26  24      ...-56--55      3       
+    #          |     \   /     |             /
+    # 33--32--31   7  27   5  23--22--21  54          2
+    #   \          | \   / |         /  /
+    #     34   9-- 8   6   4-- 3  20  53              1
+    #       \   \            /   /   /
+    #         35  10   1---2  19  52             <- y=0
+    #       /   /                \   \  
+    #     36  11--12  14  16--17--18  51             -1
+    #   /          | /   \ |            \
+    # 37--38--39  13  43  15  47--48--49--50         -2
+    #          |    /   \      |
+    #         40  42      44  46                     -3
+    #          | /          \  |
+    #         41              45                     -4
+    # 
+    #                  ^
+    # -4  -3  -2  -1  x=0  1   2   3   4   5  ...
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    #         28              24                      4
+    #          |  \         /  |
+    #         29  27      25  23      ...-54--53      3       
+    #          |     \   /     |            /
+    # 32--31--30   7  26   5  22--21--20  52          2
+    #   \          | \   / |         /  /
+    #     33   9-- 8   6   4-- 3  19  51              1
+    #       \   \            /   /  /
+    #         34  10   1---2  18  50             <- y=0
+    #       /   /              |   |    
+    #     35  11--12  14  16--17  49                 -1
+    #   /          | /   \ |         \   
+    # 36--37--38  13  42  15  46--47--48             -2
+    #          |    /   \      |
+    #         39  41      43  45                     -3
+    #          | /          \  |
+    #         40              44                     -4
+    # 
+    #                  ^
+    # -4  -3  -2  -1  x=0  1   2   3   4   5  ...
+
+
+
+
+

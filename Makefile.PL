@@ -69,7 +69,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
     'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
     'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
-    'Gtk2::Ex::PixbufBits'     => 35, # new in v.35
+    'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
     'Gtk2::Ex::ToolItem::OverflowToDialog' => 36,  # new in v.36
@@ -150,58 +150,58 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
    },
 
-   META_MERGE
-   => { resources
-        => { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
-           },
-        recommends
-        => { 'Math::Aronson'  => 4, # version 4 for lying option
-             'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
-             'Math::Expression::Evaluator' => 0, # maybe any ok
-             'Language::Expr' => '0.14',
-             'Image::Xpm'     => 0,
-             'Image::Base::X11::Protocol::Pixmap' => 0,
-             'Image::Base::X11::Protocol::Window' => 0,
-             'Gtk2::Ex::CrossHair'   => 0,
-             'Gtk2::Ex::ErrorDialog' => 7, # suggest v.7 for popup control
-             'Gtk2::Ex::PodViewer'   => 0,
-           },
-        optional_features
-        => {
-            maximum_interoperation
-            => { description => 'All the optional things Math-Image can use.',
-                 requires => {
-                              'Gtk2::Ex::CrossHair' => 0,
-                              # suggest ErrorTextDialog v.7 for popup control
-                              'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
-                              'Gtk2::Ex::PodViewer'    => 0,
+   META_MERGE =>
+   { resources =>
+     { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
+     },
+     recommends =>
+     { 'Math::Aronson'  => 4, # version 4 for lying option
+       'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
+       'Math::Expression::Evaluator' => 0, # maybe any ok
+       'Language::Expr' => '0.14',
+       'Image::Xpm'     => 0,
+       'Image::Base::X11::Protocol::Pixmap' => 0,
+       'Image::Base::X11::Protocol::Window' => 0,
+       'Gtk2::Ex::CrossHair'   => 0,
+       'Gtk2::Ex::ErrorDialog' => 7, # suggest v.7 for popup control
+       'Gtk2::Ex::PodViewer'   => 0,
+     },
+     optional_features =>
+     {
+      maximum_interoperation =>
+      { description => 'All the optional things Math-Image can use.',
+        requires => {
+                     'Gtk2::Ex::CrossHair' => 0,
+                     # suggest ErrorTextDialog v.7 for popup control
+                     'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
+                     'Gtk2::Ex::PodViewer'    => 0,
 
-                              'Image::Xpm'             => 0,
-                              'Image::Base::GD'        => 4, # bug fixes
-                              'Image::Base::Imager'    => 0,
-                              'Image::Base::PNGwriter' => 2, # bug fixes
-                              'Image::Base::X11::Protocol::Pixmap' => 0,
-                              'Image::Base::X11::Protocol::Window' => 0,
+                     'Image::Xpm'             => 0,
+                     'Image::Base::GD'        => 4, # bug fixes
+                     'Image::Base::Imager'    => 0,
+                     'Image::Base::PNGwriter' => 2, # bug fixes
+                     'Image::Base::X11::Protocol::Pixmap' => 0,
+                     'Image::Base::X11::Protocol::Window' => 0,
 
-                              'Math::Aronson'  => 4, # version 4 for lying
-                              'Math::Symbolic' => 0.605, # 0.605 fix a simplify
-                              'Math::Expression::Evaluator' => 0,
-                              'Language::Expr' => '0.14',
+                     'Math::Aronson'  => 4, # version 4 for lying
+                     'Math::Symbolic' => 0.605, # 0.605 fix a simplify
+                     'Math::Expression::Evaluator' => 0,
+                     'Language::Expr' => '0.14',
 
-                              'Prima' => 0,
-                              'Image::Base::Prima' => 1,
-                             },
-               },
-            maximum_tests
-            => { description => 'Have "make test" do as much as possible.',
-                 requires => { 'Test::Weaken'           => 3,
-                               'Image::Xpm'             => 0,
-                               'Image::Base::GD'        => 4, # bug fixes
-                               'Image::Base::PNGwriter' => 2, # bug fixes
-                             },
-               },
-           },
+                     'Prima' => 0,
+                     'Image::Base::Prima' => 1,
+                    },
       },
+      maximum_tests =>
+      { description => 'Have "make test" do as much as possible.',
+        requires => { 'Test::Weaken'           => 3,
+                      'Image::Xpm'             => 0,
+                      'Image::Base::GD'        => 4, # bug fixes
+                      'Image::Base::PNGwriter' => 2, # bug fixes
+                    },
+      },
+     },
+   },
   );
 
 #------------------------------------------------------------------------------

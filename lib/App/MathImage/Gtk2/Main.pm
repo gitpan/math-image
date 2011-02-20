@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -198,6 +198,12 @@ sub INIT_INSTANCE {
       { name  => 'ToolsMenu',
         label => dgettext('gtk20-properties','_Tools'),
       },
+      { name     => 'RunGolly',
+        label    => __('Run _Golly Program'),
+        callback => \&_do_action_golly,
+        tooltip  => __('Run the "golly" game-of-life program on the current display.'),
+      },
+
       { name  => 'HelpMenu',
         label => dgettext('gtk20-properties','_Help'),
       },
@@ -363,6 +369,7 @@ HERE
       <menuitem action='Toolbar'/>
       <menuitem action='ToolbarVertical'/>
       <menuitem action='Axes'/>
+      <menuitem action='RunGolly'/>
     </menu>
     <menu action='HelpMenu'>
       <menuitem action='About'/>
@@ -826,15 +833,18 @@ sub _do_values_changed {
             = map {($choices->[$_] => $pinfo->{'choices_display'}->[$_])}
               0 .. $#$choices;
         }
+        my $default = $pinfo->{'default'};
+        if (! defined $default) {
+          $default = $choices->[0];
+        }
         $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
           (enum_type => $enum_type,
-           active_nick => $choices->[0],
+           active_nick => $default,
            overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
 
         my $combobox = $toolitem->get_child;
         set_property_maybe ($combobox, # tearoff-title new in 2.10
                             tearoff_title => __('Math-Image:').' '.$display);
-        $tooltip_extra = __('Press Return when ready to display.');
 
         Glib::Ex::ConnectProperties->new
             ([$combobox,'active-nick'],
@@ -869,15 +879,21 @@ sub _do_values_changed {
         if (! defined $min) { $min = POSIX::DBL_MIN; }
         my $max = $pinfo->{'maximum'};
         if (! defined $max) { $max = POSIX::DBL_MAX; }
+        my $decimals = $pinfo->{'decimals'};
+        if (! defined $decimals) { $decimals = 8; }
+        my $page_increment = $pinfo->{'page_increment'};
+        if (! defined $page_increment) { $page_increment = 1; }
+        my $step_increment = $pinfo->{'step_increment'};
+        if (! defined $step_increment) { $step_increment = 0.1; }
         my $adj = Gtk2::Adjustment->new ($pinfo->{'default'} || 0,  # initial
                                          $min,
                                          $max,
-                                         .1, 1,    # step,page increment
+                                         $step_increment,
+                                         $page_increment,
                                          0);       # page_size
         Glib::Ex::ConnectProperties->new ([$adj,'value'],
                                           [$draw,"values-$pname"]);
-        my $spin = Gtk2::SpinButton->new ($adj, 1,
-                                          8); # digits
+        my $spin = Gtk2::SpinButton->new ($adj, 1, $decimals);
         $spin->set (xalign => 1);
         if (defined (my $width = $pinfo->{'width'})) {
           $spin->set_width_chars ($width); # overriding $max
@@ -1047,13 +1063,12 @@ sub popup_save_as {
   $dialog->present;
 }
 
-# FIXME: better setroot with the X11::Protocol code in App::MathImage when
-# possible so as to preserve colormap entries
 sub _do_action_setroot {
   my ($action, $self) = @_;
 
+  # Use X11::Protocol when possible so as to preserve colormap entries
   my $rootwin = $self->get_root_window;
-  if ($rootwin->can('XID')) {
+  if ($rootwin->can('XID') && eval { require App::MathImage::Gtk2::X11; 1 }) {
     require App::MathImage::Gtk2::X11;
     $self->{'x11'} = App::MathImage::Gtk2::X11->new
       (gdk_window => $self->get_root_window,
@@ -1061,6 +1076,48 @@ sub _do_action_setroot {
   } else {
     $self->{'draw'}->start_drawing_window ($rootwin);
   }
+}
+
+my $golly_tempfh;
+sub _do_action_golly {
+  my ($action, $self) = @_;
+
+  require Gtk2::Ex::WidgetCursor;
+  Gtk2::Ex::WidgetCursor->busy;
+
+  my $draw = $self->{'draw'};
+  my (undef, undef, $width, $height) = $draw->allocation->values;
+  my $scale = $draw->get('scale');
+  $width = POSIX::ceil ($width / $scale);
+  $height = POSIX::ceil ($height / $scale);
+  my $x_left = int ($draw->{'hadjustment'}->value / $scale);
+  my $y_bottom  = int ($draw->{'vadjustment'}->value / $scale);
+  my $gen = $draw->gen_object (foreground => 'o',
+                               background => 'b',
+                               width    => $width,
+                               height   => $height,
+                               x_left   => $x_left,
+                               y_bottom => $y_bottom,
+                               scale  => 1);
+
+  require App::MathImage::Image::Base::LifeRLE;
+  my $image = App::MathImage::Image::Base::LifeRLE->new
+    (-width  => $width,
+     -height => $height,
+     -file_format => 'png',
+     -zlib_compression => 0);
+  $gen->draw_Image ($image);
+
+  require File::Temp;
+  $golly_tempfh = File::Temp->new (TEMPLATE => "MathImageXXXXXX",
+                                   SUFFIX => '.rle',
+                                   TMPDIR => 1,
+                                   UNLINK => 1);
+  my $filename =  $golly_tempfh->filename;
+  $image->save ($filename);
+
+  require Proc::SyncExec;
+  Proc::SyncExec::sync_exec ('golly', $filename);
 }
 
 sub popup_about {

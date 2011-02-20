@@ -27,22 +27,24 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
   signals => { # size_allocate => \&_do_size_allocate,
-              set_scroll_adjustments
-              => { param_types => ['Gtk2::Adjustment',
-                                   'Gtk2::Adjustment'],
-                   return_type => undef,
-                   class_closure => \&_do_set_scroll_adjustments },
-              'change-value'
-              => { param_types => [ 'Gtk2::ScrollType'],
-                   return_type => undef,
-                   class_closure => \&_do_change_value,
-                   flags => ['run-first','action'] },
               scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
+
+              set_scroll_adjustments =>
+              { param_types => ['Gtk2::Adjustment',
+                                'Gtk2::Adjustment'],
+                return_type => undef,
+                class_closure => \&_do_set_scroll_adjustments },
+
+              'change-value' =>
+              { param_types => [ 'Gtk2::ScrollType'],
+                return_type => undef,
+                class_closure => \&_do_change_value,
+                flags => ['run-first','action'] },
              },
   properties => [ Glib::ParamSpec->object
                   ('hadjustment',
@@ -237,7 +239,7 @@ C<Gtk2::DrawingArea>, but don't rely on more than C<Gtk2::Widget> for now.
 
 =item C<< $qb = App::MathImage::Gtk2::Ex::QuadScroll->new (key=>value,...) >>
 
-Create and return a new C<QuadScroll> object.  Optional key/value pairs set
+Create and return a new QuadScroll object.  Optional key/value pairs set
 initial properties per C<< Glib::Object->new >>.
 
     my $qb = App::MathImage::Gtk2::Ex::QuadScroll->new;

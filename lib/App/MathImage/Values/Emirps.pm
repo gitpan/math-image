@@ -27,7 +27,7 @@ use base 'App::MathImage::ValuesArray';
 use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

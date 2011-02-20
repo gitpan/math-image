@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -147,10 +147,24 @@ use Glib::Object::Subclass
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
-                  ('values-anum',
+                  ('values-planepath-class',
+                   __('PlanePath Class'),
+                   'Blurb.',
+                   App::MathImage::Generator->default_options->{'planepath_class'},
+                   Glib::G_PARAM_READWRITE),
+                  Glib::ParamSpec->string
+                  ('values-delta-type',
+                   __('Delta Type'),
+                   'Blurb.',
+                   App::MathImage::Generator->default_options->{'delta_type'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->int
+                  ('values-oeis-number',
                    'A-number',
                    'Blurb.',
-                   '',
+                   0, POSIX::INT_MAX(),
+                   App::MathImage::Generator->default_options->{'oeis_number'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
@@ -512,7 +526,7 @@ sub pixmap {
 }
 
 sub gen_object {
-  my ($self) = @_;
+  my $self = shift;
   my (undef, undef, $width, $height) = $self->allocation->values;
   my $background_colorobj = $self->style->bg($self->state);
   my $foreground_colorobj = $self->style->fg($self->state);
@@ -533,7 +547,9 @@ sub gen_object {
      fraction        => $self->get('values-fraction'),
      expression      => $self->get('values-expression'),
      expression_evaluator => $self->get('values-expression-evaluator'),
-     anum            => $self->get('values-anum'),
+     oeis_number     => $self->get('values-oeis-number'),
+     planepath_class => $self->get('values-planepath-class'),
+     delta_type      => $self->get('values-delta-type'),
      aronson_lang         => $self->get('values-aronson_lang'),
      aronson_letter       => $self->get('values-aronson_letter'),
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),
@@ -560,15 +576,15 @@ sub gen_object {
      filter          => $self->get('filter'),
      x_left          => $self->{'hadjustment'}->value,
      y_bottom        => $self->{'vadjustment'}->value,
-    );
+     @_);
 }
 sub x_negative {
   my ($self) = @_;
-  return $self->gen_object->path_object->x_negative;
+  return $self->gen_object->x_negative;
 }
 sub y_negative {
   my ($self) = @_;
-  return $self->gen_object->path_object->y_negative;
+  return $self->gen_object->y_negative;
 }
 
 sub start_drawing_window {
@@ -613,7 +629,9 @@ sub start_drawing_window {
      fraction        => $self->get('values-fraction'),
      expression      => $self->get('values-expression'),
      expression_evaluator => $self->get('values-expression-evaluator'),
-     anum            => $self->get('values-anum'),
+     oeis_number     => $self->get('values-oeis-number'),
+     planepath_class => $self->get('values-planepath-class'),
+     delta_type      => $self->get('values-delta-type'),
      aronson_lang         => $self->get('values-aronson_lang'),
      aronson_letter       => $self->get('values-aronson_letter'),
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),
@@ -640,7 +658,7 @@ sub start_drawing_window {
     );
 
   $self->{'path_object'} = $gen->path_object;
-  $self->{'coord'} = $gen->coord_object;
+  $self->{'affine_object'} = $gen->affine_object;
 
   if ($self->window && $window == $self->window) {
     $self->{'pixmap'} = $gen->{'pixmap'}; # not if drawing to root window
@@ -650,8 +668,8 @@ sub start_drawing_window {
 sub pointer_xy_to_image_xyn {
   my ($self, $x, $y) = @_;
   ### pointer_xy_to_image_xyn(): "$x,$y"
-  my $coord = $self->{'coord'} || return;
-  my ($px,$py) = $coord->untransform($x,$y);
+  my $affine_object = $self->{'affine_object'} || return;
+  my ($px,$py) = $affine_object->clone->invert->transform($x,$y);
   ### $px
   ### $py
   my $path_object =  $self->{'path_object'}
@@ -765,9 +783,9 @@ sub _update_adjustment_extents {
                );
     ### vadj: $vadj->value.' of '.$vadj->lower.' to '.$vadj->upper
   }
-  #   my $coord = $self->{'coord'};
-  #   my ($value,       undef) = $coord->untransform(0,0);
-  #   my ($value_upper, undef) = $coord->untransform($width,0);
+  #   my $affine_object = $self->{'affine_object'};
+  #   my ($value,       undef) = $affine_object->untransform(0,0);
+  #   my ($value_upper, undef) = $affine_object->untransform($width,0);
   #   my $page_size = $value_upper - $value;
   #   ### hadj: "$value to $value_upper"
   #   $hadj->set (lower     => min (0, $value - 1.5 * $page_size),

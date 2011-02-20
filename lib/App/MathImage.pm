@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -616,11 +616,11 @@ sub output_method_numbers {
   my $rect_x2 = $pwidth-1;
   my $rect_y1 = 0;
   my $rect_y2 = $height-1;
-  if ($path->x_negative) {
+  if ($gen->x_negative) {
     $rect_x1 = -$pwidth_half;
     $rect_x2 = $pwidth_half;
   }
-  if ($path->y_negative) {
+  if ($gen->y_negative) {
     $rect_y1 = -$height_half;
     $rect_y2 = $height_half;
   }

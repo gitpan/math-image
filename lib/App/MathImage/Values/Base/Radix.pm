@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant type => 'radix';
 use constant values_min => 0;
@@ -33,13 +33,13 @@ sub values_max {
   return $self->{'radix'} - 1;
 }
 
-use constant parameter_common_radix
-  => { name    => 'radix',
-       type    => 'integer',
-       display => __('Radix'),
-       default => 10,
-       minimum => 2,
-       width   => 4,
-       description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
-     };
+use constant parameter_common_radix =>
+  { name    => 'radix',
+    type    => 'integer',
+    display => __('Radix'),
+    default => 10,
+    minimum => 2,
+    width   => 4,
+    description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
+  };
 use constant parameter_list => (parameter_common_radix);

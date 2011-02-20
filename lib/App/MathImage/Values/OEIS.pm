@@ -25,47 +25,51 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
-
-use constant name => __('OEIS');
-use constant description => __('OEIS sequence, by its A-number.  There\'s code for some sequences, others look in ~/OEIS directory for a b123456.txt download (or A123456.html for just the first few values).');
-use constant parameter_list
-  => ({
-       name    => 'anum',
-       display => __('A-number'),
-       width   => 8,
-       type    => 'string',
-       default => 'A000290', # squares
-      });
-sub oeis {
-  my ($class_or_self) = @_;
-  if (ref $class_or_self) {
-    return $class_or_self->{'anum'};
-  }
-  return undef;
-}
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant name => __('OEIS');
+use constant description => __('OEIS sequence, by its A-number.  There\'s code for some sequences, others look in ~/OEIS directory for a b123456.txt download (or A123456.html for just the first few values).');
+use constant parameter_list =>
+  ({
+    name    => 'oeis_number',
+    display => __('A-number'),
+    width   => 8,
+    type    => 'string',
+    default => 290, # Squares
+   });
+sub oeis {
+  my ($class_or_self) = @_;
+  if (ref $class_or_self) {
+    return $class_or_self->{'oeis_number'};
+  }
+  return undef;
+}
+
 sub new {
   my ($class, %options) = @_;
-  require App::MathImage::Values::OEIS::Catalogue;
-  my $anum = $options{'anum'};
-  if (! defined $anum || $anum eq '') {
-    $anum = $options{'anum'} = (parameter_list)[0]->{'default'};
-  }
-  if (my ($class, @parameters)
-      = App::MathImage::Values::OEIS::Catalogue->anum_to_class($anum)) {
-    require Module::Load;
-    Module::Load::load($class);
-    return $class->new (%options,
-                        @parameters);
-  }
+  ### Values-OEIS: @_
 
-  require App::MathImage::Values::OEIS::File;
-  return App::MathImage::Values::OEIS::File->new (%options,
-                                                  anum => $anum);
+  require App::MathImage::Values::OEIS::Catalogue;
+  my $oeis_number = $options{'oeis_number'};
+  if (defined $oeis_number) {
+    $oeis_number =~ s/^A0*//;
+  } else {
+    $oeis_number = (parameter_list)[0]->{'default'};
+  }
+  ### $oeis_number
+
+  my $info = App::MathImage::Values::OEIS::Catalogue->num_to_info($oeis_number)
+    || croak 'Unknown OEIS sequence ',$oeis_number;
+  ### $info
+
+  my $numseq_class = $info->{'class'};
+  my $parameters_href = $info->{'parameters_href'};
+  require Module::Load;
+  Module::Load::load($numseq_class);
+  return $numseq_class->new (%options, %{$info->{'parameters_hashref'}});
 }
 
 1;

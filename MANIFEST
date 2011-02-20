@@ -46,6 +46,7 @@ devel/prima.pl
 devel/primes.pl
 devel/quadbutton.pl
 devel/repdigit.pl
+devel/rle.pl
 devel/run-about.pl
 devel/run-pod.pl
 devel/run-savedialog.pl
@@ -56,13 +57,13 @@ devel/svg.pl
 devel/tool-combotext.pl
 devel/triangular.pl
 devel/unused.pl
+devel/unused/Coord.pm
 devel/unused/SemiPrimesOdd.pm
 devel/x11-protocol.pl
 inc/my_pod2html
 inc/MyMakeMakerExtras.pm
 inc/MyModuleUtils_without.pm
 lib/App/MathImage.pm
-lib/App/MathImage/Coord.pm
 lib/App/MathImage/Curses/Drawing.pm
 lib/App/MathImage/Curses/Main.pm
 lib/App/MathImage/Generator.pm
@@ -90,6 +91,7 @@ lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
 lib/App/MathImage/Gtk2/X11.pm
 lib/App/MathImage/Image/Base/Caca.pm
+lib/App/MathImage/Image/Base/LifeRLE.pm
 lib/App/MathImage/Image/Base/Magick.pm
 lib/App/MathImage/Image/Base/Other.pm
 lib/App/MathImage/Image/Base/X/Drawable.pm
@@ -98,7 +100,7 @@ lib/App/MathImage/Iterator/Aronson.pm
 lib/App/MathImage/Iterator/Simple/Aronson.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/pi.gz
-lib/App/MathImage/PlanePath/ArchimedeanSpiral.pm
+lib/App/MathImage/PlanePath/ArchimedeanChords.pm
 lib/App/MathImage/PlanePath/Flowsnake.pm
 lib/App/MathImage/PlanePath/OctagramSpiral.pm
 lib/App/MathImage/Prima/About.pm
@@ -137,7 +139,9 @@ lib/App/MathImage/Values/ObstinateNumbers.pm
 lib/App/MathImage/Values/Odd.pm
 lib/App/MathImage/Values/OEIS.pm
 lib/App/MathImage/Values/OEIS/Catalogue.pm
+lib/App/MathImage/Values/OEIS/Catalogue/Base.pm
 lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm
+lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Files.pm
 lib/App/MathImage/Values/OEIS/File.pm
 lib/App/MathImage/Values/Padovan.pm
 lib/App/MathImage/Values/Palindromes.pm
@@ -145,6 +149,7 @@ lib/App/MathImage/Values/PellNumbers.pm
 lib/App/MathImage/Values/Pentagonal.pm
 lib/App/MathImage/Values/Perrin.pm
 lib/App/MathImage/Values/PiBits.pm
+lib/App/MathImage/Values/PlanePathDelta.pm
 lib/App/MathImage/Values/Polygonal.pm
 lib/App/MathImage/Values/PrimeQuadraticEuler.pm
 lib/App/MathImage/Values/PrimeQuadraticHonaker.pm

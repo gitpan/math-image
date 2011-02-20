@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -212,7 +212,7 @@ __END__
 #
 # =item C<< $menu = App::MathImage::Gtk2::Ex::Menu::ForComboBox->new (key=>value,...) >>
 #
-# Create and return a new C<ForComboBox> menu object.  Optional key/value pairs
+# Create and return a new C<ComboText> object.  Optional key/value pairs
 # set initial properties per C<< Glib::Object->new >>.
 #
 #     my $menu = App::MathImage::Gtk2::Ex::Menu::ForComboBox->new

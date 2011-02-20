@@ -27,11 +27,14 @@ use Smart::Comments;
 use lib 't';
 use MyTestImageBase;
 
+
+
 {
   use strict;
   use warnings;
   use Image::Magick;
 
+  unlink "/tmp/out.png";
   my $m = Image::Magick->new (size => '1x1');
   if (!$m) { die; }
   ### $m
@@ -40,12 +43,31 @@ use MyTestImageBase;
   if ($err) { die $err; }
   ### $m
 
-  $err = $m->SetAttribute (debug => 'all,trace');
-  if ($err) { die $err; }
-
-  $m->Write (filename => "/tmp/myfile%d.png",
+  $m->Write (filename => "/tmp/x%d.png",
              # quality => 75,
             );
+
+  $m = Image::Magick->new; #  (size => '64x64');
+  if (!$m) { die; }
+  ### $m
+
+  # $err = $m->SetAttribute (debug => 'all,trace');
+  # $err = $m->SetAttribute (debug => 'all');
+  # if ($err) { die $err; }
+
+  # $m->set(filename => "/tmp/x%d.png");
+  # $m->ReadImage('xc:black');
+  #  $err = $m->Read ();
+
+  open FH, '</tmp/x%d.png' or die;
+  $err = $m->Read (file => \*FH,
+                   # filename => "/tmp/x%d.png",
+                  );
+  ### $err
+  ### $m
+  ### magick: $m->Get('magick')
+
+  $m->Write ("/tmp/out.png");
   exit 0;
 }
 

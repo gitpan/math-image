@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -69,17 +69,17 @@ use constant parameter_list => ({ name    => 'expression',
                                );
 
 ### parameter_list: parameter_list
-  ### parameter_hash: __PACKAGE__->parameter_hash
-  ### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
+### parameter_hash: __PACKAGE__->parameter_hash
+### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
 
-  {
-    package App::MathImage::Values::Expression::LanguageExpr;
-    use List::Util 'min', 'max';
-    our $pi = Math::Libm::M_PI();
-    our $e = Math::Libm::M_E();
-    our $phi = (1+sqrt(5))/2;
-    our $gam = 0.5772156649015328606065120;
-  }
+{
+  package App::MathImage::Values::Expression::LanguageExpr;
+  use List::Util 'min', 'max';
+  our $pi = Math::Libm::M_PI();
+  our $e = Math::Libm::M_E();
+  our $phi = (1+sqrt(5))/2;
+  our $gam = 0.5772156649015328606065120;
+}
 
 sub new {
   my ($class, %options) = @_;

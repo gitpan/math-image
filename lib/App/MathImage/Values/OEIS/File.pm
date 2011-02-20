@@ -20,12 +20,16 @@ use 5.004;
 use strict;
 use warnings;
 use Carp;
+use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant name => __('OEIS File');
 sub description {
@@ -35,9 +39,6 @@ sub description {
   }
   return __('OEIS sequence from file.');
 }
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 sub type {
   my ($class_or_self) = @_;
@@ -51,15 +52,15 @@ sub new {
   my ($class, %options) = @_;
   ### OEIS-File: %options
 
-  my $anum = $options{'anum'};
-  ### $anum
-  my $aref = _read_values($anum);
+  my $oeis_number = $options{'oeis_number'};
+  ### $oeis_number
+  my $aref = _read_values($oeis_number);
   ### $aref
-  my %info = _read_info($anum, $aref);
+  my %info = _read_info($oeis_number, $aref);
   $aref ||= delete $info{'array'};
 
   if (! $aref) {
-    croak "B-file or HTML not found for A-number \"",$anum,"\"";
+    croak "B-file or HTML not found for A-number \"",$oeis_number,"\"";
   }
 
   my $type = 'radix';
@@ -91,25 +92,22 @@ sub oeis_dir {
 
 my $max_value = POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
 
-sub anum_to_bfile {
-  my ($str, $prefix) = @_;
+sub num_to_bfile {
+  my ($num, $prefix) = @_;
   $prefix ||= 'b';
-  $str =~ s/^A//;
-  return sprintf '%s%06d.txt', $prefix, $str;
+  return sprintf '%s%06d.txt', $prefix, $num;
 }
 
-sub anum_to_html {
-  my ($str, $ext) = @_;
+sub num_to_html {
+  my ($num, $ext) = @_;
   $ext ||= '.html';
-  $str =~ s/^A//;
-  return sprintf 'A%06d%s', $str, $ext;
+  return sprintf 'A%06d%s', $num, $ext;
 }
 
 sub _read_info {
-  my ($anum, $aref) = @_;
-
+  my ($num, $aref) = @_;
   my @ret;
-  foreach my $basefile (anum_to_html($anum), anum_to_html($anum,'.htm')) {
+  foreach my $basefile (num_to_html($num), num_to_html($num,'.htm')) {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
@@ -117,6 +115,7 @@ sub _read_info {
       my $contents = do { local $/; <FH> }; # slurp
       close FH or die;
 
+      my $anum = sprintf 'A%06d', $num;
       if ($contents =~
           m{$anum\n.*?<td valign="top" align="left">\s*(.*?)\s*<(br|/td)>}s) {
         my $description = $1;
@@ -151,10 +150,11 @@ sub _read_info {
 }
 
 sub _read_values {
-  my ($anum) = @_;
+  my ($num) = @_;
+  ### Values-OEIS-File _read_values(): @_
 
   require File::Spec;
-  foreach my $basefile (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
+  foreach my $basefile (num_to_bfile($num,'a'), num_to_bfile($num)) {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename

@@ -25,15 +25,15 @@ use POSIX;
 use Smart::Comments;
 
 {
-  require App::MathImage::Values::OEIS::Catalogue::Plugin::Files;
-  my $href = App::MathImage::Values::OEIS::Catalogue::Plugin::Files->anum_to_class_hashref;
-  ### $href
-exit 0;
+  require App::MathImage::Values::OEIS::Catalogue;
+  my @list = App::MathImage::Values::OEIS::Catalogue->num_list;
+  ### @list
+  exit 0;
 }
 {
-require App::MathImage::Values::OEIS::Catalogue;
-my @list = App::MathImage::Values::OEIS::Catalogue->anum_list;
-### @list
+  require App::MathImage::Values::OEIS::Catalogue::Plugin::Files;
+  my $info = App::MathImage::Values::OEIS::Catalogue::Plugin::Files->num_to_info(32);
+  ### $info
 exit 0;
 }
 

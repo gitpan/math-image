@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -31,7 +31,6 @@ $VERSION = 38;
 use constant name => __('Thue-Morse Odious Numbers');
 use constant description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).');
 
-# http://www.research.att.com/~njas/sequences/A000069
 use constant oeis => 'A000069'; # odious
 # A010060 - 0 or 1 bits
 

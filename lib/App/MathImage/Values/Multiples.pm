@@ -26,13 +26,18 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
 use constant values_min => 0;
 use constant parameter_list => ({ name => 'multiples',
-                                  type => 'integer',
+                                  type => 'float',
+                                  width => 10,
+                                  decimals => 4,
+                                  page_increment => 10,
+                                  step_increment => 1,
+                                  minimum => 0,
                                   default => 29,
                                   description => __('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'),
                                 },

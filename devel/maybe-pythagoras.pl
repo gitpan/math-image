@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -18,11 +18,11 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# http://www.research.att.com/~njas/sequences/A001333
+# http://oeis.org/A001333
 #    -- sqrt(2) convergents numerators
-# http://www.research.att.com/~njas/sequences/A000129
+# http://oeis.org/A000129
 #    -- Pell numbers, sqrt(2) convergents numerators
-# http://www.research.att.com/~njas/sequences/A002965
+# http://oeis.org/A002965
 #    -- interleaved
 #
 # $values_info{'columns_of_pythagoras'} =

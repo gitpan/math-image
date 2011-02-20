@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,41 +15,28 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-
-package App::MathImage::Prima::About;
+package App::MathImage::Values::OEIS::Catalogue::Base;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
-use Prima::Label;
-use Prima::MsgBox;
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 use vars '$VERSION';
 $VERSION = 44;
 
-# use base 'Prima::Window';
-# sub init {
-#   my $self = shift;
-#   ### About init: @_
-#   my %profile = $self-> SUPER::init(@_);
-# 
-#   $self->insert
-#     ('Label',
-#      text  => __x('Math Image version {version}', version => $VERSION),
-#     );
-#   return %profile;
-# }
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
-sub popup {
-  my $text = Prima::MsgBox::message
-    (__x('Math Image version {version}', version => $VERSION)
-     . "\n\n"
-     . __x('Running under Prima {version}', version => Prima->VERSION),
-     mb::Information() | mb::Ok());
+my %num_to_info_hashref;
+sub num_to_info_hashref {
+  my ($class) = @_;
+  return ($num_to_info_hashref{$class} ||= 
+          { map { $_->{'num'} => $_ } @{$class->info_arrayref} });
+}
+
+sub num_to_info {
+  my ($class, $num) = @_;
+  return $class->num_to_info_hashref->{$num};
 }
 
 1;
 __END__
+

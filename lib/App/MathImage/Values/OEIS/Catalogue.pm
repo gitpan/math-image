@@ -18,70 +18,87 @@
 package App::MathImage::Values::OEIS::Catalogue;
 use 5.004;
 use strict;
-use warnings;
 use Module::Pluggable require => 1;
-use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub anum_to_class {
-  my ($class, $anum) = @_;
-  ### anum_to_class(): @_
-  my @ret;
+sub num_to_info {
+  my ($class, $num) = @_;
   foreach my $plugin ($class->plugins) {
     ### $plugin
-    my $href = $plugin->anum_to_class_hashref;
-    if (my $aref = $href->{$anum}) {
-      return @$aref;
+    if (my $info = $plugin->num_to_info($num)) {
+      return $info;
     }
   }
-  foreach my $file_anum ($class->file_anum_list) {
-    if ($anum eq $file_anum) {
-      return ['OEIS','anum',$anum];
-    }
-  }
-  return;
+  return undef;
 }
 
-sub anum_to_class_hashref {
-  my ($class) = @_;
-  my $dir = App::MathImage::Values::OEIS::File::oeis_dir();
-  ### $dir
-  my %ret;
-  if (opendir DIR, $dir) {
-    while (defined (my $basename = readdir DIR)) {
-      ### $basename
-      if ($basename =~ /^A([0-9]+)\.html?$/i
-          || $basename =~ /^[ab]([0-9]+)\.txt?$/i) {
-        my $anum = "A$1";
-        $ret{$anum} = [ 'OEIS', 'anum', $anum ];
-      }
-    }
-    foreach my $anum (_file_anum_list()) {
-      $ret{$anum} ||= ['OEIS','anum',$anum];
-    }
-    closedir DIR or die "Error closing $dir: $!";
-  } else {
-    ### cannot opendir: $!
-  }
-  return \%ret;
-}
-
-sub _file_anum_list {
-  my ($class) = @_;
-  ### anum_list()
+sub num_list {
+  my ($class, $num) = @_;
   my %ret;
   foreach my $plugin ($class->plugins) {
     ### $plugin
-    my $href = $plugin->anum_to_class_hashref;
-    %ret = (%ret, %$href);
+    foreach my $info (@{$plugin->info_arrayref}) {
+      $ret{$info->{'num'}} = 1;
+    }
   }
-  return sort keys %ret;
+  my @ret = sort {$a<=>$b} keys %ret;
+  return @ret;
 }
+
+sub num_after {
+  my ($class, $after_num) = @_;
+  foreach my $num ($class->num_list) {
+    if ($num > $after_num) {
+      return $num;
+    }
+  }
+  return undef;
+}
+sub num_before {
+  my ($class, $before_num) = @_;
+  my $ret;
+  foreach my $num ($class->num_list) {
+    if ($num < $before_num) {
+      $ret = $num;
+    } else {
+      last;
+    }
+  }
+  return $ret;
+}
+
+
+
+# sub anum_to_class {
+#   my ($class, $anum) = @_;
+#   ### anum_to_class(): @_
+#   my @ret;
+#   foreach my $plugin ($class->plugins) {
+#     ### $plugin
+#     my $href = $plugin->anum_to_class_hashref;
+#     if (my $aref = $href->{$anum}) {
+#       return @$aref;
+#     }
+#   }
+#   return;
+# }
+# 
+# sub _file_anum_list {
+#   my ($class) = @_;
+#   ### anum_list()
+#   my %ret;
+#   foreach my $plugin ($class->plugins) {
+#     ### $plugin
+#     my $href = $plugin->anum_to_class_hashref;
+#     %ret = (%ret, %$href);
+#   }
+#   return sort keys %ret;
+# }
 
 
 1;

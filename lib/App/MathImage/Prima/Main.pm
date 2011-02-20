@@ -35,7 +35,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -385,7 +385,6 @@ sub _do_about {
 #   #      background => $background_colorobj->to_string,
 # 
 #   #   $self->{'path_object'} = $gen->path_object;
-#   #   $self->{'coord'} = $gen->{'coord'};
 # 
 #   ### width:  $drawable->width
 #   ### height: $drawable->height

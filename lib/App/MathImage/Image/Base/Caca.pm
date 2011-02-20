@@ -17,7 +17,7 @@
 
 
 package App::MathImage::Image::Base::Caca;
-use 5.004;
+use 5.006;  # Term::Caca might be 5.006
 use strict;
 use warnings;
 use Carp;
@@ -27,7 +27,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

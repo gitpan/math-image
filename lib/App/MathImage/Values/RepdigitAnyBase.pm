@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::ValuesArray';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,8 +32,8 @@ $VERSION = 43;
 use constant name => __('Repdigits In Any Base');
 use constant description => __('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base (Sloane\'s A167782).');
 use constant values_min => 1;
-use constant oeis => 'A053696';
-# OEIS: A053696
+use constant oeis => 'A167782';
+# OEIS: A167782
 
 # b^2 + b + 1 = k
 # b^2+b+0.5 = k-0.5
@@ -45,13 +45,14 @@ sub new {
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
 
-  my %ret;
+  ### bases to: 2+int(sqrt($hi-0.5))
+  my %ret = (0 => 1); # zero considered 000...
   foreach my $base (2 .. 1+int(sqrt($hi-0.5))) {
     my $n = ($base + 1) * $base + 1;
     while ($n <= $hi) {
       $ret{$n} = 1;
       foreach my $digit (2 .. $base-1) {
-        if ((my $mult = $digit * $n) < $hi) {
+        if ((my $mult = $digit * $n) <= $hi) {
           $ret{$mult} = 1;
         }
       }

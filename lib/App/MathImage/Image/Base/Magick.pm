@@ -1,4 +1,6 @@
 # literal filename, no %03d
+# load() %d filename misses -file_format PNG somehow
+# load() doesn't set -width / -height
 
 
 
@@ -23,7 +25,6 @@
 package App::MathImage::Image::Base::Magick;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use Image::Magick;
 use vars '$VERSION', '@ISA';
@@ -31,7 +32,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -183,21 +184,57 @@ sub set {
 
 sub load {
   my ($self, $filename) = @_;
+  ### Image-Base-Magick load()
   if (@_ > 1) {
     $self->set('-file', $filename);
+  } else {
+    $filename = $self->get('-file');
   }
   my $m = $self->{'-imagemagick'};
-  if (my $err = $m->Read) {
+  ### load filename: $filename
+
+  # Not using Read($filename) because it won't read a file with "%d" in the
+  # name.
+  #
+  # Must clear out @$m=() to avoid Read() using its set(filename) attribute
+  # in preference to the given file=> handle (at least as of 6.6.0).
+  #
+  # Use sysopen() as as not to interpret whitespace etc on $filename.
+  #
+  require Fcntl;
+  sysopen FH, $filename, Fcntl::O_RDONLY()
+    or croak "Cannot open $filename: $!";
+  binmode FH
+    or croak "Cannot set binmode on $filename: $!";
+
+  my @oldims = @$m;
+  @$m = ();
+  if (my $err = $m->Read (file => \*FH)) {
+    @$m = @oldims;
+    close FH;
     croak $err;
   }
-  # keep only the image read, not the XC canvas or previous image
-  @$m = ($m->[-1]);
+
+  close FH
+    or croak "Error closing $filename: $!";
+  ### load leaves magick: $m
+
+  $self->set('-file', $filename);
 }
 
 # not yet documented ...
 sub load_fh {
   my ($self, $fh) = @_;
+  ### Image-Base-Magick load_fh()
   if (my $err = $self->{'-imagemagick'}->Read (file => $fh)) {
+    croak $err;
+  }
+}
+
+# not yet documented ... and untested
+sub load_string {
+  my ($self, $str) = @_;
+  if (my $err = $self->{'-imagemagick'}->Read (blob => $str)) {
     croak $err;
   }
 }
@@ -207,15 +244,30 @@ sub save {
   ### Image-Base-Magick save(): @_
   if (@_ > 1) {
     $self->set('-file', $filename);
+  } else {
+    $filename = $self->get('-file');
   }
   ### $filename
 
-  # FIXME: filename "%d" expands, how to disable that?
-  # file:///usr/share/doc/imagemagick/www/perl-magick.html#read
+  # Not using Write(filename=>) because it expands "%d" to a sequence
+  # number, per file:///usr/share/doc/imagemagick/www/perl-magick.html#read
   #
-  if (my $err = $self->{'-imagemagick'}->Write (_save_options($self))) {
+  # Use sysopen() as as not to interpret whitespace etc on $filename.
+  #
+  require Fcntl;
+  sysopen FH, $filename, Fcntl::O_WRONLY() | Fcntl::O_TRUNC() | Fcntl::O_CREAT()
+    or croak "Cannot create $filename: $!";
+  binmode FH
+    or croak "Cannot set binmode on $filename: $!";
+
+  if (my $err = $self->{'-imagemagick'}->Write (file => \*FH,
+                                                _save_options($self))) {
+    close FH;
     croak $err;
   }
+  close FH or croak "Error closing $filename: $!";
+
+  $self->set('-file', $filename);
 }
 
 # not yet documented ...
@@ -430,22 +482,20 @@ Setting these changes the size of the image.
 
 The underlying C<Image::Magick> object.
 
-=item C<-file>
+=item C<-file> (string, default C<undef>)
 
-The filename for C<load> or C<save>, or to C<new> to create and load.  (This
-is the "filename" attribute of the imagemagick.)
+The filename for C<load> or C<save>, or passed to C<new> to load a file.
 
-The current code uses ImageMagick C<Write>, which means a "%d" or "%03d" etc
-in the filename expands to a sequential number.  The intention in the future
-is to ensure C<-file> is treated literally, without such expansion, if at
-all possible, since that's how other C<Image::Base> classes behave.
+ImageMagick normally expands a "%d" in filenames to a sequence number, but
+that's avoided here, instead the filename is use literally, the same as
+other C<Image::Base> classes do.
 
-=item C<-zlib_compression> (integer 0-9 or -1)
+=item C<-zlib_compression> (integer 0-9 or -1, default C<undef>)
 
 The amount of data compression to apply when saving.  The value is Zlib
 style 0 for no compression up to 9 for maximum effort.  -1 means Zlib's
-default, usually 6.  C<undef> means ImageMagick's default, which is 7.
-(This attribute becomes the ImageMagick "quality" parameter.)
+default, usually 6.  C<undef> or never set means ImageMagick's default,
+which is 7.  (This attribute becomes the ImageMagick "quality" parameter.)
 
 =back
 

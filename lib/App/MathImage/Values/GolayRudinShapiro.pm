@@ -25,19 +25,19 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-# http://www.research.att.com/~njas/sequences/A020985
+# http://oeis.org/A020985
 #     1 and -1
-# http://www.research.att.com/~njas/sequences/A022155
+# http://oeis.org/A022155
 #     Positions where negative.
 #
-# http://www.research.att.com/~njas/sequences/A020986
+# http://oeis.org/A020986
 #     Nth partial sums of 1 and -1, variously up and down
-# http://www.research.att.com/~njas/sequences/A020991
+# http://oeis.org/A020991
 #     Highest occurrance of N in the partial sums.
 #
 #
@@ -46,7 +46,7 @@ use constant name => __('Golay Rudin Shapiro');
 use constant description => __('Numbers which have an odd number of "11" bit pairs in binary.');
 use constant values_min => 3;
 
-# http://www.research.att.com/~njas/sequences/A022155   # positions of -1s
+# http://oeis.org/A022155   # positions of -1s
 use constant oeis => 'A022155';
 # OEIS: A022155
 

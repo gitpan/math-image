@@ -21,744 +21,973 @@ package App::MathImage::Values::OEIS::Catalogue::Plugin::Builtin;
 use strict;
 use warnings;
 
-use vars '$VERSION';
-$VERSION = 43;
+use vars '$VERSION', '@ISA';
+$VERSION = 44;
+@ISA = ('App::MathImage::Values::OEIS::Catalogue::Base');
 
-use constant anum_to_class_hashref =>
-{
-  'A000027' => [
-    'App::MathImage::Values::All'
-  ],
-  'A000040' => [
-    'App::MathImage::Values::Primes'
-  ],
-  'A000045' => [
-    'App::MathImage::Values::Fibonacci'
-  ],
-  'A000073' => [
-    'App::MathImage::Values::Tribonacci'
-  ],
-  'A000129' => [
-    'App::MathImage::Values::PellNumbers'
-  ],
-  'A000142' => [
-    'App::MathImage::Values::Factorials'
-  ],
-  'A000201' => [
-    'App::MathImage::Values::GoldenSequence'
-  ],
-  'A000204' => [
-    'App::MathImage::Values::LucasNumbers'
-  ],
-  'A000217' => [
-    'App::MathImage::Values::Polygonal',
-    'polygonal',
-    '3',
-    'pairs',
-    'first'
-  ],
-  'A000290' => [
-    'App::MathImage::Values::Polygonal',
-    'polygonal',
-    '4',
-    'pairs',
-    'first'
-  ],
-  'A000292' => [
-    'App::MathImage::Values::Tetrahedral'
-  ],
-  'A000326' => [
-    'App::MathImage::Values::Polygonal',
-    'polygonal',
-    '5',
-    'pairs',
-    'first'
-  ],
-  'A000384' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A000566' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A000567' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A000578' => [
-    'App::MathImage::Values::Cubes'
-  ],
-  'A000931' => [
-    'App::MathImage::Values::Padovan'
-  ],
-  'A001097' => [
-    'App::MathImage::Values::TwinPrimes',
-    'pairs',
-    'both'
-  ],
-  'A001106' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A001107' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A001222' => [
-    'App::MathImage::Values::CountPrimeFactors'
-  ],
-  'A001318' => [
-    'App::MathImage::Values::Polygonal',
-    'polygonal',
-    '5',
-    'pairs',
-    'both'
-  ],
-  'A001358' => [
-    'App::MathImage::Values::SemiPrimes'
-  ],
-  'A001359' => [
-    'App::MathImage::Values::TwinPrimes',
-    'pairs',
-    'first'
-  ],
-  'A001608' => [
-    'App::MathImage::Values::Perrin'
-  ],
-  'A002113' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '10'
-  ],
-  'A002163' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '5',
-    'radix',
-    '10'
-  ],
-  'A002193' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '2',
-    'radix',
-    '10'
-  ],
-  'A002194' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '3',
-    'radix',
-    '10'
-  ],
-  'A002378' => [
-    'App::MathImage::Values::Pronic'
-  ],
-  'A003154' => [
-    'App::MathImage::Values::StarNumbers'
-  ],
-  'A004539' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '2',
-    'radix',
-    '2'
-  ],
-  'A004540' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '2',
-    'radix',
-    '3'
-  ],
-  'A004541' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '2',
-    'radix',
-    '4'
-  ],
-  'A004542' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '2',
-    'radix',
-    '5'
-  ],
-  'A005101' => [
-    'App::MathImage::Values::AbundantNumbers'
-  ],
-  'A005384' => [
-    'App::MathImage::Values::SophieGermainPrimes'
-  ],
-  'A005385' => [
-    'App::MathImage::Values::SafePrimes'
-  ],
-  'A005408' => [
-    'App::MathImage::Values::Odd'
-  ],
-  'A005449' => [
-    'App::MathImage::Values::Polygonal',
-    'polygonal',
-    '5',
-    'pairs',
-    'second'
-  ],
-  'A005823' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '3',
-    'digit',
-    '1'
-  ],
-  'A005836' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '3',
-    'digit',
-    '2'
-  ],
-  'A005843' => [
-    'App::MathImage::Values::Even'
-  ],
-  'A006512' => [
-    'App::MathImage::Values::TwinPrimes',
-    'pairs',
-    'second'
-  ],
-  'A006567' => [
-    'App::MathImage::Values::Emirps',
-    'radix',
-    '10'
-  ],
-  'A006995' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '2'
-  ],
-  'A010060' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '2'
-  ],
-  'A010467' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '10',
-    'radix',
-    '10'
-  ],
-  'A010468' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '11',
-    'radix',
-    '10'
-  ],
-  'A010469' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '12',
-    'radix',
-    '10'
-  ],
-  'A010470' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '13',
-    'radix',
-    '10'
-  ],
-  'A010471' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '14',
-    'radix',
-    '10'
-  ],
-  'A010472' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '15',
-    'radix',
-    '10'
-  ],
-  'A010473' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '17',
-    'radix',
-    '10'
-  ],
-  'A010474' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '18',
-    'radix',
-    '10'
-  ],
-  'A010475' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '19',
-    'radix',
-    '10'
-  ],
-  'A010476' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '20',
-    'radix',
-    '10'
-  ],
-  'A010477' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '21',
-    'radix',
-    '10'
-  ],
-  'A010478' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '22',
-    'radix',
-    '10'
-  ],
-  'A010479' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '23',
-    'radix',
-    '10'
-  ],
-  'A010480' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '24',
-    'radix',
-    '10'
-  ],
-  'A010481' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '26',
-    'radix',
-    '10'
-  ],
-  'A010482' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '27',
-    'radix',
-    '10'
-  ],
-  'A010483' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '28',
-    'radix',
-    '10'
-  ],
-  'A010484' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '29',
-    'radix',
-    '10'
-  ],
-  'A010485' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '30',
-    'radix',
-    '10'
-  ],
-  'A010486' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '31',
-    'radix',
-    '10'
-  ],
-  'A010487' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '32',
-    'radix',
-    '10'
-  ],
-  'A010488' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '33',
-    'radix',
-    '10'
-  ],
-  'A010489' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '34',
-    'radix',
-    '10'
-  ],
-  'A010490' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '35',
-    'radix',
-    '10'
-  ],
-  'A010491' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '37',
-    'radix',
-    '10'
-  ],
-  'A010492' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '38',
-    'radix',
-    '10'
-  ],
-  'A010493' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '39',
-    'radix',
-    '10'
-  ],
-  'A010494' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '40',
-    'radix',
-    '10'
-  ],
-  'A010495' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '41',
-    'radix',
-    '10'
-  ],
-  'A010496' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '42',
-    'radix',
-    '10'
-  ],
-  'A010497' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '43',
-    'radix',
-    '10'
-  ],
-  'A010498' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '44',
-    'radix',
-    '10'
-  ],
-  'A010499' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '45',
-    'radix',
-    '10'
-  ],
-  'A010500' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '46',
-    'radix',
-    '10'
-  ],
-  'A010501' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '47',
-    'radix',
-    '10'
-  ],
-  'A010502' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '48',
-    'radix',
-    '10'
-  ],
-  'A010503' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '50',
-    'radix',
-    '10'
-  ],
-  'A010504' => [
-    'App::MathImage::Values::SqrtDigits',
-    'sqrt',
-    '51',
-    'radix',
-    '10'
-  ],
-  'A010785' => [
-    'App::MathImage::Values::Repdigits',
-    'radix',
-    '10'
-  ],
-  'A014105' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'second'
-  ],
-  'A014190' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '3'
-  ],
-  'A014192' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '4'
-  ],
-  'A021739' => [
-    'App::MathImage::Values::FractionDigits',
-    'fraction',
-    '1/735',
-    'radix',
-    '10'
-  ],
-  'A022155' => [
-    'App::MathImage::Values::GolayRudinShapiro'
-  ],
-  'A023705' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '4',
-    'digit',
-    '0'
-  ],
-  'A023709' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '4',
-    'digit',
-    '1'
-  ],
-  'A023713' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '4',
-    'digit',
-    '2'
-  ],
-  'A023717' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '4',
-    'digit',
-    '3'
-  ],
-  'A023721' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '5',
-    'digit',
-    '0'
-  ],
-  'A023725' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '5',
-    'digit',
-    '1'
-  ],
-  'A023729' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '5',
-    'digit',
-    '2'
-  ],
-  'A023733' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '5',
-    'digit',
-    '4'
-  ],
-  'A023737' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '5',
-    'digit',
-    '5'
-  ],
-  'A029803' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '8'
-  ],
-  'A029953' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '6'
-  ],
-  'A029954' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '7'
-  ],
-  'A029955' => [
-    'App::MathImage::Values::Palindromes',
-    'radix',
-    '9'
-  ],
-  'A030303' => [
-    'App::MathImage::Values::ChampernowneBinary'
-  ],
-  'A032924' => [
-    'App::MathImage::Values::RadixWithoutDigit',
-    'radix',
-    '3',
-    'digit',
-    '0'
-  ],
-  'A051003' => [
-    'App::MathImage::Values::Beastly',
-    'radix',
-    '10'
-  ],
-  'A051624' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051682' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051865' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051866' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051867' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051868' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051869' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051870' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051871' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051872' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051873' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051874' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051875' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A051876' => [
-    'App::MathImage::Values::Polygonal',
-    'pairs',
-    'first'
-  ],
-  'A053696' => [
-    'App::MathImage::Values::RepdigitAnyBase'
-  ],
-  'A053838' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '3'
-  ],
-  'A053839' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '4'
-  ],
-  'A053840' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '5'
-  ],
-  'A053841' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '6'
-  ],
-  'A053842' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '7'
-  ],
-  'A053843' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '8'
-  ],
-  'A053844' => [
-    'App::MathImage::Values::DigitsModulo',
-    'radix',
-    '9'
-  ],
-  'A079000' => [
-    'App::MathImage::Values::NumaronsonA'
-  ],
-  'A083652' => [
-    'App::MathImage::Values::BinaryLengths'
-  ],
-  'A133122' => [
-    'App::MathImage::Values::ObstinateNumbers'
-  ]
-}
+use constant info_arrayref =>
+[
+  {
+    'class' => 'App::MathImage::Values::AbundantNumbers',
+    'num' => '5101',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::All',
+    'num' => '27',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Base4Without3',
+    'num' => '23717',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Beastly',
+    'num' => '51003',
+    'parameters_hashref' => {
+      'radix' => '10'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::BinaryLengths',
+    'num' => '83652',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::ChampernowneBinary',
+    'num' => '30303',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::CountPrimeFactors',
+    'num' => '1222',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Cubes',
+    'num' => '578',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '10060',
+    'parameters_hashref' => {
+      'radix' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53838',
+    'parameters_hashref' => {
+      'radix' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53839',
+    'parameters_hashref' => {
+      'radix' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53840',
+    'parameters_hashref' => {
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53841',
+    'parameters_hashref' => {
+      'radix' => '6'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53842',
+    'parameters_hashref' => {
+      'radix' => '7'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53843',
+    'parameters_hashref' => {
+      'radix' => '8'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::DigitsModulo',
+    'num' => '53844',
+    'parameters_hashref' => {
+      'radix' => '9'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Emirps',
+    'num' => '6567',
+    'parameters_hashref' => {
+      'radix' => '10'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Even',
+    'num' => '5843',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Factorials',
+    'num' => '142',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Fibonacci',
+    'num' => '45',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::FractionDigits',
+    'num' => '21739',
+    'parameters_hashref' => {
+      'fraction' => '1/735',
+      'radix' => '10'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::GolayRudinShapiro',
+    'num' => '22155',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::LucasNumbers',
+    'num' => '204',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::MobiusFunction',
+    'num' => '8683',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::NumaronsonA',
+    'num' => '79000',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::ObstinateNumbers',
+    'num' => '133122',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Odd',
+    'num' => '5408',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Padovan',
+    'num' => '931',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '6995',
+    'parameters_hashref' => {
+      'radix' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '14190',
+    'parameters_hashref' => {
+      'radix' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '14192',
+    'parameters_hashref' => {
+      'radix' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '29952',
+    'parameters_hashref' => {
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '29953',
+    'parameters_hashref' => {
+      'radix' => '6'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '29954',
+    'parameters_hashref' => {
+      'radix' => '7'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '29803',
+    'parameters_hashref' => {
+      'radix' => '8'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '29955',
+    'parameters_hashref' => {
+      'radix' => '9'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Palindromes',
+    'num' => '2113',
+    'parameters_hashref' => {
+      'radix' => '10'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::PellNumbers',
+    'num' => '129',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Perrin',
+    'num' => '1608',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '217',
+    'parameters_hashref' => {
+      'pairs' => 'first',
+      'polygonal' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '290',
+    'parameters_hashref' => {
+      'pairs' => 'first',
+      'polygonal' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '326',
+    'parameters_hashref' => {
+      'pairs' => 'first',
+      'polygonal' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '5449',
+    'parameters_hashref' => {
+      'pairs' => 'second',
+      'polygonal' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '1318',
+    'parameters_hashref' => {
+      'pairs' => 'both',
+      'polygonal' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '384',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '14105',
+    'parameters_hashref' => {
+      'pairs' => 'second'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '566',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '567',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '1106',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '1107',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51682',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51624',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51865',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51866',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51867',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51868',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51869',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51870',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51871',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51872',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51873',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51874',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51875',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Polygonal',
+    'num' => '51876',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Primes',
+    'num' => '40',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Pronic',
+    'num' => '2378',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '32924',
+    'parameters_hashref' => {
+      'digit' => '0',
+      'radix' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '5823',
+    'parameters_hashref' => {
+      'digit' => '1',
+      'radix' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '5836',
+    'parameters_hashref' => {
+      'digit' => '2',
+      'radix' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23705',
+    'parameters_hashref' => {
+      'digit' => '0',
+      'radix' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23709',
+    'parameters_hashref' => {
+      'digit' => '1',
+      'radix' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23713',
+    'parameters_hashref' => {
+      'digit' => '2',
+      'radix' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23717',
+    'parameters_hashref' => {
+      'digit' => '3',
+      'radix' => '4'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23721',
+    'parameters_hashref' => {
+      'digit' => '0',
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23725',
+    'parameters_hashref' => {
+      'digit' => '1',
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23729',
+    'parameters_hashref' => {
+      'digit' => '2',
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23733',
+    'parameters_hashref' => {
+      'digit' => '4',
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RadixWithoutDigit',
+    'num' => '23737',
+    'parameters_hashref' => {
+      'digit' => '5',
+      'radix' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::RepdigitAnyBase',
+    'num' => '53696',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Repdigits',
+    'num' => '10785',
+    'parameters_hashref' => {
+      'radix' => '10'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SafePrimes',
+    'num' => '5385',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::SemiPrimes',
+    'num' => '1358',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::SophieGermainPrimes',
+    'num' => '5384',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '4539',
+    'parameters_hashref' => {
+      'radix' => '2',
+      'sqrt' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '4540',
+    'parameters_hashref' => {
+      'radix' => '3',
+      'sqrt' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '4541',
+    'parameters_hashref' => {
+      'radix' => '4',
+      'sqrt' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '4542',
+    'parameters_hashref' => {
+      'radix' => '5',
+      'sqrt' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '2193',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '2'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '2194',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '3'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '2163',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '5'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10467',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '10'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10468',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '11'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10469',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '12'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10470',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '13'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10471',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '14'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10472',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '15'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10473',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '17'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10474',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '18'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10475',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '19'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10476',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '20'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10477',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '21'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10478',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '22'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10479',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '23'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10480',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '24'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10481',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '26'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10482',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '27'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10483',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '28'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10484',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '29'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10485',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '30'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10486',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '31'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10487',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '32'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10488',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '33'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10489',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '34'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10490',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '35'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10491',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '37'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10492',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '38'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10493',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '39'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10494',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '40'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10495',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '41'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10496',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '42'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10497',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '43'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10498',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '44'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10499',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '45'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10500',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '46'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10501',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '47'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10502',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '48'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10503',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '50'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::SqrtDigits',
+    'num' => '10504',
+    'parameters_hashref' => {
+      'radix' => '10',
+      'sqrt' => '51'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::Squares',
+    'num' => '290',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::StarNumbers',
+    'num' => '3154',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::TernaryWithout2',
+    'num' => '5836',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Tetrahedral',
+    'num' => '292',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Triangular',
+    'num' => '217',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::Tribonacci',
+    'num' => '73',
+    'parameters_hashref' => {}
+  },
+  {
+    'class' => 'App::MathImage::Values::TwinPrimes',
+    'num' => '1359',
+    'parameters_hashref' => {
+      'pairs' => 'first'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::TwinPrimes',
+    'num' => '6512',
+    'parameters_hashref' => {
+      'pairs' => 'second'
+    }
+  },
+  {
+    'class' => 'App::MathImage::Values::TwinPrimes',
+    'num' => '1097',
+    'parameters_hashref' => {
+      'pairs' => 'both'
+    }
+  }
+]
 ;
 1;
 __END__

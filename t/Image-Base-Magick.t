@@ -20,18 +20,45 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More;
+use Test;
+my $test_count;
+BEGIN {
+  $test_count = 1511;
+  plan tests => $test_count;
+}
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-eval { require Image::Magick }
-  or plan skip_all => "due to no Image::Magick -- $@";
-diag "Image::Magick VERSION ",Image::Magick->VERSION;
+# only test on 6.6 up since 6.5.5 seen doing dodgy stuff on a 3x3 ellipse,
+# coming out with an excess to the right like
+#     _____www____________
+#     _____wwwww__________
+#     _____www____________
+#
 
-plan tests => 1536;
-use_ok ('App::MathImage::Image::Base::Magick');
+my $have_image_magick = eval { require Image::Magick; 1 };
+if ($have_image_magick) {
+  MyTestHelpers::diag ("Image::Magick VERSION ",Image::Magick->VERSION);
+
+  my $im_version = Image::Magick->VERSION;
+  if ($im_version =~ /([0-9]*(\.[0-9]*)?)/) {
+    my $im_two_version = $1;
+    if ($im_two_version < 6.6) {
+      MyTestHelpers::diag ("Image::Magick 6.6 not available -- im_version $im_version im_two_version $im_two_version");
+      $have_image_magick = 0;
+    }
+  }
+}
+if (! $have_image_magick) {
+  foreach (1 .. $test_count) {
+    skip ('no Image::Magick 6.6', 1, 1);
+  }
+  exit 0;
+}
+
+require App::MathImage::Image::Base::Magick;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,17 +67,66 @@ use_ok ('App::MathImage::Image::Base::Magick');
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 43;
-is ($App::MathImage::Image::Base::Magick::VERSION,
-    $want_version, 'VERSION variable');
-is (App::MathImage::Image::Base::Magick->VERSION,
+my $want_version = 44;
+ok ($App::MathImage::Image::Base::Magick::VERSION,
+    $want_version,
+    'VERSION variable');
+ok (App::MathImage::Image::Base::Magick->VERSION,
     $want_version, 'VERSION class method');
 
 ok (eval { App::MathImage::Image::Base::Magick->VERSION($want_version); 1 },
+    1,
     "VERSION class check $want_version");
 my $check_version = $want_version + 1000;
 ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
+    1,
     "VERSION class check $check_version");
+
+#------------------------------------------------------------------------------
+# %d filename
+
+my $percent_filename = 'temp%d.png';
+MyTestHelpers::diag ("Percentfile ",$percent_filename);
+unlink $percent_filename;
+ok (! -e $percent_filename, 1, "removed any existing $percent_filename");
+END {
+  if (defined $percent_filename) {
+    MyTestHelpers::diag ("Remove percentfile ",$percent_filename);
+    unlink $percent_filename
+      or MyTestHelpers::diag ("No remove $percent_filename: ",$!);
+  }
+}
+
+{
+  my $image = App::MathImage::Image::Base::Magick->new (-width => 20,
+                                                        -height => 10,
+                                                        -file_format => 'png');
+  $image->save ($percent_filename);
+  ok (-e $percent_filename, 1, "save() to $percent_filename, -e exists");
+  ok (-s $percent_filename > 0, 1, "save() to $percent_filename, -s non-empty");
+  ok ($image->get('-file'), $percent_filename, 'save() sets -file');
+}
+{
+  # system "ls -l '$percent_filename'";
+  my $image = App::MathImage::Image::Base::Magick->new;
+  $image->load ($percent_filename);
+  ### $image
+
+  # FIXME
+  # ok ($image->get('-width'), 20, 'load() -width');
+  # ok ($image->get('-height'), 10, 'load() -height');
+  # ok ($image->get('-file_format'), 'PNG', 'load() -file_format');
+  ok ($image->get('-file'), $percent_filename, 'load() sets -file');
+}
+{
+  my $image = App::MathImage::Image::Base::Magick->new
+    (-file => $percent_filename);
+  # FIXME
+  # ok ($image->get('-width'), 20, 'new(-file) -width');
+  # ok ($image->get('-height'), 10, 'new(-file) -height');
+  # ok ($image->get('-file_format'), 'PNG', 'new(-file) -file_format');
+  ok ($image->get('-file'), $percent_filename, 'new(-file) sets -file');
+}
 
 #------------------------------------------------------------------------------
 # new
@@ -59,14 +135,14 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   my $image = App::MathImage::Image::Base::Magick->new
     (-width => 20,
      -height => 10);
-  ok (! exists $image->{'-width'});
-  ok (! exists $image->{'-height'});
-  is ($image->get('-width'), 20);
-  is ($image->get('-height'), 10);
+  ok (! exists $image->{'-width'}, 1);
+  ok (! exists $image->{'-height'}, 1);
+  ok ($image->get('-width'), 20);
+  ok ($image->get('-height'), 10);
 
   $image->set (-width => 15);
-  is ($image->get('-width'), 15, 'resize -width');
-  is ($image->get('-height'), 10, 'unchanged -height');
+  ok ($image->get('-width'), 15, 'resize -width');
+  ok ($image->get('-height'), 10, 'unchanged -height');
 }
 
 
@@ -79,11 +155,11 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   my $i2 = $i1->new;
   $i2->set(-width => 33, -height => 44);
 
-  is ($i1->get('-width'), 11);
-  is ($i1->get('-height'), 22);
-  is ($i2->get('-width'), 33);
-  is ($i2->get('-height'), 44);
-  isnt ($i1->get('-imagemagick'), $i2->get('-imagemagick'));
+  ok ($i1->get('-width'), 11);
+  ok ($i1->get('-height'), 22);
+  ok ($i2->get('-width'), 33);
+  ok ($i2->get('-height'), 44);
+  ok ($i1->get('-imagemagick') != $i2->get('-imagemagick'), 1);
 }
 
 
@@ -95,18 +171,18 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
     (-width => 20,
      -height => 10);
   $image->xy(3,4, '#AABBCC');
-  is ($image->xy(3,4), '#AABBCC', 'xy() stored');
+  ok ($image->xy(3,4), '#AABBCC', 'xy() stored');
 }
 {
   my $image = App::MathImage::Image::Base::Magick->new
     (-width => 2, -height => 2);
   $image->set(-width => 20, -height => 20);
 
-  diag explain $image;
-  diag "xy() in resize store";
+  MyTestHelpers::dump ($image);
+  MyTestHelpers::diag ("xy() in resize store");
   $image->xy (10,10, '#FFFFFF');
-  diag "xy() in resize read";
-  is ($image->xy (10,10), '#FFFFFF', 'xy() in resize');
+  MyTestHelpers::diag ("xy() in resize read");
+  ok ($image->xy (10,10), '#FFFFFF', 'xy() in resize');
 }
 
 
@@ -120,8 +196,8 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   $image->get('-imagemagick')->Set (antialias => 0);
 
   $image->rectangle(2,2, 4,4, '#AABBCC');
-  is ($image->xy(2,2), '#AABBCC', 'rectangle() unfilled drawn');
-  is ($image->xy(3,3), '#000000', 'rectangle() unfilled centre undrawn');
+  ok ($image->xy(2,2), '#AABBCC', 'rectangle() unfilled drawn');
+  ok ($image->xy(3,3), '#000000', 'rectangle() unfilled centre undrawn');
 }
 {
   my $image = App::MathImage::Image::Base::Magick->new
@@ -130,8 +206,8 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   $image->get('-imagemagick')->Set (antialias => 0);
 
   $image->rectangle(2,2, 4,4, '#AABBCC', 1);
-  is ($image->xy(2,2), '#AABBCC', 'rectangle() filled drawn');
-  is ($image->xy(3,3), '#AABBCC', 'rectangle() filled centre');
+  ok ($image->xy(2,2), '#AABBCC', 'rectangle() filled drawn');
+  ok ($image->xy(3,3), '#AABBCC', 'rectangle() filled centre');
 
   # $image->get('-imagemagick')->Write ('xpm:-');  
 }
@@ -142,7 +218,7 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   $image->get('-imagemagick')->Set (antialias => 0);
 
   $image->rectangle(2,2, 2,2, '#AABBCC', 1);
-  is ($image->xy(2,2), '#AABBCC', 'rectangle() 1x1 filled drawn');
+  ok ($image->xy(2,2), '#AABBCC', 'rectangle() 1x1 filled drawn');
 }
 {
   my $image = App::MathImage::Image::Base::Magick->new
@@ -151,7 +227,7 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   $image->get('-imagemagick')->Set (antialias => 0);
 
   $image->rectangle(2,2, 2,2, '#AABBCC', 0);
-  is ($image->xy(2,2), '#AABBCC', 'rectangle() 1x1 unfilled drawn');
+  ok ($image->xy(2,2), '#AABBCC', 'rectangle() 1x1 unfilled drawn');
 }
 
 
@@ -166,23 +242,23 @@ ok (! eval { App::MathImage::Image::Base::Magick->VERSION($check_version); 1 },
   $image->get('-imagemagick')->Set (width => 10, height=> 5);
   $image->get('-imagemagick')->Set (antialias => 0);
   $image->line(0,0, 5,5, '#AABBCC');
-  is ($image->xy(5,0), '#000000', 'line() away');
-  is ($image->xy(2,2), '#AABBCC', 'line() drawn');
+  ok ($image->xy(5,0), '#000000', 'line() away');
+  ok ($image->xy(2,2), '#AABBCC', 'line() drawn');
 }
 
 
 #------------------------------------------------------------------------------
 # load() errors
 
-my $filename = 'tempfile.png';
-diag "Tempfile $filename";
-unlink $filename;
-ok (! -e $filename, "removed any existing $filename");
+my $temp_filename = 'tempfile.png';
+MyTestHelpers::diag ("Tempfile ",$temp_filename);
+unlink $temp_filename;
+ok (! -e $temp_filename, 1, "removed any existing $temp_filename");
 END {
-  if (defined $filename) {
-    diag "Remove tempfile $filename";
-    unlink $filename
-      or diag "No remove $filename: $!";
+  if (defined $temp_filename) {
+    MyTestHelpers::diag ("Remove tempfile ",$temp_filename);
+    unlink $temp_filename
+      or MyTestHelpers::diag ("No remove $temp_filename: ",$!);
   }
 }
 
@@ -190,29 +266,29 @@ END {
   my $eval_ok = 0;
   my $ret = eval {
     my $image = App::MathImage::Image::Base::Magick->new
-      (-file => $filename);
+      (-file => $temp_filename);
     $eval_ok = 1;
     $image
   };
   my $err = $@;
-  # diag "new() err is \"",$err,"\"";
-  is ($eval_ok, 0, 'new() error for no file - doesn\'t reach end');
-  is ($ret, undef, 'new() error for no file - return undef');
-  like ($err, '/^Exception/', 'new() error for no file - error string "Cannot"');
+  # MyTestHelpers::diag "new() err is \"",$err,"\"";
+  ok ($eval_ok, 0, 'new() error for no file - doesn\'t reach end');
+  ok ($ret, undef, 'new() error for no file - return undef');
+  ok ($err, '/^Cannot/', 'new() error for no file - error string "Cannot"');
 }
 {
   my $eval_ok = 0;
   my $image = App::MathImage::Image::Base::Magick->new;
   my $ret = eval {
-    $image->load ($filename);
+    $image->load ($temp_filename);
     $eval_ok = 1;
     $image
   };
   my $err = $@;
-  # diag "load() err is \"",$err,"\"";
-  is ($eval_ok, 0, 'load() error for no file - doesn\'t reach end');
-  is ($ret, undef, 'load() error for no file - return undef');
-  like ($err, '/^Exception/', 'load() error for no file - error string "Cannot"');
+  # MyTestHelpers::diag "load() err is \"",$err,"\"";
+  ok ($eval_ok, 0, 'load() error for no file - doesn\'t reach end');
+  ok ($ret, undef, 'load() error for no file - return undef');
+  ok ($err, '/^Cannot/', 'load() error for no file - error string "Cannot"');
 }
 
 #-----------------------------------------------------------------------------
@@ -222,21 +298,27 @@ END {
   my $image = App::MathImage::Image::Base::Magick->new (-width => 20,
                                                         -height => 10,
                                                         -file_format => 'png');
-  $image->save ($filename);
-  ok (-e $filename, "save() to $filename, -e exists");
-  cmp_ok (-s $filename, '>', 0, "save() to $filename, -s non-empty");
+  $image->save ($temp_filename);
+  ok (-e $temp_filename, 1, "save() to $temp_filename, -e exists");
+  ok (-s $temp_filename > 0, 1, "save() to $temp_filename, -s non-empty");
 }
 {
-  my $image = App::MathImage::Image::Base::Magick->new (-file => $filename);
-  is ($image->get('-file_format'), 'PNG',
-     'load() with new(-file)');
+  my $image = App::MathImage::Image::Base::Magick->new (-file => $temp_filename);
+  # FIXME
+  #  ok ($image->get('-width'), 20, 'new(-file) -width');
+  #  ok ($image->get('-height'), 10, 'new(-file) -height');
+  ok ($image->get('-file_format'), 'PNG', 'new(-file) -file_format');
+  ok ($image->get('-file'), $temp_filename, 'new() sets -file');
   ### $image
 }
 {
   my $image = App::MathImage::Image::Base::Magick->new;
-  $image->load ($filename);
-  is ($image->get('-file_format'), 'PNG',
-      'load() method');
+  $image->load ($temp_filename);
+  # FIXME
+  # ok ($image->get('-width'), 20, 'load() -width');
+  # ok ($image->get('-height'), 10, 'load() -height');
+  ok ($image->get('-file_format'), 'PNG', 'load() -file_format');
+  ok ($image->get('-file'), $temp_filename, 'load() sets -file');
 }
 
 #------------------------------------------------------------------------------
@@ -246,8 +328,8 @@ END {
   my $image = App::MathImage::Image::Base::Magick->new
     (-width  => 20,
      -height => 10);
-  is ($image->get('-width'), 20);
-  is ($image->get('-height'), 10);
+  ok ($image->get('-width'), 20);
+  ok ($image->get('-height'), 10);
   my $m = $image->get('-imagemagick');
   $m->Set (antialias => 0);
 

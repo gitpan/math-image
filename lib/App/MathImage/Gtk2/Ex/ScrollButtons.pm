@@ -26,7 +26,7 @@ use Locale::Messages 'dgettext';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
@@ -172,8 +172,8 @@ C<Gtk2::DrawingArea>, but don't rely on more than C<Gtk2::Widget> for now.
 
 =item C<< $sb = App::MathImage::Gtk2::Ex::ScrollButtons->new (key=>value,...) >>
 
-Create and return a new C<ScrollButtons> object.  Optional key/value pairs set
-initial properties per C<< Glib::Object->new >>.
+Create and return a new C<ScrollButtons> widget.  Optional key/value pairs
+set initial properties per C<< Glib::Object->new >>.
 
     my $sb = App::MathImage::Gtk2::Ex::ScrollButtons->new
                (adjustment => $adj);

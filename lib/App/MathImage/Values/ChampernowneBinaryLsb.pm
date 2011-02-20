@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant name => __('Champernowne Sequence LSB First');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary, least significant bit first, 1 01 11 001 101 etc.');
@@ -34,11 +34,11 @@ use constant values_min => 0;
 #use Smart::Comments;
 
 # Champernowne sequence in binary 1s and 0s
-#   http://www.research.att.com/~njas/sequences/A030190
+#   http://oeis.org/A030190
 #
 # as integer positions
-#   http://www.research.att.com/~njas/sequences/A030310
-#   http://www.research.att.com/~njas/sequences/A030303
+#   http://oeis.org/A030310
+#   http://oeis.org/A030303
 #
 # 1 10  11 100 101  110 111
 # 1 2  4,5 6   9,11 12,13 15,16,17,

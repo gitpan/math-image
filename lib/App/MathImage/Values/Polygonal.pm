@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -84,31 +84,31 @@ sub oeis {
                : $class_or_self->parameter_default('pairs'));
   return $oeis[$k]->{$pairs};
 }
-# OEIS: A000217 polygonal=3 pairs=first
-# OEIS: A000290 polygonal=4 pairs=first
-# OEIS: A000326 polygonal=5 pairs=first
-# OEIS: A005449 polygonal=5 pairs=second
-# OEIS: A001318 polygonal=5 pairs=both
-# OEIS: A000384 pairs=first     # 6 hexagonal
-# OEIS: A014105 pairs=second
-# OEIS: A000566 pairs=first  # 7 heptagonal
-# OEIS: A000567 pairs=first  # 8 octagonal
-# OEIS: A001106 pairs=first  # 9 nonagonal
-# OEIS: A001107 pairs=first  # 10 decogaonal
-# OEIS: A051682 pairs=first  # 11 hendecagonal
-# OEIS: A051624 pairs=first  # 12-gonal
-# OEIS: A051865 pairs=first  # 13 tridecagonal
-# OEIS: A051866 pairs=first  # 14-gonal
-# OEIS: A051867 pairs=first  # 15
-# OEIS: A051868 pairs=first  # 16
-# OEIS: A051869 pairs=first  # 17
-# OEIS: A051870 pairs=first  # 18
-# OEIS: A051871 pairs=first  # 19
-# OEIS: A051872 pairs=first  # 20
-# OEIS: A051873 pairs=first  # 21
-# OEIS: A051874 pairs=first  # 22
-# OEIS: A051875 pairs=first  # 23
-# OEIS: A051876 pairs=first  # 24
+# OEIS: A000217 polygonal=3  pairs=first
+# OEIS: A000290 polygonal=4  pairs=first
+# OEIS: A000326 polygonal=5  pairs=first
+# OEIS: A005449 polygonal=5  pairs=second
+# OEIS: A001318 polygonal=5  pairs=both
+# OEIS: A000384 polygonal=6  pairs=first     # 6 hexagonal
+# OEIS: A014105 polygonal=6  pairs=second
+# OEIS: A000566 polygonal=7  pairs=first  # 7 heptagonal
+# OEIS: A000567 polygonal=8  pairs=first  # 8 octagonal
+# OEIS: A001106 polygonal=9  pairs=first  # 9 nonagonal
+# OEIS: A001107 polygonal=10 pairs=first  # 10 decogaonal
+# OEIS: A051682 polygonal=11 pairs=first  # 11 hendecagonal
+# OEIS: A051624 polygonal=12 pairs=first  # 12-gonal
+# OEIS: A051865 polygonal=13 pairs=first  # 13 tridecagonal
+# OEIS: A051866 polygonal=14 pairs=first  # 14-gonal
+# OEIS: A051867 polygonal=15 pairs=first  # 15
+# OEIS: A051868 polygonal=16 pairs=first  # 16
+# OEIS: A051869 polygonal=17 pairs=first  # 17
+# OEIS: A051870 polygonal=18 pairs=first  # 18
+# OEIS: A051871 polygonal=19 pairs=first  # 19
+# OEIS: A051872 polygonal=20 pairs=first  # 20
+# OEIS: A051873 polygonal=21 pairs=first  # 21
+# OEIS: A051874 polygonal=22 pairs=first  # 22
+# OEIS: A051875 polygonal=23 pairs=first  # 23
+# OEIS: A051876 polygonal=24 pairs=first  # 24
 
 
 # ($k-2)*$i*($i+1)/2 - ($k-3)*$i

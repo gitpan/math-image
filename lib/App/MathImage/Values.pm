@@ -23,7 +23,7 @@ use Memoize;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -60,14 +60,14 @@ sub parameter_default {
           && $info->{'default'});
 }
 
-use constant parameter_common_pairs
-  => { name    => 'pairs',
-       display => __('Pairs'),
-       type    => 'enum',
-       default => 'first',
-       choices => ['first','second','both'],
-       choices_display => [__('First'),__('Second'),__('Both')],
-       description => __('Which of a pair of values to show.'),
-     };
+use constant parameter_common_pairs =>
+  { name    => 'pairs',
+    display => __('Pairs'),
+    type    => 'enum',
+    default => 'first',
+    choices => ['first','second','both'],
+    choices_display => [__('First'),__('Second'),__('Both')],
+    description => __('Which of a pair of values to show.'),
+  };
 1;
 __END__

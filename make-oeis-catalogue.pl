@@ -24,29 +24,42 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
-my %anum_to_class;
-foreach my $class (Module::Util::find_in_namespace
-                   ('App::MathImage::Values')) {
+my @info_arrayref;
+my @classes = Module::Util::find_in_namespace('App::MathImage::Values');
+@classes = sort @classes;
+foreach my $class (@classes) {
   next if $class =~ /^App::MathImage::Values::.*::/; # not sub-parts
 
   my $filename = Module::Util::find_installed($class) or die;
   open my $in, '<', $filename or die;
   while (<$in>) {
     chomp;
-    if (/^# OEIS: (A[0-9]+)\s*(.*)/) {
-      my $anum = $1;
+    if (/^# OEIS: /) {
+      /^# OEIS: A0*([0-9]+)\s*(.*?)(#.*)?$/
+        or die "Oops, bad OEIS line: $_";
+      my $num = $1;
       my $parameters = $2;
-      $parameters =~ s/(.*)(#.*)/$1/;
-      my $comment = $2;
-      $anum_to_class{$anum} = [ $class, split /[,= \t]+/, $parameters ];
+      my $comment = $3;
+      my @parameters = split /[,= \t]+/, $parameters;
+      if (@parameters & 1) {
+        die "Oops, odd number of  OEIS params: $_";
+      }
+      defined $class
+        or die 'Oops, no "package" seen';
+      push @info_arrayref,
+        {
+         num => $num,
+         class => $class,
+         parameters_hashref => {@parameters},
+        };
     }
   }
   close $in or die;
 }
 
-my $dump = Data::Dumper->new([\%anum_to_class])->Sortkeys(1)->Terse(1)->Indent(1)->Dump;
+my $dump = Data::Dumper->new([\@info_arrayref])->Sortkeys(1)->Terse(1)->Indent(1)->Dump;
 # $dump =~ s/^{\n//;
 # $dump =~ s/}.*\n//;
 
@@ -75,10 +88,11 @@ package App::MathImage::Values::OEIS::Catalogue::Plugin::Builtin;
 use strict;
 use warnings;
 
-use vars '\$VERSION';
+use vars '\$VERSION', '\@ISA';
 \$VERSION = $VERSION;
+\@ISA = ('App::MathImage::Values::OEIS::Catalogue::Base');
 
-use constant anum_to_class_hashref =>
+use constant info_arrayref =>
 HERE
 
 print $out "$dump;\n1;\n__END__\n";

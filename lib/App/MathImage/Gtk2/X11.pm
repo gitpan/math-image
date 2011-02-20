@@ -24,13 +24,15 @@ use Carp;
 use Glib 1.220;
 use Gtk2 1.220;
 use Scalar::Util;
+use X11::Protocol;
+use App::MathImage::X11::Generator;
 
 use Glib::Ex::SourceIds;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 sub new {
   my ($class, %self) = @_;
@@ -42,7 +44,6 @@ sub new {
                       ? $gdk_window->get_display->get_name  # gtk 2.2 up
                       : Gtk2::Gdk->get_display);        # gtk 2.0.x
 
-  require X11::Protocol;
   my $X = $self->{'X'} = X11::Protocol->new ($display_name);
   my $colormap = $X->{'default_colormap'};
 
@@ -57,7 +58,6 @@ sub new {
 
   my ($width, $height)  = $gdk_window->get_size;
 
-  require App::MathImage::X11::Generator;
   $self->{'x11gen'} = App::MathImage::X11::Generator->new
     (%{$self->{'gen'}},
      X => $X,

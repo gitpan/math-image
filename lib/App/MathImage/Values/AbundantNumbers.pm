@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,6 +40,9 @@ use constant oeis => 'A005101';
 # cf
 # A005100 deficient numbers sigma(n) < 2*n
 # A000396 perfect sigma(n) == 2*n
+#
+# A091191 primitive abundants (no abundant divisor)
+# A091192 non-primitives (at least one abundant divisor)
 
 sub new {
   my ($class, %options) = @_;
@@ -115,12 +118,17 @@ sub next {
 sub pred {
   my ($self, $n) = @_;
   ### AbundantNumbers pred(): $n
-  if ($self->{'i'} <= $n) {
-    ### extend from: $self->{'i'}
-    my $i;
-    while (($i = $self->next) && $i < $n) { }
+  if ($n > $self->{'hi'} || $n <= 0) {
+    return 0;
   }
-  return ($n >= 0 && $self->{'prods'}->[$n]);
+  while ($self->{'i'} <= $n) {
+    $self->next;
+  }
+  # ### $self
+  ### mod 12: $n % 12
+  ### prods: $self->{'prods'}->[$n]
+  ### pred result: ($self->{'prods'}->[$n] && $self->{'prods'}->[$n] > 2*$n)
+  return (($self->{'prods'}->[$n]||0) == 1);
 }
 
 1;

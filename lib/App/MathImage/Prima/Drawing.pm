@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 sub profile_default {
   my ($class) = @_;
@@ -83,7 +83,6 @@ sub _draw_image {
   #      background => $background_colorobj->to_string,
 
   #   $self->{'path_object'} = $gen->path_object;
-  #   $self->{'coord'} = $gen->{'coord'};
 
   ### width:  $drawable->width
   ### height: $drawable->height

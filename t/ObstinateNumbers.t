@@ -35,7 +35,7 @@ use App::MathImage::Values::ObstinateNumbers;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   is ($App::MathImage::Values::ObstinateNumbers::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Values::ObstinateNumbers->VERSION,  $want_version, 'VERSION class method');
 

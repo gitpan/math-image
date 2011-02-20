@@ -42,14 +42,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
-# http://www.research.att.com/~njas/sequences/A000695
+# http://oeis.org/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4
 
 # Cf.
 #
-# http://www.research.att.com/~njas/sequences/A001196
+# http://oeis.org/A001196
 #    Double-bitters, only even length runs in binary, which is digits 0,3 in
 #    base 4.  Being 3* the Only01 values.
 

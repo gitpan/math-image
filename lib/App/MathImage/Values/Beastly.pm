@@ -26,7 +26,7 @@ use base 'App::MathImage::Values';
 use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,6 +37,7 @@ use constant values_min => 666;
 use constant parameter_list => (App::MathImage::Values::Base::Radix::parameter_common_radix);
 
 
+# cf A131645 the beastly primes
 sub oeis {
   my ($class_or_self) = @_;
   my $radix = (ref $class_or_self

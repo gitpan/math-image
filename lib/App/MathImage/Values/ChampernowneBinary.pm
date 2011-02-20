@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::Values';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
@@ -38,7 +38,7 @@ use constant values_min => 0;
 use constant oeis => 'A030303';
 # OEIS: A030303
 
-# # http://www.research.att.com/~njas/sequences/A030310  # binary 1 positions
+# # http://oeis.org/A030310  # binary 1 positions
 # 
 # sub oeis {
 #   my ($class_or_self) = @_;
@@ -50,11 +50,11 @@ use constant oeis => 'A030303';
 # }
 
 # Champernowne sequence in binary 1s and 0s
-#   http://www.research.att.com/~njas/sequences/A030190
+#   http://oeis.org/A030190
 #
 # as integer positions
-#   http://www.research.att.com/~njas/sequences/A030310
-#   http://www.research.att.com/~njas/sequences/A030303
+#   http://oeis.org/A030310
+#   http://oeis.org/A030303
 #
 # 0 1 10  11 100 101  110 111
 #   1 2  4,5 6   9,11 12,13 15,16,17,

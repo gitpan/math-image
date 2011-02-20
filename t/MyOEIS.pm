@@ -32,10 +32,11 @@ sub oeis_dir {
 
 sub anum_validate {
   my ($anum) = @_;
-  unless ($anum =~ /^A[0-9]{6,}$/) {
+  unless ($anum =~ /^A?([0-9]{6,})$/) {
     require Carp;
     Carp::croak("Bad A-number: $anum");
   }
+  return $1;
 }
 
 sub anum_to_bfile {
@@ -48,7 +49,7 @@ sub anum_to_bfile {
 
 sub read_values {
   my ($anum) = @_;
-  anum_validate ($anum);
+  $anum = anum_validate ($anum);
 
   my ($aref, $filename) = _read_values($anum);
   if (defined $aref) {

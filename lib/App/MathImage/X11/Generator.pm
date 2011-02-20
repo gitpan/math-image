@@ -27,11 +27,12 @@ use Time::HiRes;
 use base 'App::MathImage::Generator';
 use App::MathImage::X11::Protocol::Extras;
 use App::MathImage::X11::Protocol::XSetRoot;
+use Image::Base::X11::Protocol::Window;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 43;
+our $VERSION = 44;
 
 sub new {
   my $class = shift;
@@ -42,7 +43,6 @@ sub new {
   my $colormap = $X->{'default_colormap'};
   my ($width, $height) = App::MathImage::X11::Protocol::Extras::window_size ($X, $window);
 
-  require Image::Base::X11::Protocol::Window;
   my $image_window = Image::Base::X11::Protocol::Window->new
     (-X            => $X,
      -window       => $window,

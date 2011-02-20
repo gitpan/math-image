@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use Test::More tests => 306;
+use Test::More tests => 332;
 
 use lib 't';
 use MyTestHelpers;
@@ -99,6 +99,60 @@ sub _delete_duplicates {
 {
   my $gen = App::MathImage::Generator->new;
   foreach my $elem (
+                    # ChampernowneBinaryLsb.pm~
+                    # ChampernowneBinaryLsb.pm
+                    # CountPrimeFactors.pm~
+                    # CountPrimeFactors.pm
+                    # DigitsModulo.pm~
+                    # DigitsModulo.pm
+                    # Expression.pm~
+                    # Expression.pm
+                    # FractionDigits.pm~
+                    # FractionDigits.pm
+                    # Ln2Bits.pm~
+                    # Ln2Bits.pm
+                    # MobiusFunction.pm~
+                    # MobiusFunction.pm
+                    # ObstinateNumbers.pm~
+                    # ObstinateNumbers.pm
+                    # PiBits.pm~
+                    # PiBits.pm
+                    # Repdigits.pm~
+                    # Repdigits.pm
+                    # SqrtDigits.pm~
+                    # SqrtDigits.pm
+                    
+                    [ 'ObstinateNumbers', 1,
+                      [ 1, 3, 127, ] ],
+                    
+                    [ 'Fibonacci', 1,
+                      [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144,
+                        233, 377, 610, 987, 1597, ] ],
+                    [ 'Tribonacci', 0,
+                      [ 0, 0, 1, 1, 2, 4, 7, 13, 24, ],
+                    ],
+                    
+                    [ 'AbundantNumbers', 0,
+                      [  12, 18, 20, 24, 30 ],
+                    ],
+                    
+                    [ 'Factorials', 0,
+                      [  1, 2, 6, 24, 120, 720 ],
+                    ],
+                    [ 'LucasNumbers', 0,
+                      [  1, 3, 4, 7, 11, 18, 29 ],
+                    ],
+                    [ 'RepdigitAnyBase', 0,
+                      [  0,
+                         7,  # 111 base 2
+                         13, # 111 base 3
+                         15, # 1111 base 2
+                         21, # 111 base 4
+                         26, # 222 base 3
+                         31, # 11111 base 2
+                      ],
+                    ],
+                    
                     # Broken
                     # [ 'RadixWithoutDigit', 0,
                     #   [ 1, 2,    # 1,2
@@ -128,7 +182,7 @@ sub _delete_duplicates {
                         digit => 2,
                       },
                     ],
-
+                    
                     # Broken ...
                     # [ 'RadixWithoutDigit', 0,
                     #   [ 0x01, 0x02, 0x03,    # 1,2,3
@@ -340,11 +394,11 @@ sub _delete_duplicates {
                       [ 0, 1, 14, 39, 76, 125, 186, ],
                       { polygonal => 14 },
                     ],
-
-
+                    
+                    
                     [ 'Tetrahedral', 1,
                       [ 1, 4, 10, 20, 35, 56, 84, 120 ] ],
-
+                    
                     # with a!=b
                     [ 'UndulatingNumbers', 0,
                       [ 0,1,2,3,4,5,6,7,8,9,
@@ -368,7 +422,7 @@ sub _delete_duplicates {
                         909,919,929,939,949,959,969,979,989,
                         1010,1212,1313,1414,1515,1616,1717,1818,1919,
                       ] ],
-
+                    
                     # with a!=b
                     [ 'UndulatingNumbers', 0,
                       [ 0x0,   # 0b00
@@ -384,8 +438,8 @@ sub _delete_duplicates {
                       ],
                       { radix => 2 },
                     ],
-
-                    # # http://www.research.att.com/~njas/sequences/A033619
+                    
+                    # # http://oeis.org/A033619
                     # # including a==b
                     # [ 'UndulatingNumbers', 0,
                     #   [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
@@ -397,7 +451,7 @@ sub _delete_duplicates {
                     #     80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92,
                     #     93, 94, 95, 96, 97, 98, 99, 101, 111, 121, 131, 141,
                     #     151 ] ],
-
+                    
                     [ 'Emirps', 0,
                       [ 13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157,
                         167, 179, 199, 311, 337, 347, 359, 389, 701, 709,
@@ -405,53 +459,53 @@ sub _delete_duplicates {
                         967, 971, 983, 991, 1009, 1021, 1031, 1033, 1061,
                         1069, 1091, 1097, 1103, 1109, 1151, 1153, 1181, 1193
                       ] ],
-
+                    
                     [ 'All', 0,
                       [ 0, 1, 2, 3, 4, 5, 6, 7 ] ],
                     [ 'All', 17,
                       [ 17, 18, 19 ] ],
-
+                    
                     [ 'Odd', 1,
                       [ 1, 3, 5, 7, 9, 11, 13 ] ],
                     [ 'Odd', 6,
                       [ 7, 9, 11, 13 ] ],
-
+                    
                     [ 'Squares', 1,
                       [ 1, 4, 9, 16, 25 ] ],
                     [ 'Squares', 3,
                       [ 4, 9, 16, 25 ] ],
-
+                    
                     [ 'Cubes', 1,
                       [ 1, 8, 27, 64, 125 ] ],
                     [ 'Cubes', 3,
                       [ 8, 27, 64, 125 ] ],
-
+                    
                     [ 'Triangular', 1,
                       [ 1, 3, 6, 10, 15, 21 ] ],
                     [ 'Triangular', 5,
                       [ 6, 10, 15, 21 ] ],
-
+                    
                     [ 'Pronic', 1,
                       [ 2, 6, 12, 20, 30, 42 ] ],
                     [ 'Pronic', 5,
                       [ 6, 12, 20, 30, 42 ] ],
-
+                    
                     [ 'Even', 0,
                       [ 0, 2, 4, 6, 8, 10, 12 ] ],
                     [ 'Even', 5,
                       [ 6, 8, 10, 12 ] ],
-
-                    [ 'Fibonacci', 1,
-                      [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144,
-                        233, 377, 610, 987, 1597, ] ],
-
+                    [ 'Multiples', 0,
+                      [ 0, 2, 4, 6, 8, 10, 12 ],
+                      { multiples => 2 },
+                    ],
+                    
                     [ 'Perrin', 0,
                       [ 3, 0, 2, 3, 2, 5, 5, 7, 10, 12, 17 ] ],
                     [ 'Padovan', 0,
                       [ 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, 12 ],
                       undef,
                       { bfile_offset => 5 } ],
-
+                    
                     [ 'PellNumbers', 0,
                       [ 0, 1, 2, 5, 12, 29, 70, 169, 408, 985, 2378, 5741,
                         13860, 33461, 80782, 195025, 470832, 1136689,
@@ -460,12 +514,12 @@ sub _delete_duplicates {
                       [ 12, 29, 70, 169, 408, 985, 2378, 5741,
                         13860, 33461, 80782, 195025, 470832, 1136689,
                       ] ],
-
+                    
                     [ 'Primes', 1,
                       [ 2, 3, 5, 7, 11, 13, 17 ] ],
                     [ 'Primes', 10,
                       [ 11, 13, 17 ] ],
-
+                    
                     [ 'TwinPrimes', 0,
                       [ 3, 5, 7, 11, 13, 17, 19, 29, 31 ],
                       { pairs => 'both' },
@@ -474,7 +528,7 @@ sub _delete_duplicates {
                       [ 11, 13, 17, 19, 29, 31 ],
                       { pairs => 'both' },
                     ],
-
+                    
                     [ 'TwinPrimes', 0,
                       [ 3, 5, 11, 17, 29 ],
                       { pairs => 'first' },
@@ -483,7 +537,7 @@ sub _delete_duplicates {
                       [ 5, 11, 17, 29 ],
                       { pairs => 'first' },
                     ],
-
+                    
                     [ 'TwinPrimes', 0,
                       [ 5, 7, 13, 19, 31 ],
                       { pairs => 'second' },
@@ -492,9 +546,9 @@ sub _delete_duplicates {
                       [ 7, 13, 19, 31 ],
                       { pairs => 'second' },
                     ],
-
+                    
                     # sloanes
-                    # http://www.research.att.com/~njas/sequences/A001358
+                    # http://oeis.org/A001358
                     [ 'SemiPrimes', 0,
                       [ 4, 6, 9, 10, 14, 15, 21, 22, 25, 26, 33, 34, 35, 38,
                         39, 46, 49, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82,
@@ -502,13 +556,13 @@ sub _delete_duplicates {
                         121, 122, 123, 129, 133, 134, 141, 142, 143, 145,
                         146, 155, 158, 159, 161, 166, 169, 177, 178, 183,
                         185, 187 ] ],
-
+                    
                     # [ 'SemiPrimesOdd', 0,
                     #   [ 9, 15, 21, 25, 33, 35,
                     #     39, 49, 51, 55, 57, 65, 69, 77,
                     #   ] ],
 
-                    # http://www.research.att.com/~njas/sequences/A005384
+                    # http://oeis.org/A005384
                     [ 'SophieGermainPrimes', 0,
                       [ 2, 3, 5, 11, 23, 29, 41, 53, 83, 89, 113, 131, 173,
                         179, 191, 233, 239, 251, 281, 293, 359, 419, 431,
@@ -518,7 +572,7 @@ sub _delete_duplicates {
                         1511, 1559 ],
                     ],
 
-                    # http://www.research.att.com/~njas/sequences/A005385
+                    # http://oeis.org/A005385
                     [ 'SafePrimes', 0,
                       [ 5, 7, 11, 23, 47, 59, 83, 107, 167, 179, 227, 263,
                         347, 359, 383, 467, 479, 503, 563, 587, 719, 839,
@@ -529,7 +583,7 @@ sub _delete_duplicates {
                     ],
 
                     # sloanes
-                    # http://www.research.att.com/~njas/sequences/A005224
+                    # http://oeis.org/A005224
                     [ 'Aronson', 0,
                       [ 1, 4, 11, 16, 24, 29, 33, 35, 39, 45, 47, 51, 56, 58,
                         62, 64, 69, 73, 78, 80, 84, 89, 94, 99, 104, 111,
@@ -676,7 +730,7 @@ sub _delete_duplicates {
 
                     # [ 'GolayRudinShapiro', 0,
                     #   [ 0,1,2,4,5,7 ] ],
-                    # http://www.research.att.com/~njas/sequences/A022155
+                    # http://oeis.org/A022155
                     # positions of -1, odd num of "11"s
                     [ 'GolayRudinShapiro', 3,
                       [ 3, 6, 11, 12, 13, 15, 19, 22, 24, 25,
@@ -724,7 +778,8 @@ sub _delete_duplicates {
 
           my $got = [ map {($values_obj->next)[0]} 0 .. $#$want ];
           if (@$got < 200 || ! $bfile) {
-            diag "$name ". join(',', map {defined() ? $_ : 'undef'} @$got);
+            diag "$name got ". join(',', map {defined() ? $_ : 'undef'} @$got);
+            diag "$name want ". join(',', map {defined() ? $_ : 'undef'} @$want);
           }
           is_deeply ($got, $want, "$name lo=$lo hi=$hi");
 
@@ -753,13 +808,14 @@ sub _delete_duplicates {
           }
         }
 
-        my $anum = $test_options->{'anum'} || ($values_obj
-                                                 && $values_obj->can('oeis')
-                                               &&  $values_obj->oeis);
-        if (! $anum) {
+        my $oeis_number = $test_options->{'oeis_number'}
+          || ($values_obj
+              && $values_obj->can('oeis')
+              &&  $values_obj->oeis);
+        if (! $oeis_number) {
           last;
         }
-        if ($want = MyOEIS::read_values($anum)) {
+        if ($want = MyOEIS::read_values($oeis_number)) {
           $lo = 0;
         } else {
           skip "due to no oeis bfile or html available", 2;

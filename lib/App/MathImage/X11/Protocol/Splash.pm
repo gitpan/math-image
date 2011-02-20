@@ -25,7 +25,7 @@ use warnings;
 use List::Util 'max';
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -119,7 +119,7 @@ App::MathImage::X11::Protocol::Splash -- temporary splash window
 
 =item C<< $splash = App::MathImage::X11::Protocol::Splash->new (key=>value,...) >>
 
-Create and return a new C<Splash> object.  The key/value parameters are
+Create and return a new Splash object.  The key/value parameters are
 
     X         X11::Protocol object (mandatory)
     pixmap    xid of pixmap to display

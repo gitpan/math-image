@@ -25,21 +25,21 @@ use base 'App::MathImage::Values';
 use App::MathImage::Values::Base::Radix;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
 
-use constant parameter_list
-  => (App::MathImage::Values::Base::Radix::parameter_common_radix(),
-      { name    => 'digit',
-        type    => 'integer',
-        display => __('Digit'),
-        default => -1,
-        minimum => -1,
-        width   => 4,
-        description => __('Digit to exclude.  Default -1 means the highest digit, radix-1.'),
-      });
+use constant parameter_list =>
+  (App::MathImage::Values::Base::Radix::parameter_common_radix(),
+   { name    => 'digit',
+     type    => 'integer',
+     display => __('Digit'),
+     default => -1,
+     minimum => -1,
+     width   => 4,
+     description => __('Digit to exclude.  Default -1 means the highest digit, radix-1.'),
+   });
 
 my %oeis = (3 => { 0 => 'A032924', # base 3 no 0
                    1 => 'A005823', # base 3 no 1

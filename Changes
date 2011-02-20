@@ -17,6 +17,11 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 44, February 2011
+    - fix for File/Save
+    - fix for AbundantNumbers pred()
+    - new Tools/Golly passing an image to "golly" program
+
 Version 43, January 2011
     - PixelRings split out
 

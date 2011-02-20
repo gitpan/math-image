@@ -27,7 +27,7 @@ use App::MathImage::ValuesFile;
 use App::MathImage::ValuesFileWriter;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,10 +37,6 @@ use constant description => __('Odd numbers N not representable as prime+2^k.');
 use constant values_min => 1;
 use constant oeis => 'A133122'; # obstinate
 # OEIS: A133122
-
-# each 2-bit vec() value is
-#    bit 01 = 1 prime
-#    bit 10 = 2 obstinate
 
 sub new {
   my ($class, %options) = @_;
@@ -57,7 +53,7 @@ sub new {
     return $vf;
   }
 
-  my $i = 1;
+  my $i = -1;
   my $vfw = App::MathImage::ValuesFileWriter->new
     (package => __PACKAGE__,
      hi      => $hi);
@@ -66,11 +62,16 @@ sub new {
                      hi => $hi,
                      vfw => $vfw,
                    }, $class;
-  $self->{'string'} = "\377" x (($hi+1)/4);  # 4 of 2 bits each
-  vec($self->{'string'}, 0,2) = 0;  # not prime, not obstinate
-  vec($self->{'string'}, 1,2) = 0;  # not prime, not obstinate
-  vec($self->{'string'}, 2,2) = 0;  # not prime, not obstinate
-  vec($self->{'string'}, 3,2) = 1;  # is prime, not obstinate
+
+  # each 2-bit vec() value is
+  #    bit 01 = 1 prime
+  #    bit 10 = 2 obstinate
+
+  $self->{'string'} = "\377" x (($hi+3)/4);  # each byte 4 of 2 bits each
+  vec($self->{'string'}, 0,2) = 0;  # even
+  vec($self->{'string'}, 1,2) = 2;  # not prime, cannot express
+  vec($self->{'string'}, 2,2) = 0;  # even
+  vec($self->{'string'}, 3,2) = 3;  # prime, cannot express
 
   while ($i < $lo-2) {
     $self->next;
@@ -96,7 +97,7 @@ sub next {
     if ($ret & 1) {
       ### prime: $i
       for (my $power = 2; $power <= $hi; $power <<= 1) {
-      ### not: $i+$power
+        ### not: $i+$power
         vec($$sref, $i+$power,2) &= 1; # not obstinate
       }
       for (my $j = $i; $j <= $hi; $j += $i) {
