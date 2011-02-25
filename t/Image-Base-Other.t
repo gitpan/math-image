@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 17;
 
 use App::MathImage::Image::Base::Other;

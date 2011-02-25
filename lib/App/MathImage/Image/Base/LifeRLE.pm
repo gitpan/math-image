@@ -1,3 +1,6 @@
+# Text fill space vs \0
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -25,7 +28,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base::Text;
 @ISA = ('Image::Base::Text');
 
-$VERSION = 44;
+$VERSION = 45;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -199,6 +202,15 @@ sub save_fh {
   return print $fh "!\n";
 }
 
+my %colour_to_bit = (' ' => 0,
+                     '.' => 0,
+                     'b' => 0,
+                     'clear' => 0,
+                     'black' => 0,
+
+                     'o' => 1,
+                     'set' => 1,
+                     'white' => 1);
 sub colour_to_character {
   my ($self, $colour) = @_;
   ### colour_to_character(): $colour
@@ -206,10 +218,10 @@ sub colour_to_character {
     if ($colour > 255) {
       croak "Cell colours only go up to 255, got $colour";
     }
-  } elsif ($colour eq 'b' || $colour eq ' ') {
-    $colour = 0;
-  } elsif ($colour eq 'o') {
-    $colour = 1;
+  } elsif (defined (my $bit = $colour_to_bit{$colour})) {
+    $colour = $bit;
+  } elsif ((my $idx = index($ABC,$c)) >= 0) {
+    $colour = $idx+1;
   } else {
     croak "Unrecognised cell colour: $colour";
   }

@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::TwinPrimes2;
+package App::MathImage::NumSeq::Sequence::TwinPrimes2;
 use 5.004;
 use strict;
 use warnings;
 use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values::TwinPrimes1';
+use base 'App::MathImage::NumSeq::Sequence::TwinPrimes1';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

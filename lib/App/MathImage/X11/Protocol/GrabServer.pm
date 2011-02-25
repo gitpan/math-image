@@ -18,18 +18,20 @@
 
 package App::MathImage::X11::Protocol::GrabServer;
 use strict;
-use warnings;
 BEGIN {
-  # needing the XS version of Scalar::Util and new enough to have weakening
+  # weaken() if available, which means new enough Perl to have weakening,
+  # and Scalar::Util with its XS code
   eval "use Scalar::Util 'weaken'; 1"
-    or *weaken = sub {};
+    or eval "#line ".(__LINE__+1)." \"".__FILE__."\"\n" . <<'HERE' or die;
+sub weaken {} # otherwise noop
+HERE
 }
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 sub new {
   my ($class, $X) = @_;
@@ -63,7 +65,7 @@ sub ungrab {
   if (delete $self->{'grabbed'}) {
     my $X = $self->{'X'} || return;
     if (--$X->{__PACKAGE__.'.count'} <= 0) {
-      delete $X->{__PACKAGE__.'.count'};
+      delete $X->{__PACKAGE__.'.count'}; # cleanup
       ### final X->UngrabServer
       $X->UngrabServer;
       $X->flush;
@@ -72,18 +74,19 @@ sub ungrab {
   ### grab count now: $self->{'X'} && $self->{'X'}->{__PACKAGE__.'.count'}
 }
 
-sub call_with_grab {
-  my $class = shift;
-  my $X = shift;
-  my $subr = shift;
-  my $grab = $class->new ($X);
-  &$subr (@_);
-}
+# # not sure about this ...
+# sub call_with_grab {
+#   my $class = shift;
+#   my $X = shift;
+#   my $subr = shift;
+#   my $grab = $class->new ($X);
+#   &$subr (@_);
+# }
 
 1;
 __END__
 
-=for stopwords Ryde GrabServer ungrab ungrabs ungrabbed
+=for stopwords Ryde GrabServer UngrabServer ungrab ungrabs ungrabbed
 
 =head1 NAME
 
@@ -96,31 +99,42 @@ App::MathImage::X11::Protocol::GrabServer -- object-oriented server grabbing
  use App::MathImage::X11::Protocol::GrabServer;
  {
    my $grab = App::MathImage::X11::Protocol::GrabServer->new ($X); 
-   ...
+   do_some_things();
    # UngrabServer when $grab destroyed
  }
 
 =head1 DESCRIPTION
 
-This is an object-oriented approach to GrabServer.  A grab object represents
-a desired grab.  When the last is destroyed an C<$X-E<gt>UngrabServer> is
-done.
+This is an object-oriented approach to GrabServer / UngrabServer.  A grab
+object represents a desired server grab on an C<X11::Protocol> connection.
+The first grab object created does a GrabServer and the last to be destroyed
+does an UngrabServer.
 
-It can be used in a block as a kind of scope guard to grab the server to
-make a few operations atomic (usually for something global like root window
-properties etc).  Grabs done this way can nest or overlap which is good for
-a library where an ungrab should wait until the end of any outermost desired
-grab.
+The idea is that is can be easier to manage the lifespan of an object in a
+block or a state object than to be sure of catching all exits.  Grab objects
+can nest or overlap, which is good in a library or sub-function where the
+ungrab should wait until the end of the outermost desired grab.
 
-A grab object can be held for an extended time, perhaps for some state
-driven interaction, but care should be taken not to hold the server too
-long, as other client programs are locked out.
+A server grab is usually done to make a few operations atomic, usually
+something global like root window properties etc.  The block-based temporary
+object shown in the synopsis above is typical.  It's also possible to hold a
+grab object for an extended time, perhaps for some state driven interaction,
+but care should be taken not to grab for too long since other client
+programs are locked out.
 
-When weak references are available (Perl 5.6 and up), only a weak reference
-is held to the target C<X11::Protocol> object.  This means the grab doesn't
-keep it alive and connected once nothing else is interested.  The server
-ungrabs automatically when the connection is closed, so there's no need for
-an C<$X-E<gt>UngrabServer> in that case.
+=head2 Weak C<$X>
+
+If weak references are available, which means Perl 5.6 and up and
+C<Scalar::Util> XS code, then only a weak reference is held to the target
+C<X11::Protocol> object.  This means the grab doesn't keep it alive and
+connected once nothing else is interested.  When the connection is destroyed
+the server ungrabs automatically, so there's no need for an explicit
+C<$X-E<gt>UngrabServer> in that case.
+
+The effect of the weakening is that C<$X> can be destroyed anywhere within a
+grab block once nothing else refers to it, the same as if there was no grab.
+Without the weakening it would wait until the end of the block.  In practice
+this is unlikely to make much difference.
 
 =head1 FUNCTIONS
 
@@ -128,22 +142,29 @@ an C<$X-E<gt>UngrabServer> in that case.
 
 =item C<< $grab = App::MathImage::X11::Protocol::GrabServer->new ($X) >>
 
-C<$X> should be an C<X11::Protocol> object.  Grab the server with
-C<$X-E<gt>GrabServer> (if not already done)and return a C<$grab> object
-representing the grab.
+C<$X> should be an C<X11::Protocol> object.  Create and return a C<$grab>
+object representing a grab of the C<$X> server.
+
+If this new grab object is the only one currently on C<$X> then do an
+C<$X-E<gt>GrabServer>.
+
+=item C<< $grab->grab >>
 
 =item C<< $grab->ungrab >>
 
-Explicitly ungrab the C<$grab> object.  This happens when C<$grab> is
-destroyed, but can be done sooner if desired.  If C<$grab> has already been
-ungrabbed then nothing is done.
+Explicitly grab or ungrab the C<$grab> object.  If it's already grabbing or
+not grabbing then do nothing.
+
+An ungrab is done automatically when C<$grab> is destroyed, but
+C<$grab-E<gt>ungrab()> can do it sooner.  A C<$grab-E<gt>grab()> can re-grab
+with that object if desired.
 
 =back
 
 =head1 SEE ALSO
 
 L<X11::Protocol>,
-L<App::MathImage::X11::Protocol::Extras>
+L<App::MathImage::X11::Protocol::MoreUtils>
 
 =head1 HOME PAGE
 

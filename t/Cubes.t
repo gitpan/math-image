@@ -26,7 +26,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::Cubes;
+use App::MathImage::NumSeq::Sequence::Cubes;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,14 +35,14 @@ use App::MathImage::Values::Cubes;
 # VERSION
 
 {
-  my $want_version = 44;
-  is ($App::MathImage::Values::Cubes::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::Cubes->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 45;
+  is ($App::MathImage::NumSeq::Sequence::Cubes::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Sequence::Cubes->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::Cubes->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Sequence::Cubes->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::Cubes->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Sequence::Cubes->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -51,7 +51,7 @@ use App::MathImage::Values::Cubes;
 # pred()
 
 {
-  my $values_obj = App::MathImage::Values::Cubes->new;
+  my $values_obj = App::MathImage::NumSeq::Sequence::Cubes->new;
   ok ($values_obj->pred(27),
       'pred() 27 is cube');
 

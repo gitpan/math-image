@@ -36,7 +36,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -67,6 +67,7 @@ use constant default_options => {
                                  oeis_number   => 290,
                                  planepath_class => 'SquareSpiral',
                                  delta_type      => 'X',
+                                 coord_type      => 'X',
                                 };
 
 sub new {
@@ -83,10 +84,10 @@ sub new {
 use constant values_choices => do {
   my %choices;
   foreach my $module (Module::Util::find_in_namespace
-                      ('App::MathImage::Values')) {
+                      ('App::MathImage::NumSeq::Sequence')) {
     my $choice = $module;
-    $choice =~ s/^App::MathImage::Values:://;
-    next if $choice =~ /::/; # not sub-parts
+    $choice =~ s/^App::MathImage::NumSeq::Sequence:://;
+    $choice =~ s/::/-/g;
     $choices{$choice} = 1;
   }
   if (! defined (Module::Util::find_installed('Math::Aronson'))) {
@@ -99,7 +100,7 @@ use constant values_choices => do {
   }
   my @choices;
   foreach my $prefer (qw(Primes
-                         CountPrimeFactors
+                         Count-PrimeFactors
                          MobiusFunction
                          TwinPrimes
                          SophieGermainPrimes
@@ -123,10 +124,10 @@ use constant values_choices => do {
                          Padovan
                          Tribonacci
                          Factorials
-                         FractionDigits
-                         SqrtDigits
-                         PiBits
-                         Ln2Bits
+                         Digits-Fraction
+                         Digits-Sqrt
+                         Digits-PiBits
+                         Digits-Ln2Bits
                          Odd
                          Even
                          All
@@ -166,7 +167,8 @@ use constant values_choices => do {
 sub values_class {
   my ($class_or_self, $values) = @_;
   $values ||= $class_or_self->{'values'};
-  my $values_class = "App::MathImage::Values::$values";
+  $values =~ s/-/::/g;
+  my $values_class = "App::MathImage::NumSeq::Sequence::$values";
   Module::Load::load ($values_class);
   return $values_class;
 }
@@ -201,18 +203,17 @@ use constant path_choices => do {
                    HilbertCurve
                    ZOrderCurve
 
-                   ArchimedeanChords
-                   OctagramSpiral
-                   Flowsnake
+                   MathImageArchimedeanChords
+                   MathImageOctagramSpiral
+                   MathImageFlowsnake
                  );
   my %choices;
-  foreach my $base ('Math::PlanePath', 'App::MathImage::PlanePath') {
-    foreach my $module (Module::Util::find_in_namespace($base)) {
-      my $choice = $module;
-      $choice =~ s/^\Q$base\E:://;
-      next if $choice =~ /::/; # not sub-parts
-      $choices{$choice} = 1;
-    }
+  my $base = 'Math::PlanePath';
+  foreach my $module (Module::Util::find_in_namespace($base)) {
+    my $choice = $module;
+    $choice =~ s/^\Q$base\E:://;
+    next if $choice =~ /::/; # not sub-parts
+    $choices{$choice} = 1;
   }
   delete @choices{@choices};
   ### path extras: %choices
@@ -429,11 +430,9 @@ sub description {
 
 sub path_choice_to_class {
   my ($self, $path) = @_;
-  foreach my $class ("Math::PlanePath::$path",
-                     "App::MathImage::PlanePath::$path") {
-    if (Module::Util::find_installed ($class)) {
-      return $class;
-    }
+  my $class = "Math::PlanePath::$path";
+  if (Module::Util::find_installed ($class)) {
+    return $class;
   }
   return undef;
 }
@@ -476,7 +475,7 @@ sub y_negative {
   my $path_object = $self->path_object;
 
   # override flowsnake looping around to negatives takes a very long time
-  if ($path_object->isa('App::MathImage::PlanePath::Flowsnake')) {
+  if ($path_object->isa('Math::PlanePath::MathImageFlowsnake')) {
     return 0;
   } 
 
@@ -679,7 +678,7 @@ sub draw_Image_start {
     my $base = 4;
     my $end = -1;
     my $yfactor = 1;
-    if ($path_object->isa ('App::MathImage::PlanePath::Flowsnake')) {
+    if ($path_object->isa ('Math::PlanePath::MathImageFlowsnake')) {
       $base = 7;
       $yfactor = sqrt(3);
       $end = 0;
@@ -688,7 +687,7 @@ sub draw_Image_start {
     }
     $n_hi = $base ** $self->{'level'} + $end;
     my $n_angle = $n_hi;
-    if ($path_object->isa ('App::MathImage::PlanePath::Flowsnake')) {
+    if ($path_object->isa ('Math::PlanePath::MathImageFlowsnake')) {
       $n_angle = 6;
       foreach (2 .. $level) {
         $n_angle = (7 * $n_angle + 0);
@@ -775,8 +774,8 @@ sub draw_Image_start {
   }
 
   if ($self->{'values'} eq 'Lines') {
-    foreach my $class ('App::MathImage::PlanePath::Flowsnake',
-                       'App::MathImage::PlanePath::OctagramSpiral',
+    foreach my $class ('Math::PlanePath::MathImageFlowsnake',
+                       'Math::PlanePath::MathImageOctagramSpiral',
                       ) {
       if ($path_object->isa($class)) {
         $self->{'lines_full_step'} = 1;

@@ -19,14 +19,13 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 7;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::ObstinateNumbers;
+use App::MathImage::NumSeq::Sequence::ObstinateNumbers;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,14 +34,14 @@ use App::MathImage::Values::ObstinateNumbers;
 # VERSION
 
 {
-  my $want_version = 44;
-  is ($App::MathImage::Values::ObstinateNumbers::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::ObstinateNumbers->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 45;
+  is ($App::MathImage::NumSeq::Sequence::ObstinateNumbers::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Sequence::ObstinateNumbers->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::ObstinateNumbers->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Sequence::ObstinateNumbers->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::ObstinateNumbers->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Sequence::ObstinateNumbers->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -52,7 +51,7 @@ use App::MathImage::Values::ObstinateNumbers;
 
 foreach my $rep (1 .. 3) {
   my $hi = 13000;
-  my $values_obj = App::MathImage::Values::ObstinateNumbers->new
+  my $values_obj = App::MathImage::NumSeq::Sequence::ObstinateNumbers->new
     (lo => 1,
      hi => $hi);
   my @next = (0) x ($hi+1);

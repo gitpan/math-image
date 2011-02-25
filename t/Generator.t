@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 36;
 
 use lib 't';
@@ -44,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 44;
+  my $want_version = 45;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 

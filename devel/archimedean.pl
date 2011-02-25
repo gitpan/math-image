@@ -23,7 +23,7 @@ use strict;
 use warnings;
 use Math::Libm 'hypot', 'M_PI';
 use POSIX ();
-use App::MathImage::PlanePath::ArchimedeanChords;
+use Math::PlanePath::MathImageArchimedeanChords;
 
 use lib "$ENV{HOME}/p/path/lib";
 
@@ -32,11 +32,11 @@ use Smart::Comments;
 
 
 {
-  require App::MathImage::PlanePath::ArchimedeanChords;
+  require Math::PlanePath::MathImageArchimedeanChords;
   require Math::PlanePath::TheodorusSpiral;
   require Math::PlanePath::VogelFloret;
   #my $path = Math::PlanePath::VogelFloret->new;
-  my $path = App::MathImage::PlanePath::ArchimedeanChords->new;
+  my $path = Math::PlanePath::MathImageArchimedeanChords->new;
   ### $path
   my $n = $path->xy_to_n (600, 0);
   ### $n
@@ -228,7 +228,7 @@ sub next_t {
   my $y_origin = int($height/2);
   my $x_origin = int($width/2);
 
-  my $path = App::MathImage::PlanePath::ArchimedeanChords->new;
+  my $path = Math::PlanePath::MathImageArchimedeanChords->new;
   my @rows = (' ' x $width) x $height;
 
   foreach my $n (0 .. 60) {
@@ -257,8 +257,8 @@ sub next_t {
 
 {
   foreach my $i (0 .. 50) {
-    my $theta = App::MathImage::PlanePath::ArchimedeanChords::_inverse($i);
-    my $length = App::MathImage::PlanePath::ArchimedeanChords::_arc_length($theta);
+    my $theta = Math::PlanePath::MathImageArchimedeanChords::_inverse($i);
+    my $length = Math::PlanePath::MathImageArchimedeanChords::_arc_length($theta);
     printf "%2d %8.3f %8.3f\n", $i, $theta, $length;
   }
   exit 0;

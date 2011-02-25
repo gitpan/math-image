@@ -19,8 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
-use POSIX ();
 use Test::More tests => 332;
 
 use lib 't';
@@ -31,10 +29,9 @@ use MyOEIS;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-require POSIX;
+use POSIX ();
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 require App::MathImage::Generator;
-
 
 use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
 use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
@@ -94,15 +91,14 @@ sub _delete_duplicates {
 }
 
 #------------------------------------------------------------------------------
-# App::MathImage::Values various classes
+# App::MathImage::NumSeq::Sequence various classes
 
 {
   my $gen = App::MathImage::Generator->new;
   foreach my $elem (
                     # ChampernowneBinaryLsb.pm~
                     # ChampernowneBinaryLsb.pm
-                    # CountPrimeFactors.pm~
-                    # CountPrimeFactors.pm
+                    # Count/PrimeFactors.pm
                     # DigitsModulo.pm~
                     # DigitsModulo.pm
                     # Expression.pm~
@@ -756,7 +752,7 @@ sub _delete_duplicates {
         my $hi = $want->[-1];
         diag "$name $lo to ",$hi;
 
-        my $values_class = "App::MathImage::Values::$values";
+        my $values_class = "App::MathImage::NumSeq::Sequence::$values";
         my $values_obj;
       SKIP: {
           require Module::Load;

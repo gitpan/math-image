@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::TwinPrimes1;
+package App::MathImage::NumSeq::Sequence::TwinPrimes1;
 use 5.004;
 use strict;
 use warnings;
@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::ValuesArray';
+use base 'App::MathImage::NumSeq::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -45,8 +45,8 @@ sub new {
   ### $lo
   ### $offset
 
-  require App::MathImage::Values::Primes;
-  my @array = App::MathImage::Values::Primes::_my_primes_list ($lo-2, $hi+2);
+  require App::MathImage::NumSeq::Sequence::Primes;
+  my @array = App::MathImage::NumSeq::Sequence::Primes::_my_primes_list ($lo-2, $hi+2);
 
   my $to = 0;
   foreach my $i (0 .. $#array - 1) {

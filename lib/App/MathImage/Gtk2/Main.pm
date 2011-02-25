@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 44;
+our $VERSION = 45;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -83,17 +83,17 @@ use Glib::Object::Subclass
                 ];
 
 my %_values_to_mnemonic =
-  (Primes          => __('_Primes'),
-   TwinPrimes      => __('_Twin Primes'),
-   Squares         => __('S_quares'),
-   Pronic          => __('Pro_nic'),
-   Triangular      => __('Trian_gular'),
-   Cubes           => __('_Cubes'),
-   Tetrahedral     => __('_Tetrahedral'),
-   Perrin          => __('Perr_in'),
-   Padovan         => __('Pado_van'),
-   Fibonacci       => __('_Fibonacci'),
-   FractionDigits  => __('F_raction Digits'),
+  (Primes             => __('_Primes'),
+   TwinPrimes         => __('_Twin Primes'),
+   Squares            => __('S_quares'),
+   Pronic             => __('Pro_nic'),
+   Triangular         => __('Trian_gular'),
+   Cubes              => __('_Cubes'),
+   Tetrahedral        => __('_Tetrahedral'),
+   Perrin             => __('Perr_in'),
+   Padovan            => __('Pado_van'),
+   Fibonacci          => __('_Fibonacci'),
+   'Digits-Fraction'  => __('F_raction Digits'),
    Polygonal       => __('Pol_ygonal Numbers'),
    PiBits          => __('_Pi Bits'),
    Ln2Bits         => __x('_Log Natural {logarg} Bits', logarg => 2),
@@ -857,6 +857,12 @@ sub _do_values_changed {
         if (! defined $min) { $min = POSIX::INT_MIN; }
         my $max = $pinfo->{'maximum'};
         if (! defined $max) { $max = POSIX::INT_MAX; }
+
+        my $spin_class = 'Gtk2::SpinButton';
+        if (($pinfo->{'type_special'}||'') eq 'oeis') {
+          require App::MathImage::Gtk2::OeisSpinButton;
+          $spin_class = 'App::MathImage::Gtk2::OeisSpinButton';
+        }
         my $adj = Gtk2::Adjustment->new ($pinfo->{'default'} || 0,  # initial
                                          $min,
                                          $max,
@@ -864,7 +870,7 @@ sub _do_values_changed {
                                          0);       # page_size
         Glib::Ex::ConnectProperties->new ([$adj,'value'],
                                           [$draw,"values-$pname"]);
-        my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
+        my $spin = $spin_class->new ($adj, 10, 0);
         $spin->set (xalign => 1);
         if (defined (my $width = $pinfo->{'width'})) {
           $spin->set_width_chars ($width); # overriding $max
@@ -1320,9 +1326,18 @@ sub command_line {
       = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
   }
 
+  my $gen_options = $mathimage->{'gen_options'};
+  my $width = delete $gen_options->{'width'};
+  my $height = delete $gen_options->{'height'};
+
   if ($mathimage->{'gui_options'}->{'flash'}) {
     my $rootwin = Gtk2::Gdk->get_default_root_window;
-    my ($width, $height) = $rootwin->get_size;
+    # if ($mathimage->{'gui_options'}->{'fullscreen'}) {
+    # } els
+    # ($width, $height) = (map {$_*0.8} $rootwin->get_size);
+    if (! $width) {
+      ($width, $height) = $rootwin->get_size;
+    }
 
     require Image::Base::Gtk2::Gdk::Pixmap;
     my $image = Image::Base::Gtk2::Gdk::Pixmap->new
@@ -1334,26 +1349,21 @@ sub command_line {
     my $pixmap = $image->get('-pixmap');
 
     require App::MathImage::Gtk2::Ex::Splash;
-    App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
-                                           pixmap => $pixmap,
-                                           time => .75);
+    _flash (pixmap => $pixmap, time => .75);
     return 0;
   }
 
-  my $toplevel = $class->new
+  my $self = $class->new
     (fullscreen => delete $mathimage->{'gui_options'}->{'fullscreen'});
-  $toplevel->signal_connect (destroy => sub { Gtk2->main_quit });
+  $self->signal_connect (destroy => sub { Gtk2->main_quit });
 
-  my $gen_options = $mathimage->{'gen_options'};
-  my $draw = $toplevel->{'draw'};
-  if (defined (my $width = delete $gen_options->{'width'})) {
-    my $height = delete $gen_options->{'height'};
+  my $draw = $self->{'draw'};
+  if (defined $width) {
     require Gtk2::Ex::Units;
     Gtk2::Ex::Units::set_default_size_with_subsizes
-        ($toplevel, [ $draw, $width, $height ]);
+        ($self, [ $draw, $width, $height ]);
   } else {
-    $toplevel->set_default_size
-      (map {$_*0.8} $toplevel->get_root_window->get_size);
+    $self->set_default_size (map {$_*0.8} $self->get_root_window->get_size);
   }
   ### draw set: $gen_options
   my $fg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'foreground'});
@@ -1368,9 +1378,26 @@ sub command_line {
   }
   ### draw values now: $draw->get('values')
 
-  $toplevel->show;
+  $self->show;
   Gtk2->main;
   return 0;
+}
+
+sub _flash {
+  my %options = @_;
+  my $time = delete $options{'time'};
+  my $splash = App::MathImage::Gtk2::Ex::Splash->new (%options);
+  $splash->show;
+  my $timeout = Glib::Ex::SourceIds->new
+    (Glib::Timeout->add (($time||.75) * 1000,
+                         \&_run_timeout_handler));
+  Gtk2->main;
+  undef $timeout;
+  $splash->destroy;
+}
+sub _run_timeout_handler {
+  Gtk2->main_quit;
+  return Glib::SOURCE_REMOVE();
 }
 
 1;

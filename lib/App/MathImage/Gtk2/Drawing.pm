@@ -26,7 +26,6 @@ use POSIX ();
 use Scalar::Util;
 use Time::HiRes;
 use List::MoreUtils;
-use Module::Load;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
 use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
 use Gtk2::Pango;
@@ -43,7 +42,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 44;
+our $VERSION = 45;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -152,11 +151,19 @@ use Glib::Object::Subclass
                    'Blurb.',
                    App::MathImage::Generator->default_options->{'planepath_class'},
                    Glib::G_PARAM_READWRITE),
+                  #
                   Glib::ParamSpec->string
                   ('values-delta-type',
                    __('Delta Type'),
                    'Blurb.',
                    App::MathImage::Generator->default_options->{'delta_type'},
+                   Glib::G_PARAM_READWRITE),
+                  #
+                  Glib::ParamSpec->string
+                  ('values-coord-type',
+                   __('Coordinate Type'),
+                   'Blurb.',
+                   App::MathImage::Generator->default_options->{'coord_type'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->int
@@ -550,6 +557,7 @@ sub gen_object {
      oeis_number     => $self->get('values-oeis-number'),
      planepath_class => $self->get('values-planepath-class'),
      delta_type      => $self->get('values-delta-type'),
+     coord_type      => $self->get('values-coord-type'),
      aronson_lang         => $self->get('values-aronson_lang'),
      aronson_letter       => $self->get('values-aronson_letter'),
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),
@@ -632,6 +640,7 @@ sub start_drawing_window {
      oeis_number     => $self->get('values-oeis-number'),
      planepath_class => $self->get('values-planepath-class'),
      delta_type      => $self->get('values-delta-type'),
+     coord_type      => $self->get('values-coord-type'),
      aronson_lang         => $self->get('values-aronson_lang'),
      aronson_letter       => $self->get('values-aronson_letter'),
      aronson_conjunctions => $self->get('values-aronson_conjunctions'),

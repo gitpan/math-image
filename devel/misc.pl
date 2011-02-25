@@ -60,7 +60,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Emirps');
     $values_class = $gen->values_class('Repdigits');
     $values_class = $gen->values_class('UndulatingNumbers');
-    $values_class = $gen->values_class('CountPrimeFactors');
+    $values_class = $gen->values_class('Count-PrimeFactors');
     $values_class = $gen->values_class('TernaryWithout2');
     $values_class = $gen->values_class('PrimeQuadraticEuler');
     $values_class = $gen->values_class('Base4Without3');
@@ -68,7 +68,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Perrin');
     $values_class = $gen->values_class('Palindromes');
     $values_class = $gen->values_class('Polygonal');
-    $values_class = $gen->values_class('SqrtDigits');
+    $values_class = $gen->values_class('Digits-Sqrt');
     $values_class = $gen->values_class('Expression');
     $values_class = $gen->values_class('Pentagonal');
     $values_class = $gen->values_class('TwinPrimes');
@@ -144,8 +144,8 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
 {
-  require App::MathImage::Values::Tribonacci;
-  my $values_obj = App::MathImage::Values::Tribonacci->new (hi => 13);
+  require App::MathImage::NumSeq::Sequence::Tribonacci;
+  my $values_obj = App::MathImage::NumSeq::Sequence::Tribonacci->new (hi => 13);
   my @next = [ $values_obj->next,
                $values_obj->next,
                $values_obj->next,
@@ -208,9 +208,9 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   }
 
   require Math::PlanePath::MultipleRings;
-  require App::MathImage::Values::PrimeQuadraticHonaker;
+  require App::MathImage::NumSeq::Sequence::PrimeQuadraticHonaker;
   require B::Concise;
-  # B::Concise::compile('-exec',\&App::MathImage::Values::PrimeQuadraticHonaker::pred)->();
+  # B::Concise::compile('-exec',\&App::MathImage::NumSeq::Sequence::PrimeQuadraticHonaker::pred)->();
   B::Concise::compile('-exec',\&Math::PlanePath::MultipleRings::_xy_to_d)->();
   exit 0;
 }
@@ -295,7 +295,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 {
   require Module::Util;
   my @modules = Module::Util::find_in_namespace
-    ('App::MathImage::Values');
+    ('App::MathImage::NumSeq::Sequence');
   ### @modules
   exit 0;
 }

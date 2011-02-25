@@ -24,15 +24,66 @@ use POSIX;
 
 use Smart::Comments;
 
+
 {
-  require App::MathImage::Values::OEIS::Catalogue;
-  my @list = App::MathImage::Values::OEIS::Catalogue->num_list;
-  ### @list
+  require App::MathImage::NumSeq::OeisCatalogue;
+  my $info = App::MathImage::NumSeq::OeisCatalogue->num_to_info(32);
+  ### $info
+  { my $num = App::MathImage::NumSeq::OeisCatalogue->num_first;
+    ### $num
+  }
+  { my $num = App::MathImage::NumSeq::OeisCatalogue->num_last;
+    ### $num
+  }
+  {
+    my $num = App::MathImage::NumSeq::OeisCatalogue->num_after(32);
+    ### $num
+  }
+  {
+    my $num = App::MathImage::NumSeq::OeisCatalogue->num_before(32);
+    ### $num
+  }
+  # my @list = App::MathImage::NumSeq::OeisCatalogue->num_list;
+  # ### @list
+
+  {
+    require App::MathImage::NumSeq::OeisCatalogue;
+    foreach my $plugin (App::MathImage::NumSeq::OeisCatalogue->plugins) {
+      ### $plugin
+      ### first: $plugin->num_first
+      ### last: $plugin->num_last
+    }
+  }
+
   exit 0;
 }
 {
-  require App::MathImage::Values::OEIS::Catalogue::Plugin::Files;
-  my $info = App::MathImage::Values::OEIS::Catalogue::Plugin::Files->num_to_info(32);
+  {
+    require File::Find;
+    my $old = \&File::Find::find;
+    no warnings 'redefine';
+    *File::Find::find = sub {
+      print "File::Find::find\n";
+      print "  $_[1]\n";
+      goto $old;
+    };
+  }
+  require App::MathImage::NumSeq::OeisCatalogue;
+  App::MathImage::NumSeq::OeisCatalogue->plugins;
+  print "\n";
+  App::MathImage::NumSeq::OeisCatalogue->plugins;
+  print "\n";
+  App::MathImage::NumSeq::OeisCatalogue->plugins;
+}
+{
+  require App::MathImage::NumSeq::Sequence::OEIS;
+  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_number=>32);
+  ### $seq
+  exit 0;
+}
+{
+  require App::MathImage::NumSeq::OeisCatalogue::Plugin::Files;
+  my $info = App::MathImage::NumSeq::OeisCatalogue::Plugin::Files->num_to_info(32);
   ### $info
 exit 0;
 }

@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test;
 my $test_count;
 BEGIN {
@@ -67,7 +66,7 @@ require App::MathImage::Image::Base::Magick;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 44;
+my $want_version = 45;
 ok ($App::MathImage::Image::Base::Magick::VERSION,
     $want_version,
     'VERSION variable');

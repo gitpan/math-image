@@ -24,6 +24,28 @@ use warnings;
 use Smart::Comments;
 
 {
+  require App::MathImage::Image::Base::LifeBitmap;
+  my $image = App::MathImage::Image::Base::LifeBitmap->new
+    (-file  => '/usr/share/golly/Patterns/Life/Bounded-Grids/cross-surface.rle',
+     # '/usr/share/golly/Patterns/Life/Guns/golly-ticker.rle'
+    );
+  $image->save_fh (\*STDOUT);
+
+  $image->rectangle (0,0, 19,9, 'b', 1);
+  $image->rectangle (2,2, 18,8, 'o', 0);
+  
+  $image->rectangle (0,3, 19,4, 'b', 1);
+  
+  $image->save_fh (\*STDOUT);
+  
+  $image->save ('/tmp/x.rle');
+  $image->load ('/tmp/x.rle');
+  ### rows_array: $image->{'-rows_array'}
+  $image->save_fh (\*STDOUT);
+  exit 0;
+}
+
+{
   require App::MathImage::Image::Base::LifeRLE;
   my $image = App::MathImage::Image::Base::LifeRLE->new
     (-width  => 20,

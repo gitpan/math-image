@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 44;
+our $VERSION = 45;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',

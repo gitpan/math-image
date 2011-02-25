@@ -23,7 +23,7 @@ use Math::Aronson;
 use Iterator::Simple;
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

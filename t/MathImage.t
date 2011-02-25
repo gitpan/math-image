@@ -19,7 +19,6 @@
 
 use 5.008;
 use strict;
-use warnings;
 use Test::More tests => 36;
 
 use lib 't';
@@ -38,7 +37,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 44;
+  my $want_version = 45;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 

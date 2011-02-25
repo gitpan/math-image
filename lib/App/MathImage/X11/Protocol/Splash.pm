@@ -21,11 +21,10 @@
 package App::MathImage::X11::Protocol::Splash;
 use 5.004;
 use strict;
-use warnings;
-use List::Util 'max';
+use List::Util 'max';  # 5.6 ?
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 exit App::MathImage->command_line;
 
 __END__
@@ -72,7 +72,8 @@ The following control what set of values to display.
 
 =item --values=MODULE
 
-Draw values from the given C<App::MathImage::Values> module.  For example
+Draw values from the given C<App::MathImage::NumSeq::Sequence> module.  For
+example
 
     math-image --values=Emirps
 
@@ -197,8 +198,8 @@ Draw following the given C<Math::PlanePath> module.  For example
 
     math-image --path=HeptSpiralSkewed
 
-This can also select experimental paths under C<App::MathImage::PlanePath>,
-though the names there are likely to change.
+This can also select experimental paths called "MathImageFoo" though those
+names will change.
 
 =item --ulam
 

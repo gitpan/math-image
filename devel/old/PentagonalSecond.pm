@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::PentagonalSecond;
+package App::MathImage::NumSeq::Sequence::PentagonalSecond;
 use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
 $VERSION = 38;

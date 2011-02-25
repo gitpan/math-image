@@ -25,14 +25,14 @@ use Scalar::Util;
 use Time::HiRes;
 
 use base 'App::MathImage::Generator';
-use App::MathImage::X11::Protocol::Extras;
+use App::MathImage::X11::Protocol::MoreUtils;
 use App::MathImage::X11::Protocol::XSetRoot;
 use Image::Base::X11::Protocol::Window;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 44;
+our $VERSION = 45;
 
 sub new {
   my $class = shift;
@@ -41,7 +41,7 @@ sub new {
   my $X = $self->{'X'};
   my $window = $self->{'window'};
   my $colormap = $X->{'default_colormap'};
-  my ($width, $height) = App::MathImage::X11::Protocol::Extras::window_size ($X, $window);
+  my ($width, $height) = App::MathImage::X11::Protocol::MoreUtils::window_size ($X, $window);
 
   my $image_window = Image::Base::X11::Protocol::Window->new
     (-X            => $X,

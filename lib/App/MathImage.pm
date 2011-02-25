@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -461,10 +461,9 @@ sub output_method_root_Gtk2 {
 
   if ($self->{'gui_options'}->{'flash'}) {
     require App::MathImage::Gtk2::Ex::Splash;
-    App::MathImage::Gtk2::Ex::Splash->run (root   => $rootwin,
-                                           pixmap => $pixmap,
-                                           time => .75)
-    }
+    App::MathImage::Gtk2::Ex::Splash->run (pixmap => $pixmap,
+                                           time => .75);
+  }
 
   $rootwin->get_display->flush;
   return 0;

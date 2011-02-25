@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 44;
+our $VERSION = 45;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 
@@ -121,17 +121,13 @@ sub _do_combo_changed {
 
   my $filename;
   my $name = $combobox->get_active_text;
+  $name =~ s/-/::/g;
   if ($combobox->get_active == 0) {
     $filename = "$FindBin::Bin/$name";
   } elsif ($name =~ /::/) {
     $filename = Module::Util::find_installed ($name);
   } else {
-    foreach my $module ("Math::PlanePath::$name",
-                        "App::MathImage::PlanePath::$name") {
-      if ($filename = Module::Util::find_installed ($module)) {
-        last;
-      }
-    }
+    $filename = Module::Util::find_installed ("Math::PlanePath::$name");
   }
   ### $filename
   my $viewer = $self->{'viewer'};

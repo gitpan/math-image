@@ -24,20 +24,22 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
+
+my $outfilename = 'lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm';
 
 my @info_arrayref;
-my @classes = Module::Util::find_in_namespace('App::MathImage::Values');
+my @classes = Module::Util::find_in_namespace('App::MathImage::NumSeq::Sequence');
 @classes = sort @classes;
 foreach my $class (@classes) {
-  next if $class =~ /^App::MathImage::Values::.*::/; # not sub-parts
+  # next if $class =~ /^App::MathImage::NumSeq::Sequence::.*::/; # not sub-parts
 
   my $filename = Module::Util::find_installed($class) or die;
   open my $in, '<', $filename or die;
   while (<$in>) {
     chomp;
-    if (/^# OEIS: /) {
-      /^# OEIS: A0*([0-9]+)\s*(.*?)(#.*)?$/
+    if (/^# OeisCatalogue: /) {
+      /^# OeisCatalogue: A0*([0-9]+)\s*(.*?)(#.*)?$/
         or die "Oops, bad OEIS line: $_";
       my $num = $1;
       my $parameters = $2;
@@ -63,7 +65,8 @@ my $dump = Data::Dumper->new([\@info_arrayref])->Sortkeys(1)->Terse(1)->Indent(1
 # $dump =~ s/^{\n//;
 # $dump =~ s/}.*\n//;
 
-open my $out, '>', 'lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm' or die;
+open my $out, '>', $outfilename
+  or die "Cannot create $outfilename: $!";
 print $out <<"HERE";
 # Copyright 2011 Kevin Ryde
 
@@ -84,13 +87,14 @@ print $out <<"HERE";
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::OEIS::Catalogue::Plugin::Builtin;
+package App::MathImage::NumSeq::OeisCatalogue::Plugin::BuiltinTable;
 use strict;
 use warnings;
 
 use vars '\$VERSION', '\@ISA';
 \$VERSION = $VERSION;
-\@ISA = ('App::MathImage::Values::OEIS::Catalogue::Base');
+use App::MathImage::NumSeq::OeisCatalogue::Base;
+\@ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use constant info_arrayref =>
 HERE

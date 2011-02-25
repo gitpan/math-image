@@ -1,0 +1,67 @@
+# Copyright 2010, 2011 Kevin Ryde
+
+# This file is part of Math-Image.
+#
+# Math-Image is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3, or (at your option) any later
+# version.
+#
+# Math-Image is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+package App::MathImage::NumSeq::Array;
+use 5.004;
+use strict;
+use warnings;
+
+use base 'App::MathImage::NumSeq::Sequence';
+
+use vars '$VERSION';
+$VERSION = 45;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
+sub new {
+  my ($class, %self) = @_;
+  $self{'i'} = 0;
+  my $array = $self{'array'};
+  while (@$array && $array->[0] < $self{'lo'}) {
+    shift @$array;
+  }
+  ### shifted to: @$array
+  $self{'type'} ||= 'seq';
+  return bless \%self, $class;
+}
+sub next {
+  my ($self) = @_;
+  ### NumSeqArray next(): $self->{'i'} . ' of ' . scalar(@{$self->{'array'}})
+  if ($self->{'type'} eq 'seq') {
+    return $self->{'array'}->[$self->{'i'}++];
+  } else {
+    my $i = $self->{'i'}++;
+    return ($i, $self->{'array'}->[$i]);
+  }
+}
+sub pred {
+  my ($self, $n) = @_;
+  return exists (($self->{'hash'} ||= do {
+    my %h;
+    @h{@{$self->{'array'}}} = ();
+    ### %h
+    \%h
+  })->{$n});
+}
+sub ith {
+  my ($self, $i) = @_;
+  return $self->{'array'}->[$i];
+}
+
+1;
+__END__

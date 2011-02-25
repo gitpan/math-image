@@ -26,20 +26,20 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::ChampernowneBinary;
+use App::MathImage::NumSeq::Sequence::ChampernowneBinary;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 44;
-  is ($App::MathImage::Values::ChampernowneBinary::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::ChampernowneBinary->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 45;
+  is ($App::MathImage::NumSeq::Sequence::ChampernowneBinary::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Sequence::ChampernowneBinary->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::ChampernowneBinary->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Sequence::ChampernowneBinary->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::ChampernowneBinary->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Sequence::ChampernowneBinary->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -50,7 +50,7 @@ use App::MathImage::Values::ChampernowneBinary;
 {
   my @want = (1, 2,  4,5, 6,   9,11, 12,13, 15,16,17);
   my $hi = $want[-1];
-  my $values_obj = App::MathImage::Values::ChampernowneBinary->new (lo => 1,
+  my $values_obj = App::MathImage::NumSeq::Sequence::ChampernowneBinary->new (lo => 1,
                                                                     hi => $hi);
   my @got;
   while (my ($n) = $values_obj->next) {
@@ -69,7 +69,7 @@ use App::MathImage::Values::ChampernowneBinary;
 
 {
   my $hi = 5000;
-  my $values_obj = App::MathImage::Values::ChampernowneBinary->new (hi => $hi);
+  my $values_obj = App::MathImage::NumSeq::Sequence::ChampernowneBinary->new (hi => $hi);
   my $good = 1;
 
   my $prev = -1;

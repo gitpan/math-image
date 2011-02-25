@@ -33,16 +33,16 @@
                     
 
 
-package App::MathImage::Values::Base4Only01;
+package App::MathImage::NumSeq::Sequence::Base4Only01;
 use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values';
+use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 # http://oeis.org/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4

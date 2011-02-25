@@ -211,10 +211,8 @@ sub postamble {
   return MyMakeMakerExtras::postamble ($makemaker) . <<'HERE';
 
 #------------------------------------------------------------------------------
-# OEIS/Catalogue/Builtin.pm
 
-lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm: make-oeis-catalogue.pl lib/App/MathImage/Values/*.pm
-	$(PERL) make-oeis-catalogue.pl \
-	|| (rm -f lib/App/MathImage/Values/OEIS/Catalogue/Plugin/Builtin.pm; false)
+lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm: make-oeis-catalogue.pl lib/App/MathImage/NumSeq/Sequence/*.pm
+	$(PERL) make-oeis-catalogue.pl || (rm -f $@; false)
 HERE
 }

@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::ThueMorseOdious;
+package App::MathImage::NumSeq::Sequence::ThueMorseOdious;
 use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::Values::ThueMorseEvil';
+use base 'App::MathImage::NumSeq::Sequence::ThueMorseEvil';
 
 use vars '$VERSION';
 $VERSION = 38;

@@ -23,7 +23,7 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 44;
+our $VERSION = 45;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -184,6 +184,13 @@ sub run {
                       });
   Gtk2->main;
 }
+
+# sub _window_invalidate_all {
+#   my ($window, $invalidate_children) = @_;
+#   $window->invalidate_rect (Gtk2::Gdk::Rectangle->new (0,0, $window->get_size),
+#                             $invalidate_children);
+# }
+
 
 1;
 __END__
