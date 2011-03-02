@@ -42,7 +42,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 45;
+our $VERSION = 46;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -538,8 +538,8 @@ sub gen_object {
   my $background_colorobj = $self->style->bg($self->state);
   my $foreground_colorobj = $self->style->fg($self->state);
   my $undrawnground_colorobj = Gtk2::Gdk::Color->new
-    (map {0.9 * $background_colorobj->$_()
-            + 0.1 * $foreground_colorobj->$_()}
+    (map {0.8 * $background_colorobj->$_()
+            + 0.2 * $foreground_colorobj->$_()}
      'red', 'blue', 'green');
   my $path_rotation_type = $self->get('path-rotation-type');
   return App::MathImage::Generator->new
@@ -610,8 +610,8 @@ sub start_drawing_window {
   $window->set_background ($background_colorobj);
 
   my $undrawnground_colorobj = Gtk2::Gdk::Color->new
-    (map {0.9 * $background_colorobj->$_()
-            + 0.1 * $foreground_colorobj->$_()}
+    (map {0.8 * $background_colorobj->$_()
+            + 0.2 * $foreground_colorobj->$_()}
      'red', 'blue', 'green');
   if (my $colormap = $window->get_colormap) {
     $colormap->rgb_find_color ($undrawnground_colorobj);

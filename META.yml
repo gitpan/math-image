@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            45
+version:            46
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -109,6 +109,19 @@ meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
 optional_features:
+    for_x11:
+        description:  Things for native X through X11::Protocol.
+        requires:
+            Image::Base::X11::Protocol::Pixmap:  0
+            Image::Base::X11::Protocol::Window:  0
+            X11::Protocol:        0
+            X11::Protocol::Other:  1
+    gtk2_optionals:
+        description:  Gtk2 things used if available.
+        requires:
+            Gtk2::Ex::CrossHair:  0
+            Gtk2::Ex::ErrorTextDialog::Handler:  7
+            Gtk2::Ex::PodViewer:  0
     maximum_devel:
         description:  Stuff used variously for development.
         requires:
@@ -132,6 +145,8 @@ optional_features:
             Math::Expression::Evaluator:  0
             Math::Symbolic:       0.605
             Prima:                0
+            X11::Protocol:        0
+            X11::Protocol::Other:  1
     maximum_tests:
         description:  Have "make test" do as much as possible.
         requires:
@@ -149,7 +164,7 @@ optional_features:
             YAML::XS:             0
 recommends:
     Gtk2::Ex::CrossHair:  0
-    Gtk2::Ex::ErrorDialog:  7
+    Gtk2::Ex::ErrorTextDialog::Handler:  7
     Gtk2::Ex::PodViewer:  0
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
@@ -158,3 +173,5 @@ recommends:
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
     Math::Symbolic:       0.605
+    X11::Protocol:        0
+    X11::Protocol::Other:  1

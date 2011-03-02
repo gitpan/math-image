@@ -25,6 +25,7 @@ use List::Util qw(min max);
 use POSIX ();
 use Module::Util;
 use Glib::Ex::ConnectProperties 8;  # v.7 for transforms, v.8 for write_only
+use Glib 1.220; # for SOURCE_REMOVE
 use Gtk2 1.220;
 use Gtk2::Ex::ActionTooltips;
 use Gtk2::Ex::NumAxis 2;
@@ -45,7 +46,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 45;
+our $VERSION = 46;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -132,16 +133,16 @@ sub _path_to_mnemonic {
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  
+
   my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
   $vbox->show;
   $self->add ($vbox);
-  
+
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
-  
+
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-  
+
   $actiongroup->add_actions
     ([
       { name  => 'FileMenu',
@@ -176,7 +177,7 @@ sub INIT_INSTANCE {
           $self->destroy;
         },
       },
-      
+
       { name  => 'ViewMenu',
         label => dgettext('gtk20-properties','_View'),
       },
@@ -194,7 +195,7 @@ sub INIT_INSTANCE {
           $self->{'draw'}->centre;
         },
       },
-      
+
       { name  => 'ToolsMenu',
         label => dgettext('gtk20-properties','_Tools'),
       },
@@ -221,7 +222,7 @@ sub INIT_INSTANCE {
            callback => \&_do_action_pod_dialog,
          }
        : ()),
-      
+
       { name     => 'Random',
         label    => __('Random'),
         callback => \&_do_action_random,
@@ -230,7 +231,7 @@ Click repeatedly to see interesting things.'),
       },
      ],
      $self);
-  
+
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
                                           label => __('_Fullscreen'),
@@ -266,7 +267,7 @@ Click repeatedly to see interesting things.'),
          label   => __('_Toolbar'),
          tooltip => __('Whether to show the toolbar.')},
      ]);
-  
+
   $actiongroup->add_toggle_actions
     # name, stock id, label, accel, tooltip, subr, is_active
     ([
@@ -276,7 +277,7 @@ Click repeatedly to see interesting things.'),
         is_active   => 0,
         # tooltip     => __('.'),
       },
-      
+
       (Module::Util::find_installed('Gtk2::Ex::CrossHair')
        ?
        { name        => 'Cross',
@@ -291,7 +292,7 @@ Click repeatedly to see interesting things.'),
        : ()),
      ],
      $self);
-  
+
   {
     my $n = 0;
     my $group;
@@ -328,7 +329,7 @@ Click repeatedly to see interesting things.'),
         ([$draw,  'path'],
          [$group, 'current-value', hash_in => \%hash, hash_out => \%hash]);
   }
-  
+
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
@@ -387,16 +388,16 @@ HERE
 </ui>
 HERE
   $ui->add_ui_from_string ($ui_str);
-  
+
   {
     my $menubar = $self->get('menubar');
     $menubar->show;
     $vbox->pack_start ($menubar, 0,0,0);
   }
-  
+
   my $table = $self->{'table'} = Gtk2::Table->new (3, 3);
   $vbox->pack_start ($table, 1,1,0);
-  
+
   my $toolbar = $self->get('toolbar');
   $toolbar->show;
   $table->attach ($toolbar, 1,3, 0,1, ['expand','fill'],[],0,0);

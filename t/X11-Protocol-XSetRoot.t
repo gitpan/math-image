@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-my $test_count = 4;
+my $test_count = 40;
 plan tests => $test_count;
 
 my $have_x11_protocol = eval { require X11::Protocol; 1 };
@@ -62,7 +62,7 @@ require App::MathImage::X11::Protocol::XSetRoot;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 45;
+my $want_version = 46;
 ok ($App::MathImage::X11::Protocol::XSetRoot::VERSION,
     $want_version,
     'VERSION variable');
@@ -77,6 +77,31 @@ my $check_version = $want_version + 1000;
 ok (! eval { App::MathImage::X11::Protocol::XSetRoot->VERSION($check_version); 1 },
     1,
     "VERSION class check $check_version");
+
+#------------------------------------------------------------------------------
+# _rgbstr_to_card16()
+
+foreach my $elem ([ '#123', 0x1111, 0x2222, 0x3333 ],
+                  [ '#def', 0xDDDD, 0xEEEE, 0xFFFF ],
+
+                  [ '#123456', 0x1212, 0x3434, 0x5656 ],
+                  [ '#abcdef', 0xABAB, 0xCDCD, 0xEFEF ],
+                  [ '#ABCDEF', 0xABAB, 0xCDCD, 0xEFEF ],
+
+                  [ '#123456789', 0x1231, 0x4564, 0x7897 ],
+                  [ '#abcbcdcde', 0xABCA, 0xBCDB, 0xCDEC ],
+
+                  [ '#123456789ABC', 0x1234, 0x5678, 0x9ABC ],
+                  [ '#abcdfedcdcba', 0xABCD, 0xFEDC, 0xDCBA ],
+                 ) {
+  my ($hexcolor, @want_rgb) = @$elem;
+  my @got_rgb = App::MathImage::X11::Protocol::XSetRoot::_hexcolor_to_rgb($hexcolor);
+  ok (scalar(@got_rgb), 3);
+  ok ($got_rgb[0], $want_rgb[0]);
+  ok ($got_rgb[1], $want_rgb[1]);
+  ok ($got_rgb[2], $want_rgb[2]);
+}
+
 
 #------------------------------------------------------------------------------
 # set_background()

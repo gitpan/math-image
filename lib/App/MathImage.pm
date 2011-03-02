@@ -18,16 +18,14 @@
 package App::MathImage;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use List::Util qw(min max);
-use Locale::TextDomain 'App-MathImage';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -526,7 +524,7 @@ sub try_module {
   my $image_class = $self->module_image_class($module) || return 0;
   require Module::Load;
   return eval { Module::Load::load ($image_class); 1 };
-}  
+}
 
 sub output_image {
   my ($self, $module, @image_options) = @_;

@@ -28,7 +28,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base::Text;
 @ISA = ('Image::Base::Text');
 
-$VERSION = 45;
+$VERSION = 46;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -151,7 +151,7 @@ sub save_fh {
   if (! defined $rule) { $rule = 'B3/S23'; }
   print $fh
     "x = ",$self->get('-width'),
-      ", y = ",,$self->get('-height'),
+      ", y = ",$self->get('-height'),
         ", rule = ",$rule,"\n"
           or return undef;
 
@@ -300,6 +300,6 @@ the multi-state format, or distinguish that from numbers used as colours.
 L<Image::Base>,
 L<Image::Base::Text>
 
-L<golly(1)>
+L<golly(6)>
 
 =cut

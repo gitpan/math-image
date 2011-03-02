@@ -19,10 +19,9 @@
 
 use 5.004;
 use strict;
-use warnings;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 exit App::MathImage->command_line;
 
 __END__
@@ -32,7 +31,7 @@ __END__
 png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
 --padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT
 --theodorus Theodorus semiprimes segfault Aronson's --aronson startup
-GdkPixbuf prima Prima --prima
+GdkPixbuf prima Prima --prima tty renamings MathImageFoo
 
 =head1 NAME
 
@@ -279,6 +278,16 @@ C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
 C<--background> colours to be preserved on a pseudo-colour screen.  C<Gtk2>
 is fine on a true-colour screen, or black and white (being permanent in the
 default colormap), but otherwise colours won't be preserved.
+
+=item --flash
+
+Flash the requested image on the screen instead of starting the GUI.
+Together with C<--root> the image is flashed as well as set as the
+background.  This is good if updating the background randomly every so
+often, as it shows the image when windows might otherwise obscuring most of
+it.
+
+    math-image --root --random --flash
 
 =item --display=DPY
 

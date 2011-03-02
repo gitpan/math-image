@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use Carp;
 use Scalar::Util;
+use Glib 1.220; # for SOURCE_REMOVE
 
 use Image::Base::Gtk2::Gdk::Pixmap;
 use base 'App::MathImage::Generator';
@@ -29,7 +30,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 45;
+our $VERSION = 46;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests

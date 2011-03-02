@@ -22,6 +22,8 @@ use strict;
 use warnings;
 use X11::Protocol;
 
+use lib "$ENV{HOME}/p/xpother/lib";
+
 use Smart::Comments;
 
 use constant XA_PIXMAP => 20;  # pre-defined atom
@@ -30,11 +32,45 @@ use constant XA_PIXMAP => 20;  # pre-defined atom
   require App::MathImage::X11::Protocol::XSetRoot;
   App::MathImage::X11::Protocol::XSetRoot->set_background
       (
+       # color_name => '#F0FF00FFF0FF',
        # pixel => 0xFFFFFF,
-        pixel => 0xFF0000,
-        allocated_pixels => 1,
+       # pixel => 0xFF0000,
+       # allocated_pixels => 1,
+       pixmap => 0,
       );
   # now don't use $X11_protocol_object connection any more
+  exit 0;
+}
+{
+  my $X = X11::Protocol->new;
+  $X->FreePixmap(0);
+  ### sync: $X->QueryPointer($X->{'root'})
+  exit 0;
+}
+
+{
+  my $X = X11::Protocol->new;
+  require App::MathImage::X11::Protocol::XSetRoot;
+
+  # my $colormap = $X->{'default_colormap'};
+  # my @ret = $X->AllocNamedColor($colormap, 'white');
+  # ### @ret
+
+  my $root = $X->{'root'};
+  my $pixmap = $X->new_rsrc;
+  $X->CreatePixmap ($pixmap,
+                    $root,
+                    $X->{'root_depth'},
+                    2,2);  # width,height
+  my $gc = $X->new_rsrc;
+  $X->CreateGC ($gc, $pixmap, foreground => $X->{'white_pixel'});
+  $X->PolyPoint ($pixmap, $gc, 'Origin', 0,0, 1,1);
+  $X->ChangeGC($gc, foreground => $X->{'black_pixel'});
+  $X->PolyPoint ($pixmap, $gc, 'Origin', 0,1, 1,0);
+  App::MathImage::X11::Protocol::XSetRoot->set_background
+      (X      => $X,
+       pixmap => $pixmap);
+  exit 0;
 }
 {
   my $X = X11::Protocol->new;

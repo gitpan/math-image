@@ -24,6 +24,17 @@ use ExtUtils::MakeMaker;
 use lib 'inc';
 use MyMakeMakerExtras;
 
+my %for_x11 = ('X11::Protocol' => 0,
+               'X11::Protocol::Other' => 1,
+               'Image::Base::X11::Protocol::Pixmap' => 0,
+               'Image::Base::X11::Protocol::Window' => 0,
+              );
+my %gtk2_optionals = ('Gtk2::Ex::CrossHair' => 0,
+                      # suggest ErrorTextDialog v.7 for popup control
+                      'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
+                      'Gtk2::Ex::PodViewer'    => 0,
+                     );
+
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',
    ABSTRACT     => 'Draw some mathematical images.',
@@ -155,33 +166,36 @@ MyMakeMakerExtras::WriteMakefile
      { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
      },
      recommends =>
-     { 'Math::Aronson'  => 4, # version 4 for lying option
-       'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
-       'Math::Expression::Evaluator' => 0, # maybe any ok
-       'Language::Expr' => '0.14',
-       'Image::Xpm'     => 0,
-       'Image::Base::X11::Protocol::Pixmap' => 0,
-       'Image::Base::X11::Protocol::Window' => 0,
-       'Gtk2::Ex::CrossHair'   => 0,
-       'Gtk2::Ex::ErrorDialog' => 7, # suggest v.7 for popup control
-       'Gtk2::Ex::PodViewer'   => 0,
+     {
+      %gtk2_optionals,
+      %for_x11,
+      'Math::Aronson'  => 4, # version 4 for lying option
+      'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
+      'Math::Expression::Evaluator' => 0, # maybe any ok
+      'Language::Expr' => '0.14',
+      'Image::Xpm'     => 0,
      },
      optional_features =>
      {
+      for_x11 =>
+      { description => 'Things for native X through X11::Protocol.',
+        requires => \%for_x11,
+      },
+      gtk2_optionals =>
+      { description => 'Gtk2 things used if available.',
+        requires => \%gtk2_optionals,
+      },
+
       maximum_interoperation =>
       { description => 'All the optional things Math-Image can use.',
         requires => {
-                     'Gtk2::Ex::CrossHair' => 0,
-                     # suggest ErrorTextDialog v.7 for popup control
-                     'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
-                     'Gtk2::Ex::PodViewer'    => 0,
+                     %for_x11,
+                     %gtk2_optionals,
 
                      'Image::Xpm'             => 0,
                      'Image::Base::GD'        => 4, # bug fixes
                      'Image::Base::Imager'    => 0,
                      'Image::Base::PNGwriter' => 2, # bug fixes
-                     'Image::Base::X11::Protocol::Pixmap' => 0,
-                     'Image::Base::X11::Protocol::Window' => 0,
 
                      'Math::Aronson'  => 4, # version 4 for lying
                      'Math::Symbolic' => 0.605, # 0.605 fix a simplify

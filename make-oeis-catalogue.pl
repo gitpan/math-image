@@ -24,7 +24,7 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 my $outfilename = 'lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm';
 
@@ -54,7 +54,7 @@ foreach my $class (@classes) {
         {
          num => $num,
          class => $class,
-         parameters_hashref => {@parameters},
+         (scalar(@parameters) ? (parameters_hashref => {@parameters}) : ()),
         };
     }
   }

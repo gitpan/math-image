@@ -24,6 +24,7 @@ use X11::Protocol;
 
 use Smart::Comments;
 
+
 {
   require App::MathImage::X11::Protocol::Splash;
   my $X = X11::Protocol->new;
@@ -45,16 +46,6 @@ use Smart::Comments;
   #  $X->flush;
   sleep 10;
   $splash->popdown;
-  exit 0;
-}
-
-{
-  my $X = X11::Protocol->new;
-  $X->GrabServer;
-  $X->GrabServer;
-  $X->UngrabServer;
-  sleep 10;
-  $X->QueryPointer ($X->{'root'});
   exit 0;
 }
 

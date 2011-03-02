@@ -18,7 +18,6 @@
 package App::MathImage::Curses::Drawing;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use POSIX ();
 use Module::Util;
@@ -29,7 +28,7 @@ use Curses::UI::Widget;
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

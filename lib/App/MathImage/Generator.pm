@@ -18,7 +18,6 @@
 package App::MathImage::Generator;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use POSIX 'floor', 'ceil';
 use Math::Libm 'hypot';
@@ -36,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -179,6 +178,7 @@ use constant path_choices => do {
                    VogelFloret
                    TheodorusSpiral
                    MultipleRings
+                   PixelRings
 
                    DiamondSpiral
                    PentSpiral
@@ -206,6 +206,7 @@ use constant path_choices => do {
                    MathImageArchimedeanChords
                    MathImageOctagramSpiral
                    MathImageFlowsnake
+                   MathImageHypot
                  );
   my %choices;
   my $base = 'Math::PlanePath';
@@ -477,7 +478,7 @@ sub y_negative {
   # override flowsnake looping around to negatives takes a very long time
   if ($path_object->isa('Math::PlanePath::MathImageFlowsnake')) {
     return 0;
-  } 
+  }
 
   return $self->path_object->y_negative;
 }
@@ -517,17 +518,25 @@ sub covers_plane {
     return 1;
   }
   my $path_object = $self->path_object;
-  if ($path_object->isa("Math::PlanePath::PyramidRows")) {
+  if (! _path_covers_plane ($path_object)) {
     return 0;
-  }
-  if ($path_object->figure eq 'circle') {
-    return 1;
   }
   my $affine_object = $self->affine_object;
   my ($wx,$wy) = $affine_object->transform(-.5,-.5);
   if (! $self->x_negative && $wx > 0
       || ! $self->y_negative && $wy < $self->{'height'}-1) {
     return 0;
+  }
+  return 1;
+}
+sub _path_covers_plane {
+  my ($path_object) = @_;
+  if ($path_object->isa("Math::PlanePath::PyramidRows")
+      || $path_object->isa("Math::PlanePath::PixelRings")) {
+    return 0;
+  }
+  if ($path_object->figure eq 'circle') {
+    return 1;
   }
   return 1;
 }
@@ -624,7 +633,7 @@ sub colour_to_rgb {
 #   }
 #   return @result;
 # }
-# 
+#
 # # $aff = $aff->invert
 # sub invert {
 #   my ($self) = @_;
@@ -635,7 +644,7 @@ sub colour_to_rgb {
 #      - $self->{m21} / $det,   # 21
 #      $self->{m11} / $det,     # 22
 #      $self->App::MathImage::Generator::untransform(0,0));
-# 
+#
 #   # tx,ty as full expressions instead of untransform(), if preferred
 #   # ($self->{m21} * $self->{ty} - $self->{m22} * $self->{tx}) / $det,
 #   # ($self->{m12} * $self->{tx} - $self->{m11} * $self->{ty}) / $det);

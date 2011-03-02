@@ -27,7 +27,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 45;
+$VERSION = 46;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -112,7 +112,7 @@ sub xy_to_n {
   while ($y_next_x[$y] <= $x) {
     _extend();
   }
-  return $xy_to_n{"$x,$y"};    
+  return $xy_to_n{"$x,$y"};
 }
 
 sub rect_to_n_range {

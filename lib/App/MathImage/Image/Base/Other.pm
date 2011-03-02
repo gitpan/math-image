@@ -18,13 +18,12 @@
 
 package App::MathImage::Image::Base::Other;
 use strict;
-use warnings;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 sub _save_to_tempfh {
   my ($image) = @_;

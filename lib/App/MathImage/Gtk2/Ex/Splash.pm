@@ -23,7 +23,7 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 45;
+our $VERSION = 46;
 
 use Glib::Object::Subclass 'Gtk2::Window',
   signals => { realize      => \&_do_realize,
@@ -236,7 +236,7 @@ sub _update_pixmap {
 1;
 __END__
 
-=for stopwords Math-Image enum ParamSpec GType pspec Enum Ryde toplevel
+=for stopwords Math-Image enum ParamSpec GType pspec Enum Ryde toplevel startup filename GdkPixbuf PNG JPEG Gtk
 
 =head1 NAME
 

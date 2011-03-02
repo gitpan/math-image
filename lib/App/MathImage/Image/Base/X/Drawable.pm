@@ -22,7 +22,6 @@
 package App::MathImage::Image::Base::X::Drawable;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use X11::Lib;
 use vars '$VERSION', '@ISA';
@@ -30,7 +29,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 45;
+$VERSION = 46;
 
 sub new {
   my ($class, %params) = @_;

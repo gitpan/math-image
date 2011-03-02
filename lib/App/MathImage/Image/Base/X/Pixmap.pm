@@ -17,15 +17,15 @@
 
 
 package App::MathImage::Image::Base::X::Pixmap;
+use 5.004;
 use strict;
-use warnings;
 use Carp;
 use vars '$VERSION', '@ISA';
 
 use App::MathImage::Image::Base::X::Drawable;
 @ISA = ('App::MathImage::Image::Base::X::Drawable');
 
-$VERSION = 45;
+$VERSION = 46;
 
 sub new {
   my ($class, %params) = @_;

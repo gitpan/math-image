@@ -24,7 +24,7 @@ use strict;
 use List::Util 'max';  # 5.6 ?
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -154,6 +154,6 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 more details.
 
 You should have received a copy of the GNU General Public License along with
-Math-Image.  If not, see L<http://www.gnu.org/licenses/>.
+Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut

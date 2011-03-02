@@ -23,16 +23,16 @@ use warnings;
 use Carp;
 use Scalar::Util;
 use Time::HiRes;
+use X11::Protocol::Other;
 
 use base 'App::MathImage::Generator';
-use App::MathImage::X11::Protocol::MoreUtils;
 use App::MathImage::X11::Protocol::XSetRoot;
 use Image::Base::X11::Protocol::Window;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 45;
+our $VERSION = 46;
 
 sub new {
   my $class = shift;
@@ -41,7 +41,7 @@ sub new {
   my $X = $self->{'X'};
   my $window = $self->{'window'};
   my $colormap = $X->{'default_colormap'};
-  my ($width, $height) = App::MathImage::X11::Protocol::MoreUtils::window_size ($X, $window);
+  my ($width, $height) = X11::Protocol::Other::window_size ($X, $window);
 
   my $image_window = Image::Base::X11::Protocol::Window->new
     (-X            => $X,
@@ -72,6 +72,7 @@ sub new {
   return $self;
 }
 
+# free the pixmap if draw_Image_steps() stopped before completion
 sub DESTROY {
   my ($self) = @_;
   if ((my $X = $self->{'X'})
@@ -95,17 +96,16 @@ sub draw_steps {
   if (! $more) {
     ### Generator-X11 finished
     my $window = $self->{'window'};
-    my $pixmap = delete $self->{'pixmap'};
     my $image_pixmap = delete $self->{'image_pixmap'};
-
-    ### _image_pixmap_any_allocated_colours: _image_pixmap_any_allocated_colours($self->{'image_pixmap'})
+    my $allocated = _image_pixmap_any_allocated_colours($image_pixmap);
+    ### $allocated
 
     if ($self->{'flash'}) {
       require App::MathImage::X11::Protocol::Splash;
       my $splash = App::MathImage::X11::Protocol::Splash->new
-        (X => $self->{'X'},
-         pixmap => $pixmap,
-         width => $self->{'width'},
+        (X      => $self->{'X'},
+         pixmap => $self->{'pixmap'},
+         width  => $self->{'width'},
          height => $self->{'height'});
       $splash->popup;
       $self->{'X'}->QueryPointer($window);  # sync
@@ -115,10 +115,10 @@ sub draw_steps {
 
     # $self->{'X'}->QueryPointer($window);  # sync
     App::MathImage::X11::Protocol::XSetRoot->set_background
-        (X => $self->{'X'},
-         rootwin => $window,
-         pixmap => $pixmap,
-         allocated_pixels => _image_pixmap_any_allocated_colours($image_pixmap));
+        (X      => $self->{'X'},
+         root   => $window,
+         pixmap => delete $self->{'pixmap'},
+         pixmap_allocated_colors => $allocated);
   }
 
   return $more;

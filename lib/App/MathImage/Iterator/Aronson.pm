@@ -18,12 +18,11 @@
 package App::MathImage::Iterator::Aronson;
 use 5.004;
 use strict;
-use warnings;
 use Math::Aronson;
 use base 'Iterator';
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 sub new {
   my $class = shift;

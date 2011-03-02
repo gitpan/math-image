@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 use constant type => 'radix';
 use constant values_min => 0;

@@ -24,15 +24,13 @@ use 5.008;
 use strict;
 use warnings;
 use Gtk2;
-use Glib::Ex::ObjectBits;
-use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::NumSeq::OeisCatalogue;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 45;
+our $VERSION = 46;
 
 use Glib::Object::Subclass
   'Gtk2::SpinButton',
@@ -114,5 +112,9 @@ sub _do_change_value {
 #   my ($self) = @_;
 #   $self->signal_chain_from_overridden;
 # 
+#use Glib::Ex::ObjectBits;
 #   Glib::Ex::ObjectBits::set_property_maybe ($self, tooltip_text => 
 # }
+
+1;
+__END__

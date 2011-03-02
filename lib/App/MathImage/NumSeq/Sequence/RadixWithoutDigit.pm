@@ -25,7 +25,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Radix;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');

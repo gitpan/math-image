@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -38,7 +38,7 @@ use constant description => __('An arbitrary expression.  It should have a singl
 Syntax is per the chosen evaluator, an invalid expression displays an error message.
 Math::Symbolic is like 2*x^2.
 Math::Expression::Evaluator is like t=2*x;t^2
-Language::Expr is like $k**2 + $k - 1.'); 
+Language::Expr is like $k**2 + $k - 1.');
 
 my @evaluators;
 BEGIN {

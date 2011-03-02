@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -28,7 +28,7 @@ $VERSION = 45;
 my %num_to_info_hashref;
 sub num_to_info_hashref {
   my ($class) = @_;
-  return ($num_to_info_hashref{$class} ||= 
+  return ($num_to_info_hashref{$class} ||=
           { map { $_->{'num'} => $_ } @{$class->info_arrayref} });
 }
 
