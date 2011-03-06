@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 46;
+our $VERSION = 47;
 
 # priority level "gtk" treating this as widget level default, for overriding
 # by application or user RC

@@ -22,7 +22,7 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,14 +34,25 @@ sub name {
   return $name;
 }
 
-use constant type => 'seq';
 use constant description => undef;
 use constant parameter_list => ();
 use constant density => 'unknown';
 use constant oeis => undef;
-use constant values_min => undef;
-use constant values_max => undef;
-
+sub values_min {
+  my ($self) = @_;
+  return $self->{'values_min'};
+}
+sub values_max {
+  my ($self) = @_;
+  return $self->{'values_max'};
+}
+sub is_type {
+  my ($self, $type) = @_;
+  if (my $type_hash = $self->{'type_hash'}) {
+    return $self->{'type_hash'}->{$type};
+  }
+  return 0;
+}
 use constant finish => undef;
 
 my %parameter_hash;

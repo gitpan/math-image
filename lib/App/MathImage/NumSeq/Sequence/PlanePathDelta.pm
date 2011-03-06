@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -59,27 +59,6 @@ use constant parameter_list => ({ name    => 'planepath_class',
 # OeisCatalogue: A163533 planepath_class=PeanoCurve delta_type=y
 
 
-sub type {
-  my ($self) = @_;
-  return $self->{'type'};
-}
-sub values_min {
-  my ($self) = @_;
-  if ($self->{'type'} eq 'pn1') {
-    return -1;
-  } else {
-    return undef;
-  }
-}
-sub values_max {
-  my ($self) = @_;
-  if ($self->{'type'} eq 'pn1') {
-    return 1;
-  } else {
-    return undef;
-  }
-}
-
 sub new {
   my ($class, %options) = @_;
   ### PlanePathDelta new(): @_
@@ -105,25 +84,25 @@ sub new {
   my $delta_func = $class->can("delta_func_$delta_type")
     || croak "Unrecognised delta_type: ",$delta_type;
 
-  my $type;
-  if ($delta_type eq 'X' || $delta_type eq 'Y') {
-    $type = 'pn1';
-  } else {
-    $type = 'seq';
-  }
-  ### $type
-
   my ($n_start, undef) = $planepath_object->rect_to_n_range (0,0, 0,0);
   ### $n_start
 
-  return bless { planepath_object => $planepath_object,
-                 delta_func       => $delta_func,
-                 type    => $type,
-                 n_start => $n_start,
-                 i       => 0,
-                 prev_x  => 0,
-                 prev_y  => 0,
-               }, $class;
+  my $self = bless { planepath_object => $planepath_object,
+                     delta_func => $delta_func,
+                     type_hash  => {},
+                     n_start    => $n_start,
+                     i          => 0,
+                     prev_x     => 0,
+                     prev_y     => 0,
+                   }, $class;
+
+  if ($delta_type eq 'X' || $delta_type eq 'Y') {
+    $self->{'type_hash'}->{'pn1'} = 1;
+    $self->{'values_min'} = -1;  # or maybe bigger ...
+    $self->{'values_min'} = 1;
+  }
+
+  return $self;
 }
 
 sub next {

@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 46;
+  my $want_version = 47;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -148,6 +148,10 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
   my $good = 1;
   foreach my $values (App::MathImage::Generator->values_choices) {
     diag "exercise values $values";
+    if ($values eq 'OEIS-File') {
+      diag "skip $values due to maybe no OEIS downloads available";
+      next;
+    }
     if ($values eq 'Expression' && ! eval { require Math::Symbolic }) {
       diag "skip $values due to no Math::Symbolic -- $@";
       next;

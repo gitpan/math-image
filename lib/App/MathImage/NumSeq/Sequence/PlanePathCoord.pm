@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -61,27 +61,6 @@ use constant parameter_list => ({ name    => 'planepath_class',
 # OeisCatalogue: A163531 planepath_class=PeanoCurve coord_type=SqDist
 
 
-sub type {
-  my ($self) = @_;
-  return $self->{'type'};
-}
-sub values_min {
-  my ($self) = @_;
-  if ($self->{'type'} eq 'pn1') {
-    return -1;
-  } else {
-    return undef;
-  }
-}
-sub values_max {
-  my ($self) = @_;
-  if ($self->{'type'} eq 'pn1') {
-    return 1;
-  } else {
-    return undef;
-  }
-}
-
 sub new {
   my ($class, %options) = @_;
   ### PlanePathCoord new(): @_
@@ -107,25 +86,19 @@ sub new {
   my $coord_func = $class->can("coord_func_$coord_type")
     || croak "Unrecognised coord_type: ",$coord_type;
 
-  my $type;
-  if ($coord_type eq 'X' || $coord_type eq 'Y') {
-    $type = 'pn1';
-  } else {
-    $type = 'seq';
-  }
-  ### $type
-
   my ($n_start, undef) = $planepath_object->rect_to_n_range (0,0, 0,0);
   ### $n_start
 
-  return bless { planepath_object => $planepath_object,
-                 coord_func       => $coord_func,
-                 type    => $type,
-                 n_start => $n_start,
-                 i       => 0,
-                 prev_x  => 0,
-                 prev_y  => 0,
-               }, $class;
+  my $self = bless { planepath_object => $planepath_object,
+                     coord_func       => $coord_func,
+                     type_hash => {},
+                     n_start   => $n_start,
+                     i         => 0,
+                     prev_x    => 0,
+                     prev_y    => 0,
+                   }, $class;
+
+  return $self;
 }
 
 sub next {

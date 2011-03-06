@@ -26,11 +26,15 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
 use constant values_min => 0;
+sub is_type {
+  my ($self, $type) = @_;
+  return ($type eq 'monotonic' || $self->SUPER::is_type($type));
+}
 use constant parameter_list => ({ name => 'multiples',
                                   type => 'float',
                                   width => 10,

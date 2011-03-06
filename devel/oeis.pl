@@ -26,6 +26,21 @@ use Smart::Comments;
 
 
 {
+  require App::MathImage::NumSeq::OeisCatalogue::Plugin::ZFiles;
+  foreach my $info (App::MathImage::NumSeq::OeisCatalogue::Plugin::ZFiles->info_arrayref) {
+    my $num = $info->{'num'};
+    require App::MathImage::NumSeq::Sequence::OEIS;
+    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_number=>$num);
+  }
+  exit 0;
+}
+{
+  require App::MathImage::NumSeq::Sequence::OEIS;
+  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_number=>32);
+  ### $seq
+  exit 0;
+}
+{
   require App::MathImage::NumSeq::OeisCatalogue;
   my $info = App::MathImage::NumSeq::OeisCatalogue->num_to_info(32);
   ### $info
@@ -75,12 +90,7 @@ use Smart::Comments;
   print "\n";
   App::MathImage::NumSeq::OeisCatalogue->plugins;
 }
-{
-  require App::MathImage::NumSeq::Sequence::OEIS;
-  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_number=>32);
-  ### $seq
-  exit 0;
-}
+
 {
   require App::MathImage::NumSeq::OeisCatalogue::Plugin::Files;
   my $info = App::MathImage::NumSeq::OeisCatalogue::Plugin::Files->num_to_info(32);

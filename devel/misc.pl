@@ -88,8 +88,8 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
                                          oeis_number => '10059',
                                         );
     ### $values_obj
-    print "type ",$values_obj->type,"\n";
-    if ($values_obj->type eq 'radix') {
+    # print "type ",$values_obj->type,"\n";
+    if ($values_obj->is_type('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
     $|=1;

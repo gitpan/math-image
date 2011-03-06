@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -239,6 +239,8 @@ use constant figure_choices => qw(default
 
 sub random_options {
   my ($class) = @_;
+  my @ret;
+
   my @path_and_values;
   foreach my $path ($class->path_choices) {
     foreach my $values ($class->values_choices) {
@@ -274,72 +276,101 @@ sub random_options {
     }
   }
   my ($path, $values) = @{_rand_of_array(\@path_and_values)};
+  push @ret, path => $path, values => $values;
 
-  my $radix;
-  if ($values eq 'Repdigits' || $values eq 'Beastly') {
-    $radix = _rand_of_array([2 .. 128,
-                             (10) x 50]); # bias mostly 10
-  } elsif ($values eq 'Emirps') {
-    # for Emirps not too big or round up to 2^base becomes slow
-    $radix = _rand_of_array([2,3,4,8,16,
-                             10,10,10,10]); # bias mostly 10
-  } else {
-    $radix = _rand_of_array([2 .. 36]);
+  {
+    my $radix;
+    if ($values eq 'Repdigits' || $values eq 'Beastly') {
+      $radix = _rand_of_array([2 .. 128,
+                               (10) x 50]); # bias mostly 10
+    } elsif ($values eq 'Emirps') {
+      # for Emirps not too big or round up to 2^base becomes slow
+      $radix = _rand_of_array([2,3,4,8,16,
+                               10,10,10,10]); # bias mostly 10
+    } else {
+      $radix = _rand_of_array([2 .. 36]);
+    }
+    push @ret, radix => $radix;
   }
 
-  my $scale = _rand_of_array([1, 3, 5, 10, 15, 20]);
-  if ($values eq 'Lines') {
-    # not too small for lines to show up sensibly
-    $scale = max ($scale, 5);
+  {
+    my $scale = _rand_of_array([1, 3, 5, 10, 15, 20]);
+    if ($values eq 'Lines') {
+      # not too small for lines to show up sensibly
+      $scale = max ($scale, 5);
+    }
+    if ($values eq 'LinesLevel') {
+      # not too small for lines to show up sensibly
+      $scale = max ($scale, 2);
+    }
+    push @ret, scale => $scale;
   }
-  if ($values eq 'LinesLevel') {
-    # not too small for lines to show up sensibly
-    $scale = max ($scale, 2);
+  {
+    require Math::Prime::XS;
+    my @primes = Math::Prime::XS::sieve_primes(10,100);
+    my $num = _rand_of_array(\@primes);
+    @primes = grep {$_ != $num} @primes;
+    my $den = _rand_of_array(\@primes);
+    push @ret, fraction => "$num/$den",
   }
-
-  require Math::Prime::XS;
-  my @primes = Math::Prime::XS::sieve_primes(10,100);
-  my $num = _rand_of_array(\@primes);
-  @primes = grep {$_ != $num} @primes;
-  my $den = _rand_of_array(\@primes);
-
-  @primes = Math::Prime::XS::sieve_primes(2,100);
-  my $sqrt = _rand_of_array(\@primes);
-
-  my $pyramid_step = 1 + int(rand(20));
-  if ($pyramid_step > 12) {
-    $pyramid_step = 2;  # most of the time
-  }
-
-  my $rings_step = int(rand(20));
-  if ($rings_step > 15) {
-    $rings_step = 6;  # more often
+  {
+    my @primes = Math::Prime::XS::sieve_primes(2,100);
+    my $sqrt = _rand_of_array(\@primes);
+    push @ret, sqrt => $sqrt,
   }
 
-  my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
-                                   1 .. 20]);
-
-  # gets slow very quickly when wider
-  if ($path eq 'ZOrderCurve') {
-    $path_wider = 0; # min (1, $path_wider);
+  {
+    my $pyramid_step = 1 + int(rand(20));
+    if ($pyramid_step > 12) {
+      $pyramid_step = 2;  # most of the time
+    }
+    push @ret, pyramid_step => $pyramid_step;
+  }
+  {
+    my $rings_step = int(rand(20));
+    if ($rings_step > 15) {
+      $rings_step = 6;  # more often
+    }
+    push @ret, rings_step => $rings_step;
+  }
+  {
+    my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
+                                     1 .. 20]);
+    # ZOrderCurve gets slow very quickly when wider, also it's undocumented
+    if ($path eq 'ZOrderCurve') {
+      $path_wider = 0; # min (1, $path_wider);
+    }
+    push @ret, path_wider => $path_wider;
+  }
+  {
+    push @ret, path_rotation_type => _rand_of_array(['phi','phi','phi','phi',
+                                                     'sqrt2','sqrt2',
+                                                     'sqrt3',
+                                                     'sqrt5',
+                                                    ])
+      # path_rotation_factor => $rotation_factor,
+  }
+  {
+    my @figure_choices = $class->figure_choices;
+    push @figure_choices, ('default') x scalar(@figure_choices);
+    push @ret, figure => _rand_of_array(\@figure_choices);
+  }
+  {
+    push @ret, foreground => _rand_of_array(['#FFFFFF',  # white
+                                             '#FFFFFF',  # white
+                                             '#FFFFFF',  # white
+                                             '#FF0000',  # red
+                                             '#00FF00',  # green
+                                             '#0000FF',  # blue
+                                             '#FFAA00',  # orange
+                                             '#FFFF00',  # yellow
+                                             '#FFB0B0',  # pink
+                                             '#FF00FF',  # magenta
+                                            ]);
   }
 
-  my $rotation_type = _rand_of_array(['phi','phi','phi','phi',
-                                      'sqrt2','sqrt2',
-                                      'sqrt3',
-                                      'sqrt5',
-                                     ]);
-
-  my @figure_choices = $class->figure_choices;
-  push @figure_choices, ('default') x scalar(@figure_choices);
-  my $figure = _rand_of_array(\@figure_choices);
-
-  return (path      => $path,
-          values    => $values,
-          scale     => $scale,
-          fraction  => "$num/$den",
+  return (@ret,
           polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
-          sqrt      => $sqrt,
           # spectrum  => $spectrum,
           aronson_lang         => _rand_of_array(['en','fr']),
           aronson_conjunctions => int(rand(2)),
@@ -352,12 +383,6 @@ sub random_options {
           # filter           => _rand_of_array(['All','All','All',
           #                                     'All','All','All',
           #                                     'Odd','Even','Primes']),
-          path_wider          => $path_wider,
-          path_rotation_type  => $rotation_type,
-          # path_rotation_factor => $rotation_factor,
-          pyramid_step        => $pyramid_step,
-          rings_step          => $rings_step,
-          figure              => $figure,
          );
 }
 
@@ -553,41 +578,53 @@ sub figure {
   return $figure;
 }
 
-sub colours_grey_exp {
-  my ($self) = @_;
-  my $colours = $self->{'colours'} = [];
+sub colour_to_rgb {
+  my ($colour) = @_;
+  my $scale;
+  # ENHANCE-ME: Or demand Color::Library always, or X11 helpers hexstr_to_rgb()
+  if ($colour =~ /^#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i) {
+    $scale = 255;
+  } elsif ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i) {
+    $scale = 65535;
+  } elsif (eval { require Color::Library }
+           && (my $c = Color::Library->color($colour))) {
+    return map {$_/255} $c->rgb;
+  }
+  return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
+}
+
+# $factor 0 to 1 for background to foreground
+sub colour_scaled {
+  my ($self, $factor) = @_;
   my @foreground = colour_to_rgb($self->{'foreground'});
   my @background = colour_to_rgb($self->{'background'});
   if (! @foreground) { @foreground = (1.0, 1.0, 1.0); }
   if (! @background) { @background = (0, 0, 0); }
+  my $bg_factor = 1 - $factor;
+  return sprintf '#%02X%02X%02X',
+    map {
+      int (0.5 + 255 * ($foreground[$_]*$factor + $background[$_]*$bg_factor));
+    } 0,1,2;
+}
+
+sub colours_grey_exp {
+  my ($self) = @_;
+  my $colours = $self->{'colours'} = [];
   my $f = 1.0;
   for (;;) {
-    push @$colours, sprintf '#%02X%02X%02X',
-      map {
-        int (0.5 + 255 * ($foreground[$_]*$f + $background[$_]*(1-$f)));
-      } 0,1,2;
+    push @$colours, $self->colour_scaled ($f);
     last if ($f < 1/255);
     $f = 0.6 * $f;
   }
   ### grey exp colours: $self->{'colours'}
 }
 sub colours_grey_linear {
-  my ($self, $n) = @_;
+  my ($self, $n, $colour) = @_;
   my $colours = $self->{'colours'} = [];
   foreach my $i (0 .. $n-1) {
-    my $c = 255 * $i / ($n-1);
-    push @$colours, sprintf '#%02X%02X%02X', $c, $c, $c;
+    push @$colours, $self->colour_scaled ($i / ($n-1));
   }
   ### colours_grey_linear: $self->{'colours'}
-}
-sub colours_ {
-  my ($self, $n) = @_;
-  my $colours = $self->{'colours'} = [];
-  foreach my $i (0 .. $n-1) {
-    my $c = 255 * $i / ($n-1);
-    push @$colours, sprintf '#%02X%02X%02X', $c, $c, $c;
-  }
-  ### colours: $self->{'colours'}
 }
 
 # seven colours
@@ -603,20 +640,6 @@ sub colours_rgb {
   my ($self) = @_;
   $self->{'colours'} = [ 'red', 'green', 'blue' ];
   ### colours: $self->{'colours'}
-}
-
-sub colour_to_rgb {
-  my ($colour) = @_;
-  my $scale;
-  if ($colour =~ /^#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i) {
-    $scale = 255;
-  } elsif ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i) {
-    $scale = 65535;
-  } elsif (eval { require Color::Library }
-           && (my $c = Color::Library->color($colour))) {
-    return map {$_/255} $c->rgb;
-  }
-  return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
 }
 
 # # ($x,$y, $x,$y, ...) = $aff->untransform($x,$y, $x,$y, ...)
@@ -799,11 +822,11 @@ sub draw_Image_start {
                             lo => $n_lo,
                             hi => $n_hi);
 
-    if ($values_obj->type eq 'pn1') {
+    if ($values_obj->is_type('pn1')) {
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ '-',' ','+' ];
       } else {
-        $self->colours_grey_linear(3);
+        $self->colours_grey_linear (3);
         my $colours = $self->{'colours'};
         $self->{'colours'} = [ $colours->[1],  # grey
                                $background,
@@ -811,11 +834,12 @@ sub draw_Image_start {
                              ];
       }
       $self->{'colours_offset'} = 1;
+      $self->{'use_colours'} = 1;
       ### pn1
       ### colours: $self->{'colours'}
       ### colours_offset: $self->{'colours_offset'}
 
-    } elsif ($values_obj->type eq 'count') {
+    } elsif ($values_obj->is_type('count')) {
       $self->{'colours_offset'} = 0;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9 ];
@@ -823,19 +847,21 @@ sub draw_Image_start {
         $self->colours_grey_exp ($self);
       }
       push @colours, @{$self->{'colours'}};
+      $self->{'use_colours'} = 1;
       $self->{'colours_offset'} = - $values_obj->values_min;
       ### type "count"
       ### colours_offset: $self->{'colours_offset'}
       ### per values_min: $values_obj->values_min
       ### colours: $self->{'colours'}
 
-    } elsif ($values_obj->type eq 'radix') {
+    } elsif ($values_obj->is_type('radix')) {
       $self->{'colours_offset'} = 0;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
       } else {
-        $self->colours_grey_linear($values_obj->{'radix'});
+        $self->colours_grey_linear ($values_obj->{'radix'});
       }
+      $self->{'use_colours'} = 1;
       push @colours, @{$self->{'colours'}};
     }
     ### values_obj: $self->{'values_obj'}
@@ -1115,17 +1141,16 @@ sub draw_Image_steps {
   my $colours = $self->{'colours'};
   my $colours_offset = $self->{'colours_offset'};
   my $colour = $foreground;
-  my $type_use_colours = ($values_obj->type ne 'seq');
+  my $use_colours = $self->{'use_colours'};
   my $n;
-  ### $type_use_colours
+  ### $use_colours
   ### $colours_offset
 
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
     my $y    = $self->{'y'};
-    #### draw by xy: $type_use_colours, $values_obj->type
-    #### xy from: "$x,$y"
+    #### draw by xy from: "$x,$y"
 
     for (;;) {
       ### use_xy: "$x,$y"
@@ -1187,7 +1212,7 @@ sub draw_Image_steps {
       $wy = floor ($wy - $offset + 0.5);
       ### win: "$wx,$wy"
 
-      if ($type_use_colours) {
+      if ($use_colours) {
         $colour = $colours->[min ($#$colours,
                                   max (0, $count + $colours_offset))];
         #### $colour
@@ -1238,7 +1263,7 @@ sub draw_Image_steps {
       my ($x, $y) = $path_object->n_to_xy($n) or next;
       ### path: "$x,$y"
 
-      if ($type_use_colours) {
+      if ($use_colours) {
         if (! defined $count || $count == 0) {
           next; # background
         }

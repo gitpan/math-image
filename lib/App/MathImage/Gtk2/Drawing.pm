@@ -42,7 +42,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 46;
+our $VERSION = 47;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -123,6 +123,13 @@ use Glib::Object::Subclass
                    'Blurb.',
                    1, POSIX::INT_MAX(),
                    App::MathImage::Generator->default_options->{'scale'},
+                   Glib::G_PARAM_READWRITE),
+
+                  Glib::ParamSpec->string
+                  ('foreground',
+                   __('Foreground colour'),
+                   'Blurb.',
+                   App::MathImage::Generator->default_options->{'foreground'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string

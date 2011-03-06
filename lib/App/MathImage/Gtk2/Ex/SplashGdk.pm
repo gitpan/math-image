@@ -23,7 +23,7 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 46;
+our $VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

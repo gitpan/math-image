@@ -24,9 +24,12 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
-use constant type => 'radix';
+sub is_type {
+  my ($self, $type) = @_;
+  return ($type eq 'radix' || $self->SUPER::is_type($type));
+}
 use constant values_min => 0;
 sub values_max {
   my ($self) = @_;

@@ -25,14 +25,17 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Count Prime Factors');
 use constant description => __('Count of prime factors, as a grey scale of white for prime through to black for many factors (or the foreground through to background, if they\'re given in hex #RRGGBB).');
-use constant type => 'count';
+sub is_type {
+  my ($self, $type) = @_;
+  return ($type eq 'count' || $self->SUPER::is_type($type));
+}
 use constant values_min => 1;
 
 use constant oeis => 'A001222'; # with multiplicity

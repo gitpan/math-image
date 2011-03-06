@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 use constant name => __('Base 4 Without 3');
 use constant description => __('The integers without any 3 digits when written out in base 4.');

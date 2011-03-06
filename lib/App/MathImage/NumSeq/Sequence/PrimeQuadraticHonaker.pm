@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 use constant name => __('Prime Generating Quadratic of Honaker');
 use constant description => __('The quadratic numbers 4*k^2 + 4*k + 59.');

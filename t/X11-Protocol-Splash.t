@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-my $test_count = 100;
+my $test_count = 26;
 plan tests => $test_count;
 
 {
@@ -70,81 +70,65 @@ if (! eval { $X = X11::Protocol->new ($display); }) {
 }
 $X->QueryPointer($X->{'root'});  # sync
 
-require App::MathImage::X11::Protocol::XSetRoot;
+require App::MathImage::X11::Protocol::Splash;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 my $want_version = 47;
-ok ($App::MathImage::X11::Protocol::XSetRoot::VERSION,
+ok ($App::MathImage::X11::Protocol::Splash::VERSION,
     $want_version,
     'VERSION variable');
-ok (App::MathImage::X11::Protocol::XSetRoot->VERSION,
+ok (App::MathImage::X11::Protocol::Splash->VERSION,
     $want_version,
     'VERSION class method');
 
-ok (eval { App::MathImage::X11::Protocol::XSetRoot->VERSION($want_version); 1 },
+ok (eval { App::MathImage::X11::Protocol::Splash->VERSION($want_version); 1 },
     1,
     "VERSION class check $want_version");
 my $check_version = $want_version + 1000;
-ok (! eval { App::MathImage::X11::Protocol::XSetRoot->VERSION($check_version); 1 },
+ok (! eval { App::MathImage::X11::Protocol::Splash->VERSION($check_version); 1 },
     1,
     "VERSION class check $check_version");
 
 #------------------------------------------------------------------------------
-# _rgbstr_to_card16()
-
-foreach my $elem ([ 'bogosity' ],
-                  [ '#' ],
-                  [ '#1' ],
-                  [ '#12' ],
-
-                  [ '#def', 0xDDDD, 0xEEEE, 0xFFFF ],
-
-                  [ '#1234' ],
-                  [ '#12345' ],
-
-                  [ '#123456', 0x1212, 0x3434, 0x5656 ],
-                  [ '#abcdef', 0xABAB, 0xCDCD, 0xEFEF ],
-                  [ '#ABCDEF', 0xABAB, 0xCDCD, 0xEFEF ],
-
-                  [ '#1234567' ],
-                  [ '#12345678' ],
-
-                  [ '#123456789', 0x1231, 0x4564, 0x7897 ],
-                  [ '#abcbcdcde', 0xABCA, 0xBCDB, 0xCDEC ],
-
-                  [ '#1234567890' ],
-                  [ '#12345678901' ],
-
-                  [ '#123456789ABC', 0x1234, 0x5678, 0x9ABC ],
-                  [ '#abcdfedcdcba', 0xABCD, 0xFEDC, 0xDCBA ],
-
-                  [ '#1234567890123' ],
-                  [ '#12345678901234' ],
-                  [ '#123456789012345' ],
-                  [ '#1234567890123456' ],
-                  [ '#12345678901234567' ],
-                  [ '#123456789012345678' ],
-
-                 ) {
-  my ($hexstr, @want_rgb) = @$elem;
-  my @got_rgb = App::MathImage::X11::Protocol::XSetRoot::_hexstr_to_rgb($hexstr);
-  ok (scalar(@got_rgb), scalar(@want_rgb));
-  ok ($got_rgb[0], $want_rgb[0]);
-  ok ($got_rgb[1], $want_rgb[1]);
-  ok ($got_rgb[2], $want_rgb[2]);
-}
-
-
-#------------------------------------------------------------------------------
-# set_background()
+# _wm_unpack_hints()
 
 {
-  my $fields_before = join (',', sort keys %$X);
-  my $grab = App::MathImage::X11::Protocol::XSetRoot->set_background
-    (X => $X,
-     pixel => $X->{'black_pixel'});
+  my $format = 'LLLLLllLL';
+
+  foreach my $elem ([ pack($format,0,(0)x8) ],
+                    [ pack($format,0,(0)x7) ],  # short from X11R2 ?
+
+                    [ pack($format,1,0,(0)x7), input => 0 ],
+                    [ pack($format,1,1,(0)x7), input => 1 ],
+
+                    [ pack($format,2,0,1,(0)x6), initial_state => 'NormalState' ],
+                    [ pack($format,2,0,3,(0)x6), initial_state => 'IconicState' ],
+
+                    [ pack($format, 16, 0,0,0,0, 123,456, 0,0),
+                      icon_x => 123, icon_y => 456 ],
+                    [ pack($format, 16, 0,0,0,0, -123,-456, 0,0),
+                      icon_x => -123, icon_y => -456 ],
+
+                    [ pack($format, 64, 0,0,0,0, 0,0, 0,0), window_group => 0 ],
+                    [ pack($format, 64, 0,0,0,0, 0,0, 0,123), window_group => 123 ],
+                    [ pack($format, 256, (0)x8), urgency => 1 ],
+                   ) {
+    my ($bytes, @want) = @$elem;
+    my @got = App::MathImage::X11::Protocol::Splash::_wm_unpack_hints($bytes);
+    my $good = 1;
+    ok (scalar(@got), scalar(@want));
+    for (my $i = 0; $i < @got && $i < @want; $i++) {
+      unless ((! defined $got[$i] && ! defined $want[$i])
+              || (defined $got[$i] && defined $want[$i]
+                  && $got[$i] eq $want[$i])) {
+        $good = 0;
+        MyTestHelpers::diag ("Got ",$got[$i]," want ",$want[$i]);
+      }
+    }
+    ok ($good, 1);
+  }
 }
 
 

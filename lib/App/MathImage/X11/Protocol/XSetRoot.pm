@@ -21,11 +21,11 @@ use strict;
 use Carp;
 use X11::Protocol::Other;
 
+use vars '$VERSION';
+$VERSION = 47;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-use vars '$VERSION';
-$VERSION = 46;
 
 use constant _XA_PIXMAP => 20;  # pre-defined atom
 
@@ -169,7 +169,7 @@ sub _kill_current {
 
 sub _alloc_named_or_hex_color {
   my ($X, $colormap, $str) = @_;
-  if (my @exact = _hexcolor_to_rgb($str)) {
+  if (my @exact = _hexstr_to_rgb($str)) {
     my ($pixel, @actual) = $X->AllocColor($colormap, @exact);
     return ($pixel, @exact, @actual);
   } else {
@@ -177,27 +177,52 @@ sub _alloc_named_or_hex_color {
   }
 }
 
+# =item ($red16, $green16, $blue16) = hexstr_to_rgb($str)
+#
+# Parse a given RGB colour string like "#FF00FF" into its red, green, blue
+# components as 16-bit values.  The strings recognised are 1, 2, 3 or 4
+# digit hex.
+#
+#     #RGB
+#     #RRGGBB
+#     #RRRGGGBBB
+#     #RRRRGGGGBBBB
+#
+# If C<$str> is unrecognised then the return is an empty list.
+#
+#     my @rgb = hexstr_to_rgb($str);
+#     if (! @rgb) { die "Unrecognised colour: $str" }
+#
+# The return values are in the range 0 to 65535.  The digits of the 1, 2 and
+# 3 forms are replicated as necessary to give a 16-bit range.  For example
+# 3-digit "#321FFF000" gives 0x3213, 0xFFFF, 0.  Or 1-digit "#F0F" is
+# 0xFFFF, 0, 0xFFFF.
+#
+# Would it be worth recognising the Xcms style "rgb:RR/GG/BB"?  Perhaps
+# that's best left to full Xcms, or general colour conversion modules.  The
+# X11R6 X(7) man page describes that "rgb:", but just "#" is much more
+# common.
+
 # cf XcmsLRGB_RGB_ParseString()
-my %hex_factor = (1 => 0x1111,
-                  2 => 0x101,
-                  3 => 0x10 + 1/0x100,
-                  4 => 1);
-sub _hexcolor_to_rgb {
+sub _hexstr_to_rgb {
   my ($str) = @_;
   ### $str
   # Crib: [:xdigit:] new in 5.6, so only 0-9A-F
-  $str =~ /^#([0-9A-F]+)$/i or return;
-  length($1) % 3 == 0 or return;
-  my $plen = length($1)/3;
-  my $factor = $hex_factor{$plen} || return;
-  ### $plen
-  ### $factor
-  return (map {int(hex()*$factor)}
-          substr ($str, 1, $plen),
-          substr ($str, 1+$plen, $plen),
-          substr ($str, -$plen));
+  $str =~ /^#(([0-9A-F]{3}){1,4})$/i or return;
+  my $len = length($1)/3;
+  return (map {hex(substr($_ x 4, 0, 4))}
+          substr ($str, 1, $len),
+          substr ($str, 1+$len, $len),
+          substr ($str, -$len));
 }
 
+# my %hex_factor = (1 => 0x1111,
+#                   2 => 0x101,
+#                   3 => 0x10 + 1/0x100,
+#                   4 => 1);
+#   my $factor = $hex_factor{$len} || return;
+#   ### $len
+#   ### $factor
 
 1;
 __END__

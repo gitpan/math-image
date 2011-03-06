@@ -180,6 +180,7 @@ lib/App/MathImage/Prima/Generator.pm
 lib/App/MathImage/Prima/Main.pm
 lib/App/MathImage/X11/Generator.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
+lib/App/MathImage/X11/Protocol/WM.pm
 lib/App/MathImage/X11/Protocol/XSetRoot.pm
 lib/Math/PlanePath/MathImageArchimedeanChords.pm
 lib/Math/PlanePath/MathImageFlowsnake.pm
@@ -217,6 +218,7 @@ t/Test/Weaken/ExtraBits.pm
 t/UndulatingNumbers.t
 t/Values.t
 t/ValuesFile.t
+t/X11-Protocol-Splash.t
 t/X11-Protocol-XSetRoot.t
 xt/0-exe-shebang.t
 xt/0-META-read.t

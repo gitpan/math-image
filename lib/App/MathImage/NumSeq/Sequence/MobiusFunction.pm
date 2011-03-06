@@ -25,11 +25,14 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
-use constant type => 'pn1';
+sub is_type {
+  my ($self, $type) = @_;
+  return ($type eq 'pn1' || $self->SUPER::is_type($type));
+}
 use constant values_min => -1;
 use constant values_max => 1;
 

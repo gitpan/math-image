@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 exit App::MathImage->command_line;
 
 __END__

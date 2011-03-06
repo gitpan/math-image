@@ -21,10 +21,12 @@
 package App::MathImage::X11::Protocol::Splash;
 use 5.004;
 use strict;
+use Carp;
 use List::Util 'max';  # 5.6 ?
+use App::MathImage::X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,6 +48,13 @@ sub popup {
   $self->{'X'}->MapWindow ($self->create_window);
 }
 
+sub popdown {
+  my ($self) = @_;
+  if (my $win = $self->{'window'}) {
+    $self->{'X'}->UnmapWindow ($win);
+  }
+}
+
 sub create_window {
   my ($self) = @_;
   if (! $self->{'window'}) {
@@ -62,8 +71,8 @@ sub create_window {
     my $y = int (max (0, $X->{'height_in_pixels'} - $height) / 2);
 
     ### sync: $X->QueryPointer($X->{'root'})
-    my $win = $X->new_rsrc;
-    $X->CreateWindow ($win,
+    my $window = $X->new_rsrc;
+    $X->CreateWindow ($window,
                       $X->{'root'},     # parent
                       'InputOutput',
                       0,                # depth
@@ -73,19 +82,217 @@ sub create_window {
                       0,                # border
                       background_pixmap => $pixmap,
                       override_redirect => 1,
-                      save_under => 1);
+                      save_under        => 1);
     ### sync: $X->QueryPointer($X->{'root'})
-    $self->{'window'} = $win;
+    $self->{'window'} = $window;
+
+    if (my $transient_for = $self->{'transient_for'}) {
+      App::MathImage::X11::Protocol::WM::set_transient_for
+          ($X, $window, $transient_for);
+    }
+    _wm_set_hints ($X, $window,
+                   input => 0,
+                   window_group => $self->{'window_group'});
+    App::MathImage::X11::Protocol::WM::set_netwm_window_type ($X, $window, 'SPLASH');
   }
   return $self->{'window'};
 }
 
-sub popdown {
-  my ($self) = @_;
-  if (my $win = $self->{'window'}) {
-    $self->{'X'}->UnmapWindow ($win);
+use constant _XA_WM_HINTS => 35;
+
+sub _wm_set_hints {
+  my $X = shift;
+  my $window = shift;
+  $X->ChangeProperty($window,
+                     _XA_WM_HINTS, # prop name
+                     _XA_WM_HINTS, # type
+                     32,           # format
+                     'Replace',
+                     _wm_pack_hints(@_));
+}
+{
+  my $format = 'LLLLLllLL';
+  # The C<urgency> hint was called "visible" in X11R5.  The name "urgency"
+  # is used here per X11R6.  The actual field sent and received is the same.
+  #
+  my %state = (WithdrawnState => 0,
+               DontCareState  => 0, # no longer in ICCCM
+               NormalState    => 1,
+               ZoomState      => 2, # no longer in ICCCM
+               IconicState    => 3,
+               InactiveState  => 4, # no longer in ICCCM
+              );
+  my %key_to_flag = (input         => 1,
+                     initial_state => 2,
+                     icon_pixmap   => 4,
+                     icon_window   => 8,
+                     icon_x        => 16,
+                     icon_y        => 16,
+                     icon_mask     => 32,
+                     window_group  => 64,
+                     message_hint  => 128, # obsolete
+                     # urgency       => 256, # in the code
+                    );
+  sub _wm_pack_hints {
+    my (%hint) = @_;
+    my $flags = 0;
+    foreach my $key (keys %hint) {
+      my $bit = $key_to_flag{$key}
+        || croak "Unrecognised WM_HINT field: ",$key;
+      if (defined $hint{$key}) {
+        $flags |= $key_to_flag{$key};
+      }
+    }
+    if ($hint{'urgency'}) {
+      $flags |= 256;
+    }
+    my $initial_state = $hint{'initial_state'} || 0;
+    $initial_state = $state{$initial_state} || $initial_state;
+    pack ($format,
+          $flags,
+          $hint{'input'} || 0,         # CARD32 bool
+          $initial_state,              # CARD32 enum
+          $hint{'icon_pixmap'} || 0,   # PIXMAP
+          $hint{'icon_window'} || 0,   # WINDOW
+          $hint{'icon_x'} || 0,        # INT32
+          $hint{'icon_y'} || 0,        # INT32
+          $hint{'icon_mask'} || 0,     # PIXMAP
+          $hint{'window_group'} || 0,  # WINDOW
+         )
+  }
+
+  # FIXME: initial_state as symbol only under $X->{'do_interp'} ...
+  my @state = ('WithdrawnState', # 0
+               # DontCareState  => 0, no longer ICCCM
+               'NormalState',    # 1
+               'ZoomState',      # 2, no longer ICCCM
+               'IconicState',    # 3
+               'InactiveState',  # 4, no longer in ICCCM
+              );
+  my @keys = ('input',
+              'initial_state',
+              'icon_pixmap',
+              'icon_window',
+              'icon_x',
+              'icon_y',
+              'icon_mask',
+              'window_group',
+              # 'message_hint',  # obsolete ...
+              # 'urgency',       # in the code
+             );
+  sub _wm_unpack_hints {
+    my ($bytes) = @_;
+    my ($flags, @values) = unpack ($format, $bytes);
+    my $bit = 1;
+    my @ret;
+    foreach my $i (0 .. $#keys) {
+      if ($flags & $bit) {
+        my $key = $keys[$i];
+        my $value = $values[$i];
+        if ($key eq 'initial_state') {
+          $value = $state[$value] || $value;
+        }
+        push @ret, $key, $value;
+      }
+      if ($i != 4) {
+        $bit <<= 1;
+      }
+    }
+    if ($flags & 256) {
+      push @ret, urgency => 1;
+    }
+    return @ret;
   }
 }
+
+# my %key_to_flag = (
+#                    # USPosition  1     User-specified x, y
+#                    # USSize      2     User-specified width, height
+#                    # PPosition   4     Program-specified position
+#                    # PSize       8     Program-specified size
+#                    # PMinSize    16    Program-specified minimum size
+#                    # PMaxSize    32    Program-specified maximum size
+#                    width_inc  => 64,
+#                    height_inc => 64,
+#                    min_aspect     => 128,
+#                    min_aspect_num => 128,
+#                    min_aspect_den => 128,
+#                    max_aspect     => 128,
+#                    max_aspect_num => 128,
+#                    max_aspect_den => 128,
+#                    base_width  => 256,
+#                    base_height => 256,
+#                    win_gravity => 512,
+#                   );
+# sub _wm_normal_hints_set {
+#   my ($X, $window, %hint) = @_;
+# 
+#   my $flags = 0;
+#   foreach my $key (keys %hint) {
+#     if (defined $hint{$key}) {
+#       $flags |= $key_to_flag{$key};
+#     }
+#   }
+#   my ($min_aspect_num, $min_aspect_den) = _aspect ('min', \%hint);
+#   my ($max_aspect_num, $max_aspect_den) = _aspect ('min', \%hint);
+#   
+#   $X->ChangeProperty($window,
+#                      _XA_WM_NORMAL_HINTS,  # key
+#                      _XA_WM_NORMAL_HINTS,  # type
+#                      32,                   # format
+#                      'Replace',
+#                      pack ('L*',
+#                            $flags,
+#                            0,0,0,0, # pad
+#                            $option{'min_width   INT32         If missing, assume base_width
+#                            $option{'min_height  INT32         If missing, assume base_height
+#                            $option{'max_width   INT32          
+#                            $option{'max_height  INT32          
+#                            $option{'width_inc'},
+#                            $option{'height_inc'},
+#                            $option{'min_aspect_num'},$option{'min_aspect_den'},
+#                            $option{'max_aspect_num'},$option{'max_aspect_den'},
+#                            $option{'base_width'},
+#                            $option{'base_height'},
+#                            $option{'win_gravity'},
+#      ));
+# }
+sub _aspect {
+  my ($which, $hint) = @_;
+  if (defined (my $aspect = $hint->{"${which}_aspect"})) {
+    return _aspect_frac($aspect);
+  }
+  return ($hint->{"${which}_aspect_num"}, $hint->{"${which}_aspect_den"});
+}
+sub _aspect_frac {
+  my ($aspect) = @_;
+  ### $aspect
+  if ($aspect =~ /^\d+$/) {
+    ### integer
+    return ($aspect, 1);
+  }
+  if ($aspect =~ m{^(\d+)/(\d+)$}) {
+    ### frac: $1, $2
+    return ($1, $2);
+  }
+  if ($aspect =~ /^0*(\d*)\.(\d+?)0*$/
+      && length($1)+length($2) <= 9) {
+    ### decimal: $1, $2
+    return ($1.$2, '1'.('0' x length($2)));
+  }
+  ### float, scale up in binary
+  my $den = 1;
+  while ($aspect < 0x4000_0000 && $den < 0x4000_0000) {
+    if ($aspect == int($aspect)) {
+      last;
+    }
+    $aspect *= 2;
+    $den *= 2;
+    ### up to: $aspect,$den
+  }
+  return (int($aspect + 0.5), $den);
+}
+# printf "%d %d", _aspect_frac('.123456789');
 
 1;
 __END__
@@ -133,7 +340,8 @@ Create and return a new Splash object.  The key/value parameters are
 
 =head1 SEE ALSO
 
-L<X11::Protocol>
+L<X11::Protocol>,
+L<X11::Protocol::Other>
 
 =head1 HOME PAGE
 

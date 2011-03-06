@@ -22,7 +22,7 @@ use strict;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,17 +35,24 @@ sub new {
     shift @$array;
   }
   ### shifted to: @$array
-  $self{'type'} ||= 'seq';
   return bless \%self, $class;
 }
 sub next {
   my ($self) = @_;
   ### NumSeqArray next(): $self->{'i'} . ' of ' . scalar(@{$self->{'array'}})
-  if ($self->{'type'} eq 'seq') {
-    return $self->{'array'}->[$self->{'i'}++];
-  } else {
-    my $i = $self->{'i'}++;
-    return ($i, $self->{'array'}->[$i]);
+  my $array = $self->{'array'};
+  my $i;
+  for (;;) {
+    if (($i = $self->{'i'}++) > $#$array) {
+      return;
+    }
+    if (defined (my $n = $self->{'array'}->[$i])) {
+      if ($self->is_type('radix')) {
+        return ($i, $n);
+      } else {
+        return $n;
+      }
+    }
   }
 }
 sub pred {

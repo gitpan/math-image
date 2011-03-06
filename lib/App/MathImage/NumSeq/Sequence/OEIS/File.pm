@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Array';
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -48,12 +48,9 @@ sub description {
 #     default => '',
 #    });
 
-sub type {
-  my ($class_or_self) = @_;
-  if (ref $class_or_self) {
-    return $class_or_self->{'type'};
-  }
-  return $class_or_self->SUPER::type;
+sub is_type {
+  my ($self, $type) = @_;
+  return $self->{'type_hash'}->{$type};
 }
 
 sub new {
@@ -64,31 +61,32 @@ sub new {
   ### $oeis_number
   my $aref = _read_values($oeis_number);
   ### $aref
-  my %info = _read_info($oeis_number, $aref);
+  my %info = _read_internal($oeis_number, $aref);
+  if (! %info) {
+    %info = _read_html($oeis_number, $aref);
+  }
   $aref ||= delete $info{'array'};
 
   if (! $aref) {
     croak "B-file or HTML not found for A-number \"",$oeis_number,"\"";
   }
 
-  my $type = 'radix';
-  my $max = 0;
-  foreach my $i (1 .. $#$aref) {
-    if ($aref->[$i] > 50) {
-      $type = 'seq';
-      last;
+  if ($info{'type_hash'}->{'radix'}) {
+    my $max = 0;
+    foreach my $i (1 .. $#$aref) {
+      if ($aref->[$i] > 50) {
+        last;
+      }
+      if ($aref->[$i] > $max) {
+        $max = $aref->[$i];
+      }
     }
-    if ($aref->[$i] > $max) {
-      $max = $aref->[$i];
-    }
-  }
-  if ($type eq 'radix') {
-    $options{'radix'} = $max+1;
+    $info{'values_max'} = $max;
+    $info{'radix'} = $max+1;
   }
 
   return $class->SUPER::new (%info,
                              %options,
-                             type => $type,
                              array => $aref);
 }
 
@@ -112,7 +110,7 @@ sub num_to_html {
   return sprintf 'A%06d%s', $num, $ext;
 }
 
-sub _read_info {
+sub _read_html {
   my ($num, $aref) = @_;
   my @ret;
   foreach my $basefile (num_to_html($num), num_to_html($num,'.htm')) {
@@ -162,31 +160,91 @@ sub _read_values {
   ### NumSeq-OEIS-File _read_values(): @_
 
   require File::Spec;
-  foreach my $basefile (num_to_bfile($num,'a'), num_to_bfile($num)) {
+ PREFIX: foreach my $prefix ('a', 'b') {
+    my $basefile = num_to_bfile($num,$prefix);
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
-
-    if (open FH, "<$filename") {
-      my @array;
-      while (defined (my $line = <FH>)) {
-        chomp $line;
-        next if $line =~ /^\s*$/;   # ignore blank lines
-        my ($i, $n) = split /\s+/, $line;
-        if (! (defined $n && $n =~ /^-?[0-9]+$/)) {
-          die "oops, bad line in $filename: '$line'";
-        }
+    if (! open FH, "<$filename") {
+      ### no bfile: $!
+      next;
+    }
+    my @array;
+    my $seen_good = 0;
+    while (defined (my $line = <FH>)) {
+      chomp $line;
+      if ($line =~ /^\s*$/) {
+        # ignore blank lines
+      } elsif (my ($i, $n) = ($line =~ /^([0-9]+) (-?[0-9]+)[ \t]*$/)) {
         if ($n > $max_value) {
           ### stop at bignum value: $line
           last;
         }
-        push @array, $n;
+        $seen_good = 1;
+        $array[$i] = $n;
+      } else {
+        # allow random stuff in a.txt files, such as a084888.txt
+        if (! $seen_good && $prefix eq 'a') {
+          close FH or die "Error reading $filename: $!";
+          next PREFIX;
+        }
+        die "oops, bad line in $filename: '$line'";
       }
-      close FH or die;
-      return \@array;
     }
-    ### no bfile: $!
+    close FH or die "Error reading $filename: $!";
+    return \@array;
   }
+  return;
+}
+
+sub _read_internal {
+  my ($num, $aref) = @_;
+  my @ret;
+  my %type_hash = (integer => 1);
+  my $basefile = num_to_html($num,'.internal');
+  my $filename = File::Spec->catfile (oeis_dir(), $basefile);
+  ### $basefile
+  ### $filename
+  if (! open FH, "<$filename") {
+    ### no .internal: $!
+    return;
+  }
+  my $contents = do { local $/; <FH> }; # slurp
+  close FH or die "Error reading $filename: $!";;
+
+  if ($contents =~ /^%K (.*?)(<tt>|$)/) {
+    my %K;
+    @K{split /[, \t]+/, $1} = ();
+    if (exists $K{'nonn'}) {
+      push @ret, values_min => 0;
+    }
+    if (exists $K{'base'} || exists $K{'cons'}) {
+      $type_hash{'radix'} = 1;
+    }
+  }
+
+  if ($contents =~ /^%N (.*?)(<tt>|$)/) {
+    my $description = $1;
+    $description =~ s/\s+/ /g;
+    $description =~ s/<.*?>//sg;
+    $description =~ s/&lt;/</sg;
+    $description =~ s/&gt;/>/sg;
+    $description =~ s/&amp;/&/sg;
+    $description .= "\n" . ($aref
+                            ? __('Values from B-file')
+                            : __('First few values from HTML'));
+    push @ret, description => $description;
+  }
+
+  if (! $aref) {
+    $contents =~ /^%S (.*?)(<tt>|$)/
+      or croak "Oops list of values not found in ",$filename;
+    push @ret, 'array', [ split /[, \t\r\n]+/, $1 ];
+  }
+
+  push @ret, type_hash => \%type_hash;
+  ### @ret
+  return @ret;
 }
 
 1;

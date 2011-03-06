@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
