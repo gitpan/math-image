@@ -19,7 +19,6 @@
 
 package MyOEIS;
 use strict;
-use warnings;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -27,12 +26,13 @@ use warnings;
 
 sub oeis_dir {
   require File::Spec;
-  return File::Spec->catfile (File::Spec->updir, 'oeis');
+  return File::Spec->catfile ($ENV{'HOME'} || File::Spec->curdir,
+                              'OEIS');
 }
 
 sub anum_validate {
   my ($anum) = @_;
-  unless ($anum =~ /^A?([0-9]{6,})$/) {
+  unless ($anum =~ /^A?0*([0-9]{6,})$/) {
     require Carp;
     Carp::croak("Bad A-number: $anum");
   }
@@ -40,11 +40,16 @@ sub anum_validate {
 }
 
 sub anum_to_bfile {
-  my ($str, $prefix) = @_;
+  my ($num, $prefix) = @_;
   ### anum_to_bfile: @_
   $prefix ||= 'b';
-  $str =~ s/^A(.*)/$prefix$1.txt/;
-  return $str;
+  return sprintf '%s%06d.txt', $prefix, $num;
+}
+sub anum_to_html {
+  my ($num, $suffix) = @_;
+  ### anum_to_html: @_
+  $suffix ||= '.html';
+  return sprintf 'A%06d%s', $num, $suffix;
 }
 
 sub read_values {
@@ -91,7 +96,7 @@ sub _read_values {
     ### no bfile: $!
   }
 
-  foreach my $basefile ("$anum.html", "$anum.htm") {
+  foreach my $basefile (anum_to_html($anum), anum_to_html($anum,'.htm')) {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename

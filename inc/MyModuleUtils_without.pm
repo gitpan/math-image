@@ -90,6 +90,31 @@ our $VERBOSE = 0;
   *Module::Util::find_installed = $repl;
 }
 
+{
+  if ($VERBOSE) {
+    print STDERR "Module::Util::find_in_namespace() now wrapped\n";
+  }
+  if ($VERBOSE >= 2) {
+    print STDERR "  \@INC currently: \n",join("\n", @INC),"\n";
+  }
+
+  my $orig = \&Module::Util::find_in_namespace;
+  my $repl = sub ($;@) {
+    my ($namespace, @inc) = @_;
+    if ($VERBOSE >= 1) {
+      print STDERR "Module::Util::find_in_namespace() $namespace\n";
+    }
+    my @modules = &$orig ($namespace, @inc);
+    @modules = grep {Module::Util::find_installed($_)} @modules;
+    if ($VERBOSE >= 1) {
+      print STDERR "Module::Util::find_in_namespace() return modules: ",join(' ',@modules),"\n";
+    }
+    return @modules;
+  };
+  no warnings 'redefine';
+  *Module::Util::find_in_namespace = $repl;
+}
+
 # my $path = Module::Util::find_installed('FindBin');
 # ### $path
 # eval "use Module::Mask 'FindBin'";

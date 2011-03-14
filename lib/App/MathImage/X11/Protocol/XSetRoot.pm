@@ -22,7 +22,7 @@ use Carp;
 use X11::Protocol::Other;
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

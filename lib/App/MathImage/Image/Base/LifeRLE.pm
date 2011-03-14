@@ -28,7 +28,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base::Text;
 @ISA = ('Image::Base::Text');
 
-$VERSION = 47;
+$VERSION = 48;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -220,7 +220,7 @@ sub colour_to_character {
     }
   } elsif (defined (my $bit = $colour_to_bit{$colour})) {
     $colour = $bit;
-  } elsif ((my $idx = index($ABC,$c)) >= 0) {
+  } elsif ((my $idx = index($ABC,$colour)) >= 0) {
     $colour = $idx+1;
   } else {
     croak "Unrecognised cell colour: $colour";

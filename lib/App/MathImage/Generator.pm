@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -173,52 +173,58 @@ sub values_class {
 }
 
 use constant path_choices => do {
-  my @choices = qw(SquareSpiral
-                   SacksSpiral
-                   VogelFloret
-                   TheodorusSpiral
-                   MultipleRings
-                   PixelRings
-
-                   DiamondSpiral
-                   PentSpiral
-                   PentSpiralSkewed
-                   HexSpiral
-                   HexSpiralSkewed
-                   HeptSpiralSkewed
-                   TriangleSpiral
-                   TriangleSpiralSkewed
-                   KnightSpiral
-
-                   PyramidRows
-                   PyramidSides
-                   PyramidSpiral
-                   Corner
-                   Diagonals
-                   Staircase
-                   Rows
-                   Columns
-
-                   PeanoCurve
-                   HilbertCurve
-                   ZOrderCurve
-
-                   MathImageArchimedeanChords
-                   MathImageOctagramSpiral
-                   MathImageFlowsnake
-                   MathImageHypot
-                 );
   my %choices;
   my $base = 'Math::PlanePath';
   foreach my $module (Module::Util::find_in_namespace($base)) {
     my $choice = $module;
     $choice =~ s/^\Q$base\E:://;
-    next if $choice =~ /::/; # not sub-parts
+    next if $choice =~ /::/; # not sub-parts ?
     $choices{$choice} = 1;
   }
-  delete @choices{@choices};
+  my @choices;
+  foreach my $prefer (qw(SquareSpiral
+                         SacksSpiral
+                         VogelFloret
+                         TheodorusSpiral
+                         MultipleRings
+                         PixelRings
+                         Hypot
+                         HypotOctant
+
+                         DiamondSpiral
+                         PentSpiral
+                         PentSpiralSkewed
+                         HexSpiral
+                         HexSpiralSkewed
+                         HeptSpiralSkewed
+                         TriangleSpiral
+                         TriangleSpiralSkewed
+                         OctagramSpiral
+                         KnightSpiral
+
+                         PyramidRows
+                         PyramidSides
+                         PyramidSpiral
+                         Corner
+                         Diagonals
+                         Staircase
+                         Rows
+                         Columns
+
+                         PeanoCurve
+                         HilbertCurve
+                         ZOrderCurve
+
+                       )) {
+    if (delete $choices{$prefer}) {
+      push @choices, $prefer;
+    }
+  }
+  my @mi = grep {/^MathImage/} keys %choices;
+  delete @choices{@mi}; # hash slice
   ### path extras: %choices
   push @choices, sort keys %choices;
+  push @choices, sort @mi;  # MathImageFoo ones last
   ### path choices: @choices
   @choices
 };

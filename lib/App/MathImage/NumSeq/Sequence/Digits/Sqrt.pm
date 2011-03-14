@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Radix';
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

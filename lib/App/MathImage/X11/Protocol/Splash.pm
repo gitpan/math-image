@@ -26,7 +26,7 @@ use List::Util 'max';  # 5.6 ?
 use App::MathImage::X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -161,7 +161,14 @@ sub _wm_set_hints {
          )
   }
 
-  # FIXME: initial_state as symbol only under $X->{'do_interp'} ...
+  # X11R2 Xlib had a bug were XSetWMHints() set a WM_HINTS property to only
+  # 8 CARD32s, chopping off the window_group field.  In Xatomtype.h
+  # NumPropWMHintsElements was 8 instead of 9.  Ignore any window_group bit
+  # in the flags in that case, and don't return a window_group field.
+  # (X11R2 source available at http://ftp.x.org/pub/X11R2/X.V11R2.tar.gz)
+  #
+  # FIXME: initial_state as symbol only under $X->{'do_interp'}
+  # ...
   my @state = ('WithdrawnState', # 0
                # DontCareState  => 0, no longer ICCCM
                'NormalState',    # 1
@@ -186,9 +193,12 @@ sub _wm_set_hints {
     my $bit = 1;
     my @ret;
     foreach my $i (0 .. $#keys) {
+      my $value = $values[$i];
+      if (! defined $value) {
+        next;
+      }
       if ($flags & $bit) {
         my $key = $keys[$i];
-        my $value = $values[$i];
         if ($key eq 'initial_state') {
           $value = $state[$value] || $value;
         }

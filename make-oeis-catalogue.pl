@@ -24,7 +24,7 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 my $outfilename = 'lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm';
 

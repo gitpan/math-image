@@ -17,7 +17,6 @@ devel/euler.pl
 devel/expression.pl
 devel/gen-bits.c
 devel/heatmap.pl
-devel/hypot.pl
 devel/image-xpm.pl
 devel/inverse.pl
 devel/language-expr.pl
@@ -184,8 +183,6 @@ lib/App/MathImage/X11/Protocol/WM.pm
 lib/App/MathImage/X11/Protocol/XSetRoot.pm
 lib/Math/PlanePath/MathImageArchimedeanChords.pm
 lib/Math/PlanePath/MathImageFlowsnake.pm
-lib/Math/PlanePath/MathImageHypot.pm
-lib/Math/PlanePath/MathImageOctagramSpiral.pm
 make-oeis-catalogue.pl
 Makefile.PL
 MANIFEST			This list of files
@@ -222,6 +219,7 @@ t/X11-Protocol-Splash.t
 t/X11-Protocol-XSetRoot.t
 xt/0-exe-shebang.t
 xt/0-META-read.t
+xt/0-Test-ConsistentVersion.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t

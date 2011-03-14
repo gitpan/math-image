@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,9 +32,11 @@ use constant density => 'sparse';
 
 sub new {
   my $class = shift;
+  ### Sparse new()
   my $self = bless { @_ }, $class;
   my $lo = ($self->{'lo'} ||= 0);
   while ($self->{'f0'} < $lo) {
+    ### Sparse next() for f0<lo
     $self->next;
   }
   return $self;

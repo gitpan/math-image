@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 47;
+  my $want_version = 48;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -122,6 +122,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 {
   my $good = 1;
   require Image::Base::Text;
+  diag "path_choices: ",join(' ',App::MathImage::Generator->path_choices);
   foreach my $path (App::MathImage::Generator->path_choices) {
     diag "exercise path $path";
     my $gen = App::MathImage::Generator->new (width  => 10,
@@ -164,7 +165,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     my $gen = App::MathImage::Generator->new (width  => 10,
                                               height => 10,
                                               scale  => 1,
-                                              path   => 'Rows',
+                                              path   => 'SquareSpiral',
                                               values => $values);
     my $image = Image::Base::Text->new
       (-width  => 10,

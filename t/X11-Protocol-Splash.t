@@ -75,7 +75,7 @@ require App::MathImage::X11::Protocol::Splash;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 47;
+my $want_version = 48;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION,
     $want_version,
     'VERSION variable');

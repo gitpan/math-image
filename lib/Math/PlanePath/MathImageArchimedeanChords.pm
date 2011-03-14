@@ -23,7 +23,6 @@
 package Math::PlanePath::MathImageArchimedeanChords;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use Math::Libm 'hypot', 'M_PI';
 use POSIX 'floor';
@@ -31,7 +30,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

@@ -29,7 +29,7 @@ use lib 'devel/lib';
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
-
+$|=1;
 
 {
   require App::MathImage::Generator;
@@ -55,7 +55,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Factorials');
     $values_class = $gen->values_class('AbundantNumbers');
     $values_class = $gen->values_class('ObstinateNumbers');
-    $values_class = $gen->values_class('Fibonacci');
     $values_class = $gen->values_class('LucasNumbers');
     $values_class = $gen->values_class('Emirps');
     $values_class = $gen->values_class('Repdigits');
@@ -72,10 +71,11 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
     $values_class = $gen->values_class('Expression');
     $values_class = $gen->values_class('Pentagonal');
     $values_class = $gen->values_class('TwinPrimes');
-    $values_class = $gen->values_class('DigitsModulo');
+    # $values_class = $gen->values_class('DigitsModulo');
     $values_class = $gen->values_class('RadixWithoutDigit');
     $values_class = $gen->values_class('PlanePathDelta');
     $values_class = $gen->values_class('OEIS');
+    $values_class = $gen->values_class('Fibonacci');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
@@ -88,11 +88,10 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
                                          oeis_number => '10059',
                                         );
     ### $values_obj
-    # print "type ",$values_obj->type,"\n";
+    # ### type: $values_obj->type
     if ($values_obj->is_type('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
-    $|=1;
     foreach (1 .. 50) {
       my ($n,$count) = $values_obj->next;
       if (! defined $n) {

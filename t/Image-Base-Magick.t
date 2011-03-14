@@ -66,7 +66,7 @@ require App::MathImage::Image::Base::Magick;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 47;
+my $want_version = 48;
 ok ($App::MathImage::Image::Base::Magick::VERSION,
     $want_version,
     'VERSION variable');

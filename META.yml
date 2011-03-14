@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            47
+version:            48
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -58,32 +58,7 @@ requires:
     Math::BaseCnv:        0
     Math::Libm:           0
     Math::PlanePath:      1
-    Math::PlanePath::Columns:  7
-    Math::PlanePath::Corner:  1
-    Math::PlanePath::Diagonals:  2
-    Math::PlanePath::DiamondSpiral:  1
-    Math::PlanePath::HeptSpiralSkewed:  4
-    Math::PlanePath::HexSpiral:  9
-    Math::PlanePath::HexSpiralSkewed:  9
-    Math::PlanePath::HilbertCurve:  13
-    Math::PlanePath::KnightSpiral:  1
-    Math::PlanePath::MultipleRings:  15
-    Math::PlanePath::PeanoCurve:  16
-    Math::PlanePath::PentSpiral:  4
-    Math::PlanePath::PentSpiralSkewed:  3
-    Math::PlanePath::PixelRings:  19
-    Math::PlanePath::PyramidRows:  4
-    Math::PlanePath::PyramidSides:  1
-    Math::PlanePath::PyramidSpiral:  3
-    Math::PlanePath::Rows:  7
-    Math::PlanePath::SacksSpiral:  1
-    Math::PlanePath::SquareSpiral:  5
-    Math::PlanePath::Staircase:  16
-    Math::PlanePath::TheodorusSpiral:  6
-    Math::PlanePath::TriangleSpiral:  3
-    Math::PlanePath::TriangleSpiralSkewed:  3
-    Math::PlanePath::VogelFloret:  12
-    Math::PlanePath::ZOrderCurve:  13
+    Math::PlanePath::SquareSpiral:  1
     Math::Prime::XS:      0.23
     Module::Load:         0
     Module::Pluggable:    0
@@ -143,10 +118,71 @@ optional_features:
             Language::Expr:       0.14
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
+            Math::PlanePath::Columns:  7
+            Math::PlanePath::Corner:  1
+            Math::PlanePath::Diagonals:  2
+            Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::HeptSpiralSkewed:  4
+            Math::PlanePath::HexSpiral:  9
+            Math::PlanePath::HexSpiralSkewed:  9
+            Math::PlanePath::HilbertCurve:  13
+            Math::PlanePath::Hypot:  21
+            Math::PlanePath::HypotOctant:  21
+            Math::PlanePath::KnightSpiral:  1
+            Math::PlanePath::MultipleRings:  15
+            Math::PlanePath::OctagramSpiral:  21
+            Math::PlanePath::PeanoCurve:  16
+            Math::PlanePath::PentSpiral:  4
+            Math::PlanePath::PentSpiralSkewed:  3
+            Math::PlanePath::PixelRings:  19
+            Math::PlanePath::PyramidRows:  4
+            Math::PlanePath::PyramidSides:  1
+            Math::PlanePath::PyramidSpiral:  3
+            Math::PlanePath::Rows:  7
+            Math::PlanePath::SacksSpiral:  1
+            Math::PlanePath::SquareSpiral:  5
+            Math::PlanePath::Staircase:  16
+            Math::PlanePath::TheodorusSpiral:  6
+            Math::PlanePath::TriangleSpiral:  3
+            Math::PlanePath::TriangleSpiralSkewed:  3
+            Math::PlanePath::VogelFloret:  12
+            Math::PlanePath::ZOrderCurve:  13
             Math::Symbolic:       0.605
             Prima:                0
             X11::Protocol:        0
             X11::Protocol::Other:  1
+    maximum_planepath:
+        description:  Recommended PlanePath modules
+        requires:
+            Math::PlanePath::Columns:  7
+            Math::PlanePath::Corner:  1
+            Math::PlanePath::Diagonals:  2
+            Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::HeptSpiralSkewed:  4
+            Math::PlanePath::HexSpiral:  9
+            Math::PlanePath::HexSpiralSkewed:  9
+            Math::PlanePath::HilbertCurve:  13
+            Math::PlanePath::Hypot:  21
+            Math::PlanePath::HypotOctant:  21
+            Math::PlanePath::KnightSpiral:  1
+            Math::PlanePath::MultipleRings:  15
+            Math::PlanePath::OctagramSpiral:  21
+            Math::PlanePath::PeanoCurve:  16
+            Math::PlanePath::PentSpiral:  4
+            Math::PlanePath::PentSpiralSkewed:  3
+            Math::PlanePath::PixelRings:  19
+            Math::PlanePath::PyramidRows:  4
+            Math::PlanePath::PyramidSides:  1
+            Math::PlanePath::PyramidSpiral:  3
+            Math::PlanePath::Rows:  7
+            Math::PlanePath::SacksSpiral:  1
+            Math::PlanePath::SquareSpiral:  5
+            Math::PlanePath::Staircase:  16
+            Math::PlanePath::TheodorusSpiral:  6
+            Math::PlanePath::TriangleSpiral:  3
+            Math::PlanePath::TriangleSpiralSkewed:  3
+            Math::PlanePath::VogelFloret:  12
+            Math::PlanePath::ZOrderCurve:  13
     maximum_tests:
         description:  Have "make test" do as much as possible.
         requires:
@@ -172,6 +208,35 @@ recommends:
     Language::Expr:       0.14
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
+    Math::PlanePath::Columns:  7
+    Math::PlanePath::Corner:  1
+    Math::PlanePath::Diagonals:  2
+    Math::PlanePath::DiamondSpiral:  1
+    Math::PlanePath::HeptSpiralSkewed:  4
+    Math::PlanePath::HexSpiral:  9
+    Math::PlanePath::HexSpiralSkewed:  9
+    Math::PlanePath::HilbertCurve:  13
+    Math::PlanePath::Hypot:  21
+    Math::PlanePath::HypotOctant:  21
+    Math::PlanePath::KnightSpiral:  1
+    Math::PlanePath::MultipleRings:  15
+    Math::PlanePath::OctagramSpiral:  21
+    Math::PlanePath::PeanoCurve:  16
+    Math::PlanePath::PentSpiral:  4
+    Math::PlanePath::PentSpiralSkewed:  3
+    Math::PlanePath::PixelRings:  19
+    Math::PlanePath::PyramidRows:  4
+    Math::PlanePath::PyramidSides:  1
+    Math::PlanePath::PyramidSpiral:  3
+    Math::PlanePath::Rows:  7
+    Math::PlanePath::SacksSpiral:  1
+    Math::PlanePath::SquareSpiral:  5
+    Math::PlanePath::Staircase:  16
+    Math::PlanePath::TheodorusSpiral:  6
+    Math::PlanePath::TriangleSpiral:  3
+    Math::PlanePath::TriangleSpiralSkewed:  3
+    Math::PlanePath::VogelFloret:  12
+    Math::PlanePath::ZOrderCurve:  13
     Math::Symbolic:       0.605
     X11::Protocol:        0
     X11::Protocol::Other:  1

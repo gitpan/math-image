@@ -21,6 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
+use Prima; # constants
 use Prima::Label;
 use Prima::MsgBox;
 
@@ -28,7 +29,7 @@ use Prima::MsgBox;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 # use base 'Prima::Window';
 # sub init {

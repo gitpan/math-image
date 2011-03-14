@@ -24,7 +24,7 @@ use strict;
 use List::Util 'max';  # 5.6 ?
 
 use vars '$VERSION', '@ISA', '@EXPORT_OK';
-$VERSION = 47;
+$VERSION = 48;
 
 use Exporter;
 @ISA = ('Exporter');

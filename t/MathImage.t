@@ -37,7 +37,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 47;
+  my $want_version = 48;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -52,7 +52,8 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 
 foreach my $elem
   (
-   [ ['--text', '--vogel'] ],
+   [ ['--text', '--vogel'],
+     modules => ['Math::PlanePath::VogelFloret'] ],
 
    [ ['--version'] ],
    [ ['--help'] ],
@@ -62,14 +63,16 @@ foreach my $elem
    [ ['--text', '--scale=5'] ],
    [ ['--text', '--size=10'] ],
    [ ['--text', '--size=10x20'] ],
-   [ ['--text', '--sacks'] ],
+   [ ['--text', '--sacks'],
+     modules => ['Math::PlanePath::SacksSpiral'] ],
    # [ ['--text', '--random'] ],  # could need all modules
 
    [ ['--output=numbers'] ],
    [ ['--output=list'] ],
    [ ['--xpm'],
      modules => ['Image::Xpm'] ],
-   [ ['--png'],           modules => ['Image::Base::GD'] ],
+   [ ['--png'],
+     modules => ['Image::Base::GD'] ],
    [ ['--png','--module=GD'],
      modules => ['Image::Base::GD'] ],
    [ ['--png','--module=Gtk2']

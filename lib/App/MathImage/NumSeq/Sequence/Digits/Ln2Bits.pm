@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence::Digits::PiBits';
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 use constant name => __('Log(2) Bits');
 use constant description => __('Natural log(2), being 0.693147..., written out in binary.');

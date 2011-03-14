@@ -35,6 +35,43 @@ my %gtk2_optionals = ('Gtk2::Ex::CrossHair' => 0,
                       'Gtk2::Ex::PodViewer'    => 0,
                      );
 
+my %maximum_planepath
+  = (
+     # cf Generator.pm path_choices() preferences
+     'Math::PlanePath::SquareSpiral'   => 5,  # v.5 wider parameter
+     'Math::PlanePath::SacksSpiral'    => 1,
+     'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
+     'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
+     'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
+     'Math::PlanePath::PixelRings'           => 19, # new in v.19
+     'Math::PlanePath::Hypot'                => 21, # new in v.21
+     'Math::PlanePath::HypotOctant'          => 21, # new in v.21
+
+     'Math::PlanePath::DiamondSpiral'        => 1,
+     'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
+     'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
+     'Math::PlanePath::HexSpiral'            => 9,  # v.9 wider parameter
+     'Math::PlanePath::HexSpiralSkewed'      => 9,  # v.9 wider parameter
+     'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
+     'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
+     'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
+     'Math::PlanePath::OctagramSpiral'       => 21, # new in v.21
+     'Math::PlanePath::KnightSpiral'         => 1,
+
+     'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
+     'Math::PlanePath::PyramidSides'         => 1,
+     'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
+     'Math::PlanePath::Corner'               => 1,
+     'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
+     'Math::PlanePath::Staircase'            => 16, # new in v.16
+     'Math::PlanePath::Rows'                 => 7,  # v.7 rect_to_n_range
+     'Math::PlanePath::Columns'              => 7,  # v.7 rect_to_n_range
+
+     'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
+     'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
+     'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
+    );
+
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',
    ABSTRACT     => 'Draw some mathematical images.',
@@ -125,40 +162,15 @@ MyMakeMakerExtras::WriteMakefile
     'Text::Capitalize' => 0,
     'Term::Size' => 0,
 
-    'Math::Prime::XS' => '0.23', # version 0.23 for fix 1928099
+    'Math::Prime::XS' => '0.23', # version 0.23 for fix of 1928099
 
     'Math::BaseCnv' => 0,
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
 
+    # my Math-PlanePath, can work with any selection, hopefully
     'Math::PlanePath' => 1,
-    # subclasses per Generator.pm path_choices()
-    'Math::PlanePath::SquareSpiral'   => 5,  # v.5 wider parameter
-    'Math::PlanePath::SacksSpiral'    => 1,
-    'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
-    'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
-    'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
-    'Math::PlanePath::PixelRings'           => 19, # new in v.19
-    'Math::PlanePath::DiamondSpiral'        => 1,
-    'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
-    'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
-    'Math::PlanePath::HexSpiral'            => 9,  # v.9 wider parameter
-    'Math::PlanePath::HexSpiralSkewed'      => 9,  # v.9 wider parameter
-    'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
-    'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
-    'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
-    'Math::PlanePath::KnightSpiral'         => 1,
-    'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
-    'Math::PlanePath::PyramidSides'         => 1,
-    'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
-    'Math::PlanePath::Corner'               => 1,
-    'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
-    'Math::PlanePath::Staircase'            => 16, # new in v.16
-    'Math::PlanePath::Rows'                 => 7,  # v.7 rect_to_n_range
-    'Math::PlanePath::Columns'              => 7,  # v.7 rect_to_n_range
-    'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
-    'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
-    'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
+    'Math::PlanePath::SquareSpiral'   => 1,
    },
 
    META_MERGE =>
@@ -167,6 +179,7 @@ MyMakeMakerExtras::WriteMakefile
      },
      recommends =>
      {
+      %maximum_planepath,
       %gtk2_optionals,
       %for_x11,
       'Math::Aronson'  => 4, # version 4 for lying option
@@ -186,9 +199,14 @@ MyMakeMakerExtras::WriteMakefile
         requires => \%gtk2_optionals,
       },
 
+      maximum_planepath =>
+      { description => 'Recommended PlanePath modules',
+        requires => \%maximum_planepath,
+      },
       maximum_interoperation =>
       { description => 'All the optional things Math-Image can use.',
         requires => {
+                     %maximum_planepath,
                      %for_x11,
                      %gtk2_optionals,
 

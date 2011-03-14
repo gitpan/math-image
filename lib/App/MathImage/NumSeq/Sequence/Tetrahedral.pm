@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');
