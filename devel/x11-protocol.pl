@@ -21,10 +21,43 @@ use 5.010;
 use strict;
 use warnings;
 use X11::Protocol;
+use App::MathImage::X11::Protocol::Splash;
 
 use Smart::Comments;
 
 
+{
+  my $X = X11::Protocol->new;
+  my $window = $X->new_rsrc;
+  my $pixmap = $X->new_rsrc;
+  ### $pixmap
+  $X->CreatePixmap ($pixmap,
+                    $X->{'root'}, # parent
+                    1,
+                    100,10);  # width, height
+  $X->CreateWindow ($window,
+                    $X->{'root'},     # parent
+                    'InputOutput',
+                    0,                # depth, from parent
+                    'CopyFromParent', # visual
+                    0,0,              # x,y
+                    1,1,              # width,height
+                    0);               # border
+  X11::Protocol::WM::set_wm_hints ($X, $window,
+                                   input => 1,
+                                   initial_state => 'IconicState',
+                                   icon_pixmap => $pixmap,
+                                  );
+  { my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_hints ($X, $window);
+    ### @ret
+  }
+  $X->MapWindow ($window);
+  $X->flush;
+  sleep 1;
+  my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state($X,$window);
+  ### @ret
+  exit 0;
+}
 {
   require App::MathImage::X11::Protocol::Splash;
   my $X = X11::Protocol->new;

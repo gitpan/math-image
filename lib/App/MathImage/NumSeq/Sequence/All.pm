@@ -24,34 +24,27 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('All Integers');
-use constant description => __('All integers 1,2,3,etc.');
+use constant description => __('All integers 0,1,2,3,etc.');
 use constant values_min => 1;
-use constant oeis => 'A000027';   # natural numbers starting 1
-# OeisCatalogue: A000027
 
-# cf
-# use constant oeis => 'A001477'; # non-negatives starting 0
+# cf A001477 natural numbers starting 1
+#
+use constant oeis => 'A000027';   # non-negatives, starting 0
 
-sub new {
-  my ($class, %self) = @_;
-  $self{'lo'} ||= 0;
-  my $self = bless \%self, $class;
-  $self->rewind;
-  return $self;
-}
 sub rewind {
   my ($self) = @_;
   $self->{'i'} = $self->{'lo'};
 }
 sub next {
   my ($self) = @_;
-  return $self->{'i'}++;
+  my $i = $self->{'i'}++;
+  return ($i, $i);
 }
 
 use constant pred => 1;

@@ -23,10 +23,10 @@ use List::Util 'min','max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::NumSeq::Sequence';
-use App::MathImage::NumSeq::Radix;
+use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +34,7 @@ $VERSION = 48;
 use constant name => __('Beastly');
 use constant description => __('Numbers which contain "666".  The default is decimal, or select a radix.');
 use constant values_min => 666;
-use constant parameter_list => (App::MathImage::NumSeq::Radix::parameter_common_radix);
+use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 
 
 # cf A131645 the beastly primes

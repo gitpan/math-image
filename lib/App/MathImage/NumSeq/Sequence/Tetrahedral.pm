@@ -24,40 +24,27 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');
 use constant oeis => 'A000292'; # tetrahedrals
-# OeisCatalogue: A000292
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  require Math::Libm;
-
-  my $self = bless { i => 0,
-                     lo => $lo, # for NumSeq::Sparse
-                   }, $class;
+sub rewind {
+  my ($self) = @_;
 
   # ENHANCE-ME: cbrt() inverse to set i from requested $lo
   my $i = 0;
-  while ($class->ith($i) < $lo) {
+  while ($self->ith($i) < $self->{'lo'}) {
     $i++;
   }
   $self->{'i'} = $i;
-
-  return $self;
 }
 sub next {
   my ($self) = @_;
-  return $self->ith($self->{'i'}++);
+  my $i = $self->{'i'}++;
+  return ($i, $self->ith($i));
 }
-# sub pred {
-#   my ($class_or_self, $n) = @_;
-#   $n = Math::Libm::cbrt ($n);
-#   return ($n == int($n));
-# }
 sub ith {
   my ($class_or_self, $i) = @_;
   return $i*($i+1)*($i+2)/6;

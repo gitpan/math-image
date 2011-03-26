@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Sequence::Cubes;
 # VERSION
 
 {
-  my $want_version = 48;
+  my $want_version = 49;
   is ($App::MathImage::NumSeq::Sequence::Cubes::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Cubes->VERSION,  $want_version, 'VERSION class method');
 
@@ -58,6 +58,7 @@ use App::MathImage::NumSeq::Sequence::Cubes;
 }
 
 {
+  require Math::Libm;
   my $n = 27;
   $n = Math::Libm::cbrt(27);
   require Math::Libm;

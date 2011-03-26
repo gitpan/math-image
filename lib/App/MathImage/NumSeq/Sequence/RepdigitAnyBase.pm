@@ -21,10 +21,10 @@ use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
+use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,7 +33,6 @@ use constant name => __('Repdigits In Any Base');
 use constant description => __('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base (Sloane\'s A167782).');
 use constant values_min => 1;
 use constant oeis => 'A167782';
-# OeisCatalogue: A167782
 
 # b^2 + b + 1 = k
 # b^2+b+0.5 = k-0.5

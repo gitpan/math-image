@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,7 +35,9 @@ use constant name => __('Star Numbers');
 use constant description =>  __('The star numbers 1, 13, 37, 73, 121, etc, 6*n*(n-1)+1, also called the centred 12-gonals.');
 use constant values_min => 1;
 
-# A003154 - star numbers
+use constant oeis => 'A003154'; # star numbers
+#
+# cf
 # A006060 - which are also triangular numbers
 #     A068774 - indices of the triangulars
 #     A068775 - indices of the stars
@@ -43,8 +45,6 @@ use constant values_min => 1;
 #     A054320 - indices of the squares
 #     A068778 - indices of the stars
 #
-use constant oeis => 'A003154';
-# OeisCatalogue: A003154
 
 # entered polygonal numbers (k*n^2-k*n+2)/2, for k = 3 through 14 sides:
 # A005448 , A001844 , A005891 , A003215 , A069099 , A016754 , A060544 ,
@@ -53,15 +53,17 @@ use constant oeis => 'A003154';
 # centered polygonal numbers (k*n^2-k*n+2)/2, for k = 15 through 20 sides:
 # A069128 , A069129 , A069130 , A069131 , A069132 , A069133
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => ceil(_inverse(max(1,$lo))),
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = ceil(_inverse(max(1,$self->{'lo'})));
 }
 sub next {
   my ($self) = @_;
   return $self->ith($self->{'i'}++);
+}
+sub ith {
+  my ($class_or_self, $i) = @_;
+  return 6*$i*($i-1)+1;
 }
 sub pred {
   my ($class_or_self, $n) = @_;
@@ -69,10 +71,6 @@ sub pred {
   # FIXME: the _inverse() +3 etc might be lost to rounding for very big $n
   my $i = _inverse($n);
   return ($i == int($i));
-}
-sub ith {
-  my ($class_or_self, $i) = @_;
-  return 6*$i*($i-1)+1;
 }
 
 # i = 1/2 + sqrt(1/6 * $n + 1/12)

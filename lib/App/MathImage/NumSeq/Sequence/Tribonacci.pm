@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,14 +33,13 @@ use constant name => __('Tribonacci Numbers');
 use constant description => __('Tribonacci numbers 0, 0, 1, 1, 2, 4, 7, 13, 24, being T(i) = T(i-1) + T(i-2) + T(i-3) starting from 0,0,1.');
 use constant values_min => 1;
 use constant oeis => 'A000073'; # tribonacci
-# OeisCatalogue: A000073
 
-sub new {
-  my ($class, %options) = @_;
-  return $class->SUPER::new (%options,
-                             f0 => 0,
-                             f1 => 0,
-                             f2 => 1);
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'f0'} = 0;
+  $self->{'f1'} = 0;
+  $self->{'f2'} = 1;
 }
 sub next {
   my ($self) = @_;
@@ -53,7 +52,7 @@ sub next {
       $self->{'f1'},
       $self->{'f2'},
       $self->{'f0'}+$self->{'f1'}+$self->{'f2'});
-  return $ret;
+  return ($self->{'i'}++, $ret);
 }
 
 1;

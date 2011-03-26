@@ -26,20 +26,18 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Perfect Squares');
 use constant description => __('The perfect squares 1,4,9,16,25, etc k*k.');
-use constant values_min => 1;
+use constant values_min => 0;
 use constant oeis => 'A000290'; # squares
-# OeisCatalogue: A000290
 
 sub new {
   my ($class, %self) = @_;
-  require Math::Libm;
   if (! defined $self{'lo'}) {
     $self{'lo'} = 0;
   }
@@ -54,7 +52,8 @@ sub rewind {
 sub next {
   my ($self) = @_;
   ### Squares next(): $self->{'i'}
-  return $self->{'i'}++ ** 2;
+  my $i = $self->{'i'}++;
+  return ($i, $i*$i);
 }
 sub pred {
   my ($class_or_self, $n) = @_;

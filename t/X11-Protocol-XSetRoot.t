@@ -75,7 +75,7 @@ require App::MathImage::X11::Protocol::XSetRoot;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 48;
+my $want_version = 49;
 ok ($App::MathImage::X11::Protocol::XSetRoot::VERSION,
     $want_version,
     'VERSION variable');

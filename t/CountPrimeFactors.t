@@ -26,20 +26,20 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::Sequence::Count::PrimeFactors;
+use App::MathImage::NumSeq::Sequence::CountPrimeFactors;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 48;
-  is ($App::MathImage::NumSeq::Sequence::Count::PrimeFactors::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Sequence::Count::PrimeFactors->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 49;
+  is ($App::MathImage::NumSeq::Sequence::CountPrimeFactors::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Sequence::CountPrimeFactors->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Sequence::Count::PrimeFactors->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Sequence::CountPrimeFactors->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Sequence::Count::PrimeFactors->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Sequence::CountPrimeFactors->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -48,7 +48,7 @@ use App::MathImage::NumSeq::Sequence::Count::PrimeFactors;
 # values
 
 {
-  my $values_obj = App::MathImage::NumSeq::Sequence::Count::PrimeFactors->new
+  my $values_obj = App::MathImage::NumSeq::Sequence::CountPrimeFactors->new
     (lo => 1,
      hi => 30);
   my $want_arrayref = [ 1,  # 1

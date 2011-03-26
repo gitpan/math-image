@@ -24,13 +24,13 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Polygonal Numbers');
-# use constant description => __('');
+# use constant description => __('Polygonal numbers');
 use constant values_min => 1;
 use constant parameter_list => ({ name    => 'polygonal',
                                   display => __('Polygonal'),
@@ -84,8 +84,8 @@ sub oeis {
                : $class_or_self->parameter_default('pairs'));
   return $oeis[$k]->{$pairs};
 }
-# OeisCatalogue: A000217 polygonal=3  pairs=first
-# OeisCatalogue: A000290 polygonal=4  pairs=first
+# in Triangular.pm ... OeisCatalogue: A000217 polygonal=3  pairs=first
+# in Squares.pm ... OeisCatalogue: A000290 polygonal=4  pairs=first
 # OeisCatalogue: A000326 polygonal=5  pairs=first
 # OeisCatalogue: A005449 polygonal=5  pairs=second
 # OeisCatalogue: A001318 polygonal=5  pairs=both
@@ -142,12 +142,16 @@ sub new {
   return bless { pairs => $pairs,
                  k     => $k,
                  add   => $add,
-                 i     => 0,
                }, $class;
+}
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
 }
 sub next {
   my ($self) = @_;
-  return $self->ith($self->{'i'}++);
+  my $i = $self->{'i'}++;
+  return ($i, $self->ith($i));
 }
 sub ith {
   my ($self, $i) = @_;

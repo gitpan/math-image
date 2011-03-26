@@ -20,13 +20,12 @@ use 5.004;
 use strict;
 use Carp;
 use List::Util 'max';
-use Math::Libm 'hypot';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

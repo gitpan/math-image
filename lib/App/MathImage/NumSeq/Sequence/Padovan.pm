@@ -24,23 +24,22 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Padovan Numbers');
 use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
 use constant values_min => 1;
-use constant oeis => 'A000931';
-# OeisCatalogue: A000931 # padovan
+use constant oeis => 'A000931'; # padovan
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  return $class->SUPER::new (%options,
-                             f0 => 1,
-                             f1 => 1,
-                             f2 => 1);
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'f0'} = 1;
+  $self->{'f1'} = 1;
+  $self->{'f2'} = 1;
 }
 sub next {
   my ($self) = @_;
@@ -53,7 +52,7 @@ sub next {
       $self->{'f1'},
       $self->{'f2'},
       $self->{'f0'}+$self->{'f1'});
-  return $ret;
+  return ($self->{'i'}++, $ret);
 }
 # sub pred {
 #   my ($self, $n) = @_;

@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 48;
+our $VERSION = 49;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -94,7 +94,7 @@ my %_values_to_mnemonic =
    Perrin             => __('Perr_in'),
    Padovan            => __('Pado_van'),
    Fibonacci          => __('_Fibonacci'),
-   'Digits-Fraction'  => __('F_raction Digits'),
+   FractionDigits  => __('F_raction Digits'),
    Polygonal       => __('Pol_ygonal Numbers'),
    PiBits          => __('_Pi Bits'),
    Ln2Bits         => __x('_Log Natural {logarg} Bits', logarg => 2),
@@ -139,6 +139,7 @@ sub INIT_INSTANCE {
   $self->add ($vbox);
 
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
+  $draw->signal_connect (notify => \&_do_parameter_spin_changed);
 
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
@@ -674,7 +675,8 @@ HERE
   }
   my $values_combobox;
   {
-    my $toolitem = Gtk2::Ex::ToolItem::ComboEnum->new
+    my $toolitem = $self->{'values_toolitem'}
+      = Gtk2::Ex::ToolItem::ComboEnum->new
       (enum_type => 'App::MathImage::Gtk2::Drawing::Values',
        overflow_mnemonic => __('_Values'));
     $toolitem->show;
@@ -778,27 +780,50 @@ sub _do_destroy {
   return shift->signal_chain_from_overridden(@_);
 }
 
+sub _update_values_tooltip {
+  my ($self) = @_;
+  ### _update_values_tooltip()
+
+  my $tooltip = __('The values to display.');
+  my $toolitem = $self->{'values_toolitem'};
+  my $values_combobox = $self->{'values_combobox'} || return;
+  my $enum_type = $values_combobox->get('enum_type');
+  my $values = $values_combobox->get('active-nick');
+
+  # my $desc = Glib::Ex::EnumBits::to_description($enum_type, $values)
+  my $values_obj;
+  if (($values_obj = $self->{'draw'}->gen_object->values_object)
+      && (my $desc = $values_obj->description)) {
+    my $name = Glib::Ex::EnumBits::to_display ($enum_type, $values);
+    $tooltip .= "\n\n"
+      . __x('Current setting: {name}', name => $name)
+        . "\n"
+          . $desc;
+  }
+  ### values_obj: "$values_obj"
+  ### $tooltip
+
+  set_property_maybe ($toolitem, tooltip_text => $tooltip);
+}
+sub _do_parameter_spin_changed {
+  my ($spin) = @_;
+  my $self = $spin->get_ancestor(__PACKAGE__) || return;
+  _update_values_tooltip($self);
+}
+# sub _do_parameter_spin_adj_changed {
+#   my ($spin, $ref_weak_self) = @_;
+#   my $self = $$ref_weak_self || return;
+#   _update_values_tooltip($self);
+# }
+
+
 sub _do_values_changed {
   my ($values_combobox) = @_;
   my $self = $values_combobox->get_ancestor(__PACKAGE__) || return;
   my $values_toolitem = $values_combobox->get_parent || return;
   my $values = $values_combobox->get('active-nick');
 
-  {
-    my $tooltip = __('The values to display.');
-    my $enum_type = $values_combobox->get('enum_type');
-    if (my $desc = Glib::Ex::EnumBits::to_description
-        ($enum_type, $values)) {
-      my $name = Glib::Ex::EnumBits::to_display
-        ($enum_type, $values);
-      $tooltip .= "\n\n"
-        . __x('Current setting: {name}', name => $name)
-          . "\n"
-            . $desc;
-    }
-    ### $tooltip
-    set_property_maybe ($values_toolitem, tooltip_text => $tooltip);
-  }
+  _update_values_tooltip($self);
 
   my $toolbar = $self->get('toolbar');
   my $after = $values_toolitem;
@@ -876,6 +901,9 @@ sub _do_values_changed {
         if (defined (my $width = $pinfo->{'width'})) {
           $spin->set_width_chars ($width); # overriding $max
         }
+        # Scalar::Util::weaken (my $weak_self = $self);
+        # $adj->signal_connect (value_changed => \&_do_parameter_spin_adj_changed,
+        #                       \$weak_self);
         $spin->show;
         $toolitem->add ($spin);
 
@@ -953,29 +981,31 @@ sub values_has_pname {
 
 sub _do_motion_notify {
   my ($draw, $event) = @_;
-  my $self = $draw->get_ancestor (__PACKAGE__);
 
-  my $statusbar = $self->get('statusbar');
-  my $id = $statusbar->get_context_id (__PACKAGE__);
-  $statusbar->pop ($id);
+  my $self;
+  if (($self = $draw->get_ancestor (__PACKAGE__))
+      && (my $statusbar = $self->get('statusbar'))) {
+    my $id = $statusbar->get_context_id (__PACKAGE__);
+    $statusbar->pop ($id);
 
-  my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
-  if (defined $x) {
-    my $message = sprintf ("x=%.*f, y=%.*f",
-                           (int($x)==$x ? 0 : 2), $x,
-                           (int($y)==$y ? 0 : 2), $y);
-    if (defined $n) {
-      $message .= "   N=$n";
-      my $values = $draw->get('values');
-      if ($values ne 'Emirps'
-          && (my $radix = $draw->get('values-radix')) != 10) {
-        if ($draw->gen_object->values_class->parameter_hash->{'radix'}) {
-          my $str = _my_cnv($n,$radix);
-          $message .= " ($str in base $radix)";
+    my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
+    if (defined $x) {
+      my $message = sprintf ("x=%.*f, y=%.*f",
+                             (int($x)==$x ? 0 : 2), $x,
+                             (int($y)==$y ? 0 : 2), $y);
+      if (defined $n) {
+        $message .= "   N=$n";
+        my $values = $draw->get('values');
+        if ($values ne 'Emirps'
+            && (my $radix = $draw->get('values-radix')) != 10) {
+          if ($draw->gen_object->values_class->parameter_hash->{'radix'}) {
+            my $str = _my_cnv($n,$radix);
+            $message .= " ($str in base $radix)";
+          }
         }
       }
+      $statusbar->push ($id, $message);
     }
-    $statusbar->push ($id, $message);
   }
   return Gtk2::EVENT_PROPAGATE;
 }

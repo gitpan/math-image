@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Prime Generating Quadratic of Honaker');
 use constant description => __('The quadratic numbers 4*k^2 + 4*k + 59.');
@@ -36,18 +36,19 @@ use constant values_min => 59;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
 }
 sub next {
   my ($self) = @_;
   my $i = $self->{'i'}++;
+  return ($i, 4*($i + 1)*$i + 59);
+}
+sub ith {
+  my ($self, $i) = @_;
   return 4*($i + 1)*$i + 59;
 }
-
 sub pred {
   my ($class_or_self, $n) = @_;
   return ($n >= 59

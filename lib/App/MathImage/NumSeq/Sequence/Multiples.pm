@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
@@ -47,18 +47,14 @@ use constant parameter_list => ({ name => 'multiples',
                                 },
                                );
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  my $multiples = $options{'multiples'}
-    || $class->parameter_hash->{'multiples'}->{'default'};
-  return bless { i => ceil ($lo / abs($multiples)),
-                 multiples => $multiples,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = ceil ($self->{'lo'} / abs($self->{'multiples'}))
 }
 sub next {
   my ($self) = @_;
-  return $self->{'i'}++ * $self->{'multiples'};
+  my $i = $self->{'i'}++;
+  return ($i, $i * $self->{'multiples'});
 }
 sub pred {
   my ($self, $n) = @_;

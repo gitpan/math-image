@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Array;
+package App::MathImage::NumSeq::Base::Array;
 use 5.004;
 use strict;
 
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -31,8 +31,10 @@ sub new {
   my ($class, %self) = @_;
   $self{'i'} = 0;
   my $array = $self{'array'};
-  while (@$array && $array->[0] < $self{'lo'}) {
-    shift @$array;
+  if ($self{'lo'}) {
+    while (@$array && (! defined $array->[0] || $array->[0] < $self{'lo'})) {
+      shift @$array;
+    }
   }
   ### shifted to: @$array
   return bless \%self, $class;

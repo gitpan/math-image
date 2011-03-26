@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -237,7 +237,7 @@ sub next {
     if ($n > $self->{'hi'}) {
       $self->{'above'}++;
     }
-    return $n;
+    return ($i, $n);
   }
 }
 

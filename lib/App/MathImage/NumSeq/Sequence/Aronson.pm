@@ -26,7 +26,7 @@ use App::MathImage::NumSeq::File;
 use App::MathImage::NumSeq::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -113,48 +113,54 @@ sub oeis {
   return undef;
 }
 
-sub new {
-  my ($class, %options) = @_;
-  require Math::Aronson;
+# sub new {
+#   my ($class, %options) = @_;
+# 
+#   my $aronson 
+# 
+#   # my $vfw = App::MathImage::NumSeq::FileWriter->new
+#   #   (package => __PACKAGE__,
+#   #    hi      => $hi);
+# 
+#   return bless { aronson => $aronson,
+#                  aronson_lang => $lang,
+#                  aronson_letter => $aronson->{'letter'},
+#                  # vfw     => $vfw,
+#                }, $class;
+# }
+sub rewind {
+  my ($self) = @_;
 
-  my $hi = $options{'hi'};
-  my $lang = ($options{'aronson_lang'} || 'en');
-  my $letter = $options{'aronson_letter'};
-  my $conjunctions = ($options{'aronson_conjunctions'} ? 1 : 0);
-  my $lying = ($options{'aronson_lying'} ? 1 : 0);
+  require Math::Aronson;
+  my $hi = $self->{'hi'};
+  my $lang = ($self->{'aronson_lang'} || 'en');
+  my $letter = $self->{'aronson_letter'};
+  my $conjunctions = ($self->{'aronson_conjunctions'} ? 1 : 0);
+  my $lying = ($self->{'aronson_lying'} ? 1 : 0);
 
   my $letter_opt = (defined $letter ? $letter : '');
   my $options = "$lang,$letter_opt,$conjunctions,$lying";
 
-  if (my $vf = App::MathImage::NumSeq::File->new (package => __PACKAGE__,
-                                                options => $options,
-                                                hi => $hi)) {
-    ### use NumSeqFile: $vf
-    return $vf;
-  }
+  # if (my $vf = App::MathImage::NumSeq::File->new (package => __PACKAGE__,
+  #                                                 options => $options,
+  #                                                 hi => $hi)) {
+  #   ### use NumSeqFile: $vf
+  #   return $vf;
+  # }
 
-  my $aronson = Math::Aronson->new
+  $self->{'i'} = 0;
+  $self->{'aronson'} = Math::Aronson->new
     (hi                   => $hi,
      lang                 => $lang,
      letter               => $letter,
      without_conjunctions => ! $conjunctions,
      lying                => $lying,
     );
-
-  # my $vfw = App::MathImage::NumSeq::FileWriter->new
-  #   (package => __PACKAGE__,
-  #    hi      => $hi);
-
-  return bless { aronson => $aronson,
-                 aronson_lang => $lang,
-                 aronson_letter => $aronson->{'letter'},
-                 # vfw     => $vfw,
-               }, $class;
 }
 sub next {
   my ($self) = @_;
   ### Aronson next(): $self->{'i'}
-  return $self->{'aronson'}->next;
+  return ($self->{'i'}++, $self->{'aronson'}->next);
 }
 
 1;

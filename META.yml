@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            48
+version:            49
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -90,7 +90,9 @@ optional_features:
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             X11::Protocol:        0
+            X11::Protocol::AtomConstants:  2
             X11::Protocol::Other:  1
+            X11::Protocol::WM:    2
     gtk2_optionals:
         description:  Gtk2 things used if available.
         requires:
@@ -150,7 +152,9 @@ optional_features:
             Math::Symbolic:       0.605
             Prima:                0
             X11::Protocol:        0
+            X11::Protocol::AtomConstants:  2
             X11::Protocol::Other:  1
+            X11::Protocol::WM:    2
     maximum_planepath:
         description:  Recommended PlanePath modules
         requires:
@@ -239,4 +243,6 @@ recommends:
     Math::PlanePath::ZOrderCurve:  13
     Math::Symbolic:       0.605
     X11::Protocol:        0
+    X11::Protocol::AtomConstants:  2
     X11::Protocol::Other:  1
+    X11::Protocol::WM:    2

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::Count::PrimeFactors;
+package App::MathImage::NumSeq::Sequence::CountPrimeFactors;
 use 5.004;
 use strict;
 use warnings;
@@ -25,22 +25,19 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Count Prime Factors');
-use constant description => __('Count of prime factors, as a grey scale of white for prime through to black for many factors (or the foreground through to background, if they\'re given in hex #RRGGBB).');
-sub is_type {
-  my ($self, $type) = @_;
-  return ($type eq 'count' || $self->SUPER::is_type($type));
-}
+use constant description => __('Count of prime factors.');
+use constant type_hash => { count => 1 };
 use constant values_min => 1;
-
 use constant oeis => 'A001222'; # with multiplicity
-# use constant oeis => 'A001221'; # without multiplicity
-# OeisCatalogue: A001222
+
+# use constant oeis => 1222; # A001222 with multiplicity
+# cf A001221 without multiplicity
 
 sub new {
   my ($class, %options) = @_;
@@ -91,7 +88,7 @@ sub next {
 
 sub pred {
   my ($self, $n) = @_;
-  ### Count-PrimeFactors pred(): $n
+  ### CountPrimeFactors pred(): $n
   if ($self->{'i'} <= $n) {
     ### extend from: $self->{'i'}
     my $i;

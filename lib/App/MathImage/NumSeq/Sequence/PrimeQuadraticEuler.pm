@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Prime Generating Quadratic of Euler');
 use constant description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.');
@@ -34,15 +34,17 @@ use constant values_min => 41;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
 }
 sub next {
   my ($self) = @_;
   my $i = $self->{'i'}++;
+  return ($i, ($i + 1)*$i + 41);
+}
+sub ith {
+  my ($self, $i) = @_;
   return ($i + 1)*$i + 41;
 }
 sub pred {

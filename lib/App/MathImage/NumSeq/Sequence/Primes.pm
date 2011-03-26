@@ -23,10 +23,10 @@ use List::Util 'min', 'max';
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
+use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,8 +34,13 @@ $VERSION = 48;
 use constant name => __('Prime Numbers');
 use constant description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.');
 use constant values_min => 2;
-use constant oeis => 'A000040';
-# OeisCatalogue: A000040 # primes
+
+# cf A010051 - boolean 0 or 1 according as N is prime
+#                      A051006 binary fraction, in decimal
+#                      A051007 binary fraction, continued fraction
+#    A000720 - pi(n) num primes <= n
+#
+use constant oeis => 'A000040'; # primes
 
 sub new {
   my ($class, %options) = @_;

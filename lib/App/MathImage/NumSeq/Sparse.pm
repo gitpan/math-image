@@ -23,46 +23,83 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant density => 'sparse';
+sub is_type {
+  my ($self, $type) = @_;
+  if ($type eq 'sparse') {
+    return 1;
+  } else {
+    return $self->SUPER::is_type($type);
+  }
+}
 
 sub new {
   my $class = shift;
   ### Sparse new()
-  my $self = bless { @_ }, $class;
-  my $lo = ($self->{'lo'} ||= 0);
-  while ($self->{'f0'} < $lo) {
-    ### Sparse next() for f0<lo
-    $self->next;
+  my $self = $class->SUPER::new (pred_array => [],
+                                 pred_hash  => {},
+                                 pred_value => -1,
+                                 @_);
+  my $lo = $self->{'lo'};
+  ### $lo
+  ### f0: $self->{'f0'}
+
+  if (defined $self->{'f0'}) {
+    while ($self->{'f0'} < $lo) {
+      ### Sparse next() for f0<lo
+      $self->next;
+    }
   }
   return $self;
 }
+sub ith {
+  my ($self, $i) = @_;
+  ### pred_array last: $#{$self->{'pred_array'}}
+  while ($#{$self->{'pred_array'}} < $i) {
+    _extend ($self);
+  }
+  ### pred_array: $self->{'pred_array'}
+  return $self->{'pred_array'}->[$i];
+}
 
 sub pred {
-  my ($self, $n) = @_;
-  ### Sparse pred(): $n
+  my ($self, $value) = @_;
+  ### Sparse pred(): $value
+  while ($self->{'pred_value'} < $value
+         || $self->{'pred_value'} < 10) {
+    _extend ($self);
+  }
+  ### pred_hash: $self->{'pred_hash'}
+  ### Sparse pred result: exists($self->{'pred_hash'}->{$value})
+  return exists($self->{'pred_hash'}->{$value});
+}
+
+sub _extend {
+  my ($self) = @_;
+  ### Sparse _extend()
   my $iter = ($self->{'pred_iter'} ||= do {
-    $self->{'pred_n'} = -1;
+    ### Sparse create pred_iter
     my $class = ref $self;
     my $it = $class->new (%$self);
-    while ($self->{'pred_n'} < 10) {
-      my ($pred_n) = $it->next;
-      $self->{'pred_hash'}->{$self->{'pred_n'}=$pred_n} = undef;
-    }
+    # while ($self->{'pred_value'} < 10) {
+    #   my ($i, $pred_value) = $it->next;
+    #   $self->{'pred_hash'}->{$self->{'pred_value'}=$pred_value} = undef;
+    # }
+    # ### $it
     $it
   });
-  while ($n > $self->{'pred_n'}) {
-    my ($pred_n) = $iter->next;
-    ### $pred_n
-    next if ($pred_n < $self->{'lo'});
-    $self->{'pred_hash'}->{$self->{'pred_n'}=$pred_n} = undef;
+  my ($i, $value) = $iter->next;
+  ### $i
+  ### $value
+  if ($value >= $self->{'lo'}) {
+    $self->{'pred_value'} = $value;
+    $self->{'pred_array'}->[$i] = $value;
+    $self->{'pred_hash'}->{$value} = undef;
   }
-  ### Sparse pred result: exists($self->{'pred_hash'}->{$n})
-  return exists($self->{'pred_hash'}->{$n});
 }
 
 1;

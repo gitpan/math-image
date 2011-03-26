@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -99,7 +99,7 @@ use constant values_choices => do {
   }
   my @choices;
   foreach my $prefer (qw(Primes
-                         Count-PrimeFactors
+                         CountPrimeFactors
                          MobiusFunction
                          TwinPrimes
                          SophieGermainPrimes
@@ -123,10 +123,10 @@ use constant values_choices => do {
                          Padovan
                          Tribonacci
                          Factorials
-                         Digits-Fraction
-                         Digits-Sqrt
-                         Digits-PiBits
-                         Digits-Ln2Bits
+                         FractionDigits
+                         SqrtDigits
+                         PiBits
+                         Ln2Bits
                          Odd
                          Even
                          All
@@ -170,6 +170,20 @@ sub values_class {
   my $values_class = "App::MathImage::NumSeq::Sequence::$values";
   Module::Load::load ($values_class);
   return $values_class;
+}
+sub values_object {
+  my ($self) = @_;
+  ### Generator values_object()
+  my $values_class = $self->values_class($self->{'values'});
+
+  my $values_obj = eval { $values_class->new (%$self, hi => 100) };
+  if (! $values_obj) {
+    my $err = $@;
+    ### values_obj error: $@
+  } else {
+    ### ret: "$values_obj"
+  }
+  return $values_obj;
 }
 
 use constant path_choices => do {
@@ -262,6 +276,9 @@ sub random_options {
 
       # bit sparse?
       # next if $values eq 'Perrin' || $values eq 'Padovan';
+
+      # coord values are only permutation of integers, or coord repetitions
+      next if $values =~ /PlanePathCoord/;
 
       if ($values eq 'Squares') {
         next if $path eq 'Corner'; # just a line across the bottom
@@ -562,8 +579,8 @@ sub covers_plane {
 }
 sub _path_covers_plane {
   my ($path_object) = @_;
-  if ($path_object->isa("Math::PlanePath::PyramidRows")
-      || $path_object->isa("Math::PlanePath::PixelRings")) {
+  if ($path_object->isa('Math::PlanePath::PyramidRows')
+      || $path_object->isa('Math::PlanePath::HypotOctant')) {
     return 0;
   }
   if ($path_object->figure eq 'circle') {
@@ -881,7 +898,7 @@ sub draw_Image_start {
   $image->add_colours (@colours);
 
 
-  #  $self->use_xy($image);
+  # $self->use_xy($image);
 }
 
 my %figure_is_circular = (circle  => 1,
@@ -1176,7 +1193,9 @@ sub draw_Image_steps {
       }
       #### path: "$x,$y  $n"
 
-      my $count = $values_obj->pred($n);
+      my $count = ($use_colours
+                   ? $values_obj->ith($n)
+                   : $values_obj->pred($n));
       #### $count
       if (! $count || ! $filter_obj->pred($n)) {
         if (! $covers) {

@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,7 +35,6 @@ use constant description => __('Numbers N with sum of its divisors >= N, eg. 12 
 use constant values_min => 12;
 
 use constant oeis => 'A005101';
-# OeisCatalogue: A005101
 
 # cf
 # A005100 deficient numbers sigma(n) < 2*n

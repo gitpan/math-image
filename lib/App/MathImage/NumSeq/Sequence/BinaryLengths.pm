@@ -24,24 +24,21 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Binary Lengths');
 use constant description => __('Cumulative length of numbers 1,2,3,etc written out in binary, giving, 1,2,4,6,9,12,15,18,22,etc.  There\'s 2 steps by 2, then 4 steps by 3, then 8 steps by 4, then 16 steps by 5, etc.');
 use constant values_min => 0;
 use constant oeis => 'A083652';
-# OeisCatalogue: A083652
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0,
-                 count => 3,
-                 bits => 1,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'count'} = 3;
+  $self->{'bits'} = 1;
 }
 sub next {
   my ($self) = @_;

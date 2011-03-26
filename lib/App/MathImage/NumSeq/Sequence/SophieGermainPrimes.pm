@@ -23,13 +23,13 @@ use List::Util 'max';
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
+use base 'App::MathImage::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes
@@ -38,7 +38,6 @@ use constant name => __('Sophie Germain Primes');
 use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
 use constant values_min => 3;
 use constant oeis => 'A005384';
-# OeisCatalogue: A005384
 
 sub new {
   my ($class, %options) = @_;

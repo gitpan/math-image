@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-my $test_count = 26;
+my $test_count = 4;
 plan tests => $test_count;
 
 {
@@ -75,7 +75,7 @@ require App::MathImage::X11::Protocol::Splash;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 48;
+my $want_version = 49;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION,
     $want_version,
     'VERSION variable');
@@ -90,47 +90,6 @@ my $check_version = $want_version + 1000;
 ok (! eval { App::MathImage::X11::Protocol::Splash->VERSION($check_version); 1 },
     1,
     "VERSION class check $check_version");
-
-#------------------------------------------------------------------------------
-# _wm_unpack_hints()
-
-{
-  my $format = 'LLLLLllLL';
-
-  foreach my $elem ([ pack($format,0,(0)x8) ],
-                    [ pack($format,0,(0)x7) ],  # short from X11R2 ?
-
-                    [ pack($format,1,0,(0)x7), input => 0 ],
-                    [ pack($format,1,1,(0)x7), input => 1 ],
-
-                    [ pack($format,2,0,1,(0)x6), initial_state => 'NormalState' ],
-                    [ pack($format,2,0,3,(0)x6), initial_state => 'IconicState' ],
-
-                    [ pack($format, 16, 0,0,0,0, 123,456, 0,0),
-                      icon_x => 123, icon_y => 456 ],
-                    [ pack($format, 16, 0,0,0,0, -123,-456, 0,0),
-                      icon_x => -123, icon_y => -456 ],
-
-                    [ pack($format, 64, 0,0,0,0, 0,0, 0,0), window_group => 0 ],
-                    [ pack($format, 64, 0,0,0,0, 0,0, 0,123), window_group => 123 ],
-                    [ pack($format, 256, (0)x8), urgency => 1 ],
-                   ) {
-    my ($bytes, @want) = @$elem;
-    my @got = App::MathImage::X11::Protocol::Splash::_wm_unpack_hints($bytes);
-    my $good = 1;
-    ok (scalar(@got), scalar(@want));
-    for (my $i = 0; $i < @got && $i < @want; $i++) {
-      unless ((! defined $got[$i] && ! defined $want[$i])
-              || (defined $got[$i] && defined $want[$i]
-                  && $got[$i] eq $want[$i])) {
-        $good = 0;
-        MyTestHelpers::diag ("Got ",$got[$i]," want ",$want[$i]);
-      }
-    }
-    ok ($good, 1);
-  }
-}
-
 
 #------------------------------------------------------------------------------
 $X->QueryPointer($X->{'root'});  # sync

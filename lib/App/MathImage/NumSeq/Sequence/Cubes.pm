@@ -19,6 +19,7 @@ package App::MathImage::NumSeq::Sequence::Cubes;
 use 5.004;
 use strict;
 use warnings;
+use Math::Libm 'cbrt';
 use POSIX 'floor','ceil';
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
@@ -26,31 +27,21 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');
 use constant values_min => 0;
 use constant oeis => 'A000578';
-# OeisCatalogue: A000578
 
-sub new {
-  my ($class, %self) = @_;
-  require Math::Libm;
-  if (! defined $self{'lo'}) {
-    $self{'lo'} = 0;
-  }
-  my $self = bless \%self, $class;
-  $self->rewind;
-  return $self;
-}
 sub rewind {
   my ($self) = @_;
-  $self->{'i'} = ceil (Math::Libm::cbrt (max(0,$self->{'lo'})));
+  $self->{'i'} = ceil (cbrt (max(0,$self->{'lo'})));
 }
 sub next {
   my ($self) = @_;
-  return $self->{'i'}++ ** 3;
+  my $i = $self->{'i'}++;
+  return ($i, $i*$i*$i);
 }
 sub ith {
   my ($class_or_self, $i) = @_;
@@ -67,7 +58,7 @@ sub ith {
 #
 sub pred {
   my ($class_or_self, $n) = @_;
-  my $c = floor (0.5 + Math::Libm::cbrt ($n));
+  my $c = floor (0.5 + cbrt ($n));
   return ($c*$c*$c == $n);
 }
 

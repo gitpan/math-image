@@ -25,7 +25,11 @@ use lib 'inc';
 use MyMakeMakerExtras;
 
 my %for_x11 = ('X11::Protocol' => 0,
-               'X11::Protocol::Other' => 1,
+               # my X11-Protocol-Other
+               'X11::Protocol::Other'         => 1,
+               'X11::Protocol::WM'            => 2,  # new in v.2
+               'X11::Protocol::AtomConstants' => 2,  # new in v.2
+               # my Image-Base-X11-Protocol
                'Image::Base::X11::Protocol::Pixmap' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
               );
@@ -244,7 +248,7 @@ sub postamble {
 
 #------------------------------------------------------------------------------
 
-lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm: make-oeis-catalogue.pl lib/App/MathImage/NumSeq/Sequence/*.pm
+oeis lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm: make-oeis-catalogue.pl lib/App/MathImage/NumSeq/Sequence/*.pm
 	$(PERL) make-oeis-catalogue.pl || (rm -f $@; false)
 HERE
 }

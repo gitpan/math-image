@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,36 +34,31 @@ use constant name => __('Even Integers');
 use constant description => __('The even integers 2, 4, 6, 8, 10, etc.');
 use constant values_min => 0;
 use constant oeis => 'A005843';
-# OeisCatalogue: A005843
 
-sub new {
-  my ($class, %self) = @_;
-  if (defined $self{'lo'}) {
-    $self{'lo'} = ceil($self{'lo'});   # next integer
-    $self{'lo'} += ($self{'lo'} & 1);  # next even, if not already even
-  } else {
-    $self{'lo'} = 0;
-  }
-  my $self = bless \%self, $class;
-  $self->rewind;
-  return $self;
-}
+# sub new {
+#   my $class = shift;
+#   my $self = $class->SUPER::new (@_);
+#   $self->{'lo'} = ceil($self->{'lo'});   # next integer
+#   $self->{'lo'} += ($self->{'lo'} & 1);  # next even, if not already even
+#   return $self;
+# }
 sub rewind {
   my ($self) = @_;
-  $self->{'i'} = $self->{'lo'} - 2;
+  $self->{'i'} = ceil ($self->{'lo'} / 2);
 }
 sub next {
   my ($self) = @_;
-  return $self->{'i'} += 2;
+  my $i = $self->{'i'}++;
+  return ($i, 2*$i);
 }
 sub pred {
-  my ($class_or_self, $n) = @_;
-  ### Even pred(): $n
-  return ! ($n & 1);
+  my ($class_or_self, $value) = @_;
+  ### Even pred(): $value
+  return ! ($value & 1);
 }
 sub ith {
   my ($self, $i) = @_;
-  return $self->{'lo'} + 2*$i;
+  return 2*$i; # $self->{'lo'} + 2*$i;
 }
 
 1;

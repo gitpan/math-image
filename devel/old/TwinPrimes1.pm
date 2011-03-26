@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
+use base 'App::MathImage::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,8 +33,8 @@ $VERSION = 48;
 sub _make_frac {
   my ($num) = @_;
   return { num => $num,
-             class => 'App::MathImage::NumSeq::Sequence::Digits::Fraction',
-             parameters_hashref => { fraction => '1/'.($num-21004) } };
+           class => 'App::MathImage::NumSeq::Sequence::FractionDigits',
+           parameters_hashref => { fraction => '1/'.($num-21004) } };
 }
 
 use constant num_first => 21016;
@@ -59,7 +59,7 @@ sub num_to_info {
   my ($class, $num) = @_;
   ### Catalogue-BuiltinCalc num_to_info(): @_
 
-  # App::MathImage::NumSeq::Sequence::Digits::Fraction
+  # App::MathImage::NumSeq::Sequence::FractionDigits
   # fraction=1/k radix=10 for k=11 to 999 is anum=21004+k,
   # being A021015 through A022003, though 1/11 is also A010680 and prefer
   # that one (in BuiltinTable)

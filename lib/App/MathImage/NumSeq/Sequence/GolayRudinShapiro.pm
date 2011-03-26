@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -45,9 +45,7 @@ $VERSION = 48;
 use constant name => __('Golay Rudin Shapiro');
 use constant description => __('Numbers which have an odd number of "11" bit pairs in binary.');
 use constant values_min => 3;
-
-use constant oeis => 'A022155';
-# OeisCatalogue: A022155  # positions of -1s
+use constant oeis => 'A022155';  # positions of -1s
 
 use constant PHI => (1 + sqrt(5)) / 2;
 

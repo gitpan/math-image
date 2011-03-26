@@ -24,27 +24,27 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Factorials');
 use constant description => __('The factorials 1, 2, 6, 24, 120, etc, 1*2*...*N.');
 use constant values_min => 0;
-use constant oeis => 'A000142'; # factorials
-# OeisCatalogue: A000142
+use constant oeis => 'A000142'; # factorials 1,1,2,6,24, including 0!==1
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  return bless { %options,
-                 i => 1,
-                 f => 1,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  ### Factorials rewind()
+  $self->{'i'} = 0;
+  $self->{'f'} = 1;
 }
 sub next {
   my ($self) = @_;
-  return ($self->{'f'} *= $self->{'i'}++);
+  ### Factorials next()
+  my $i = $self->{'i'}++;
+  return ($i, $self->{'f'} *= ($i||1));
 }
 
 1;

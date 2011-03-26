@@ -23,14 +23,14 @@
 package Math::PlanePath::MathImageArchimedeanChords;
 use 5.004;
 use strict;
-use List::Util qw(min max);
+use List::Util 'min', 'max';
 use Math::Libm 'hypot', 'M_PI';
 use POSIX 'floor';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

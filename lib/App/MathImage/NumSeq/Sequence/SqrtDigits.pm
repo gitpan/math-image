@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::Digits::Sqrt;
+package App::MathImage::NumSeq::Sequence::SqrtDigits;
 use 5.004;
 use strict;
 use warnings;
 use Carp;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Radix';
+use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -41,6 +41,7 @@ use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
                                 },
                                );
 
+# cf
 # A020807 - sqrt(1/50) decimal
 # A020811 - sqrt(1/54) decimal
 # A010503 - sqrt(1/2) decimal == sqrt(2)/2
@@ -51,6 +52,8 @@ use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
 # A010123 - continued fraction sqrt(14)
 # A010124 - continued fraction sqrt(19)
 # A010125 - continued fraction sqrt(21)
+#
+# A092855 - the bit positions of sqrt(2)-1 in binary
 #
 my %oeis = (2  => { 2  => 'A004539',   # sqrt2 binary digits
                     3  => 'A004540',   # sqrt2 base 3
@@ -140,7 +143,7 @@ my %radix_to_stringize = (2  => 'as_bin',
 
 sub new {
   my ($class, %options) = @_;
-  ### Digits-Sqrt new()
+  ### SqrtDigits new()
   my $lo = $options{'lo'} || 0;
   my $radix = $options{'radix'} || 2;
 
@@ -212,7 +215,7 @@ sub next {
     return;
   }
 
-  ### Digits-Sqrt next(): $self->{'i'}
+  ### SqrtDigits next(): $self->{'i'}
   if (defined $self->{'string'}) {
     my $i = ++$self->{'i'};
     if ($i > length($self->{'string'})) {

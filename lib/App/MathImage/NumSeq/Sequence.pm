@@ -22,7 +22,7 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -48,10 +48,14 @@ sub values_max {
 }
 sub is_type {
   my ($self, $type) = @_;
-  if (my $type_hash = $self->{'type_hash'}) {
-    return $self->{'type_hash'}->{$type};
+  my $type_hash;
+  foreach my $type_hash (($self->{'type_hash'} || ()),
+                         ($self->can('type_hash') ? $self->type_hash : ())) {
+    if (exists $type_hash->{$type}) {
+      return $type_hash->{$type};
+    }
   }
-  return 0;
+  return '';
 }
 use constant finish => undef;
 
@@ -62,7 +66,6 @@ sub parameter_hash {
   return ($parameter_hash{$class}
           ||= { map {($_->{'name'} => $_)} $class_or_self->parameter_list });
 }
-
 sub parameter_default {
   my ($class_or_self, $name) = @_;
   ### NumSeq parameter_default: @_
@@ -81,5 +84,96 @@ use constant parameter_common_pairs =>
     choices_display => [__('First'),__('Second'),__('Both')],
     description => __('Which of a pair of values to show.'),
   };
+
+sub new {
+  my ($class, %self) = @_;
+  ### Sequence new(): $class
+  $self{'lo'} ||= 0;
+  my $self = bless \%self, $class;
+  foreach my $pinfo ($self->parameter_list) {
+    my $pname = $pinfo->{'name'};
+    if (! defined $self->{$pname}) {
+      $self->{$pname} = $pinfo->{'default'};
+    }
+  }
+  $self->rewind;
+  return $self;
+}
+
 1;
 __END__
+
+=for stopwords Ryde MathImage
+
+=head1 NAME
+
+App::MathImage::NumSeq::Sequence -- base class for various number sequences
+
+=head1 SYNOPSIS
+
+ # only a base class, use one of the actual classes such as
+ use App::MathImage::NumSeq::Sequence::Squares;
+ my $seq = App::MathImage::NumSeq::Sequence::Squares->new;
+ my ($i, $square) = $seq->next;
+
+=head1 DESCRIPTION
+
+This is a base class for number sequences.
+
+=head1 FUNCTIONS
+
+The following is a 
+
+=over 4
+
+=item C<$seq = App::MathImage::NumSeq::Sequence::Foo-E<gt>new (key=E<gt>value,...)>
+
+Create and return a new sequence object.
+
+=item C<($i, $value) = $seq-E<gt>next()>
+
+Return the next index and value in the sequence.
+
+=item C<$seq-E<gt>rewind()>
+
+Return the sequence to its starting point.
+
+=item C<$value = $seq-E<gt>ith($i)>
+
+Return the C<$i>'th value in the sequence.  Only some sequence classes
+implement this method.
+
+=item C<$bool = $seq-E<gt>pred($value)>
+
+Return true if C<$value> occurs in the sequence.  For example for the
+squares this would return true if C<$value> is a perfect square and false if
+not.
+
+=back
+
+=head1 SEE ALSO
+
+L<math-image>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-image/index.html
+
+=head1 LICENSE
+
+Copyright 2010, 2011 Kevin Ryde
+
+Math-Image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut

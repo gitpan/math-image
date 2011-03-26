@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,19 +32,18 @@ $VERSION = 48;
 use constant name => __('Perrin Numbers');
 use constant description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
 use constant values_min => 0;
-use constant oeis => 'A001608';
-# OeisCatalogue: A001608 # perrin
+use constant oeis => 'A001608'; # perrin
 
-sub new {
-  my ($class, %options) = @_;
-  return $class->SUPER::new (%options,
-                             f0 => 3,
-                             f1 => 0,
-                             f2 => 2);
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'f0'} = 3;
+  $self->{'f1'} = 0;
+  $self->{'f2'} = 2;
 }
 sub next {
   my ($self) = @_;
-  ### Perrin next(): "$self->{'f0'} $self->{'f1'} $self->{'f2'}"
+  ### Perrin next(): "i=$self->{'i'}  $self->{'f0'} $self->{'f1'} $self->{'f2'}"
   (my $ret,
    $self->{'f0'},
    $self->{'f1'},
@@ -53,16 +52,8 @@ sub next {
       $self->{'f1'},
       $self->{'f2'},
       $self->{'f0'}+$self->{'f1'});
-  return $ret;
+  return ($self->{'i'}++, $ret);
 }
-# sub pred {
-#   my ($self, $n) = @_;
-#   return (($n >= 0)
-#           && do {
-#             $n = sqrt($n);
-#             $n == int($n)
-#           });
-# }
 
 1;
 __END__

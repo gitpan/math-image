@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::Digits::Fraction;
+package App::MathImage::NumSeq::Sequence::FractionDigits;
 use 5.004;
 use strict;
 use warnings;
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Radix';
+use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');

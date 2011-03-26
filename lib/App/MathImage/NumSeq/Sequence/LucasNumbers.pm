@@ -21,10 +21,10 @@ use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use base 'App::MathImage::NumSeq::Sequence::Fibonacci';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,30 +32,15 @@ $VERSION = 48;
 use constant name => __('Lucas Numbers');
 use constant description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.');
 use constant values_min => 1;
-use constant oeis => 'A000204';
-# OeisCatalogue: A000204 # starting at 1,3,...
+use constant oeis => 'A000204'; # lucas starting at 1,3,...
 
-sub new {
-  my ($class, %options) = @_;
-  return $class->SUPER::new (%options,
-                             f0 => 1,
-                             f1 => 3);
-}
-sub next {
+sub rewind {
   my ($self) = @_;
-  ### LucasNumbers next(): $self->{'i'}
-  (my $ret, $self->{'f0'}, $self->{'f1'})
-   = ($self->{'f0'}, $self->{'f1'}, $self->{'f0'}+$self->{'f1'});
-  return $ret;
+  ### Fibonacci rewind()
+  $self->{'f0'} = 1;
+  $self->{'f1'} = 3;
+  $self->{'i'} = 0;
 }
-# sub pred {
-#   my ($self, $n) = @_;
-#   return (($n >= 0)
-#           && do {
-#             $n = sqrt($n);
-#             $n == int($n)
-#           });
-# }
 
 1;
 __END__

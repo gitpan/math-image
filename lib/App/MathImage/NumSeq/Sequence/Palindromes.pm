@@ -23,10 +23,10 @@ use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::NumSeq::Sequence';
-use App::MathImage::NumSeq::Radix;
+use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -69,7 +69,7 @@ sub oeis {
 # OeisCatalogue: A002113 radix=10
 
 
-use constant parameter_list => (App::MathImage::NumSeq::Radix::parameter_common_radix);
+use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 
 sub new {
   my ($class, %options) = @_;

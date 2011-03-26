@@ -22,10 +22,10 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::NumSeq::Sequence';
-use App::MathImage::NumSeq::Radix;
+use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,7 +33,7 @@ $VERSION = 48;
 use constant name => __('Repdigits');
 use constant description => __('Numbers which are a "repdigit", meaning 1 ... 9, 11, 22, 33, ... 99, 111, 222, 333, ..., 999, etc.  The default is decimal, or select a radix.');
 use constant values_min => 1;
-use constant parameter_list => (App::MathImage::NumSeq::Radix::parameter_common_radix());
+use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix());
 
 sub oeis {
   my ($class_or_self) = @_;
@@ -63,24 +63,30 @@ sub new {
   }
   return $self;
 }
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+}
 sub next {
   my ($self) = @_;
 
+  my $i = $self->{'i'}++;
   my $radix = $self->{'radix'};
   if ($radix == 2) {
-    return (1 << ($self->{'i'}++)) - 1;
-  }
+    return (1 << $i) - 1;
 
-  my $n = ($self->{'n'} += $self->{'inc'});
-  if (++$self->{'digit'} >= $radix) {
-    $self->{'inc'} = $self->{'inc'} * $radix + 1;
-    $self->{'digit'} = 1;
-    $self->{'n'} = ++$n;
-    ### digit: $self->{'digit'}
-    ### inc: $self->{'inc'}
-    ### $n
+  } else {
+    my $n = ($self->{'n'} += $self->{'inc'});
+    if (++$self->{'digit'} >= $radix) {
+      $self->{'inc'} = $self->{'inc'} * $radix + 1;
+      $self->{'digit'} = 1;
+      $self->{'n'} = ++$n;
+      ### digit: $self->{'digit'}
+      ### inc: $self->{'inc'}
+      ### $n
+    }
+    return ($i, $n);
   }
-  return $n;
 }
 
 sub pred {

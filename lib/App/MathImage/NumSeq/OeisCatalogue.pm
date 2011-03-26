@@ -23,7 +23,7 @@ use Module::Pluggable require => 1;
 my @plugins = sort __PACKAGE__->plugins;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

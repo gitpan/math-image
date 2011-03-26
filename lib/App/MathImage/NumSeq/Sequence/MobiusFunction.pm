@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
@@ -35,13 +35,12 @@ sub is_type {
 }
 use constant values_min => -1;
 use constant values_max => 1;
-
+use constant oeis => 'A008683'; # mobius -1,0,1
+#
 # cf A030059 the -1 positions, odd distinct primes
 #    A030229 the 1 positions, even distinct primes
 #    A013929 the 0 positions, square factor, ie. non-square-frees
-#    A005117 - square frees
-use constant oeis => 'A008683';
-# OeisCatalogue: A008683 # mobius -1,0,1
+#    A005117 the square frees, mobius -1 or +1
 
 
 # uncomment this to run the ### lines
@@ -81,8 +80,12 @@ sub next {
     return;
   }
   if ($i <= 1) {
-    if ($i <= 0) { return ($i, 0); }
-    else { return ($i, 1); }
+    if ($i <= 0) {
+      return ($i, 0);
+    }
+    else {
+      return ($i, 1);
+    }
   }
 
   my $sref = \$self->{'string'};
@@ -97,7 +100,7 @@ sub next {
       ### p: "$j ".vec($$sref, $j,2)
       if ((my $v = vec($$sref, $j,2)) != 1) {
         vec($$sref, $j,2) = ($v ^ 1) | 2;
-      ### set: vec($$sref, $j,2)
+        ### set: vec($$sref, $j,2)
       }
     }
 

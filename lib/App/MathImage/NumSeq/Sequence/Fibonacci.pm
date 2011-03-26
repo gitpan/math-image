@@ -24,23 +24,22 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Fibonacci Numbers');
 use constant description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.');
 use constant values_min => 0;
 use constant oeis => 'A000045'; # fibonacci
-# OeisCatalogue: A000045
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  ### Fibonacci new(): %options
-  return $class->SUPER::new (%options,
-                             f0 => 0,
-                             f1 => 1);
+sub rewind {
+  my ($self) = @_;
+  ### Fibonacci rewind()
+  $self->{'i'} = 0;
+  $self->{'f0'} = 0;
+  $self->{'f1'} = 1;
 }
 sub next {
   my ($self) = @_;
@@ -48,7 +47,7 @@ sub next {
   (my $ret, $self->{'f0'}, $self->{'f1'})
    = ($self->{'f0'}, $self->{'f1'}, $self->{'f0'}+$self->{'f1'});
   ### $ret
-  return $ret;
+  return ($self->{'i'}++, $ret);
 }
 
 1;

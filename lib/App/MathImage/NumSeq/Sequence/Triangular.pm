@@ -26,26 +26,24 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');
 use constant values_min => 1;
 use constant oeis => 'A000217';
-# OeisCatalogue: A000217
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => ceil(_inverse(max(0,$lo))),
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = ceil(_inverse(max(0,$self->{'lo'})));
 }
 sub next {
   my ($self) = @_;
-  return $self->ith($self->{'i'}++);
+  my $i = $self->{'i'}++;
+  return ($i, $self->ith($i));
 }
 sub pred {
   my ($class_or_self, $n) = @_;

@@ -23,18 +23,18 @@ use List::Util 'min', 'max';
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
-use App::MathImage::NumSeq::Radix;
+use base 'App::MathImage::NumSeq::Base::Array';
+use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Emirps');
 use constant description => __('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
-use constant parameter_list => (App::MathImage::NumSeq::Radix::parameter_common_radix);
+use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 use constant values_min => 3;
 
 # A006567 - decimal reversal is a prime and different

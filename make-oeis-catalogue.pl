@@ -24,9 +24,15 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 my $outfilename = 'lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm';
+
+my %seen;
+my $exit_code = 0;
 
 my @info_arrayref;
 my @classes = Module::Util::find_in_namespace('App::MathImage::NumSeq::Sequence');
@@ -38,25 +44,44 @@ foreach my $class (@classes) {
   open my $in, '<', $filename or die;
   while (<$in>) {
     chomp;
+    my $where = "$filename:$.";
+    my ($num, $parameters, $comment);
     if (/^# OeisCatalogue: /) {
-      /^# OeisCatalogue: A0*([0-9]+)\s*(.*?)(#.*)?$/
-        or die "Oops, bad OEIS line: $_";
-      my $num = $1;
-      my $parameters = $2;
-      my $comment = $3;
-      my @parameters = split /[,= \t]+/, $parameters;
-      if (@parameters & 1) {
-        die "Oops, odd number of  OEIS params: $_";
-      }
-      defined $class
-        or die 'Oops, no "package" seen';
-      push @info_arrayref,
-        {
-         num => $num,
-         class => $class,
-         (scalar(@parameters) ? (parameters_hashref => {@parameters}) : ()),
-        };
+      ### OeisCatalogue
+      ($num, $parameters, $comment) = /^# OeisCatalogue: A0*([0-9]+)\s*(.*?)(#.*)?$/
+        or die "$where: oops, bad OEIS line: $_";
+    } elsif (/^use constant oeis\W/) {
+      ### use constant
+      ($num, $comment) = /^use constant oeis\s*=>\s*'?A?0*(\d+)().*?(#.*)?/
+        or die "$where: oops, bad OEIS line: $_";
+      $parameters = '';
+    } else {
+      next;
     }
+    ### $num
+    ### $parameters
+    ### $comment
+
+    $num or die "$where: oops, no OEIS number: $_";
+
+    my @parameters = split /[,= \t]+/, $parameters;
+    if (@parameters & 1) {
+      die "Oops, odd number of  OEIS params: $_";
+    }
+    defined $class
+      or die "$filename:$.: oops, no \"package\" line";
+    if ($seen{$num}) {
+      print STDERR "$where: duplicate of $num\n$seen{$num}: is here\n";
+      $exit_code = 1;
+      next;
+    }
+    $seen{$num} = $where;
+    push @info_arrayref,
+      {
+       num => $num,
+       class => $class,
+       (scalar(@parameters) ? (parameters_hashref => {@parameters}) : ()),
+      };
   }
   close $in or die;
 }

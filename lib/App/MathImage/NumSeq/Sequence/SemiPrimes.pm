@@ -23,19 +23,18 @@ use List::Util 'min', 'max';
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
+use base 'App::MathImage::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Semi-Primes');
 use constant description => __('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');
 use constant values_min => 4;
-use constant oeis => 'A001358';
-# OeisCatalogue: A001358 # semi-primes
+use constant oeis => 'A001358'; # semi-primes
 
 sub new {
   my ($class, %options) = @_;

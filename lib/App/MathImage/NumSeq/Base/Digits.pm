@@ -15,26 +15,34 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::Digits::Ln2Bits;
+package App::MathImage::NumSeq::Base::Digits;
 use 5.004;
 use strict;
 use warnings;
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sequence::Digits::PiBits';
+use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
-use constant name => __('Log(2) Bits');
-use constant description => __('Natural log(2), being 0.693147..., written out in binary.');
+sub is_type {
+  my ($self, $type) = @_;
+  return ($type eq 'radix' || $self->SUPER::is_type($type));
+}
 use constant values_min => 0;
-
-sub new {
-  my $class = shift;
-  return $class->SUPER::new (file => 'ln2', @_);
+sub values_max {
+  my ($self) = @_;
+  return $self->{'radix'} - 1;
 }
 
-1;
-__END__
-
+use constant parameter_common_radix =>
+  { name    => 'radix',
+    type    => 'integer',
+    display => __('Radix'),
+    default => 10,
+    minimum => 2,
+    width   => 4,
+    description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
+  };
+use constant parameter_list => (parameter_common_radix);

@@ -27,13 +27,12 @@ use base 'App::MathImage::NumSeq::Sequence::SophieGermainPrimes';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Safe Primes');
-use constant description => __('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those being the Sophie Germain primes).');
+use constant description => __('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those are the Sophie Germain primes).');
 use constant values_min => 5;
 use constant oeis => 'A005385';
-# OeisCatalogue: A005385
 
 sub new {
   my $class = shift;

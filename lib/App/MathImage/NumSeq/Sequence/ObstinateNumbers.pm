@@ -27,7 +27,7 @@ use App::MathImage::NumSeq::File;
 use App::MathImage::NumSeq::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,8 +35,7 @@ $VERSION = 48;
 use constant name => __('Obstinate Numbers');
 use constant description => __('Odd numbers N not representable as prime+2^k.');
 use constant values_min => 1;
-use constant oeis => 'A133122';
-# OeisCatalogue: A133122  # obstinates
+use constant oeis => 'A133122'; # obstinates
 
 sub new {
   my ($class, %options) = @_;

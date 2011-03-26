@@ -33,20 +33,32 @@ use constant name => __('Pentagonal Numbers, generalized');
 use constant description => __('The generalized pentagonal numbers 1, 2, 5, 7, 15, 22, 22, 26, etc, (3k-1)*k/2 for k positive and negative.  This is the plain pentagonal and second pentagonals taken together.');
 use constant oeis => 'A001318';
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  return bless { i => 0,
-                 neg => 1,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'neg'} = 1;
 }
 sub next {
   my ($self) = @_;
-  if ($self->{'neg'} ^= 1) {
-    my $i = $self->{'i'};
-    return (3*-$i+1)*-$i/2;
+  my $i = $self->{'i'}++;
+  # ENHANCE-ME: step by 2*i etc
+  return ($i, $self->ith($i));
+
+  # if ($self->{'neg'} ^= 1) {
+  #   my $i = $self->{'i'};
+  #   return ($i, (3*-$i+1)*-$i/2);
+  # } else {
+  #   my $i = $self->{'i'}++;
+  #   return ($i, (3*$i+1)*$i/2);
+  # }
+}
+sub ith {
+  my ($self, $i) = @_;
+  if ($i & 1) {
+    $i = ($i - 1) / 2;
+    return (3*-$i+1)*-$i/2
   } else {
-    my $i = $self->{'i'}++;
+    $i /= 2;
     return (3*$i+1)*$i/2;
   }
 }

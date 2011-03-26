@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::Digits::DigitsModulo;
+package App::MathImage::NumSeq::Sequence::DigitSumModulo;
 use 5.004;
 use strict;
 use warnings;
 use List::Util 'max';
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Radix';
+use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
@@ -65,17 +65,22 @@ sub oeis {
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  $lo = max ($lo, 0); # no negatives
-
-  my $radix = $options{'radix'} || $class->parameter_default('radix');
-  my $self = bless { radix => $radix }, $class;
+# sub new {
+#   my ($class, %options) = @_;
+#   my $lo = $options{'lo'} || 0;
+#   $lo = max ($lo, 0); # no negatives
+# 
+#   my $radix = $options{'radix'} || $class->parameter_default('radix');
+#   my $self = bless { radix => $radix }, $class;
+# }
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
 }
 sub next {
   my ($self) = @_;
-  return $self->ith($self->{'i'}++);
+  my $i = $self->{'i'}++;
+  return ($i, $self->ith($i));
 }
 sub ith {
   my ($self, $i) = @_;

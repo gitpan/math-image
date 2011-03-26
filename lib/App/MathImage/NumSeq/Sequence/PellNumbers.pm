@@ -25,23 +25,22 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sparse';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Pell Numbers');
 use constant description => __('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');
 use constant values_min => 0;
-use constant oeis => 'A000129';
-# OeisCatalogue: A000129 # pell
+use constant oeis => 'A000129'; # pell
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub new {
-  my ($class, %options) = @_;
+sub rewind {
+  my ($self) = @_;
   ### PellNumbers new(): \%options
-  return $class->SUPER::new (%options,
-                             f0 => 0,
-                             f1 => 1);
+  $self->{'i'} = 0;
+  $self->{'f0'} = 0;
+  $self->{'f1'} = 1;
 }
 sub next {
   my ($self) = @_;
@@ -51,7 +50,7 @@ sub next {
    = ($self->{'f0'},
       $self->{'f1'},
       $self->{'f0'} + 2*$self->{'f1'});
-  return $ret;
+  return ($self->{'i'}++, $ret);
 }
 
 1;

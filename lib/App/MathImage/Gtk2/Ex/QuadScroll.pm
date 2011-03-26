@@ -27,7 +27,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 48;
+our $VERSION = 49;
 
 use Glib::Object::Subclass
   'Gtk2::Table',

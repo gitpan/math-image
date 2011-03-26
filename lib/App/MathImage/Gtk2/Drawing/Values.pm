@@ -24,16 +24,17 @@ use warnings;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 48;
+our $VERSION = 49;
 our $TEXTDOMAIN = 'Math-Image';
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Values',
                            App::MathImage::Generator->values_choices);
 
-sub EnumBits_to_display {
-  my ($class, $nick) = @_;
-  require App::MathImage::Generator;
-  return App::MathImage::Generator->values_class($nick)->name;
-}
+# Don't load up all classes for the combobox ...
+# sub EnumBits_to_display {
+#   my ($class, $nick) = @_;
+#   require App::MathImage::Generator;
+#   return App::MathImage::Generator->values_class($nick)->name;
+# }
 
 sub EnumBits_to_description {
   my ($class, $nick) = @_;

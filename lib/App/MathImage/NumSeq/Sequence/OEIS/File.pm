@@ -23,10 +23,10 @@ use Carp;
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Array';
+use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -123,7 +123,9 @@ sub _read_html {
 
       my $anum = sprintf 'A%06d', $num;
       if ($contents =~
-          m{$anum\n.*?<td valign="top" align="left">\s*(.*?)\s*<(br|/td)>}s) {
+          m{$anum\n.*?
+            <td[^>]*>\s*
+            ([^>]*)\s*<(br|/td)>}sx) {
         my $description = $1;
         $description =~ s/\s+/ /g;
         $description =~ s/<.*?>//sg;
@@ -199,8 +201,9 @@ sub _read_values {
 
 sub _read_internal {
   my ($num, $aref) = @_;
-  my @ret;
   my %type_hash = (integer => 1);
+  my @ret = (type_hash => \%type_hash);
+
   my $basefile = num_to_html($num,'.internal');
   my $filename = File::Spec->catfile (oeis_dir(), $basefile);
   ### $basefile
@@ -212,14 +215,31 @@ sub _read_internal {
   my $contents = do { local $/; <FH> }; # slurp
   close FH or die "Error reading $filename: $!";;
 
+  my $offset;
+  if ($contents =~ /^%O\s+(\d+)/) {
+    $offset = $1;
+  } else {
+    $offset = 0;
+  }
+
   if ($contents =~ /^%K (.*?)(<tt>|$)/) {
     my %K;
     @K{split /[, \t]+/, $1} = ();
     if (exists $K{'nonn'}) {
       push @ret, values_min => 0;
     }
+    # "base" means dependent on some number base
+    # "cons" means decimal expansion of a number
     if (exists $K{'base'} || exists $K{'cons'}) {
       $type_hash{'radix'} = 1;
+    }
+
+    if (exists $K{'cofr'}) {
+      $type_hash{'continued_fraction'} = 1;
+    }
+    
+    foreach my $key (keys %K) {
+      $type_hash{"OEIS_$key"} = 1;
     }
   }
 
@@ -230,6 +250,11 @@ sub _read_internal {
     $description =~ s/&lt;/</sg;
     $description =~ s/&gt;/>/sg;
     $description =~ s/&amp;/&/sg;
+
+    if ($description =~ /^number of /i) {
+      $type_hash{'count'} = 1;
+    }
+
     $description .= "\n" . ($aref
                             ? __('Values from B-file')
                             : __('First few values from HTML'));
@@ -242,7 +267,13 @@ sub _read_internal {
     push @ret, 'array', [ split /[, \t\r\n]+/, $1 ];
   }
 
-  push @ret, type_hash => \%type_hash;
+  # %O "OFFSET" is subscript of first number, or for digit expansions it's
+  # the position of the decimal point
+  # http://oeis.org/eishelp2.html#RO
+  if (! $type_hash{'radix'}) {
+    unshift @ret, (undef) x $offset;
+  }
+
   ### @ret
   return @ret;
 }

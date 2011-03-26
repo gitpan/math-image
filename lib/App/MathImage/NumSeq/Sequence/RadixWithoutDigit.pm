@@ -22,16 +22,16 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::NumSeq::Sequence';
-use App::MathImage::NumSeq::Radix;
+use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
 
 use constant parameter_list =>
-  (App::MathImage::NumSeq::Radix::parameter_common_radix(),
+  (App::MathImage::NumSeq::Base::Digits::parameter_common_radix(),
    { name    => 'digit',
      type    => 'integer',
      display => __('Digit'),
@@ -72,12 +72,12 @@ sub oeis {
 }
 # OeisCatalogue: A032924 radix=3 digit=0  # base 3 no 0
 # OeisCatalogue: A005823 radix=3 digit=1  # base 3 no 1
-# OeisCatalogue: A005836 radix=3 digit=2  # base 3 no 2
+# in TernaryWithout2 ... # OeisCatalogue: A005836 radix=3 digit=2  # base 3 no 2
                 
 # OeisCatalogue: A023705 radix=4 digit=0  # base 4 no 0
 # OeisCatalogue: A023709 radix=4 digit=1  # base 4 no 1
 # OeisCatalogue: A023713 radix=4 digit=2  # base 4 no 2
-# OeisCatalogue: A023717 radix=4 digit=3  # base 4 no 3
+# in Base4without3 ... # OeisCatalogue: A023717 radix=4 digit=3  # base 4 no 3
                 
 # OeisCatalogue: A023721 radix=5 digit=0  # base 5 no 0
 # OeisCatalogue: A023725 radix=5 digit=1  # base 5 no 1
