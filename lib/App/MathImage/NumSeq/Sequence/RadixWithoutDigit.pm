@@ -25,7 +25,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
@@ -134,7 +134,10 @@ sub new {
                  digit => $digit,
                }, $class;
 }
-
+sub rewind {
+  my ($self) = @_;
+  $self->{'ith'} = 0;
+}
 sub next {
   my ($self) = @_;
   return $self->ith ($self->{'i'}++);
@@ -147,13 +150,13 @@ sub ith {
   my $digit = $self->{'digit'};
   if ($radix == 2) {
     if ($digit == 0) {
-      return (2 << $i) - 1;
+      return ($self->{'ith'}++, (2 << $i) - 1);
     } else {
       return;
     }
   }
   if ($i == 0) {
-    return ($digit ? 0 : 1);
+    return ($self->{'ith'}++, ($digit ? 0 : 1));
   }
   my $ret = 0;
   my $power = 1;
@@ -173,7 +176,7 @@ sub ith {
   } while ($i);
 
   ### $ret
-  return $ret;
+  return ($self->{'ith'}++, $ret);
 
   # my $digit = 1;
   # my $x = $i;

@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
@@ -61,6 +61,7 @@ use constant oeis => 'A030303';
 
 sub rewind {
   my ($self) = @_;
+  $self->{'i'} = 0;
   $self->{'n'} = 0;
   $self->{'val'} = 0;
   $self->{'bitmask'} = 0;
@@ -85,7 +86,7 @@ sub next {
     if ($bitmask & $self->{'val'}) {
       $self->{'bitmask'} = $bitmask >> 1;
       ### result: $self->{'n'}
-      return $self->{'n'};
+      return ($self->{'i'}++, $self->{'n'});
     }
     $bitmask >>= 1;
   }

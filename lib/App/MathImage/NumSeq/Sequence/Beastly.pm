@@ -26,7 +26,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,53 +49,50 @@ sub oeis {
 }
 # OeisCatalogue: A051003 radix=10
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
+sub rewind {
+  my ($self) = @_;
+  my $lo = $self->{'lo'};
 
-  my $radix = $options{'radix'} || $class->parameter_default('radix');
+  my $radix = $self->{'radix'};
 
-  my $target = (6*$radix+6)*$radix+6;
-  my $self = bless { radix  => $radix,
-                     cube   => $radix*$radix*$radix,
-                     target => $target,
-                     n      => max($lo,$target) - 1,
-                   }, $class;
-  return $self;
+  $self->{'i'}      = 0;
+  $self->{'target'} = (6*$radix+6)*$radix+6;
+  $self->{'cube'}   = $radix*$radix*$radix;
+  $self->{'value'}  = max($lo,$self->{'target'}) - 1;
 }
 sub next {
   my ($self) = @_;
   if ($self->{'radix'} < 7) {
     return;
   }
-  my $n = $self->{'n'};
+  my $value = $self->{'value'};
   for (;;) {
-    if ($self->pred(++$n)) {
-      return ($self->{'n'} = $n);
+    if ($self->pred(++$value)) {
+      return ($self->{'i'}++, ($self->{'value'} = $value));
     }
   }
 }
 
 sub pred {
-  my ($self, $n) = @_;
+  my ($self, $value) = @_;
   my $radix = $self->{'radix'};
   if ($radix < 7) {
     return 0;
   }
   if ($radix == 10) {
-    return ($n =~ /666/);
+    return ($value =~ /666/);
   }
 
   my $cube = $self->{'cube'};
   my $target = $self->{'target'};
   for (;;) {
-    if (($n % $cube) == $target) {
+    if (($value % $cube) == $target) {
       return 1;
     }
-    if ($n < $cube) {
+    if ($value < $cube) {
       return 0;
     }
-    $n = int($n/$radix);
+    $value = int($value/$radix);
   }
 }
 

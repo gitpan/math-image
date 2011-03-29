@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -62,7 +62,8 @@ sub next {
     }
     $self->{'i'} = 0;
   }
-  return $self->{'n'} += ord(substr($self->{'buf'},$self->{'i'}++,1));
+  my $i = $self->{'i'}++;
+  return ($i, $self->{'n'} += ord(substr($self->{'buf'},$i,1)));
 }
 
 1;

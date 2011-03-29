@@ -32,7 +32,7 @@ use App::MathImage::NumSeq::Sequence::ChampernowneBinary;
 # VERSION
 
 {
-  my $want_version = 49;
+  my $want_version = 50;
   is ($App::MathImage::NumSeq::Sequence::ChampernowneBinary::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::ChampernowneBinary->VERSION,  $want_version, 'VERSION class method');
 
@@ -53,9 +53,9 @@ use App::MathImage::NumSeq::Sequence::ChampernowneBinary;
   my $values_obj = App::MathImage::NumSeq::Sequence::ChampernowneBinary->new (lo => 1,
                                                                     hi => $hi);
   my @got;
-  while (my ($n) = $values_obj->next) {
-    if ($n <= $hi) {
-      push @got, $n;
+  while (my ($i, $value) = $values_obj->next) {
+    if ($value <= $hi) {
+      push @got, $value;
     } else {
       last;
     }
@@ -73,7 +73,7 @@ use App::MathImage::NumSeq::Sequence::ChampernowneBinary;
   my $good = 1;
 
   my $prev = -1;
-  while (my ($next) = $values_obj->next) {
+  while (my ($i, $next) = $values_obj->next) {
     foreach my $n ($prev+1 .. $next-1) {
       if ($values_obj->pred($n)) {
         diag "ChampernowneBinary pred() vs seq: $n pred yes, seq no";

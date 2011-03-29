@@ -27,7 +27,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');
@@ -64,3 +64,64 @@ sub pred {
 
 1;
 __END__
+
+=for stopwords Ryde MathImage
+
+=head1 NAME
+
+App::MathImage::NumSeq::Sequence::Cubes -- cubes
+
+=head1 SYNOPSIS
+
+ use App::MathImage::NumSeq::Sequence::Cubes;
+ my $seq = App::MathImage::NumSeq::Sequence::Cubes->new;
+ my ($i, $value) = $seq->next;
+
+=head1 DESCRIPTION
+
+The sequence of cubes, 0, 1, 8, 27, 64, 125, etc, i^3.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<$seq = App::MathImage::NumSeq::Sequence::Cubes-E<gt>new (key=E<gt>value,...)>
+
+Create and return a new sequence object.
+
+=item C<$value = $seq-E<gt>ith($i)>
+
+Return C<$i ** 2>.
+
+=item C<$bool = $seq-E<gt>pred($value)>
+
+Return true if C<$value> is a cube.
+
+=back
+
+=head1 SEE ALSO
+
+L<math-image>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-image/index.html
+
+=head1 LICENSE
+
+Copyright 2010, 2011 Kevin Ryde
+
+Math-Image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut

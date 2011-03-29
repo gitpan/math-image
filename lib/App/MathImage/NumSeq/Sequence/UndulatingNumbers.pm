@@ -25,7 +25,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -51,18 +51,16 @@ sub oeis {
 
 use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  my $radix = $options{'radix'} || $class->parameter_default('radix');
+sub rewind {
+  my ($self) = @_;
+  my $radix = $self->{'radix'};
   if ($radix < 2) { $radix = 10; }
-
-  return bless { radix => $radix,
-                 n     => -1,
-                 inc   => 1,
-                 a     => 0,
-                 b     => 0,
-               }, $class;
+  $self->{'i'}     = 0;
+  $self->{'radix'} = $radix;
+  $self->{'n'}     = -1;
+  $self->{'inc'}   = 1;
+  $self->{'a'}     = 0;
+  $self->{'b'}     = 0;
 }
 
 sub next {
@@ -102,7 +100,7 @@ sub next {
       }
     }
   }
-  return $n;
+  return ($self->{'i'}++, $n);
 }
 
 sub pred {

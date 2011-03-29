@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Base 4 Without 3');
 use constant description => __('The integers without any 3 digits when written out in base 4.');
@@ -77,7 +77,7 @@ sub next {
     $i = int($i/3);
     $shift += 2;
   }
-  return $ret;
+  return ($self->{'ith'}++, $ret);
 
   # return $base4->from_base ($ternary->to_base ($self->{'i'}++));
   # my $i = $self->{'i'}++;

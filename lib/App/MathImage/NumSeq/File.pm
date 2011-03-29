@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +34,8 @@ our %filetemp;
 sub new {
   my $class = shift;
   ### NumSeq File new(): @_
-  my $self = bless { @_ }, $class;
+  my $self = bless { file_i => 0,
+                     @_ }, $class;
 
   my $package = $self->{'package'};
   my $options = $self->{'options'};
@@ -65,12 +66,16 @@ sub new {
   return undef;
 }
 
+sub rewind {
+  my ($self) = @_;
+  $self->{'file_i'} = 0;
+}
 sub next {
   my ($self) = @_;
   ### NumSeq File next(): $self
   if (defined (my $n = readline ($self->{'fh'}))) {
     chomp $n;
-    return $n;
+    return ($self->{'file_i'}++, $n);
   } else {
     return;
   }

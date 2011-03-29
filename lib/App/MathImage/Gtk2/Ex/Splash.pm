@@ -23,7 +23,10 @@ use warnings;
 use Glib 1.220;
 use List::Util 'max';
 
-our $VERSION = 49;
+our $VERSION = 50;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use Glib::Object::Subclass 'Gtk2::Window',
   signals => { realize      => \&_do_realize,
@@ -31,43 +34,41 @@ use Glib::Object::Subclass 'Gtk2::Window',
                map_event    => \&_do_map_event,
                expose_event => \&_do_expose_event },
 
-  properties => [ Glib::ParamSpec->object ('pixmap',
-                                           (do {
-                                             my $str = 'Pixmap';
-                                             eval { require Locale::Messages;
-                                                    Locale::Messages::dgettext('gtk20-properties',$str)
-                                                    } || $str }),
-                                           'Blurb.',
-                                           'Gtk2::Gdk::Pixmap',
-                                           Glib::G_PARAM_READWRITE),
+  properties =>
+  [ Glib::ParamSpec->object ('pixmap',
+                             (do {
+                               my $str = 'Pixmap';
+                               eval { require Locale::Messages;
+                                      Locale::Messages::dgettext('gtk20-properties',$str)
+                                      } || $str }),
+                             'Blurb.',
+                             'Gtk2::Gdk::Pixmap',
+                             Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->object ('pixbuf',
-                                           (do {
-                                             my $str = 'Pixbuf';
-                                             eval { require Locale::Messages;
-                                                    Locale::Messages::dgettext('gtk20-properties',$str)
-                                                    } || $str }),
-                                           'Blurb.',
-                                           'Gtk2::Gdk::Pixbuf',
-                                           Glib::G_PARAM_READWRITE),
+    Glib::ParamSpec->object ('pixbuf',
+                             (do {
+                               my $str = 'Pixbuf';
+                               eval { require Locale::Messages;
+                                      Locale::Messages::dgettext('gtk20-properties',$str)
+                                      } || $str }),
+                             'Blurb.',
+                             'Gtk2::Gdk::Pixbuf',
+                             Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string ('filename',
-                                           (do {
-                                             # as from GtkFileSelection and
-                                             # GtkRecentManager
-                                             my $str = 'Filename';
-                                             eval { require Locale::Messages;
-                                                    Locale::Messages::dgettext('gtk20-properties',$str)
-                                                    } || $str }),
-                                           'Blurb.',
-                                           (eval {Glib->VERSION(1.240);1}
-                                            ? undef # default
-                                            : ''),  # no undef/NULL before Perl-Glib 1.240
-                                           Glib::G_PARAM_READWRITE),
-                ];
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
+    Glib::ParamSpec->string ('filename',
+                             (do {
+                               # as from GtkFileSelection and
+                               # GtkRecentManager
+                               my $str = 'Filename';
+                               eval { require Locale::Messages;
+                                      Locale::Messages::dgettext('gtk20-properties',$str)
+                                      } || $str }),
+                             'Blurb.',
+                             (eval {Glib->VERSION(1.240);1}
+                              ? undef # default
+                              : ''),  # no undef/NULL before Perl-Glib 1.240
+                             Glib::G_PARAM_READWRITE),
+  ];
 
 sub new {
   my $class = shift;
@@ -264,17 +265,18 @@ don't rely on more than C<Gtk2::Widget> just yet.
 
 =head1 DESCRIPTION
 
-This is a splash window widget designed to show an image in a temporary
-toplevel centred on the screen.  It can be used at program startup if some
-initializations might be slow, or it can be used for a general purpose flash
+This is a splash window widget designed to show a temporary toplevel window
+centred on the screen.  It can be used as a splash screen at program startup
+if some initializations might be slow, or it can be a general purpose flash
 or splash.
 
 The window is non-interactive, so it doesn't take the keyboard focus away
-from whatever the user is doing.  (Is that true in a focus follows mouse
-window manager mode though?)  It does consume mouse button clicks though.
+from whatever the user is doing.  (Is that true of "focus follows mouse"
+window manager style though?)  It does consume mouse button clicks though.
 
-The image is drawn as the window background, so it requires no redraws from
-the application program if blocked etc for a time.
+The image is shown as the window background, so it doesn't require any
+redraws from the application program and thus displays even if the
+application is busy doing other things.
 
 =head1 FUNCTIONS
 
@@ -295,7 +297,7 @@ properties per C<< Glib::Object->new >>.
 
 =item C<pixmap> (C<Gtk2::Gdk::Pixmap> object, default C<undef>)
 
-=item C<pixbuf> (C<Gtk2::Gdk::Pixmap> object, default C<undef>)
+=item C<pixbuf> (C<Gtk2::Gdk::Pixbuf> object, default C<undef>)
 
 =item C<filename> (string, default C<undef>)
 

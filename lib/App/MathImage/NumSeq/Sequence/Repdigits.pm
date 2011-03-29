@@ -25,7 +25,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -80,7 +80,7 @@ sub next {
     if (++$self->{'digit'} >= $radix) {
       $self->{'inc'} = $self->{'inc'} * $radix + 1;
       $self->{'digit'} = 1;
-      $self->{'n'} = ++$n;
+      $self->{'n'} = ($n += 1); # not ++$n as that gives warnings on overflow
       ### digit: $self->{'digit'}
       ### inc: $self->{'inc'}
       ### $n

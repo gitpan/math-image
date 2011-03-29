@@ -26,7 +26,7 @@ use App::MathImage::NumSeq::File;
 use App::MathImage::NumSeq::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

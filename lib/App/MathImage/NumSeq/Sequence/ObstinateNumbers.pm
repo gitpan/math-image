@@ -27,7 +27,7 @@ use App::MathImage::NumSeq::File;
 use App::MathImage::NumSeq::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -78,6 +78,10 @@ sub new {
   return $self;
 }
 
+sub rewind {
+  my ($self) = @_;
+  $self->{'ith'} = 0;
+}
 sub next {
   my ($self) = @_;
   ### ObstinateNumbers next(): $self->{'i'}
@@ -110,7 +114,7 @@ sub next {
     if ($ret & 2) {
       ### obstinate: $i
       $self->{'vfw'}->write_n($i);
-      return $i;
+      return ($self->{'ith'}++, $i);
     }
   }
 }

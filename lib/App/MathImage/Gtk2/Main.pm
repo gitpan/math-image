@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 49;
+our $VERSION = 50;
 
 use Glib::Object::Subclass
   'Gtk2::Window',

@@ -27,13 +27,16 @@ use X11::Protocol::WM;
 use X11::AtomConstants;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 # /usr/share/doc/xorg-docs/specs/CTEXT/ctext.txt.gz
 # /usr/share/doc/xorg-docs/specs/ICCCM/icccm.txt.gz
+# lcCT.c
+# RFC2237 2022-jp
+# RFC1557 2022-kr
 
 sub new {
   my ($class, %self) = @_;
@@ -552,31 +555,31 @@ sub _encode_compound {
         $in_ascii = 1;
       }
     }
-    foreach my $coding ('jp', 'kr') {
-      last unless length($remainder);
-      my $input = $str;
-      my $bytes = Encode::encode ("euc-$coding", $input, Encode::FB_QUIET());
-      ### coding: "euc-$coding"
-      ### $bytes
-      ### remainder: length($input)
-      if (length($input) < length($remainder)) {
-        my $input2 = substr ($str, 0, length($str)-length($input));
-        ### $input2
-        $bytes = Encode::encode ("iso-2022-$coding", $input2,
-                                 Encode::FB_QUIET());
-        ### coding: "iso-2022-$coding"
-        ### $bytes
-        ### remainder: length($input2)
-        ### assert: length($input2) == 0
-        if (length($input2) == 0) {
-          $longest_bytes = $bytes;
-          $esc = '';
-          $remainder = $input;
-          $in_latin1 = 0;
-          $in_ascii = 0;
-        }
-      }
-    }
+    # foreach my $coding ('jp', 'kr') {
+    #   last unless length($remainder);
+    #   my $input = $str;
+    #   my $bytes = Encode::encode ("euc-$coding", $input, Encode::FB_QUIET());
+    #   ### coding: "euc-$coding"
+    #   ### $bytes
+    #   ### remainder: length($input)
+    #   if (length($input) < length($remainder)) {
+    #     my $input2 = substr ($str, 0, length($str)-length($input));
+    #     ### $input2
+    #     $bytes = Encode::encode ("iso-2022-$coding", $input2,
+    #                              Encode::FB_QUIET());
+    #     ### coding: "iso-2022-$coding"
+    #     ### $bytes
+    #     ### remainder: length($input2)
+    #     ### assert: length($input2) == 0
+    #     if (length($input2) == 0) {
+    #       $longest_bytes = $bytes;
+    #       $esc = '';
+    #       $remainder = $input;
+    #       $in_latin1 = 0;
+    #       $in_ascii = 0;
+    #     }
+    #   }
+    # }
     ### $longest_bytes
     ### $esc
     if (length($longest_bytes)) {
@@ -607,6 +610,135 @@ sub _encode_compound {
   return $ret;
 }
 
+# xfree86 utf8 in compound: ESC % G --UTF-8-BYTES-- ESC % @
+#                              25 47                    25 40
+
+my %esc_to_coding = ((map { $esc[$_] => $coding[$_] } 0 .. $#coding),
+                     "\x1B\x28\x42" => 'ascii',
+
+                     "\x1B\x28\x4A" => 'ascii',       # jis0201 GL is ascii
+                     "\x1B\x29\x4A" => 'jis0201-raw', # GR
+
+                     # \x24 means 2-bytes per char
+                     "\x1B\x24\x28\x41" => 'gb2312',
+                     "\x1B\x24\x28\x42" => 'jis0208-raw',# 208-1983 or 208-1990
+                     "\x1B\x24\x28\x43" => 'ksc5601-raw',
+                     "\x1B\x24\x28\x44" => 'jis0212-raw',# 212-1990
+
+                     "\x1B\x24\x28\x47" => 'cns11643-1', # Encode::HanExtra
+                     "\x1B\x24\x28\x48" => 'cns11643-2',
+                     "\x1B\x24\x28\x49" => 'cns11643-3',
+                     "\x1B\x24\x28\x4A" => 'cns11643-4',
+                     "\x1B\x24\x28\x4B" => 'cns11643-5',
+                     "\x1B\x24\x28\x4C" => 'cns11643-6',
+                     "\x1B\x24\x28\x4D" => 'cns11643-7',
+
+                     # Emacs extensions
+                     "\x1B\x24\x28\x30" => 'big5-eten', # E0
+                     "\x1B\x24\x28\x31" => 'big5-eten', # E1
+
+                     "\x1B\x25\x47" => 'utf-8',
+                    );
+my %coding_is_lo = ('ascii' => 1,
+                    'jis0208-raw' => 1,
+                    'jis0212-raw' => 1,
+                    'ksc5601-raw' => 1,
+                    'gb2312'      => 1,
+                    'cns11643-1' => 1,
+                    'cns11643-2' => 1,
+                    'cns11643-3' => 1,
+                    'cns11643-4' => 1,
+                    'cns11643-5' => 1,
+                    'cns11643-6' => 1,
+                    'cns11643-7' => 1,
+                   );
+my %coding_is_hi = ('big5-eten' => 1,
+                   );
+#use Smart::Comments;
+sub _decode_compound {
+  my ($self, $bytes, $chk) = @_;
+  ### _decode_compound(): 'len='.length($bytes)
+  require Encode;
+  my $gl_coding = 'ascii';
+  my $gr_coding = 'iso-8859-1';
+  my $lo_to_hi = 0;
+  my $ret = '';
+ OUTER: while ((pos($bytes)||0) < length $bytes) {
+    $bytes =~ m{\G(.*?)  # $1 part
+                (\x1B    # $2 esc
+                  (?:[\x28\x2D].   # 1-byte
+                  |\x24[\x28\x29]. # 2-byte
+                  |\x25\x47        # xfree86 utf-8
+                  )
+                |$)
+             }gx or die;
+    my $part_bytes = $1;
+    my $esc = $2;
+
+    for (;;) {
+      my $coding;
+      if ($part_bytes =~ /\G([\x00-\x7F]+)/gc) {
+        $coding = $gl_coding;
+        if ($coding_is_hi{$coding}) {
+          $part_bytes =~ tr/\x21-\x7E/\xA1-\xFE/;
+        }
+      } elsif ($part_bytes =~ /\G([^\x00-\x7F]+)/gc) {
+        $coding = $gr_coding;
+        if ($coding_is_lo{$coding}) {
+          $part_bytes =~ tr/\xA1-\xFE/\x21-\x7E/;
+        }
+      } else {
+        last;
+      }
+      my $half_bytes = $1;
+
+      while (length $half_bytes) {
+        ### $half_bytes
+        ### $coding
+        $ret .= Encode::decode ($coding, $half_bytes,
+                                $chk ? Encode::FB_QUIET() : Encode::FB_DEFAULT());
+        ### now ret: $ret
+        if (length $half_bytes) {
+          if ($chk) {
+            $_[1] = substr ($bytes,
+                            pos($bytes) - length($esc)
+                            - length($part_bytes) - length($half_bytes));
+            last OUTER;
+          } else {
+            $ret .= chr(0xFFFD);
+            $half_bytes = substr($half_bytes, 1);
+          }
+        }
+      }
+    }
+
+    my $coding;
+    my $gref;
+    if (($esc =~ s/\x1B\x24?\x29/\x1B\x24\x28/)
+        ||
+        ($esc =~ s/\x1B\x24?\x29/\x1B\x24\x28/)) {
+      $gref = \$gl_coding;
+    } else {
+      $gref = \$gr_coding;
+    }
+    $coding = $esc_to_coding{$esc};
+    if (! defined $coding
+        || ($coding =~ /^cns/
+            && ! eval { require Encode::HanConvert; 1 })) {
+      ### no coding: $coding
+      if ($chk) {
+        $_[1] = substr ($bytes, pos($bytes) - length($esc));
+        last;
+      } else {
+        $ret .= chr(0xFFFD);
+      }
+    }
+    $$gref = $coding;
+  }
+  ### final ret: $ret
+  return $ret;
+}
+
 #------------------------------------------------------------------------------
 # WM_PROTOCOLS
 
@@ -626,11 +758,12 @@ sub _set_wm_protocols {
                      X11::AtomConstants::ATOM,  # type
                      32,                        # format
                      'Replace',
-                     pack('L*', map {_to_atom_id($X,$_)} @_));
+                     pack('L*', _to_atom_ids($X,@_)));
 }
-sub _to_atom_id {
-  my ($X,$arg) = @_;
-  return ($arg =~ /^\d+$/ ? $arg : $X->atom($arg));
+sub _to_atom_ids {
+  my $X = shift;
+  _atoms ($X, grep {!/^\d+$/} @_);
+  return map { ($_ =~ /^\d+$/ ? $_ : $X->atom($_)) } @_;
 }
 sub _append_wm_protocols {
   my $X = shift;
@@ -642,6 +775,13 @@ sub _append_wm_protocols {
                      'Append',
                      pack('L*', map {_to_atom_id($X,$_)} @_));
 }
+
+# intern arguments in one round trip .
+sub _atoms {
+  my $X = shift;
+  return map {$X->atom($_)} @_;
+}
+
 
 #------------------------------------------------------------------------------
 # WM_NORMAL_HINTS

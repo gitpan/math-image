@@ -25,7 +25,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 sub new {
   my $class = shift;

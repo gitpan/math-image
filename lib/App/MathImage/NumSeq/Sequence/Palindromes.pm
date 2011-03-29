@@ -26,7 +26,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -71,53 +71,30 @@ sub oeis {
 
 use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 
-sub new {
-  my ($class, %options) = @_;
-  ### Palindromes new()
-
-  my $lo = $options{'lo'} || 0;
-  $lo = max ($lo, 0);
-  my $radix = $options{'radix'} || $class->parameter_default('radix');
-  if ($radix < 2) { $radix = 10; }
-
-  my @digits;
-  while ($lo > 0) {
-    push @digits, $lo % $radix;
-    $lo = int ($lo / $radix);
-  }
-  my $td = int((@digits+1)/2);
-  splice @digits, 0, int(@digits/2);  # delete low half
-  my $i = 0;
-  while (@digits) {
-    $i = $i*$radix + pop @digits;
-  }
+  # my @digits;
+  # while ($lo > 0) {
+  #   push @digits, $lo % $radix;
+  #   $lo = int ($lo / $radix);
+  # }
+  # my $td = int((@digits+1)/2);
+  # splice @digits, 0, int(@digits/2);  # delete low half
+  # my $i = 0;
+  # while (@digits) {
+  #   $i = $i*$radix + pop @digits;
+  # }
   # ...
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
 
-  $i = 0;
-  return bless { i => $i,
-                 radix => $radix,
-               }, $class;
+  my $radix = $self->{'radix'};
+  if ($radix < 2) { $radix = 10; }
+  $self->{'radix'} = $radix;
 }
-
 sub next {
   my ($self) = @_;
-  return $self->ith($self->{'i'}++);
-}
-
-sub pred {
-  my ($self, $n) = @_;
-  my $radix = $self->{'radix'};
-  my @digits;
-  while ($n) {
-    push @digits, $n % $radix;
-    $n = int ($n / $radix);
-  }
-  for my $i (0 .. int(@digits/2)-1) {
-    if ($digits[$i] != $digits[-$i-1]) {
-      return 0;
-    }
-  }
-  return 1;
+  my $i = $self->{'i'}++;
+  return ($i, $self->ith($i));
 }
 
 sub ith {
@@ -164,6 +141,22 @@ sub ith {
   }
   ### $ret
   return $ret;
+}
+
+sub pred {
+  my ($self, $n) = @_;
+  my $radix = $self->{'radix'};
+  my @digits;
+  while ($n) {
+    push @digits, $n % $radix;
+    $n = int ($n / $radix);
+  }
+  for my $i (0 .. int(@digits/2)-1) {
+    if ($digits[$i] != $digits[-$i-1]) {
+      return 0;
+    }
+  }
+  return 1;
 }
 
 1;

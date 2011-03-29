@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -99,7 +99,11 @@ sub new {
   if ($delta_type eq 'X' || $delta_type eq 'Y') {
     $self->{'type_hash'}->{'pn1'} = 1;
     $self->{'values_min'} = -1;  # or maybe bigger ...
-    $self->{'values_min'} = 1;
+    $self->{'values_max'} = 1;
+  } else {
+    $self->{'type_hash'}->{'count'} = 1;
+    $self->{'values_min'} = -2;  # or maybe bigger ...
+    $self->{'values_max'} = 2;
   }
 
   return $self;

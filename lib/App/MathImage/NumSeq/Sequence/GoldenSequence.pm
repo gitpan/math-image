@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -64,19 +64,16 @@ sub oeis {
 # = (i+sqrt(5*i*i))/2
 # = i/2 + sqrt(5*i*i)/2
 
-sub new {
-  my ($class, %options) = @_;
-  ### GoldenSequence new()
-  ### %options
-  my $lo = $options{'lo'} || 0;
+sub rewind {
+  my ($self) = @_;
+  ### GoldenSequence rewind()
+
+  my $lo = $self->{'lo'};
   $lo = max (1, $lo);
 
-  my $spectrum = $options{'spectrum'} || PHI;
+  my $spectrum = $self->{'spectrum'} || PHI;
   ### $spectrum
-
-  return bless { i        => ceil ($lo / $spectrum),
-                 spectrum => $spectrum,
-               }, $class;
+  $self->{'i'} = ceil ($lo / $spectrum);
 }
 
 sub next {
@@ -89,22 +86,21 @@ sub next {
   if ($spectrum == PHI) {
     ### i*PHI: $i*PHI
     ### int: int( ($i + sqrt(5*$i*$i)) / 2 )
-    return int( ($i + sqrt(5*$i*$i)) / 2 );
+    return ($i, int( ($i + sqrt(5*$i*$i)) / 2 ));
   } else {
     ### i*spectrum: $i * $spectrum
-    return int($i * $spectrum);
+    return ($i, int($i * $spectrum));
   }
-}
-
-sub inv_floor {
-  my ($self, $n) = @_;
-  return ceil($n/$self->{'spectrum'});
 }
 
 sub pred {
   my ($self, $n) = @_;
   if ($n <= 0) { return 0; }
   return (int($self->inv_floor($n) * $self->{'spectrum'}) == $n);
+}
+sub inv_floor {
+  my ($self, $n) = @_;
+  return ceil($n/$self->{'spectrum'});
 }
 
 1;

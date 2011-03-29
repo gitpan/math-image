@@ -22,22 +22,26 @@ use strict;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 sub new {
-  my ($class, %self) = @_;
-  $self{'i'} = 0;
-  my $array = $self{'array'};
-  if ($self{'lo'}) {
-    while (@$array && (! defined $array->[0] || $array->[0] < $self{'lo'})) {
+  my $class = shift;
+  my $self = $class->SUPER::new (@_);
+  my $array = $self->{'array'};
+  if ($self->{'lo'}) {
+    while (@$array && (! defined $array->[0] || $array->[0] < $self->{'lo'})) {
       shift @$array;
     }
   }
   ### shifted to: @$array
-  return bless \%self, $class;
+  return $self;
+}
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
 }
 sub next {
   my ($self) = @_;
@@ -49,11 +53,7 @@ sub next {
       return;
     }
     if (defined (my $n = $self->{'array'}->[$i])) {
-      if ($self->is_type('radix')) {
-        return ($i, $n);
-      } else {
-        return $n;
-      }
+      return ($i, $n);
     }
   }
 }

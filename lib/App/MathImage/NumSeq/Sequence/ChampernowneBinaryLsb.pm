@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Champernowne Sequence LSB First');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary, least significant bit first, 1 01 11 001 101 etc.');
@@ -46,6 +46,7 @@ use constant values_min => 0;
 
 sub rewind {
   my ($self) = @_;
+  $self->{'i'} = 0;
   $self->{'n'} = 0;
   $self->{'val'} = 0;
   $self->{'bitmask'} = 1;
@@ -62,7 +63,7 @@ sub next {
     $self->{'n'}++;
     if ($bitmask & $self->{'val'}) {
       $self->{'bitmask'} = $bitmask << 1;
-      return $self->{'n'};
+      return ($self->{'i'}++, $self->{'n'});
     }
     $bitmask <<= 1;
   }

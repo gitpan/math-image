@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -551,6 +551,7 @@ sub affine_object {
     ### $y_origin
 
     require Geometry::AffineTransform;
+    Geometry::AffineTransform->VERSION('1.3'); # 1.3 for invert()
     my $affine = Geometry::AffineTransform->new;
     $affine->scale ($self->{'scale'}, - $self->{'scale'});
     $affine->translate ($x_origin, $y_origin);
@@ -1274,10 +1275,11 @@ sub draw_Image_steps {
     for (;;) {
       &$cont() or last;
 
-      ($n, my $count) = $values_obj->next;
+      my ($i, $value) = $values_obj->next;
       ### $n_prev
       ### $n
       ### $count
+      my $n = ($use_colours ? $i : $value);
       if (! defined $n || $n > $n_hi) {
         ### final background fill
         $background_fill_proc->($n_hi);
@@ -1289,13 +1291,13 @@ sub draw_Image_steps {
       ### path: "$x,$y"
 
       if ($use_colours) {
-        if (! defined $count || $count == 0) {
+        if (! defined $value || $value == 0) {
           next; # background
         }
         $colour = $colours->[min ($#$colours,
-                                  max (0, $count + $colours_offset))];
+                                  max (0, $value + $colours_offset))];
         #### $colour
-        #### at index: $count + $colours_offset
+        #### at index: $value + $colours_offset
       }
 
       ($x, $y) = $affine->transform($x, $y);

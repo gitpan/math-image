@@ -34,7 +34,7 @@ use App::MathImage::NumSeq::Sequence::ObstinateNumbers;
 # VERSION
 
 {
-  my $want_version = 49;
+  my $want_version = 50;
   is ($App::MathImage::NumSeq::Sequence::ObstinateNumbers::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::ObstinateNumbers->VERSION,  $want_version, 'VERSION class method');
 
@@ -55,17 +55,18 @@ foreach my $rep (1 .. 3) {
     (lo => 1,
      hi => $hi);
   my @next = (0) x ($hi+1);
-  while (my ($n) = $values_obj->next) {
-    $next[$n] = 1;
+  while (my ($i, $value) = $values_obj->next) {
+    last if ! defined $i;
+    $next[$value] = 1;
   }
   $values_obj->finish;
 
   my $good = 1;
-  foreach my $n (1 .. $hi) {
-    my $pred = ($values_obj->pred($n)?1:0);
-    my $next = $next[$n];
+  foreach my $value (1 .. $hi) {
+    my $pred = ($values_obj->pred($value)?1:0);
+    my $next = $next[$value];
     if ($pred != $next) {
-      diag "rep=$rep: n=$n wrong pred=$pred next=$next";
+      diag "rep=$rep: value=$value wrong pred=$pred next=$next";
       $good = 0;
       last;
     }

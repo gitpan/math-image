@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -64,6 +64,10 @@ sub new {
   }
   return $self;
 }
+sub rewind {
+  my ($self) = @_;
+  $self->{'ith'} = 0;
+}
 sub next {
   my ($self) = @_;
   ### AbundantNumbers next(): $self->{'i'}
@@ -80,7 +84,7 @@ sub next {
       ### composite: $i, $prods->[$i]
       if ($prods->[$i] > 2*$i) {
         $prods->[$i] = 1;
-        return $i;
+        return ($self->{'ith'}++, $i);
       }
       if ($] >= 5.006) {
         delete $prods->[$i];

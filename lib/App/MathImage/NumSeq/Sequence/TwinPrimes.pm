@@ -28,7 +28,7 @@ use base 'App::MathImage::NumSeq::Base::Array';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');

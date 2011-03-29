@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Ternary without 2s');
 use constant description => __('The integers without any 2 digits when written out in ternary (base 3).');
@@ -65,6 +65,10 @@ sub new {
                }, $class;
 }
 
+sub rewind {
+  my ($self) = @_;
+  $self->{'ith'} = 0;
+}
 sub next {
   my ($self) = @_;
   ### TernaryWithout2 next(): $self->{'i'}+1
@@ -80,7 +84,7 @@ sub next {
     $power *= 3;
   } while ($i >>= 1);
 
-  return $ret;
+  return ($self->{'ith'}++, $ret);
 
   # my $digit = 1;
   # my $x = $i;

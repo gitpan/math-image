@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 11;
+use Test::More tests => 17;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::FileWriter;
 # VERSION
 
 {
-  my $want_version = 49;
+  my $want_version = 50;
   is ($App::MathImage::NumSeq::File::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::File->VERSION,  $want_version, 'VERSION class method');
 
@@ -85,9 +85,15 @@ use App::MathImage::NumSeq::FileWriter;
        package => 'NumSeq File-test');
     is ($vf->{'hi'}, $hi);
 
-    my $got_arrayref = [ map {$vf->next} 1..30 ];
-    diag "got @$got_arrayref";
-    is_deeply ($got_arrayref, \@values, 'NumSeq File next()');
+    my @got;
+    foreach my $i (0 .. 30) {
+      my ($got_i, $got_value) = $vf->next
+        or last;
+      is ($got_i, $i, "next() i at $i");
+      push @got, $got_value;
+    }
+    diag "got @got";
+    is_deeply (\@got, \@values, 'NumSeq File next()');
   }
 }
 

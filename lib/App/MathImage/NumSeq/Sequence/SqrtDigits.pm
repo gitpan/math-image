@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -103,6 +103,7 @@ sub oeis {
 # OeisCatalogue: A010470 sqrt=13 radix=10
 # OeisCatalogue: A010471 sqrt=14 radix=10
 # OeisCatalogue: A010472 sqrt=15 radix=10
+# not 16
 # OeisCatalogue: A010473 sqrt=17 radix=10
 # OeisCatalogue: A010474 sqrt=18 radix=10
 # OeisCatalogue: A010475 sqrt=19 radix=10
@@ -111,6 +112,7 @@ sub oeis {
 # OeisCatalogue: A010478 sqrt=22 radix=10
 # OeisCatalogue: A010479 sqrt=23 radix=10
 # OeisCatalogue: A010480 sqrt=24 radix=10
+# not 25
 # OeisCatalogue: A010481 sqrt=26 radix=10
 # OeisCatalogue: A010482 sqrt=27 radix=10
 # OeisCatalogue: A010483 sqrt=28 radix=10
@@ -121,6 +123,7 @@ sub oeis {
 # OeisCatalogue: A010488 sqrt=33 radix=10
 # OeisCatalogue: A010489 sqrt=34 radix=10
 # OeisCatalogue: A010490 sqrt=35 radix=10
+# not 36
 # OeisCatalogue: A010491 sqrt=37 radix=10
 # OeisCatalogue: A010492 sqrt=38 radix=10
 # OeisCatalogue: A010493 sqrt=39 radix=10
@@ -135,6 +138,55 @@ sub oeis {
 # OeisCatalogue: A010502 sqrt=48 radix=10
 # OeisCatalogue: A010503 sqrt=50 radix=10
 # OeisCatalogue: A010504 sqrt=51 radix=10
+# OeisCatalogue: A010505 sqrt=52 radix=10
+# OeisCatalogue: A010506 sqrt=53 radix=10
+# OeisCatalogue: A010507 sqrt=54 radix=10
+# OeisCatalogue: A010508 sqrt=55 radix=10
+# OeisCatalogue: A010509 sqrt=56 radix=10
+# OeisCatalogue: A010510 sqrt=57 radix=10
+# OeisCatalogue: A010511 sqrt=58 radix=10
+# OeisCatalogue: A010512 sqrt=59 radix=10
+# OeisCatalogue: A010513 sqrt=60 radix=10
+# OeisCatalogue: A010514 sqrt=61 radix=10
+# OeisCatalogue: A010515 sqrt=62 radix=10
+# OeisCatalogue: A010516 sqrt=63 radix=10
+# not 64
+# OeisCatalogue: A010517 sqrt=65 radix=10
+# OeisCatalogue: A010518 sqrt=66 radix=10
+# OeisCatalogue: A010519 sqrt=67 radix=10
+# OeisCatalogue: A010520 sqrt=68 radix=10
+# OeisCatalogue: A010521 sqrt=69 radix=10
+# OeisCatalogue: A010522 sqrt=70 radix=10
+# OeisCatalogue: A010523 sqrt=71 radix=10
+# OeisCatalogue: A010524 sqrt=72 radix=10
+# OeisCatalogue: A010525 sqrt=73 radix=10
+# OeisCatalogue: A010526 sqrt=74 radix=10
+# OeisCatalogue: A010527 sqrt=75 radix=10
+# OeisCatalogue: A010528 sqrt=76 radix=10
+# OeisCatalogue: A010529 sqrt=77 radix=10
+# OeisCatalogue: A010530 sqrt=78 radix=10
+# OeisCatalogue: A010531 sqrt=79 radix=10
+# OeisCatalogue: A010532 sqrt=80 radix=10
+# not 81
+# OeisCatalogue: A010533 sqrt=82 radix=10
+# OeisCatalogue: A010534 sqrt=83 radix=10
+# OeisCatalogue: A010535 sqrt=84 radix=10
+# OeisCatalogue: A010536 sqrt=84 radix=10
+# OeisCatalogue: A010537 sqrt=86 radix=10
+# OeisCatalogue: A010538 sqrt=87 radix=10
+# OeisCatalogue: A010539 sqrt=88 radix=10
+# OeisCatalogue: A010540 sqrt=89 radix=10
+# OeisCatalogue: A010541 sqrt=90 radix=10
+# OeisCatalogue: A010542 sqrt=91 radix=10
+# OeisCatalogue: A010543 sqrt=92 radix=10
+# OeisCatalogue: A010544 sqrt=93 radix=10
+# OeisCatalogue: A010545 sqrt=94 radix=10
+# OeisCatalogue: A010546 sqrt=95 radix=10
+# OeisCatalogue: A010547 sqrt=96 radix=10
+# OeisCatalogue: A010548 sqrt=97 radix=10
+# OeisCatalogue: A010549 sqrt=98 radix=10
+# OeisCatalogue: A010550 sqrt=99 radix=10
+
 
 
 my %radix_to_stringize = (2  => 'as_bin',

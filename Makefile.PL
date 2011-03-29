@@ -98,7 +98,7 @@ MyMakeMakerExtras::WriteMakefile
     'File::Copy'      => '2.14',
 
     'File::HomeDir' => 0,
-    'Geometry::AffineTransform' => 0,
+    'Geometry::AffineTransform' => '1.3', # version 1.3 for invert()
 
     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
     'Glib::Object::Subclass' => 0,

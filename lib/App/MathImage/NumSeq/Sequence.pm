@@ -22,7 +22,7 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -137,6 +137,14 @@ Return the next index and value in the sequence.
 =item C<$seq-E<gt>rewind()>
 
 Return the sequence to its starting point.
+
+=back
+
+=head2 Optional Methods
+
+The following methods are only implemented for some sequence classes.
+
+=over
 
 =item C<$value = $seq-E<gt>ith($i)>
 

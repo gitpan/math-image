@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
@@ -93,7 +93,7 @@ sub ith {
     for (my $rem = $i; $rem; $rem = int($rem/$radix)) {
       $sum += ($rem % $radix);
     }
-    return ($i, $sum % $radix);
+    return $sum % $radix;
   }
 }
 sub pred {

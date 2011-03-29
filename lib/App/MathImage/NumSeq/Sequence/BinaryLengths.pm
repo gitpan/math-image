@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 use constant name => __('Binary Lengths');
 use constant description => __('Cumulative length of numbers 1,2,3,etc written out in binary, giving, 1,2,4,6,9,12,15,18,22,etc.  There\'s 2 steps by 2, then 4 steps by 3, then 8 steps by 4, then 16 steps by 5, etc.');
@@ -36,6 +36,7 @@ use constant oeis => 'A083652';
 
 sub rewind {
   my ($self) = @_;
+  $self->{'ith'} = 0;
   $self->{'i'} = 0;
   $self->{'count'} = 3;
   $self->{'bits'} = 1;
@@ -52,7 +53,7 @@ sub next {
     ### count: $self->{'count'}
     ### bits: $self->{'bits'}
   }
-  return ($self->{'i'} += $self->{'bits'});
+  return ($self->{'ith'}++, ($self->{'i'} += $self->{'bits'}));
 }
 
 # sub pred {

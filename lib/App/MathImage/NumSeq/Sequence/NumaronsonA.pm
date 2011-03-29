@@ -24,7 +24,7 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,12 +32,11 @@ $VERSION = 49;
 use constant values_min => 0;
 use constant oeis => 'A079000';
 
-sub new {
-  my ($class, %options) = @_;
-
-  return bless { p2k => 0,
-                 j   => -1,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'p2k'} = 0;
+  $self->{'j'} = -1;
 }
 sub next {
   my ($self) = @_;
@@ -47,7 +46,7 @@ sub next {
   if ($p2k == 0) {
     # low special cases initial 1,4,
     if ($j < 2) {
-      return $j*3 + 1;
+      return ($self->{'i'}++, $j*3 + 1);
     }
     $p2k = $self->{'p2k'} = 1;    # 2**k for k=0
     $j   = $self->{'j'}   = -3;   # -3*(2**k) for k=0
@@ -55,7 +54,7 @@ sub next {
     $self->{'p2k'} = ($p2k <<= 1);
     $j = $self->{'j'} = -3 * $p2k;
   }
-  return 12*$p2k - 3 + (3*$j + abs($j))/2;
+  return ($self->{'i'}++, 12*$p2k - 3 + (3*$j + abs($j))/2);
 }
 
 1;

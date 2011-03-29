@@ -28,23 +28,47 @@ use Smart::Comments;
 
 
 {
-  require X11::Protocol;
   require App::MathImage::X11::Protocol::Splash;
-  my $X = X11::Protocol->new;
-  my $input = "\x{2572}"; # wo
-  $input = "\x{391}"; # capital alpha
-  $input = "\x{6708}"; # month
-  $input = "\x{0401}\x{1234}\x{0401}";
-  # my $bytes = Encode::encode ('iso-2022-jp', $input);
-  my ($atom, @chunks) = App::MathImage::X11::Protocol::Splash::_str_to_text_chunks($X,$input);
-  print $X->atom_name($atom),"\n";
-  foreach my $bytes (@chunks) {
-    print "bytes ", length($bytes),"\n";
-    foreach my $i (0 .. length($bytes)-1) {
-      printf " %02X", ord(substr($bytes,$i,1));
+  foreach my $ord (0x401 .. 0x4001) {
+    my $input = chr($ord);
+    my $bytes = App::MathImage::X11::Protocol::Splash->_encode_compound ($input, 1);
+    if (! length $bytes) {
+      next;
     }
-    print "\n";
+    my $dec = App::MathImage::X11::Protocol::Splash->_decode_compound ($bytes, 1);
+    if ($dec ne chr($ord)) {
+      printf "ord %02X\n", $ord;
+      print "bytes ", length($bytes),": ";
+      foreach my $i (0 .. length($bytes)-1) {
+        printf " %02X", ord(substr($bytes,$i,1));
+      }
+      print "\n";
+      print "remainder ",length($input),": ";
+      foreach my $i (0 .. length($input)-1) {
+        printf " %02X", ord(substr($input,$i,1));
+      }
+      print "\n";
+      print "dec ", length($dec),": ";
+      foreach my $i (0 .. length($dec)-1) {
+        printf " %02X", ord(substr($dec,$i,1));
+      }
+      print "\n";
+    }
   }
+  exit 0;
+}
+
+{
+  open my $out, '>:utf8', '/tmp/x.utf8' or die;
+  foreach my $i (32 .. 0x2FA1D) {
+    next if $i >= 0x80 && $i <= 0x9F;
+    next if $i >= 0xD800 && $i <= 0xDFFF;
+    next if $i >= 0xFDD0 && $i <= 0xFDEF;
+    next if $i >= 0xFFFE && $i <= 0xFFFF;
+    next if $i >= 0x1FFFE && $i <= 0x1FFFF;
+    printf $out "U+%04X = %s\n", $i, chr($i);
+  }
+  close $out or die;
   exit 0;
 }
 
@@ -65,6 +89,27 @@ use Smart::Comments;
     printf " %02X", ord(substr($bytes,$i,1));
   }
   print "\n";
+  exit 0;
+}
+
+{
+  require X11::Protocol;
+  require App::MathImage::X11::Protocol::Splash;
+  my $X = X11::Protocol->new;
+  my $input = "\x{2572}"; # wo
+  $input = "\x{391}"; # capital alpha
+  $input = "\x{6708}"; # month
+  $input = "\x{0401}\x{1234}\x{0401}";
+  # my $bytes = Encode::encode ('iso-2022-jp', $input);
+  my ($atom, @chunks) = App::MathImage::X11::Protocol::Splash::_str_to_text_chunks($X,$input);
+  print $X->atom_name($atom),"\n";
+  foreach my $bytes (@chunks) {
+    print "bytes ", length($bytes),"\n";
+    foreach my $i (0 .. length($bytes)-1) {
+      printf " %02X", ord(substr($bytes,$i,1));
+    }
+    print "\n";
+  }
   exit 0;
 }
 

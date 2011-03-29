@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,19 +49,16 @@ use constant oeis => 'A022155';  # positions of -1s
 
 use constant PHI => (1 + sqrt(5)) / 2;
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  $lo = max (0, $lo);
-
-  return bless { i => $lo,
-               }, $class;
+sub rewind {
+  my ($self) = @_;
+  $self->{'i'} = 0;
+  $self->{'value'} = 0;
 }
 sub next {
   my ($self) = @_;
   for (;;) {
-    if ($self->pred (my $i = $self->{'i'}++)) {
-      return $i;
+    if ($self->pred (my $value = $self->{'value'}++)) {
+      return ($self->{'i'}++, $value);
     }
   }
 }

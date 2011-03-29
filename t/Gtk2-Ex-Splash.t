@@ -55,7 +55,7 @@ diag "properties:";
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 49;
+my $want_version = 50;
 {
   is ($App::MathImage::Gtk2::Ex::Splash::VERSION,
       $want_version,

@@ -63,7 +63,6 @@ $|=1;
     # $values_class = $gen->values_class('Base4Without3');
     # $values_class = $gen->values_class('Tribonacci');
     # $values_class = $gen->values_class('Perrin');
-    # $values_class = $gen->values_class('Palindromes');
     # $values_class = $gen->values_class('Polygonal');
     # $values_class = $gen->values_class('SqrtDigits');
     # $values_class = $gen->values_class('Expression');
@@ -71,30 +70,33 @@ $|=1;
     # $values_class = $gen->values_class('TwinPrimes');
     # # $values_class = $gen->values_class('DigitsModulo');
     # $values_class = $gen->values_class('RadixWithoutDigit');
-    # $values_class = $gen->values_class('PlanePathDelta');
     # $values_class = $gen->values_class('OEIS');
     $values_class = $gen->values_class('Odd');
     $values_class = $gen->values_class('Factorials');
     $values_class = $gen->values_class('SumTwoSquares');
     $values_class = $gen->values_class('PythagoreanHypots');
+    $values_class = $gen->values_class('PlanePathCoord');
+    $values_class = $gen->values_class('Palindromes');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
                                          lo => 1,
                                          hi => 200*$rep,
-                                         radix => 3,
+                                         radix => 2,
                                          digit => 0,
                                          expression => 'z=3; z*x^2 + 3*x + 2',
                                          expression_evaluator => 'MEE',
                                          oeis_number => '10059',
                                          # distinct => 1,
+                                         planepath_class => 'HypotOctant',
+                                         coord_type => 'Y',
                                         );
     ### $values_obj
     # ### type: $values_obj->type
     if ($values_obj->is_type('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
-    foreach (1 .. 1000) {
+    foreach (1 .. 50) {
       my ($i,$value) = $values_obj->next;
       if (! defined $i) {
         print "undef\n";

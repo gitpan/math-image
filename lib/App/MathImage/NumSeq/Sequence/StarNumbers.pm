@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -59,7 +59,8 @@ sub rewind {
 }
 sub next {
   my ($self) = @_;
-  return $self->ith($self->{'i'}++);
+  my $i = $self->{'i'}++;
+  return ($i, $self->ith($i));
 }
 sub ith {
   my ($class_or_self, $i) = @_;
