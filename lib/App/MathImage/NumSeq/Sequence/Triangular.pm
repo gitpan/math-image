@@ -26,7 +26,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');

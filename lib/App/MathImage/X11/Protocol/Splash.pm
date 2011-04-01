@@ -27,7 +27,7 @@ use X11::Protocol::WM;
 use X11::AtomConstants;
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -52,13 +52,18 @@ sub DESTROY {
 
 sub popup {
   my ($self) = @_;
-  $self->{'X'}->MapWindow ($self->create_window);
+  my $X = $self->{'X'};
+  $X->MapWindow ($self->create_window);
+    $X->ClearArea ($self->{'window'}, 0,0,0,0);
+  $X->flush;
 }
 
 sub popdown {
   my ($self) = @_;
   if (my $win = $self->{'window'}) {
-    $self->{'X'}->UnmapWindow ($win);
+    my $X = $self->{'X'};
+    $X->UnmapWindow ($win);
+    $X->flush;
   }
 }
 
@@ -74,25 +79,39 @@ sub create_window {
       $width = $self->{'width'} =  $geom{'width'};
       $height = $self->{'height'} = $geom{'height'};
     }
-    my $x = int (max (0, $X->{'width_in_pixels'} - $width) / 2);
+    my $x = int (max (0, $X->{'width_in_pixels'} - $width) / 2); #  + 100
     my $y = int (max (0, $X->{'height_in_pixels'} - $height) / 2);
 
     ### sync: $X->QueryPointer($X->{'root'})
     my $window = $X->new_rsrc;
     $X->CreateWindow ($window,
                       $X->{'root'},     # parent
-                      'InputOutput',
+                      'InputOutput',    # class
                       0,                # depth, from parent
                       'CopyFromParent', # visual
                       $x,$y,
                       $width,$height,
                       0,                # border
                       background_pixmap => $pixmap,
+                      # background_pixel  => 0x00FFFF,
                       override_redirect => 1,
-                      save_under        => 1);
+                      # save_under        => 1,
+                      # backing_store     => 'Always',
+                      # bit_gravity       => 'Static',
+                      # event_mask        =>
+                      # $X->pack_event_mask('Exposure',
+                      #                     'ColormapChange',
+                      #                     'VisibilityChange',),
+                     );
+    # $X->ChangeWindowAttributes ($window,
+    #                            );
+    if ($window == 0x1600002) {
+    }
     ### sync: $X->QueryPointer($X->{'root'})
     $self->{'window'} = $window;
 
+    _set_wm_name ($X, $window, "Splash");
+    _set_net_wm_name ($X, $window, "Splash");
     if (my $transient_for = $self->{'transient_for'}) {
       X11::Protocol::WM::set_wm_transient_for
           ($X, $window, $transient_for);
@@ -1008,6 +1027,8 @@ App::MathImage::X11::Protocol::Splash -- temporary splash window
  $splash->popdown;
 
 =head1 DESCRIPTION
+
+(Unattended redraw not working ...)
 
 ...
 

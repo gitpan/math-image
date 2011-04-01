@@ -24,7 +24,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary

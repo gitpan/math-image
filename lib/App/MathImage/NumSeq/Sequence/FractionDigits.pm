@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');

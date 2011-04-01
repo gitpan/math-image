@@ -30,7 +30,7 @@ use App::MathImage::NumSeq::OeisCatalogue;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 50;
+our $VERSION = 51;
 
 use Glib::Object::Subclass
   'Gtk2::SpinButton',

@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 50;
+our $VERSION = 51;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -1379,7 +1379,6 @@ sub command_line {
     $gen->draw_Image ($image);
     my $pixmap = $image->get('-pixmap');
 
-    require App::MathImage::Gtk2::Ex::Splash;
     _flash (pixmap => $pixmap, time => .75);
     return 0;
   }
@@ -1417,7 +1416,8 @@ sub command_line {
 sub _flash {
   my %options = @_;
   my $time = delete $options{'time'};
-  my $splash = App::MathImage::Gtk2::Ex::Splash->new (%options);
+  require Gtk2::Ex::Splash;
+  my $splash = Gtk2::Ex::Splash->new (%options);
   $splash->show;
   my $timeout = Glib::Ex::SourceIds->new
     (Glib::Timeout->add (($time||.75) * 1000,

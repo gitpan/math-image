@@ -40,7 +40,10 @@ plan tests => $test_count;
   MyTestHelpers::diag ("X11::Protocol version ", X11::Protocol->VERSION);
 }
 {
-  my $have_x11_protocol_other = eval { require X11::Protocol::Other; 1 };
+  my $have_x11_protocol_other = eval { require X11::AtomConstants;
+                                       require X11::Protocol::Other;
+                                       require X11::Protocol::WM;
+                                       1 };
   if (! $have_x11_protocol_other) {
     MyTestHelpers::diag ('X11::Protocol::Other not available -- ',$@);
     foreach (1 .. $test_count) {
@@ -75,7 +78,7 @@ require App::MathImage::X11::Protocol::Splash;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 50;
+my $want_version = 51;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION,
     $want_version,
     'VERSION variable');

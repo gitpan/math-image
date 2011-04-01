@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -605,7 +605,8 @@ sub figure {
 sub colour_to_rgb {
   my ($colour) = @_;
   my $scale;
-  # ENHANCE-ME: Or demand Color::Library always, or X11 helpers hexstr_to_rgb()
+  # ENHANCE-ME: Or demand Color::Library always, or
+  # X11::Protocol::Other::hexstr_to_rgb()
   if ($colour =~ /^#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i) {
     $scale = 255;
   } elsif ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i) {

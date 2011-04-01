@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 exit App::MathImage->command_line;
 
 __END__
@@ -424,6 +424,16 @@ Lines following the cursor, enabled from the Tools/Cross menu item.
 
 Error messages in a dialog instead of to C<STDERR>.  Of course there
 shouldn't be any errors!
+
+=back
+
+=head1 ENVIRONMENT
+
+=over
+
+=item C<DISPLAY>
+
+The X display to use.
 
 =back
 

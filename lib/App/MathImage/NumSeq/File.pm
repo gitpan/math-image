@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

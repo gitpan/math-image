@@ -25,7 +25,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -330,6 +330,7 @@ sub command_line {
     print STDERR $self->make_generator->description,"\n";
   }
   my $output_method = "output_method_\L$output";
+  ### $output_method
   my $coderef = $self->can($output_method)
     || die "Unrecognised output option: $output";
   return $self->$coderef;
@@ -388,7 +389,7 @@ sub output_method_root {
   }
 
   my $module = ucfirst ($gui_options->{'module'});
-  my $method = "output_method_root_$module";
+  my $method = "output_method_root_\L$module";
   if ($self->can($method)) {
     $self->$method;
   } else {
@@ -396,7 +397,7 @@ sub output_method_root {
   }
 }
 
-sub output_method_root_X11 {
+sub output_method_root_x11 {
   my ($self) = @_;
 
   my $X = $self->x11_protocol_object;
@@ -418,8 +419,8 @@ sub output_method_root_X11 {
   return 0;
 }
 
-*output_method_root_Gtk = \&output_method_root_Gtk2;
-sub output_method_root_Gtk2 {
+*output_method_root_gtk = \&output_method_root_gtk2;
+sub output_method_root_gtk2 {
   my ($self) = @_;
   $self->try_gtk || die "Cannot initialize Gtk";
 
@@ -458,9 +459,14 @@ sub output_method_root_Gtk2 {
   $rootwin->clear;
 
   if ($self->{'gui_options'}->{'flash'}) {
-    require App::MathImage::Gtk2::Ex::Splash;
-    App::MathImage::Gtk2::Ex::Splash->run (pixmap => $pixmap,
-                                           time => .75);
+    require Gtk2::Ex::Splash;
+    my $splash = Gtk2::Ex::Splash->new (pixmap => $pixmap);
+    $splash->show;
+    Glib::Timeout->add (.75 * 1000, sub {
+                          Gtk2->main_quit;
+                          return Glib::SOURCE_REMOVE();
+                        });
+    Gtk2->main;
   }
 
   $rootwin->get_display->flush;

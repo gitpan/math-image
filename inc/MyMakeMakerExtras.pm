@@ -122,6 +122,9 @@ sub _meta_merge_shared_devel {
   _meta_merge_req_add (_meta_merge_maximum_devel($opts),
                        # the "make unused" target below
                        'warnings::unused' => 0);
+  _meta_merge_req_add (_meta_merge_maximum_devel($opts),
+                       # used a lot
+                       'Smart::Comments' => 0);
   if (-e 'inc/my_pod2html') {
     if (_min_perl_version_lt ($opts, 5.009003)) {
       _meta_merge_req_add (_meta_merge_maximum_devel($opts),
@@ -366,6 +369,7 @@ HERE
               : 'all');
   chomp($arch);
   my $debname = (defined $makemaker->{'EXE_FILES'}
+                 && $makemaker->{'EXE_FILES'}->[0] !~ /^gtk2/
                  ? lc($makemaker->{'DISTNAME'})
                  : lc("lib$makemaker->{'DISTNAME'}-perl"));
   $post .=

@@ -22,7 +22,7 @@ use Math::Aronson;
 use base 'Iterator';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 sub new {
   my $class = shift;

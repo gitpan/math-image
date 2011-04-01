@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Sequence::Cubes;
 # VERSION
 
 {
-  my $want_version = 50;
+  my $want_version = 51;
   is ($App::MathImage::NumSeq::Sequence::Cubes::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Cubes->VERSION,  $want_version, 'VERSION class method');
 

@@ -26,9 +26,10 @@ use MyMakeMakerExtras;
 
 my %for_x11 = ('X11::Protocol' => 0,
                # my X11-Protocol-Other
-               'X11::Protocol::Other'         => 1,
-               'X11::Protocol::WM'            => 2,  # new in v.2
-               'X11::Protocol::AtomConstants' => 2,  # new in v.2
+               'X11::Protocol::Other'    => 1,
+               'X11::Protocol::WM'       => 2,  # new in v.2
+               'X11::Protocol::XSetRoot' => 3,  # new in v.3
+               'X11::AtomConstants'      => 2,  # new in v.2
                # my Image-Base-X11-Protocol
                'Image::Base::X11::Protocol::Pixmap' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
@@ -141,6 +142,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
     'Gtk2::Ex::NumAxis' => 2,
     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
+    'Gtk2::Ex::Splash' => 1,
 
     'Image::Base' => '1.14',  # 1.14 for add_colours()
 
@@ -172,7 +174,7 @@ MyMakeMakerExtras::WriteMakefile
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
 
-    # my Math-PlanePath, can work with any selection, hopefully
+    # my Math-PlanePath, and can work with any set of paths, hopefully
     'Math::PlanePath' => 1,
     'Math::PlanePath::SquareSpiral'   => 1,
    },

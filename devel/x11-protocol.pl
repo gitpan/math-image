@@ -58,29 +58,7 @@ use Smart::Comments;
   ### @ret
   exit 0;
 }
-{
-  require App::MathImage::X11::Protocol::Splash;
-  my $X = X11::Protocol->new;
-  my $rootwin = $X->{'root'};
-  my $pixmap = $X->new_rsrc;
-  $X->CreatePixmap ($pixmap,
-                    $rootwin, # parent
-                    $X->{'root_depth'},
-                    800, 100);  # width, height
-  ### sync: $X->QueryPointer($X->{'root'})
 
-  my $splash = App::MathImage::X11::Protocol::Splash->new (X => $X,
-                                                           pixmap => $pixmap);
-  $splash->popup;
-  $X->QueryPointer($rootwin);  # sync
-
-  system "xwininfo -events -id $splash->{'window'}";
-
-  #  $X->flush;
-  sleep 10;
-  $splash->popdown;
-  exit 0;
-}
 
 use constant XA_PIXMAP => 20;  # pre-defined atom
 {

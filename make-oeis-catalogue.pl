@@ -24,7 +24,7 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

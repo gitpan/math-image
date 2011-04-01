@@ -53,8 +53,6 @@ devel/run-about.pl
 devel/run-pod.pl
 devel/run-savedialog.pl
 devel/run-savetype.pl
-devel/run-splash-gdk.pl
-devel/run-splash.pl
 devel/svg.pl
 devel/tool-combotext.pl
 devel/triangular.pl
@@ -62,7 +60,6 @@ devel/unused.pl
 devel/unused/Coord.pm
 devel/unused/SemiPrimesOdd.pm
 devel/x11-protocol.pl
-devel/x11-setroot.pl
 devel/x11-splash.pl
 inc/my_pod2html
 inc/MyMakeMakerExtras.pm
@@ -83,8 +80,6 @@ lib/App/MathImage/Gtk2/Ex/PixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/QuadScroll.pm
 lib/App/MathImage/Gtk2/Ex/QuadScroll/ArrowButton.pm
 lib/App/MathImage/Gtk2/Ex/ScrollButtons.pm
-lib/App/MathImage/Gtk2/Ex/Splash.pm
-lib/App/MathImage/Gtk2/Ex/SplashGdk.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuItem.pm
@@ -185,7 +180,6 @@ lib/App/MathImage/Prima/Generator.pm
 lib/App/MathImage/Prima/Main.pm
 lib/App/MathImage/X11/Generator.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
-lib/App/MathImage/X11/Protocol/XSetRoot.pm
 lib/Math/PlanePath/MathImageArchimedeanChords.pm
 lib/Math/PlanePath/MathImageFlowsnake.pm
 make-oeis-catalogue.pl
@@ -202,7 +196,6 @@ t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
-t/Gtk2-Ex-Splash.t
 t/Gtk2-Main-weaken.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
@@ -221,7 +214,6 @@ t/UndulatingNumbers.t
 t/Values.t
 t/ValuesFile.t
 t/X11-Protocol-Splash.t
-t/X11-Protocol-XSetRoot.t
 xt/0-exe-shebang.t
 xt/0-META-read.t
 xt/0-Test-ConsistentVersion.t

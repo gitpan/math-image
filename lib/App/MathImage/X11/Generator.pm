@@ -24,15 +24,15 @@ use Carp;
 use Scalar::Util;
 use Time::HiRes;
 use X11::Protocol::Other;
+use X11::Protocol::XSetRoot; # load always to be sure is available
 
 use base 'App::MathImage::Generator';
-use App::MathImage::X11::Protocol::XSetRoot;
 use Image::Base::X11::Protocol::Window;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 50;
+our $VERSION = 51;
 
 sub new {
   my $class = shift;
@@ -114,7 +114,7 @@ sub draw_steps {
     }
 
     # $self->{'X'}->QueryPointer($window);  # sync
-    App::MathImage::X11::Protocol::XSetRoot->set_background
+    X11::Protocol::XSetRoot->set_background
         (X      => $self->{'X'},
          root   => $window,
          pixmap => delete $self->{'pixmap'},

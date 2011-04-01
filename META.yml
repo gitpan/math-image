@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            50
+version:            51
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -37,6 +37,7 @@ requires:
     Gtk2::Ex::MenuItem::Subclass:  29
     Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::PixbufBits:  37
+    Gtk2::Ex::Splash:     1
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::SyncCall:   12
     Gtk2::Ex::ToolbarBits:  36
@@ -89,10 +90,11 @@ optional_features:
         requires:
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
+            X11::AtomConstants:   2
             X11::Protocol:        0
-            X11::Protocol::AtomConstants:  2
             X11::Protocol::Other:  1
             X11::Protocol::WM:    2
+            X11::Protocol::XSetRoot:  3
     gtk2_optionals:
         description:  Gtk2 things used if available.
         requires:
@@ -103,6 +105,7 @@ optional_features:
         description:  Stuff used variously for development.
         requires:
             Pod::Simple::HTML:  0
+            Smart::Comments:    0
             warnings::unused:   0
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
@@ -151,10 +154,11 @@ optional_features:
             Math::PlanePath::ZOrderCurve:  13
             Math::Symbolic:       0.605
             Prima:                0
+            X11::AtomConstants:   2
             X11::Protocol:        0
-            X11::Protocol::AtomConstants:  2
             X11::Protocol::Other:  1
             X11::Protocol::WM:    2
+            X11::Protocol::XSetRoot:  3
     maximum_planepath:
         description:  Recommended PlanePath modules
         requires:
@@ -242,7 +246,8 @@ recommends:
     Math::PlanePath::VogelFloret:  12
     Math::PlanePath::ZOrderCurve:  13
     Math::Symbolic:       0.605
+    X11::AtomConstants:   2
     X11::Protocol:        0
-    X11::Protocol::AtomConstants:  2
     X11::Protocol::Other:  1
     X11::Protocol::WM:    2
+    X11::Protocol::XSetRoot:  3

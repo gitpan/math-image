@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -102,20 +102,6 @@ __END__
 #   return (Math::Libm::hypot ($x, $y),
 #           atan2 ($y, $x));
 # }
-
-
-  } elsif (($r, $g, $b)
-           = ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i)) {
-    $r = hex($r);
-    $g = hex($g);
-    $b = hex($b);
-    $r *= (0xFF / 0xFFFF);
-    $g *= (0xFF / 0xFFFF);
-    $b *= (0xFF / 0xFFFF);
-
-  if (my ($r, $g, $b) = ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i)) {
-    return hex($r) / 0xFFFF, hex($g) / 0xFFFF, hex($b) / 0xFFFF;
-  }
 
 
 } elsif ($option_shape eq 'spiral-stretch') {

@@ -22,7 +22,7 @@ use warnings;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -138,6 +138,24 @@ Return the next index and value in the sequence.
 
 Return the sequence to its starting point.
 
+=item C<$str = $seq-E<gt>description()>
+
+A human-readable description of the sequence.
+
+=item C<$i = $seq-E<gt>i_start()>
+
+Return the first index C<$i> in the sequence.  This is the position
+C<rewind> returns to.
+
+=item C<$value = $seq-E<gt>values_min()>
+
+=item C<$value = $seq-E<gt>values_max()>
+
+Return the minimum or maximum value taken by values in the sequence, or
+C<undef> if unknown.  Currently if the maximum is infinity then the return
+is C<undef> too, but perhaps it should be the floating point infinity, if
+there is one.
+
 =back
 
 =head2 Optional Methods
@@ -154,7 +172,7 @@ implement this method.
 =item C<$bool = $seq-E<gt>pred($value)>
 
 Return true if C<$value> occurs in the sequence.  For example for the
-squares this would return true if C<$value> is a perfect square and false if
+squares this would return true if C<$value> is a perfect square or false if
 not.
 
 =back
