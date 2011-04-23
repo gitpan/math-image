@@ -17,11 +17,12 @@
 
 
 package App::MathImage::X11::Generator;
-use 5.008;
+use 5.004;
 use strict;
-use warnings;
 use Carp;
 use Scalar::Util;
+use IO::Select;
+use Scope::Guard;
 use Time::HiRes;
 use X11::Protocol::Other;
 use X11::Protocol::XSetRoot; # load always to be sure is available
@@ -32,7 +33,8 @@ use Image::Base::X11::Protocol::Window;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 51;
+use vars '$VERSION';
+$VERSION = 52;
 
 sub new {
   my $class = shift;
@@ -84,21 +86,63 @@ sub DESTROY {
 
 sub draw {
   my ($self) = @_;
-  while ($self->draw_steps) {
-    ### Generator-X11 more
+  ### X11-Generator draw()
+
+  my $X = $self->{'X'};
+  my $window = $self->{'window'};
+  my $pixmap = $self->{'pixmap'};
+
+  my $fh = $X->{'connection'}->fh;
+  my $sel = $fh && IO::Select->new($fh);
+
+  my %window_attr = $X->GetWindowAttributes ($window);
+  my $guard = Scope::Guard->new
+    (sub { $X->ChangeWindowAttributes
+             ($window, event_mask => $window_attr{'your_event_mask'})  });
+  $X->ChangeWindowAttributes ($window,
+                              event_mask => $X->pack_event_mask('Exposure'));
+
+  my $old_event_handler = $X->{'event_handler'};
+  local $X->{'event_handler'} = sub {
+    my %h = @_;
+    ### event_handler: \%h
+    if ($h{'name'} eq 'Expose' && $h{'window'} == $window) {
+      $X->ChangeWindowAttributes ($window, background_pixmap => $pixmap);
+      $X->ClearArea ($window, $h{'x'},$h{'y'}, $h{'width'},$h{'height'});
+    }
+    goto $old_event_handler;
+  };
+
+  for (;;) {
+    if ($sel && $sel->can_read(0)) {
+      ### handle_input
+      $X->handle_input;
+    }
+    if (! $self->draw_steps) {
+      last;
+    }
+    $X->flush;
+    ### X11-Generator draw() more
   }
 }
 
 sub draw_steps {
   my ($self) = @_;
+  ### X11-Generator draw_steps()
 
   my $more = $self->draw_Image_steps;
   if (! $more) {
     ### Generator-X11 finished
     my $window = $self->{'window'};
+
     my $image_pixmap = delete $self->{'image_pixmap'};
     my $allocated = _image_pixmap_any_allocated_colours($image_pixmap);
     ### $allocated
+
+    # destroy images to free GCs
+    delete $self->{'image'};
+    delete $self->{'values_obj'};
+    undef $image_pixmap;
 
     if ($self->{'flash'}) {
       require App::MathImage::X11::Protocol::Splash;
@@ -123,6 +167,22 @@ sub draw_steps {
 
   return $more;
 }
+
+# x_resource_dump($self->{'X'});
+# # my $image_win = $self->{'image'}->get('-images')->[1];
+# # Scalar::Util::weaken($image_win);
+# # Scalar::Util::weaken($image_pixmap);
+# x_resource_dump($self->{'X'});
+# # ### $self
+# use Devel::FindRef;
+# # if ($image_win) {
+# #   print Devel::FindRef::track($image_win);
+# # }
+# if ($image_pixmap) {
+#   print Devel::FindRef::track($image_pixmap);
+# }
+#
+# x_resource_dump($self->{'X'});
 
 sub _image_pixmap_any_allocated_colours {
   my ($image) = @_;

@@ -36,13 +36,12 @@
 package App::MathImage::NumSeq::Sequence::Base4Only01;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # http://oeis.org/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4
@@ -55,7 +54,7 @@ $VERSION = 51;
 
 use constant name => __('Base 4 only digits 0,1');
 use constant description => __('The integers with only digits 0 and 1 when written out in base 4.');
-use constant oeis => 'A000695';
+use constant oeis_anum => 'A000695';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::StarNumbers;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'ceil';
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,7 +34,7 @@ use constant name => __('Star Numbers');
 use constant description =>  __('The star numbers 1, 13, 37, 73, 121, etc, 6*n*(n-1)+1, also called the centred 12-gonals.');
 use constant values_min => 1;
 
-use constant oeis => 'A003154'; # star numbers
+use constant oeis_anum => 'A003154'; # star numbers
 #
 # cf
 # A006060 - which are also triangular numbers

@@ -18,19 +18,18 @@
 package App::MathImage::NumSeq::Sequence::Odd;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'ceil';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::Even';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Odd Integers');
 use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');
 use constant values_min => 1;
-use constant oeis => 'A005408'; # odds
+use constant oeis_anum => 'A005408'; # odds
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

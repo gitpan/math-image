@@ -25,8 +25,8 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::File;
-use App::MathImage::NumSeq::FileWriter;
+use App::MathImage::NumSeq::Base::File;
+use App::MathImage::NumSeq::Base::FileWriter;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,23 +35,23 @@ use App::MathImage::NumSeq::FileWriter;
 # VERSION
 
 {
-  my $want_version = 51;
-  is ($App::MathImage::NumSeq::File::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::File->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 52;
+  is ($App::MathImage::NumSeq::Base::File::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Base::File->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::File->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Base::File->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::File->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Base::File->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
 
-  is ($App::MathImage::NumSeq::FileWriter::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::FileWriter->VERSION,  $want_version, 'VERSION class method');
+  is ($App::MathImage::NumSeq::Base::FileWriter::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Base::FileWriter->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::FileWriter->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Base::FileWriter->VERSION($want_version); 1 },
       "VERSION class check $want_version");
-  ok (! eval { App::MathImage::NumSeq::FileWriter->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Base::FileWriter->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -62,7 +62,7 @@ use App::MathImage::NumSeq::FileWriter;
   my $hi = 10000;
   {
     diag "NumSeq FileWriter create";
-    my $vfw = App::MathImage::NumSeq::FileWriter->new
+    my $vfw = App::MathImage::NumSeq::Base::FileWriter->new
       (hi => $hi,
        package => 'NumSeq File-test');
     foreach my $n (@values) {
@@ -73,14 +73,14 @@ use App::MathImage::NumSeq::FileWriter;
 
   {
     diag "NumSeq File past hi";
-    my $vf = App::MathImage::NumSeq::File->new
+    my $vf = App::MathImage::NumSeq::Base::File->new
       (hi => $hi+1,
        package => 'NumSeq File-test');
     is ($vf, undef);
   }
   {
     diag "NumSeq File read";
-    my $vf = App::MathImage::NumSeq::File->new
+    my $vf = App::MathImage::NumSeq::Base::File->new
       (hi => $hi,
        package => 'NumSeq File-test');
     is ($vf->{'hi'}, $hi);

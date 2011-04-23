@@ -18,18 +18,17 @@
 package App::MathImage::NumSeq::Sequence::Padovan;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Padovan Numbers');
 use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
 use constant values_min => 1;
-use constant oeis => 'A000931'; # padovan
+use constant oeis_anum => 'A000931'; # padovan
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

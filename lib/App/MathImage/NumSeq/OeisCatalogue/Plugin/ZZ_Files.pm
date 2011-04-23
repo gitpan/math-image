@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::OeisCatalogue::Plugin::ZFiles;
+package App::MathImage::NumSeq::OeisCatalogue::Plugin::ZZ_Files;
 use 5.004;
 use strict;
 use File::Spec;
@@ -26,31 +26,33 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 sub _make_info {
-  my ($num) = @_;
-  return { num => $num,
+  my ($anum) = @_;
+  ### _make_info(): $anum
+  return { anum => $anum,
            class => 'App::MathImage::NumSeq::Sequence::OEIS::File',
-           parameters_hashref => { oeis_number => $num } };
+           parameters_hashref => { oeis_anum => $anum } };
 }
 
-sub num_to_info {
-  my ($class, $num) = @_;
+sub anum_to_info {
+  my ($class, $anum) = @_;
   ### Catalogue-ZFiles num_to_info(): @_
 
   my $dir = App::MathImage::NumSeq::Sequence::OEIS::File::oeis_dir();
   foreach my $basename
-    (App::MathImage::NumSeq::Sequence::OEIS::File::num_to_html($num),
-     App::MathImage::NumSeq::Sequence::OEIS::File::num_to_html($num,'.html'),
-     App::MathImage::NumSeq::Sequence::OEIS::File::num_to_bfile($num),
-     App::MathImage::NumSeq::Sequence::OEIS::File::num_to_bfile($num,'a')) {
+    ("$anum.internal",
+     "$anum.html",
+     "$anum.htm",
+     App::MathImage::NumSeq::Sequence::OEIS::File::anum_to_bfile($anum),
+     App::MathImage::NumSeq::Sequence::OEIS::File::anum_to_bfile($anum,'a')) {
     my $filename = File::Spec->catfile ($dir, $basename);
     if (-e $filename) {
-      return _make_info($num);
+      return _make_info($anum);
     }
   }
   return undef;
@@ -68,12 +70,10 @@ sub info_arrayref {
   }
   while (defined (my $basename = readdir DIR)) {
     ### $basename
-    if ($basename =~ /^A([0-9]{6,})\.html?$/i
-        || $basename =~ /^[ab]([0-9]{6,})\.txt?$/i) {
-      my $num = $1;
-      $num =~ s/^0+//;
-      unless ($seen{$num}++) {
-        push @ret, _make_info($num);
+    if ($basename =~ /^[Aab](.*)\./i) {
+      my $anum = "A$1";
+      unless ($seen{$anum}++) {
+        push @ret, _make_info($anum);
       }
     }
   }

@@ -20,12 +20,12 @@ use 5.004;
 use strict;
 use POSIX 'floor', 'ceil';
 use List::Util 'min', 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +34,7 @@ use constant name => __('Count Hypotenuses');
 use constant description => __('Count of how many ways a given N = A^2+B^2 occurs, for integer A,B >=0 (and no swaps, so B<=A).');
 use constant type_hash => { count => 1 };
 use constant values_min => 1;
-use constant oeis => 'A000161';
+use constant oeis_anum => 'A000161';
 
 # sub new {
 #   my ($class, %options) = @_;

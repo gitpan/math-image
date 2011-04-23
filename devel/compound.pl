@@ -20,11 +20,50 @@
 use 5.004;
 use strict;
 use Encode;
-use POSIX qw(setlocale LC_ALL LC_TIME);
+use App::MathImage::Encode::X11;
 # use Encode::JP;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
+
+my @ords = grep { ! (($_ >= 0x80 && $_ <= 0x9F)
+                     || ($_ >= 0xD800 && $_ <= 0xDFFF)
+                     || ($_ >= 0xFDD0 && $_ <= 0xFDEF)
+                     || ($_ >= 0xFFFE && $_ <= 0xFFFF)
+                     || ($_ >= 0x1FFFE && $_ <= 0x1FFFF)) }
+  32 .. 0x2FA1D;
+
+{
+  # round trip
+  foreach my $i (@ords) {
+    my $chr = chr($i);
+    my $input_chr = $chr;
+    my $bytes = Encode::encode('x11-compound-text', $input_chr,
+                               Encode::FB_QUIET());
+    next if length $chr;
+    my $input_bytes = $bytes;
+    my $decode = Encode::decode('x11-compound-text', $input_bytes,
+                                Encode::FB_QUIET());
+    if ($input_bytes) {
+      printf "U+%04X remaining bytes: %s\n", $i, bytestr($input_bytes);
+    }
+    if ($decode ne $chr) {
+      printf "U+%04X got %s want %s\n", $i, bytestr($decode), bytestr($chr);
+    }
+  }
+  exit 0;
+}
+
+{
+  foreach my $i (@ords) {
+    my $chr = chr($i);
+    # my $bytes = Encode::encode('jis0201-raw', $chr, Encode::FB_QUIET());
+    my $bytes = Encode::encode('x11-compound-text', $chr, Encode::FB_QUIET());
+    next if length $chr;
+    printf "U+%04X = %s\n", $i, bytestr($bytes);
+  }
+  exit 0;
+}
 
 
 {
@@ -169,11 +208,12 @@ use Smart::Comments;
 
 
 {
+  require POSIX;
   $ENV{'LANG'} = 'en_IN.UTF8';
   $ENV{'LANG'} = 'ar_IN';
   $ENV{'LANG'} = 'ja_JP.UTF8';
   $ENV{'LANG'} = 'ja_JP';
-  setlocale(LC_ALL, '') or die;
+  POSIX::setlocale(POSIX::LC_ALL(), '') or die;
   my $bytes = POSIX::strftime ("%b", localtime(time()));
   ### $bytes
   foreach my $i (0 .. length($bytes)-1) {
@@ -196,3 +236,10 @@ use Smart::Comments;
   exit 0;
 }
 
+sub bytestr {
+  my ($bytes) = @_;
+  return sprintf('[%d bytes] ', length($bytes))
+    . join(" ",
+           map { sprintf('%02X', ord(substr($bytes,$_,1))) }
+           0 .. length($bytes)-1);
+}

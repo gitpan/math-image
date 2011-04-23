@@ -16,6 +16,13 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+Version 52, April 2011
+    - better OEIS A-number entrybox
+    - math-image.desktop file
+    - X11 root exposures if windows moved while drawing
+    - DigitLength and DigitLengthCumulative sequences, generalizing
+      BinaryLengths
+
 Version 51, April 2011
     - some module split outs
 

@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-my $test_count = 4;
+my $test_count = 18;
 plan tests => $test_count;
 
 {
@@ -78,7 +78,7 @@ require App::MathImage::X11::Protocol::Splash;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 51;
+my $want_version = 52;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION,
     $want_version,
     'VERSION variable');
@@ -93,6 +93,95 @@ my $check_version = $want_version + 1000;
 ok (! eval { App::MathImage::X11::Protocol::Splash->VERSION($check_version); 1 },
     1,
     "VERSION class check $check_version");
+
+#------------------------------------------------------------------------------
+# get_wm_state()
+
+{
+  my $toplevel = $X->new_rsrc;
+  $X->CreateWindow($toplevel,
+                   $X->root,           # parent
+                   'InputOutput',      # class
+                   $X->root_depth,     # depth
+                   'CopyFromParent',   # visual
+                   0,0,                # x,y
+                   100,100,            # width,height
+                   10,                 # border
+                   background_pixel => $X->{'white_pixel'},
+                   override_redirect => 1,
+                   colormap => 'CopyFromParent',
+                  );
+
+  my $win = $X->new_rsrc;
+  $X->CreateWindow($win,
+                   $toplevel,           # parent
+                   'InputOutput',       # class
+                   $X->root_depth,      # depth
+                   'CopyFromParent',    # visual
+                   0,0,                 # x,y
+                   10,10,               # width,height
+                   0,                   # border
+                   background_pixel => $X->{'black_pixel'},
+                   colormap => 'CopyFromParent',
+                  );
+
+  $X->ChangeProperty($win,
+                     $X->atom('WM_STATE'),  # property
+                     $X->atom('WM_STATE'),  # type
+                     32,                    # format
+                     'Replace',             # mode
+                     pack ('L*', 1, 0));
+  {
+    my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state ($X, $win);
+    ok (scalar(@ret), 2);
+    ok ($ret[0], 'NormalState');
+    ok ($ret[1], 'None');
+  }
+  {
+    local $X->{'do_interp'} = 0;
+    my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state ($X, $win);
+    ok (scalar(@ret), 2);
+    ok ($ret[0], 1);
+    ok ($ret[1], 0);
+  }
+
+  $X->ChangeProperty($win,
+                     $X->atom('WM_STATE'),  # property
+                     $X->atom('WM_STATE'),  # type
+                     32,                    # format
+                     'Replace',             # mode
+                     pack ('L*', 3, $toplevel));
+  {
+    my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state ($X, $win);
+    ok (scalar(@ret), 2);
+    ok ($ret[0], 'IconicState');
+    ok ($ret[1], $toplevel);
+  }
+  {
+    local $X->{'do_interp'} = 0;
+    my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state ($X, $win);
+    ok (scalar(@ret), 2);
+    ok ($ret[0], 3);
+    ok ($ret[1], $toplevel);
+  }
+
+  $X->ChangeProperty($win,
+                     $X->atom('WM_STATE'),  # property
+                     $X->atom('STRING'),    # type
+                     8,                     # format
+                     'Replace',             # mode
+                     'Wrong data type');
+  {
+    my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state ($X, $win);
+    ok (scalar(@ret), 0);
+  }
+
+  $X->DeleteProperty($win, $X->atom('WM_STATE'));
+  {
+    my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state ($X, $win);
+    ok (scalar(@ret), 0);
+  }
+}
 
 #------------------------------------------------------------------------------
 $X->QueryPointer($X->{'root'});  # sync

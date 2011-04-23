@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::OEIS;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,21 +34,21 @@ use constant description => __('OEIS sequence, by its A-number.  There\'s code f
 sub parameter_list {
   require App::MathImage::NumSeq::OeisCatalogue;
   return  ({
-            name    => 'oeis_number',
+            name    => 'oeis_anum',
             display => __('A-number'),
             width   => 8,
-            type         => 'integer',
-            type_special => 'oeis',
-            minimum => App::MathImage::NumSeq::OeisCatalogue->num_first,
-            maximum => App::MathImage::NumSeq::OeisCatalogue->num_last,
-            default => 290, # Squares
+            type         => 'string',
+            type_special => 'oeis_anum',
+            minimum => App::MathImage::NumSeq::OeisCatalogue->anum_first,
+            maximum => App::MathImage::NumSeq::OeisCatalogue->anum_last,
+            default => 'A000290', # Squares
            });
 }
 ### parameter_list: parameter_list()
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   if (ref $class_or_self) {
-    return $class_or_self->{'oeis_number'};
+    return $class_or_self->{'oeis_anum'};
   }
   return undef;
 }
@@ -58,17 +57,15 @@ sub new {
   my ($class, %options) = @_;
   ### NumSeq-OEIS: @_
 
-  require App::MathImage::NumSeq::OeisCatalogue;
-  my $oeis_number = $options{'oeis_number'};
-  if (defined $oeis_number) {
-    $oeis_number =~ s/^A0*//;
-  } else {
-    $oeis_number = (parameter_list)[0]->{'default'};
+  my $oeis_anum = $options{'oeis_anum'};
+  if (! defined $oeis_anum) {
+    $oeis_anum = (parameter_list)[0]->{'default'};
   }
-  ### $oeis_number
+  ### $oeis_anum
 
-  my $info = App::MathImage::NumSeq::OeisCatalogue->num_to_info($oeis_number)
-    || croak 'Unknown OEIS sequence ',$oeis_number;
+  require App::MathImage::NumSeq::OeisCatalogue;
+  my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info($oeis_anum)
+    || croak 'Unknown OEIS sequence ',$oeis_anum;
   ### $info
 
   my $numseq_class = $info->{'class'};
@@ -85,43 +82,47 @@ __END__
 
 =head1 NAME
 
-App::MathImage::NumSeq::Sequence::OEIS -- sequence of integers by OEIS number
+App::MathImage::NumSeq::Sequence::OEIS -- OEIS sequence
 
 =head1 SYNOPSIS
 
  use App::MathImage;
- my $seq = App::MathImage::NumSeq::Sequence::OEIS->new (oeis_number => 32);
+ my $seq = App::MathImage::NumSeq::Sequence::OEIS->new
+             (oeis_anum => 'A000032');
  my ($i, $value) = $seq->next;
  $value = $seq->ith(6);
 
 =head1 DESCRIPTION
 
-This module creates a NumSeq for a given OEIS sequence number.  If there's a
-NumSeq module implementing the sequence then that's used, otherwise
-downloaded OEIS files are read.
+This module creates a NumSeq for a given OEIS sequence number.  If there's
+NumSeq code implementing the sequence then that's used, otherwise downloaded
+OEIS files are read.
 
 OEIS files are sought in an F<OEIS> directory under the user's home
-directory.  It can have a B-file or A-file C<b000032.txt> or C<a000032.txt>,
-and/or the "internal" format info page F<A000032.internal>.
+directory.  It can have a B-file, A-file or "internal" format info page.
 
+    ~/OEIS/A000032.internal
     ~/OEIS/b000032.txt
     ~/OEIS/a000032.txt
-    ~/OEIS/A000032.internal
 
     downloaded from:
     http://oeis.org/A000032/b000032.txt
     http://oeis.org/A000032/a000032.txt
     http://oeis.org/A000032/internal
 
-There's only a few F<a.txt> files but when available they have lots of
-values.  Not every sequence has a F<b.txt> file and in that case the 30 or
-40 sample values from the "internal" page are used.  For many sequences this
-will be no more than a taste, but for fast growing sequences it may be
+The "internal" file is the information page presented at for instance
+C<http://oeis.org/A000032/>, in a parsable format.  A B-file or A-file can
+be used alone, but then there's no description etc.
+
+There's only a few F<a000000.txt> files but when available they have more
+values.  Not every sequence has a F<b000000.txt> file and in that case the
+30 or 40 sample values from the "internal" page are used.  For many
+sequences this is only a taste, but for fast growing sequences it may be
 enough.
 
 =head1 SEE ALSO
 
-L<App::MathImage::NumSeq>
+L<App::MathImage::NumSeq::Sequence>
 
 =head1 HOME PAGE
 

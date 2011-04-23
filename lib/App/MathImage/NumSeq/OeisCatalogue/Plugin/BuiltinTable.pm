@@ -22,1401 +22,1411 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use constant info_arrayref =>
 [
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::AbundantNumbers',
-    'num' => '5101'
+    'anum' => 'A005101',
+    'class' => 'App::MathImage::NumSeq::Sequence::Abundant'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::All',
-    'num' => '27'
+    'anum' => 'A000027',
+    'class' => 'App::MathImage::NumSeq::Sequence::All'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Base4Without3',
-    'num' => '23717'
+    'anum' => 'A023717',
+    'class' => 'App::MathImage::NumSeq::Sequence::Base4Without3'
   },
   {
+    'anum' => 'A051003',
     'class' => 'App::MathImage::NumSeq::Sequence::Beastly',
-    'num' => '51003',
     'parameters_hashref' => {
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::BinaryLengths',
-    'num' => '83652'
+    'anum' => 'A030303',
+    'class' => 'App::MathImage::NumSeq::Sequence::ChampernowneBinary'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::ChampernowneBinary',
-    'num' => '30303'
+    'anum' => 'A000161',
+    'class' => 'App::MathImage::NumSeq::Sequence::CountHypots'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::CountHypots',
-    'num' => '161'
+    'anum' => 'A001222',
+    'class' => 'App::MathImage::NumSeq::Sequence::CountPrimeFactors'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::CountPrimeFactors',
-    'num' => '1222'
+    'anum' => 'A000578',
+    'class' => 'App::MathImage::NumSeq::Sequence::Cubes'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Cubes',
-    'num' => '578'
+    'anum' => 'A070939',
+    'class' => 'App::MathImage::NumSeq::Sequence::DigitLength',
+    'parameters_hashref' => {
+      'radix' => 2
+    }
   },
   {
+    'anum' => 'A083652',
+    'class' => 'App::MathImage::NumSeq::Sequence::DigitLengthCumulative',
+    'parameters_hashref' => {
+      'radix' => 2
+    }
+  },
+  {
+    'anum' => 'A010060',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '10060',
     'parameters_hashref' => {
-      'radix' => '2'
+      'radix' => 2
     }
   },
   {
+    'anum' => 'A053838',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53838',
     'parameters_hashref' => {
-      'radix' => '3'
+      'radix' => 3
     }
   },
   {
+    'anum' => 'A053839',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53839',
     'parameters_hashref' => {
-      'radix' => '4'
+      'radix' => 4
     }
   },
   {
+    'anum' => 'A053840',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53840',
     'parameters_hashref' => {
-      'radix' => '5'
+      'radix' => 5
     }
   },
   {
+    'anum' => 'A053841',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53841',
     'parameters_hashref' => {
-      'radix' => '6'
+      'radix' => 6
     }
   },
   {
+    'anum' => 'A053842',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53842',
     'parameters_hashref' => {
-      'radix' => '7'
+      'radix' => 7
     }
   },
   {
+    'anum' => 'A053843',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53843',
     'parameters_hashref' => {
-      'radix' => '8'
+      'radix' => 8
     }
   },
   {
+    'anum' => 'A053844',
     'class' => 'App::MathImage::NumSeq::Sequence::DigitSumModulo',
-    'num' => '53844',
     'parameters_hashref' => {
-      'radix' => '9'
+      'radix' => 9
     }
   },
   {
+    'anum' => 'A006567',
     'class' => 'App::MathImage::NumSeq::Sequence::Emirps',
-    'num' => '6567',
     'parameters_hashref' => {
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Even',
-    'num' => '5843'
+    'anum' => 'A005843',
+    'class' => 'App::MathImage::NumSeq::Sequence::Even'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Factorials',
-    'num' => '142'
+    'anum' => 'A000142',
+    'class' => 'App::MathImage::NumSeq::Sequence::Factorials'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Fibonacci',
-    'num' => '45'
+    'anum' => 'A000045',
+    'class' => 'App::MathImage::NumSeq::Sequence::Fibonacci'
   },
   {
+    'anum' => 'A020806',
     'class' => 'App::MathImage::NumSeq::Sequence::FractionDigits',
-    'num' => '20806',
     'parameters_hashref' => {
       'fraction' => '1/7',
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
+    'anum' => 'A068028',
     'class' => 'App::MathImage::NumSeq::Sequence::FractionDigits',
-    'num' => '68028',
     'parameters_hashref' => {
       'fraction' => '22/7',
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
+    'anum' => 'A010680',
     'class' => 'App::MathImage::NumSeq::Sequence::FractionDigits',
-    'num' => '10680',
     'parameters_hashref' => {
       'fraction' => '1/11',
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::GolayRudinShapiro',
-    'num' => '22155'
+    'anum' => 'A022155',
+    'class' => 'App::MathImage::NumSeq::Sequence::GolayRudinShapiro'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::LucasNumbers',
-    'num' => '204'
+    'anum' => 'A000204',
+    'class' => 'App::MathImage::NumSeq::Sequence::Lucas'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::MobiusFunction',
-    'num' => '8683'
+    'anum' => 'A008683',
+    'class' => 'App::MathImage::NumSeq::Sequence::MobiusFunction'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::NumaronsonA',
-    'num' => '79000'
+    'anum' => 'A079000',
+    'class' => 'App::MathImage::NumSeq::Sequence::NumaronsonA'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::ObstinateNumbers',
-    'num' => '133122'
+    'anum' => 'A133122',
+    'class' => 'App::MathImage::NumSeq::Sequence::Obstinate'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Odd',
-    'num' => '5408'
+    'anum' => 'A005408',
+    'class' => 'App::MathImage::NumSeq::Sequence::Odd'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Padovan',
-    'num' => '931'
+    'anum' => 'A000931',
+    'class' => 'App::MathImage::NumSeq::Sequence::Padovan'
   },
   {
+    'anum' => 'A006995',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '6995',
     'parameters_hashref' => {
-      'radix' => '2'
+      'radix' => 2
     }
   },
   {
+    'anum' => 'A014190',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '14190',
     'parameters_hashref' => {
-      'radix' => '3'
+      'radix' => 3
     }
   },
   {
+    'anum' => 'A014192',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '14192',
     'parameters_hashref' => {
-      'radix' => '4'
+      'radix' => 4
     }
   },
   {
+    'anum' => 'A029952',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '29952',
     'parameters_hashref' => {
-      'radix' => '5'
+      'radix' => 5
     }
   },
   {
+    'anum' => 'A029953',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '29953',
     'parameters_hashref' => {
-      'radix' => '6'
+      'radix' => 6
     }
   },
   {
+    'anum' => 'A029954',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '29954',
     'parameters_hashref' => {
-      'radix' => '7'
+      'radix' => 7
     }
   },
   {
+    'anum' => 'A029803',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '29803',
     'parameters_hashref' => {
-      'radix' => '8'
+      'radix' => 8
     }
   },
   {
+    'anum' => 'A029955',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '29955',
     'parameters_hashref' => {
-      'radix' => '9'
+      'radix' => 9
     }
   },
   {
+    'anum' => 'A002113',
     'class' => 'App::MathImage::NumSeq::Sequence::Palindromes',
-    'num' => '2113',
     'parameters_hashref' => {
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::PellNumbers',
-    'num' => '129'
+    'anum' => 'A000129',
+    'class' => 'App::MathImage::NumSeq::Sequence::Pell'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Perrin',
-    'num' => '1608'
+    'anum' => 'A001608',
+    'class' => 'App::MathImage::NumSeq::Sequence::Perrin'
   },
   {
+    'anum' => 'A059253',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathCoord',
-    'num' => '59253',
     'parameters_hashref' => {
       'coord_type' => 'X',
       'planepath_class' => 'HilbertCurve'
     }
   },
   {
+    'anum' => 'A059252',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathCoord',
-    'num' => '59252',
     'parameters_hashref' => {
       'coord_type' => 'Y',
       'planepath_class' => 'HilbertCurve'
     }
   },
   {
+    'anum' => 'A163528',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathCoord',
-    'num' => '163528',
     'parameters_hashref' => {
       'coord_type' => 'X',
       'planepath_class' => 'PeanoCurve'
     }
   },
   {
+    'anum' => 'A163529',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathCoord',
-    'num' => '163529',
     'parameters_hashref' => {
       'coord_type' => 'Y',
       'planepath_class' => 'PeanoCurve'
     }
   },
   {
+    'anum' => 'A163530',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathCoord',
-    'num' => '163530',
     'parameters_hashref' => {
       'coord_type' => 'Sum',
       'planepath_class' => 'PeanoCurve'
     }
   },
   {
+    'anum' => 'A163531',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathCoord',
-    'num' => '163531',
     'parameters_hashref' => {
       'coord_type' => 'SqDist',
       'planepath_class' => 'PeanoCurve'
     }
   },
   {
+    'anum' => 'A163538',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathDelta',
-    'num' => '163538',
     'parameters_hashref' => {
       'delta_type' => 'x',
       'planepath_class' => 'HilbertCurve'
     }
   },
   {
+    'anum' => 'A163539',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathDelta',
-    'num' => '163539',
     'parameters_hashref' => {
       'delta_type' => 'y',
       'planepath_class' => 'HilbertCurve'
     }
   },
   {
+    'anum' => 'A163532',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathDelta',
-    'num' => '163532',
     'parameters_hashref' => {
       'delta_type' => 'x',
       'planepath_class' => 'PeanoCurve'
     }
   },
   {
+    'anum' => 'A163533',
     'class' => 'App::MathImage::NumSeq::Sequence::PlanePathDelta',
-    'num' => '163533',
     'parameters_hashref' => {
       'delta_type' => 'y',
       'planepath_class' => 'PeanoCurve'
     }
   },
   {
+    'anum' => 'A000326',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '326',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '5'
+      'polygonal' => 5
     }
   },
   {
+    'anum' => 'A005449',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '5449',
     'parameters_hashref' => {
       'pairs' => 'second',
-      'polygonal' => '5'
+      'polygonal' => 5
     }
   },
   {
+    'anum' => 'A001318',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '1318',
     'parameters_hashref' => {
       'pairs' => 'both',
-      'polygonal' => '5'
+      'polygonal' => 5
     }
   },
   {
+    'anum' => 'A000384',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '384',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '6'
+      'polygonal' => 6
     }
   },
   {
+    'anum' => 'A014105',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '14105',
     'parameters_hashref' => {
       'pairs' => 'second',
-      'polygonal' => '6'
+      'polygonal' => 6
     }
   },
   {
+    'anum' => 'A000566',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '566',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '7'
+      'polygonal' => 7
     }
   },
   {
+    'anum' => 'A000567',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '567',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '8'
+      'polygonal' => 8
     }
   },
   {
+    'anum' => 'A001106',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '1106',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '9'
+      'polygonal' => 9
     }
   },
   {
+    'anum' => 'A001107',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '1107',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '10'
+      'polygonal' => 10
     }
   },
   {
+    'anum' => 'A051682',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51682',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '11'
+      'polygonal' => 11
     }
   },
   {
+    'anum' => 'A051624',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51624',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '12'
+      'polygonal' => 12
     }
   },
   {
+    'anum' => 'A051865',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51865',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '13'
+      'polygonal' => 13
     }
   },
   {
+    'anum' => 'A051866',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51866',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '14'
+      'polygonal' => 14
     }
   },
   {
+    'anum' => 'A051867',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51867',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '15'
+      'polygonal' => 15
     }
   },
   {
+    'anum' => 'A051868',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51868',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '16'
+      'polygonal' => 16
     }
   },
   {
+    'anum' => 'A051869',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51869',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '17'
+      'polygonal' => 17
     }
   },
   {
+    'anum' => 'A051870',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51870',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '18'
+      'polygonal' => 18
     }
   },
   {
+    'anum' => 'A051871',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51871',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '19'
+      'polygonal' => 19
     }
   },
   {
+    'anum' => 'A051872',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51872',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '20'
+      'polygonal' => 20
     }
   },
   {
+    'anum' => 'A051873',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51873',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '21'
+      'polygonal' => 21
     }
   },
   {
+    'anum' => 'A051874',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51874',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '22'
+      'polygonal' => 22
     }
   },
   {
+    'anum' => 'A051875',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51875',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '23'
+      'polygonal' => 23
     }
   },
   {
+    'anum' => 'A051876',
     'class' => 'App::MathImage::NumSeq::Sequence::Polygonal',
-    'num' => '51876',
     'parameters_hashref' => {
       'pairs' => 'first',
-      'polygonal' => '24'
+      'polygonal' => 24
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Primes',
-    'num' => '40'
+    'anum' => 'A000040',
+    'class' => 'App::MathImage::NumSeq::Sequence::Primes'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Pronic',
-    'num' => '2378'
+    'anum' => 'A002378',
+    'class' => 'App::MathImage::NumSeq::Sequence::Pronic'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::PythagoreanHypots',
-    'num' => '9003'
+    'anum' => 'A009003',
+    'class' => 'App::MathImage::NumSeq::Sequence::PythagoreanHypots'
   },
   {
+    'anum' => 'A032924',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '32924',
     'parameters_hashref' => {
-      'digit' => '0',
-      'radix' => '3'
+      'digit' => 0,
+      'radix' => 3
     }
   },
   {
+    'anum' => 'A005823',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '5823',
     'parameters_hashref' => {
-      'digit' => '1',
-      'radix' => '3'
+      'digit' => 1,
+      'radix' => 3
     }
   },
   {
+    'anum' => 'A023705',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23705',
     'parameters_hashref' => {
-      'digit' => '0',
-      'radix' => '4'
+      'digit' => 0,
+      'radix' => 4
     }
   },
   {
+    'anum' => 'A023709',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23709',
     'parameters_hashref' => {
-      'digit' => '1',
-      'radix' => '4'
+      'digit' => 1,
+      'radix' => 4
     }
   },
   {
+    'anum' => 'A023713',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23713',
     'parameters_hashref' => {
-      'digit' => '2',
-      'radix' => '4'
+      'digit' => 2,
+      'radix' => 4
     }
   },
   {
+    'anum' => 'A023721',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23721',
     'parameters_hashref' => {
-      'digit' => '0',
-      'radix' => '5'
+      'digit' => 0,
+      'radix' => 5
     }
   },
   {
+    'anum' => 'A023725',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23725',
     'parameters_hashref' => {
-      'digit' => '1',
-      'radix' => '5'
+      'digit' => 1,
+      'radix' => 5
     }
   },
   {
+    'anum' => 'A023729',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23729',
     'parameters_hashref' => {
-      'digit' => '2',
-      'radix' => '5'
+      'digit' => 2,
+      'radix' => 5
     }
   },
   {
+    'anum' => 'A023733',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23733',
     'parameters_hashref' => {
-      'digit' => '4',
-      'radix' => '5'
+      'digit' => 4,
+      'radix' => 5
     }
   },
   {
+    'anum' => 'A023737',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
-    'num' => '23737',
     'parameters_hashref' => {
-      'digit' => '5',
-      'radix' => '5'
+      'digit' => 5,
+      'radix' => 5
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::RepdigitAnyBase',
-    'num' => '167782'
+    'anum' => 'A167782',
+    'class' => 'App::MathImage::NumSeq::Sequence::RepdigitAnyBase'
   },
   {
+    'anum' => 'A010785',
     'class' => 'App::MathImage::NumSeq::Sequence::Repdigits',
-    'num' => '10785',
     'parameters_hashref' => {
-      'radix' => '10'
+      'radix' => 10
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::SafePrimes',
-    'num' => '5385'
+    'anum' => 'A005385',
+    'class' => 'App::MathImage::NumSeq::Sequence::SafePrimes'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::SemiPrimes',
-    'num' => '1358'
+    'anum' => 'A001358',
+    'class' => 'App::MathImage::NumSeq::Sequence::SemiPrimes'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::SophieGermainPrimes',
-    'num' => '5384'
+    'anum' => 'A005384',
+    'class' => 'App::MathImage::NumSeq::Sequence::SophieGermainPrimes'
   },
   {
+    'anum' => 'A004539',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '4539',
     'parameters_hashref' => {
-      'radix' => '2',
-      'sqrt' => '2'
+      'radix' => 2,
+      'sqrt' => 2
     }
   },
   {
+    'anum' => 'A004540',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '4540',
     'parameters_hashref' => {
-      'radix' => '3',
-      'sqrt' => '2'
+      'radix' => 3,
+      'sqrt' => 2
     }
   },
   {
+    'anum' => 'A004541',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '4541',
     'parameters_hashref' => {
-      'radix' => '4',
-      'sqrt' => '2'
+      'radix' => 4,
+      'sqrt' => 2
     }
   },
   {
+    'anum' => 'A004542',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '4542',
     'parameters_hashref' => {
-      'radix' => '5',
-      'sqrt' => '2'
+      'radix' => 5,
+      'sqrt' => 2
     }
   },
   {
+    'anum' => 'A002193',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '2193',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '2'
+      'radix' => 10,
+      'sqrt' => 2
     }
   },
   {
+    'anum' => 'A002194',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '2194',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '3'
+      'radix' => 10,
+      'sqrt' => 3
     }
   },
   {
+    'anum' => 'A002163',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '2163',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '5'
+      'radix' => 10,
+      'sqrt' => 5
     }
   },
   {
+    'anum' => 'A010467',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10467',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '10'
+      'radix' => 10,
+      'sqrt' => 10
     }
   },
   {
+    'anum' => 'A010468',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10468',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '11'
+      'radix' => 10,
+      'sqrt' => 11
     }
   },
   {
+    'anum' => 'A010469',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10469',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '12'
+      'radix' => 10,
+      'sqrt' => 12
     }
   },
   {
+    'anum' => 'A010470',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10470',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '13'
+      'radix' => 10,
+      'sqrt' => 13
     }
   },
   {
+    'anum' => 'A010471',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10471',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '14'
+      'radix' => 10,
+      'sqrt' => 14
     }
   },
   {
+    'anum' => 'A010472',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10472',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '15'
+      'radix' => 10,
+      'sqrt' => 15
     }
   },
   {
+    'anum' => 'A010473',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10473',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '17'
+      'radix' => 10,
+      'sqrt' => 17
     }
   },
   {
+    'anum' => 'A010474',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10474',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '18'
+      'radix' => 10,
+      'sqrt' => 18
     }
   },
   {
+    'anum' => 'A010475',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10475',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '19'
+      'radix' => 10,
+      'sqrt' => 19
     }
   },
   {
+    'anum' => 'A010476',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10476',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '20'
+      'radix' => 10,
+      'sqrt' => 20
     }
   },
   {
+    'anum' => 'A010477',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10477',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '21'
+      'radix' => 10,
+      'sqrt' => 21
     }
   },
   {
+    'anum' => 'A010478',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10478',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '22'
+      'radix' => 10,
+      'sqrt' => 22
     }
   },
   {
+    'anum' => 'A010479',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10479',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '23'
+      'radix' => 10,
+      'sqrt' => 23
     }
   },
   {
+    'anum' => 'A010480',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10480',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '24'
+      'radix' => 10,
+      'sqrt' => 24
     }
   },
   {
+    'anum' => 'A010481',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10481',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '26'
+      'radix' => 10,
+      'sqrt' => 26
     }
   },
   {
+    'anum' => 'A010482',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10482',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '27'
+      'radix' => 10,
+      'sqrt' => 27
     }
   },
   {
+    'anum' => 'A010483',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10483',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '28'
+      'radix' => 10,
+      'sqrt' => 28
     }
   },
   {
+    'anum' => 'A010484',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10484',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '29'
+      'radix' => 10,
+      'sqrt' => 29
     }
   },
   {
+    'anum' => 'A010485',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10485',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '30'
+      'radix' => 10,
+      'sqrt' => 30
     }
   },
   {
+    'anum' => 'A010486',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10486',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '31'
+      'radix' => 10,
+      'sqrt' => 31
     }
   },
   {
+    'anum' => 'A010487',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10487',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '32'
+      'radix' => 10,
+      'sqrt' => 32
     }
   },
   {
+    'anum' => 'A010488',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10488',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '33'
+      'radix' => 10,
+      'sqrt' => 33
     }
   },
   {
+    'anum' => 'A010489',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10489',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '34'
+      'radix' => 10,
+      'sqrt' => 34
     }
   },
   {
+    'anum' => 'A010490',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10490',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '35'
+      'radix' => 10,
+      'sqrt' => 35
     }
   },
   {
+    'anum' => 'A010491',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10491',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '37'
+      'radix' => 10,
+      'sqrt' => 37
     }
   },
   {
+    'anum' => 'A010492',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10492',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '38'
+      'radix' => 10,
+      'sqrt' => 38
     }
   },
   {
+    'anum' => 'A010493',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10493',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '39'
+      'radix' => 10,
+      'sqrt' => 39
     }
   },
   {
+    'anum' => 'A010494',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10494',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '40'
+      'radix' => 10,
+      'sqrt' => 40
     }
   },
   {
+    'anum' => 'A010495',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10495',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '41'
+      'radix' => 10,
+      'sqrt' => 41
     }
   },
   {
+    'anum' => 'A010496',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10496',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '42'
+      'radix' => 10,
+      'sqrt' => 42
     }
   },
   {
+    'anum' => 'A010497',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10497',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '43'
+      'radix' => 10,
+      'sqrt' => 43
     }
   },
   {
+    'anum' => 'A010498',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10498',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '44'
+      'radix' => 10,
+      'sqrt' => 44
     }
   },
   {
+    'anum' => 'A010499',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10499',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '45'
+      'radix' => 10,
+      'sqrt' => 45
     }
   },
   {
+    'anum' => 'A010500',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10500',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '46'
+      'radix' => 10,
+      'sqrt' => 46
     }
   },
   {
+    'anum' => 'A010501',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10501',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '47'
+      'radix' => 10,
+      'sqrt' => 47
     }
   },
   {
+    'anum' => 'A010502',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10502',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '48'
+      'radix' => 10,
+      'sqrt' => 48
     }
   },
   {
+    'anum' => 'A010503',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10503',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '50'
+      'radix' => 10,
+      'sqrt' => 50
     }
   },
   {
+    'anum' => 'A010504',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10504',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '51'
+      'radix' => 10,
+      'sqrt' => 51
     }
   },
   {
+    'anum' => 'A010505',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10505',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '52'
+      'radix' => 10,
+      'sqrt' => 52
     }
   },
   {
+    'anum' => 'A010506',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10506',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '53'
+      'radix' => 10,
+      'sqrt' => 53
     }
   },
   {
+    'anum' => 'A010507',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10507',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '54'
+      'radix' => 10,
+      'sqrt' => 54
     }
   },
   {
+    'anum' => 'A010508',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10508',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '55'
+      'radix' => 10,
+      'sqrt' => 55
     }
   },
   {
+    'anum' => 'A010509',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10509',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '56'
+      'radix' => 10,
+      'sqrt' => 56
     }
   },
   {
+    'anum' => 'A010510',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10510',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '57'
+      'radix' => 10,
+      'sqrt' => 57
     }
   },
   {
+    'anum' => 'A010511',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10511',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '58'
+      'radix' => 10,
+      'sqrt' => 58
     }
   },
   {
+    'anum' => 'A010512',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10512',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '59'
+      'radix' => 10,
+      'sqrt' => 59
     }
   },
   {
+    'anum' => 'A010513',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10513',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '60'
+      'radix' => 10,
+      'sqrt' => 60
     }
   },
   {
+    'anum' => 'A010514',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10514',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '61'
+      'radix' => 10,
+      'sqrt' => 61
     }
   },
   {
+    'anum' => 'A010515',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10515',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '62'
+      'radix' => 10,
+      'sqrt' => 62
     }
   },
   {
+    'anum' => 'A010516',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10516',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '63'
+      'radix' => 10,
+      'sqrt' => 63
     }
   },
   {
+    'anum' => 'A010517',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10517',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '65'
+      'radix' => 10,
+      'sqrt' => 65
     }
   },
   {
+    'anum' => 'A010518',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10518',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '66'
+      'radix' => 10,
+      'sqrt' => 66
     }
   },
   {
+    'anum' => 'A010519',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10519',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '67'
+      'radix' => 10,
+      'sqrt' => 67
     }
   },
   {
+    'anum' => 'A010520',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10520',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '68'
+      'radix' => 10,
+      'sqrt' => 68
     }
   },
   {
+    'anum' => 'A010521',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10521',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '69'
+      'radix' => 10,
+      'sqrt' => 69
     }
   },
   {
+    'anum' => 'A010522',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10522',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '70'
+      'radix' => 10,
+      'sqrt' => 70
     }
   },
   {
+    'anum' => 'A010523',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10523',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '71'
+      'radix' => 10,
+      'sqrt' => 71
     }
   },
   {
+    'anum' => 'A010524',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10524',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '72'
+      'radix' => 10,
+      'sqrt' => 72
     }
   },
   {
+    'anum' => 'A010525',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10525',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '73'
+      'radix' => 10,
+      'sqrt' => 73
     }
   },
   {
+    'anum' => 'A010526',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10526',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '74'
+      'radix' => 10,
+      'sqrt' => 74
     }
   },
   {
+    'anum' => 'A010527',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10527',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '75'
+      'radix' => 10,
+      'sqrt' => 75
     }
   },
   {
+    'anum' => 'A010528',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10528',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '76'
+      'radix' => 10,
+      'sqrt' => 76
     }
   },
   {
+    'anum' => 'A010529',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10529',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '77'
+      'radix' => 10,
+      'sqrt' => 77
     }
   },
   {
+    'anum' => 'A010530',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10530',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '78'
+      'radix' => 10,
+      'sqrt' => 78
     }
   },
   {
+    'anum' => 'A010531',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10531',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '79'
+      'radix' => 10,
+      'sqrt' => 79
     }
   },
   {
+    'anum' => 'A010532',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10532',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '80'
+      'radix' => 10,
+      'sqrt' => 80
     }
   },
   {
+    'anum' => 'A010533',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10533',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '82'
+      'radix' => 10,
+      'sqrt' => 82
     }
   },
   {
+    'anum' => 'A010534',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10534',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '83'
+      'radix' => 10,
+      'sqrt' => 83
     }
   },
   {
+    'anum' => 'A010535',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10535',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '84'
+      'radix' => 10,
+      'sqrt' => 84
     }
   },
   {
+    'anum' => 'A010536',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10536',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '84'
+      'radix' => 10,
+      'sqrt' => 84
     }
   },
   {
+    'anum' => 'A010537',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10537',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '86'
+      'radix' => 10,
+      'sqrt' => 86
     }
   },
   {
+    'anum' => 'A010538',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10538',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '87'
+      'radix' => 10,
+      'sqrt' => 87
     }
   },
   {
+    'anum' => 'A010539',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10539',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '88'
+      'radix' => 10,
+      'sqrt' => 88
     }
   },
   {
+    'anum' => 'A010540',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10540',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '89'
+      'radix' => 10,
+      'sqrt' => 89
     }
   },
   {
+    'anum' => 'A010541',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10541',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '90'
+      'radix' => 10,
+      'sqrt' => 90
     }
   },
   {
+    'anum' => 'A010542',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10542',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '91'
+      'radix' => 10,
+      'sqrt' => 91
     }
   },
   {
+    'anum' => 'A010543',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10543',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '92'
+      'radix' => 10,
+      'sqrt' => 92
     }
   },
   {
+    'anum' => 'A010544',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10544',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '93'
+      'radix' => 10,
+      'sqrt' => 93
     }
   },
   {
+    'anum' => 'A010545',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10545',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '94'
+      'radix' => 10,
+      'sqrt' => 94
     }
   },
   {
+    'anum' => 'A010546',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10546',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '95'
+      'radix' => 10,
+      'sqrt' => 95
     }
   },
   {
+    'anum' => 'A010547',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10547',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '96'
+      'radix' => 10,
+      'sqrt' => 96
     }
   },
   {
+    'anum' => 'A010548',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10548',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '97'
+      'radix' => 10,
+      'sqrt' => 97
     }
   },
   {
+    'anum' => 'A010549',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10549',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '98'
+      'radix' => 10,
+      'sqrt' => 98
     }
   },
   {
+    'anum' => 'A010550',
     'class' => 'App::MathImage::NumSeq::Sequence::SqrtDigits',
-    'num' => '10550',
     'parameters_hashref' => {
-      'radix' => '10',
-      'sqrt' => '99'
+      'radix' => 10,
+      'sqrt' => 99
     }
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Squares',
-    'num' => '290'
+    'anum' => 'A000290',
+    'class' => 'App::MathImage::NumSeq::Sequence::Squares'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::StarNumbers',
-    'num' => '3154'
+    'anum' => 'A003154',
+    'class' => 'App::MathImage::NumSeq::Sequence::StarNumbers'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::SumTwoSquares',
-    'num' => '404'
+    'anum' => 'A000404',
+    'class' => 'App::MathImage::NumSeq::Sequence::SumTwoSquares'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::TernaryWithout2',
-    'num' => '5836'
+    'anum' => 'A005836',
+    'class' => 'App::MathImage::NumSeq::Sequence::TernaryWithout2'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Tetrahedral',
-    'num' => '292'
+    'anum' => 'A000292',
+    'class' => 'App::MathImage::NumSeq::Sequence::Tetrahedral'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Triangular',
-    'num' => '217'
+    'anum' => 'A000217',
+    'class' => 'App::MathImage::NumSeq::Sequence::Triangular'
   },
   {
-    'class' => 'App::MathImage::NumSeq::Sequence::Tribonacci',
-    'num' => '73'
+    'anum' => 'A000073',
+    'class' => 'App::MathImage::NumSeq::Sequence::Tribonacci'
   },
   {
+    'anum' => 'A001359',
     'class' => 'App::MathImage::NumSeq::Sequence::TwinPrimes',
-    'num' => '1359',
     'parameters_hashref' => {
       'pairs' => 'first'
     }
   },
   {
+    'anum' => 'A006512',
     'class' => 'App::MathImage::NumSeq::Sequence::TwinPrimes',
-    'num' => '6512',
     'parameters_hashref' => {
       'pairs' => 'second'
     }
   },
   {
+    'anum' => 'A001097',
     'class' => 'App::MathImage::NumSeq::Sequence::TwinPrimes',
-    'num' => '1097',
     'parameters_hashref' => {
       'pairs' => 'both'
     }

@@ -18,17 +18,16 @@
 package App::MathImage::NumSeq::Sequence::TwinPrimes;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Twin Primes');
 use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
@@ -40,7 +39,7 @@ my %oeis = (first  => 'A001359',
             both   => 'A001097', # both, without repetition
             #         'A077800'  # both, with repetition
            );
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $pairs = (ref $class_or_self
                ? $class_or_self->{'pairs'}

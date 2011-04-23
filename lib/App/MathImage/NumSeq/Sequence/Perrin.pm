@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Sequence::Perrin;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,7 +31,7 @@ $VERSION = 51;
 use constant name => __('Perrin Numbers');
 use constant description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
 use constant values_min => 0;
-use constant oeis => 'A001608'; # perrin
+use constant oeis_anum => 'A001608'; # perrin
 
 sub rewind {
   my ($self) = @_;

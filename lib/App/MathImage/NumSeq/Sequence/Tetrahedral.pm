@@ -18,17 +18,16 @@
 package App::MathImage::NumSeq::Sequence::Tetrahedral;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');
-use constant oeis => 'A000292'; # tetrahedrals
+use constant oeis_anum => 'A000292'; # tetrahedrals
 
 sub rewind {
   my ($self) = @_;

@@ -15,19 +15,18 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::ObstinateNumbers;
+package App::MathImage::NumSeq::Sequence::Obstinate;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
-use App::MathImage::NumSeq::File;
-use App::MathImage::NumSeq::FileWriter;
+use App::MathImage::NumSeq::Base::File;
+use App::MathImage::NumSeq::Base::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,25 +34,25 @@ $VERSION = 51;
 use constant name => __('Obstinate Numbers');
 use constant description => __('Odd numbers N not representable as prime+2^k.');
 use constant values_min => 1;
-use constant oeis => 'A133122'; # obstinates
+use constant oeis_anum => 'A133122'; # obstinates
 
 sub new {
   my ($class, %options) = @_;
-  ### ObstinateNumbers new()
+  ### Obstinate new()
 
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
   $lo = max (0, $lo);
   $hi = max (0, $hi);
 
-  if (my $vf = App::MathImage::NumSeq::File->new (package => __PACKAGE__,
-                                                hi => $hi)) {
+  if (my $vf = App::MathImage::NumSeq::Base::File->new (package => __PACKAGE__,
+                                                        hi => $hi)) {
     ### use NumSeq-File: $vf
     return $vf;
   }
 
   my $i = -1;
-  my $vfw = App::MathImage::NumSeq::FileWriter->new
+  my $vfw = App::MathImage::NumSeq::Base::FileWriter->new
     (package => __PACKAGE__,
      hi      => $hi);
 
@@ -84,7 +83,7 @@ sub rewind {
 }
 sub next {
   my ($self) = @_;
-  ### ObstinateNumbers next(): $self->{'i'}
+  ### Obstinate next(): $self->{'i'}
 
   my $hi = $self->{'hi'};
   my $sref = \$self->{'string'};
@@ -121,7 +120,7 @@ sub next {
 
 sub pred {
   my ($self, $n) = @_;
-  ### ObstinateNumbers pred(): $n
+  ### Obstinate pred(): $n
   ### $self
   ### vec: vec($self->{'string'}, $n,2)
   ### obstinate: (vec($self->{'string'}, $n,2) & 2)

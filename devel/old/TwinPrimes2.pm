@@ -20,8 +20,8 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util 'min', 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::TwinPrimes1';
 
 # uncomment this to run the ### lines
@@ -32,7 +32,7 @@ $VERSION = 38;
 
 use constant name => __('Twin Primes, second of each');
 use constant description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.');
-use constant oeis => 'A006512'; # greater of two
+use constant oeis_anum => 'A006512'; # greater of two
 
 sub new {
   my $class = shift;

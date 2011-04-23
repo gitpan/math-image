@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::SqrtDigits;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -78,7 +77,7 @@ my %oeis = (2  => { 2  => 'A004539',   # sqrt2 binary digits
             23 => { 10 => 'A010479' },
             24 => { 10 => 'A010480' },
            );
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $sqrt = (ref $class_or_self
               ? $class_or_self->{'sqrt'}
@@ -96,7 +95,7 @@ sub oeis {
 # OeisCatalogue: A002194 sqrt=3  radix=10
 # OeisCatalogue: A002163 sqrt=5  radix=10
 #
-# these in sequence, but skipping perfect squares 16,25,36,49
+# these in sequence, but skipping perfect squares 16,25,36,49,64,81
 # OeisCatalogue: A010467 sqrt=10 radix=10
 # OeisCatalogue: A010468 sqrt=11 radix=10
 # OeisCatalogue: A010469 sqrt=12 radix=10

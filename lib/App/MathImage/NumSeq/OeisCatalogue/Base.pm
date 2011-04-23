@@ -20,53 +20,57 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-my %num_to_info_hashref;
-sub num_to_info_hashref {
+my %anum_to_info_hashref;
+sub anum_to_info_hashref {
   my ($class) = @_;
-  return ($num_to_info_hashref{$class} ||=
-          { map { $_->{'num'} => $_ } @{$class->info_arrayref} });
+  ### anum_to_info_hashref(): $class
+  return ($anum_to_info_hashref{$class} ||=
+          { map { $_->{'anum'} => $_ } @{$class->info_arrayref} });
 }
 
-sub num_to_info {
-  my ($class, $num) = @_;
-  return $class->num_to_info_hashref->{$num};
+sub anum_to_info {
+  my ($class, $anum) = @_;
+  return $class->anum_to_info_hashref->{$anum};
 }
 
-sub num_after {
-  my ($class, $after_num) = @_;
+sub anum_after {
+  my ($class, $after_anum) = @_;
+  ### $after_anum
   my $ret;
   foreach my $info (@{$class->info_arrayref}) {
-    if ($info->{'num'} > $after_num
-        && (! defined $ret || $ret > $info->{'num'})) {
-      $ret = $info->{'num'};
+    ### after info: $info
+    if ($info->{'anum'} gt $after_anum
+        && (! defined $ret || $ret gt $info->{'anum'})) {
+      $ret = $info->{'anum'};
     }
   }
   return $ret;
 }
-sub num_before {
-  my ($class, $before_num) = @_;
+sub anum_before {
+  my ($class, $before_anum) = @_;
+  ### $before_anum
   my $ret;
   foreach my $info (@{$class->info_arrayref}) {
-    if ($info->{'num'} < $before_num
-        && (! defined $ret || $ret < $info->{'num'})) {
-      $ret = $info->{'num'};
+    if ($info->{'anum'} lt $before_anum
+        && (! defined $ret || $ret lt $info->{'anum'})) {
+      $ret = $info->{'anum'};
     }
   }
   return $ret;
 }
 
-sub num_first {
+sub anum_first {
   my ($class, $after_num) = @_;
-  return $class->num_after(-1);
+  return $class->anum_after('A000000');
 }
-sub num_last {
+sub anum_last {
   my ($class, $before_num) = @_;
-  return $class->num_before(999_999_999);
+  return $class->anum_before('A1000000');
 }
 
 1;

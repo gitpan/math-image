@@ -18,19 +18,18 @@
 package App::MathImage::NumSeq::Sequence::DigitSumModulo;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
 
-# use constant oeis => 'A001969'; # with even 1s
+# use constant oeis_anum => 'A001969'; # with even 1s
 # df 'A026147'; # positions of 1s in evil
 # cf A001285
 # cf A053827 - base 6, full sum, not modulo
@@ -45,7 +44,7 @@ my @oeis = (undef,
             'A053843', # 8
             'A053844', # 9
            );
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $radix = (ref $class_or_self
                ? $class_or_self->{'radix'}
@@ -65,14 +64,6 @@ sub oeis {
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-# sub new {
-#   my ($class, %options) = @_;
-#   my $lo = $options{'lo'} || 0;
-#   $lo = max ($lo, 0); # no negatives
-# 
-#   my $radix = $options{'radix'} || $class->parameter_default('radix');
-#   my $self = bless { radix => $radix }, $class;
-# }
 sub rewind {
   my ($self) = @_;
   $self->{'i'} = 0;

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::OeisCatalogue::Plugin::BuiltinCalc;
+package App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits;
 use 5.004;
 use strict;
 use List::Util 'min', 'max'; # FIXME: 5.6 only, maybe
@@ -25,38 +25,35 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub _make_frac {
-  my ($num) = @_;
-  return { num => $num,
-           class => 'App::MathImage::NumSeq::Sequence::FractionDigits',
-           parameters_hashref => { fraction => '1/'.($num-21004) } };
-}
-
 use constant num_first => 21016;
 use constant num_last  => 22003;
 
-sub num_after {
-  my ($class, $num) = @_;
-  if ($num < num_last()) {
-    return max ($num+1, num_first());
+sub anum_after {
+  my ($class, $anum) = @_;
+  (my $num = $anum) =~ s/^A0*//g;
+  $num ||= 0;
+  if ($num >= $class->num_last) {
+    return undef;
   }
-  return undef;
+  return sprintf 'A%06d', max ($num+1, $class->num_first);
 }
-sub num_before {
-  my ($class, $num) = @_;
-  if ($num > num_first()) {
-    return min ($num-1, num_last());
+sub anum_before {
+  my ($class, $anum) = @_;
+  (my $num = $anum) =~ s/^A0*//g;
+  $num ||= 0;
+  if ($num <= $class->num_first) {
+    return undef;
   }
-  return undef;
+  return sprintf 'A%06d', min ($num-1, $class->num_last);
 }
 
-sub num_to_info {
-  my ($class, $num) = @_;
+sub anum_to_info {
+  my ($class, $anum) = @_;
   ### Catalogue-BuiltinCalc num_to_info(): @_
 
   # App::MathImage::NumSeq::Sequence::FractionDigits
@@ -64,8 +61,11 @@ sub num_to_info {
   # being A021015 through A022003, though 1/11 is also A010680 and prefer
   # that one (in BuiltinTable)
 
-  if ($num >= num_first() && $num <= num_last()) {
-    return _make_frac($num);
+  my $num = $anum;
+  if ($num =~ s/^A0*//g) {
+    if ($num >= $class->num_first && $num <= $class->num_last) {
+      return $class->make_info($num);
+    }
   }
   return undef;
 }
@@ -73,11 +73,20 @@ sub num_to_info {
 my @info_array;
 sub info_arrayref {
   my ($class) = @_;
-
   if (! @info_array) {
-    @info_array = map {_make_frac($_)} num_first() .. num_last();
+    @info_array = map {$class->make_info($_)}
+      $class->num_first .. $class->num_last;
+    ### made info_arrayref: @info_array
   }
   return \@info_array;
+}
+
+sub make_info {
+  my ($class, $num) = @_;
+  ### make_info(): $num
+  return { anum  => sprintf('A%06d', $num),
+           class => 'App::MathImage::NumSeq::Sequence::FractionDigits',
+           parameters_hashref => { fraction => '1/'.($num-21004) } };
 }
 
 1;

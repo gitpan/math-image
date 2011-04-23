@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Sequence::Lines;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::All';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Lines');
 use constant description => __('No numbers, instead lines showing the path taken.');

@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::CountPrimeFactors;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,9 +33,9 @@ use constant name => __('Count Prime Factors');
 use constant description => __('Count of prime factors.');
 use constant type_hash => { count => 1 };
 use constant values_min => 1;
-use constant oeis => 'A001222'; # with multiplicity
+use constant oeis_anum => 'A001222'; # with multiplicity
 
-# use constant oeis => 1222; # A001222 with multiplicity
+# use constant oeis_anum => 1222; # A001222 with multiplicity
 # cf A001221 without multiplicity
 
 sub new {

@@ -61,8 +61,8 @@ $qb->signal_connect_after (change_value => sub {
                                print "  vadj ",$vadj->value,"\n";
                              }
                            });
-$vbox->add ($qb);
-$qb->set_size_request (200, 200);
+$vbox->pack_start ($qb, 1,1,0);
+$qb->set_size_request (100, 100);
 
 {
   my $button = Gtk2::CheckButton->new_with_label ('Sensitive');
@@ -73,6 +73,12 @@ $qb->set_size_request (200, 200);
 }
 
 $toplevel->show_all;
+
+foreach my $arrow ($qb->get_children) {
+  my $req = $arrow->allocation;
+  ### arrow size: $req->width, $req->height
+  # $arrow->set_size_request (20,20);
+}
 
 ### normal: $qb->style->fg('normal')->to_string
 ### prelight: $qb->style->fg('prelight')->to_string

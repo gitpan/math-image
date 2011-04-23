@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Base::Digits;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 sub is_type {
   my ($self, $type) = @_;

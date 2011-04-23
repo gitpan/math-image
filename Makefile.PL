@@ -47,6 +47,7 @@ my %maximum_planepath
      'Math::PlanePath::SacksSpiral'    => 1,
      'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
      'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
+     'Math::PlanePath::ArchimedeanChords'    => 23, # new in v.23
      'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
      'Math::PlanePath::PixelRings'           => 19, # new in v.19
      'Math::PlanePath::Hypot'                => 21, # new in v.21
@@ -88,6 +89,7 @@ MyMakeMakerExtras::WriteMakefile
    MIN_PERL_VERSION => '5.008',
    PREREQ_PM =>
    {
+    'constant' => 1.02,  # leading underscore in prima bits
     # 'constant::defer' => 0,
     'Bit::Vector'     => 0,
     'Compress::Zlib'  => 0,

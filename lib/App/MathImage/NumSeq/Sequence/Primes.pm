@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::Primes;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
 use POSIX ();
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,7 +39,7 @@ use constant values_min => 2;
 #                      A051007 binary fraction, continued fraction
 #    A000720 - pi(n) num primes <= n
 #
-use constant oeis => 'A000040'; # primes
+use constant oeis_anum => 'A000040'; # primes
 
 sub new {
   my ($class, %options) = @_;

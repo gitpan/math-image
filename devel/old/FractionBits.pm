@@ -18,10 +18,9 @@
 package App::MathImage::NumSeq::Sequence::FractionBits;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';

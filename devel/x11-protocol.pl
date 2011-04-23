@@ -25,7 +25,6 @@ use App::MathImage::X11::Protocol::Splash;
 
 use Smart::Comments;
 
-
 {
   my $X = X11::Protocol->new;
   my $window = $X->new_rsrc;
@@ -35,6 +34,7 @@ use Smart::Comments;
                     $X->{'root'}, # parent
                     1,
                     100,10);  # width, height
+  x_resource_dump($X);
   $X->CreateWindow ($window,
                     $X->{'root'},     # parent
                     'InputOutput',
@@ -56,6 +56,19 @@ use Smart::Comments;
   sleep 1;
   my @ret = App::MathImage::X11::Protocol::Splash::_get_wm_state($X,$window);
   ### @ret
+  exit 0;
+}
+
+{
+  my $X = X11::Protocol->new;
+  require App::MathImage::X11::Generator;
+  x_resource_dump($X);
+  my $x11gen = App::MathImage::X11::Generator->new
+    (X => $X,
+     window => $X->root);
+  x_resource_dump($X);
+  $x11gen->draw;
+  x_resource_dump($X);
   exit 0;
 }
 
@@ -100,4 +113,43 @@ use constant XA_PIXMAP => 20;  # pre-defined atom
   $X->QueryPointer($rootwin);  # sync
   undef $X; # close
   exit 0;
+}
+
+
+
+
+
+
+
+
+
+sub x_resource_dump {
+  my ($X) = @_;
+  $X->init_extension ('X-Resource');
+  my $xid_base = $X->resource_id_base;
+
+  printf "client 0x%X is using\n", $xid_base;
+
+  my $ret = $X->robust_req('XResourceQueryClientResources', $xid_base);
+  if (ref $ret) {
+    my @resources = @$ret;
+    while (@resources) {
+      my $atom = shift @resources;
+      my $count = shift @resources;
+      my $atom_name = $X->atom_name($atom);
+      printf "%6d  %s\n", $count, $atom_name;
+    }
+  } else {
+    print "  error getting client resources\n";
+  }
+
+  $ret = $X->robust_req ('XResourceQueryClientPixmapBytes', $xid_base);
+  if (ref $ret) {
+    my ($bytes) = @$ret;
+    printf "%6s  PixmapBytes\n", $bytes;
+  } else {
+    print "  error getting pixmap bytes\n";
+  }
+
+  print "\n";
 }

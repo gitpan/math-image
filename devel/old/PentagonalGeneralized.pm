@@ -19,8 +19,8 @@ package App::MathImage::NumSeq::Sequence::PentagonalGeneralized;
 use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
@@ -31,7 +31,7 @@ $VERSION = 38;
 
 use constant name => __('Pentagonal Numbers, generalized');
 use constant description => __('The generalized pentagonal numbers 1, 2, 5, 7, 15, 22, 22, 26, etc, (3k-1)*k/2 for k positive and negative.  This is the plain pentagonal and second pentagonals taken together.');
-use constant oeis => 'A001318';
+use constant oeis_anum => 'A001318';
 
 sub rewind {
   my ($self) = @_;

@@ -27,16 +27,20 @@ use X11::Protocol::WM;
 use X11::AtomConstants;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-# /usr/share/doc/xorg-docs/specs/CTEXT/ctext.txt.gz
+BEGIN {
+  eval 'utf8->can("is_utf8") && *is_utf8 = \&utf8::is_utf8'   # 5.8.1
+    || eval 'use Encode "is_utf8"; 1'                         # 5.8.0
+      || eval 'sub is_utf8 () { 0 }; 1'                       # 5.6 fallback
+        || die 'Oops, cannot create is_utf8() subr: ',$@;
+}
+### \&is_utf8
+
 # /usr/share/doc/xorg-docs/specs/ICCCM/icccm.txt.gz
-# lcCT.c
-# RFC2237 2022-jp
-# RFC1557 2022-kr
 
 sub new {
   my ($class, %self) = @_;
@@ -54,7 +58,7 @@ sub popup {
   my ($self) = @_;
   my $X = $self->{'X'};
   $X->MapWindow ($self->create_window);
-    $X->ClearArea ($self->{'window'}, 0,0,0,0);
+  $X->ClearArea ($self->{'window'}, 0,0,0,0);
   $X->flush;
 }
 
@@ -125,6 +129,150 @@ sub create_window {
   return $self->{'window'};
 }
 
+#------------------------------------------------------------------------------
+# 
+
+# =item C<$window = frame_window_to_client($X,$frame)>
+#
+# C<$frame> (an XID) is an immediate child of the root window.  If it's a
+# window manager frame window then return the client C<$window> (an XID)
+# contained in it.  If there's no window manager or C<$frame> doesn't seem
+# to be a window manager frame then return C<$frame> itself.
+#
+# This is currently implemented similar to Xlib C<XmuClientWindow()>, and
+# the private F<dmsimple.c> C<Select_Window()> in C<xwininfo> and similar
+# programs.  A search is made down from C<$frame> for a window with a
+# C<WM_STATE> property, since the window manager puts that on a client
+# window (ready for it to read).  Some search depth and total windows limits
+# are applied just in case 
+
+# /usr/share/doc/libxmu-headers/Xmu.txt.gz for XmuClientWindow()
+#
+sub frame_window_to_client {
+  my ($X, $frame) = @_;
+
+  my @search = ($frame);
+  my $property = $X->atom('WM_STATE');
+
+  # ENHANCE-ME: do three reqs in parallel, better yet all reqs for an
+  # @search depth level in parallel
+
+  my $count = 0;
+ OUTER: foreach (1 .. 10) {   # limit search depth for safety
+    foreach my $child (splice @search) {   # breadth-first search
+      ### look at: sprintf '0x%X', $child
+
+      if ($count++ > 100) {
+        ### abandon search at count: $count
+        last OUTER;
+      }
+
+      {
+        my $ret = $X->robust_req ('GetWindowAttributes', $child);
+        if (! ref $ret) {
+          ### some error, skip this child
+          next;
+        }
+        my %attr = @$ret;
+        ### map_state: $attr{'map_state'}
+        if ($attr{'map_state'} ne 'Viewable') {
+          ### not viewable, skip
+          next;
+        }
+      }
+      {
+        my $ret = $X->robust_req ('GetProperty',
+                                  $child, $property, 'AnyPropertyType',
+                                  0,  # offset
+                                  0,  # length
+                                  0); # delete;
+        if (! ref $ret) {
+          ### some error, skip this child
+          next;
+        }
+        my ($value, $type, $format, $bytes_after) = @$ret;
+        if ($type) {
+          ### found
+          return $child;
+        }
+      }
+      {
+        my $ret = $X->robust_req ('QueryTree', $child);
+        if (ref $ret) {
+          my ($root, $parent, @children) = @$ret;
+          ### push children: @children
+          # @children are in bottom up order, prefer the topmost
+          push @search, reverse @children;
+        }
+      }
+    }
+  }
+  ### not found
+  return $frame;
+}
+
+
+#------------------------------------------------------------------------------
+# _NET_WM_ALLOWED_ACTIONS
+
+# Return 'CLOSE' or atom integer if unrecognised
+sub _get_net_wm_allowed_actions {
+  my ($X, $window) = @_;
+  my ($value, $type, $format, $bytes_after)
+    = $X->GetProperty ($window,
+                       $X->atom('_NET_WM_ALLOWED_ACTIONS'), # property
+                       X11::AtomConstants::ATOM,            # type
+                       0,             # offset
+                       999,           # length, of CARD32
+                       0);            # no delete
+  if ($format == 32) {
+    # ENHANCE-ME: atom fetches in one round trip
+    return map {_net_wm_allowed_action_interp($_)} unpack('L*',$value);
+  } else {
+    return;
+  }
+}
+sub _net_wm_allowed_action_interp {
+  my ($X, $atom) = @_;
+  # FIXME: robust_req() in case garbage atom
+  my $name = $X->atom_name ($atom);
+  if ($name =~ s/^_NET_WM_ALLOWED_ACTION_//) {
+    return $name;
+  } else {
+    return $atom;
+  }
+}
+
+
+# Set by the window manager.
+#
+# =item C<_set_net_wm_allowed_actions ($X, $window, $action...)>
+#
+#
+sub _set_net_wm_allowed_actions {
+  my $X = shift;
+  my $window = shift;
+  my $prop = $X->atom('_NET_WM_ALLOWED_ACTIONS');
+  if (@_) {
+    $X->ChangeProperty($window,
+                       $prop,                    # property
+                       X11::AtomConstants::ATOM, # type
+                       32,                       # format
+                       'Replace',
+                       pack 'L*', map {_net_wm_allowed_action_to_atom($_)} @_);
+  } else {
+    $X->DeleteProperty ($window, $prop);
+  }
+}
+
+sub _net_wm_allowed_action_to_atom {
+  my ($X, $action) = @_;
+  if (! defined $action || $action =~ /^\d+$/) {
+    return $action;
+  } else {
+    return $X->atom ("_NET_WM_ACTION_$action");
+  }
+}
 
 
 #------------------------------------------------------------------------------
@@ -200,24 +348,30 @@ sub create_window {
 #------------------------------------------------------------------------------
 # WM_STATE
 
-# ($state, $icon_window) = _get_wm_state ($X, $window)
+# =item C<($state, $icon_window) = _get_wm_state ($X, $window)>
 #
-# Get the current state of C<$window>.  $state is either a string or integer
-# according to $X->{'do_interp'}.  The possible states are
+# Return the C<WM_STATE> property from C<$window>.  This is set by the
+# window manager on top-level application windows.  If there's no such
+# property then the return is an empty list.
+#
+# C<$state> returned is an enum string, or integer value if
+# $X->{'do_interp'} is disabled or value unrecognised.
+#
 #     WithdrawnState    0
 #     NormalState       1
 #     IconicState       3
-# ZoomState (2) and InactiveState (4) are no longer in the ICCCM and
-# probably won't be encountered, but are recognised for the return.
 #
-# $icon_window is the window used by the window manager to display the icon
-# of C<$window>, or None if no such window (string "None" under the usual
-# $X->{'do_interp'}, or 0 otherwise).
+# ZoomState (2) and InactiveState (4) are recognised but are no longer in
+# the ICCCM and are unlikely to be encountered.
 #
-# C<$icon_window> might be the C<icon_window> given by the client in
-# C<WM_HINTS>, or it might be created by the window manager.  Either way the
-# client can draw into it for animations etc (listening for Expose events if
-# necessary).
+# C<$icon_window> returned is the window (integer XID) used by the window
+# manager to display an icon of C<$window>.  If there's no such window then
+# C<$icon_window> is string "None", or integer 0 if $X->{'do_interp'} is
+# disabled.
+#
+# C<$icon_window> might be the icon window from the client's C<WM_HINTS>, or
+# it might be created by the window manager.  Either way the client can draw
+# into it for animations etc (perhaps selecting Expose events).
 #
 sub _get_wm_state {
   my ($X, $window) = @_;
@@ -231,18 +385,19 @@ sub _get_wm_state {
                        0);            # delete
   if ($format == 32) {
     my ($state, $icon_window) = unpack 'L*', $value;
-    return (_wmstate_interp($X,$state), _window_interp($icon_window));
+    return (_wmstate_interp($X,$state), _none_interp($X,$icon_window));
   } else {
     return;
   }
 }
 
-sub _window_interp {
-  my ($X, $window) = @_;
-  if ($X->{'do_interp'} && $window == 0) {
+# or maybe $X->interp('IDorNone',$xid)
+sub _none_interp {
+  my ($X, $xid) = @_;
+  if ($X->{'do_interp'} && $xid == 0) {
     return 'None';
   } else {
-    return $window;
+    return $xid;
   }
 }
 
@@ -265,21 +420,78 @@ sub _window_interp {
 
 
 #------------------------------------------------------------------------------
+# _NET_WM_STATE
+
+# =item C<($state1, $state2, ..) = _get_net_wm_state ($X, $window)>
+#
+# Return the C<_NET_WM_STATE> property from C<$window>.
+#
+sub _get_net_wm_state_names {
+  my ($X, $window) = @_;
+  return atom_names($X, _get_net_wm_state_atoms($X,$window));
+}
+sub _get_net_wm_state_atomhash {
+  my ($X, $window) = @_;
+  return { map {$_=>1} _get_net_wm_state_atoms($X,$window) };
+}
+sub _get_net_wm_state_atoms {
+  my ($X, $window) = @_;
+  my ($value, $type, $format, $bytes_after)
+    = $X->GetProperty ($window,
+                       $X->atom('_NET_WM_STATE'),     # property
+                       X11::AtomConstants::CARDINAL,  # type
+                       0,    # offset
+                       999,  # length
+                       0);   # delete
+  if ($format == 32) {
+    return unpack('L*', $value);
+  } else {
+    return;
+  }
+}
+sub _net_wm_state_atom_interp {
+  my ($X, $atom) = @_;
+  if ($X->{'do_interp'}) {
+    my $str = $X->atom_name ($atom);
+    if ($str =~ s/^_NET_WM_STATE_//) {
+      return $str;
+    }
+  }
+  return $atom;
+}
+
+#------------------------------------------------------------------------------
 # WM_CLIENT_MACHINE
 
-# Set the WM_CLIENT_MACHINE property on $window using Sys::Hostname.
-# Currently if that module can't determine a hostname by its various
-# gambits then the WM_CLIENT_MACHINE is deleted.  Should it instead leave it
-# unchanged, or return a flag to say if set?
+# =item C<_set_wm_client_machine_from_syshostname ($X, $window)>
+#
+# Set the C<WM_CLIENT_MACHINE> property on C<$window> using the
+# C<Sys::Hostname> module.  Currently if that module can't determine a
+# hostname by its various gambits then the property is deleted.  Should it
+# leave it unchanged, or return a flag to say if set?
+#
+# Some of the C<Sys::Hostname> cases can end up returning "localhost".  It's
+# presumed this would be when there's no networking at all, in which case
+# the client and server are on the same machine and "localhost" is a good
+# enough name.
+#
 sub _set_wm_client_machine_from_syshostname {
   my ($X, $window) = @_;
   require Sys::Hostname;
   _set_wm_client_machine ($X, $window, eval { Sys::Hostname::hostname() });
 }
 
-# Set the WM_CLIENT_MACHINE property on $window.
-# Usually $hostname will be ASCII-only, though in Perl 5.8.1 up a wide-char
-# string will be encoded as "COMPOUND_TEXT" type if necessary.
+# =item C<_set_wm_client_machine ($X, $window, $hostname)>
+#
+# Set the C<WM_CLIENT_MACHINE> property on C<$window> to C<$hostname> (a
+# string).  C<$hostname> should be the name of the client machine as seen
+# from the server.  If C<$hostname> is C<undef> then the property is
+# deleted.
+#
+# Usually a machine name is ASCII-only, but in Perl 5.8 up if C<$hostname is
+# a wide-char string it will be encoded to "STRING" (latin-1) or
+# "COMPOUND_TEXT" as necessary.
+#
 sub _set_wm_client_machine {
   my ($X, $window, $hostname) = @_;
   _set_text_property ($X, $window,
@@ -290,56 +502,83 @@ sub _set_wm_client_machine {
 #------------------------------------------------------------------------------
 # _NET_WM_PID
 
-# Set the _NET_WM_PID property on $window to the process ID of the current
-# process, ie. Perl $$ variable.  A window manager or similar can use this
-# to forcibly kill an unresponsive client, if WM_CLIENT_MACHINE has been set
-# too.
+# =item C<_set_net_wm_pid_from_self ($X, $window)>
+#
+# Set the C<_NET_WM_PID> property on C<$window> to the process ID of the
+# current process, ie. Perl's C<$$> variable (see L<perlvar>).  A window
+# manager or similar can use this to forcibly kill an unresponsive client
+# (if C<WM_CLIENT_MACHINE> has been set too).
+#
 sub _set_net_wm_pid_from_self {
   my ($X, $window) = @_;
-  _set_single_property ($X, $window, $X->atom('_NET_WM_PID'), $$);
+  _set_card32_property ($X, $window, $X->atom('_NET_WM_PID'), $$);
 }
 #   _set_net_wm_pid ($X, $window, $$);
-# sub _set_net_wm_pid {
-#   my ($X, $window, $pid) = @_;
-# }
+
+# =item C<_set_net_wm_pid ($X, $window, $pid)>
+# =item C<_set_net_wm_pid ($X, $window, undef)>
+# =item C<_set_net_wm_pid ($X, $window)>
+#
+# Set the C<_NET_WM_PID> property on C<$window> to the given C<$pid> process
+# ID.  If C<$pid> is C<undef> then the property is deleted.  If C<$pid> is
+# omitted then the current process is set, that being the Perl C<$$>
+# variable.
+#
+# A window manager or similar might use this to forcibly kill an
+# unresponsive client.  But it's only useful if C<WM_CLIENT_MACHINE> has
+# been set to say which machine the client is running on.
+#
+sub _set_net_wm_pid {
+  my ($X, $window, $pid) = @_;
+  if (@_ < 3) { $pid = $$; }
+  _set_card32_property ($X, $window, $X->atom('_NET_WM_PID'), $pid);
+}
 
 
 #------------------------------------------------------------------------------
 # WM_NAME
 
-# Set the WM_NAME property on $window.  The window manager displays this as
-# a title above the window or in a menu of windows, etc.
+# =item C<X11::Protocol::WM::set_wm_name ($X, $window, $name)>
 #
-# In Perl 5.8.1 and up if $name is a wide-char string then it will be
-# encoded as "COMPOUND_TEXT" if necessary.  Otherwise $name is a byte string
-# and taken to be as latin-1 "STRING" type.
+# Set the C<WM_NAME> property on C<$window> (an XID) to C<$name> (a string).
+# The window manager might display this as a title above the window, in a
+# menu of the windows, etc.
+#
+# If C<$name> is a Perl 5.8 wide-char string then it will be encoded as
+# "STRING" or "COMPOUND_TEXT" as necessary.  Otherwise C<$name> is a byte
+# string and taken to be as latin-1 "STRING" type.
 #
 sub _set_wm_name {
   my ($X, $window, $name) = @_;
   _set_text_property ($X, $window, X11::AtomConstants::WM_NAME, $name);
 }
 
-# Set the _NET_WM_NAME property on $window.  This has the same purpose as
-# WM_NAME, but is encoded as UTF8_STRING.
+# =item C<_set_net_wm_name ($X, $window, $name)>
 #
-# In Perl 5.8 if $name is a wide-char string then it's encoded as utf8.
-# Otherwise $name is a byte string and assumed to be utf8 already.
+# Set the C<_NET_WM_NAME> property on C<$window>.  This has the same purpose
+# as C<WM_NAME> above, but is encoded as "UTF8_STRING".
+#
+# If C<$name> is a Perl 5.8 wide-char string then it's encoded to utf8.
+# Otherwise C<$name> is a byte string and assumed to be utf8 already.
 #
 sub _set_net_wm_name {
   my ($X, $window, $name) = @_;
   _set_utf8_string_property ($X, $window, $X->atom('_NET_WM_NAME'), $name);
 }
 
-# Set a UTF8_STRING property $prop on $window.
-# In Perl 5.8 and up a wide-char string is encoded appropriately.
-# If $str is a byte string then it's assumed to be utf8.
-# If $str is a byte string then it's upgraded from latin-1 to utf8.
+# C<_set_utf8_string_property ($X, $window, $prop, $str)>
+#
+# Set a "UTF8_STRING" property C<$prop> (an atom) on C<$window>.  In Perl
+# 5.8 if C<$str> is a wide-char string then it's encoded as utf8, otherwise
+# C<$str> is a byte string and is assumed to be utf8 already.  If C<$str> is
+# C<undef> then the property is deleted.
+#
 sub _set_utf8_string_property {
   my ($X, $window, $prop, $str) = @_;
   if (defined $str) {
     $X->ChangeProperty($window,
                        $prop,
-                       $X->atom('UTF8_STRING'),   # type 
+                       $X->atom('UTF8_STRING'),   # type
                        8,                         # byte format
                        'Replace',
                        _to_UTF8_STRING($str));
@@ -361,9 +600,14 @@ sub _to_UTF8_STRING {
 #------------------------------------------------------------------------------
 # WM_CLASS
 
-# Set the WM_CLASS property on $window (an XID) using the FindBin module
-# $Script.  Any .pl extension is stripped, and the class has the first
-# letter of each word upper-cased.
+# C<_set_wm_class_from_findbin ($X, $window)>
+#
+# No good?
+#
+# Set the C<WM_CLASS> property on $window (an XID) using the C<FindBin>
+# module C<$Script>, that being the name of the running Perl script.  Any
+# .pl extension is stripped to give the "instance" name.  The "class" name
+# has the first letter of each word upper-cased.
 #
 sub _set_wm_class_from_findbin {
   my ($X, $window) = @_;
@@ -373,11 +617,16 @@ sub _set_wm_class_from_findbin {
   _set_wm_class ($X, $window, $instance, $class);
 }
 
-# Set the WM_CLASS property on $window (an XID).
+# C<_set_wm_class ($X, $window, $instance, $class)>
 #
-# $instance and $class should be latin1 strings.  In Perl 5.8.1 and up
-# wide-char strings will be converted to latin1 as necessary, otherwise byte
-# strings are taken to be latin1.
+# Set the C<WM_CLASS> property on C<$window> (an XID).  This might be used
+# by the window manager to lookup settings and preferences in the resource
+# database (see L<X(7)/"RESOURCES">).
+#
+# The C<WM_CLASS> property is "STRING" type (latin-1).  If C<$instance> or
+# C<$class> are Perl 5.8 wide-char strings then they're encoded to latin-1
+# as necessary.  Byte strings in C<$instance> and C<$class> are assumed to
+# be latin-1 already.
 #
 sub _set_wm_class {
   my ($X, $window, $instance, $class) = @_;
@@ -387,37 +636,63 @@ sub _set_wm_class {
                          : undef));
 }
 
+sub _to_STRING {
+  my ($str) = @_;
+  if (is_utf8($str)) {
+    require Encode;
+    # croak in the interests of not letting bad values go through unnoticed,
+    # nor letting a mangled name be stored
+    return Encode::encode ('iso-8859-1', $str, Encode::FB_CROAK());
+  } else {
+    return $str;
+  }
+}
+
 #------------------------------------------------------------------------------
 # WM_COMMAND
 
-# Set the C<WM_COMMAND> property on C<$window> (an XID).
-# C<$program> should be the command name, followed by argument strings.
+# =item C<_set_wm_command ($X, $window, $command, $arg...)>
 #
-# A client program should set this in response to a C<WM_SAVE_YOURSELF>
-# message from the session manager, if the client has asked for that in its
-# C<WM_PROTOCOLS>.  The value should be a command which will restart the
-# client in its current state as far as possible.
+# Compound text pre-5.8 ?
 #
-# In Perl 5.8.1 if any of the parts are a wide-char string then
-# "COMPOUND_TEXT" is used if necessary.  Otherwise all the parts are byte
-# strings and taken to be latin-1 "STRING" type.
+# Set the C<WM_COMMAND> property on C<$window> (an XID).  This is a program
+# command name and argument strings which can be used to run or restart the
+# client program.  C<$command> is the command name, followed by argument
+# strings.
 #
-# If C<$program> is C<undef> it means no command and WM_COMMAND is set to
-# empty.  This can be used as a response to the session manager if the
-# command can't be determined, etc.
+# A client program can set this at any time, or if it's participating in the
+# C<WM_SAVE_YOURSELF> session manager protocol then it should set it in
+# response to a C<WM_SAVE_YOURSELF> ClientMessage.
+#
+# The command should be something which will start the client in its current
+# state as far as possible, so it might include a current document filename,
+# command line options for current settings, etc.
+#
+# In Perl 5.8 if the C<$command> and arguments include any wide-char
+# strings then they're encoded to either "STRING" or "COMPOUND_TEXT" as
+# necessary (if any need "COMPOUND_TEXT" then everything is encoded to
+# that).  Byte strings are taken to be latin-1 "STRING" type.
+#
+# If C<$command> is C<undef> it means no command and C<WM_COMMAND> is set to
+# empty.  This can be used if there's no known command, in particular it can
+# be a response to the session manager to say no known command.
 #
 sub _set_wm_command {
-  my ($X, $window, $program, @args) = @_;
+  my $X = shift;
+  my $window = shift;
+  # join() gives a wide-char result if any parts wide, upgrading byte
+  # strings as if they were latin-1
   _set_text_property ($X, $window, X11::AtomConstants::WM_COMMAND,
-                      (defined $program ? join("\0",$program,@args)."\0" : ''));
+                      (defined $_[0]
+                       ? join("\0",@_)."\0"
+                       : ''));
 }
 
 #------------------------------------------------------------------------------
 
 sub _str_is_latin1 {
   my ($str) = @_;
-  return (! utf8->can('is_utf8')     # pre perl 5.8 is latin1
-          || ! utf8::is_utf8($str)   # byte strings are latin1
+  return (! is_utf8($str)   # byte strings are latin1
           || do {
             require Encode;
             Encode::encode ('iso-8859-1', $str, Encode::FB_QUIET());
@@ -425,11 +700,21 @@ sub _str_is_latin1 {
           });
 }
 
+# =item C<_set_text_property ($X, $window, $str)>
+#
+# Set the given C<$prop> (an atom) property on C<$window> (an XID) using one
+# of the text types "STRING" or "COMPOUND_TEXT".  If C<$str> is C<undef>
+# then C<$prop> is deleted.
+#
+# In Perl 5.8 and up if C<$str> is a wide-char string then it's encoded to
+# "STRING" (latin-1) if possible or to "COMPOUND_TEXT" if not.  Otherwise
+# C<$str> is a byte string and assumed to be latin-1 "STRING".
+#
 sub _set_text_property {
   my ($X, $window, $prop, $str) = @_;
   my ($type, @strings);
   if (defined $str) {
-     ($type, @strings) = _str_to_text_chunks ($X, $str);
+    ($type, @strings) = _str_to_text_chunks ($X, $str);
   }
   _set_property_chunks ($X, $window, $prop, $type, 8, @strings);
 }
@@ -454,13 +739,31 @@ sub _set_property_chunks {
   }
 }
 
+sub _str_to_text {
+  my ($X, $str) = @_;
+  my $atom = X11::AtomConstants::STRING;
+  if (is_utf8($str)) {
+    require Encode;
+    my $input = $str;
+    my $bytes = Encode::encode ('iso-8859-1', $input, Encode::FB_QUIET());
+    if (length($input) == 0) {
+      $str = $bytes;  # latin-1
+    } else {
+      $atom = $X->atom('COMPOUND_TEXT');
+      $input = $str;
+      $str = Encode::encode ('x11-compound-text', $input, Encode::FB_WARN());
+    }
+  }
+  return ($atom, $str);
+}
+
 sub _str_to_text_chunks {
   my ($X, $str) = @_;
   # 6xCARD32 of win,prop,type,format,mode,datalen then the text bytes
   my $maxlen = 4 * ($X->{'maximum_request_length'} - 6);
   ### $maxlen
 
-  if (utf8->can('is_utf8') && utf8::is_utf8($str)) {
+  if (is_utf8($str)) {
     require Encode;
     my $input = $str;
     my $bytes = Encode::encode ('iso-8859-1', $input, Encode::FB_QUIET());
@@ -468,7 +771,7 @@ sub _str_to_text_chunks {
       $str = $bytes;  # latin-1
 
     } else {
-      my $codingfunc = sub { _encode_compound (__PACKAGE__, $input, 1); };
+      my $codingfunc = sub { Encode::encode ('x11-compound-text', $input, Encode::FB_QUIET()) };
       $input = $str;
       &$codingfunc();
       my @ret;
@@ -490,7 +793,7 @@ sub _str_to_text_chunks {
           $input = substr($str, $pos, $input_len);
           $bytes = &$codingfunc();
           if ($input_len == 1 || length($bytes) <= $maxlen) {
-            last;
+            last OUTER;
           }
           $input_len = int ($input_len / 2);
         }
@@ -512,262 +815,16 @@ sub _str_to_text_chunks {
   return @ret;
 }
 
-sub _to_STRING {
-  my ($str) = @_;
-  if (utf8->can('is_utf8') && utf8::is_utf8($str)) {
-    require Encode;
-    return Encode::encode ('iso-8859-1', $str); # with "?" substitution chars
-  } else {
-    return $str;
-  }
-}
-
-my @coding = ('iso-8859-1',
-              'iso-8859-2',
-              'iso-8859-3',
-              'iso-8859-4',
-              'iso-8859-7',
-              'iso-8859-6',
-              'iso-8859-8',
-              'iso-8859-5',
-              'iso-8859-9',
-              #'iso-2022-jp',
-              # 'iso-2022-kr',
-              # gb2312
-              );
-# Esc 0x2D switch GR 0x80-0xFF
-my @esc = ("\033\055\101", # iso-8859-1
-           "\033\055\102", # iso-8859-2
-           "\033\055\103", # iso-8859-3
-           "\033\055\104", # iso-8859-4
-           "\033\055\106", # iso-8859-7
-           "\033\055\107", # iso-8859-6
-           "\033\055\110", # iso-8859-8
-           "\033\055\114", # iso-8859-5
-           "\033\055\115", # iso-8859-9
-           '',
-           '',
-          );
-# xfree86 utf8 in compound: ESC % G --UTF-8-BYTES-- ESC % @
-#                              25 47                    25 40
-sub _encode_compound {
-  my ($self, $str, $chk) = @_;
-  require Encode;
-  # as much initial latin1 as possible
-  my $ret = Encode::encode ('iso-8859-1', $str, Encode::FB_QUIET());
-  my $in_ascii = 1;
-  my $in_latin1 = 1;
-  while (length($str)) {
-    ### str length: length($str)
-    my $longest_bytes = '';
-    my $esc;
-    my $remainder = $str;
-    foreach my $i (0 .. $#coding) {
-      last unless length($remainder);
-      my $input = $str;
-      my $bytes = Encode::encode ($coding[$i], $input, Encode::FB_QUIET());
-      if (length($input) < length($remainder)) {
-        $longest_bytes = $bytes;
-        $esc = $esc[$i];
-        $remainder = $input;
-        $in_latin1 = ($i == 0);
-        $in_ascii = 1;
-      }
-    }
-    # foreach my $coding ('jp', 'kr') {
-    #   last unless length($remainder);
-    #   my $input = $str;
-    #   my $bytes = Encode::encode ("euc-$coding", $input, Encode::FB_QUIET());
-    #   ### coding: "euc-$coding"
-    #   ### $bytes
-    #   ### remainder: length($input)
-    #   if (length($input) < length($remainder)) {
-    #     my $input2 = substr ($str, 0, length($str)-length($input));
-    #     ### $input2
-    #     $bytes = Encode::encode ("iso-2022-$coding", $input2,
-    #                              Encode::FB_QUIET());
-    #     ### coding: "iso-2022-$coding"
-    #     ### $bytes
-    #     ### remainder: length($input2)
-    #     ### assert: length($input2) == 0
-    #     if (length($input2) == 0) {
-    #       $longest_bytes = $bytes;
-    #       $esc = '';
-    #       $remainder = $input;
-    #       $in_latin1 = 0;
-    #       $in_ascii = 0;
-    #     }
-    #   }
-    # }
-    ### $longest_bytes
-    ### $esc
-    if (length($longest_bytes)) {
-      $ret .= $esc;
-      $ret .= $longest_bytes;
-      $str = $remainder;
-    } else {
-      if ($chk) {
-        ### nothing converted, stop
-        last;
-      } else {
-        if (! $in_ascii) {
-          $ret .= $esc[0];
-          $in_ascii = 1;
-          $in_latin1 = 1;
-        }
-        $ret .= '?';
-        $str = substr ($str, 1);
-      }
-    }
-  }
-  if (! $in_latin1) {
-    $ret .= $esc[0];
-  }
-  if ($chk) {
-    $_[1] = $str;  # unconverted part, if any
-  }
-  return $ret;
-}
-
-# xfree86 utf8 in compound: ESC % G --UTF-8-BYTES-- ESC % @
-#                              25 47                    25 40
-
-my %esc_to_coding = ((map { $esc[$_] => $coding[$_] } 0 .. $#coding),
-                     "\x1B\x28\x42" => 'ascii',
-
-                     "\x1B\x28\x4A" => 'ascii',       # jis0201 GL is ascii
-                     "\x1B\x29\x4A" => 'jis0201-raw', # GR
-
-                     # \x24 means 2-bytes per char
-                     "\x1B\x24\x28\x41" => 'gb2312',
-                     "\x1B\x24\x28\x42" => 'jis0208-raw',# 208-1983 or 208-1990
-                     "\x1B\x24\x28\x43" => 'ksc5601-raw',
-                     "\x1B\x24\x28\x44" => 'jis0212-raw',# 212-1990
-
-                     "\x1B\x24\x28\x47" => 'cns11643-1', # Encode::HanExtra
-                     "\x1B\x24\x28\x48" => 'cns11643-2',
-                     "\x1B\x24\x28\x49" => 'cns11643-3',
-                     "\x1B\x24\x28\x4A" => 'cns11643-4',
-                     "\x1B\x24\x28\x4B" => 'cns11643-5',
-                     "\x1B\x24\x28\x4C" => 'cns11643-6',
-                     "\x1B\x24\x28\x4D" => 'cns11643-7',
-
-                     # Emacs extensions
-                     "\x1B\x24\x28\x30" => 'big5-eten', # E0
-                     "\x1B\x24\x28\x31" => 'big5-eten', # E1
-
-                     "\x1B\x25\x47" => 'utf-8',
-                    );
-my %coding_is_lo = ('ascii' => 1,
-                    'jis0208-raw' => 1,
-                    'jis0212-raw' => 1,
-                    'ksc5601-raw' => 1,
-                    'gb2312'      => 1,
-                    'cns11643-1' => 1,
-                    'cns11643-2' => 1,
-                    'cns11643-3' => 1,
-                    'cns11643-4' => 1,
-                    'cns11643-5' => 1,
-                    'cns11643-6' => 1,
-                    'cns11643-7' => 1,
-                   );
-my %coding_is_hi = ('big5-eten' => 1,
-                   );
-#use Smart::Comments;
-sub _decode_compound {
-  my ($self, $bytes, $chk) = @_;
-  ### _decode_compound(): 'len='.length($bytes)
-  require Encode;
-  my $gl_coding = 'ascii';
-  my $gr_coding = 'iso-8859-1';
-  my $lo_to_hi = 0;
-  my $ret = '';
- OUTER: while ((pos($bytes)||0) < length $bytes) {
-    $bytes =~ m{\G(.*?)  # $1 part
-                (\x1B    # $2 esc
-                  (?:[\x28\x2D].   # 1-byte
-                  |\x24[\x28\x29]. # 2-byte
-                  |\x25\x47        # xfree86 utf-8
-                  )
-                |$)
-             }gx or die;
-    my $part_bytes = $1;
-    my $esc = $2;
-
-    for (;;) {
-      my $coding;
-      if ($part_bytes =~ /\G([\x00-\x7F]+)/gc) {
-        $coding = $gl_coding;
-        if ($coding_is_hi{$coding}) {
-          $part_bytes =~ tr/\x21-\x7E/\xA1-\xFE/;
-        }
-      } elsif ($part_bytes =~ /\G([^\x00-\x7F]+)/gc) {
-        $coding = $gr_coding;
-        if ($coding_is_lo{$coding}) {
-          $part_bytes =~ tr/\xA1-\xFE/\x21-\x7E/;
-        }
-      } else {
-        last;
-      }
-      my $half_bytes = $1;
-
-      while (length $half_bytes) {
-        ### $half_bytes
-        ### $coding
-        $ret .= Encode::decode ($coding, $half_bytes,
-                                $chk ? Encode::FB_QUIET() : Encode::FB_DEFAULT());
-        ### now ret: $ret
-        if (length $half_bytes) {
-          if ($chk) {
-            $_[1] = substr ($bytes,
-                            pos($bytes) - length($esc)
-                            - length($part_bytes) - length($half_bytes));
-            last OUTER;
-          } else {
-            $ret .= chr(0xFFFD);
-            $half_bytes = substr($half_bytes, 1);
-          }
-        }
-      }
-    }
-
-    my $coding;
-    my $gref;
-    if (($esc =~ s/\x1B\x24?\x29/\x1B\x24\x28/)
-        ||
-        ($esc =~ s/\x1B\x24?\x29/\x1B\x24\x28/)) {
-      $gref = \$gl_coding;
-    } else {
-      $gref = \$gr_coding;
-    }
-    $coding = $esc_to_coding{$esc};
-    if (! defined $coding
-        || ($coding =~ /^cns/
-            && ! eval { require Encode::HanConvert; 1 })) {
-      ### no coding: $coding
-      if ($chk) {
-        $_[1] = substr ($bytes, pos($bytes) - length($esc));
-        last;
-      } else {
-        $ret .= chr(0xFFFD);
-      }
-    }
-    $$gref = $coding;
-  }
-  ### final ret: $ret
-  return $ret;
-}
-
 #------------------------------------------------------------------------------
 # WM_PROTOCOLS
 
-# _set_wm_protocols ($X, $window, $protocol,...)
-# Set the WM_PROTOCOLS property on $window (an XID).
+# =item C<_set_wm_protocols ($X, $window, $protocol,...)>
 #
-# Each $protocol argument can be a string protocol name or a corresponding
-# integer atom ID.
+# Set the C<WM_PROTOCOLS> property on C<$window> (an XID).  Each $protocol
+# argument can be a string protocol name or an integer atom ID.  For
+# example,
 #
-#     _set_wm_protocols ($X, $window,  'WM_DELETE_WINDOW', 'WM_SAVE_YOURSELF')
+#     _set_wm_protocols ($X, $window, 'WM_DELETE_WINDOW', 'WM_SAVE_YOURSELF')
 #
 sub _set_wm_protocols {
   my $X = shift;
@@ -784,6 +841,7 @@ sub _to_atom_ids {
   _atoms ($X, grep {!/^\d+$/} @_);
   return map { ($_ =~ /^\d+$/ ? $_ : $X->atom($_)) } @_;
 }
+
 sub _append_wm_protocols {
   my $X = shift;
   my $window = shift;
@@ -799,6 +857,49 @@ sub _append_wm_protocols {
 sub _atoms {
   my $X = shift;
   return map {$X->atom($_)} @_;
+}
+
+sub _atoms_parallel {
+  my $X = shift;
+  my @ret;
+  my @names;
+  my @seqs;
+  my @data;
+  for (;;) {
+    while (@_ && @seqs < 100) {  # max 100 sliding window
+      my $name = shift;
+      push @names, $name;
+      my $seq;
+      my $atom = $X->{'atom'}->{$name};
+      if (defined $atom) {
+        push @data, $atom;
+      } else {
+        $seq = $X->send('InternAtom', $name, 0);
+        ### send: $seq
+        push @data, undef;
+        $X->add_reply ($seq, \($data[-1]));
+      }
+      push @seqs, $seq;
+    }
+
+    @seqs || last;
+    my $seq = shift @seqs;
+    my $name = shift @names;
+    my $data = shift @data;
+    my $atom;
+    if (defined $seq) {
+      ### handle_input_for: $seq
+      $X->handle_input_for ($seq);
+      $X->delete_reply($seq);
+      $atom = $X->unpack_reply ('InternAtom', $data);
+      ### $atom
+      $X->{'atom'}->{$name} = $atom;
+    } else {
+      $atom = $data;
+    }
+    push @ret, $atom;
+  }
+  return @ret;
 }
 
 
@@ -932,6 +1033,56 @@ sub _aspect_to_numden {
 #------------------------------------------------------------------------------
 # MOTIF_WM_HINTS
 
+# =item C<_set_motify_wm_hints ($X, $window, key=E<gt>value...)>
+#
+# Set the C<MOTIF_WM_HINTS> property on C<$window> (an XID).  These hints
+# are used by the Motif window manager and by many other compatible window
+# managers.  The key/value arguments are
+#
+#     functions       arrayref
+#     decorations     arrayref
+#     input_mode      enum string or integer
+#     status
+#
+# C<functions> is an arrayref of strings for what operations the window
+# manager should offer on the window in its drop-down menu or similar.  The
+# default is "all", but an application might ask for instance no "maximize"
+# if it made a big mess if full-screen.
+#
+#     all         all functions
+#     resize      to resize the window
+#     move        to move the window
+#     minimize    to iconify
+#     maximize    to make full-screen
+#     close       to close the window
+#
+# C<decorations> is an arrayref of strings for what visual decorations the
+# window manager should draw around the window.  The default is "all", but
+# an application might ask for instance for no resize handles if it it makes
+# no sense to resize it.
+#
+#     all          draw all decorations
+#     border       a border around the window
+#     resizeh      handles to resize by draggin
+#     title        window name across the top etc
+#     menu         drop-down menu of "functions" above
+#     minimize     button minimize, ie. iconify, button
+#     maximize     button to maximize, ie full-screen
+#
+# C<input_mode> allows a window to be "modal" meaning the user should
+# interact only with that window.  The window manager will generally keep it
+# on top, not set the focus to other windows, etc.  The value is one of the
+# following strings or integer values,
+#
+#     modeless                   0       not modal (the default)
+#     primary_application_modal  1     \ modal to its "transient for" parent,
+#     application_modal          1     / but not other toplevels
+#     system_modal               2       modal to the whole display
+#     full_application_modal     3       modal to the whole current client
+#
+# C<primary_application_modal> and C<application_modal> are ...
+#
+
 sub _set_motify_wm_hints {
   my $X = shift;
   my $window = shift;
@@ -946,31 +1097,25 @@ sub _set_motify_wm_hints {
 {
   # /usr/include/Xm/MwmUtil.h
   my $format = 'L5';
-  my %input_mode = (modeless                  => 0,
-                    primary_application_modal => 1,
-                    application_modal         => 1,
-                    system_modal              => 2,
-                    full_application_modal    => 3,
-                   );
   my %key_to_flag = (functions   => 1,
                      decorations => 2,
                      input_mode  => 4,
                      status      => 8,
                     );
-  my %arrays = (functions => { all      => 1,
-                               resize   => 2,
-                               move     => 4,
-                               minimize => 8,
-                               maximize => 16,
-                               close    => 32 },
-                decorations => { all      => 1,
-                                 border   => 2,
-                                 resizeh  => 4,
-                                 title    => 8,
-                                 menu     => 16,
-                                 minimize => 32,
-                                 maximize => 64 },
-               );
+  my %arefargs = (functions => { all      => 1,
+                                 resize   => 2,
+                                 move     => 4,
+                                 minimize => 8,
+                                 maximize => 16,
+                                 close    => 32 },
+                  decorations => { all      => 1,
+                                   border   => 2,
+                                   resizeh  => 4,
+                                   title    => 8,
+                                   menu     => 16,
+                                   minimize => 32,
+                                   maximize => 64 },
+                 );
   sub _pack_motif_wm_hints {
     my ($X, %hint) = @_;
 
@@ -982,11 +1127,11 @@ sub _set_motify_wm_hints {
         croak "Unrecognised MOTIF_WM_HINTS field: ",$key;
       }
     }
-    foreach my $field (keys %arrays) {
+    foreach my $field (keys %arefargs) {
       my $bits = 0;
       if (my $h = $hint{$field}) {
         foreach my $key (@$h) {
-          if (defined (my $bit = $arrays{$field}->{$key})) {
+          if (defined (my $bit = $arefargs{$field}->{$key})) {
             $bits |= $bit;
           } else {
             croak "Unrecognised MOTIF_WM_HINTS ",$field," field: ",$key;
@@ -1000,10 +1145,100 @@ sub _set_motify_wm_hints {
           $flags,
           $hint{'functions'},
           $hint{'decorations'},
-          $hint{'input_mode'}  || 0,
+          _motif_input_mode_num($hint{'input_mode'}) || 0,
           $hint{'status'}      || 0);
   }
 }
+
+{
+  my %input_mode_num = (modeless                  => 0,
+                        primary_application_modal => 1,
+                        application_modal         => 1,
+                        system_modal              => 2,
+                        full_application_modal    => 3,
+                       );
+  sub _motif_input_mode_num {
+    my ($X, $input_mode) = @_;
+    if (exists $input_mode_num{$input_mode}) {
+      return $input_mode_num{$input_mode};
+    } else {
+      return $input_mode;
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
+# _NET_WM_USER_TIME
+
+# =item C<_set_new_wm_user_time ($X, $window, $time)>
+#
+# Set the C<_NET_WM_USER_TIME> property on C<$window>.  This should be a
+# server C<time> field from the event which caused this window to be popped
+# up, usually a C<KeyPress> or C<ButtonPress>.
+#
+sub _set_new_wm_user_time {
+  my ($X, $window, $time) = @_;
+  _set_card32_property ($X, $window,
+                        $X->atom('_NET_WM_USER_TIME'), $time);
+}
+
+sub _set_card32_property {
+  my ($X, $window, $prop, $value) = @_;
+  if (defined $value) {
+    $X->ChangeProperty($window,
+                       $prop,
+                       X11::AtomConstants::CARDINAL, # type
+                       32,                           # format
+                       'Replace',
+                       pack('L',$value));
+  } else {
+    $X->DeleteProperty ($window, $prop);
+  }
+}
+
+sub _get_net_user_time_window {
+  my ($X, $window) = @_;
+  my ($value, $type, $format, $bytes_after)
+    = $X->GetProperty ($window,
+                       $X->atom('_NET_WM_USER_TIME_WINDOW'),  # property
+                       X11::AtomConstants::WINDOW,  # type
+                       0,    # offset
+                       1,    # length, 1 x CARD32
+                       0);   # delete
+  if ($format == 32) {
+    return scalar (unpack 'L', $value);
+  } else {
+    return undef;
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# _NET_FRAME_EXTENTS
+
+# =item C<my ($left,$right, $top,$bottom) = _get_net_frame_extents ($X, $window)>
+#
+# Return the C<_NET_FRAME_EXTENTS> property from C<$window>.  This is set by
+# the window manager to the size in pixels of any decoration frame it puts
+# around C<$window>.  If there's no such property set then the return is an
+# empty list.
+#
+sub _get_net_frame_extents {
+  my ($X, $window) = @_;
+  my ($value, $type, $format, $bytes_after)
+    = $X->GetProperty ($window,
+                       $X->atom('_NET_FRAME_EXTENTS'),  # property
+                       X11::AtomConstants::CARDINAL,    # type
+                       0,    # offset
+                       4,    # length, 4 x CARD32
+                       0);   # delete
+  if ($format == 32) {
+    return scalar (unpack 'L4', $value);
+  } else {
+    return;
+  }
+}
+
 
 1;
 __END__
@@ -1062,7 +1297,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the

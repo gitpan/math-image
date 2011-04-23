@@ -18,20 +18,19 @@
 package App::MathImage::NumSeq::Sequence::PrimeQuadraticLegendre;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Prime Generating Quadratic of Legendre');
 use constant description => __('The quadratic numbers 2*k^2 + 29.');
 use constant values_min => 29;
 
 # http://oeis.org/A007641  # only the prime ones
-# use constant oeis => undef;
+# use constant oeis_anum => undef;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

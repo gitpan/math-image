@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::Squares;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'ceil';
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,17 +33,8 @@ $VERSION = 51;
 use constant name => __('Perfect Squares');
 use constant description => __('The perfect squares 1,4,9,16,25, etc k*k.');
 use constant values_min => 0;
-use constant oeis => 'A000290'; # squares
+use constant oeis_anum => 'A000290'; # squares
 
-sub new {
-  my ($class, %self) = @_;
-  if (! defined $self{'lo'}) {
-    $self{'lo'} = 0;
-  }
-  my $self = bless \%self, $class;
-  $self->rewind;
-  return $self;
-}
 sub rewind {
   my ($self) = @_;
   $self->{'i'} = ceil (sqrt (max(0,$self->{'lo'})));
@@ -107,7 +97,8 @@ Return true if C<$value> is a perfect square.
 
 =head1 SEE ALSO
 
-L<math-image>
+L<App::MathImage::NumSeq::Sequence>,
+L<App::MathImage::NumSeq::Cubes>
 
 =head1 HOME PAGE
 

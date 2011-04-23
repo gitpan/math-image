@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Drawing::Values;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 51;
+our $VERSION = 52;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -885,10 +885,6 @@ sub _do_values_changed {
         if (! defined $max) { $max = POSIX::INT_MAX; }
 
         my $spin_class = 'Gtk2::SpinButton';
-        if (($pinfo->{'type_special'}||'') eq 'oeis') {
-          require App::MathImage::Gtk2::OeisSpinButton;
-          $spin_class = 'App::MathImage::Gtk2::OeisSpinButton';
-        }
         my $adj = Gtk2::Adjustment->new ($pinfo->{'default'} || 0,  # initial
                                          $min,
                                          $max,
@@ -940,11 +936,16 @@ sub _do_values_changed {
         $toolitem = Gtk2::Ex::ToolItem::OverflowToDialog->new
           (overflow_mnemonic => Gtk2::Ex::MenuBits::mnemonic_escape($display));
 
-        my $entry = Gtk2::Entry->new;
-        if (defined (my $default = $pinfo->{'default'})) {
-          $entry->set_text ($default);
+        my $entry_class = 'Gtk2::Entry';
+        if (($pinfo->{'type_special'}||'') eq 'oeis_anum') {
+          require App::MathImage::Gtk2::OeisEntry;
+          $entry_class = 'App::MathImage::Gtk2::OeisEntry';
         }
-        $entry->set_width_chars ($pinfo->{'width'} || 5);
+        my $entry = $entry_class->new;
+        if (defined (my $default = $pinfo->{'default'})) {
+          $entry->set (text => $default);
+        }
+        $entry->set (width_chars => $pinfo->{'width'} || 5);
         Glib::Ex::ConnectProperties->new
             ([$entry,'text', read_signal => 'activate'],
              [$draw,"values-$pname"]);

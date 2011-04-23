@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Sequence::All;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,7 +34,7 @@ use constant values_min => 1;
 
 # cf A001477 natural numbers starting 1
 #
-use constant oeis => 'A000027';   # non-negatives, starting 0
+use constant oeis_anum => 'A000027';   # non-negatives, starting 0
 
 sub rewind {
   my ($self) = @_;

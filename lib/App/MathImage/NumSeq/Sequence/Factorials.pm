@@ -18,18 +18,17 @@
 package App::MathImage::NumSeq::Sequence::Factorials;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Factorials');
 use constant description => __('The factorials 1, 2, 6, 24, 120, etc, 1*2*...*N.');
 use constant values_min => 0;
-use constant oeis => 'A000142'; # factorials 1,1,2,6,24, including 0!==1
+use constant oeis_anum => 'A000142'; # factorials 1,1,2,6,24, including 0!==1
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

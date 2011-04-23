@@ -18,21 +18,20 @@
 package App::MathImage::NumSeq::Sequence::Cubes;
 use 5.004;
 use strict;
-use warnings;
 use Math::Libm 'cbrt';
 use POSIX 'floor','ceil';
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');
 use constant values_min => 0;
-use constant oeis => 'A000578';
+use constant oeis_anum => 'A000578';
 
 sub rewind {
   my ($self) = @_;
@@ -101,7 +100,8 @@ Return true if C<$value> is a cube.
 
 =head1 SEE ALSO
 
-L<math-image>
+L<App::MathImage::NumSeq::Sequence>,
+L<App::MathImage::NumSeq::Squares>
 
 =head1 HOME PAGE
 

@@ -23,7 +23,7 @@ use Glib;
 use Gtk2;
 use Locale::TextDomain ('Math-Image');
 
-our $VERSION = 51;
+our $VERSION = 52;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';
@@ -135,6 +135,27 @@ C<App::MathImage::Gtk2::AboutDialog> is a subclass of C<Gtk2::AboutDialog>.
 
 =head1 SEE ALSO
 
-L<Gtk2::AboutDialog>
+L<math-image>, L<Gtk2::AboutDialog>
+
+=head1 HOME PAGE
+
+L<http://user42.tuxfamily.org/math-image/index.html>
+
+=head1 LICENSE
+
+Copyright 2010, 2011 Kevin Ryde
+
+Math-Image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-Image.  If not, see L<http://www.gnu.org/licenses/>.
 
 =cut

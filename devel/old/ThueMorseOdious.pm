@@ -19,8 +19,8 @@ package App::MathImage::NumSeq::Sequence::ThueMorseOdious;
 use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::ThueMorseEvil';
 
 use vars '$VERSION';
@@ -31,7 +31,7 @@ $VERSION = 38;
 use constant name => __('Thue-Morse Odious Numbers');
 use constant description => __('The Thue-Morse "odious" numbers, meaning numbers with an odd number of 1s in their binary form (the opposite of the "evil"s).');
 
-use constant oeis => 'A000069'; # odious
+use constant oeis_anum => 'A000069'; # odious
 # A010060 - 0 or 1 bits
 
 # uncomment this to run the ### lines

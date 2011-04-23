@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Sequence::Cubes;
 # VERSION
 
 {
-  my $want_version = 51;
+  my $want_version = 52;
   is ($App::MathImage::NumSeq::Sequence::Cubes::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Cubes->VERSION,  $want_version, 'VERSION class method');
 
@@ -44,6 +44,15 @@ use App::MathImage::NumSeq::Sequence::Cubes;
   my $check_version = $want_version + 1000;
   ok (! eval { App::MathImage::NumSeq::Sequence::Cubes->VERSION($check_version); 1 },
       "VERSION class check $check_version");
+}
+
+
+#------------------------------------------------------------------------------
+# is_type
+
+{
+  my $values_obj = App::MathImage::NumSeq::Sequence::Cubes->new;
+  is (! $values_obj->is_type('count'), 1, 'is_type(count)');
 }
 
 

@@ -52,12 +52,12 @@ $|=1;
     # my $values_class = $gen->values_class('GoldenSequence');
     # my $values_class = $gen->values_class('GolayRudinShapiro');
     my $values_class;
-    # $values_class = $gen->values_class('AbundantNumbers');
-    # $values_class = $gen->values_class('ObstinateNumbers');
-    # $values_class = $gen->values_class('LucasNumbers');
+    # $values_class = $gen->values_class('Abundant');
+    # $values_class = $gen->values_class('Obstinate');
+    # $values_class = $gen->values_class('Lucas');
     # $values_class = $gen->values_class('Emirps');
     # $values_class = $gen->values_class('Repdigits');
-    # $values_class = $gen->values_class('UndulatingNumbers');
+    # $values_class = $gen->values_class('Undulating');
     # $values_class = $gen->values_class('TernaryWithout2');
     # $values_class = $gen->values_class('PrimeQuadraticEuler');
     # $values_class = $gen->values_class('Base4Without3');
@@ -70,23 +70,27 @@ $|=1;
     # $values_class = $gen->values_class('TwinPrimes');
     # # $values_class = $gen->values_class('DigitsModulo');
     # $values_class = $gen->values_class('RadixWithoutDigit');
-    # $values_class = $gen->values_class('OEIS');
     $values_class = $gen->values_class('Odd');
     $values_class = $gen->values_class('Factorials');
     $values_class = $gen->values_class('SumTwoSquares');
     $values_class = $gen->values_class('PythagoreanHypots');
     $values_class = $gen->values_class('PlanePathCoord');
     $values_class = $gen->values_class('Palindromes');
+    # $values_class = $gen->values_class('MathSequence');
+    $values_class = $gen->values_class('DigitLength');
+    $values_class = $gen->values_class('DigitLengthCumulative');
+    $values_class = $gen->values_class('OEIS');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
                                          lo => 1,
                                          hi => 200*$rep,
-                                         radix => 2,
+                                         radix => 4,
                                          digit => 0,
-                                         expression => 'z=3; z*x^2 + 3*x + 2',
+                                         # expression => 'z=3; z*x^2 + 3*x + 2',
+                                         expression => 'x^2 + 3*x + 2',
                                          expression_evaluator => 'MEE',
-                                         oeis_number => '10059',
+                                         oeis_anum  => 'A000396',
                                          # distinct => 1,
                                          planepath_class => 'HypotOctant',
                                          coord_type => 'Y',
@@ -96,7 +100,7 @@ $|=1;
     if ($values_obj->is_type('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
-    foreach (1 .. 50) {
+    foreach (1 .. 110) {
       my ($i,$value) = $values_obj->next;
       if (! defined $i) {
         print "undef\n";
@@ -104,7 +108,8 @@ $|=1;
       }
       if (defined $value) {
         # print "$value,";
-        print "$i=$value,";
+        #print "$i=";
+        print "$value,";
       } else {
         print "$i,";
         $value = $i;
@@ -116,12 +121,18 @@ $|=1;
       if ($values_obj->can('pred') && ! $values_obj->pred($value)) {
         print " oops, pred false\n";
       }
+      if ($values_obj->can('ith')) {
+        my $ith_value = $values_obj->ith($i);
+        if ($ith_value != $value) {
+          print " oops, ith()=$ith_value next=$value\n";
+        }
+      }
     }
     print "\n";
 
     if ($values_obj->can('ith')) {
       print "by ith(): ";
-      foreach my $i (0 .. 50) {
+      foreach my $i (0 .. 110) {
         my $value = $values_obj->ith($i);
         if (! defined $value) {
           print "undef\n";
@@ -141,7 +152,7 @@ $|=1;
           last;
         }
 
-        if (! $values_obj->pred($value)) {
+        if ($values_obj->can('pred') && ! $values_obj->pred($value)) {
           print " oops, pred false\n";
         }
       }

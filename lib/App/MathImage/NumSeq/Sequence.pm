@@ -18,11 +18,11 @@
 package App::MathImage::NumSeq::Sequence;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
+
+use App::MathImage::NumSeq::Base '__';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,8 +36,8 @@ sub name {
 
 use constant description => undef;
 use constant parameter_list => ();
-use constant density => 'unknown';
-use constant oeis => undef;
+use constant oeis_anum => undef;
+use constant i_start => 0;
 sub values_min {
   my ($self) = @_;
   return $self->{'values_min'};
@@ -107,11 +107,12 @@ __END__
 
 =head1 NAME
 
-App::MathImage::NumSeq::Sequence -- base class for various number sequences
+App::MathImage::NumSeq::Sequence -- base class for number sequences
 
 =head1 SYNOPSIS
 
  # only a base class, use one of the actual classes such as
+
  use App::MathImage::NumSeq::Sequence::Squares;
  my $seq = App::MathImage::NumSeq::Sequence::Squares->new;
  my ($i, $square) = $seq->next;
@@ -142,25 +143,32 @@ Return the sequence to its starting point.
 
 A human-readable description of the sequence.
 
-=item C<$i = $seq-E<gt>i_start()>
-
-Return the first index C<$i> in the sequence.  This is the position
-C<rewind> returns to.
-
 =item C<$value = $seq-E<gt>values_min()>
 
 =item C<$value = $seq-E<gt>values_max()>
 
 Return the minimum or maximum value taken by values in the sequence, or
 C<undef> if unknown.  Currently if the maximum is infinity then the return
-is C<undef> too, but perhaps it should be the floating point infinity, if
+is C<undef> too, but perhaps it should be a floating point infinity, if
 there is one.
+
+=item C<$ret = $seq-E<gt>is_type($type)>
+
+Return true if the sequence is of the given C<$type> (a string).  This is
+intended as a loose set of types or properties a sequence might have.  The
+following types exist currently,
+
+    count   sequence is a count of something
+    pn1     sequence is values +1, -1, 0
+    digits  sequence is digits in a given radix
+
+=item C<@infos = $seq-E<gt>parameter_list()>
 
 =back
 
 =head2 Optional Methods
 
-The following methods are only implemented for some sequence classes.
+The following methods are only implemented for some sequences.
 
 =over
 
@@ -178,6 +186,9 @@ not.
 =back
 
 =head1 SEE ALSO
+
+L<Math::Sequence> and L<Math::Series>, symbolic recursive definitions like
+Fibonacci
 
 L<math-image>
 
@@ -203,3 +214,12 @@ You should have received a copy of the GNU General Public License along with
 Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+
+
+# =item C<$i = $seq-E<gt>i_start()>
+# 
+# Return the first index C<$i> in the sequence.  This is the position
+# C<rewind> returns to.
+

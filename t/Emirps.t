@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Sequence::Emirps;
 # VERSION
 
 {
-  my $want_version = 51;
+  my $want_version = 52;
   is ($App::MathImage::NumSeq::Sequence::Emirps::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Emirps->VERSION,  $want_version, 'VERSION class method');
 
@@ -44,6 +44,18 @@ use App::MathImage::NumSeq::Sequence::Emirps;
   my $check_version = $want_version + 1000;
   ok (! eval { App::MathImage::NumSeq::Sequence::Emirps->VERSION($check_version); 1 },
       "VERSION class check $check_version");
+}
+
+
+#------------------------------------------------------------------------------
+# is_type
+
+{
+  my $values_obj = App::MathImage::NumSeq::Sequence::Emirps->new
+    (lo => 1,
+     hi => 30);
+
+  is (! $values_obj->is_type('count'), 1, 'is_type(count)');
 }
 
 

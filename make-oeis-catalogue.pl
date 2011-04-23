@@ -24,7 +24,7 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -41,28 +41,29 @@ foreach my $class (@classes) {
   # next if $class =~ /^App::MathImage::NumSeq::Sequence::.*::/; # not sub-parts
 
   my $filename = Module::Util::find_installed($class) or die;
+  ### $filename
   open my $in, '<', $filename or die;
   while (<$in>) {
     chomp;
     my $where = "$filename:$.";
-    my ($num, $parameters, $comment);
+    my ($anum, $parameters, $comment);
     if (/^# OeisCatalogue: /) {
       ### OeisCatalogue
-      ($num, $parameters, $comment) = /^# OeisCatalogue: A0*([0-9]+)\s*(.*?)(#.*)?$/
+      ($anum, $parameters, $comment) = /^# OeisCatalogue: (A[0-9]+)\s*(.*?)(#.*)?$/
         or die "$where: oops, bad OEIS line: $_";
-    } elsif (/^use constant oeis\W/) {
+    } elsif (/^use constant oeis_anum\W/) {
       ### use constant
-      ($num, $comment) = /^use constant oeis\s*=>\s*'?A?0*(\d+)().*?(#.*)?/
+      ($anum, $comment) = /^use constant oeis_anum\s*=>\s*['"]?(.*?)['"].*?(#.*)?/
         or die "$where: oops, bad OEIS line: $_";
       $parameters = '';
     } else {
       next;
     }
-    ### $num
+    ### $anum
     ### $parameters
     ### $comment
 
-    $num or die "$where: oops, no OEIS number: $_";
+    $anum or die "$where: oops, no OEIS number: $_";
 
     my @parameters = split /[,= \t]+/, $parameters;
     if (@parameters & 1) {
@@ -70,15 +71,15 @@ foreach my $class (@classes) {
     }
     defined $class
       or die "$filename:$.: oops, no \"package\" line";
-    if ($seen{$num}) {
-      print STDERR "$where: duplicate of $num\n$seen{$num}: is here\n";
+    if ($seen{$anum}) {
+      print STDERR "$where: duplicate of $anum\n$seen{$anum}: is here\n";
       $exit_code = 1;
       next;
     }
-    $seen{$num} = $where;
+    $seen{$anum} = $where;
     push @info_arrayref,
       {
-       num => $num,
+       anum  => $anum,
        class => $class,
        (scalar(@parameters) ? (parameters_hashref => {@parameters}) : ()),
       };
@@ -89,6 +90,7 @@ foreach my $class (@classes) {
 my $dump = Data::Dumper->new([\@info_arrayref])->Sortkeys(1)->Terse(1)->Indent(1)->Dump;
 # $dump =~ s/^{\n//;
 # $dump =~ s/}.*\n//;
+$dump =~ s/'(\d+)'/$1/g;
 
 open my $out, '>', $outfilename
   or die "Cannot create $outfilename: $!";

@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 340;
+use Test::More tests => 344;
 
 use lib 't';
 use MyTestHelpers;
@@ -107,12 +107,11 @@ sub _delete_duplicates {
      # Ln2Bits.pm~
      # Ln2Bits.pm
      # MobiusFunction.pm
-     # ObstinateNumbers.pm
      # PiBits.pm~
      # PiBits.pm
      # Repdigits.pm
      # SqrtDigits.pm
-
+     
      [ 'Palindromes', 0,
        [ 0, 1, 3, 5, 7, 9, 15, 17, 21, 27, 31, 33, 45, 51,
          63, 65, 73, 85, 93, 99, 107, 119, 127, 129, 153,
@@ -194,11 +193,11 @@ sub _delete_duplicates {
          909,919,929,939,949,959,969,979,989,999,
          1001,1111,1221,1331,1441,1551,1661,1771,1881,1991,
        ] ],
-
+     
      [ 'Factorials', 0,
        [ 1, 1, 2, 6, 24, 120, 720 ],
      ],
-
+     
      [ 'SumTwoSquares', 1,
        [ 2, 5, 8, 10, 13, 17, 18, 20, 25, 26, 29, 32, 34, 37,
          40, 41, 45, 50, 52, 53, 58, 61, 65, 68, 72, 73, 74,
@@ -206,20 +205,20 @@ sub _delete_duplicates {
          113, 116, 117, 122, 125, 128, 130, 136, 137, 145,
          146, 148, 149, 153, 157, 160, 162, 164, 169, 170,
          173, 178 ] ],
-
+     
      [ 'PythagoreanHypots', 1,
        [ 5, 10, 13, 15, 17, 20, 25, 26, 29, 30 ] ],
-
+     
      [ 'All', 0,
        [ 0, 1, 2, 3, 4, 5, 6, 7 ] ],
      [ 'All', 17,
        [ 17, 18, 19 ] ],
-
+     
      [ 'Odd', 1,
        [ 1, 3, 5, 7, 9, 11, 13 ] ],
      [ 'Odd', 6,
        [ 7, 9, 11, 13 ] ],
-
+     
      [ 'Even', 0,
        [ 0, 2, 4, 6, 8, 10, 12 ] ],
      [ 'Even', 5,
@@ -228,22 +227,22 @@ sub _delete_duplicates {
        [ 0, 2, 4, 6, 8, 10, 12 ],
        { multiples => 2 },
      ],
-
-     [ 'ObstinateNumbers', 1,
+     
+     [ 'Obstinate', 1,
        [ 1, 3, 127, ] ],
-
+     
      [ 'Fibonacci', 1,
        [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144,
          233, 377, 610, 987, 1597, ] ],
      [ 'Tribonacci', 0,
        [ 0, 0, 1, 1, 2, 4, 7, 13, 24, ],
      ],
-
-     [ 'AbundantNumbers', 0,
+     
+     [ 'Abundant', 0,
        [  12, 18, 20, 24, 30 ],
      ],
-
-     [ 'LucasNumbers', 0,
+     
+     [ 'Lucas', 0,
        [  1, 3, 4, 7, 11, 18, 29 ],
      ],
      [ 'RepdigitAnyBase', 0,
@@ -256,7 +255,7 @@ sub _delete_duplicates {
           31, # 11111 base 2
        ],
      ],
-
+     
      # Broken
      # [ 'RadixWithoutDigit', 0,
      #   [ 1, 2,    # 1,2
@@ -286,7 +285,7 @@ sub _delete_duplicates {
          digit => 2,
        },
      ],
-
+     
      # Broken ...
      # [ 'RadixWithoutDigit', 0,
      #   [ 0x01, 0x02, 0x03,    # 1,2,3
@@ -325,8 +324,8 @@ sub _delete_duplicates {
          digit => 3,
        },
      ],
-
-
+     
+     
      [ 'Base4Without3', 0,
        [ 0x00, 0x01, 0x02,    # 0,1,2
          0x04, 0x05, 0x06,    # 10,11,12
@@ -334,7 +333,7 @@ sub _delete_duplicates {
          0x10, 0x11, 0x12,    # 100,101,102
          0x14, 0x15, 0x16,    # 200,201,202
        ] ],
-
+     
      [ 'TernaryWithout2', 0,
        [ 0, 1,    # 0,1
          3, 4,    # 10, 11
@@ -343,11 +342,11 @@ sub _delete_duplicates {
          12, 13,  # 110, 111
          27, 28,  # 1000, 1001
        ] ],
-
+     
      [ 'StarNumbers', 0,
        [ 1, 13, 37, 73, 121, ],
      ],
-
+     
      [ 'Pentagonal', 0,
        [ 0,1,5,12,22 ],
        { pairs => 'first' } ],
@@ -357,7 +356,7 @@ sub _delete_duplicates {
      [ 'Pentagonal', 0,
        [ 0,1,2,5,7,12,15,22,26 ],
        { pairs => 'both' } ],
-
+     
      [ 'Polygonal', 0,
        [ 0, 1, 3, 6, 10, 15, 21 ],  # triangular
        { polygonal => 3 },
@@ -416,13 +415,13 @@ sub _delete_duplicates {
        [ 0, 1, 14, 39, 76, 125, 186, ],
        { polygonal => 14 },
      ],
-
-
+     
+     
      [ 'Tetrahedral', 1,
        [ 1, 4, 10, 20, 35, 56, 84, 120 ] ],
-
+     
      # with a!=b
-     [ 'UndulatingNumbers', 0,
+     [ 'Undulating', 0,
        [ 0,1,2,3,4,5,6,7,8,9,
          10,12,13,14,15,16,17,18,19,
          20,21,23,24,25,26,27,28,29,
@@ -444,9 +443,9 @@ sub _delete_duplicates {
          909,919,929,939,949,959,969,979,989,
          1010,1212,1313,1414,1515,1616,1717,1818,1919,
        ] ],
-
+     
      # with a!=b
-     [ 'UndulatingNumbers', 0,
+     [ 'Undulating', 0,
        [ 0x0,   # 0b00
          0x1,   # 0b01
          0x2,   # 0b10
@@ -460,10 +459,10 @@ sub _delete_duplicates {
        ],
        { radix => 2 },
      ],
-
+     
      # # http://oeis.org/A033619
      # # including a==b
-     # [ 'UndulatingNumbers', 0,
+     # [ 'Undulating', 0,
      #   [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
      #     15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
      #     28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
@@ -509,11 +508,11 @@ sub _delete_duplicates {
        undef,
        { bfile_offset => 5 } ],
 
-     [ 'PellNumbers', 0,
+     [ 'Pell', 0,
        [ 0, 1, 2, 5, 12, 29, 70, 169, 408, 985, 2378, 5741,
          13860, 33461, 80782, 195025, 470832, 1136689,
        ] ],
-     [ 'PellNumbers', 6,
+     [ 'Pell', 6,
        [ 12, 29, 70, 169, 408, 985, 2378, 5741,
          13860, 33461, 80782, 195025, 470832, 1136689,
        ] ],
@@ -644,14 +643,29 @@ sub _delete_duplicates {
          70, 72, 75, 77, 79, 80, 82, 83, 85, 87, 88, 89, 90,
          91, 95, 96, 99, 100, 101, 103, 105 ] ],
 
+     # A070939
+     [ 'DigitLength', 0,
+       [ 1,       # 0
+         1,       # 1
+         2,2,     # 2,3
+         3,3,3,3, # 4,5,6,7,
+         4,4,4,4,4,4,4,4,  # 8-15
+         5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5, # 16-31
+         6,       # 32
+       ],
+       { radix => 2 },
+     ],
+
      # A083652
-     [ 'BinaryLengths', 0,
+     [ 'DigitLengthCumulative', 0,
        [ 1, 2, 4, 6, 9, 12, 15, 18, 22, 26, 30, 34, 38, 42,
          46, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
          105, 110, 115, 120, 125, 130, 136, 142, 148, 154,
          160, 166, 172, 178, 184, 190, 196, 202, 208, 214,
          220, 226, 232, 238, 244, 250, 256, 262, 268, 274,
-         280, 286, 292 ] ],
+         280, 286, 292 ],
+       { radix => 2 },
+     ],
 
      [ 'Repdigits', 0,
        [ 0,
@@ -814,14 +828,12 @@ sub _delete_duplicates {
           }
         }
 
-        my $oeis_number = $test_options->{'oeis_number'}
-          || ($values_obj
-              && $values_obj->can('oeis')
-              &&  $values_obj->oeis);
-        if (! $oeis_number) {
+        my $oeis_anum = $test_options->{'oeis_anum'}
+          || ($values_obj && $values_obj->oeis_anum);
+        if (! $oeis_anum) {
           last;
         }
-        if ($want = MyOEIS::read_values($oeis_number)) {
+        if ($want = MyOEIS::read_values($oeis_anum)) {
           $lo = 0;
           if ($values eq 'PythagoreanHypots') {
             splice @$want, 250; # first 250 values for now ...

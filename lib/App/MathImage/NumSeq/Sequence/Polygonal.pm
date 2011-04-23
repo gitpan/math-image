@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Sequence::Polygonal;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -74,7 +73,7 @@ my @oeis = (undef, # 0
             { first  =>  'A051875' }, # 23
             { first  =>  'A051876' }, # 24
            );
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $k = (ref $class_or_self
            ? $class_or_self->{'k'}

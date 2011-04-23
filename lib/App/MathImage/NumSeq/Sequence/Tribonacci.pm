@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Sequence::Tribonacci;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -32,7 +31,7 @@ $VERSION = 51;
 use constant name => __('Tribonacci Numbers');
 use constant description => __('Tribonacci numbers 0, 0, 1, 1, 2, 4, 7, 13, 24, being T(i) = T(i-1) + T(i-2) + T(i-3) starting from 0,0,1.');
 use constant values_min => 1;
-use constant oeis => 'A000073'; # tribonacci
+use constant oeis_anum => 'A000073'; # tribonacci
 
 sub rewind {
   my ($self) = @_;

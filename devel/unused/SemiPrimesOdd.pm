@@ -18,16 +18,15 @@
 package App::MathImage::NumSeq::Sequence::SemiPrimesOdd;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::SemiPrimes';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Semi-Primes, Odd');
 use constant description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including P==Q squares of primes.');

@@ -18,13 +18,12 @@
 package App::MathImage::NumSeq::Sequence::ChampernowneBinary;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
@@ -35,11 +34,11 @@ $VERSION = 51;
 use constant name => __('Champernowne Sequence');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
 use constant values_min => 0;
-use constant oeis => 'A030303';
+use constant oeis_anum => 'A030303';
 
 # # http://oeis.org/A030310  # binary 1 positions
 # 
-# sub oeis {
+# sub oeis_anum {
 #   my ($class_or_self) = @_;
 #   if (! ref $class_or_self ||
 #       $class_or_self->{'radix'} == 2) {

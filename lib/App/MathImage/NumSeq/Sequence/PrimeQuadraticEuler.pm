@@ -18,18 +18,17 @@
 package App::MathImage::NumSeq::Sequence::PrimeQuadraticEuler;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Prime Generating Quadratic of Euler');
 use constant description => __('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.');
 use constant values_min => 41;
-# use constant oeis => 'A005846'; # the prime ones
+# use constant oeis_anum => 'A005846'; # the prime ones
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

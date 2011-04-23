@@ -15,29 +15,28 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::PellNumbers;
+package App::MathImage::NumSeq::Sequence::Pell;
 use 5.004;
 use strict;
-
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Pell Numbers');
 use constant description => __('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');
 use constant values_min => 0;
-use constant oeis => 'A000129'; # pell
+use constant oeis_anum => 'A000129'; # pell
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 sub rewind {
   my ($self) = @_;
-  ### PellNumbers new(): \%options
+  ### Pell new(): \%options
   $self->{'i'} = 0;
   $self->{'f0'} = 0;
   $self->{'f1'} = 1;

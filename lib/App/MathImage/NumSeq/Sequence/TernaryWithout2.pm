@@ -18,18 +18,17 @@
 package App::MathImage::NumSeq::Sequence::TernaryWithout2;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Ternary without 2s');
 use constant description => __('The integers without any 2 digits when written out in ternary (base 3).');
 use constant values_min => 1;
-use constant oeis => 'A005836';
+use constant oeis_anum => 'A005836';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

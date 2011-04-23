@@ -42,7 +42,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 51;
+our $VERSION = 52;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -139,6 +139,12 @@ use Glib::Object::Subclass
                    App::MathImage::Generator->default_options->{'fraction'},
                    Glib::G_PARAM_READWRITE),
 
+                  Glib::ParamSpec->scalar
+                  ('values-filename',
+                   __('Filename'),
+                   'Blurb.',
+                   Glib::G_PARAM_READWRITE),
+
                   Glib::ParamSpec->string
                   ('values-expression',
                    __('Expression'),
@@ -173,12 +179,11 @@ use Glib::Object::Subclass
                    App::MathImage::Generator->default_options->{'coord_type'},
                    Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->int
-                  ('values-oeis-number',
+                  Glib::ParamSpec->string
+                  ('values-oeis-anum',
                    'A-number',
                    'Blurb.',
-                   0, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'oeis_number'},
+                   App::MathImage::Generator->default_options->{'oeis_anum'},
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->string
@@ -559,9 +564,10 @@ sub gen_object {
      parity          => $self->get('values-parity'),
      pairs           => $self->get('values-pairs'),
      fraction        => $self->get('values-fraction'),
+     filename        => $self->get('values-filename'),
      expression      => $self->get('values-expression'),
      expression_evaluator => $self->get('values-expression-evaluator'),
-     oeis_number     => $self->get('values-oeis-number'),
+     oeis_anum       => $self->get('values-oeis-anum'),
      planepath_class => $self->get('values-planepath-class'),
      delta_type      => $self->get('values-delta-type'),
      coord_type      => $self->get('values-coord-type'),
@@ -606,7 +612,9 @@ sub start_drawing_window {
   my ($self, $window) = @_;
 
   require Gtk2::Ex::WidgetCursor;
-  Gtk2::Ex::WidgetCursor->busy;
+  my $wc = Gtk2::Ex::WidgetCursor->new (widget => $self,
+                                        cursor => 'watch',
+                                        active => 1);
 
   my (undef, undef, $width, $height) = $self->allocation->values;
   my $path_rotation_type = $self->get('path-rotation-type');
@@ -642,9 +650,10 @@ sub start_drawing_window {
      parity          => $self->get('values-parity'),
      pairs           => $self->get('values-pairs'),
      fraction        => $self->get('values-fraction'),
+     filename        => $self->get('values-filename'),
      expression      => $self->get('values-expression'),
      expression_evaluator => $self->get('values-expression-evaluator'),
-     oeis_number     => $self->get('values-oeis-number'),
+     oeis_anum       => $self->get('values-oeis-anum'),
      planepath_class => $self->get('values-planepath-class'),
      delta_type      => $self->get('values-delta-type'),
      coord_type      => $self->get('values-coord-type'),
@@ -671,6 +680,8 @@ sub start_drawing_window {
      filter          => $self->get('filter'),
      x_left          => $self->{'hadjustment'}->value,
      y_bottom        => $self->{'vadjustment'}->value,
+
+     widgetcursor    => $wc,
     );
 
   $self->{'path_object'} = $gen->path_object;

@@ -23,29 +23,30 @@ use Gtk2;
 use List::Util 'min', 'max';
 
 use App::MathImage::Gtk2::Ex::AdjustmentBits;
+use App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 51;
+our $VERSION = 52;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
-  signals => { # size_allocate => \&_do_size_allocate,
-              scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
+  signals => { scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
 
-              set_scroll_adjustments =>
-              { param_types => ['Gtk2::Adjustment',
-                                'Gtk2::Adjustment'],
-                return_type => undef,
-                class_closure => \&_do_set_scroll_adjustments },
+               set_scroll_adjustments =>
+               { param_types => ['Gtk2::Adjustment',
+                                 'Gtk2::Adjustment'],
+                 return_type => undef,
+                 class_closure => \&_do_set_scroll_adjustments },
 
-              'change-value' =>
-              { param_types => [ 'Gtk2::ScrollType'],
-                return_type => undef,
-                class_closure => \&_do_change_value,
-                flags => ['run-first','action'] },
+               'change-value' =>
+               { param_types => [ 'Gtk2::ScrollType'],
+                 return_type => undef,
+                 class_closure => \&_do_change_value,
+                 flags => ['run-first','action'] },
              },
+
   properties => [ Glib::ParamSpec->object
                   ('hadjustment',
                    (do {
@@ -140,18 +141,17 @@ sub INIT_INSTANCE {
   ### QuadScroll INIT_INSTANCE()
   $self->can_focus (1);
 
-  require App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
   foreach my $dir (_DIRECTIONS) {
     my $arrow = $self->{$dir}
-      = App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton->new
+      = App::MathImage::Gtk2::Ex::ArrowButton->new
         (arrow_type => $dir,
          visible => 1);
     my $x = $dir_to_x{$dir};
     my $y = $dir_to_y{$dir};
+    ### attach: "x=$x, y=$y"
     $self->attach ($arrow, $x,$x+1, $y,$y+1,
                    ['fill','shrink'],['fill','shrink'],0,0);
   }
-  $self->set_size_request (4,4);
 }
 
 # 'set-scroll-adjustments' class closure
@@ -261,7 +261,7 @@ L<Gtk2::Arrow>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 

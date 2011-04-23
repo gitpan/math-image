@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::Repdigits;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,7 +34,7 @@ use constant description => __('Numbers which are a "repdigit", meaning 1 ... 9,
 use constant values_min => 1;
 use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix());
 
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $radix = (ref $class_or_self
                ? $class_or_self->{'radix'}

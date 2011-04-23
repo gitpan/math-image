@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::Pronic;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'ceil';
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +33,7 @@ $VERSION = 51;
 use constant name => __('Pronic Numbers');
 use constant description => __('The pronic numbers 2, 6, 12, 20, 30, etc, etc, k*(k+1).  These are twice the triangular numbers, and half way between perfect squares.');
 use constant values_min => 2;
-use constant oeis => 'A002378'; # pronic, starting from 0
+use constant oeis_anum => 'A002378'; # pronic, starting from 0
 
 sub rewind {
   my ($self) = @_;

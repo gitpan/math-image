@@ -19,8 +19,8 @@ package App::MathImage::NumSeq::Sequence::PentagonalSecond;
 use 5.004;
 use strict;
 use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
@@ -31,7 +31,7 @@ $VERSION = 38;
 
 use constant name => __('Pentagonal Numbers, second type');
 use constant description => __('The pentagonal numbers 2,7,15,26, etc, (3k+1)*k/2.  The formula is the same as the plain pentagonal numbers, but taking negative k.');
-use constant oeis => 'A005449';
+use constant oeis_anum => 'A005449';
 
 sub new {
   my ($class, %options) = @_;

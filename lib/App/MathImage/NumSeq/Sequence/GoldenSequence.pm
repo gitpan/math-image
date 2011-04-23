@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::GoldenSequence;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
 use POSIX 'ceil';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,7 +45,7 @@ use constant parameter_list => ({ name    => 'spectrum',
                                );
 
 # cf A003849  0,1,1,0,1,0,1
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $spectrum = (ref $class_or_self
               ? $class_or_self->{'spectrum'}

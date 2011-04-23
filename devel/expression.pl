@@ -26,6 +26,22 @@ use Smart::Comments;
 use lib 'devel/lib';
 
 {
+  require Math::Sequence;
+  my $seq = Math::Sequence->new ('3*x', 2, 'x');
+  { my $expr = $seq->next;
+    my $value = $expr->value;
+    ### $expr
+    ### $value
+  }
+  { my $expr = $seq->at_index(2);
+    my $value = $expr->value;
+    ### $expr
+    ### $value
+  }
+  exit 0;
+}
+
+{
   my $str = '$x = 1; $x + 2 - $y + $z';
   my $ret = eval "use strict; sub { $str }";
   my $err = $@;

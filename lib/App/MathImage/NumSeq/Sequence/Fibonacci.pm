@@ -18,18 +18,17 @@
 package App::MathImage::NumSeq::Sequence::Fibonacci;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sparse';
+use App::MathImage::NumSeq::Base '__';
+use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Fibonacci Numbers');
 use constant description => __('The Fibonacci numbers 1,1,2,3,5,8,13,21, etc, each F(n) = F(n-1) + F(n-2), starting from 1,1.');
 use constant values_min => 0;
-use constant oeis => 'A000045'; # fibonacci
+use constant oeis_anum => 'A000045'; # fibonacci
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,9 +36,9 @@ use constant oeis => 'A000045'; # fibonacci
 sub rewind {
   my ($self) = @_;
   ### Fibonacci rewind()
-  $self->{'i'} = 0;
   $self->{'f0'} = 0;
   $self->{'f1'} = 1;
+  $self->{'i'} = $self->i_start;
 }
 sub next {
   my ($self) = @_;

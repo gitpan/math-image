@@ -22,54 +22,57 @@ use strict;
 use warnings;
 use POSIX;
 
+# uncomment this to run the ### lines
 use Smart::Comments;
 
-
-{
-  require App::MathImage::NumSeq::OeisCatalogue::Plugin::ZFiles;
-  foreach my $info (App::MathImage::NumSeq::OeisCatalogue::Plugin::ZFiles->info_arrayref) {
-    my $num = $info->{'num'};
-    require App::MathImage::NumSeq::Sequence::OEIS;
-    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_number=>$num);
-  }
-  exit 0;
-}
-{
-  require App::MathImage::NumSeq::Sequence::OEIS;
-  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_number=>32);
-  ### $seq
-  exit 0;
-}
 {
   require App::MathImage::NumSeq::OeisCatalogue;
-  my $info = App::MathImage::NumSeq::OeisCatalogue->num_to_info(32);
+  my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info('A000290');
   ### $info
-  { my $num = App::MathImage::NumSeq::OeisCatalogue->num_first;
-    ### $num
+  { my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
+    ### $anum
   }
-  { my $num = App::MathImage::NumSeq::OeisCatalogue->num_last;
-    ### $num
-  }
-  {
-    my $num = App::MathImage::NumSeq::OeisCatalogue->num_after(32);
-    ### $num
+  { my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_last;
+    ### $anum
   }
   {
-    my $num = App::MathImage::NumSeq::OeisCatalogue->num_before(32);
-    ### $num
+    my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_after('A000032');
+    ### $anum
   }
-  # my @list = App::MathImage::NumSeq::OeisCatalogue->num_list;
+  {
+    my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_before('A000032');
+    ### $anum
+  }
+  # my @list = App::MathImage::NumSeq::OeisCatalogue->anum_list;
   # ### @list
 
   {
     require App::MathImage::NumSeq::OeisCatalogue;
     foreach my $plugin (App::MathImage::NumSeq::OeisCatalogue->plugins) {
       ### $plugin
-      ### first: $plugin->num_first
-      ### last: $plugin->num_last
+      ### first: $plugin->anum_first
+      ### last: $plugin->anum_last
     }
   }
 
+  exit 0;
+}
+
+{
+  require App::MathImage::NumSeq::OeisCatalogue::Plugin::ZZ_Files;
+  require App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits;
+  foreach my $info (App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits->info_arrayref) {
+    ### info: $info->[0]
+    my $anum = $info->[0]->{'anum'};
+    require App::MathImage::NumSeq::Sequence::OEIS;
+    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_anum=>$anum);
+  }
+  exit 0;
+}
+{
+  require App::MathImage::NumSeq::Sequence::OEIS;
+  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_anum=>'A000032');
+  ### $seq
   exit 0;
 }
 {
@@ -93,7 +96,7 @@ use Smart::Comments;
 
 {
   require App::MathImage::NumSeq::OeisCatalogue::Plugin::Files;
-  my $info = App::MathImage::NumSeq::OeisCatalogue::Plugin::Files->num_to_info(32);
+  my $info = App::MathImage::NumSeq::OeisCatalogue::Plugin::Files->anum_to_info(32);
   ### $info
 exit 0;
 }

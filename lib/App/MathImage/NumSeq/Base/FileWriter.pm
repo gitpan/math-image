@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::FileWriter;
+package App::MathImage::NumSeq::Base::FileWriter;
 use 5.006;
 use strict;
 use warnings;
 use File::Temp;
 
-use App::MathImage::NumSeq::File;
+use App::MathImage::NumSeq::Base::File;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -48,7 +48,7 @@ sub new {
   my $key = "$package--$options";
 
   my $fh;
-  if (my $filetemp = $App::MathImage::NumSeq::File::filetemp{$key}) {
+  if (my $filetemp = $App::MathImage::NumSeq::Base::File::filetemp{$key}) {
     my $filename = $filetemp->filename;
     ### existing file: $filename
     open $fh, '+>', $filename or die;
@@ -56,7 +56,7 @@ sub new {
     my $basename = $key;
     $basename =~ s/^App::MathImage::NumSeq::Sequence:://;
     $basename =~ tr/:/_/;
-    $fh = $App::MathImage::NumSeq::File::filetemp{$key}
+    $fh = $App::MathImage::NumSeq::Base::File::filetemp{$key}
       = File::Temp->new (TEMPLATE => "${basename}_XXXXXX",
                          SUFFIX => '.data',
                          TMPDIR => 1);

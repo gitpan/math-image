@@ -201,46 +201,7 @@ use MyTestImageBase;
   exit 0;
 }
 
-{
-  $ENV{'DISPLAY'} = ':0';
-  my $X = X11::Protocol->new;
-  $X->init_extension('SHAPE');
-  { local $,=' ', say keys %{$X->{'ext'}}; }
 
-  my $win = $X->new_rsrc;
-  $X->CreateWindow($win, $X->root,
-                   'InputOutput',
-                   $X->root_depth,
-                   'CopyFromParent',
-                   0,0,
-                   100,100,
-                   10,   # border
-                   background_pixel => $X->{'white_pixel'},
-                   override_redirect => 1,
-                   colormap => 'CopyFromParent',
-                  );
-  $X->MapWindow ($win);
-  ### attrs: $X->GetWindowAttributes ($win)
-  # $X->ClearArea ($win, 0,0,0,0);
-
-  my $image = Image::Base::X11::Protocol::Window->new
-    (-X => $X,
-     -window => $win);
-  $image->rectangle (0,0, 99,99, 'light grey', 1);
-
-  $image->ellipse (10,10,50,50, 'black');
-  $image->rectangle (10,10,50,50, 'black');
-
-  # $image->rectangle (0,0, 50,50, 'None', 1);
-  #   foreach my $i (0 .. 10) {
-  #      $image->ellipse (0+$i,0+$i, 50-1*$i,50-1*$i, 'None', 1);
-  #     # $image->line (0+$i,0, 50-$i,50, 'None', 1);
-  #   }
-
-  $X->handle_input;
-  sleep 10;
-  exit 0;
-}
 
 {
   use strict;

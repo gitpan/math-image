@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -57,13 +57,13 @@ use constant default_options => {
                                  aronson_letter       => '',
                                  aronson_conjunctions => 1,
                                  aronson_lying        => 0,
-                                 pyramid_step  => 2,
-                                 rings_step    => 6,
-                                 path_wider    => 0,
+                                 pyramid_step    => 2,
+                                 rings_step      => 6,
+                                 path_wider      => 0,
                                  path_rotation_type => 'phi',
-                                 expression    => '3*x^2 + x + 2',
-                                 filter        => 'All',
-                                 oeis_number   => 290,
+                                 expression      => '3*x^2 + x + 2',
+                                 filter          => 'All',
+                                 oeis_anum       => 'A000290',
                                  planepath_class => 'SquareSpiral',
                                  delta_type      => 'X',
                                  coord_type      => 'X',
@@ -107,8 +107,8 @@ use constant values_choices => do {
                          SemiPrimes
                          SemiPrimesOdd
                          Emirps
-                         AbundantNumbers
-                         ObstinateNumbers
+                         Abundant
+                         Obstinate
                          Squares
                          Pronic
                          Triangular
@@ -118,7 +118,7 @@ use constant values_choices => do {
                          Cubes
                          Tetrahedral
                          Fibonacci
-                         LucasNumbers
+                         Lucas
                          Perrin
                          Padovan
                          Tribonacci
@@ -131,24 +131,26 @@ use constant values_choices => do {
                          Even
                          All
                          Aronson
-                         PellNumbers
+                         Pell
                          GoldenSequence
                          ThueMorse
                          ChampernowneBinary
                          ChampernowneBinaryLsb
-                         BinaryLengths
+                         DigitLength
+                         DigitLengthCumulative
                          PrimeQuadraticEuler
                          PrimeQuadraticLegendre
                          PrimeQuadraticHonaker
                          Repdigits
                          RepdigitAnyBase
                          Beastly
-                         UndulatingNumbers
+                         Undulating
                          TernaryWithout2
                          Base4Without3
                          RadixWithoutDigit
                          Multiples
                          OEIS
+                         File
                        )) {
     if (delete $choices{$prefer}) {
       push @choices, $prefer;
@@ -200,6 +202,7 @@ use constant path_choices => do {
                          SacksSpiral
                          VogelFloret
                          TheodorusSpiral
+                         ArchimedeanChords
                          MultipleRings
                          PixelRings
                          Hypot
@@ -267,7 +270,9 @@ sub random_options {
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
-      if ($values eq 'Flowsnake' || $values eq 'LinesLevel') {
+      # $path =~ /MathImageFlowsnake/   reasonably ok
+      if ($path =~ /MathImagePythagoreanUAD/  # too wild
+          || $values eq 'LinesLevel') {
         next;  # experimental
       }
 
@@ -558,6 +563,7 @@ sub affine_object {
   });
 }
 
+use constant 1.02; # for leading underscore
 use constant _POINTS_CHUNKS     => 200 * 2;  # of X,Y
 use constant _RECTANGLES_CHUNKS => 200 * 4;  # of X1,Y1,X2,Y2
 

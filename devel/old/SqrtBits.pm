@@ -20,8 +20,8 @@ use 5.004;
 use strict;
 use warnings;
 use Carp;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';

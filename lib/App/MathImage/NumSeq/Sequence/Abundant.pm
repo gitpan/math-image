@@ -15,17 +15,16 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::AbundantNumbers;
+package App::MathImage::NumSeq::Sequence::Abundant;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +33,7 @@ use constant name => __('Abundant Numbers');
 use constant description => __('Numbers N with sum of its divisors >= N, eg. 12 is divisible by 1,2,3,4,6 total 16 is >= 12.');
 use constant values_min => 12;
 
-use constant oeis => 'A005101';
+use constant oeis_anum => 'A005101';
 
 # cf
 # A005100 deficient numbers sigma(n) < 2*n
@@ -70,7 +69,7 @@ sub rewind {
 }
 sub next {
   my ($self) = @_;
-  ### AbundantNumbers next(): $self->{'i'}
+  ### Abundant next(): $self->{'i'}
 
   my $hi = $self->{'hi'};
   my $prods = $self->{'prods'};
@@ -120,7 +119,7 @@ sub next {
 
 sub pred {
   my ($self, $n) = @_;
-  ### AbundantNumbers pred(): $n
+  ### Abundant pred(): $n
   if ($n > $self->{'hi'} || $n <= 0) {
     return 0;
   }

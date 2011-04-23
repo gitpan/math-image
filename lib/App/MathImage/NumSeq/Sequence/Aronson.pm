@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::Aronson;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
-use App::MathImage::NumSeq::File;
-use App::MathImage::NumSeq::FileWriter;
+use App::MathImage::NumSeq::Base::File;
+use App::MathImage::NumSeq::Base::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -87,7 +86,7 @@ use constant parameter_list =>
 # A072422    Latin N
 # A072423    Latin T
 
-sub oeis {
+sub oeis_anum {
   my ($self) = @_;
   if (ref $self) {
     if ($self->{'aronson_lang'} eq 'en') {
@@ -118,7 +117,7 @@ sub oeis {
 # 
 #   my $aronson 
 # 
-#   # my $vfw = App::MathImage::NumSeq::FileWriter->new
+#   # my $vfw = App::MathImage::NumSeq::Base::FileWriter->new
 #   #   (package => __PACKAGE__,
 #   #    hi      => $hi);
 # 
@@ -141,7 +140,7 @@ sub rewind {
   my $letter_opt = (defined $letter ? $letter : '');
   my $options = "$lang,$letter_opt,$conjunctions,$lying";
 
-  # if (my $vf = App::MathImage::NumSeq::File->new (package => __PACKAGE__,
+  # if (my $vf = App::MathImage::NumSeq::Base::File->new (package => __PACKAGE__,
   #                                                 options => $options,
   #                                                 hi => $hi)) {
   #   ### use NumSeqFile: $vf

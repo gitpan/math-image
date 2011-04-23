@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 51;
+our $VERSION = 52;
 
 BEGIN {
   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
@@ -377,7 +377,7 @@ L<Gtk2::Arrow>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 

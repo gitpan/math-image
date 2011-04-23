@@ -30,7 +30,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 51;
+our $VERSION = 52;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -92,7 +92,7 @@ sub new {
 
   Scalar::Util::weaken (my $weak_self = $self);
   _sync_handler (\$weak_self);
-
+  require Gtk2::Ex::WidgetCursor;
   return $self;
 }
 
@@ -139,7 +139,8 @@ sub _drawing_finished {
   my $window = $self->{'window'};
   ### set_back_pixmap: "$pixmap"
   $window->set_back_pixmap ($pixmap);
-  _window_invalidate_all ($window);
+  _gdkwindow_invalidate_all ($window);
+  delete $self->{'widgetcursor'};
 
   # if ($drawing->{'window'} == $self->window) {
   #   $self->queue_draw;
@@ -148,7 +149,7 @@ sub _drawing_finished {
   # }
 }
 
-sub _window_invalidate_all {
+sub _gdkwindow_invalidate_all {
   my ($window, $invalidate_children) = @_;
   $window->invalidate_rect (Gtk2::Gdk::Rectangle->new (0,0, $window->get_size),
                             $invalidate_children);
@@ -157,7 +158,7 @@ sub _window_invalidate_all {
 sub draw {
   my $class = shift;
   my $self = $class->new (@_,
-                       draw_progressive => 0);
+                          draw_progressive => 0);
   while ($self->draw_steps) {
     ### Generator-X11 more
   }

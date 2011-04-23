@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::GolayRudinShapiro;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -45,7 +44,7 @@ $VERSION = 51;
 use constant name => __('Golay Rudin Shapiro');
 use constant description => __('Numbers which have an odd number of "11" bit pairs in binary.');
 use constant values_min => 3;
-use constant oeis => 'A022155';  # positions of -1s
+use constant oeis_anum => 'A022155';  # positions of -1s
 
 use constant PHI => (1 + sqrt(5)) / 2;
 

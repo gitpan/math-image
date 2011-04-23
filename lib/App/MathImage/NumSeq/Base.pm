@@ -15,31 +15,30 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::LucasNumbers;
-use 5.004;
+package App::MathImage::NumSeq::Base;
+use 5.006;
 use strict;
 use warnings;
-use Locale::TextDomain 'App-MathImage';
 
-use base 'App::MathImage::NumSeq::Sequence::Fibonacci';
+use vars '@ISA', '@EXPORT_OK';
+use Exporter;
+@ISA = ('Exporter');
+@EXPORT_OK = ('__');
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
-use constant name => __('Lucas Numbers');
-use constant description => __('Lucas numbers 1, 3, 4, 7, 11, 18, 29, etc, being L(i) = L(i-1) + L(i-2) starting from 1,3.  This is the same recurrance as the Fibonacci numbers, but a different starting point.');
-use constant values_min => 1;
-use constant oeis => 'A000204'; # lucas starting at 1,3,...
-
-sub rewind {
-  my ($self) = @_;
-  ### Fibonacci rewind()
-  $self->{'f0'} = 1;
-  $self->{'f1'} = 3;
-  $self->{'i'} = 0;
+BEGIN {
+  eval <<'HERE'
+require Locale::Messages;
+sub __ { Locale::Messages::dgettext('App-MathImage',$_[0]) }
+1;
+HERE
+    || eval <<'HERE'
+sub __ { $_[0] };
+1;
+HERE
+  || die $@;
 }
 
 1;

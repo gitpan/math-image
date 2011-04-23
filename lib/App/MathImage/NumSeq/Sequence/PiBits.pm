@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::PiBits;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -18,16 +18,15 @@
 package App::MathImage::NumSeq::Sequence::SumTwoSquares;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'floor','ceil';
 use List::Util 'max';
 use List::MoreUtils;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -50,7 +49,7 @@ sub values_min {
 #    A024509 x^2+y^2 with repetitions for different ways each can occur
 #    A025284 x^2+y^2 occurring in exactly one way
 #
-use constant oeis => 'A000404'; # sum two nonzero squares, possibly x==y
+use constant oeis_anum => 'A000404'; # sum two nonzero squares, possibly x==y
 
 sub rewind {
   my ($self) = @_;

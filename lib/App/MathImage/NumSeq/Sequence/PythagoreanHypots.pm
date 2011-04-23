@@ -18,16 +18,15 @@
 package App::MathImage::NumSeq::Sequence::PythagoreanHypots;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'floor','ceil';
 use List::Util 'max';
 use List::MoreUtils;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,7 +48,7 @@ use constant values_min => 5;
 #    A009000 - A009003 hypots with repetitions
 #    A009012 - "b" second number, ordered by "b", with repetitions
 #
-use constant oeis => 'A009003'; # hypots, distinct non-zero x,y, inc multiples
+use constant oeis_anum => 'A009003'; # hypots, distinct non-zero x,y, inc multiples
 
 
 sub new {

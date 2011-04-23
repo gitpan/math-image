@@ -58,7 +58,7 @@ sub read_values {
 
   my ($aref, $filename) = _read_values($anum);
   if (defined $aref) {
-    Test::More::diag("$filename read ",scalar(@$aref)," values");
+    MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
   }
   return $aref;
 }
@@ -85,7 +85,7 @@ sub _read_values {
           die "oops, bad line in $filename: '$line'";
         }
         if ($n > $max_value) {
-          Test::More::diag("$filename stop at bignum value: $line");
+          MyTestHelpers::diag("$filename stop at bignum value: $line");
           last;
         }
         push @array, $n;
@@ -109,7 +109,7 @@ sub _read_values {
       $contents =~ m{.*<tt>([^<]+)</tt>};
       my $list = $1;
       unless ($list =~ m{^([0-9,-]|\s)+$}) {
-        Test::More::diag("$filename oops list of values not found");
+        MyTestHelpers::diag("$filename oops list of values not found");
         return undef;
       }
       my @array = split /[, \t\r\n]+/, $list;

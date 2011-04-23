@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::Sequence::Multiples;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'ceil';
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');

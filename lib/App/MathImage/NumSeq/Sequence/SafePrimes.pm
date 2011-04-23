@@ -18,21 +18,20 @@
 package App::MathImage::NumSeq::Sequence::SafePrimes;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::SophieGermainPrimes';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Safe Primes');
 use constant description => __('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those are the Sophie Germain primes).');
 use constant values_min => 5;
-use constant oeis => 'A005385';
+use constant oeis_anum => 'A005385';
 
 sub new {
   my $class = shift;

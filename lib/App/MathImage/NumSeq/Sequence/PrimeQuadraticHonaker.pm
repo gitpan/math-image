@@ -18,20 +18,19 @@
 package App::MathImage::NumSeq::Sequence::PrimeQuadraticHonaker;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Prime Generating Quadratic of Honaker');
 use constant description => __('The quadratic numbers 4*k^2 + 4*k + 59.');
 use constant values_min => 59;
 
 # http://oeis.org/A048988  # only the primes ones
-# use constant oeis => undef;
+# use constant oeis_anum => undef;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

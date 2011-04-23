@@ -18,7 +18,6 @@
 package App::MathImage::NumSeq::Sequence::OEIS::File;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use POSIX ();
 use Locale::TextDomain 'App-MathImage';
@@ -26,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -57,18 +56,18 @@ sub new {
   my ($class, %options) = @_;
   ### OEIS-File: %options
 
-  my $oeis_number = $options{'oeis_number'};
-  ### $oeis_number
-  my $aref = _read_values($oeis_number);
+  my $oeis_anum = $options{'oeis_anum'};
+  ### $oeis_anum
+  my $aref = _read_values($oeis_anum);
   ### $aref
-  my %info = _read_internal($oeis_number, $aref);
+  my %info = _read_internal($oeis_anum, $aref);
   if (! %info) {
-    %info = _read_html($oeis_number, $aref);
+    %info = _read_html($oeis_anum, $aref);
   }
   $aref ||= delete $info{'array'};
 
   if (! $aref) {
-    croak "B-file or HTML not found for A-number \"",$oeis_number,"\"";
+    croak "B-file or HTML not found for A-number \"",$oeis_anum,"\"";
   }
 
   if ($info{'type_hash'}->{'radix'}) {
@@ -98,30 +97,24 @@ sub oeis_dir {
 
 my $max_value = POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
 
-sub num_to_bfile {
-  my ($num, $prefix) = @_;
+sub anum_to_bfile {
+  my ($anum, $prefix) = @_;
   $prefix ||= 'b';
-  return sprintf '%s%06d.txt', $prefix, $num;
-}
-
-sub num_to_html {
-  my ($num, $ext) = @_;
-  $ext ||= '.html';
-  return sprintf 'A%06d%s', $num, $ext;
+  $anum =~ s/^A/$prefix/;
+  return $anum;
 }
 
 sub _read_html {
-  my ($num, $aref) = @_;
+  my ($anum, $aref) = @_;
   my @ret;
-  foreach my $basefile (num_to_html($num), num_to_html($num,'.htm')) {
+  foreach my $basefile ("$anum.html", "$anum.htm") {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
-    if (open FH, "<$filename") {
+    if (open FH, "< $filename") {
       my $contents = do { local $/; <FH> }; # slurp
       close FH or die;
 
-      my $anum = sprintf 'A%06d', $num;
       if ($contents =~
           m{$anum\n.*?
             <td[^>]*>\s*
@@ -158,16 +151,16 @@ sub _read_html {
 }
 
 sub _read_values {
-  my ($num) = @_;
+  my ($anum) = @_;
   ### NumSeq-OEIS-File _read_values(): @_
 
   require File::Spec;
  PREFIX: foreach my $prefix ('a', 'b') {
-    my $basefile = num_to_bfile($num,$prefix);
+    my $basefile = anum_to_bfile($anum,$prefix);
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
-    if (! open FH, "<$filename") {
+    if (! open FH, "< $filename") {
       ### no bfile: $!
       next;
     }
@@ -200,20 +193,20 @@ sub _read_values {
 }
 
 sub _read_internal {
-  my ($num, $aref) = @_;
+  my ($anum, $aref) = @_;
   my %type_hash = (integer => 1);
   my @ret = (type_hash => \%type_hash);
 
-  my $basefile = num_to_html($num,'.internal');
+  my $basefile = "$anum.internal";
   my $filename = File::Spec->catfile (oeis_dir(), $basefile);
   ### $basefile
   ### $filename
   if (! open FH, "<$filename") {
-    ### no .internal: $!
+    ### no .internal file: $!
     return;
   }
   my $contents = do { local $/; <FH> }; # slurp
-  close FH or die "Error reading $filename: $!";;
+  close FH or die "Error reading $filename: ",$!;
 
   my $offset;
   if ($contents =~ /^%O\s+(\d+)/) {
@@ -233,11 +226,9 @@ sub _read_internal {
     if (exists $K{'base'} || exists $K{'cons'}) {
       $type_hash{'radix'} = 1;
     }
-
     if (exists $K{'cofr'}) {
       $type_hash{'continued_fraction'} = 1;
     }
-    
     foreach my $key (keys %K) {
       $type_hash{"OEIS_$key"} = 1;
     }
@@ -262,7 +253,7 @@ sub _read_internal {
   }
 
   if (! $aref) {
-    $contents =~ /^%S (.*?)(<tt>|$)/
+    $contents =~ m{^%S (.*?)(</tt>|$)}m
       or croak "Oops list of values not found in ",$filename;
     push @ret, 'array', [ split /[, \t\r\n]+/, $1 ];
   }

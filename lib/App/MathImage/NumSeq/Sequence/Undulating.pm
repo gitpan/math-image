@@ -15,17 +15,16 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::UndulatingNumbers;
+package App::MathImage::NumSeq::Sequence::Undulating;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,7 +36,7 @@ use constant growth => 'exponential';
 
 # A033619 base 10 >=0 including a==b
 # A046075 base 10 >=101 with a!=b
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   # if (! ref $class_or_self ||
   #     $class_or_self->{'radix'} == 10) {
@@ -65,7 +64,7 @@ sub rewind {
 
 sub next {
   my ($self) = @_;
-  ### UndulatingNumbers next()
+  ### Undulating next()
 
   my $radix = $self->{'radix'};
   my $n;
@@ -123,7 +122,7 @@ sub pred {
 
 sub ith {
   my ($self, $i) = @_;
-  ### UndulatingNumbers ith(): $i
+  ### Undulating ith(): $i
   my $radix = $self->{'radix'};
   my $rdec = $radix - 1;
 

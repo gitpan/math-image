@@ -20,8 +20,8 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
@@ -45,7 +45,7 @@ use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_
 #                                   description => __('The parity odd or even to show for the sequence.'),
 #                                 });
 
-# use constant oeis => 'A001969'; # with even 1s
+# use constant oeis_anum => 'A001969'; # with even 1s
 # df 'A026147'; # positions of 1s in evil
 # cf A001285
 my @oeis = (undef,

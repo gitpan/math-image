@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::MobiusFunction;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min','max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
@@ -35,7 +34,7 @@ sub is_type {
 }
 use constant values_min => -1;
 use constant values_max => 1;
-use constant oeis => 'A008683'; # mobius -1,0,1
+use constant oeis_anum => 'A008683'; # mobius -1,0,1
 #
 # cf A030059 the -1 positions, odd distinct primes
 #    A030229 the 1 positions, even distinct primes

@@ -18,20 +18,19 @@
 package App::MathImage::NumSeq::Sequence::Triangular;
 use 5.004;
 use strict;
-use warnings;
 use POSIX 'ceil';
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Triangular Numbers');
 use constant description =>  __('The triangular numbers 1, 3, 6, 10, 15, 21, 28, etc, k*(k+1)/2.');
 use constant values_min => 1;
-use constant oeis => 'A000217';
+use constant oeis_anum => 'A000217';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

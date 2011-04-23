@@ -18,16 +18,15 @@
 package App::MathImage::NumSeq::Sequence::Emirps;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
 use POSIX ();
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,7 +39,7 @@ use constant values_min => 3;
 # A006567 - decimal reversal is a prime and different
 # A007500 - decimal reversal is a prime, so palindrome primes too
 #
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $radix = (ref $class_or_self
                ? $class_or_self->{'radix'}

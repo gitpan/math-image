@@ -18,18 +18,17 @@
 package App::MathImage::NumSeq::Sequence::SophieGermainPrimes;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
 use POSIX ();
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes
@@ -37,7 +36,7 @@ $VERSION = 51;
 use constant name => __('Sophie Germain Primes');
 use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
 use constant values_min => 3;
-use constant oeis => 'A005384';
+use constant oeis_anum => 'A005384';
 
 sub new {
   my ($class, %options) = @_;

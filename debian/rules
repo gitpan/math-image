@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of math-image.
 #
@@ -20,3 +20,10 @@
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/perlmodule.mk
+
+# math-image.desktop, not installed by Makefile.PL yet
+# probably need desktop-file-utils 0.15-2 for its automatic trigger on
+# .desktop files
+install/math-image::
+	mkdir -p debian/math-image/usr/share/applications
+	cp -a math-image.desktop debian/math-image/usr/share/applications

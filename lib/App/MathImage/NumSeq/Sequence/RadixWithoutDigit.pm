@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::RadixWithoutDigit;
 use 5.004;
 use strict;
-use warnings;
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
@@ -57,7 +56,7 @@ my %oeis = (3 => { 0 => 'A032924', # base 3 no 0
                    5 => 'A023737', # base 5 no 4
                  },
            );
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $radix = (ref $class_or_self
                ? $class_or_self->{'radix'}

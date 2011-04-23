@@ -18,14 +18,13 @@
 package App::MathImage::NumSeq::Sequence::FractionDigits;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');
@@ -45,7 +44,7 @@ use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
 my %oeis = ('1/735'  => { 10  => 'A021739',   # 1/735 decimal
                         },
            );
-sub oeis {
+sub oeis_anum {
   my ($class_or_self) = @_;
   my $fraction = (ref $class_or_self
                   ? $class_or_self->{'fraction'}

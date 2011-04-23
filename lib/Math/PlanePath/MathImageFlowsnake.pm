@@ -35,7 +35,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -507,8 +507,8 @@ either added to or subtracted from X or Y.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HilbertCurve>
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
 =head1 HOME PAGE

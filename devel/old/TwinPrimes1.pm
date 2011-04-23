@@ -21,8 +21,8 @@ use strict;
 use warnings;
 use List::Util 'min', 'max';
 use POSIX ();
-use Locale::TextDomain 'App-MathImage';
 
+use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
@@ -33,7 +33,7 @@ $VERSION = 38;
 
 use constant name => __('Twin Primes, first of each');
 use constant description => __('The first of each pair of twin primes, 3, 5, 11, 17, 29, etc.');
-use constant oeis => ; # less of two
+use constant oeis_anum => ; # less of two
 
 sub new {
   my ($class, %options) = @_;
