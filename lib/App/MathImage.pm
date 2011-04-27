@@ -25,7 +25,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;

@@ -24,7 +24,6 @@ use Carp;
 use List::Util qw(min max);
 use POSIX ();
 use Scalar::Util;
-use Time::HiRes;
 use List::MoreUtils;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
 use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
@@ -42,7 +41,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 52;
+our $VERSION = 53;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests

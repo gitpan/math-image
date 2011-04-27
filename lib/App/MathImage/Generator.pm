@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -256,7 +256,8 @@ use constant figure_choices => qw(default
                                   diamunf
                                   plus
                                   X
-                                  L);
+                                  L
+                                  undiamond);
 
 # cf Data::Random
 
@@ -928,7 +929,22 @@ my %figure_method = (square  => 'rectangle',
                      plus    => \&App::MathImage::Image::Base::Other::plus,
                      X       => \&App::MathImage::Image::Base::Other::draw_X,
                      L       => \&App::MathImage::Image::Base::Other::draw_L,
+                     undiamond => \&undiamond,
                     );
+sub undiamond {
+  my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  my $width = $x2 - $x1 + 1;
+  my $height = $y2 - $y1 + 1;
+  my $halfheight = int($height/2);
+  my $xoff = int($width/2);
+  for (my $yoff = 0; $yoff <= $halfheight; $yoff++) {
+    foreach my $y ($y1 + $yoff, $y2-$yoff) {
+      $image->line ($x1,$y,       $x1+$xoff,$y, $colour);
+      $image->line ($x2-$xoff,$y, $x2,$y,       $colour);
+    }
+    $xoff--;
+  }
+}
 
 sub draw_Image_steps {
   my ($self) = @_;

@@ -23,7 +23,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence::All';
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 use constant name => __('Lines');
 use constant description => __('No numbers, instead lines showing the path taken.');

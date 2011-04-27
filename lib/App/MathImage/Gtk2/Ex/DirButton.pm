@@ -25,14 +25,14 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 52;
+our $VERSION = 53;
 
-BEGIN {
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
-                             'up', 'down', 'left', 'right');
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Amount',
-                             'step', 'page');
-}
+# BEGIN {
+#   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
+#                              'up', 'down', 'left', 'right');
+#   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Amount',
+#                              'step', 'page');
+# }
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
@@ -41,9 +41,7 @@ use Glib::Object::Subclass
                enter_notify_event  => \&_do_motion_or_enter,
                leave_notify_event  => \&_do_leave_notify,
                button_press_event  => \&_do_button_press,
-               clicked => { param_types =>
-                            [ 'App::MathImage::Gtk2::Ex::DirButton::Direction',
-                              'App::MathImage::Gtk2::Ex::DirButton::Amount' ],
+               clicked => { param_types => [ 'Gtk2::ScrollType' ],
                           },
              },
   properties => [ Glib::ParamSpec->double
@@ -74,8 +72,9 @@ use Glib::Object::Subclass
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  $self->{'square'} = 1;
+  $self->{'square'} = 0;
   $self->{'drawn_dir'} = '';
+  $self->can_focus(1);
   $self->add_events (['button-press-mask',
                       'pointer-motion-mask',
                       'enter-notify-mask',
@@ -122,6 +121,15 @@ sub _do_expose {
                             $w2,$h2);
     }
 
+    if ($self->has_focus) {
+      $style->paint_focus ($win,   # window
+                           $state,  # state
+                           $event->area,
+                           $self,        # widget
+                           __PACKAGE__,  # detail
+                           0,0,
+                           $width,$height);
+    }
 
     $style->paint_arrow ($win,   # window
                          $state,  # state
@@ -176,15 +184,20 @@ sub _do_expose {
     my $yw = int(.32 * $height);
 
     {
-      my @points_fg = ($xc, 0,
-                       $xw, $ymid,
-                       $width-1-$xw, $ymid,
-                       $width-1-$xc, 0,
-                       $xc, 0);
-      my @points_bg = (0,0,
-                       $width,0,
-                       $xc,$yc,
-                       0,0);
+      my @points_fg = ($xc, 0,                 # top centre
+                       $xw, $ymid,             # base left
+                       $xc*.8, $ymid,
+                       $xc*.8, $yc,
+                       $xc*1.2, $yc,
+                       $xc*1.2, $ymid,
+                       $width-1-$xw, $ymid,    # base right
+                       $width-1-$xc, 0,        # top centre, rounded pixel
+                       $xc, 0);                # back to start
+
+      my @points_bg = (0,0,                    # top left
+                       $width,0,               # top right
+                       $xc,$yc,                # centre
+                       0,0);                   # back to start
       my $this_dir = 'up';
       foreach (0, 1) {
         {
@@ -197,18 +210,24 @@ sub _do_expose {
           $win->draw_polygon ($gc, 0, @points_fg);
           $win->draw_polygon ($gc, 1, @points_fg);
         }
+        
+        # invert
+        $this_dir = 'down';
         for (my $i = 1; $i < @points_fg; $i+=2) {
           $points_fg[$i] = $height-1-$points_fg[$i];
         }
         for (my $i = 1; $i < @points_bg; $i+=2) {
           $points_bg[$i] = $height-1-$points_bg[$i];
         }
-        $this_dir = 'down';
       }
     }
     {
       my @points_fg = (0, $yc,
                        $xmid, $yw,
+                       $xmid, $yc*.8,
+                       $xc, $yc*.8,
+                       $xc, $yc*1.2,
+                       $xmid, $yc*1.2,
                        $xmid, $height-1-$yw,
                        0, $height-1-$yc,
                        0, $yc);
@@ -228,15 +247,28 @@ sub _do_expose {
           $win->draw_polygon ($gc, 0, @points_fg);
           $win->draw_polygon ($gc, 1, @points_fg);
         }
+
+        # mirror left/right
+        $this_dir = 'right';
         for (my $i = 0; $i < @points_fg; $i+=2) {
           $points_fg[$i] = $width-1-$points_fg[$i];
         }
         for (my $i = 0; $i < @points_bg; $i+=2) {
           $points_bg[$i] = $width-1-$points_bg[$i];
         }
-        $this_dir = 'right';
       }
     }
+
+    if ($self->has_focus) {
+      $style->paint_focus ($win,   # window
+                           $state,  # state
+                           $event->area,
+                           $self,        # widget
+                           __PACKAGE__,  # detail
+                           0,0,
+                           $width,$height);
+    }
+
   }
 
   return Gtk2::EVENT_PROPAGATE;
@@ -318,9 +350,9 @@ sub _do_button_press {
   if ($event->button == 1
       && (my $dir = _xy_to_direction ($self, $event->x, $event->y))) {
     $self->signal_emit ('clicked',
-                        $dir,
                         ($event->state & ['control-mask','shift-mask']
-                         ? 'page' : 'step'));
+                         ? 'page-' : 'step-')
+                        . $dir);
   }
 }
 

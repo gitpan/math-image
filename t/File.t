@@ -32,7 +32,7 @@ require App::MathImage::NumSeq::Sequence::File;
 # VERSION
 
 {
-  my $want_version = 52;
+  my $want_version = 53;
   is ($App::MathImage::NumSeq::Sequence::File::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::File->VERSION,  $want_version, 'VERSION class method');
 

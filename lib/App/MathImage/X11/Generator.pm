@@ -26,19 +26,26 @@ use Scope::Guard;
 use Time::HiRes;
 use X11::Protocol::Other;
 use X11::Protocol::XSetRoot; # load always to be sure is available
-
-use base 'App::MathImage::Generator';
 use Image::Base::X11::Protocol::Window;
 
+use base 'App::MathImage::Generator';
+use App::MathImage::X11::Protocol::EventMaskExtra;
+use App::MathImage::X11::Protocol::EventHandlerExtra;
+
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
+
+use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
+use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
 
 sub new {
   my $class = shift;
-  my $self = $class->SUPER::new (@_);
+  my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
+                                 step_figures => _DEFAULT_IDLE_TIME_FIGURES,
+                                 @_);
 
   my $X = $self->{'X'};
   my $window = $self->{'window'};
@@ -66,6 +73,9 @@ sub new {
     (-images => [ $image_pixmap, $image_window ]);
 
   $self->draw_Image_start ($image);
+
+  # blank old background while drawing
+  $X->ChangeWindowAttributes ($window, background_pixmap => $self->{'pixmap'});
 
   my $seq = $X->send('QueryPointer', $X->{'root'});
   $X->add_reply($seq, \$self->{'reply'});
@@ -95,26 +105,24 @@ sub draw {
   my $fh = $X->{'connection'}->fh;
   my $sel = $fh && IO::Select->new($fh);
 
-  my %window_attr = $X->GetWindowAttributes ($window);
-  my $guard = Scope::Guard->new
-    (sub { $X->ChangeWindowAttributes
-             ($window, event_mask => $window_attr{'your_event_mask'})  });
-  $X->ChangeWindowAttributes ($window,
-                              event_mask => $X->pack_event_mask('Exposure'));
+  my $extra_events = App::MathImage::X11::Protocol::EventMaskExtra->new
+    ($X, $window, $X->pack_event_mask('Exposure'));
 
-  my $old_event_handler = $X->{'event_handler'};
-  local $X->{'event_handler'} = sub {
-    my %h = @_;
-    ### event_handler: \%h
-    if ($h{'name'} eq 'Expose' && $h{'window'} == $window) {
-      $X->ChangeWindowAttributes ($window, background_pixmap => $pixmap);
-      $X->ClearArea ($window, $h{'x'},$h{'y'}, $h{'width'},$h{'height'});
-    }
-    goto $old_event_handler;
-  };
+  my $extra_handler = App::MathImage::X11::Protocol::EventHandlerExtra->new
+    ($X, sub {
+       my %h = @_;
+       ### X11-Generator event_handler: \%h
+       if ($h{'name'} eq 'Expose' && $h{'window'} == $window) {
+         $X->ChangeWindowAttributes ($window, background_pixmap => $pixmap);
+         $X->ClearArea ($window, @h{'x','y','width','height'});
+       }
+     });
+
+  ### step_figures: $self->{'step_figures'}
+  ### step_time: $self->{'step_time'}
 
   for (;;) {
-    if ($sel && $sel->can_read(0)) {
+    while ($sel && $sel->can_read(0)) {
       ### handle_input
       $X->handle_input;
     }

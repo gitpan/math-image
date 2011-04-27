@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 

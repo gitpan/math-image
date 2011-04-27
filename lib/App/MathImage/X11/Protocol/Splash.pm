@@ -23,11 +23,12 @@ use 5.004;
 use strict;
 use Carp;
 use List::Util 'max';  # 5.6 ?
+use X11::Protocol;
 use X11::Protocol::WM;
 use X11::AtomConstants;
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -130,23 +131,35 @@ sub create_window {
 }
 
 #------------------------------------------------------------------------------
-# 
+#
+# return undef on error from $frame itself ? 
 
 # =item C<$window = frame_window_to_client($X,$frame)>
 #
-# C<$frame> (an XID) is an immediate child of the root window.  If it's a
-# window manager frame window then return the client C<$window> (an XID)
-# contained in it.  If there's no window manager or C<$frame> doesn't seem
-# to be a window manager frame then return C<$frame> itself.
+# C<$frame> (an XID) is a window manager frame window, usually an immediate
+# child of the root window.  Return the client window (XID) contained in it.
 #
-# This is currently implemented similar to Xlib C<XmuClientWindow()>, and
-# the private F<dmsimple.c> C<Select_Window()> in C<xwininfo> and similar
-# programs.  A search is made down from C<$frame> for a window with a
-# C<WM_STATE> property, since the window manager puts that on a client
-# window (ready for it to read).  Some search depth and total windows limits
-# are applied just in case 
+# If no client window can be found then return C<undef>.  This may be
+# because C<$frame> is an icon or similar created by the window manager
+# itself, or an override-redirect client without a frame, or because there's
+# no window manager running, in which case C<$frame> is the client already.
+#
+# The current strategy is to look at C<$frame> and down the window tree
+# seeking a window with a C<WM_STATE> property which the window manager sets
+# on a client's toplevel.  The search depth and total windows is limited, in
+# case the window manager does its decoration in some ridiculous way, or the
+# client uses excessive windows (traversed when there's no window manager).
+#
+# This is similar to Xlib C<XmuClientWindow()> and the private F<dmsimple.c>
+# C<Select_Window()> in C<xwininfo> and similar programs.
+#
+# Care is taken not to error out if some windows are destroyed during the
+# search.  They belong to other clients, so could be destroyed at any time.
+# If C<$frame> itself doesn't exist then the return is C<undef>.
 
 # /usr/share/doc/libxmu-headers/Xmu.txt.gz for XmuClientWindow()
+# https://bugs.freedesktop.org/show_bug.cgi?id=7474
+#     XmuClientWindow() bottom-up was hurting fluxbox and probably ion, pekwm
 #
 sub frame_window_to_client {
   my ($X, $frame) = @_;
@@ -158,13 +171,13 @@ sub frame_window_to_client {
   # @search depth level in parallel
 
   my $count = 0;
- OUTER: foreach (1 .. 10) {   # limit search depth for safety
+ OUTER: foreach (1 .. 5) {   # limit search depth for safety
     foreach my $child (splice @search) {   # breadth-first search
       ### look at: sprintf '0x%X', $child
 
-      if ($count++ > 100) {
+      if ($count++ > 50) {
         ### abandon search at count: $count
-        last OUTER;
+        return undef;
       }
 
       {
@@ -208,7 +221,7 @@ sub frame_window_to_client {
     }
   }
   ### not found
-  return $frame;
+  return undef;
 }
 
 
@@ -418,6 +431,43 @@ sub _none_interp {
   }
 }
 
+{
+  # $X->interp('WmState',$num);
+  # $X->num('WmState',$str);
+  my %const_arrays
+    = (
+       WmState => ['WithdrawnState', # 0
+                   'NormalState',    # 1
+                   'ZoomState',      # 2, no longer ICCCM
+                   'IconicState',    # 3
+                   'InactiveState',  # 4, no longer in ICCCM
+                  ],
+       # motif has the name "MWM_INPUT_APPLICATION_MODAL" as an alias for
+       # "MWM_INPUT_PRIMARY_APPLICATION_MODAL", but says prefer the latter
+       MwmModal => ['modeless',                  # 0
+                    'primary_application_modal', # 1
+                    'system_modal',              # 2
+                    'full_application_modal',    # 3
+                   ],
+       MwmStatus => ['tearoff_window',           # 0
+                   ],
+      );
+
+  my %const_hashes
+    = (map { $_ => { X11::Protocol::make_num_hash($const_arrays{$_}) } }
+       keys %const_arrays);
+
+
+  sub ext_const_init {
+    my ($X) = @_;
+    unless ($X->{'ext_const'}->{'WmState'}) {
+      %{$X->{'ext_const'}} = (%{$X->{'ext_const'}}, %const_arrays);
+      $X->{'ext_const_num'} ||= {};
+      %{$X->{'ext_const_num'}} = (%{$X->{'ext_const_num'}}, %const_hashes);
+    }
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # _NET_WM_STATE
@@ -466,14 +516,16 @@ sub _net_wm_state_atom_interp {
 # =item C<_set_wm_client_machine_from_syshostname ($X, $window)>
 #
 # Set the C<WM_CLIENT_MACHINE> property on C<$window> using the
-# C<Sys::Hostname> module.  Currently if that module can't determine a
-# hostname by its various gambits then the property is deleted.  Should it
-# leave it unchanged, or return a flag to say if set?
+# C<Sys::Hostname> module.
+#
+# Currently if that module can't determine a hostname by its various gambits
+# then the property is deleted.  Should it leave it unchanged, or return a
+# flag to say if set?
 #
 # Some of the C<Sys::Hostname> cases can end up returning "localhost".  It's
-# presumed this would be when there's no networking at all, in which case
-# the client and server are on the same machine and "localhost" is a good
-# enough name.
+# presumed this would be when there's no networking beyond the local host,
+# and that in this case clients are always on the same machine as the server
+# are on the same machine so "localhost" is a good enough name.
 #
 sub _set_wm_client_machine_from_syshostname {
   my ($X, $window) = @_;
@@ -600,6 +652,8 @@ sub _to_UTF8_STRING {
 #------------------------------------------------------------------------------
 # WM_CLASS
 
+# set_WM_CLASS()
+
 # C<_set_wm_class_from_findbin ($X, $window)>
 #
 # No good?
@@ -619,14 +673,14 @@ sub _set_wm_class_from_findbin {
 
 # C<_set_wm_class ($X, $window, $instance, $class)>
 #
-# Set the C<WM_CLASS> property on C<$window> (an XID).  This might be used
-# by the window manager to lookup settings and preferences in the resource
-# database (see L<X(7)/"RESOURCES">).
+# Set the C<WM_CLASS> property on C<$window> (an XID).  This is used by the
+# window manager to lookup settings and preferences for a program or a
+# particular running instance of it.
 #
 # The C<WM_CLASS> property is "STRING" type (latin-1).  If C<$instance> or
-# C<$class> are Perl 5.8 wide-char strings then they're encoded to latin-1
-# as necessary.  Byte strings in C<$instance> and C<$class> are assumed to
-# be latin-1 already.
+# C<$class> are Perl 5.8 wide-char strings then they're coded to latin-1 as
+# necessary.  Byte strings in C<$instance> and C<$class> are assumed to be
+# latin-1 already.
 #
 sub _set_wm_class {
   my ($X, $window, $instance, $class) = @_;
@@ -650,6 +704,8 @@ sub _to_STRING {
 
 #------------------------------------------------------------------------------
 # WM_COMMAND
+
+# set_WM_COMMAND()
 
 # =item C<_set_wm_command ($X, $window, $command, $arg...)>
 #
@@ -818,6 +874,8 @@ sub _str_to_text_chunks {
 #------------------------------------------------------------------------------
 # WM_PROTOCOLS
 
+# set_WM_PROTOCOLS()
+
 # =item C<_set_wm_protocols ($X, $window, $protocol,...)>
 #
 # Set the C<WM_PROTOCOLS> property on C<$window> (an XID).  Each $protocol
@@ -905,6 +963,8 @@ sub _atoms_parallel {
 
 #------------------------------------------------------------------------------
 # WM_NORMAL_HINTS
+
+# set_WM_NORMAL_HINTS
 
 sub _set_wm_normal_hints {
   my $X = shift;
@@ -1031,144 +1091,9 @@ sub _aspect_to_numden {
 
 
 #------------------------------------------------------------------------------
-# MOTIF_WM_HINTS
-
-# =item C<_set_motify_wm_hints ($X, $window, key=E<gt>value...)>
-#
-# Set the C<MOTIF_WM_HINTS> property on C<$window> (an XID).  These hints
-# are used by the Motif window manager and by many other compatible window
-# managers.  The key/value arguments are
-#
-#     functions       arrayref
-#     decorations     arrayref
-#     input_mode      enum string or integer
-#     status
-#
-# C<functions> is an arrayref of strings for what operations the window
-# manager should offer on the window in its drop-down menu or similar.  The
-# default is "all", but an application might ask for instance no "maximize"
-# if it made a big mess if full-screen.
-#
-#     all         all functions
-#     resize      to resize the window
-#     move        to move the window
-#     minimize    to iconify
-#     maximize    to make full-screen
-#     close       to close the window
-#
-# C<decorations> is an arrayref of strings for what visual decorations the
-# window manager should draw around the window.  The default is "all", but
-# an application might ask for instance for no resize handles if it it makes
-# no sense to resize it.
-#
-#     all          draw all decorations
-#     border       a border around the window
-#     resizeh      handles to resize by draggin
-#     title        window name across the top etc
-#     menu         drop-down menu of "functions" above
-#     minimize     button minimize, ie. iconify, button
-#     maximize     button to maximize, ie full-screen
-#
-# C<input_mode> allows a window to be "modal" meaning the user should
-# interact only with that window.  The window manager will generally keep it
-# on top, not set the focus to other windows, etc.  The value is one of the
-# following strings or integer values,
-#
-#     modeless                   0       not modal (the default)
-#     primary_application_modal  1     \ modal to its "transient for" parent,
-#     application_modal          1     / but not other toplevels
-#     system_modal               2       modal to the whole display
-#     full_application_modal     3       modal to the whole current client
-#
-# C<primary_application_modal> and C<application_modal> are ...
-#
-
-sub _set_motify_wm_hints {
-  my $X = shift;
-  my $window = shift;
-  $X->ChangeProperty($window,
-                     $X->atom('_MOTIF_WM_HINTS'),  # property
-                     $X->atom('_MOTIF_WM_HINTS'),  # type
-                     32,                          # format
-                     'Replace',
-                     _pack_motify_wm_hints ($X, @_));
-}
-
-{
-  # /usr/include/Xm/MwmUtil.h
-  my $format = 'L5';
-  my %key_to_flag = (functions   => 1,
-                     decorations => 2,
-                     input_mode  => 4,
-                     status      => 8,
-                    );
-  my %arefargs = (functions => { all      => 1,
-                                 resize   => 2,
-                                 move     => 4,
-                                 minimize => 8,
-                                 maximize => 16,
-                                 close    => 32 },
-                  decorations => { all      => 1,
-                                   border   => 2,
-                                   resizeh  => 4,
-                                   title    => 8,
-                                   menu     => 16,
-                                   minimize => 32,
-                                   maximize => 64 },
-                 );
-  sub _pack_motif_wm_hints {
-    my ($X, %hint) = @_;
-
-    my $flags = 0;
-    foreach my $key (keys %hint) {
-      if (defined $hint{$key}) {
-        $flags |= $key_to_flag{$key};
-      } else {
-        croak "Unrecognised MOTIF_WM_HINTS field: ",$key;
-      }
-    }
-    foreach my $field (keys %arefargs) {
-      my $bits = 0;
-      if (my $h = $hint{$field}) {
-        foreach my $key (@$h) {
-          if (defined (my $bit = $arefargs{$field}->{$key})) {
-            $bits |= $bit;
-          } else {
-            croak "Unrecognised MOTIF_WM_HINTS ",$field," field: ",$key;
-          }
-        }
-      }
-      $hint{$field} = $bits;
-    }
-    my $decorations = $hint{'decorations'};
-    pack ($format,
-          $flags,
-          $hint{'functions'},
-          $hint{'decorations'},
-          _motif_input_mode_num($hint{'input_mode'}) || 0,
-          $hint{'status'}      || 0);
-  }
-}
-
-{
-  my %input_mode_num = (modeless                  => 0,
-                        primary_application_modal => 1,
-                        application_modal         => 1,
-                        system_modal              => 2,
-                        full_application_modal    => 3,
-                       );
-  sub _motif_input_mode_num {
-    my ($X, $input_mode) = @_;
-    if (exists $input_mode_num{$input_mode}) {
-      return $input_mode_num{$input_mode};
-    } else {
-      return $input_mode;
-    }
-  }
-}
-
-#------------------------------------------------------------------------------
 # _NET_WM_USER_TIME
+
+# set_NET_WM_USER_TIME
 
 # =item C<_set_new_wm_user_time ($X, $window, $time)>
 #
@@ -1215,6 +1140,8 @@ sub _get_net_user_time_window {
 
 #------------------------------------------------------------------------------
 # _NET_FRAME_EXTENTS
+
+# get_NET_FRAME_EXTENTS
 
 # =item C<my ($left,$right, $top,$bottom) = _get_net_frame_extents ($X, $window)>
 #

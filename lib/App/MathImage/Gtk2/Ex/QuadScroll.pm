@@ -28,7 +28,7 @@ use App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 52;
+our $VERSION = 53;
 
 use Glib::Object::Subclass
   'Gtk2::Table',
@@ -41,7 +41,7 @@ use Glib::Object::Subclass
                  class_closure => \&_do_set_scroll_adjustments },
 
                'change-value' =>
-               { param_types => [ 'Gtk2::ScrollType'],
+               { param_types => ['Gtk2::ScrollType'],
                  return_type => undef,
                  class_closure => \&_do_change_value,
                  flags => ['run-first','action'] },

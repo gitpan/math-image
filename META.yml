@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            52
+version:            53
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>

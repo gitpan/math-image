@@ -23,7 +23,7 @@ use strict;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 sub _save_to_tempfh {
   my ($image) = @_;

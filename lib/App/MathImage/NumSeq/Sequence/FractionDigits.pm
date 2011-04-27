@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');

@@ -26,7 +26,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 52;
+our $VERSION = 53;
 
 use Glib::Object::Subclass
   'App::MathImage::Gtk2::Ex::ArrowButton',
