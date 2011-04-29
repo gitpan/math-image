@@ -23,7 +23,7 @@ use strict;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 53;
+$VERSION = 54;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -41,6 +41,7 @@ sub _save_to_tempfh {
 sub save_fh {
   my ($image, $fh) = @_;
   require File::Copy;
+  File::Copy->VERSION(2.14);
   my $tempfh = _save_to_tempfh ($image);
   File::Copy::copy ($tempfh, $fh);
 }
@@ -62,6 +63,7 @@ sub _load_from_tempfh {
 sub load_fh {
   my ($image, $fh) = @_;
   require File::Copy;
+  File::Copy->VERSION(2.14);
   require File::Temp;
   my $tempfh = File::Temp->new;
   File::Copy::copy ($fh, $tempfh);

@@ -20,7 +20,7 @@ Section: utils
 Priority: optional
 Build-Depends: cdbs, debhelper (>= 5)
 Maintainer: Kevin Ryde <user42@zip.com.au>
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Homepage: http://user42.tuxfamily.org/math-image/index.html
 Bugs: mailto:user42@zip.com.au
 

@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 53;
+$VERSION = 54;
 
 use constant name => __('Pell Numbers');
 use constant description => __('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');

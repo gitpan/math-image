@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 53;
+$VERSION = 54;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,7 +46,7 @@ sub rewind {
   ### NumSeq-File rewind()
 
   if ($self->{'fh'}) {
-    seek $self->{'fh'}, 0, Fcntl::SEEK_SET
+    seek $self->{'fh'}, 0, Fcntl::SEEK_SET() # parens because autoloaded ...
       or croak "Cannot rewind ",$self->{'filename'},": ",$!;
   } else {
     my $filename = $self->{'filename'};
