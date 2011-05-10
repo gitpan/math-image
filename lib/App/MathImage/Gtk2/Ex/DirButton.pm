@@ -25,7 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 # BEGIN {
 #   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
@@ -210,7 +210,7 @@ sub _do_expose {
           $win->draw_polygon ($gc, 0, @points_fg);
           $win->draw_polygon ($gc, 1, @points_fg);
         }
-        
+
         # invert
         $this_dir = 'down';
         for (my $i = 1; $i < @points_fg; $i+=2) {
@@ -380,7 +380,7 @@ C<Gtk2::DrawingArea>, but don't rely on more than C<Gtk2::Widget> for now.
         App::MathImage::Gtk2::Ex::DirButton
 
 # =head1 DESCRIPTION
-# 
+#
 =head1 FUNCTIONS
 
 =over 4
@@ -395,11 +395,11 @@ initial properties per C<< Glib::Object->new >>.
 =back
 
 # =head1 PROPERTIES
-# 
+#
 # =over 4
-# 
+#
 # =item C<combobox> (C<Gtk2::ComboBox> object, default C<undef>)
-# 
+#
 # =back
 
 =head1 SEE ALSO

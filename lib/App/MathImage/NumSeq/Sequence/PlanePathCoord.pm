@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+# is_type('permutation') when one planepath in the sequence of another
+
+
 package App::MathImage::NumSeq::Sequence::PlanePathCoord;
 use 5.004;
 use strict;
@@ -25,7 +30,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

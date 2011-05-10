@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,29 +15,25 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::TwinPrimes2;
-use 5.004;
+
+package App::MathImage::Gtk2::Params::Filename;
+use 5.008;
 use strict;
 use warnings;
-use List::Util 'min', 'max';
-
-use App::MathImage::NumSeq::Base '__';
-use base 'App::MathImage::NumSeq::Sequence::TwinPrimes1';
+use Carp;
+use POSIX ();
+use Glib;
+use Gtk2;
+use Glib::Ex::ObjectBits 'set_property_maybe';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use vars '$VERSION';
-$VERSION = 38;
+our $VERSION = 55;
 
-use constant name => __('Twin Primes, second of each');
-use constant description => __('The second of each pair of twin primes, 5, 7, 13, 19, 31, etc.');
-use constant oeis_anum => 'A006512'; # greater of two
-
-sub new {
-  my $class = shift;
-  return $class->SUPER::new (twin_offset => 1, @_);
-}
+use App::MathImage::Gtk2::Params::String;
+use Glib::Object::Subclass
+  'App::MathImage::Gtk2::Params::String';
 
 1;
 __END__

@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -98,7 +98,7 @@ Return true if C<$value> is a perfect square.
 =head1 SEE ALSO
 
 L<App::MathImage::NumSeq::Sequence>,
-L<App::MathImage::NumSeq::Cubes>
+L<App::MathImage::NumSeq::Sequence::Cubes>
 
 =head1 HOME PAGE
 

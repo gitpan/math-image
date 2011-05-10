@@ -25,7 +25,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -479,12 +479,14 @@ my %image_modules = (Prima => 'Image::Base::Prima::Image',
                     );
 sub output_method_png {
   my ($self) = @_;
+  my $module;
   binmode (\*STDOUT) or die;
   foreach my $module (defined $self->{'gui_options'}->{'module'}
-                      ? $self->{'gui_options'}->{'module'}
+                      ? ($module = $self->{'gui_options'}->{'module'})
                       : ('GD',
                          'PNGwriter',
                          'Imager',
+                         'Magick',
                          'Gtk2::Gdk::Pixbuf',
                          'Prima',
                         )) {
@@ -493,30 +495,37 @@ sub output_method_png {
       return 0;
     }
   }
-  die "Output module(s) not available";
+  if ($module) {
+    die "Output $module not available -- $@";
+  } else {
+    die "Output module(s) not available -- $@";
+  }
 }
 sub output_method_xpm {
   my ($self) = @_;
   # Imager 0.80 can't write xpm
+  my $module = "module(s)";
   foreach my $module (defined $self->{'gui_options'}->{'module'}
-                      ? $self->{'gui_options'}->{'module'}
+                      ? ($module = $self->{'gui_options'}->{'module'})
                       : ('Xpm',
-                         'Prima')) {
+                         'Magick',
+                         'Prima',
+                        )) {
     if ($self->try_module($module)) {
       $self->output_image ($module, -file_format => 'XPM');
       return 0;
     }
   }
-  die "Output module(s) not available";
+  die "Output $module not available";
 }
 
 sub module_image_class {
   my ($self, $module) = @_;
-  foreach my $bclass ("Image::Base::$module",
-                      $image_modules{$module},
-                      ($module =~ /::/ ? ($module) : ())) {
-    foreach my $class ($bclass,
-                       "App::MathImage::$bclass") {
+  foreach my $baseclass ("Image::Base::$module",
+                         $image_modules{$module},
+                         ($module =~ /::/ ? ($module) : ())) {
+    foreach my $class ($baseclass,
+                       "App::MathImage::$baseclass") {
       if (Module::Util::find_installed ($class)) {
         return $class;
       }
@@ -728,13 +737,13 @@ user-level operation.
 
 =over 4
 
-=item C<< $mi = App::MathImage->new (key=>value,...) >>
+=item C<$mi = App::MathImage-E<gt>new (key=E<gt>value,...)>
 
 Create and return a new MathImage object.
 
-=item C<< $exitcode = App::MathImage->command_line () >>
+=item C<$exitcode = App::MathImage-E<gt>command_line ()>
 
-=item C<< $exitcode = $mi->command_line () >>
+=item C<$exitcode = $mi-E<gt>command_line ()>
 
 Run the C<math-image> program command line.  Arguments are taken from
 C<@ARGV> and the return value is an exit code suitable for C<exit>.

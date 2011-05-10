@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,29 +33,38 @@ use constant name => __('Count Prime Factors');
 use constant description => __('Count of prime factors.');
 use constant type_hash => { count => 1 };
 use constant values_min => 1;
-use constant oeis_anum => 'A001222'; # with multiplicity
 
-# use constant oeis_anum => 1222; # A001222 with multiplicity
-# cf A001221 without multiplicity
+use constant parameter_list => ({ name    => 'multiplicity',
+                                  display => __('Multiplicity'),
+                                  type    => 'enum',
+                                  choices => ['repeated','distinct'],
+                                  default => 'repeated',
+                                  # description => __(''),
+                                },
+                               );
 
-sub new {
-  my ($class, %options) = @_;
-  my $lo = $options{'lo'} || 0;
-  my $hi = $options{'hi'};
-  $lo = max (0, $lo);
-  $hi = max (0, $hi);
+# OeisCatalogue: A001221 multiplicity=0
+# OeisCatalogue: A001222 multiplicity=1
+sub oeis_anum {
+  my ($self) = @_;
+  return ($self->{'multiplicity'}
+          ? 'A001222'   # with multiplicity
+          : 'A001221'); # without multiplicity
+}
 
-  my $i = 1;
-  my $self = bless { i => $i,
-                     string => "\0" x ($hi+1),
-                     hi     => $hi,
-                   }, $class;
+
+sub rewind {
+  my ($self) = @_;
+  my $hi = $self->{'hi'};
+  $self->{'i'} = 1;
+  $self->{'string'} = "\0" x ($self->{'hi'}+1);
   vec ($self->{'string'}, 1,4) = 1;   # N=1 count 1
-  while ($i < $lo-1) {
+  while ($self->{'i'} < $self->{'lo'}-1) {
     $self->next;
   }
   return $self;
 }
+
 sub next {
   my ($self) = @_;
 
@@ -76,6 +85,7 @@ sub next {
       for (my $j = $step; $j <= $hi; $j += $step) {
         vec($$cref, $j,4) = min (15, vec($$cref,$j,4)+1);
       }
+      last if $self->{'multiplicity'} eq 'distinct';
     }
     # print "applied: $i\n";
     # for (my $j = 0; $j < $hi; $j++) {
@@ -85,15 +95,21 @@ sub next {
   return ($i, $ret);
 }
 
-sub pred {
-  my ($self, $n) = @_;
-  ### CountPrimeFactors pred(): $n
-  if ($self->{'i'} <= $n) {
+sub ith {
+  my ($self, $i) = @_;
+  ### CountPrimeFactors pred(): $i
+  if ($self->{'i'} <= $i) {
     ### extend from: $self->{'i'}
-    my $i;
-    while ((($i) = $self->next) && $i < $n) { }
+    my $upto;
+    while ((($upto) = $self->next)
+           && $upto < $i) { }
   }
-  return vec($self->{'string'}, $n,4);
+  return vec($self->{'string'}, $i,4);
+}
+
+sub pred {
+  my ($self, $value) = @_;
+  return ($value >= 0);
 }
 
 1;

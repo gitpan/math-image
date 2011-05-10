@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -154,7 +154,7 @@ sub run {
   #                    my $self = $checkbox->parent->parent;
   #                    my $draw = $self->getobj('draw');
   #                    $self->getobj('draw')->change_gen
-  #                      (aronson_conjunctions => $checkbox->get);
+  #                      (conjunctions => $checkbox->get);
   #                  });
   # }
 

@@ -57,7 +57,7 @@ sub read_bfile {
     push @array, $n;
   }
   close FH or die;
-  diag "$filename has ",scalar(@array)," values";
+  # diag "$filename has ",scalar(@array)," values";
   return \@array;
 }
 
@@ -593,7 +593,7 @@ sub _delete_duplicates {
          174, 181, 183, 193, 199, 205, 208, 214, 220, 226,
          231, 237, 243, 249, 254, 270, 288, 303, 307, 319,
          323, 341 ],
-       { aronson_conjunctions => 0 },
+       { conjunctions => 0 },
        { module => 'Math::Aronson' },
      ],
 
@@ -771,7 +771,7 @@ sub _delete_duplicates {
       foreach my $bfile (0, 1) {
         ### $want
         my $hi = $want->[-1];
-        diag "$name $lo to ",$hi;
+        # diag "$name $lo to ",$hi;
 
         my $values_class = "App::MathImage::NumSeq::Sequence::$values";
         my $values_obj;
@@ -798,8 +798,8 @@ sub _delete_duplicates {
             (defined $value ? $value : $i)
           } 0 .. $#$want ];
           if (@$got < 200 || ! $bfile) {
-            diag "$name got ". join(',', map {defined() ? $_ : 'undef'} @$got);
-            diag "$name want ". join(',', map {defined() ? $_ : 'undef'} @$want);
+            # diag "$name got ". join(',', map {defined() ? $_ : 'undef'} @$got);
+            # diag "$name want ". join(',', map {defined() ? $_ : 'undef'} @$want);
           }
           is_deeply ($got, $want, "$name lo=$lo hi=$hi");
 
@@ -819,7 +819,7 @@ sub _delete_duplicates {
               }
             }
             if (! $bfile) {
-              diag "pred got ".join(',',@got_pred);
+              # diag "pred got ".join(',',@got_pred);
             }
             _delete_duplicates($want);
             ### $want

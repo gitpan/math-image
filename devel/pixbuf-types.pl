@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -47,19 +47,3 @@ my $progname = $FindBin::Script;
   exit 0;
 }
 
-{
-  foreach my $type ('png', 'jpeg', 'ico', 'tiff', 'bmp') {
-    foreach my $i (6 .. 25) {
-      my $width = 2 ** $i;
-      my $pixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, 1);
-      if (! eval {
-        $pixbuf->save ('/tmp/xxx', $type);
-        1
-      }) {
-        print "$type $width -- $@\n";
-        last;
-      }
-    }
-  }
-  exit 0;
-}

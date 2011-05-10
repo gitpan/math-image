@@ -32,7 +32,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use Glib::Object::Subclass 'Gtk2::Dialog';
 
@@ -183,7 +183,7 @@ sub _empty {
 1;
 __END__
 
-=for stopwords PodDialog
+=for stopwords PodDialog Ryde
 
 =head1 NAME
 

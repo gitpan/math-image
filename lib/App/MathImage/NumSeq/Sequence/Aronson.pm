@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base::File;
 use App::MathImage::NumSeq::Base::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,10 +35,11 @@ use constant description => __('Aronson\'s sequence of the positions of letter "
 use constant values_min => 1;
 use constant parameter_list =>
   ({
-    name    => 'aronson_lang',
-    display => __('Language'),
-    type    => 'enum',
-    default => '',
+    name      => 'lang',
+    share_key => 'aronson_lang', # restricted en/fr
+    display   => __('Language'),
+    type      => 'enum',
+    default   => '',
     # Can't offer all langs as there's no "initial_string" except en and fr
     # if (eval { require Lingua::Any::Numbers }) {
     #   push @langs, sort map {lc} Lingua::Any::Numbers::available();
@@ -52,21 +53,21 @@ use constant parameter_list =>
     #   = ((map {($_,uc($_))} @langs),
    },
    {
-    name    => 'aronson_letter',
+    name    => 'letter',
     display => __('Letter'),
     type    => 'enum',
     default => '',
     choices => ['', 'A' .. 'Z'],
    },
    {
-    name    => 'aronson_conjunctions',
+    name      => 'conjunctions',
     display => __('Conjunctions'),
     type    => 'boolean',
     default => 0,
     description => __('Whether to include conjunctions "and" or "et" in the words of the sequence.'),
    },
    {
-    name    => 'aronson_lying',
+    name    => 'lying',
     display => __('Lying'),
     type    => 'boolean',
     default => 0,
@@ -89,22 +90,22 @@ use constant parameter_list =>
 sub oeis_anum {
   my ($self) = @_;
   if (ref $self) {
-    if ($self->{'aronson_lang'} eq 'en') {
-      if (! $self->{'aronson_conjunctions'}) {
-        if ($self->{'aronson_letter'} eq 'T'
-            || $self->{'aronson_letter'} eq '') {
+    if ($self->{'lang'} eq 'en') {
+      if (! $self->{'conjunctions'}) {
+        if ($self->{'letter'} eq 'T'
+            || $self->{'letter'} eq '') {
           return 'A005224'; # english T
         }
-        if ($self->{'aronson_letter'} eq 'H') {
+        if ($self->{'letter'} eq 'H') {
           return 'A055508'; # english H
         }
-        if ($self->{'aronson_letter'} eq 'I') {
+        if ($self->{'letter'} eq 'I') {
           return 'A049525'; # english I
         }
       }
-    } elsif ($self->{'aronson_lang'} eq 'fr') {
-      if ($self->{'aronson_letter'} eq 'E'
-          || $self->{'aronson_letter'} eq '') {
+    } elsif ($self->{'lang'} eq 'fr') {
+      if ($self->{'letter'} eq 'E'
+          || $self->{'letter'} eq '') {
         return 'A080520'; # french E
       }
     }
@@ -122,8 +123,8 @@ sub oeis_anum {
 #   #    hi      => $hi);
 # 
 #   return bless { aronson => $aronson,
-#                  aronson_lang => $lang,
-#                  aronson_letter => $aronson->{'letter'},
+#                  lang => $lang,
+#                  letter => $aronson->{'letter'},
 #                  # vfw     => $vfw,
 #                }, $class;
 # }
@@ -132,10 +133,10 @@ sub rewind {
 
   require Math::Aronson;
   my $hi = $self->{'hi'};
-  my $lang = ($self->{'aronson_lang'} || 'en');
-  my $letter = $self->{'aronson_letter'};
-  my $conjunctions = ($self->{'aronson_conjunctions'} ? 1 : 0);
-  my $lying = ($self->{'aronson_lying'} ? 1 : 0);
+  my $lang = ($self->{'lang'} || 'en');
+  my $letter = $self->{'letter'};
+  my $conjunctions = ($self->{'conjunctions'} ? 1 : 0);
+  my $lying = ($self->{'lying'} ? 1 : 0);
 
   my $letter_opt = (defined $letter ? $letter : '');
   my $options = "$lang,$letter_opt,$conjunctions,$lying";

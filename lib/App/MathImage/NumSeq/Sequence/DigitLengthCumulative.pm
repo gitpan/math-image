@@ -22,8 +22,14 @@ use strict;
 use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
+use App::MathImage::NumSeq::Base::Digits;
+use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 use constant name => __('Digit Length Cumulative');
 use constant description => __('Cumulative length of numbers 0,1,2,3,etc written out in the given radix.  For example binary 1,2,4,6,9,12,15,18,22,etc, 2 steps by 2, then 4 steps by 3, then 8 steps by 4, then 16 steps by 5, etc.');
@@ -53,11 +59,10 @@ sub oeis_anum {
 # cf A117804 - natural position of n in 012345678910111213
 #
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
 sub rewind {
   my ($self) = @_;
+  ### DigitLengthCumulative rewind(): $self
+
   $self->{'i'} = 0;
   $self->{'length'} = 1;
   $self->{'limit'} = $self->{'radix'};

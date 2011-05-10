@@ -32,7 +32,7 @@ use Gtk2::Ex::Units;
 use Glib::Ex::ObjectBits;
 use Glib::Ex::SignalIds;
 use Glib::Ex::ConnectProperties 14; # v.14 for response-sensitive#
-use Gtk2::Ex::ComboBox::PixbufType;
+use Gtk2::Ex::ComboBox::PixbufType 31; # v.31 fix initial for_width
 use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::Gtk2::Drawing;
@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -109,15 +109,16 @@ ICO only goes up to 255x255 pixels.'));
     $hbox->pack_start ($combo, 0,0,0);
     $hbox->show_all;
 
-    my $type = $combo->get('active-type');
-    if (my $info = Gtk2::Ex::PixbufBits::type_to_format($type)) {
+    my ($type, $info);
+    if (($type = $combo->get('active-type'))
+        && ($info = Gtk2::Ex::PixbufBits::type_to_format($type))) {
       $self->{'old_extensions'} = $info->{'extensions'};
     }
 
     # no Save if no active type
     Glib::Ex::ConnectProperties->new
         ([$combo, 'active-type'],
-         [$self, 'response-sensitive#accept', write_only => 1]);
+         [$self,  'response-sensitive#accept', write_only => 1]);
   }
 }
 
@@ -196,19 +197,17 @@ sub save {
                                                      undef, # colormap
                                                      0,0, 0,0,
                                                      $pixmap->get_size);
-  my $values = $draw->get('values');
-  # if ($values eq 'FractionDigits' || $values eq 'Expression'
-  #     || $values eq 'Polygonal' || $values eq 'Multiples'
-  #     || $values eq 'SqrtDigits') {
-  #   my $pname = lc($values);
-  #   $pname =~ s/digits$//;
-  #   $values .= ' '.$draw->get("values-$pname");
-  # }
+  my $values = Text::Capitalize::capitalize ($draw->get('values'));
+  my $values_parameters = $draw->get('values_parameters');
+  foreach my $pinfo ($draw->gen_object->values_object->parameter_list) {
+    my $name = $pinfo->{'name'};
+    $values .= " $name=$values_parameters->{$name}";
+  }
 
   my $path = $draw->get('path');
   # my $scale = $draw->get('scale');
   my $title = __x('{values} drawn as {path}',
-                  values => Text::Capitalize::capitalize($values),
+                  values => $values,
                   path   => Text::Capitalize::capitalize($path));
   if (eval {
     Gtk2::Ex::PixbufBits::save_adapt

@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 # Copyright 2010, 2011 Kevin Ryde
 
 # MyOEIS.pm is shared by several distributions.
@@ -23,9 +21,24 @@ use strict;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+my $without;
+
+sub import {
+  shift;
+  foreach (@_) {
+    if ($_ eq '-without') {
+      $without = 1;
+    } else {
+      die __PACKAGE__." unknown option $_";
+    }
+  }
+}
 
 sub oeis_dir {
   require File::Spec;
+  if ($without) {
+    return undef;
+  }
   return File::Spec->catfile ($ENV{'HOME'} || File::Spec->curdir,
                               'OEIS');
 }
@@ -56,9 +69,13 @@ sub read_values {
   my ($anum) = @_;
   $anum = anum_validate ($anum);
 
+  if ($without) {
+    return undef;
+  }
+
   my ($aref, $filename) = _read_values($anum);
   if (defined $aref) {
-    MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
+    # MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
   }
   return $aref;
 }

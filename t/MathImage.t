@@ -19,7 +19,7 @@
 
 use 5.008;
 use strict;
-use Test::More tests => 36;
+use Test::More tests => 38;
 
 use lib 't';
 use MyTestHelpers;
@@ -37,7 +37,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 54;
+  my $want_version = 55;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -75,6 +75,8 @@ foreach my $elem
      modules => ['Image::Base::GD'] ],
    [ ['--png','--module=GD'],
      modules => ['Image::Base::GD'] ],
+   [ ['--png','--module=Magick'],
+     modules => ['Image::Base::Magick'] ],
    [ ['--png','--module=Gtk2']
      # always have Image::Base::Gtk2::Gdk::Pixbuf
    ],

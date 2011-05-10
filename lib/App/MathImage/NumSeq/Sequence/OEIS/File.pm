@@ -15,6 +15,13 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# is_type('monotonic')
+#    from .internal sample values
+#    otherwise reading whole B-File
+#    subclass Sequence::File for b-file with extra info
+
+
 package App::MathImage::NumSeq::Sequence::OEIS::File;
 use 5.004;
 use strict;
@@ -25,7 +32,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -56,32 +63,34 @@ sub new {
   my ($class, %options) = @_;
   ### OEIS-File: %options
 
-  my $oeis_anum = $options{'oeis_anum'};
-  ### $oeis_anum
-  my $aref = _read_values($oeis_anum);
-  ### $aref
-  my %info = _read_internal($oeis_anum, $aref);
-  if (! %info) {
-    %info = _read_html($oeis_anum, $aref);
-  }
-  $aref ||= delete $info{'array'};
-
-  if (! $aref) {
-    croak "B-file or HTML not found for A-number \"",$oeis_anum,"\"";
-  }
-
-  if ($info{'type_hash'}->{'radix'}) {
-    my $max = 0;
-    foreach my $i (1 .. $#$aref) {
-      if ($aref->[$i] > 50) {
-        last;
-      }
-      if ($aref->[$i] > $max) {
-        $max = $aref->[$i];
-      }
+  my $aref = [];
+  my %info;
+  if (my $oeis_anum = $options{'oeis_anum'}) {
+    ### $oeis_anum
+    _read_values($oeis_anum);
+    ### $aref
+    %info = _read_internal($oeis_anum, $aref);
+    if (! %info) {
+      %info = _read_html($oeis_anum, $aref);
     }
-    $info{'values_max'} = $max;
-    $info{'radix'} = $max+1;
+    $aref ||= delete $info{'array'};
+    if (! $aref) {
+      croak "B-file or HTML not found for A-number \"",$oeis_anum,"\"";
+    }
+
+    if ($info{'type_hash'}->{'radix'}) {
+      my $max = 0;
+      foreach my $i (1 .. $#$aref) {
+        if ($aref->[$i] > 50) {
+          last;
+        }
+        if ($aref->[$i] > $max) {
+          $max = $aref->[$i];
+        }
+      }
+      $info{'values_max'} = $max;
+      $info{'radix'} = $max+1;
+    }
   }
 
   return $class->SUPER::new (%info,

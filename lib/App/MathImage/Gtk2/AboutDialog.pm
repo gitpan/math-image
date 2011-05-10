@@ -23,7 +23,7 @@ use Glib;
 use Gtk2;
 use Locale::TextDomain ('Math-Image');
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';
@@ -110,7 +110,7 @@ __END__
 # 
 # =back
 
-=for stopwords AboutDialog
+=for stopwords AboutDialog Ryde
 
 =head1 NAME
 

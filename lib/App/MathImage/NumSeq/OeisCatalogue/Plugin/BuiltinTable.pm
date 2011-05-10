@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
@@ -56,8 +56,18 @@ use constant info_arrayref =>
     'class' => 'App::MathImage::NumSeq::Sequence::CountHypots'
   },
   {
+    'anum' => 'A001221',
+    'class' => 'App::MathImage::NumSeq::Sequence::CountPrimeFactors',
+    'parameters_hashref' => {
+      'multiplicity' => 0
+    }
+  },
+  {
     'anum' => 'A001222',
-    'class' => 'App::MathImage::NumSeq::Sequence::CountPrimeFactors'
+    'class' => 'App::MathImage::NumSeq::Sequence::CountPrimeFactors',
+    'parameters_hashref' => {
+      'multiplicity' => 1
+    }
   },
   {
     'anum' => 'A000578',
@@ -540,8 +550,44 @@ use constant info_arrayref =>
     }
   },
   {
+    'anum' => 'A006450',
+    'class' => 'App::MathImage::NumSeq::Sequence::PrimeIndexPrimes'
+  },
+  {
+    'anum' => 'A049078',
+    'class' => 'App::MathImage::NumSeq::Sequence::PrimeIndexPrimes',
+    'parameters_hashref' => {
+      'level' => 2
+    }
+  },
+  {
+    'anum' => 'A049079',
+    'class' => 'App::MathImage::NumSeq::Sequence::PrimeIndexPrimes',
+    'parameters_hashref' => {
+      'level' => 3
+    }
+  },
+  {
+    'anum' => 'A049080',
+    'class' => 'App::MathImage::NumSeq::Sequence::PrimeIndexPrimes',
+    'parameters_hashref' => {
+      'level' => 4
+    }
+  },
+  {
+    'anum' => 'A049081',
+    'class' => 'App::MathImage::NumSeq::Sequence::PrimeIndexPrimes',
+    'parameters_hashref' => {
+      'level' => 5
+    }
+  },
+  {
     'anum' => 'A000040',
     'class' => 'App::MathImage::NumSeq::Sequence::Primes'
+  },
+  {
+    'anum' => 'A002110',
+    'class' => 'App::MathImage::NumSeq::Sequence::Primorials'
   },
   {
     'anum' => 'A002378',

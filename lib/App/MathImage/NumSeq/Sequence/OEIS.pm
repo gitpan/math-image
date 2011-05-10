@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,14 +34,14 @@ use constant description => __('OEIS sequence, by its A-number.  There\'s code f
 sub parameter_list {
   require App::MathImage::NumSeq::OeisCatalogue;
   return  ({
-            name    => 'oeis_anum',
-            display => __('A-number'),
-            width   => 8,
-            type         => 'string',
-            type_special => 'oeis_anum',
-            minimum => App::MathImage::NumSeq::OeisCatalogue->anum_first,
-            maximum => App::MathImage::NumSeq::OeisCatalogue->anum_last,
-            default => 'A000290', # Squares
+            name       => 'oeis_anum',
+            display    => __('A-number'),
+            type       => 'string',
+            type_hint  => 'oeis_anum',
+            width      => 8,
+            minimum    => App::MathImage::NumSeq::OeisCatalogue->anum_first,
+            maximum    => App::MathImage::NumSeq::OeisCatalogue->anum_last,
+            default    => 'A000290', # Squares
            });
 }
 ### parameter_list: parameter_list()

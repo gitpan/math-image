@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            54
+version:            55
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -28,7 +28,7 @@ requires:
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
     Gtk2::Ex::ComboBox::Enum:  5
-    Gtk2::Ex::ComboBox::PixbufType:  4
+    Gtk2::Ex::ComboBox::PixbufType:  31
     Gtk2::Ex::ComboBox::Text:  2
     Gtk2::Ex::ContainerBits:  21
     Gtk2::Ex::Dragger:    2
@@ -71,7 +71,7 @@ requires:
     Scope::Guard:         0
     Software::License::GPL_3:  0.001
     Term::Size:           0
-    Test::Weaken::Gtk2:   17
+    Test::Weaken::Gtk2:   39
     Text::Capitalize:     0
 resources:
     homepage:  http://user42.tuxfamily.org/math-image/index.html
@@ -116,6 +116,7 @@ optional_features:
             Gtk2::Ex::PodViewer:  0
             Image::Base::GD:      4
             Image::Base::Imager:  0
+            Image::Base::Magick:  0
             Image::Base::PNGwriter:  2
             Image::Base::Prima:   1
             Image::Base::X11::Protocol::Pixmap:  0

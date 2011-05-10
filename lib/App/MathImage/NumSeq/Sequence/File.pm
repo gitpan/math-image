@@ -15,6 +15,13 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# is_type('monotonic')
+#    only by reading the whole file
+#    assume seekable
+
+
+
 package App::MathImage::NumSeq::Sequence::File;
 use 5.004;
 use strict;
@@ -25,7 +32,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,9 +42,9 @@ use constant description => __('Numbers from a file');
 use constant parameter_list =>
   ({
     name    => 'filename',
+    type    => 'filename',
     display => __('Filename'),
     width   => 40,
-    type    => 'string',
     default => '',
    });
 

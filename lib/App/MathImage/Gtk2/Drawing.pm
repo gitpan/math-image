@@ -25,23 +25,25 @@ use List::Util qw(min max);
 use POSIX ();
 use Scalar::Util;
 use List::MoreUtils;
+use Module::Load;
+use App::MathImage::Generator;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
 use Gtk2 1.220; # for Gtk2::EVENT_PROPAGATE and probably more
 use Gtk2::Pango;
 use Locale::TextDomain ('App-MathImage');
 
 use Glib::Ex::SourceIds;
+use Glib::Ex::SignalIds;
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 use Gtk2::Ex::GdkBits 23; # v.23 for window_clear_region()
 
-use App::MathImage::Generator;
 use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -58,287 +60,96 @@ BEGIN {
      Even   => __('Even'),
      Primes => __('Primes'));
 
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::RotationType',
-                             'phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom');
-
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Parity',
-                             'odd', 'even');
-  Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Pairs',
-                             'first', 'second', 'both');
-
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::FigureType',
                              App::MathImage::Generator->figure_choices);
 }
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
-  signals => { expose_event => \&_do_expose,
+  signals => { expose_event  => \&_do_expose,
                size_allocate => \&_do_size_allocate,
                button_press_event => \&_do_button_press,
                scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
              },
-  properties => [ Glib::ParamSpec->enum
-                  ('values',
-                   'Values',
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::Values',
-                   App::MathImage::Generator->default_options->{'values'},
-                   Glib::G_PARAM_READWRITE),
+  properties => [
+                 Glib::ParamSpec->enum
+                 ('path',
+                  'Path type',
+                  'Blurb.',
+                  'App::MathImage::Gtk2::Drawing::Path',
+                  App::MathImage::Generator->default_options->{'path'},
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->enum
-                  ('filter',
-                   'Filter',
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::Filters',
-                   App::MathImage::Generator->default_options->{'filter'},
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->scalar
+                 ('path-parameters',
+                  'Path Parameters',
+                  'Blurb.',
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->enum
-                  ('values-parity',
-                   __('Parity'),
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::Parity',
-                   App::MathImage::Generator->default_options->{'parity'},
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->enum
-                  ('values-pairs',
-                   __('Pairs'),
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::Pairs',
-                   App::MathImage::Generator->default_options->{'pairs'},
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->enum
+                 ('values',
+                  'Values',
+                  'Blurb.',
+                  'App::MathImage::Gtk2::Drawing::Values',
+                  App::MathImage::Generator->default_options->{'values'},
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->enum
-                  ('path',
-                   'Path type',
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::Path',
-                   App::MathImage::Generator->default_options->{'path'},
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->scalar
+                 ('values-parameters',
+                  'Values Parameters',
+                  'Blurb.',
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->int
-                  ('scale',
-                   'Scale pixels',
-                   'Blurb.',
-                   1, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'scale'},
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->enum
+                 ('filter',
+                  'Filter',
+                  'Blurb.',
+                  'App::MathImage::Gtk2::Drawing::Filters',
+                  App::MathImage::Generator->default_options->{'filter'},
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string
-                  ('foreground',
-                   __('Foreground colour'),
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'foreground'},
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->int
+                 ('scale',
+                  'Scale pixels',
+                  'Blurb.',
+                  1, POSIX::INT_MAX(),
+                  App::MathImage::Generator->default_options->{'scale'},
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string
-                  ('values-fraction',
-                   __('Fraction'),
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'fraction'},
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->string
+                 ('foreground',
+                  __('Foreground colour'),
+                  'Blurb.',
+                  App::MathImage::Generator->default_options->{'foreground'},
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->scalar
-                  ('values-filename',
-                   __('Filename'),
-                   'Blurb.',
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->boolean
+                 ('draw-progressive',
+                  'Draw Progressive',
+                  'Blurb.',
+                  1,      # default
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string
-                  ('values-expression',
-                   __('Expression'),
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'expression'},
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->string
-                  ('values-expression-evaluator',
-                   'Expression Evaluator',
-                   'Blurb.',
-                   '',
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->object
+                 ('hadjustment',
+                  'Horizontal Adjustment',
+                  'Blurb.',
+                  'Gtk2::Adjustment',
+                  Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->object
+                 ('vadjustment',
+                  'Vertical Adjustment',
+                  'Blurb.',
+                  'Gtk2::Adjustment',
+                  Glib::G_PARAM_READWRITE),
 
-                  Glib::ParamSpec->string
-                  ('values-planepath-class',
-                   __('PlanePath Class'),
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'planepath_class'},
-                   Glib::G_PARAM_READWRITE),
-                  #
-                  Glib::ParamSpec->string
-                  ('values-delta-type',
-                   __('Delta Type'),
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'delta_type'},
-                   Glib::G_PARAM_READWRITE),
-                  #
-                  Glib::ParamSpec->string
-                  ('values-coord-type',
-                   __('Coordinate Type'),
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'coord_type'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->string
-                  ('values-oeis-anum',
-                   'A-number',
-                   'Blurb.',
-                   App::MathImage::Generator->default_options->{'oeis_anum'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->string
-                  ('values-aronson_lang',
-                   'aronson-lang',
-                   'Blurb.',
-                   'en',      # default
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->string
-                  ('values-aronson_letter',
-                   'aronson-letter',
-                   'Blurb.',
-                   '', # default
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->boolean
-                  ('values-aronson_conjunctions',
-                   'aronson-conjunctions',
-                   'Blurb.',
-                   1,      # default
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->boolean
-                  ('values-aronson_lying',
-                   'aronson-lying',
-                   'Blurb.',
-                   0,      # default
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('values-sqrt',
-                   'Square root',
-                   'Blurb.',
-                   0, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'sqrt'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->double
-                  ('values-spectrum',
-                   'Spectrum',
-                   'Blurb.',
-                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
-                   0,
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('values-polygonal',
-                   __('Polygonal'),
-                   'Blurb.',
-                   2, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'polygonal'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->double
-                  ('values-multiples',
-                   'Multiples',
-                   'Blurb.',
-                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
-                   App::MathImage::Generator->default_options->{'multiples'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('values-radix',
-                   'values-radix',
-                   'Blurb.',
-                   2, POSIX::INT_MAX(),
-                   2, # App::MathImage::Generator->default_options->{'radix'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('values-digit',
-                   'values-digit',
-                   'Blurb.',
-                   -1, POSIX::INT_MAX(),
-                   -1, # App::MathImage::Generator->default_options->{'digit'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('values-level',
-                   'values-level',
-                   'Blurb.',
-                   0, POSIX::INT_MAX(),
-                   0, # App::MathImage::Generator->default_options->{'level'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('path-wider',
-                   'path-wider',
-                   'Blurb.',
-                   0, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'path_wider'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->enum
-                  ('path-rotation-type',
-                   'path-rotation-type',
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::RotationType',
-                   App::MathImage::Generator->default_options->{'path_rotation_type'},
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->double
-                  ('path-rotation-factor',
-                   'path-rotation-factor',
-                   'Blurb.',
-                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
-                   0,
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->double
-                  ('path-radius-factor',
-                   'path-radius-factor',
-                   'Blurb.',
-                   - POSIX::DBL_MAX(), POSIX::DBL_MAX(),
-                   0,
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('pyramid-step',
-                   'pyramid-step',
-                   'Blurb.',
-                   1, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'pyramid_step'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->int
-                  ('rings-step',
-                   'rings-step',
-                   'Blurb.',
-                   0, POSIX::INT_MAX(),
-                   App::MathImage::Generator->default_options->{'rings_step'},
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->boolean
-                  ('draw-progressive',
-                   'draw-progressive',
-                   'Blurb.',
-                   1,      # default
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->object
-                  ('hadjustment',
-                   'hadjustment',
-                   'Blurb.',
-                   'Gtk2::Adjustment',
-                   Glib::G_PARAM_READWRITE),
-                  Glib::ParamSpec->object
-                  ('vadjustment',
-                   'vadjustment',
-                   'Blurb.',
-                   'Gtk2::Adjustment',
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->enum
-                  ('figure',
-                   'figure',
-                   'Blurb.',
-                   'App::MathImage::Gtk2::Drawing::FigureType',
-                   'default',
-                   Glib::G_PARAM_READWRITE),
+                 Glib::ParamSpec->enum
+                 ('figure',
+                  'Figure',
+                  'Blurb.',
+                  'App::MathImage::Gtk2::Drawing::FigureType',
+                  'default',
+                  Glib::G_PARAM_READWRITE),
                 ];
 
 sub INIT_INSTANCE {
@@ -544,7 +355,7 @@ sub pixmap {
 }
 
 sub gen_object {
-  my $self = shift;
+  my ($self, %gen_parameters) = @_;
   my (undef, undef, $width, $height) = $self->allocation->values;
   my $background_colorobj = $self->style->bg($self->state);
   my $foreground_colorobj = $self->style->fg($self->state);
@@ -552,51 +363,45 @@ sub gen_object {
     (map {0.8 * $background_colorobj->$_()
             + 0.2 * $foreground_colorobj->$_()}
      'red', 'blue', 'green');
-  my $path_rotation_type = $self->get('path-rotation-type');
-  return App::MathImage::Generator->new
-    (step_time       => _IDLE_TIME_SLICE,
+
+  my $generator_class = delete $gen_parameters{'generator_class'}
+    || 'App::MathImage::Generator';
+  ### $generator_class
+
+  Module::Load::load ($generator_class);
+  return $generator_class->new
+    (widget  => $self,
+     window  => $self->window,
+     gtkmain => $self->get_ancestor('Gtk2::Window'),
+
+     foreground       => $foreground_colorobj->to_string,
+     background       => $background_colorobj->to_string,
+     undrawnground    => $undrawnground_colorobj->to_string,
+     draw_progressive => $self->get('draw-progressive'),
+
+     path_parameters => {
+                         %{$self->{'path_parameters'} || {}},
+                         width           => $width,
+                         height          => $height,
+                        },
+     values_parameters => $self->{'values_parameters'},
+
+     width           => $width,
+     height          => $height,
+     step_time       => _IDLE_TIME_SLICE,
      step_figures    => _IDLE_TIME_FIGURES,
+
      values          => $self->get('values'),
      path            => $self->get('path'),
      scale           => $self->get('scale'),
      figure          => $self->get('figure'),
-     parity          => $self->get('values-parity'),
-     pairs           => $self->get('values-pairs'),
-     fraction        => $self->get('values-fraction'),
-     filename        => $self->get('values-filename'),
-     expression      => $self->get('values-expression'),
-     expression_evaluator => $self->get('values-expression-evaluator'),
-     oeis_anum       => $self->get('values-oeis-anum'),
-     planepath_class => $self->get('values-planepath-class'),
-     delta_type      => $self->get('values-delta-type'),
-     coord_type      => $self->get('values-coord-type'),
-     aronson_lang         => $self->get('values-aronson_lang'),
-     aronson_letter       => $self->get('values-aronson_letter'),
-     aronson_conjunctions => $self->get('values-aronson_conjunctions'),
-     aronson_lying        => $self->get('values-aronson_lying'),
-     sqrt            => $self->get('values-sqrt'),
-     spectrum        => $self->get('values-spectrum'),
-     polygonal       => $self->get('values-polygonal'),
-     multiples       => $self->get('values-multiples'),
-     radix           => $self->get('values-radix'),
-     digit           => $self->get('values-digit'),
-     level           => $self->get('values-level'),
-     ($path_rotation_type eq 'custom'
-      ? (path_rotation_factor => $self->get('path-rotation-factor'))
-      : (path_rotation_type  => $path_rotation_type)),
-     path_radius_factor  => $self->get('path-radius-factor'),
-     pyramid_step    => $self->get('pyramid-step'),
-     rings_step      => $self->get('rings-step'),
-     path_wider      => $self->get('path-wider'),
-     width           => $width,
-     height          => $height,
-     foreground      => $foreground_colorobj->to_string,
-     background      => $background_colorobj->to_string,
-     undrawnground   => $undrawnground_colorobj->to_string,
+
      filter          => $self->get('filter'),
      x_left          => $self->{'hadjustment'}->value,
      y_bottom        => $self->{'vadjustment'}->value,
-     @_);
+
+     widgetcursor    => $self->widgetcursor,
+     %gen_parameters);
 }
 sub x_negative {
   my ($self) = @_;
@@ -607,17 +412,20 @@ sub y_negative {
   return $self->gen_object->y_negative;
 }
 
+sub widgetcursor {
+  my ($self) = @_;
+  require Gtk2::Ex::WidgetCursor;
+  return ($self->{'widgetcursor'}
+          ||= Gtk2::Ex::WidgetCursor->new (widget => $self,
+                                           cursor => 'watch'));
+}
+
 sub start_drawing_window {
   my ($self, $window) = @_;
 
-  require Gtk2::Ex::WidgetCursor;
-  my $wc = Gtk2::Ex::WidgetCursor->new (widget => $self,
-                                        cursor => 'watch',
-                                        active => 1);
+  $self->widgetcursor->active(1);
 
   my (undef, undef, $width, $height) = $self->allocation->values;
-  my $path_rotation_type = $self->get('path-rotation-type');
-
   my $style = $self->style;
   my $background_colorobj = $style->bg($self->state);
   my $foreground_colorobj = $style->fg($self->state);
@@ -631,57 +439,8 @@ sub start_drawing_window {
     $colormap->rgb_find_color ($undrawnground_colorobj);
   }
 
-  require App::MathImage::Gtk2::Generator;
-  my $gen = $self->{'generator'} = App::MathImage::Gtk2::Generator->new
-    (widget  => $self,
-     window => $window,
-     gtkmain => $self->get_ancestor('Gtk2::Window'),
-
-     foreground       => $foreground_colorobj->to_string,
-     background       => $background_colorobj->to_string,
-     undrawnground    => $undrawnground_colorobj->to_string,
-     draw_progressive => $self->get('draw-progressive'),
-
-     values          => $self->get('values'),
-     path            => $self->get('path'),
-     scale           => $self->get('scale'),
-     figure          => $self->get('figure'),
-     parity          => $self->get('values-parity'),
-     pairs           => $self->get('values-pairs'),
-     fraction        => $self->get('values-fraction'),
-     filename        => $self->get('values-filename'),
-     expression      => $self->get('values-expression'),
-     expression_evaluator => $self->get('values-expression-evaluator'),
-     oeis_anum       => $self->get('values-oeis-anum'),
-     planepath_class => $self->get('values-planepath-class'),
-     delta_type      => $self->get('values-delta-type'),
-     coord_type      => $self->get('values-coord-type'),
-     aronson_lang         => $self->get('values-aronson_lang'),
-     aronson_letter       => $self->get('values-aronson_letter'),
-     aronson_conjunctions => $self->get('values-aronson_conjunctions'),
-     aronson_lying        => $self->get('values-aronson_lying'),
-     sqrt            => $self->get('values-sqrt'),
-     spectrum        => $self->get('values-spectrum'),
-     polygonal       => $self->get('values-polygonal'),
-     multiples       => $self->get('values-multiples'),
-     radix           => $self->get('values-radix'),
-     digit           => $self->get('values-digit'),
-     level           => $self->get('values-level'),
-     ($path_rotation_type eq 'custom'
-      ? (path_rotation_factor => $self->get('path-rotation-factor'))
-      : (path_rotation_type  => $path_rotation_type)),
-     path_radius_factor  => $self->get('path-radius-factor'),
-     pyramid_step    => $self->get('pyramid-step'),
-     rings_step      => $self->get('rings-step'),
-     path_wider      => $self->get('path-wider'),
-     width           => $width,
-     height          => $height,
-     filter          => $self->get('filter'),
-     x_left          => $self->{'hadjustment'}->value,
-     y_bottom        => $self->{'vadjustment'}->value,
-
-     widgetcursor    => $wc,
-    );
+  my $gen = $self->{'generator'}
+    = $self->gen_object (generator_class => 'App::MathImage::Gtk2::Generator');
 
   $self->{'path_object'} = $gen->path_object;
   $self->{'affine_object'} = $gen->affine_object;

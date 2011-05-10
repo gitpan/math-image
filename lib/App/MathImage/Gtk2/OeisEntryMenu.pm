@@ -22,7 +22,7 @@ use warnings;
 use Gtk2;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',
@@ -84,11 +84,11 @@ sub popup_from_entry {
 1;
 __END__
 
-=for stopwords undef
+=for stopwords OEIS entrybox OeisEntry Ryde
 
 =head1 NAME
 
-App::MathImage::OeisEntryMenu -- menu of things in an OEIS entrybox
+App::MathImage::Gtk2::OeisEntryMenu -- menu of things in an OEIS entrybox
 
 =for test_synopsis my ($event, $oeis_entry)
 
@@ -135,7 +135,7 @@ key/value pairs set initial properties as per C<< Glib::Object->new >>.
 
 =over 4
 
-=item C<anum> (string, default undef)
+=item C<anum> (string, default C<undef>)
 
 The A-number to act on in the menu.  Normally this is set at the time the
 menu is popped up.  Changing it while popped up works, but could confuse the
@@ -145,7 +145,7 @@ user.
 
 =head1 SEE ALSO
 
-L<App::MathImage::OeisEntry>, L<Gtk2::Menu>
+L<App::MathImage::Gtk2::OeisEntry>, L<Gtk2::Menu>
 
 =head1 HOME PAGE
 
@@ -166,6 +166,6 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 more details.
 
 You should have received a copy of the GNU General Public License along with
-Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+Math-Image.  If not, see L<http://www.gnu.org/licenses/>.
 
 =cut

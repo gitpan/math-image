@@ -27,7 +27,7 @@ use Prima 'Application';
 use Prima::Buttons;
 use Prima::ComboBox;
 use Prima::Label;
-use Prima::Sliders;
+use Prima::Sliders; # SpinEdit
 use App::MathImage::Prima::Drawing;
 use App::MathImage::Generator;
 
@@ -35,7 +35,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -235,10 +235,10 @@ sub _update {
                                         my ($spin) = @_;
                                         ### Main wider onChange
                                         my $wider = $spin->value;
-                                        $self->{'draw'}->gen_options (path_wider => $wider);
+                                        $self->{'draw'}->path_parameters (wider => $wider);
                                       },
                                      );
-    $self->{'path_wider_spin'}->value ($gen_options->{'path_wider'});
+    $self->{'path_wider_spin'}->value ($self->{'draw'}->path_parameters->{'wider'});
   } else {
     if (my $spin = delete $self->{'path_wider_spin'}) {
       $spin->destroy;

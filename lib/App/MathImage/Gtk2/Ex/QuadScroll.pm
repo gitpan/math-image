@@ -28,7 +28,7 @@ use App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use Glib::Object::Subclass
   'Gtk2::Table',

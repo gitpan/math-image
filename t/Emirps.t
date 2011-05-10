@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Sequence::Emirps;
 # VERSION
 
 {
-  my $want_version = 54;
+  my $want_version = 55;
   is ($App::MathImage::NumSeq::Sequence::Emirps::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Emirps->VERSION,  $want_version, 'VERSION class method');
 

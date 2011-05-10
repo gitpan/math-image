@@ -23,6 +23,7 @@ use warnings;
 use Carp;
 use Scalar::Util;
 use Glib 1.220; # for SOURCE_REMOVE
+use Glib::Ex::SourceIds;
 
 use Image::Base::Gtk2::Gdk::Pixmap;
 use base 'App::MathImage::Generator';
@@ -30,11 +31,13 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
 use constant _PRIORITY => Glib::G_PRIORITY_LOW();  # below redraw
+
+### *DESTROY = sub { print "Gtk2-Generator DESTROY\n" }
 
 sub new {
   my $class = shift;
@@ -48,9 +51,10 @@ sub new {
   if ($self->{'gtkmain'}) { Scalar::Util::weaken ($self->{'gtkmain'}); }
   if ($self->{'widget'})  { Scalar::Util::weaken ($self->{'widget'}); }
 
-  my $window = $self->{'window'}; # either Drawing widget window or rootwin
-  ### window: "$window"
-
+  # either Drawing widget window or rootwin
+  ### window: "$self->{'window'}"
+  my $window = $self->{'window'}
+    || croak 'Gtk2-Generator no window specified';
   my ($width, $height) = $window->get_size;
 
   my $image
@@ -92,13 +96,12 @@ sub new {
 
   Scalar::Util::weaken (my $weak_self = $self);
   _sync_handler (\$weak_self);
-  require Gtk2::Ex::WidgetCursor;
   return $self;
 }
 
 sub _sync_handler {
   my ($ref_weak_self) = @_;
-  ### _sync_handler()
+  ### Gtk2-Generator _sync_handler()
   my $self = $$ref_weak_self || return;
 
   $self->{'sync_pending'} = 0;
@@ -111,7 +114,7 @@ sub _sync_handler {
 
 sub _idle_handler_draw {
   my ($ref_weak_self) = @_;
-  ### _idle_handler_draw()
+  ### Gtk2-Generator _idle_handler_draw()
 
   if (my $self = $$ref_weak_self) {
     $self->{'idle_ids'}->remove;
@@ -134,13 +137,18 @@ sub _idle_handler_draw {
 
 sub _drawing_finished {
   my ($self) = @_;
-  ### _drawing_finished()
+  ### Gtk2-Generator _drawing_finished()
+
   my $pixmap = $self->{'pixmap'};
   my $window = $self->{'window'};
   ### set_back_pixmap: "$pixmap"
   $window->set_back_pixmap ($pixmap);
   _gdkwindow_invalidate_all ($window);
-  delete $self->{'widgetcursor'};
+  if (my $wc = $self->{'widgetcursor'}) {
+    $wc->active(0);
+    # Scalar::Util::weaken($wc);
+    # ### $wc
+  }
 
   # if ($drawing->{'window'} == $self->window) {
   #   $self->queue_draw;

@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -45,29 +45,31 @@ use constant default_options => {
                                  height       => 10,
                                  foreground   => 'white',
                                  background   => 'black',
-                                 fraction     => '5/29',
-                                 sqrt         => '2',
-                                 spectrum     => (sqrt(5)+1)/2,
-                                 polygonal    => 5,
-                                 multiples    => 90,
-                                 parity       => 'odd',
-                                 pairs        => 'first',
-                                 radix        => 10,
-                                 aronson_lang         => 'en',
-                                 aronson_letter       => '',
-                                 aronson_conjunctions => 1,
-                                 aronson_lying        => 0,
-                                 pyramid_step    => 2,
-                                 rings_step      => 6,
-                                 path_wider      => 0,
-                                 path_rotation_type => 'phi',
-                                 expression      => '3*x^2 + x + 2',
                                  filter          => 'All',
-                                 oeis_anum       => 'A000290',
-                                 planepath_class => 'SquareSpiral',
-                                 delta_type      => 'X',
-                                 coord_type      => 'X',
+
+                                 # hack for prima code
+                                 path_parameters => { wider => 0 },
+
+                                 # fraction     => '5/29',
+                                 # sqrt         => '2',
+                                 # spectrum     => (sqrt(5)+1)/2,
+                                 # polygonal    => 5,
+                                 # multiples    => 90,
+                                 # parity       => 'odd',
+                                 # multiplicity => 'repeated',
+                                 # pairs        => 'first',
+                                 # radix        => 10,
+                                 # aronson_lang         => 'en',
+                                 # aronson_letter       => '',
+                                 # aronson_lying        => 0,
+                                 # path_rotation_type => 'phi',
+                                 # expression      => '3*x^2 + x + 2',
+                                 # planepath_class => 'SquareSpiral',
+                                 # delta_type      => 'X',
+                                 # coord_type      => 'X',
                                 };
+
+### *DESTROY = sub { print "Generator DESTROY\n" }
 
 sub new {
   my $class = shift;
@@ -175,13 +177,19 @@ sub values_class {
 }
 sub values_object {
   my ($self) = @_;
-  ### Generator values_object()
   my $values_class = $self->values_class($self->{'values'});
+  ### Generator values_object()
+  ### $values_class
+  ### values_parameters: $self->{'values_parameters'}
 
-  my $values_obj = eval { $values_class->new (%$self, hi => 100) };
+  my $values_obj = eval {
+    $values_class->new (%{$self->{'values_parameters'}||{}},
+                        hi => 100)
+  };
   if (! $values_obj) {
     my $err = $@;
     ### values_obj error: $@
+    die $err;
   } else {
     ### ret: "$values_obj"
   }
@@ -263,7 +271,21 @@ use constant figure_choices => qw(default
 
 sub random_options {
   my ($class) = @_;
-  my @ret;
+  my $values_parameters =
+    {
+     polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
+     pairs     => _rand_of_array(['first','second','both']),
+     parity    => _rand_of_array(['odd','even']),
+     # aronson
+     lang         => _rand_of_array(['en','fr']),
+     conjunctions => int(rand(2)),
+     lying        => (rand() < .25), # less likely
+    };
+  my $path_parameters =
+    {
+    };
+  my @ret = (values_parameters => $values_parameters,
+             path_parameters => $path_parameters);
 
   my @path_and_values;
   foreach my $path ($class->path_choices) {
@@ -272,7 +294,7 @@ sub random_options {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
       # $path =~ /MathImageFlowsnake/   reasonably ok
-      if ($path =~ /MathImagePythagoreanUAD/  # too wild
+      if ($path =~ /MathImagePythagorean/  # too wild yet
           || $values eq 'LinesLevel') {
         next;  # experimental
       }
@@ -319,7 +341,7 @@ sub random_options {
     } else {
       $radix = _rand_of_array([2 .. 36]);
     }
-    push @ret, radix => $radix;
+    $values_parameters->{'radix'} = $radix;
   }
 
   {
@@ -340,12 +362,12 @@ sub random_options {
     my $num = _rand_of_array(\@primes);
     @primes = grep {$_ != $num} @primes;
     my $den = _rand_of_array(\@primes);
-    push @ret, fraction => "$num/$den",
+    $values_parameters->{'fraction'} = "$num/$den";
   }
   {
     my @primes = Math::Prime::XS::sieve_primes(2,100);
     my $sqrt = _rand_of_array(\@primes);
-    push @ret, sqrt => $sqrt,
+    $values_parameters->{'sqrt'} = $sqrt;
   }
 
   {
@@ -353,14 +375,14 @@ sub random_options {
     if ($pyramid_step > 12) {
       $pyramid_step = 2;  # most of the time
     }
-    push @ret, pyramid_step => $pyramid_step;
+    $path_parameters->{'step'} = $pyramid_step;
   }
-  {
+  if ($path eq 'MultipleRings') {  # FIXME: go from parameter_list
     my $rings_step = int(rand(20));
     if ($rings_step > 15) {
       $rings_step = 6;  # more often
     }
-    push @ret, rings_step => $rings_step;
+    $path_parameters->{'step'} = $rings_step;
   }
   {
     my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
@@ -369,15 +391,16 @@ sub random_options {
     if ($path eq 'ZOrderCurve') {
       $path_wider = 0; # min (1, $path_wider);
     }
-    push @ret, path_wider => $path_wider;
+    $path_parameters->{'wider'} = $path_wider;
   }
   {
-    push @ret, path_rotation_type => _rand_of_array(['phi','phi','phi','phi',
-                                                     'sqrt2','sqrt2',
-                                                     'sqrt3',
-                                                     'sqrt5',
-                                                    ])
-      # path_rotation_factor => $rotation_factor,
+    $path_parameters->{'rotation_type'}
+      = _rand_of_array(['phi','phi','phi','phi',
+                        'sqrt2','sqrt2',
+                        'sqrt3',
+                        'sqrt5',
+                       ]);
+    # path_rotation_factor => $rotation_factor,
   }
   {
     my @figure_choices = $class->figure_choices;
@@ -399,13 +422,8 @@ sub random_options {
   }
 
   return (@ret,
-          polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
           # spectrum  => $spectrum,
-          aronson_lang         => _rand_of_array(['en','fr']),
-          aronson_conjunctions => int(rand(2)),
-          aronson_lying        => (rand() < .25), # less likely
-          parity               => _rand_of_array(['odd','even']),
-          pairs                => _rand_of_array(['first','second','both']),
+
           #
           # FIXME: don't want to filter out everything ... have values
           # classes declare their compositeness, parity, etc
@@ -460,22 +478,20 @@ sub description {
   # } elsif ($self->{'values'} eq 'ThueMorse') {
   #   $ret .= ' '.($self->{'parity'} eq 'odd' ? __('odd') : __('even'));
 
-  # } elsif ($self->{'values'} eq 'Polygonal') {
-  #     $ret .= ' '.$self->{'pairs'};
   if ($values eq 'Aronson') {
-    my $lang = $self->{'aronson_lang'};
-    if ($lang ne default_options()->{'aronson_lang'}) {
+    my $lang = $self->{'lang'} || 'en';
+    if ($lang ne 'en') {
       $ret .= " $lang";
     }
     my $default_letter = ($lang eq 'en' ? 'T'
                           : $lang eq 'fr' ? 'E'
                           : '');
-    my $letter = $self->{'aronson_letter'};
-    if ($letter ne '' && $letter ne $default_letter) {
+    my $letter = $self->{'letter'} || $default_letter;
+    if ($letter ne $default_letter) {
       $ret .= " \U$letter";
     }
   }
-  if ($self->{'filter'} ne 'All') {
+  if (($self->{'filter'}||'') ne 'All') {
     $ret .= __x(" filtered {name}",
                 name => $self->values_class($self->{'filter'})->name);
   }
@@ -508,18 +524,16 @@ sub path_object {
       croak $err;
     }
 
-    my $scale = $self->{'scale'};
-    $path_class->new
-      (width    => ceil($self->{'width'} / $scale),
-       height   => ceil($self->{'height'} / $scale),
-       step     => ($path_class eq 'Math::PlanePath::PyramidRows'
-                    ? $self->{'pyramid_step'}
-                    : $self->{'rings_step'}),
-       wider    => $self->{'path_wider'},
-       rotation_type  => $self->{'path_rotation_type'},
-       rotation_factor => $self->{'path_rotation_factor'},
-       radius_factor  => $self->{'path_radius_factor'})
-    });
+    my $scale = $self->{'scale'} || 1;
+    my %parameters = %{$self->{'path_parameters'} || {}};
+    ### %parameters
+    $parameters{'width'} = ceil(($parameters{'width'}||0) / $scale);
+    $parameters{'height'} = ceil(($parameters{'height'}||0) / $scale);
+    if (($parameters{'rotation_type'}||'') eq 'custom') {
+      delete $parameters{'rotation_type'};
+    }
+    $path_class->new (%parameters)
+  });
 }
 sub x_negative {
   my ($self) = @_;
@@ -571,6 +585,10 @@ use constant _RECTANGLES_CHUNKS => 200 * 4;  # of X1,Y1,X2,Y2
 sub covers_plane {
   my ($self) = @_;
   if ($self->{'background'} eq $self->{'undrawnground'}) {
+    return 1;
+  }
+  if ($self->{'values'} eq 'Lines' || $self->{'values'} eq 'LinesLevel') {
+    # no undrawnground when drawing lines
     return 1;
   }
   my $path_object = $self->path_object;
@@ -849,8 +867,9 @@ sub draw_Image_start {
 
   } else {
     my $values_class = $self->values_class($self->{'values'});
+    ### values_parameters: $self->{'values_parameters'}
     my $values_obj = $self->{'values_obj'}
-      = $values_class->new (%$self,
+      = $values_class->new (%{$self->{'values_parameters'} || {}},
                             lo => $n_lo,
                             hi => $n_hi);
 
@@ -898,8 +917,8 @@ sub draw_Image_start {
     }
     ### values_obj: $self->{'values_obj'}
 
-    my $filter = $self->{'filter'};
-    $self->{'filter_obj'} = $filter &&
+    my $filter = $self->{'filter'} || 'All';
+    $self->{'filter_obj'} =
       $self->values_class($filter)->new (lo => $n_lo,
                                          hi => $n_hi);
   }
@@ -1301,7 +1320,6 @@ sub draw_Image_steps {
       my ($i, $value) = $values_obj->next;
       ### $n_prev
       ### $n
-      ### $count
       my $n = ($use_colours ? $i : $value);
       if (! defined $n || $n > $n_hi) {
         ### final background fill
@@ -1585,7 +1603,7 @@ sub _gettime {
 BEGIN {
   unless (eval { _gettime(); 1 }) {
     ### _gettime() no clock_gettime(): $@
-    no warnings;
+    local $^W = undef; # no warnings;
     *_gettime = \&Time::HiRes::time;
   }
 }

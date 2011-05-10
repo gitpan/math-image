@@ -15,6 +15,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+# ->anum_to_inverse
+# ->dbi
+
+
+
+
 package App::MathImage::NumSeq::OeisCatalogue;
 use 5.004;
 use strict;
@@ -28,7 +36,7 @@ my @plugins = sort __PACKAGE__->plugins;
 ### @plugins
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # sub seq_to_num {
 #   my ($class, $num) = @_;

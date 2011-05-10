@@ -131,13 +131,13 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
-    'Test::Weaken::Gtk2'       => 17, # new in v.17
+    'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
 
     # my Gtk2-Ex-ComboBoxBits
     # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
     'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
     'Gtk2::Ex::ComboBox::Text' => 2,
-    'Gtk2::Ex::ComboBox::PixbufType' => 4, # new in version 4
+    'Gtk2::Ex::ComboBox::PixbufType' => 31, # v.31 fix initial for_width
     'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
     'Gtk2::Ex::ToolItem::ComboEnum' => 28, # new in version 28
 
@@ -221,6 +221,7 @@ MyMakeMakerExtras::WriteMakefile
                      'Image::Xpm'             => 0,
                      'Image::Base::GD'        => 4, # bug fixes
                      'Image::Base::Imager'    => 0,
+                     'Image::Base::Magick'    => 0,
                      'Image::Base::PNGwriter' => 2, # bug fixes
 
                      'Math::Aronson'  => 4, # version 4 for lying

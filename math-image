@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 exit App::MathImage->command_line;
 
 __END__
@@ -116,7 +116,8 @@ The triangular numbers 1, 3, 6, 10, 15, 21, etc, k*(k+1)/2.
 
 =item --polygonal=K
 
-The K-sided polygon numbers.
+The K-sided polygon numbers.  For example C<--polygonal=3> is the triangular
+numbers, C<--polygonal=4> is the squares.
 
 =item --cubes
 
@@ -197,8 +198,8 @@ Draw following the given C<Math::PlanePath> module.  For example
 
     math-image --path=HeptSpiralSkewed
 
-This can also select experimental paths called "MathImageFoo" though those
-names will change.
+This can also select experimental paths called "MathImageFoo" (the names
+change when completed).
 
 =item --ulam
 
@@ -241,7 +242,8 @@ A pyramid made from horizontal rows (see L<Math::PlanePath::PyramidRows>).
 
 =item --diagonals
 
-Diagonals between the X and Y axes, per L<Math::PlanePath::Diagonals>.
+Corners or diagonals between the X and Y axes, per
+L<Math::PlanePath::Corner> and L<Math::PlanePath::Diagonals>.
 
 =item --rows
 
@@ -259,9 +261,9 @@ The default is to run the Gtk GUI.
 
 =item --fullscreen
 
-Run the GUI starting in full screen mode.  Menu entry Tools/Fullscreen
-toggles between full screen and a normal window.  In full screen mode the
-menus can still be used, just press Alt-F, Alt-T, etc as normal.
+Start the GUI in full screen mode.  Menu entry Tools/Fullscreen can toggle
+between full screen and a normal window.  In full screen mode the menus
+still work, just press Alt-F, Alt-T, etc as normal.
 
 =item --root
 
@@ -270,22 +272,21 @@ a random image from your F<~/.xsession> file,
 
     math-image --root --random
 
-Add C<--verbose> to print what was in fact chosen and displayed.  (From
-F<~/.xsession>) output normally goes to the F<~/.xsession-errors> file.)
+Add C<--verbose> to print what was in fact chosen and displayed.  (Output in
+F<~/.xsession> normally goes to the F<~/.xsession-errors> file.)
 
 Under X the root window is set with C<X11::Protocol> if available, otherwise
 C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
-C<--background> colours to be preserved on a pseudo-colour screen.  C<Gtk2>
-is fine on a true-colour screen, or black and white (being permanent in the
-default colormap), but otherwise colours won't be preserved.
+C<--background> colours to be preserved on a PseudoColor visual.  C<Gtk2> is
+fine on a TrueColor, or using black and white (those colours permanent in
+the default colormap), but otherwise colours won't be preserved.
 
 =item --flash
 
 Flash the requested image on the screen instead of starting the GUI.
-Together with C<--root> the image is flashed as well as set as the
-background.  This is good if updating the background randomly every so
-often, as it shows the image when windows might otherwise obscuring most of
-it.
+Together with C<--root> the image is drawn to the root then flashed as well.
+This is good if updating the background randomly every so often, as it shows
+the image when otherwise obscured by lots of windows.
 
     math-image --root --random --flash
 
@@ -302,13 +303,16 @@ C<DISPLAY> environment variable (normally set at X startup).
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
 possible with GdkPixbuf but can also use C<Image::Base::GD>,
-C<Image::Base::PNGwriter> or C<Image::Base::Prima> and their respective
-supporting libraries.
+C<Image::Base::PNGwriter>, C<Image::Base::Imager>, C<Image::Base::Magick> or
+C<Image::Base::Prima::Image> and their respective supporting libraries.
 
     math-image --png >/tmp/my-file.png
 
-XPM output requires either C<Image::Xpm> or C<Image::Base::Prima>.  Prima
-for X11 requires an X server to do the drawing, of either PNG or XPM.
+XPM output requires either C<Image::Xpm>, C<Image::Base::Magick> or
+C<Image::Base::Prima::Image>.
+
+Note that Prima for X11 requires an X server to do its drawing, either PNG
+or XPM (expect an obscure error if no display).
 
 =item --text
 
@@ -321,9 +325,9 @@ line printer or similar.
 
 =item --prima
 
-Run the Prima GUI.  This requires the C<Prima> and C<Image::Base::Prima>
-modules.  This doesn't yet have the full set of options the Gtk GUI does,
-but it works as far as it goes.
+Run the Prima GUI.  This requires the C<Prima> and
+C<Image::Base::Prima::Drawable> modules.  It doesn't yet have the full set
+of options the Gtk GUI does, but works as far as it goes.
 
 A combination C<--prima --png> means write a PNG image to standard output,
 using Prima.
@@ -374,14 +378,14 @@ Set the size of the image in pixels.  A single value means that size square,
 otherwise WIDTHxHEIGHT.  For C<--root> this size is currently ignored and
 the full screen used.
 
-For the GUI this is an initial size for the image, though it may be widened
-to accommodate the menubar.  Under C<--fullscreen> this size is the
+For the GUI this is an initial size, though it might be widened to
+accommodate the menubar.  Under C<--fullscreen> the size is the
 unfullscreened window if you switch back to that (menu entry
 Tools/Fullscreen).
 
 The default for the GUI is about 4/5 of the screen.  The default for PNG etc
 image file output is an arbitrary 200x200, or for C<--text> output the size
-of the terminal per C<Term::Size>.
+of the terminal from C<Term::Size>.
 
 =item --scale=PIXELS
 

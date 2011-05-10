@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 sub profile_default {
   my ($class) = @_;
@@ -43,26 +43,39 @@ sub init {
   my ($self, %profile) = @_;
   ### Drawing init(): @_
   $profile{'gen_options'} = { %{App::MathImage::Generator->default_options},
-                             %{$profile{'gen_options'} || {}} }; # copy
+                              %{$profile{'gen_options'} || {}} }; # copy
   $self->{'gen_options'} = $profile{'gen_options'};
   return $self->SUPER::init (%profile);
 }
 
 sub gen_options {
   my $self = shift;
-  ### gen_options()
+  ### Prima Drawing gen_options(): @_
   ### $self
   my $gen_options = $self->{'gen_options'};
   if (@_) {
     %$gen_options = (%$gen_options, @_);
+    ### repaint
     $self->repaint;
   }
   return $gen_options;
 }
+sub path_parameters {
+  my $self = shift;
+  ### Prima Drawing path_options(): @_
+  ### $self
+  my $path_parameters = ($self->gen_options->{'path_parameters'} ||= {});
+  if (@_) {
+    %$path_parameters = (%$path_parameters, @_);
+    ### repaint
+    $self->repaint;
+  }
+  return $path_parameters;
+}
 
 sub on_paint {
   my ($self, $canvas) = @_;
-  ### _paint
+  ### Prima Drawing on_paint()
   $canvas->clear;
   $canvas->fill_ellipse(50,50, 20,20);
 
@@ -71,7 +84,7 @@ sub on_paint {
 
 sub _draw_image {
   my ($drawable, $gen_options) = @_;
-  ### _draw_image(): ref($drawable)
+  ### Prima Drawing _draw_image(): ref($drawable)
 
   my $gen = App::MathImage::Generator->new
     (step_time       => 0.25,

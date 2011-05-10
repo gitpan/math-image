@@ -73,13 +73,15 @@ $|=1;
     $values_class = $gen->values_class('Odd');
     $values_class = $gen->values_class('Factorials');
     $values_class = $gen->values_class('SumTwoSquares');
-    $values_class = $gen->values_class('PythagoreanHypots');
     $values_class = $gen->values_class('PlanePathCoord');
     $values_class = $gen->values_class('Palindromes');
     # $values_class = $gen->values_class('MathSequence');
     $values_class = $gen->values_class('DigitLength');
     $values_class = $gen->values_class('DigitLengthCumulative');
     $values_class = $gen->values_class('OEIS');
+    $values_class = $gen->values_class('CountHypots');
+    $values_class = $gen->values_class('PrimeIndexCount');
+    $values_class = $gen->values_class('Primorials');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',

@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -38,16 +38,62 @@ use constant oeis_anum => 'A000161';
 
 # sub new {
 #   my ($class, %options) = @_;
-#   my $lo = $options{'lo'} || 0;
-#   my $hi = $options{'hi'};
-#   $lo = max (0, $lo);
-#   $hi = max (0, $hi);
+#   ### CountHypots new()
 # 
-#   my $i = 0;
-#   my $self = bless { i => $i,
-#                    }, $class;
-#   return $self;
+#   $options{'lo'} = max (0, $options{'lo'}||0);
+#   my $hi = $options{'hi'} = max (0, $options{'hi'});
+# 
+#   my $str = "\0\0\0\0" x ($options{'hi'}+1);
+#   for (my $j = 2; $j <= $hi; $j += 2) {
+#     vec($str, $j,8) = 2*1-1;
+#   }
+#   return $class->SUPER::new (%options,
+#                              string => $str);
 # }
+# 
+# sub rewind {
+#   my ($self) = @_;
+#   ### CountHypots rewind()
+#   $self->{'i'} = 0;
+#   while ($self->{'i'} < $self->{'lo'}-1) {
+#     $self->next;
+#   }
+# }
+# 
+# sub next {
+#   my ($self) = @_;
+#   ### CountHypots next() from: $self->{'i'}
+# 
+#   my $i = $self->{'i'}++;
+#   my $hi = $self->{'hi'};
+#   if ($i > $hi) {
+#     return;
+#   }
+#   my $cref = \$self->{'string'};
+# 
+#   my $ret = vec ($$cref, $i,8);
+#   if ($ret == 0 && $i >= 3 && ($i&3) == 1) {
+#     ### prime 4k+1: $i
+#     $ret = 1;
+#     for (my $j = $i; $j <= $hi; $j += $i) {
+#       vec($$cref, $j,8) ++;
+#     }
+# 
+#     # print "applied: $i\n";
+#     # for (my $j = 0; $j < $hi; $j++) {
+#     #   printf "  %2d %2d\n", $j, vec($$cref, $j,8);
+#     # }
+#   }
+#   return ($i, $ret);
+# }
+# 
+# sub pred {
+#   my ($self, $n) = @_;
+#   ### CountHypots pred(): $n
+#   return 1;
+# }
+
+
 
 sub rewind {
   my ($self) = @_;

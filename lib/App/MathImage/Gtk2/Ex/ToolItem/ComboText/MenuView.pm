@@ -26,7 +26,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::ComboText::MenuItem;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 54;
+our $VERSION = 55;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',
@@ -88,8 +88,8 @@ sub set_active_item {
   }
   if (my $toolitem = $self->{'toolitem'}) {
     if (my $combobox = $toolitem->get_child) {
-      _combobox_set_active_path ($combobox,
-                                 $item && $self->item_get_path($item));
+      Gtk2::Ex::ComboBoxBits::set_active_path
+          ($combobox, $item && $self->item_get_path($item));
     }
   }
 }

@@ -15,6 +15,32 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# is_type('monotonic')      strictly non-decreasing
+# is_type('monotonic_from_i')   beyond a given value or i
+
+
+# ->add ->sub   of sequence or constant
+# ->mul
+# ->mod($k)    of constant
+# overloads
+# ->shift
+# ->inverse  some with known ways to calculate
+# ->is_subset_of
+#
+# ->value_to_i_floor
+# ->pred undef if unknown ?
+
+
+# lo,hi   i or value
+# lo_value,hi_value
+
+# Sequence::Array from arrayref
+# Derived::Interleave
+
+
+
+
 package App::MathImage::NumSeq::Sequence;
 use 5.004;
 use strict;
@@ -22,7 +48,7 @@ use strict;
 use App::MathImage::NumSeq::Base '__';
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -90,9 +116,11 @@ sub new {
   ### Sequence new(): $class
   $self{'lo'} ||= 0;
   my $self = bless \%self, $class;
+
   foreach my $pinfo ($self->parameter_list) {
     my $pname = $pinfo->{'name'};
     if (! defined $self->{$pname}) {
+      ### default: $pname
       $self->{$pname} = $pinfo->{'default'};
     }
   }
