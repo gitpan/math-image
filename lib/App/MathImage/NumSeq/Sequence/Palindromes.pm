@@ -25,7 +25,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 55;
+$VERSION = 56;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,6 +33,7 @@ $VERSION = 55;
 use constant name => __('Palindromes');
 use constant values_min => 0;
 use constant description => __('Numbers which are "palindromes" reading the same backwards or forwards, like 153351.  Default is decimal, or select a radix.');
+use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 
 # palindomric primes
 # 'A002385', # 10
@@ -68,7 +69,6 @@ sub oeis_anum {
 # OeisCatalogue: A002113 radix=10
 
 
-use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
 
   # my @digits;
   # while ($lo > 0) {

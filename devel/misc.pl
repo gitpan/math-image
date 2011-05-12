@@ -82,12 +82,13 @@ $|=1;
     $values_class = $gen->values_class('CountHypots');
     $values_class = $gen->values_class('PrimeIndexCount');
     $values_class = $gen->values_class('Primorials');
+    $values_class = $gen->values_class('ReverseAddCount');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
                                          lo => 1,
                                          hi => 200*$rep,
-                                         radix => 4,
+                                         radix => 10,
                                          digit => 0,
                                          # expression => 'z=3; z*x^2 + 3*x + 2',
                                          expression => 'x^2 + 3*x + 2',
@@ -102,7 +103,7 @@ $|=1;
     if ($values_obj->is_type('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
-    foreach (1 .. 110) {
+    foreach (1 .. 11) {
       my ($i,$value) = $values_obj->next;
       if (! defined $i) {
         print "undef\n";

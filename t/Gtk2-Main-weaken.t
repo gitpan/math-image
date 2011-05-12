@@ -20,6 +20,7 @@
 use 5.008;
 use strict;
 use warnings;
+use List::Util;
 use Test::More;
 
 use lib 't';
@@ -47,15 +48,21 @@ require Test::Weaken::Gtk2;
 require Test::Weaken::ExtraBits;
 
 {
+  my $path_parameter_list;
   my $leaks = Test::Weaken::leaks
     ({ constructor => sub {
          my $main = App::MathImage::Gtk2::Main->new;
          $main->show_all;
+         $path_parameter_list = $main->{'path_params'}->get('parameter-list');
          return $main;
        },
        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
        contents => \&Test::Weaken::Gtk2::contents_container,
-       # ignore => \&my_ignore,
+       ignore => sub {
+         my ($ref) = @_;
+         return ($ref == $path_parameter_list
+                 || List::Util::first{$ref==$_} @$path_parameter_list);
+       },
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
   MyTestHelpers::test_weaken_show_leaks($leaks);

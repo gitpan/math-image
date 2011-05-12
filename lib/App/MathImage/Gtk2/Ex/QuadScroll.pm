@@ -23,12 +23,11 @@ use Gtk2;
 use List::Util 'min', 'max';
 
 use App::MathImage::Gtk2::Ex::AdjustmentBits;
-use App::MathImage::Gtk2::Ex::QuadScroll::ArrowButton;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 55;
+our $VERSION = 56;
 
 use Glib::Object::Subclass
   'Gtk2::Table',

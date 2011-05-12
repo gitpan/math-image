@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Gtk2::Ex::DirButton;
+package App::MathImage::Gtk2::Ex::QuadButton;
 use 5.008;
 use strict;
 use warnings;
@@ -25,14 +25,7 @@ use Glib::Ex::SignalBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 55;
-
-# BEGIN {
-#   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Direction',
-#                              'up', 'down', 'left', 'right');
-#   Glib::Type->register_enum ('App::MathImage::Gtk2::Ex::DirButton::Amount',
-#                              'step', 'page');
-# }
+our $VERSION = 56;
 
 use Glib::Object::Subclass
   'Gtk2::DrawingArea',
@@ -67,7 +60,6 @@ use Glib::Object::Subclass
                    0, 1.0, # min,max
                    0.5,    # default
                    Glib::G_PARAM_READWRITE),
-
                 ];
 
 sub INIT_INSTANCE {
@@ -92,7 +84,7 @@ sub SET_PROPERTY {
 
 sub _do_expose {
   my ($self, $event) = @_;
-  ### DirButton _do_expose()
+  ### QuadButton _do_expose()
   ### fg: $self->style->fg('normal')->to_string, $self->style->fg('prelight')->to_string
   ### bg: $self->style->bg('normal')->to_string, $self->style->bg('prelight')->to_string
 
@@ -333,7 +325,7 @@ sub _do_motion_or_enter {
 
 sub _do_leave_notify {
   my ($self, $event) = @_;
-  ### DirButton _do_leave()
+  ### QuadButton _do_leave()
   undef $self->{'x'};
   undef $self->{'y'};
   if ($self->{'drawn_dir'}) {
@@ -344,7 +336,7 @@ sub _do_leave_notify {
 
 sub _do_button_press {
   my ($self, $event) = @_;
-  ### DirButton _do_button_press(): $event->x.','.$event->y
+  ### QuadButton _do_button_press(): $event->x.','.$event->y
   ### dir: _xy_to_direction ($self, $event->x, $event->y)
 
   if ($event->button == 1
@@ -363,21 +355,21 @@ __END__
 
 =head1 NAME
 
-App::MathImage::Gtk2::Ex::DirButton -- group of buttons up, down, left, right
+App::MathImage::Gtk2::Ex::QuadButton -- button forup, down, left or right
 
 =head1 SYNOPSIS
 
- use App::MathImage::Gtk2::Ex::DirButton;
- my $qb = App::MathImage::Gtk2::Ex::DirButton->new;
+ use App::MathImage::Gtk2::Ex::QuadButton;
+ my $qb = App::MathImage::Gtk2::Ex::QuadButton->new;
 
 =head1 WIDGET HIERARCHY
 
-C<App::MathImage::Gtk2::Ex::DirButton> is a subclass of
+C<App::MathImage::Gtk2::Ex::QuadButton> is a subclass of
 C<Gtk2::DrawingArea>, but don't rely on more than C<Gtk2::Widget> for now.
 
     Gtk2::Widget
       Gtk2::DrawingArea
-        App::MathImage::Gtk2::Ex::DirButton
+        App::MathImage::Gtk2::Ex::QuadButton
 
 # =head1 DESCRIPTION
 #
@@ -385,12 +377,12 @@ C<Gtk2::DrawingArea>, but don't rely on more than C<Gtk2::Widget> for now.
 
 =over 4
 
-=item C<< $qb = App::MathImage::Gtk2::Ex::DirButton->new (key=>value,...) >>
+=item C<< $qb = App::MathImage::Gtk2::Ex::QuadButton->new (key=>value,...) >>
 
-Create and return a new C<DirButton> widget.  Optional key/value pairs set
+Create and return a new C<QuadButton> widget.  Optional key/value pairs set
 initial properties per C<< Glib::Object->new >>.
 
-    my $qb = App::MathImage::Gtk2::Ex::DirButton->new;
+    my $qb = App::MathImage::Gtk2::Ex::QuadButton->new;
 
 =back
 
@@ -404,6 +396,7 @@ initial properties per C<< Glib::Object->new >>.
 
 =head1 SEE ALSO
 
+L<App::MathImage::Gtk2::Ex::QuadButton::Scroll>,
 L<Gtk2::Button>,
 L<Gtk2::Arrow>
 

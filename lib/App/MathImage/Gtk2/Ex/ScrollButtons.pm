@@ -26,7 +26,7 @@ use Locale::Messages 'dgettext';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 55;
+our $VERSION = 56;
 
 use Glib::Object::Subclass
   'Gtk2::Table',

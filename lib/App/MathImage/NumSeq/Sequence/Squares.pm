@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 55;
+$VERSION = 56;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,7 +46,7 @@ sub next {
   return ($i, $i*$i);
 }
 sub pred {
-  my ($class_or_self, $n) = @_;
+  my ($self, $n) = @_;
   return (($n >= 0)
           && do {
             $n = sqrt($n);
@@ -54,7 +54,7 @@ sub pred {
           });
 }
 sub ith {
-  my ($class_or_self, $i) = @_;
+  my ($self, $i) = @_;
   return $i*$i;
 }
 

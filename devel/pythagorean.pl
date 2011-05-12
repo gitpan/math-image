@@ -23,36 +23,40 @@ use warnings;
 use Math::Matrix;
 use List::Util 'min', 'max';
 use Math::Libm 'hypot';
+use Math::PlanePath::MathImagePythagoreanTree;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
 
 {
-  require Math::PlanePath::MathImagePythagoreanTree;
   my $path = Math::PlanePath::MathImagePythagoreanTree->new
-    (
-     # tree_type => 'FB',
-      tree_type => 'UAD',
-     coordinates => 'AB',
-    );
-  my @rows;
-  foreach my $n (1 .. 18) {
+    (tree_type => 'UAD');
+  foreach my $level (1 .. 20) {
+    # my $n = 3 ** $level;
+    my $n = (3 ** $level - 1) / 2;
     my ($x,$y) = $path->n_to_xy($n);
-    $y /= 3;
-    print "$x,$y\n";
-    $rows[$y] ||= ' 'x1000;
-    substr($rows[$y],$x,length($n)) = $n;
-  }
-  for (my $y = $#rows; $y >= 0; $y--) {
-    $rows[$y] ||= '';
-    $rows[$y] =~ s/ +$//;
-    print $rows[$y],"\n";
+    print "$x, $y\n";
   }
   exit 0;
 }
 
+
 {
+  require Math::PlanePath::MathImagePythagoreanTree;
+  my $path = Math::PlanePath::MathImagePythagoreanTree->new
+    (
+     tree_type => 'FB',
+     # tree_type => 'UAD',
+     coordinates => 'AB',
+    );
+  my ($x,$y) = $path->n_to_xy(1121);
+#  exit 0;
+  foreach (1 .. 10) {
+    print 3*2**(2*$_-1)+2,"\n";
+    print 3*2**(2*$_)+2,"\n";
+  }
+
   sub minpos {
     my $min = $_[0];
     my $pos = 0;
@@ -72,7 +76,8 @@ use Smart::Comments;
     (
      # tree_type => 'UAD',
      tree_type => 'FB',
-     coordinates => 'PQ');
+     coordinates => 'UV',
+    );
   my $n = 1;
   foreach my $level (0 .. 100) {
     my @x;
@@ -103,6 +108,57 @@ use Smart::Comments;
     print "  miny=$min_y at n=$min_y_n rem=$min_y_rem [$min_y_rem_t]\n";
     local $,='..';
     print $path->rect_to_n_range(0,0, $min_x,$min_y),"\n";
+  }
+  exit 0;
+}
+
+{
+  # low zeros p=q+1 q=2^k
+  my $p = 2;
+  my $q = 1;
+  ### initial
+  ### $p
+  ### $q
+
+  foreach (1 .. 3) {
+    ($p,$q) = (2*$p-$q, $p);
+    ### $p
+    ### $q
+  }
+
+  ($p,$q) = (2*$p+$q, $p);
+  ### mid
+  ### $p
+  ### $q
+
+  foreach (1 .. 3) {
+    ($p,$q) = (2*$p-$q, $p);
+    ### $p
+    ### $q
+  }
+  exit 0;
+}
+
+{
+  require Math::PlanePath::MathImagePythagoreanTree;
+  my $path = Math::PlanePath::MathImagePythagoreanTree->new
+    (
+     # tree_type => 'FB',
+      tree_type => 'UAD',
+     coordinates => 'AB',
+    );
+  my @rows;
+  foreach my $n (1 .. 18) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $y /= 3;
+    print "$x,$y\n";
+    $rows[$y] ||= ' 'x1000;
+    substr($rows[$y],$x,length($n)) = $n;
+  }
+  for (my $y = $#rows; $y >= 0; $y--) {
+    $rows[$y] ||= '';
+    $rows[$y] =~ s/ +$//;
+    print $rows[$y],"\n";
   }
   exit 0;
 }

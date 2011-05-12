@@ -24,7 +24,7 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 55;
+our $VERSION = 56;
 
 use Glib::Object::Subclass
   'Gtk2::ToggleToolButton',

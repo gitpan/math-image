@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 55;
+our $VERSION = 56;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -129,6 +129,74 @@ sub _path_to_mnemonic {
   return ($_path_to_mnemonic{$str}
           || Glib::Ex::EnumBits::to_display_default($str));
 }
+
+my $wider = [{
+              name => 'wider',
+              type => 'integer',
+              description => __('Wider path.'),
+              minimum => 0,
+              default => 0,
+             }];
+my %path_parameter_list = (SquareSpiral    => $wider,
+                           HexSpiral       => $wider,
+                           HexSpiralSkewed => $wider,
+                           MultipleRings => [{ name      => 'step',
+                                               share_key => 'rings_step',
+                                               type      => 'integer',
+                                               minimum   => 0,
+                                               default   => 6,
+                                             }],
+                           PyramidRows => [{ name      => 'step',
+                                             share_key => 'pyramid_step',
+                                             type      => 'integer',
+                                             minimum   => 0,
+                                             default   => 2,
+                                           }],
+                           VogelFloret => [
+                                           {
+                                            name => 'rotation_type',
+                                            type => 'enum',
+                                            share_key => 'vogel_rotation_type',
+                                            choices => ['phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom'],
+                                            default => 'phi',
+                                           },
+                                           {
+                                            name => 'rotation_factor',
+                                            type => 'float',
+                                            type_hint => 'expression',
+                                            description => __('Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'),
+                                            default => - (1 + sqrt(5)) / 2,
+                                            default_expression => '-phi',
+                                            width => 10,
+                                            when_name  => 'rotation_type',
+                                            when_value => 'custom',
+                                           },
+                                           { name      => 'radius_factor',
+                                             description => __('Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'),
+                                             type      => 'float',
+                                             minimum   => 0,
+                                             maximum   => 999,
+                                             page_increment => 1,
+                                             step_increment => .1,
+                                             decimals  => 2,
+                                             default   => 1,
+                                           },
+                                          ],
+                           MathImagePythagoreanTree => [
+                                                        {
+                                                         name => 'tree_type',
+                                                         type => 'enum',
+                                                         choices => ['UAD','FB'],
+                                                         default => 'UAD',
+                                                        },
+                                                        {
+                                                         name => 'coordinates',
+                                                         type => 'enum',
+                                                         choices => ['AB','BA','UV','Octant'],
+                                                         default => 'AB',
+                                                        }
+                                                       ],
+                          );
 
 sub INIT_INSTANCE {
   my ($self) = @_;
@@ -451,8 +519,8 @@ HERE
     $table->attach ($aframe, 2,3, 2,3,
                     ['fill','shrink'],['fill','shrink'],0,0);
 
-    require App::MathImage::Gtk2::Ex::QuadScroll;
-    my $qb = App::MathImage::Gtk2::Ex::QuadScroll->new
+    require App::MathImage::Gtk2::Ex::QuadButton::Scroll;
+    my $qb = App::MathImage::Gtk2::Ex::QuadButton::Scroll->new
       (hadjustment => $hadj,
        vadjustment => $vadj,
        vinverted   => 1);
@@ -472,60 +540,6 @@ HERE
     Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
                                       [$action,'active']);
   }
-
-  my $wider = [{
-                name => 'wider',
-                type => 'integer',
-                description => __('Wider path.'),
-                minimum => 0,
-                default => 0,
-               }];
-  my %path_parameter_list = (SquareSpiral    => $wider,
-                             HexSpiral       => $wider,
-                             HexSpiralSkewed => $wider,
-                             MultipleRings => [{ name      => 'step',
-                                                 share_key => 'rings_step',
-                                                 type      => 'integer',
-                                                 minimum   => 0,
-                                                 default   => 6,
-                                               }],
-                             PyramidRows => [{ name      => 'step',
-                                               share_key => 'pyramid_step',
-                                               type      => 'integer',
-                                               minimum   => 0,
-                                               default   => 2,
-                                             }],
-                             VogelFloret => [
-                                             {
-                                              name => 'rotation_type',
-                                              type => 'enum',
-                                              share_key => 'vogel_rotation_type',
-                                              choices => ['phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom'],
-                                              default => 'phi',
-                                             },
-                                             {
-                                              name => 'rotation_factor',
-                                              type => 'float',
-                                              type_hint => 'expression',
-                                              description => __('Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'),
-                                              default => - (1 + sqrt(5)) / 2,
-                                              default_expression => '-phi',
-                                              width => 10,
-                                              when_name  => 'rotation_type',
-                                              when_value => 'custom',
-                                             },
-                                             { name      => 'radius_factor',
-                                               description => __('Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'),
-                                               type      => 'float',
-                                               minimum   => 0,
-                                               maximum   => 999,
-                                               page_increment => 1,
-                                               step_increment => .1,
-                                               decimals  => 2,
-                                               default   => 1,
-                                             },
-                                            ],
-                            );
 
   my $toolpos = -999;
   my $path_combobox;

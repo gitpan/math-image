@@ -1,5 +1,12 @@
 # Copyright 2011 Kevin Ryde
 
+
+# coordinates => PQ, UV, MN, RS, ST
+
+
+
+
+
 # This file is part of Math-Image.
 #
 # Math-Image is free software; you can redistribute it and/or modify
@@ -18,9 +25,22 @@
 
 # math-image --path=MathImagePythagoreanTree --all --scale=3
 
-# Breadth-first advances $x slowly in the worst case
 
-# B. Berggren. see: *Berggren, B. (1934), "Pytagoreiska trianglar", Tidskrift
+# http://www.math.uconn.edu/~kconrad/blurbs/ugradnumthy/pythagtriple.pdf
+#
+# http://www.fq.math.ca/Scanned/30-2/waterhouse.pdf
+#
+# http://www.math.ou.edu/~dmccullough/teaching/pythagoras1.pdf
+# http://www.math.ou.edu/~dmccullough/teaching/pythagoras2.pdf
+#
+# Euclid Book X prop 28,29 that u,v makes a triple, also Babylonians 
+#
+# Daniel Shanks. Solved and Unsolved Problems in Number Theory, 4th ed.  New
+# York: Chelsea, pp. 121 and 141, 1993.
+#
+#     http://books.google.com.au/books?id=KjhM9pZEGCkC&lpg=PR1&dq=Solved%20and%20Unsolved%20Problems%20in%20Number%20Theory&pg=PA122#v=onepage&q&f=false
+#
+# B. Berggren 1934, "Pytagoreiska trianglar", Tidskrift
 # for elementar matematik, fysik och kemi 17: 129-139.
 #
 # http://arxiv.org/abs/math/0406512
@@ -50,7 +70,7 @@ use POSIX qw(floor ceil);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -60,19 +80,6 @@ use Math::PlanePath;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
-
-use constant parameter_list => ({
-                                 name => 'tree_type',
-                                 type => 'enum',
-                                 choices => ['FB','UAD'],
-                                 default => 'FB',
-                                },
-                                {
-                                 name => 'coordinates',
-                                 type => 'enum',
-                                 choices => ['AB','BA','Octant','Euclid'],
-                                 default => 'AB',
-                                });
 
 use constant x_parameter_list => ({
                                    name    => 'wider',
@@ -90,7 +97,7 @@ use constant x_parameter_list => ({
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new (@_);
-  $self->{'coordinates'} ||= 'AB';
+  $self->{'coordinates'} ||= 'UV';
   $self->{'tree_type'} ||= 'FB';
   return $self;
 }
@@ -141,20 +148,25 @@ sub n_to_xy {
   my $p = 2;
 
   if ($self->{'tree_type'} eq 'UAD') {
+    ### UAD
     foreach my $digit (reverse @digits) {  # high digit first
-      ### $digit
       ### $p
       ### $q
+      ### $digit
       if ($digit == 0) {
-        ($q,$p) = ($p, 2*$p-$q);
+        ($p,$q) = (2*$p-$q, $p);
       } elsif ($digit == 1) {
-        ($q,$p) = ($p, 2*$p+$q);
+        ($p,$q) = (2*$p+$q, $p);
       } else {
         $p += 2*$q;
       }
     }
   } else {
+    ### FB
     foreach my $digit (reverse @digits) {  # high digit first
+      ### $p
+      ### $q
+      ### $digit
       if ($digit == 0) {
         ($q,$p) = (2*$q, $p+$q);
       } elsif ($digit == 1) {
@@ -169,7 +181,7 @@ sub n_to_xy {
   ### $p
   ### $q
 
-  if ($self->{'coordinates'} eq 'Euclid') {
+  if ($self->{'coordinates'} eq 'UV') {
     return ($p,$q);
   }
 
@@ -212,7 +224,7 @@ sub xy_to_n {
   ### PythagoreanTree xy_to_n(): "$x, $y"
 
   my ($p, $q);
-  if ($self->{'coordinates'} eq 'Euclid') {
+  if ($self->{'coordinates'} eq 'UV') {
     $p = $x;
     $q = $y;
   } else {
@@ -344,34 +356,37 @@ sub rect_to_n_range {
     $x2 = $y2 = max($x2,$y2);
   }
 
-  if ($x2 <= 3 || $y2 <= 0) {
+  if ($x2 < 3 || $y2 < 0) {
     return (1,0);
   }
 
+  my $level;
   if ($self->{'tree_type'} eq 'UAD') {
-    my ($x_level,$y_level);
-    if ($self->{'coordinates'} eq 'Euclid') {
+    if ($self->{'coordinates'} eq 'UV') {
       my $level = $x2+1;
-      return (0, (3**$level - 1) / 2);
     } else {
-      my $x_level = int (($x2+1) / 2);
-      my $y_level = int (($y2+31) / 4);
-      return (0, (3**min($x_level,$y_level) - 1) / 2);
+      $level = min (int (($x2+1) / 2),
+                    int (($y2+31) / 4));
     }
   } else {
     # FB
-    if ($self->{'coordinates'} eq 'Euclid') {
+    if ($self->{'coordinates'} eq 'UV') {
       $x2 *= 3;
     }
-
-    my $x_nhi = $x2 ** 1.35;
-    my $y_nhi = 0;
-    ### $x_nhi
-    return (0, $x_nhi);
+    $x2--;
+    for (my $k = 1; ; $k++) {
+      if ($x2 <= (3 * 2**$k + 1)) {
+        $level = 2*$k+1;
+        last;
+      }
+      if ($x2 <= (2**($k+2)) + 1) {
+        $level = 2*$k+2;
+        last;
+      }
+    }
   }
-
-  # return (0, $x2*$x2 + 10000);
-  # return (0, hypot (max(abs($x1),abs($x2)), max(abs($y1),abs($y2))));
+  ### $level
+  return (0, (3**$level - 1) / 2);
 }
 
 1;
@@ -413,22 +428,38 @@ Math::PlanePath::MathImagePythagoreanTree -- primitive pythagorean triples by tr
 =head1 SYNOPSIS
 
  use Math::PlanePath::MathImagePythagoreanTree;
- my $path = Math::PlanePath::MathImagePythagoreanTree->new;
+ my $path = Math::PlanePath::MathImagePythagoreanTree->new
+              (tree_type => 'UAD',
+               coordinates => 'AB');
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
 I<In progress.>
 
-This path enumerates primitive Pythagorean triples in a breadth-first
-traversal of a ternary tree, either the "FB" Fibonacci boxes tree by H. Lee
-Price, or the "UAD" tree of Berggren, Banning, Hall and others.
+This path enumerates primitive Pythagorean triples by a breadth-first
+traversal of a ternary tree, either a  "UAD" or "FB" tree.
 
-Each point is an integer X,Y with an integer hypotenuse X^2+Y^2=Z^2.
-A primitive triple is one where X and Y have no common factor, which also
-means one of X,Y odd and the other even, and has Z always odd.
+Each point is an integer X,Y = A,B with an integer hypotenuse A^2+B^2=C^2.
+A primitive triple is one where A and B have no common factor.  A primitive
+triple always has one leg odd and the other even and the trees here give
+them ordered as A odd and B even.
+
+In this breadth-first order both trees go out to rather large A,B values
+while smaller ones have yet to come out.  The UAD tree goes out further than
+the FB.
 
 =head2 UAD Tree
+
+The UAD tree by Berggren (1934), later independently by Barning (1963), Hall
+(1970), and a number of others, uses three matrices U, A and D which can be
+multiplied onto an existing primitive triple to form three new triples.
+
+    my $path = Math::PlanePath::MathImagePythagoreanTree->new
+                 (tree_type => 'UAD');
+
+Starting from A=3,B=4,C=5 (the well-known 3^2 + 4^2 = 5^2) this visits all
+and only primitive triples.
 
    Y=40 |          14
         |
@@ -447,11 +478,10 @@ means one of X,Y odd and the other even, and has Z always odd.
         +--------------------------------------------------
            X=3         X=15  X=20           X=35      X=45
 
-The first point N=1 is at X=3,Y=4 which is the well-known triple
-3^2+4^2=5^2.  From it three further points N=2,3,4 are derived, then three
-more from each of those, etc, in a ternary tree.
+The starting point N=1 is X=3,Y=4, from which three further N=2,3,4 are
+derived, then three more from each of those, etc,
 
-     N=1      N=2..4      N=5..13   ...
+     N=1     N=2..4      N=5..13    N=14...
 
                       +-> 7,24
           +-> 5,12  --+-> 55,48
@@ -465,18 +495,39 @@ more from each of those, etc, in a ternary tree.
           +-> 15,8  --+-> 65,72
                       +-> 35,12
 
-The middle path at each node, 20,21 then 119,120, etc, is all the triples
-with legs differing by 1.
+Counting N=1 as level k=1, each level has 3^(k-1) many points so the first N
+for a level is
 
-The lower path at each node, 15,8 then 35,12 etc, is the primitives among a
-sequence of triples known to the ancient Babylonians,
+    N = 1 + 3 + 3^2 + ... + 3^(k-1)
+      = (3^k + 1) / 2
 
-     A=k^2-1, B=2*k, C=k^2+1
+Taking the middle "A" direction at each node, so 21,20 then 119,120 then
+697,696, etc, gives the triples with legs differing by 1 and thus just below
+the X=Y leading diagonal.  These are at N=3^k.
+
+Taking the lower "D" direction at each node, ie. 15,8 then 35,12 then 63,16,
+etc, is the primitives among a sequence of triples known to the ancients,
+
+     A = k^2-1,  B = 2*k,  C = k^2+1
+
+With k even these are primitive.  (If k is odd then A and B are both even,
+ie. a common factor of 2, so not primitive.)  These points are the end of
+each level, so N=(3^k-1)/2.
 
 =head2 FB Tree
 
-The FB tree is based on rearrangements of certain "Fibonacci boxes".  The
-X,Y points reached are in a different sequence and a tree structure.
+The FB tree by H. Lee Price is based on expressing triples in certain
+"Fibonacci boxes" with q',q,p,p' having p=q+q' and p'=p+q, so each is the
+sum of the preceding two similar to the Fibonacci sequence.  Any box where p
+and q have no common factor corresponds to a primitive triple per L</UV
+Coordinates> below.
+
+    my $path = Math::PlanePath::MathImagePythagoreanTree->new
+                 (tree_type => 'FB');
+
+To a given box three transformations can be applied to go to new boxes
+corresponding to new triples.  This visits all and only primitive triples,
+but in a different order and different tree structure to the UAD above.
 
     Y=40 |         5
          |
@@ -498,7 +549,7 @@ X,Y points reached are in a different sequence and a tree structure.
 The first point N=1 is again at X=3,Y=4 and three further points N=2,3,4 are
 derived, then three more from each of those, etc.
 
-     N=1      N=2..4      N=5..13   ...
+    N=1      N=2..4      N=5..13     N=14...
 
                       +-> 9,40
           +-> 5,12  --+-> 35,12
@@ -512,22 +563,44 @@ derived, then three more from each of those, etc.
           +-> 7,24  --+-> 63,16
                       +-> 15,112
 
-=head2 PQ Coordinates
+=head2 UV Coordinates
 
-Any Pythagorean triple can be parameterized as follows, taking A odd and B
-even,
+Primitive Pythagorean triples can be parameterized as follows, taking A odd
+and B even.
 
     A = u^2 - v^2,  B = 2*u*v,  C = u^2 + v^2
 
     u = sqrt((C+A)/2),  v = sqrt((C-A)/2)
+    with u>v>=1, one odd, one even, and no common factor
 
-The starting point A=3,B=4 is then u=2,v=1.
-
-The C<coordinates> option on the path gives u,v as the returned X,Y values,
+The first u=2,v=1 is the triple A=3,B=4,C=5.  The C<coordinates> option on
+the path gives these u,v values as the returned X,Y coordinates,
 
     my $path = Math::PlanePath::MathImagePythagoreanTree-E<gt>new
-                  (coordinates => 'PQ');
+                  (tree_type => 'UAD',    # or 'FB'
+                   coordinates => 'PQ');
     my ($u,$v) = $path->n_to_xy(1);  # u=2,v=1
+
+Since u>v>=1, the values fall in an octant below the X=Y leading diagonal,
+
+    11 |                      *
+    10 |                    *  
+     9 |                  *    
+     8 |                *   *  
+     7 |              *   *   *
+     6 |            *       *  
+     5 |          *   *       *
+     4 |        *   *   *   *  
+     3 |      *       *   *    
+     2 |    *   *   *   *   *  
+     1 |  *   *   *   *   *   *
+       +------------------------
+          2 3 4 5 6 7 8 9 ...
+
+The correspondence between u,v and A,B means the trees visit all u,v with no
+common factor and one of them even.  Of course there's other ways to iterate
+through such u,v, such as simply u=2,3,etc, which would generate triples
+too, in a different order from the trees here.
 
 =head1 FUNCTIONS
 
@@ -552,6 +625,11 @@ either added to or subtracted from X or Y.
 =head1 SEE ALSO
 
 L<Math::PlanePath>
+
+H. Lee Price, "The Pythagorean Tree: A New Species", 2008,
+<http://arxiv.org/abs/0809.4324>.
+
+L<Math::PlanePath::Hypot>
 
 =head1 HOME PAGE
 

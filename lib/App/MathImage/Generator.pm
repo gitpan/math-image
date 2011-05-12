@@ -35,7 +35,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments '####';
 
 use vars '$VERSION';
-$VERSION = 55;
+$VERSION = 56;
 
 use constant default_options => {
                                  values       => 'Primes',

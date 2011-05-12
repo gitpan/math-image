@@ -31,7 +31,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

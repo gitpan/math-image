@@ -13,6 +13,7 @@ devel/arrowbutton.pl
 devel/Base4Only01.pm
 devel/bits.pl
 devel/caca.pl
+devel/Caca.pm
 devel/camel.pl
 devel/compound.el
 devel/compound.pl
@@ -79,11 +80,12 @@ lib/App/MathImage/Gtk2/Drawing.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
 lib/App/MathImage/Gtk2/Ex/AdjustmentBits.pm
 lib/App/MathImage/Gtk2/Ex/ArrowButton.pm
-lib/App/MathImage/Gtk2/Ex/DirButton.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/LayoutBits.pm
 lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 lib/App/MathImage/Gtk2/Ex/PixbufBits.pm
+lib/App/MathImage/Gtk2/Ex/QuadButton.pm
+lib/App/MathImage/Gtk2/Ex/QuadButton/Scroll.pm
 lib/App/MathImage/Gtk2/Ex/QuadScroll.pm
 lib/App/MathImage/Gtk2/Ex/QuadScroll/ArrowButton.pm
 lib/App/MathImage/Gtk2/Ex/ScrollButtons.pm
@@ -106,7 +108,6 @@ lib/App/MathImage/Gtk2/Params/String.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
 lib/App/MathImage/Gtk2/X11.pm
-lib/App/MathImage/Image/Base/Caca.pm
 lib/App/MathImage/Image/Base/LifeBitmap.pm
 lib/App/MathImage/Image/Base/LifeRLE.pm
 lib/App/MathImage/Image/Base/Other.pm
@@ -184,6 +185,7 @@ lib/App/MathImage/NumSeq/Sequence/PythagoreanHypots.pm
 lib/App/MathImage/NumSeq/Sequence/RadixWithoutDigit.pm
 lib/App/MathImage/NumSeq/Sequence/RepdigitAnyBase.pm
 lib/App/MathImage/NumSeq/Sequence/Repdigits.pm
+lib/App/MathImage/NumSeq/Sequence/ReverseAddCount.pm
 lib/App/MathImage/NumSeq/Sequence/SafePrimes.pm
 lib/App/MathImage/NumSeq/Sequence/SemiPrimes.pm
 lib/App/MathImage/NumSeq/Sequence/SophieGermainPrimes.pm

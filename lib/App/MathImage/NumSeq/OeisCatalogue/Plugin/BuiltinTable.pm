@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
@@ -687,6 +687,10 @@ use constant info_arrayref =>
     'parameters_hashref' => {
       'radix' => 10
     }
+  },
+  {
+    'anum' => 'A030547',
+    'class' => 'App::MathImage::NumSeq::Sequence::ReverseAddCount'
   },
   {
     'anum' => 'A005385',
