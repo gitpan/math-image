@@ -16,7 +16,7 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package App::MathImage::Gtk2::Params::FloatExpression;
+package App::MathImage::Gtk2::Params::Float::Expression;
 use 5.008;
 use strict;
 use warnings;
@@ -29,14 +29,14 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog;
 use Glib::Object::Subclass
   'Gtk2::Ex::ToolItem::OverflowToDialog',
   properties => [ Glib::ParamSpec->double
-                  ('value',
-                   'Value',
+                  ('parameter_value',
+                   'Parameter Value',
                    'Blurb.',
                    POSIX::INT_MIN(), POSIX::INT_MAX(),
                    0,
@@ -52,7 +52,7 @@ use Glib::Object::Subclass
 sub INIT_INSTANCE {
   my ($self) = @_;
 
-  my $entry = $self->{'entry'} = Gtk2::Entry->new;
+  my $entry = Gtk2::Entry->new;
   Scalar::Util::weaken (my $weak_self = $self);
   $entry->signal_connect (activate => \&_do_entry_activate, \$weak_self);
   $entry->show;
@@ -62,8 +62,8 @@ sub INIT_INSTANCE {
 sub GET_PROPERTY {
   my ($self, $pspec) = @_;
   my $pname = $pspec->get_name;
-  if ($pname eq 'value') {
-    my $expression = $self->{'entry'}->get_text;
+  if ($pname eq 'parameter_value') {
+    my $expression = $self->get_child->get_text;
     if (eval { require Math::Symbolic;
                require Math::Symbolic::Constant;
              }) {
@@ -96,13 +96,13 @@ sub SET_PROPERTY {
   my $pname = $pspec->get_name;
   ### Float SET_PROPERTY: $pname
 
-  if ($pname eq 'value') {
-    return $self->{'entry'}->set_value ($newval);
+  if ($pname eq 'parameter_value') {
+    return $self->get_child->set_value ($newval);
   } else {
     my $oldval = $self->{$pname};
     $self->{$pname} = $newval;
 
-    my $entry = $self->{'entry'};
+    my $entry = $self->get_child;
     if (! $oldval) {
       $entry->set_text (defined $newval->{'default_expression'}
                         ? $newval->{'default_expression'}
@@ -122,7 +122,7 @@ sub SET_PROPERTY {
 sub _do_entry_activate {
   my ($entry, $ref_weak_self) = @_;
   my $self = $$ref_weak_self || return;
-  $self->notify ('value');
+  $self->notify ('parameter-value');
 }
 
 1;

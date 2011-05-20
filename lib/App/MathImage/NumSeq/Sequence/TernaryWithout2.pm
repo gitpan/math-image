@@ -23,7 +23,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 use constant name => __('Ternary without 2s');
 use constant description => __('The integers without any 2 digits when written out in ternary (base 3).');

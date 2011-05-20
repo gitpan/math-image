@@ -28,14 +28,14 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use Gtk2::Ex::ToolItem::ComboEnum;
 use Glib::Object::Subclass
   'Gtk2::Ex::ToolItem::ComboEnum',
   properties => [ Glib::ParamSpec->string
-                  ('value',
-                   'Value',
+                  ('parameter-value',
+                   'Parameter Value',
                    'Blurb.',
                    '',
                    Glib::G_PARAM_READWRITE),
@@ -54,10 +54,12 @@ sub INIT_INSTANCE {
 
 sub _do_notify {
   my ($self, $pspec) = @_;
+  $self->signal_chain_from_overridden ($pspec);
+
   my $pname = $pspec->get_name;
   if ($pname eq 'active_nick') {
     ### Enum notify value
-    $self->notify('value');
+    $self->notify('parameter_value');
   }
 }
 
@@ -66,7 +68,7 @@ sub GET_PROPERTY {
   my $pname = $pspec->get_name;
   ### Enum GET_PROPERTY: $pname
 
-  if ($pname eq 'value') {
+  if ($pname eq 'parameter_value') {
     return $self->get('active_nick');
   } else {
     return $self->{$pname};
@@ -78,7 +80,7 @@ sub SET_PROPERTY {
   my $pname = $pspec->get_name;
   ### Enum SET_PROPERTY: $pname
 
-  if ($pname eq 'value') {
+  if ($pname eq 'parameter_value') {
     $self->set (active_nick => $newval);
   } else {
     my $name = $newval->{'name'};
@@ -86,10 +88,8 @@ sub SET_PROPERTY {
     $self->set (enum_type => _pinfo_to_enum_type($newval),
                 overflow_mnemonic =>
                 Gtk2::Ex::MenuBits::mnemonic_escape($display));
-    set_property_maybe ($self, # tooltip-text new in 2.12
-                        tooltip_text => $newval->{'description'});
-    if (! defined ($self->get('value'))) {
-      $self->set (value => $newval->{'default'});
+    if (! defined ($self->get('parameter-value'))) {
+      $self->set (parameter_value => $newval->{'default'});
     }
 
     my $combobox = $self->get_child;

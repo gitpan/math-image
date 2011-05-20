@@ -29,14 +29,14 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog;
 use Glib::Object::Subclass
   'Gtk2::Ex::ToolItem::OverflowToDialog',
   properties => [ Glib::ParamSpec->string
-                  ('value',
-                   'Value',
+                  ('parameter-value',
+                   'Parameter Value',
                    'Blurb.',
                    '', # default
                    Glib::G_PARAM_READWRITE),
@@ -55,8 +55,10 @@ sub INIT_INSTANCE {
 sub GET_PROPERTY {
   my ($self, $pspec) = @_;
   my $pname = $pspec->get_name;
-  if ($pname eq 'value') {
-    return $self->{'entry'}->get_text;
+  if ($pname eq 'parameter_value') {
+    my $child;
+    return (($child = $self->get_child)
+            && $child->get('text'));
 
   } else {
     return $self->{$pname};
@@ -65,43 +67,53 @@ sub GET_PROPERTY {
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### Float SET_PROPERTY: $pname
+  ### Params-String SET_PROPERTY: $pname
 
-  if ($pname eq 'value') {
-    return $self->{'entry'}->set_value ($newval);
+  if ($pname eq 'parameter_value') {
+    $self->{'parameter_value_set'} = $newval;
+    if (my $child = $self->get_child) {
+      $child->set_value ($newval);
+    }
+
   } else {
     my $oldval = $self->{$pname};
     $self->{$pname} = $newval;
 
-    my $entry_class = 'Gtk2::Entry';
-    if (($newval->{'type_hint'}||'') eq 'oeis_anum') {
-      require App::MathImage::Gtk2::OeisEntry;
-      $entry_class = 'App::MathImage::Gtk2::OeisEntry';
+    my $entry = $self->get_child;
+    unless ($entry) {
+      my $entry_class = 'Gtk2::Entry';
+      if (($newval->{'type_hint'}||'') eq 'oeis_anum') {
+        require App::MathImage::Gtk2::OeisEntry;
+        $entry_class = 'App::MathImage::Gtk2::OeisEntry';
+      }
+      $entry = $entry_class->new;
+      if (exists $self->{'parameter_value_set'}) {
+        $entry->set (text => $self->{'parameter_value_set'});
+        $self->{'parameter_value_set'} = 1;
+      }
+      Scalar::Util::weaken (my $weak_self = $self);
+      $entry->signal_connect (activate => \&_do_entry_activate, \$weak_self);
+      $entry->show;
+      $self->add ($entry);
     }
-    my $entry = $self->{'entry'} = $entry_class->new;
-    Scalar::Util::weaken (my $weak_self = $self);
-    $entry->signal_connect (activate => \&_do_entry_activate, \$weak_self);
-    $entry->show;
-    $self->add ($entry);
-
-    if (! $oldval) {
-      $entry->set_text ($newval->{'default'});
+    if (! exists $self->{'parameter_value_set'}) {
+      # initial parameter-info
+      $self->{'parameter_value_set'} = 1;
+      $entry->set (text => $newval->{'default'});
     }
     $entry->set (width_chars => $newval->{'width'} || 5);
 
     my $display = ($newval->{'display'} || $newval->{'name'});
     $self->set (overflow_mnemonic =>
                 Gtk2::Ex::MenuBits::mnemonic_escape($display));
-
-    set_property_maybe ($self, # tooltip-text new in 2.12
-                        tooltip_text => $newval->{'description'});
   }
 }
 
 sub _do_entry_activate {
   my ($entry, $ref_weak_self) = @_;
+  ### Params-String _do_entry_activate()
   my $self = $$ref_weak_self || return;
-  $self->notify ('value');
+  $self->notify ('parameter-value');
 }
 
 1;

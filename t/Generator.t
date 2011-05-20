@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 36;
+use Test::More tests => 306;
 
 use lib 't';
 use MyTestHelpers;
@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 56;
+  my $want_version = 57;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -52,6 +52,26 @@ sub complement {
   my $check_version = $want_version + 1000;
   ok (! eval { App::MathImage::Generator->VERSION($check_version); 1 },
       "VERSION class check $check_version");
+}
+
+
+#------------------------------------------------------------------------------
+# _n_to_tree_children()
+
+{
+  my $n_start = 1;
+  foreach my $branches (2 .. 10) {
+    my $child = $n_start + 1;
+    foreach my $n (1 .. 30) {
+      my @want;
+      foreach (1 .. $branches) {
+        push @want, $child++;
+      }
+      my $want = join(',',@want);
+      my $got = join(',', App::MathImage::Generator::_n_to_tree_children($n, $branches, $n_start));
+      is ($got,$want, "_n_to_tree_children() n=$n branches=$branches");
+    }
+  }
 }
 
 

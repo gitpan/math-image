@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -62,6 +62,8 @@ BEGIN {
 
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::FigureType',
                              App::MathImage::Generator->figure_choices);
+  %App::MathImage::Gtk2::Drawing::FigureType::EnumBits_to_display =
+    ('default' => 'Figure');
 }
 
 use Glib::Object::Subclass

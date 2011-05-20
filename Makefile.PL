@@ -34,24 +34,26 @@ my %for_x11 = ('X11::Protocol' => 0,
                'Image::Base::X11::Protocol::Pixmap' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
               );
-my %gtk2_optionals = ('Gtk2::Ex::CrossHair' => 0,
+my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
                       # suggest ErrorTextDialog v.7 for popup control
                       'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
-                      'Gtk2::Ex::PodViewer'    => 0,
+                      'Gtk2::Ex::PodViewer'   => 0,
+                      'Gtk2::Ex::QuadButton'  => 0,
                      );
 
 my %maximum_planepath
   = (
-     # cf Generator.pm path_choices() preferences
+     # cf App::MathImage::Generator path_choices() preferences
      'Math::PlanePath::SquareSpiral'   => 5,  # v.5 wider parameter
      'Math::PlanePath::SacksSpiral'    => 1,
      'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
      'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
      'Math::PlanePath::ArchimedeanChords'    => 23, # new in v.23
      'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
-     'Math::PlanePath::PixelRings'           => 19, # new in v.19
+     'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
      'Math::PlanePath::Hypot'                => 21, # new in v.21
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
+     'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
 
      'Math::PlanePath::DiamondSpiral'        => 1,
      'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
@@ -63,6 +65,7 @@ my %maximum_planepath
      'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
      'Math::PlanePath::OctagramSpiral'       => 21, # new in v.21
      'Math::PlanePath::KnightSpiral'         => 1,
+     'Math::PlanePath::GreekKeySpiral'       => 27, # new in v.27
 
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
      'Math::PlanePath::PyramidSides'         => 1,
@@ -70,8 +73,8 @@ my %maximum_planepath
      'Math::PlanePath::Corner'               => 1,
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
      'Math::PlanePath::Staircase'            => 16, # new in v.16
-     'Math::PlanePath::Rows'                 => 7,  # v.7 rect_to_n_range
-     'Math::PlanePath::Columns'              => 7,  # v.7 rect_to_n_range
+     'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
+     'Math::PlanePath::Columns'              => 26, # v.26 against height==0
 
      'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
@@ -132,6 +135,10 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
     'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
+
+    # QuadButton / QuadScroll
+    'Gtk2::Ex::AdjustmentBits' => 40, # new in v.40
+    'Gtk2::Ex::WidgetBits'     => 40, # v.40 for pixel_size_mm()
 
     # my Gtk2-Ex-ComboBoxBits
     # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency

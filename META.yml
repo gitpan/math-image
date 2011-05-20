@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            56
+version:            57
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -27,6 +27,7 @@ requires:
     Glib::Object::Subclass:  0
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
+    Gtk2::Ex::AdjustmentBits:  40
     Gtk2::Ex::ComboBox::Enum:  5
     Gtk2::Ex::ComboBox::PixbufType:  31
     Gtk2::Ex::ComboBox::Text:  2
@@ -45,6 +46,7 @@ requires:
     Gtk2::Ex::ToolItem::ComboEnum:  28
     Gtk2::Ex::ToolItem::OverflowToDialog:  36
     Gtk2::Ex::Units:      13
+    Gtk2::Ex::WidgetBits:  40
     Gtk2::Ex::WidgetCursor:  15
     Gtk2::Ex::WidgetEvents:  21
     Gtk2::Pango:          0
@@ -103,6 +105,7 @@ optional_features:
             Gtk2::Ex::CrossHair:  0
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
+            Gtk2::Ex::QuadButton:  0
     maximum_devel:
         description:  Stuff used variously for development.
         requires:
@@ -115,6 +118,7 @@ optional_features:
             Gtk2::Ex::CrossHair:  0
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
+            Gtk2::Ex::QuadButton:  0
             Image::Base::GD:      4
             Image::Base::Imager:  0
             Image::Base::Magick:  0
@@ -127,10 +131,11 @@ optional_features:
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
             Math::PlanePath::ArchimedeanChords:  23
-            Math::PlanePath::Columns:  7
+            Math::PlanePath::Columns:  26
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
@@ -143,11 +148,12 @@ optional_features:
             Math::PlanePath::PeanoCurve:  16
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
-            Math::PlanePath::PixelRings:  19
+            Math::PlanePath::PixelRings:  28
             Math::PlanePath::PyramidRows:  4
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
-            Math::PlanePath::Rows:  7
+            Math::PlanePath::PythagoreanTree:  26
+            Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
@@ -167,10 +173,11 @@ optional_features:
         description:  Recommended PlanePath modules
         requires:
             Math::PlanePath::ArchimedeanChords:  23
-            Math::PlanePath::Columns:  7
+            Math::PlanePath::Columns:  26
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
@@ -183,11 +190,12 @@ optional_features:
             Math::PlanePath::PeanoCurve:  16
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
-            Math::PlanePath::PixelRings:  19
+            Math::PlanePath::PixelRings:  28
             Math::PlanePath::PyramidRows:  4
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
-            Math::PlanePath::Rows:  7
+            Math::PlanePath::PythagoreanTree:  26
+            Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
@@ -215,6 +223,7 @@ recommends:
     Gtk2::Ex::CrossHair:  0
     Gtk2::Ex::ErrorTextDialog::Handler:  7
     Gtk2::Ex::PodViewer:  0
+    Gtk2::Ex::QuadButton:  0
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
@@ -222,10 +231,11 @@ recommends:
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
     Math::PlanePath::ArchimedeanChords:  23
-    Math::PlanePath::Columns:  7
+    Math::PlanePath::Columns:  26
     Math::PlanePath::Corner:  1
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiamondSpiral:  1
+    Math::PlanePath::GreekKeySpiral:  27
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexSpiral:  9
     Math::PlanePath::HexSpiralSkewed:  9
@@ -238,11 +248,12 @@ recommends:
     Math::PlanePath::PeanoCurve:  16
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
-    Math::PlanePath::PixelRings:  19
+    Math::PlanePath::PixelRings:  28
     Math::PlanePath::PyramidRows:  4
     Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
-    Math::PlanePath::Rows:  7
+    Math::PlanePath::PythagoreanTree:  26
+    Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16

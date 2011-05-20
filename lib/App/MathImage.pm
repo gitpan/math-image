@@ -25,7 +25,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -74,9 +74,9 @@ sub getopt_long_specifications {
          },
      'expression=s' =>
      sub { my ($optname, $value) = @_;
-           ### $value
+           ### expression value: $value
            _hopt($self,'gen_options','values', 'Expression');
-           _hopt($self,'gen_options','expression', $value);
+           $self->{'gen_options'}->{'values_parameters'}->{'expression'} = $value;
          },
      'polygonal=i' =>
      sub { my ($optname, $value) = @_;
@@ -193,6 +193,10 @@ sub getopt_long_specifications {
      'background=s'  => sub {
        my ($optname, $value) = @_;
        _hopt ($self, 'gen_options','background',$value);
+     },
+     'figure=s'  => sub {
+       my ($optname, $value) = @_;
+       _hopt ($self, 'gen_options','figure',$value);
      },
      'verbose:1'      => \$self->{'verbose'},
     );
@@ -558,6 +562,7 @@ sub output_image {
   my $image = $image_class->new
     (-width  => $gen_options->{'width'},
      -height => $gen_options->{'height'},
+     -zlib_compression => 9,
      @image_options);
   if ($image->isa('Image::Base::Prima::Drawable')) {
     $image->get('-drawable')->begin_paint;

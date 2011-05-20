@@ -16,6 +16,12 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# file:///usr/share/doc/libcaca-dev/html/group__caca__primitives.html
+
+# Term::Caca::Bitmap  for dithering only?
+# Term::Caca::Sprite  load only?
+
+
 package App::MathImage::Image::Base::Caca;
 use 5.006;  # Term::Caca might be 5.006
 use strict;
@@ -27,7 +33,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 56;
+$VERSION = 57;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -52,7 +58,6 @@ sub new {
   my $height = delete $params{'-height'};
   if (! defined $params{'-caca'}) {
     my $caca = $params{'-caca'} = Term::Caca->new ($width, $height);
-    $caca->ReadImage('xc:black');
   }
 
   my $self = bless {}, $class;
@@ -172,7 +177,7 @@ sub ellipse {
     shift->SUPER::ellipse(@_);
   } else {
     # odd width and height
-    my $method = ($fill ? 'fill_ellipse' : 'ellipse');
+    my $method = ($fill ? 'fill_ellipse' : 'draw_ellipse');
     $self->{'-caca'}->$method (($x1+$x2)/2, ($y1+$y2)/2,       # centre
                                abs($x1-$x2)/2, abs($y1-$y2)/2, # a,b
                                $colour);
@@ -233,7 +238,7 @@ Or an existing file can be read,
 
     $image = App::MathImage::Image::Base::Caca->new (-file => '/some/filename.png');
 
-Or a C<Term::Caca> object can be given,
+Or a C<Term::Caca> object canvas can be given,
 
     $image = App::MathImage::Image::Base::Caca->new (-caca => $cacacanvas);
 

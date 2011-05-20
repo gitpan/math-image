@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,8 +35,8 @@ sub parameter_list {
   require App::MathImage::NumSeq::OeisCatalogue;
   return  ({
             name       => 'oeis_anum',
-            display    => __('A-number'),
             type       => 'string',
+            display    => __('A-number'),
             type_hint  => 'oeis_anum',
             width      => 8,
             minimum    => App::MathImage::NumSeq::OeisCatalogue->anum_first,

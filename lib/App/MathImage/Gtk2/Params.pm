@@ -31,13 +31,13 @@ use Gtk2::Ex::MenuBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use Glib::Object::Subclass
   'Glib::Object',
   properties => [ Glib::ParamSpec->scalar
-                  ('values',
-                   'Values',
+                  ('parameter-values',
+                   'Parameter Values',
                    'Blurb.',
                    Glib::G_PARAM_READWRITE),
 
@@ -73,7 +73,7 @@ sub GET_PROPERTY {
   my $pname = $pspec->get_name;
   ### Params GET_PROPERTY: $pname
 
-  if ($pname eq 'values') {
+  if ($pname eq 'parameter_values') {
     my $toolitems_hash = $self->{'toolitems_hash'};
     # ### $toolitems_hash
     ### parameter_list: $self->{'parameter_list'}
@@ -82,7 +82,7 @@ sub GET_PROPERTY {
       if (_pinfo_when($self,$pinfo)
           && (my $toolitem = _pinfo_to_toolitem ($self, $pinfo))) {
         ### $pinfo
-        $ret{$pinfo->{'name'}} = $toolitem->get('value');
+        $ret{$pinfo->{'name'}} = $toolitem->get('parameter-value');
       }
     }
     ### Params: %ret
@@ -115,50 +115,47 @@ sub SET_PROPERTY {
       if (defined $toolitem) {
         delete $hide{$key};
       } else {
-        ### new toolitem
-        ### $name
-        ### type: $pinfo->{'type'}
         my $ptype = $pinfo->{'type'};
         my $display = ($pinfo->{'display'} || $name);
-        my $tooltip_extra;
         Scalar::Util::weaken (my $weak_self = $self);
+        ### new toolitem
+        ### $name
+        ### $ptype
+        ### $display
 
-        if ($ptype eq 'boolean') {
-          require App::MathImage::Gtk2::Params::Boolean;
-          $toolitem = App::MathImage::Gtk2::Params::Boolean->new
-            (label  => $display,
-             active => $pinfo->{'default'});
-
-        } elsif ($ptype eq 'enum') {
-          require App::MathImage::Gtk2::Params::Enum;
-          $toolitem = App::MathImage::Gtk2::Params::Enum->new;
-
-        } elsif ($ptype eq 'integer') {
-          require App::MathImage::Gtk2::Params::Integer;
-          $toolitem = App::MathImage::Gtk2::Params::Integer->new;
-
-        } elsif ($ptype eq 'float') {
-          my $class = 'App::MathImage::Gtk2::Params::Float';
-          if (($pinfo->{'type_hint'}||'') eq 'expression') {
-            $class .= 'Expression';
-          }
-          Module::Load::load ($class);
-          $toolitem = $class->new;
-
-        } elsif ($ptype eq 'filename') {
-          require App::MathImage::Gtk2::Params::Filename;
-          $toolitem = App::MathImage::Gtk2::Params::Filename->new;
-
-        } else {
-          require App::MathImage::Gtk2::Params::String;
-          $toolitem = App::MathImage::Gtk2::Params::String->new;
+        my $class;
+        if (defined (my $ptype_hint = $pinfo->{'type_hint'})) {
+          $class = "App::MathImage::Gtk2::Params::\u${ptype}::\u${ptype_hint}";
+          ### hint class: $class
         }
+        unless ($class && Module::Util::find_installed($class)) {
+          $class = "App::MathImage::Gtk2::Params::\u$ptype";
+          ### ptype class: $class
+          unless (Module::Util::find_installed($class)) {
+            $class = 'App::MathImage::Gtk2::Params::String';
+          }
+        }
+        ### decided class: $class
+        Module::Load::load ($class);
+        $toolitem = $class->new
+          (exists $self->{'parameter_values'}->{$key}
+           ? (parameter_value => $self->{'parameter_values'}->{$key})
+           : ());
 
         $toolitem->signal_connect
-          ('notify::value' => \&_do_toolitem_changed, \$weak_self);
-
-        set_property_maybe ($toolitem, # tooltip-text new in 2.12
-                            tooltip_text => join("\n\n", grep {defined} $pinfo->{'description'}, $tooltip_extra));
+          ('notify::parameter-value' => \&_do_toolitem_changed, \$weak_self);
+        {
+          my $tooltip = $pinfo->{'description'};
+          if (! defined $tooltip) {
+            $tooltip = $self->{'display'};
+            if (! defined $tooltip) {
+              $tooltip = $self->{'name'};
+            }
+          }
+          ### $tooltip
+          set_property_maybe ($toolitem, # tooltip-text new in 2.12
+                              tooltip_text => $tooltip);
+        }
         $toolitems_hash->{$key} = $toolitem;
         $toolitem->show_all;
         $toolbar->insert ($toolitem, -1);
@@ -173,7 +170,7 @@ sub SET_PROPERTY {
       $toolitem->hide;
     }
     _update_visible ($self);
-    $self->notify('values');
+    $self->notify('parameter-values');
   }
 }
 
@@ -181,9 +178,9 @@ sub _do_toolitem_changed {
   my ($toolitem) = @_;
   my $ref_weak_self = $_[-1];
   my $self = $$ref_weak_self || return;
-  ### Params notify values
-  $self->notify ('values');
   _update_visible ($self);
+  ### Params notify values
+  $self->notify ('parameter-values');
 }
 
 sub _update_visible {
@@ -204,7 +201,7 @@ sub _pinfo_when {
     ### $when_name
     if (my $when_pinfo = List::Util::first {$_->{'name'} eq $when_name} @{$self->{'parameter_list'}}) {
       if (my $when_toolitem = _pinfo_to_toolitem($self,$when_pinfo)) {
-        my $got_value = $when_toolitem->get('value');
+        my $got_value = $when_toolitem->get('parameter-value');
         ### $got_value
         return (defined $got_value
                 && $got_value eq $pinfo->{'when_value'});

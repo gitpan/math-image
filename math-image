@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 exit App::MathImage->command_line;
 
 __END__
@@ -429,6 +429,10 @@ Lines following the cursor, enabled from the Tools/Cross menu item.
 Error messages in a dialog instead of to C<STDERR>.  Of course there
 shouldn't be any errors!
 
+=item C<Gtk2::Ex::QuadButton>
+
+Scroll arrows in the bottom right corner.
+
 =back
 
 =head1 ENVIRONMENT
@@ -440,6 +444,13 @@ shouldn't be any errors!
 The X display to use.
 
 =back
+
+=head1 BUGS
+
+Some of the values plotted can be a bit slow to generate or use a lot of
+memory, or both.  When the path goes out to large positions, or when paged
+out away from the origin, the display can hang generating values.  This
+happens for example plotting primes on the PythagoreanTree.
 
 =head1 SEE ALSO
 

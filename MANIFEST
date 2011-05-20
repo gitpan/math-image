@@ -17,7 +17,6 @@ devel/Caca.pm
 devel/camel.pl
 devel/compound.el
 devel/compound.pl
-devel/dirbutton.pl
 devel/Encode-X11.t
 devel/euler.pl
 devel/expression.pl
@@ -37,6 +36,7 @@ devel/oeis-entry.pl
 devel/oeis.pl
 devel/OeisCatalogue-SqrtDigits.pm
 devel/old/FractionBits.pm
+devel/old/MathImagePythagoreanUAD.pm
 devel/old/PentagonalGeneralized.pm
 devel/old/PentagonalSecond.pm
 devel/old/SqrtBits.pm
@@ -50,8 +50,6 @@ devel/pixbuf-types.pl
 devel/prima.pl
 devel/primes.pl
 devel/pythagorean-columns.pl
-devel/pythagorean.pl
-devel/quadbutton.pl
 devel/repdigit.pl
 devel/rle.pl
 devel/run-about.pl
@@ -84,12 +82,8 @@ lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
 lib/App/MathImage/Gtk2/Ex/LayoutBits.pm
 lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 lib/App/MathImage/Gtk2/Ex/PixbufBits.pm
-lib/App/MathImage/Gtk2/Ex/QuadButton.pm
-lib/App/MathImage/Gtk2/Ex/QuadButton/Scroll.pm
-lib/App/MathImage/Gtk2/Ex/QuadScroll.pm
-lib/App/MathImage/Gtk2/Ex/QuadScroll/ArrowButton.pm
-lib/App/MathImage/Gtk2/Ex/ScrollButtons.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
+lib/App/MathImage/Gtk2/Ex/ToolItem/CheckButton.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuItem.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuView.pm
@@ -102,7 +96,7 @@ lib/App/MathImage/Gtk2/Params/Boolean.pm
 lib/App/MathImage/Gtk2/Params/Enum.pm
 lib/App/MathImage/Gtk2/Params/Filename.pm
 lib/App/MathImage/Gtk2/Params/Float.pm
-lib/App/MathImage/Gtk2/Params/FloatExpression.pm
+lib/App/MathImage/Gtk2/Params/Float/Expression.pm
 lib/App/MathImage/Gtk2/Params/Integer.pm
 lib/App/MathImage/Gtk2/Params/String.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
@@ -155,6 +149,7 @@ lib/App/MathImage/NumSeq/Sequence/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/Sequence/GoldenSequence.pm
 lib/App/MathImage/NumSeq/Sequence/Lines.pm
 lib/App/MathImage/NumSeq/Sequence/LinesLevel.pm
+lib/App/MathImage/NumSeq/Sequence/LinesTree.pm
 lib/App/MathImage/NumSeq/Sequence/Ln2Bits.pm
 lib/App/MathImage/NumSeq/Sequence/Lucas.pm
 lib/App/MathImage/NumSeq/Sequence/MobiusFunction.pm
@@ -209,9 +204,8 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
+lib/Math/PlanePath/MathImageCoprimeColumns.pm
 lib/Math/PlanePath/MathImageFlowsnake.pm
-lib/Math/PlanePath/MathImagePythagoreanTree.pm
-lib/Math/PlanePath/MathImagePythagoreanUAD.pm
 make-oeis-catalogue.pl
 Makefile.PL
 MANIFEST			This list of files
@@ -242,6 +236,8 @@ t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
 t/Test/Weaken/ExtraBits.pm
+t/ToolItem-CheckButton-weaken.t
+t/ToolItem-CheckButton.t
 t/UndulatingNumbers.t
 t/Values.t
 t/ValuesFile.t

@@ -23,7 +23,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +34,7 @@ use constant values_min => 1;
 use constant parameter_list => ({ name    => 'polygonal',
                                   display => __('Polygonal'),
                                   type    => 'integer',
-                                  default => 5,
+                                  default => 6,
                                   minimum => 3,
                                   description => __('Which polygonal numbers to show.  3 is the triangular numbers, 4 the perfect squares, 5 the pentagonal numbers, etc.'),
                                 },

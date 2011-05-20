@@ -26,7 +26,7 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -70,7 +70,7 @@ sub info_arrayref {
   }
   while (defined (my $basename = readdir DIR)) {
     ### $basename
-    if ($basename =~ /^[Aab](.*)\./i) {
+    if ($basename =~ /^[Aab](\d*)\.(html?|internal|txt)/i) {
       my $anum = "A$1";
       unless ($seen{$anum}++) {
         push @ret, _make_info($anum);

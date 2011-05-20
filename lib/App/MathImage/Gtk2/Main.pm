@@ -24,7 +24,7 @@ use Carp;
 use List::Util qw(min max);
 use POSIX ();
 use Module::Util;
-use Glib::Ex::ConnectProperties 8;  # v.7 for transforms, v.8 for write_only
+use Glib::Ex::ConnectProperties 8;  # v.8 for write_only
 use Glib 1.220; # for SOURCE_REMOVE
 use Gtk2 1.220;
 use Gtk2::Ex::ActionTooltips;
@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -130,74 +130,6 @@ sub _path_to_mnemonic {
           || Glib::Ex::EnumBits::to_display_default($str));
 }
 
-my $wider = [{
-              name => 'wider',
-              type => 'integer',
-              description => __('Wider path.'),
-              minimum => 0,
-              default => 0,
-             }];
-my %path_parameter_list = (SquareSpiral    => $wider,
-                           HexSpiral       => $wider,
-                           HexSpiralSkewed => $wider,
-                           MultipleRings => [{ name      => 'step',
-                                               share_key => 'rings_step',
-                                               type      => 'integer',
-                                               minimum   => 0,
-                                               default   => 6,
-                                             }],
-                           PyramidRows => [{ name      => 'step',
-                                             share_key => 'pyramid_step',
-                                             type      => 'integer',
-                                             minimum   => 0,
-                                             default   => 2,
-                                           }],
-                           VogelFloret => [
-                                           {
-                                            name => 'rotation_type',
-                                            type => 'enum',
-                                            share_key => 'vogel_rotation_type',
-                                            choices => ['phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom'],
-                                            default => 'phi',
-                                           },
-                                           {
-                                            name => 'rotation_factor',
-                                            type => 'float',
-                                            type_hint => 'expression',
-                                            description => __('Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'),
-                                            default => - (1 + sqrt(5)) / 2,
-                                            default_expression => '-phi',
-                                            width => 10,
-                                            when_name  => 'rotation_type',
-                                            when_value => 'custom',
-                                           },
-                                           { name      => 'radius_factor',
-                                             description => __('Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'),
-                                             type      => 'float',
-                                             minimum   => 0,
-                                             maximum   => 999,
-                                             page_increment => 1,
-                                             step_increment => .1,
-                                             decimals  => 2,
-                                             default   => 1,
-                                           },
-                                          ],
-                           MathImagePythagoreanTree => [
-                                                        {
-                                                         name => 'tree_type',
-                                                         type => 'enum',
-                                                         choices => ['UAD','FB'],
-                                                         default => 'UAD',
-                                                        },
-                                                        {
-                                                         name => 'coordinates',
-                                                         type => 'enum',
-                                                         choices => ['AB','BA','UV','Octant'],
-                                                         default => 'AB',
-                                                        }
-                                                       ],
-                          );
-
 sub INIT_INSTANCE {
   my ($self) = @_;
 
@@ -206,7 +138,7 @@ sub INIT_INSTANCE {
   $self->add ($vbox);
 
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
-  $draw->signal_connect (notify => \&_do_parameter_spin_changed);
+  $draw->signal_connect ('notify::values-parameters' => \&_do_values_changed);
 
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
@@ -511,22 +443,18 @@ HERE
                                       [$haxis,'visible'],
                                       [$vaxis,'visible']);
 
-    my $aframe = Gtk2::AspectFrame->new ('', .5, .5, 1, 0);
-    $aframe->set (label => undef,
-                  shadow_type => 'none',
-                  width_request => 1,
-                  height_request => 1);
-    $table->attach ($aframe, 2,3, 2,3,
-                    ['fill','shrink'],['fill','shrink'],0,0);
-
-    require App::MathImage::Gtk2::Ex::QuadButton::Scroll;
-    my $qb = App::MathImage::Gtk2::Ex::QuadButton::Scroll->new
-      (hadjustment => $hadj,
-       vadjustment => $vadj,
-       vinverted   => 1);
-    set_property_maybe # tooltip-text new in 2.12
-      ($qb, tooltip_text => __('Click to scroll up/down/left/right, hold the control key down to scroll by a page.'));
-    $aframe->add ($qb);
+    if (Module::Util::find_installed('Gtk2::Ex::QuadButton::Scroll')) {
+      # quadbutton if available
+      require Gtk2::Ex::QuadButton::Scroll;
+      my $qb = Gtk2::Ex::QuadButton::Scroll->new
+        (hadjustment => $hadj,
+         vadjustment => $vadj,
+         vinverted   => 1);
+      set_property_maybe # tooltip-text new in 2.12
+        ($qb, tooltip_text => __('Click to scroll up/down/left/right, hold the control key down to scroll by a page.'));
+      $table->attach ($qb, 2,3, 2,3,
+                      ['fill','shrink'],['fill','shrink'],2,2);
+    }
   }
   $table->show_all;
 
@@ -573,13 +501,14 @@ HERE
           func_in => sub {
             my ($path) = @_;
             ### Main path parameter_list(): $path
-            my $path_object = $self->{'draw'}->gen_object->path_object;
-            return ($path_object->can('parameter_list')
-                    ? [ $path_object->parameter_list ]
-                    : $path_parameter_list{$path} || []);
+            my $path_class = App::MathImage::Generator->path_class($path);
+            return ($path_class->can('parameter_info_array')
+                    ? $path_class->parameter_info_array
+                    : $App::MathImage::Generator::pathname_parameter_info_array{$path}
+                    || []);
           }]);
     ### path_params values to draw
-    Glib::Ex::ConnectProperties->new ([$path_params,'values'],
+    Glib::Ex::ConnectProperties->new ([$path_params,'parameter-values'],
                                       [$draw,'path-parameters']);
   }
 
@@ -619,12 +548,13 @@ HERE
           write_only => 1,
           func_in => sub {
             my ($values) = @_;
-            ### Main values parameter_list(): $values
-            return [ $self->{'draw'}->gen_object->values_object->parameter_list ];
+            ### Main values parameter_list() for: $values
+            my $values_class = App::MathImage::Generator->values_class($values);
+            ### list: [ $values_class->parameter_list ]
+            return [ $values_class->parameter_list ];
           }]);
-    ### values_params values to draw
-    Glib::Ex::ConnectProperties->new ([$values_params,'values'],
-                                      [$draw,'values-parameters']);
+    Glib::Ex::ConnectProperties->new ([$draw,'values-parameters'],
+                                      [$values_params,'parameter-values']);
   }
 
 
@@ -739,21 +669,9 @@ sub _update_values_tooltip {
 
   set_property_maybe ($toolitem, tooltip_text => $tooltip);
 }
-sub _do_parameter_spin_changed {
-  my ($spin) = @_;
-  my $self = $spin->get_ancestor(__PACKAGE__) || return;
-  _update_values_tooltip($self);
-}
-# sub _do_parameter_spin_adj_changed {
-#   my ($spin, $ref_weak_self) = @_;
-#   my $self = $$ref_weak_self || return;
-#   _update_values_tooltip($self);
-# }
-
-
 sub _do_values_changed {
-  my ($values_combobox) = @_;
-  my $self = $values_combobox->get_ancestor(__PACKAGE__) || return;
+  my ($widget) = @_;
+  my $self = $widget->get_ancestor(__PACKAGE__) || return;
   _update_values_tooltip($self);
 }
 
@@ -1187,9 +1105,7 @@ sub command_line {
   $draw->modify_bg ('normal', $bg_color);
   ### draw set gen_options: $gen_options
   foreach my $key (keys %$gen_options) {
-    my $pname = ($draw->find_property("values-$key")
-                 ? "values-$key" : $key);
-    $draw->set ($pname, $gen_options->{$key});
+    $draw->set ($key, $gen_options->{$key});
   }
   ### draw values now: $draw->get('values')
 

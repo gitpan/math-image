@@ -24,13 +24,15 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 56;
+our $VERSION = 57;
 
+# Gtk2::ToggleToolButton
+use App::MathImage::Gtk2::Ex::ToolItem::CheckButton;
 use Glib::Object::Subclass
-  'Gtk2::ToggleToolButton',
+  'App::MathImage::Gtk2::Ex::ToolItem::CheckButton',
   properties => [ Glib::ParamSpec->boolean
-                  ('value',
-                   'Value',
+                  ('parameter-value',
+                   'Parameter Value',
                    'Blurb.',
                    0,
                    Glib::G_PARAM_READWRITE),
@@ -43,17 +45,12 @@ use Glib::Object::Subclass
                 ],
   signals => { notify => \&_do_notify };
 
-sub INIT_INSTANCE {
-  my ($self) = @_;
-  set_property_maybe ($self->get_child, draw_as_radio => 1);
-}
-
 sub _do_notify {
   my ($self, $pspec) = @_;
   my $pname = $pspec->get_name;
   if ($pname eq 'active') {
     ### Boolean notify value
-    $self->notify('value');
+    $self->notify('parameter-value');
   }
 }
 
@@ -63,7 +60,21 @@ sub GET_PROPERTY {
 }
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
-  $self->set_active ($newval);
+  my $pname = $pspec->get_name;
+  if ($pname eq 'parameter_value') {
+    $self->{'parameter_value_set'} = 1;;
+    $self->set_active ($newval);
+  } else {
+    my $oldval = $self->{$pname};
+    $self->{$pname} = $newval;
+
+    my $display = $newval->{'display'};
+    $self->set (label => defined $display ? $display : $newval->{'name'});
+    if (! $self->{'parameter_value_set'}) {
+      $self->{'parameter_value_set'} = 1;
+      $self->set_active ($newval->{'default'});
+    }
+  }
 }
 
 1;

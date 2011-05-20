@@ -21,6 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use FindBin;
+use List::Util 'max';
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 use Prima 'Application';
@@ -35,7 +36,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 56;
+$VERSION = 57;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -43,8 +44,8 @@ sub new {
 
   my $gui_options = delete $args{'gui_options'};
   my $gen_options = delete $args{'gen_options'};
- $gen_options = { %{App::MathImage::Generator->default_options},
-                  %{$gen_options||{}} };
+  $gen_options = { %{App::MathImage::Generator->default_options},
+                   %{$gen_options||{}} };
   ### Main gen_options: $gen_options
 
   my $self = $class->SUPER::new
@@ -71,8 +72,8 @@ sub new {
                         sub {
                           my ($self) = @_;
                           ### POD: "@_"
-                          # $::application->open_help ("$FindBin::Bin/$FindBin::Script");
-                          $::application->open_help ('/tmp/foo.pod');
+                          $::application->open_help ("$FindBin::Bin/$FindBin::Script");
+                          # $::application->open_help ('/tmp/foo.pod');
                         }],
 
                       [ __('~This Path POD'),
@@ -123,7 +124,6 @@ Click repeatedly to see interesting things.'),
 
   my $path_combo = $self->{'path_combo'}
     = $toolbar->insert ('ComboBox',
-                        # autoWidth => 1,
                         pack   => { side => 'left',
                                     fill => 'none',
                                     expand => 0},
@@ -143,7 +143,6 @@ Click repeatedly to see interesting things.'),
 
   $self->{'values_combo'}
     = $toolbar->insert ('ComboBox',
-                        autoWidth => 1,
                         pack  => { side => 'left',
                                    fill => 'none',
                                    expand => 0 },
@@ -160,6 +159,16 @@ Click repeatedly to see interesting things.'),
                           _update ($self);
                         },
                        );
+
+  # {
+  #   my $max = 0;
+  #   foreach (0 .. $self->{'values_combo'}->{list}->count() - 1) {
+  #     ### wid: $self->{'values_combo'}->{list}->get_item_width($_)
+  #     $max = max ($max, $self->{'values_combo'}->{list}->get_item_width($_));
+  #   }
+  #   ### $max
+  #   $self->{'values_combo'}->width($max+10);
+  # }
 
   {
     $toolbar->insert ('Label',
@@ -464,10 +473,6 @@ sub _do_about {
 #       <menuitem action='SaveAs'/>
 #       <menuitem action='SetRoot'/>
 #   </menubar>
-#   <toolbar  name='ToolBar'>
-#     <separator/>
-#     <toolitem action='Randomize'/>
-#   </toolbar>
 # </ui>
 # HERE
 #   $ui->add_ui_from_string ($ui_str);

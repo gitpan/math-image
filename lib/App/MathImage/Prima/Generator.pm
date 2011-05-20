@@ -28,7 +28,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
@@ -102,12 +102,13 @@ sub post_handler {
 # _post_method_weakly($object,$method,$arg...)
 # calls $object->$method ($arg,...)
 sub _post_method_weakly {
-  my @args = @_;
-  Scalar::Util::weaken ($args[0]);
-  Prima::Utils::post (\&_post_method_weakly_handler, @args);
+  my $weak_object = shift;
+  Scalar::Util::weaken ($weak_object);
+  Prima::Utils::post (\&_post_method_weakly_handler, \$weak_object, @_);
 }
 sub _post_method_weakly_handler {
-  my $object = shift || return;
+  # ($ref_weak_object,$method,$arg...)
+  my $object = ${(shift)} || return;
   my $method = shift;
   $object->$method (@_);
 }

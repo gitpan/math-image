@@ -32,7 +32,7 @@ use Locale::TextDomain 'App-MathImage';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -63,22 +63,20 @@ sub new {
   my ($class, %options) = @_;
   ### OEIS-File: %options
 
-  my $aref = [];
   my %info;
   if (my $oeis_anum = $options{'oeis_anum'}) {
+    my $self = {};
     ### $oeis_anum
-    _read_values($oeis_anum);
-    ### $aref
-    %info = _read_internal($oeis_anum, $aref);
-    if (! %info) {
-      %info = _read_html($oeis_anum, $aref);
+    _read_values (\%info, $oeis_anum);
+    if (! _read_internal(\%info, $oeis_anum)) {
+      _read_html(\%info, $oeis_anum);
     }
-    $aref ||= delete $info{'array'};
-    if (! $aref) {
-      croak "B-file or HTML not found for A-number \"",$oeis_anum,"\"";
+    if (! $info{'array'}) {
+      croak 'B-file, Internal or HTML not found for A-number "',$oeis_anum,'"';
     }
 
     if ($info{'type_hash'}->{'radix'}) {
+      my $aref = $info{'array'};
       my $max = 0;
       foreach my $i (1 .. $#$aref) {
         if ($aref->[$i] > 50) {
@@ -94,8 +92,7 @@ sub new {
   }
 
   return $class->SUPER::new (%info,
-                             %options,
-                             array => $aref);
+                             %options);
 }
 
 sub oeis_dir {
@@ -113,54 +110,8 @@ sub anum_to_bfile {
   return $anum;
 }
 
-sub _read_html {
-  my ($anum, $aref) = @_;
-  my @ret;
-  foreach my $basefile ("$anum.html", "$anum.htm") {
-    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
-    ### $basefile
-    ### $filename
-    if (open FH, "< $filename") {
-      my $contents = do { local $/; <FH> }; # slurp
-      close FH or die;
-
-      if ($contents =~
-          m{$anum\n.*?
-            <td[^>]*>\s*
-            ([^>]*)\s*<(br|/td)>}sx) {
-        my $description = $1;
-        $description =~ s/\s+/ /g;
-        $description =~ s/<.*?>//sg;
-        $description =~ s/&lt;/</sg;
-        $description =~ s/&gt;/>/sg;
-        $description =~ s/&amp;/&/sg;
-        $description .= "\n" . ($aref
-                                ? __('Values from B-file')
-                                : __('First few values from HTML'));
-        push @ret, 'description', $description;
-      }
-      ### @ret
-
-      if (! $aref) {
-        # fragile grep out of the html ...
-        $contents =~ s{>graph</a>.*}{};
-        $contents =~ m{.*<tt>([^<]+)</tt>};
-        my $list = $1;
-        unless ($list =~ m{^([0-9,-]|\s)+$}) {
-          croak "Oops list of values not found in ",$filename;
-        }
-        push @ret, 'array', [ split /[, \t\r\n]+/, $list ];
-      }
-      ### @ret
-      return @ret;
-    }
-    ### no html: $!
-  }
-  return;
-}
-
 sub _read_values {
-  my ($anum) = @_;
+  my ($info, $anum) = @_;
   ### NumSeq-OEIS-File _read_values(): @_
 
   require File::Spec;
@@ -196,15 +147,14 @@ sub _read_values {
       }
     }
     close FH or die "Error reading $filename: $!";
-    return \@array;
+    $info->{'filename'} = $filename;
+    $info->{'array'} = \@array;
   }
   return;
 }
 
 sub _read_internal {
-  my ($anum, $aref) = @_;
-  my %type_hash = (integer => 1);
-  my @ret = (type_hash => \%type_hash);
+  my ($info, $anum, $aref) = @_;
 
   my $basefile = "$anum.internal";
   my $filename = File::Spec->catfile (oeis_dir(), $basefile);
@@ -217,6 +167,9 @@ sub _read_internal {
   my $contents = do { local $/; <FH> }; # slurp
   close FH or die "Error reading $filename: ",$!;
 
+  my %type_hash = (integer => 1);
+  $info->{'type_hash'} = \%type_hash;
+
   my $offset;
   if ($contents =~ /^%O\s+(\d+)/) {
     $offset = $1;
@@ -228,7 +181,7 @@ sub _read_internal {
     my %K;
     @K{split /[, \t]+/, $1} = ();
     if (exists $K{'nonn'}) {
-      push @ret, values_min => 0;
+      $info->{'values_min'} = 0;
     }
     # "base" means dependent on some number base
     # "cons" means decimal expansion of a number
@@ -254,28 +207,85 @@ sub _read_internal {
     if ($description =~ /^number of /i) {
       $type_hash{'count'} = 1;
     }
-
-    $description .= "\n" . ($aref
-                            ? __('Values from B-file')
+    $description .= "\n" . (defined $info->{'filename'}
+                            ? __x('Values from B-file {filename}',
+                                  filename => $info->{'filename'})
                             : __('First few values from HTML'));
-    push @ret, description => $description;
+    $info->{'description'} = $description;
   }
 
-  if (! $aref) {
+  if (! $info->{'array'}) {
     $contents =~ m{^%S (.*?)(</tt>|$)}m
       or croak "Oops list of values not found in ",$filename;
-    push @ret, 'array', [ split /[, \t\r\n]+/, $1 ];
+    _split_sample_values ($info, $filename, $1, $offset);
   }
+}
+
+sub _read_html {
+  my ($info, $anum) = @_;
+  foreach my $basefile ("$anum.html", "$anum.htm") {
+    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
+    ### $basefile
+    ### $filename
+    if (open FH, "< $filename") {
+      my $contents = do { local $/; <FH> }; # slurp
+      close FH or die;
+
+      if ($contents =~
+          m{$anum\n.*?
+            <td[^>]*>\s*</td>   # blank <td ...></td>
+            <td[^>]*>           # <td ...>
+            \s*
+            ([^>]+)             # text
+            <(br|/td)>          # to <br> or </td>
+         }sx) {
+        my $description = $1;
+        $description =~ s/^\s+//;
+        $description =~ s/\s+$//;
+        $description =~ s/\s+/ /g;    # collapse whitespace
+        $description =~ s/<.*?>//sg;
+        $description =~ s/&lt;/</sg;
+        $description =~ s/&gt;/>/sg;
+        $description =~ s/&amp;/&/sg;
+        $description .= "\n" . (defined $info->{'filename'}
+                                ? __x('Values from B-file {filename}',
+                                      filename => $info->{'filename'})
+                                : __('First few values from HTML'));
+        $info->{'description'} = $description;
+      }
+
+      # fragile grep out of the html ...
+      my $offset = ($contents =~ /OFFSET.*?<tt>(\d+)/s
+                    && $1);
+      ### $offset
+
+      if (! $info->{'array'}) {
+        # fragile grep out of the html ...
+        $contents =~ s{>graph</a>.*}{};
+        $contents =~ m{.*<tt>([^<]+)</tt>};
+        my $list = $1;
+        _split_sample_values ($info, $filename, $list, $offset);
+      }
+      return;
+    }
+    ### no html: $!
+  }
+  return;
+}
+
+sub _split_sample_values {
+  my ($info, $filename, $str, $offset) = @_;
+  unless ($str =~ m{^([0-9,-]|\s)+$}) {
+    croak "Oops unrecognised list of values not found in ",$filename,"\n",$str;
+  }
+  $info->{'array'} = [ split /[, \t\r\n]+/, $str ];
 
   # %O "OFFSET" is subscript of first number, or for digit expansions it's
   # the position of the decimal point
   # http://oeis.org/eishelp2.html#RO
-  if (! $type_hash{'radix'}) {
-    unshift @ret, (undef) x $offset;
+  if ($offset && ! $info->{'type_hash'}->{'radix'}) {
+    unshift @{$info->{'array'}}, (undef) x $offset;
   }
-
-  ### @ret
-  return @ret;
 }
 
 1;

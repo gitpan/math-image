@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -46,9 +46,13 @@ HERE
 use Glib::Object::Subclass
   'Gtk2::HBox',
   signals => {
-              # size_request  => \&do_size_request,
-              # size_allocate => \&do_size_allocate,
+              # size_request  => \&_do_size_request,
+              # size_allocate => \&_do_size_allocate,
               activate => { param_types => [ ] },
+              scroll => { param_types => [ 'Gtk2::ScrollType' ],
+                          flags => ['run-first','action'],
+                          class_closure => \&_do_scroll_action,
+                        },
              },
   properties => [ Glib::ParamSpec->string
                   ('text',
@@ -67,16 +71,33 @@ use Glib::Object::Subclass
 
                 ];
 
+# priority level "gtk" treating this as widget level default, for overriding
+# by application or user RC
+# normally for Gtk2::Entry Up/Down are focus movement
+Gtk2::Rc->parse_string (<<'HERE');
+binding "App__MathImage__Gtk2__OeisEntry_keys" {
+  bind "Up"          { "scroll" (step-up) }
+  bind "Down"        { "scroll" (step-down) }
+  bind "<Ctrl>Up"    { "scroll" (page-up) }
+  bind "<Ctrl>Down"  { "scroll" (page-down) }
+  bind "Page_Up"     { "scroll" (page-up) }
+  bind "Page_Down"   { "scroll" (page-down) }
+}
+class "App__MathImage__Gtk2__OeisEntry" binding:gtk "App__MathImage__Gtk2__OeisEntry_keys"
+HERE
+
 sub INIT_INSTANCE {
   my ($self) = @_;
-  ### OeisSpinButton INIT_INSTANCE()
+  ### OeisEntry INIT_INSTANCE()
 
   # $self->set_spacing (0);
 
   my $entry = $self->{'entry'} = Gtk2::Entry->new;
   $entry->set_text ('A000290');
   $entry->set_width_chars (7);
+  $entry->signal_connect (scroll_event => \&_do_scroll_event);
   $entry->signal_connect (activate => \&_do_entry_activate);
+  $entry->signal_connect (insert_text => \&_do_entry_insert_text);
   $entry->show;
   # $self->add ($entry);
   $self->pack_start ($entry, 1,1,0);
@@ -106,7 +127,8 @@ sub INIT_INSTANCE {
     my $button = App::MathImage::Gtk2::Ex::ArrowButton->new
       (arrow_type => $dir);
     $button->{'direction'} = $dir;
-    $button->signal_connect (clicked => \&_do_button_clicked);
+    $button->signal_connect (clicked => \&_do_arrow_clicked);
+    $button->signal_connect (scroll_event => \&_do_scroll_event);
     ### xt: $button->get_style->xthickness
     $vbox->pack_start ($button, 1,1,0);
   }
@@ -132,7 +154,7 @@ sub SET_PROPERTY {
 }
 
 # 'size-request' class handler
-sub do_size_request {
+sub _do_size_request {
   my ($self, $req) = @_;
   $self->{'right'}->size_request;
   my $entry_req = $self->{'entry'}->size_request;
@@ -146,9 +168,9 @@ sub do_size_request {
 # called by our parent to give us actual allocated space -- pass this down
 # to the child, less the border width
 # 
-sub do_size_allocate {
+sub _do_size_allocate {
   my ($self, $alloc) = @_;
-  ### do_size_allocate()
+  ### _do_size_allocate()
   $self->signal_chain_from_overridden ($alloc);
 
   my $entry = $self->{'entry'};
@@ -172,26 +194,67 @@ sub do_size_allocate {
   # ### right now: $right->allocation->width, $right->allocation->height
 }
 
+sub _do_entry_insert_text {
+  my ($entry, $str, $pos, $pointer) = @_;
+  if ($str =~ /^A\d{6}/) {
+    ### replace for insert of whole A-number
+    $entry->set_text('');
+  }
+  return;
+}
+
 sub _do_entry_activate {
   my ($entry) = @_;
   my $self = $entry->get_ancestor (__PACKAGE__) || return;
   $self->activate;
 }
 
-sub _do_button_clicked {
+sub _do_arrow_clicked {
   my ($button) = @_;
   my $self = $button->get_ancestor (__PACKAGE__) || return;
-  my $entry = $self->{'entry'};
+  _scroll ($self, $button->{'direction'}, 1);
+}
 
-  my $method = $button->{'direction'} eq 'up' ? 'anum_after' : 'anum_before';
-  require App::MathImage::NumSeq::OeisCatalogue;
-  my $next_anum = App::MathImage::NumSeq::OeisCatalogue->$method
-    ($entry->get_text);
-  if (! defined $next_anum) {
-    $next_anum = App::MathImage::NumSeq::OeisCatalogue->anum_last;
+sub _do_scroll_event {
+  my ($child, $event) = @_;
+  my $self = $child->get_ancestor (__PACKAGE__) || return;
+  if ($event->direction =~ /(up|down)/) {
+    _scroll ($self, $1, $event->state & 'control-mask' ? 10 : 1);
   }
-  if (defined $next_anum) {
-    $entry->set_text ($next_anum);
+  return Gtk2::EVENT_PROPAGATE;
+}
+
+sub _do_scroll_action {
+  my ($self, $scrolltype) = @_;
+  ### _do_scroll_action: $scrolltype
+  if ($scrolltype =~ /(up|down)/) {
+    my $direction = $1;
+    _scroll ($self, $direction, $scrolltype =~ /page/ ? 10 : 1);
+  }
+}
+
+sub _scroll {
+  my ($self, $direction, $count) = @_;
+  require App::MathImage::NumSeq::OeisCatalogue;
+  my $method = $direction eq 'up' ? 'anum_after' : 'anum_before';
+  my $entry = $self->{'entry'};
+  my $anum  = my $orig_anum = $entry->get_text;
+  for ( ; $count > 0; $count--) {
+    my $next_anum = App::MathImage::NumSeq::OeisCatalogue->$method
+      ($anum);
+    if (defined $next_anum) {
+      $anum = $next_anum;
+    } else {
+      if ($direction eq 'up') {
+        $anum = App::MathImage::NumSeq::OeisCatalogue->anum_last;
+      } else {
+        $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
+      }
+      last;
+    }
+  }
+  if ($anum ne $orig_anum) {
+    $entry->set_text ($anum);
     $self->activate;
   }
 }
@@ -206,7 +269,7 @@ sub activate {
               #  button_press_event => \&_do_button_press_event,
 # sub new {
 #   my ($class, $adj, $climb_rate, $digits) = @_;
-#   ### OeisSpinButton new()
+#   ### OeisEntry new()
 #   return $class->SUPER::new (adjustment => $adj,
 #                              climb_rate => $climb_rate,
 #                              digits     => $digits);

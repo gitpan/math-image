@@ -29,14 +29,14 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 56;
+our $VERSION = 57;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog;
 use Glib::Object::Subclass
   'Gtk2::Ex::ToolItem::OverflowToDialog',
   properties => [ Glib::ParamSpec->double
-                  ('value',
-                   'Value',
+                  ('parameter-value',
+                   'Parameter Value',
                    'Blurb.',
                    POSIX::INT_MIN(), POSIX::INT_MAX(),
                    0,
@@ -62,7 +62,7 @@ sub INIT_INSTANCE {
   $adj->signal_connect
     ('notify::value' => \&_do_adj_value, \$weak_self);
 
-  my $spin = $self->{'spin'} = Gtk2::SpinButton->new ($adj, 10, 0);
+  my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
   $spin->set (xalign => 1);
   $spin->show;
   $self->add ($spin);
@@ -71,7 +71,7 @@ sub INIT_INSTANCE {
 sub GET_PROPERTY {
   my ($self, $pspec) = @_;
   my $pname = $pspec->get_name;
-  if ($pname eq 'value') {
+  if ($pname eq 'parameter_value') {
     return $self->{'adjustment'}->value;
   } else {
     return $self->{$pname};
@@ -82,7 +82,7 @@ sub SET_PROPERTY {
   my $pname = $pspec->get_name;
   ### Float SET_PROPERTY: $pname
 
-  if ($pname eq 'value') {
+  if ($pname eq 'parameter_value') {
     return $self->{'adjustment'}->set_value ($newval);
   } else {
     my $oldval = $self->{$pname};
@@ -109,22 +109,19 @@ sub SET_PROPERTY {
                        : $min);
     }
 
-    $self->{'spin'}->set (width_chars => ($newval->{'width'} || -1),
-                          digits => ($newval->{'decimals'} || 8));
+    $self->get_child->set (width_chars => ($newval->{'width'} || -1),
+                           digits => ($newval->{'decimals'} || 8));
 
     my $display = ($newval->{'display'} || $newval->{'name'});
     $self->set (overflow_mnemonic =>
                 Gtk2::Ex::MenuBits::mnemonic_escape($display));
-
-    set_property_maybe ($self, # tooltip-text new in 2.12
-                        tooltip_text => $newval->{'description'});
   }
 }
 
 sub _do_adj_value {
   my ($adj, $pspec, $ref_weak_self) = @_;
   my $self = $$ref_weak_self || return;
-  $self->notify ('value');
+  $self->notify ('parameter_value');
 }
 
 1;

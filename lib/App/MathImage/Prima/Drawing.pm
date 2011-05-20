@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 sub profile_default {
   my ($class) = @_;
@@ -77,35 +77,27 @@ sub on_paint {
   my ($self, $canvas) = @_;
   ### Prima Drawing on_paint()
   $canvas->clear;
-  $canvas->fill_ellipse(50,50, 20,20);
+  #  $canvas->fill_ellipse(50,50, 20,20);
 
-  _draw_image ($canvas, $self->gen_options);
-}
-
-sub _draw_image {
-  my ($drawable, $gen_options) = @_;
-  ### Prima Drawing _draw_image(): ref($drawable)
+  my $gen_options = $self->gen_options;
+  my $path_parameters = $self->path_parameters;
+  $path_parameters->{'width'}  = $canvas->width;
+  $path_parameters->{'height'} = $canvas->height;
+  ### width:  $canvas->width
+  ### height: $canvas->height
 
   my $gen = App::MathImage::Generator->new
     (step_time       => 0.25,
      step_figures    => 1000,
      %$gen_options,
-     width  => $drawable->width,
-     height => $drawable->height);
-  #      foreground => $self->style->fg($self->state)->to_string,
-  #      background => $background_colorobj->to_string,
-
-  #   $self->{'path_object'} = $gen->path_object;
-
-  ### width:  $drawable->width
-  ### height: $drawable->height
+     #      foreground => $self->style->fg($self->state)->to_string,
+     #      background => $background_colorobj->to_string,
+    );
 
   require Image::Base::Prima::Drawable;
-  my $image = Image::Base::Prima::Drawable->new
-    (-drawable => $drawable);
+  my $image = Image::Base::Prima::Drawable->new (-drawable => $canvas);
   ### width:  $image->get('-width')
   ### height: $image->get('-height')
-
   $gen->draw_Image ($image);
 }
 
