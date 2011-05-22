@@ -32,7 +32,7 @@ use App::MathImage::NumSeq::Sequence::ChampernowneBinary;
 # VERSION
 
 {
-  my $want_version = 57;
+  my $want_version = 58;
   is ($App::MathImage::NumSeq::Sequence::ChampernowneBinary::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::ChampernowneBinary->VERSION,  $want_version, 'VERSION class method');
 

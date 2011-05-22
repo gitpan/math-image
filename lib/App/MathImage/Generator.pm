@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 57;
+$VERSION = 58;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -1101,6 +1101,7 @@ sub draw_Image_start {
     ### $n_lo
     if ($pathname_square_grid{$self->{'path'}}
         && $values_obj->can('pred')
+        && $values_obj->can('ith')
         && $n_hi - $n_lo > $rectangle_area * 100
        ) {
       ### use_xy from the start due to big n_hi: $n_hi
@@ -1837,7 +1838,8 @@ sub maybe_use_xy {
       && $self->{'count_outside'} > .5 * $count_total
       && $pathname_square_grid{$self->{'path'}}
       && (! ($values_obj = $self->{'values_obj'})
-          || $values_obj->can('pred'))) {
+          || ($values_obj->can('pred')
+              && $values_obj->can('ith')))) {
     ### use_xy from now on
     $self->use_xy($self->{'image'});
   }

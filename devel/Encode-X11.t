@@ -35,7 +35,7 @@ require App::MathImage::Encode::X11;
 # VERSION
 
 {
-  my $want_version = 57;
+  my $want_version = 58;
   is ($App::MathImage::Encode::X11::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Encode::X11->VERSION,  $want_version, 'VERSION class method');
 

@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 57;
+$VERSION = 58;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

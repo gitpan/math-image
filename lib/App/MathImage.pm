@@ -25,7 +25,7 @@ use List::Util qw(min max);
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 57;
+$VERSION = 58;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -657,6 +657,8 @@ sub output_method_numbers {
     next if $n < $n_lo;
     my ($x, $y) = $path->n_to_xy ($n)
       or next;
+    if ($x == 0) { $x = 0; }  # no signed zeros
+    if ($y == 0) { $y = 0; }
     ($array{$x}->{$y} .= "/$n") =~ s{^/}{};
     $x_min = min ($x_min, $x);
     $x_max = max ($x_max, $x);

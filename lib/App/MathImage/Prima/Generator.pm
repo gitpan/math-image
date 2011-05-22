@@ -28,7 +28,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 57;
+our $VERSION = 58;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds

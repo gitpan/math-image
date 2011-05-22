@@ -24,7 +24,7 @@ use Carp;
 use Encode::Encoding;
 our @ISA = ('Encode::Encoding');
 
-our $VERSION = 57;
+our $VERSION = 58;
 
 __PACKAGE__->Define('x11-compound-text');
 

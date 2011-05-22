@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 57;
+our $VERSION = 58;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -216,11 +216,16 @@ sub INIT_INSTANCE {
         },
       },
       (defined (Module::Util::find_installed('Gtk2::Ex::PodViewer'))
-       ? { name     => 'PodDialog',
-           label    => __('_POD Documentation'),
-           tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
-           callback => \&_do_action_pod_dialog,
-         }
+       ? ({ name     => 'PodDialog',
+            label    => __('_POD Documentation'),
+            tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
+            callback => \&_do_action_pod_dialog,
+          },
+          { name     => 'PodDialogPath',
+            label    => __('_POD for Current Path'),
+            tooltip  => __('Display the Math::PlanePath module documentation for the current path (using Gtk2::Ex::PodViewer).'),
+            callback => \&_do_action_pod_dialog_path,
+          })
        : ()),
 
       { name     => 'Random',
@@ -375,8 +380,10 @@ HERE
     <menu action='HelpMenu'>
       <menuitem action='About'/>
 HERE
-  if ($actiongroup->get_action('PodDialog')) {
-    $ui_str .= "<menuitem action='PodDialog'/>\n";
+  foreach my $name ('PodDialog', 'PodDialogPath') {
+    if ($actiongroup->get_action($name)) {
+      $ui_str .= "<menuitem action='$name'/>\n";
+    }
   }
   $ui_str .= <<'HERE';
     </menu>
@@ -866,13 +873,19 @@ sub popup_about {
 }
 
 sub _do_action_pod_dialog {
-  my ($action, $self) = @_;
+  my ($action, $self, $initial_pod) = @_;
   require Gtk2::Ex::WidgetCursor;
   Gtk2::Ex::WidgetCursor->busy;
   require App::MathImage::Gtk2::PodDialog;
   my $dialog = App::MathImage::Gtk2::PodDialog->new
-    (screen => $self->get_screen);
+    (screen => $self->get_screen,
+     pod => $initial_pod);
   $dialog->present;
+}
+sub _do_action_pod_dialog_path {
+  my ($action, $self) = @_;
+  _do_action_pod_dialog ($action, $self,
+                         $self->{'draw'}->get('path'));
 }
 
 sub _do_action_random {

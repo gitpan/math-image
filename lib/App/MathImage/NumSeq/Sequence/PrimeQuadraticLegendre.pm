@@ -23,7 +23,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 57;
+$VERSION = 58;
 
 use constant name => __('Prime Generating Quadratic of Legendre');
 use constant description => __('The quadratic numbers 2*k^2 + 29.');

@@ -32,9 +32,17 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 57;
+our $VERSION = 58;
 
-use Glib::Object::Subclass 'Gtk2::Dialog';
+use Glib::Object::Subclass 'Gtk2::Dialog',
+  properties => [
+                 Glib::ParamSpec->string
+                 ('pod',
+                  'POD',
+                  'Blurb.',
+                  $FindBin::Script,
+                  Glib::G_PARAM_READWRITE),
+                ];
 
 sub INIT_INSTANCE {
   my ($self) = @_;
@@ -95,6 +103,29 @@ sub INIT_INSTANCE {
   #                       Gtk2::GTK_PRIORITY_RESIZE() + 10);
 }
 
+sub GET_PROPERTY {
+  my ($self, $pspec) = @_;
+  my $pname = $pspec->get_name;
+  if ($pname eq 'pod') {
+    return $self->{'combobox'}->get_active_text;
+  } else {
+    return $self->{$pname};
+  }
+}
+sub SET_PROPERTY {
+  my ($self, $pspec, $newval) = @_;
+  my $pname = $pspec->get_name;
+  if ($pname eq 'pod') {
+    if (! defined $newval) {
+      $newval = $pspec->get_default_value;
+    }
+    return Gtk2::Ex::ComboBoxBits::set_active_text
+      ($self->{'combobox'}, $newval);
+  } else {
+    $self->{$pname} = $newval;
+  }
+}
+
 sub _do_idle {
   my ($ref_weak_self) = @_;
   if (my $self = $$ref_weak_self) {
@@ -121,13 +152,15 @@ sub _do_combo_changed {
 
   my $filename;
   my $name = $combobox->get_active_text;
-  $name =~ s/-/::/g;
   if ($combobox->get_active == 0) {
     $filename = "$FindBin::Bin/$name";
-  } elsif ($name =~ /::/) {
-    $filename = Module::Util::find_installed ($name);
   } else {
-    $filename = Module::Util::find_installed ("Math::PlanePath::$name");
+    $name =~ s/-/::/g;
+    if ($name =~ /::/) {
+      $filename = Module::Util::find_installed ($name);
+    } else {
+      $filename = Module::Util::find_installed ("Math::PlanePath::$name");
+    }
   }
   ### $filename
   my $viewer = $self->{'viewer'};
@@ -136,6 +169,7 @@ sub _do_combo_changed {
          && $viewer->get_buffer->get_char_count)) {  # and not empty
     _empty ($viewer, $name);
   }
+  $self->notify('pod');
 }
 
 sub _do_viewer_link_clicked {
@@ -173,11 +207,12 @@ sub _do_viewer_link_clicked {
 }
 
 sub _empty {
-  my ($viewer, $target) = @_;
+  my ($viewer, $target, $filename) = @_;
   my $textbuf = $viewer->get_buffer;
   $textbuf->delete ($textbuf->get_start_iter, $textbuf->get_end_iter);
   $textbuf->insert ($textbuf->get_start_iter,
-                    __x("Nothing for {target}\n", target => $target));
+                    __x("Nothing for {target}\n",
+                        target => $target));
 }
 
 1;
