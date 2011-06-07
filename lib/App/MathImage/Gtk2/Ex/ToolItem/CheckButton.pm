@@ -26,7 +26,7 @@ use Glib::Ex::ObjectBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -63,14 +63,14 @@ sub INIT_INSTANCE {
 
 sub FINALIZE_INSTANCE {
   my ($self) = @_;
-  ### CheckButton FINALIZE_INSTANCE()
+  ### CheckButton FINALIZE_INSTANCE()...
   if (my $menuitem = delete $self->{'menuitem'}) {
     $menuitem->destroy;  # circular MenuItem<->AccelLabel
   }
 }
 sub _do_destroy {
   my ($self) = @_;
-  ### CheckButton _do_destroy()
+  ### CheckButton _do_destroy()...
   FINALIZE_INSTANCE($self);
   $self->signal_chain_from_overridden;
 }
@@ -110,7 +110,7 @@ sub SET_PROPERTY {
 # 'notify' on self
 sub _do_notify {
   my ($self, $pspec) = @_;
-  ### CheckButton _do_notify()
+  ### CheckButton _do_notify()...
   $self->signal_chain_from_overridden ($pspec);
 
   my $pname = $pspec->get_name;
@@ -125,7 +125,7 @@ sub _do_notify {
 sub _do_checkbutton_notify_active {
   my ($checkbutton, $pspec, $ref_weak_self) = @_;
   my $self = $checkbutton->get_parent || return;
-  ### ToolItem-CheckButton _do_checkbutton_notify_active()
+  ### ToolItem-CheckButton _do_checkbutton_notify_active()...
   if (my $menuitem = $self->{'menuitem'}) {
     $menuitem->set_active ($checkbutton->get_active);
   }
@@ -134,10 +134,15 @@ sub _do_checkbutton_notify_active {
 
 sub _do_create_menu_proxy {
   my ($self) = @_;
-  ### ToolItem-CheckButton _do_create_menu_proxy()
+  ### ToolItem-CheckButton _do_create_menu_proxy()...
   ### visible: $self->get('visible')
+  $self->set_proxy_menu_item (__PACKAGE__, _overflow_menuitem($self));
+  return 1;
+}
 
-  $self->{'menuitem'} ||= do {
+sub _overflow_menuitem {
+  my ($self) = @_;
+  return ($self->{'menuitem'} ||= do {
     my $label = $self->get_child->get('label');
     # don't pass undef to Gtk2::CheckMenuItem->new() ...
     my $menuitem = Gtk2::CheckMenuItem->new (defined $label ? $label : ());
@@ -150,15 +155,13 @@ sub _do_create_menu_proxy {
     $menuitem->signal_connect ('notify::active' => \&_do_menu_notify_active,
                                \$weak_self);
     $menuitem
-  };
-
-  $self->set_proxy_menu_item (__PACKAGE__, $self->{'menuitem'});
-  return 1;
+  });
 }
+
 
 sub _do_menu_notify_active {
   my ($menuitem, $pspec, $ref_weak_self) = @_;
-  ### ToolItem-CheckButton _do_menu_notify_active()
+  ### ToolItem-CheckButton _do_menu_notify_active()...
   my $self = $$ref_weak_self || return;
   my $checkitem = $self->get_child || return;
   $checkitem->set_active ($menuitem->get_active);
@@ -185,6 +188,10 @@ sub GET_INTERNAL_CHILD {
   if ($name eq 'checkbutton') {
     return $self->get_child;
   }
+  if ($name eq 'overflow_menuitem') {
+    return _overflow_menuitem($self);
+  }
+  # ENHANCE-ME: Will Gtk2::Buildable expect anything for chaining up?
   return undef;
 }
 
@@ -203,7 +210,8 @@ Gtk2::Ex::ToolItem::CheckButton -- toolitem with Gtk2::CheckButton
 
  use App::MathImage::Gtk2::Ex::ToolItem::CheckButton;
  my $toolitem = App::MathImage::Gtk2::Ex::ToolItem::CheckButton->new
-                  (label => 'Foo');
+                  (label => 'Foo',
+                   active => 1);  # initial state
 
 =head1 WIDGET HIERARCHY
 
@@ -222,8 +230,9 @@ and implements interfaces
 
 =head1 DESCRIPTION
 
-This ToolItem holds a C<Gtk2::CheckButton> widget and offers a toolbar
-overflow to a C<Gtk2::CheckMenuItem>.
+This is a ToolItem subclass holding a C<Gtk2::CheckButton> widget, and
+overflowing to a C<Gtk2::CheckMenuItem> in the toolbar overflow menu (when
+necessary).
 
     +-------------+             
     | +-+         |
@@ -231,10 +240,10 @@ overflow to a C<Gtk2::CheckMenuItem>.
     | +-+         |
     +-------------+             
 
-This ToolItem is similar to C<Gtk2::ToggleToolButton>, but the display is
-the CheckButton style with a check box instead of the ToggleButton pushed
-in/out shadow style.  A shadow is good for a small icon, but for a word or
-two of text the check box makes it clearer there's something to click.
+It's similar to C<Gtk2::ToggleToolButton>, but the display is a CheckButton
+with a check box to tick instead of a ToggleButton style pushed in/out
+shadow.  A shadow is good for a small icon, but for a word or two of text
+the check box makes it clearer there's something to click.
 
 The CheckButton child can be accessed with C<< $toolitem->get_child >> in
 the usual way if desired, perhaps to set specific properties.  See
@@ -250,8 +259,7 @@ Create and return a new toolitem widget.  Optional key/value pairs set
 initial properties as per C<< Glib::Object->new >>.
 
     $toolitem = App::MathImage::Gtk2::Ex::ToolItem::CheckButton->new
-                  (label => 'Foo',
-                   active => 1);  # initially active
+                  (label => 'Foo');
 
 =back
 
@@ -273,7 +281,8 @@ The usual widget C<sensitive> property automatically propagates to the
 overflow menu item.
 
 The C<tooltip-text> property (new in Gtk 2.12) is propagated to the overflow
-menu item.  It also works to put a tooltip on just the CheckButton child.
+menu item.  It also works to put a tooltip on just the CheckButton child,
+which is not propagated.
 
 =head1 BUILDABLE
 
@@ -282,24 +291,33 @@ C<Gtk2::Builder> (new in Gtk 2.12).  The class name is
 C<App__MathImage__Gtk2__Ex__ToolItem__CheckButton> and properties and signal
 handlers can be set in the usual way.
 
-The child CheckButton is made available as an "internal child" under the
-name "checkbutton".  This can be used to set desired properties on that
-child (those not otherwise offered on the ToolItem).  Here's a sample
-fragment,
+There's two "internal child" widgets available,
+
+    checkbutton          Gtk2::CheckButton child
+    overflow_menuitem    for the toolbar overflow
+
+These can be used to set desired properties (those not otherwise offered
+from the ToolItem itself).  Here's a sample fragment,
 
     <object class="Gtk2__Ex__ToolItem__CheckButton" id="toolitem">
       <child internal-child="checkbutton">
-        <object class="Gtk2__CheckButton" id="blah_checkbutton">
+        <object class="Gtk2__CheckButton" id="my_checkbutton">
           <property name="yalign">0</property>
         </object>
       </child>
     </object>
 
 The C<internal-child> means C<< <child> >> is not creating a new child
-object, but accessing one already built.  The C<< id="blah_checkbutton" >>
+object, but accessing one already built.  The C<< id="my_checkbutton" >>
 part is the name to refer to the child elsewhere in the Builder
-specification, including a later C<< $builder->get_object >>.  That C<id>
-must be present even if unused.
+specification and any later C<< $builder->get_object >>.  That C<id> setting
+must be present even if never used.
+
+The C<overflow_menuitem> child has the effect of creating the overflow item,
+where normally that would be deferred until the toolbar needs an overflow
+(which might be never).  But it can be used to apply property settings,
+similar to what might be done in code on a
+C<< $toolitem->retrieve_proxy_menu_item >>.
 
 =head1 BUGS
 

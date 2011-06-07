@@ -31,7 +31,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -41,7 +41,7 @@ use constant _PRIORITY => Glib::G_PRIORITY_LOW();  # below redraw
 
 sub new {
   my $class = shift;
-  ### Gtk2-Generator new()
+  ### Gtk2-Generator new()...
 
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
@@ -101,7 +101,7 @@ sub new {
 
 sub _sync_handler {
   my ($ref_weak_self) = @_;
-  ### Gtk2-Generator _sync_handler()
+  ### Gtk2-Generator _sync_handler()...
   my $self = $$ref_weak_self || return;
 
   $self->{'sync_pending'} = 0;
@@ -114,30 +114,30 @@ sub _sync_handler {
 
 sub _idle_handler_draw {
   my ($ref_weak_self) = @_;
-  ### Gtk2-Generator _idle_handler_draw()
+  ### Gtk2-Generator _idle_handler_draw()...
 
   if (my $self = $$ref_weak_self) {
     $self->{'idle_ids'}->remove;
     if ($self->draw_Image_steps ()) {
-      ### keep drawing
+      ### keep drawing...
       unless ($self->{'sync_pending'}) {
-        ### start sync
+        ### start sync...
         Gtk2::Ex::SyncCall->sync ($self->{'widget'},
                                   \&_sync_handler, $ref_weak_self);
         $self->{'sync_pending'} = 1;
       }
     } else {
-      ### done, install pixmap
+      ### done, install pixmap...
       _drawing_finished ($self);
     }
   }
-  ### _idle_handler_draw() end
+  ### _idle_handler_draw() end...
   return Glib::SOURCE_REMOVE;
 }
 
 sub _drawing_finished {
   my ($self) = @_;
-  ### Gtk2-Generator _drawing_finished()
+  ### Gtk2-Generator _drawing_finished()...
 
   my $pixmap = $self->{'pixmap'};
   my $window = $self->{'window'};
@@ -164,7 +164,7 @@ sub draw {
   my $self = $class->new (@_,
                           draw_progressive => 0);
   while ($self->draw_steps) {
-    ### Generator-X11 more
+    ### Generator-X11 more...
   }
   _drawing_finished ($self);
 }

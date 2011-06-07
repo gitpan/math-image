@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 58;
+$VERSION = 59;
 use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
@@ -72,6 +72,10 @@ use constant info_arrayref =>
   {
     'anum' => 'A000578',
     'class' => 'App::MathImage::NumSeq::Sequence::Cubes'
+  },
+  {
+    'anum' => 'A002064',
+    'class' => 'App::MathImage::NumSeq::Sequence::CullenNumbers'
   },
   {
     'anum' => 'A070939',
@@ -189,6 +193,10 @@ use constant info_arrayref =>
   {
     'anum' => 'A022155',
     'class' => 'App::MathImage::NumSeq::Sequence::GolayRudinShapiro'
+  },
+  {
+    'anum' => 'A003136',
+    'class' => 'App::MathImage::NumSeq::Sequence::LoeschianNumbers'
   },
   {
     'anum' => 'A000204',
@@ -1445,6 +1453,10 @@ use constant info_arrayref =>
     'class' => 'App::MathImage::NumSeq::Sequence::SumTwoSquares'
   },
   {
+    'anum' => 'A092572',
+    'class' => 'App::MathImage::NumSeq::Sequence::SumXsq3Ysq'
+  },
+  {
     'anum' => 'A005836',
     'class' => 'App::MathImage::NumSeq::Sequence::TernaryWithout2'
   },
@@ -1480,6 +1492,10 @@ use constant info_arrayref =>
     'parameters_hashref' => {
       'pairs' => 'both'
     }
+  },
+  {
+    'anum' => 'A003261',
+    'class' => 'App::MathImage::NumSeq::Sequence::WoodallNumbers'
   }
 ]
 ;

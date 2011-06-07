@@ -26,7 +26,7 @@ use base 'App::MathImage::NumSeq::Sequence::SemiPrimes';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 use constant name => __('Semi-Primes, Odd');
 use constant description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including P==Q squares of primes.');

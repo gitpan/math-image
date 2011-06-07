@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -51,7 +51,7 @@ use Glib::Object::Subclass
 
 sub FINALIZE_INSTANCE {
   my ($self) = @_;
-  ### ComboText FINALIZE_INSTANCE()
+  ### ComboText FINALIZE_INSTANCE()...
   if (my $menuitem = delete $self->{'menuitem'}) {
     $menuitem->destroy;  # destroy circular MenuItem<->AccelLabel
   }
@@ -72,7 +72,7 @@ sub SET_PROPERTY {
 
 sub _do_add_or_remove {
   my ($self, $child) = @_;
-  ### ComboText _do_add_or_remove()
+  ### ComboText _do_add_or_remove()...
   $self->signal_chain_from_overridden ($child);
 
   my $combobox = $self->get_child;
@@ -117,10 +117,10 @@ sub _do_combobox_changed_active {
 
 sub _do_create_menu_proxy {
   my ($self) = @_;
-  ### ComboText _do_create_menu_proxy()
+  ### ComboText _do_create_menu_proxy()...
 
   $self->{'menuitem'} ||= do {
-    ### create new menuitem
+    ### create new menuitem...
     my $menuitem = Gtk2::MenuItem->new_with_mnemonic (_mnemonic_text($self));
     $menuitem->set (sensitive => $self->get('sensitive'));
     if ($self->find_property('tooltip_text')) { # new in Gtk 2.12
@@ -170,7 +170,7 @@ sub _menu_want_tearoff {
     unless (List::Util::first
             {$_->isa('Gtk2::TearoffMenuItem')}
             $menu->get_children) {
-      ### add new TearoffMenuItem
+      ### add new TearoffMenuItem...
       $menu->prepend (Gtk2::TearoffMenuItem->new);
     }
   } else {

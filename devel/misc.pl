@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use POSIX;
 
-use Smart::Comments;
+#use Smart::Comments;
 
 use lib 'devel/lib';
 
@@ -36,7 +36,7 @@ $|=1;
   my $gen = App::MathImage::Generator->new (fraction => '5/29',
                                             polygonal => 3,
                                             radix => 16);
-
+  my $pred_upto = 0;
   foreach my $rep (1 .. 3) {
     my $iter;
     #   $iter = $gen->values_make_pronic(1);
@@ -83,6 +83,9 @@ $|=1;
     $values_class = $gen->values_class('PrimeIndexCount');
     $values_class = $gen->values_class('Primorials');
     $values_class = $gen->values_class('ReverseAddCount');
+    $values_class = $gen->values_class('LoeschianNumbers');
+    $values_class = $gen->values_class('SumXsq3Ysq');
+    $values_class = $gen->values_class('Hailstone');
     my $values_obj = $values_class->new (fraction => '1/7',
                                          polygonal => 13,
                                          pairs => 'first',
@@ -103,6 +106,8 @@ $|=1;
     if ($values_obj->is_type('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
+    my $check_pred_upto = ! $values_obj->is_type('radix')
+      && ! $values_obj->is_type('count');
     foreach (1 .. 11) {
       my ($i,$value) = $values_obj->next;
       if (! defined $i) {
@@ -121,8 +126,18 @@ $|=1;
         last;
       }
 
-      if ($values_obj->can('pred') && ! $values_obj->pred($value)) {
-        print " oops, pred false\n";
+
+      if ($values_obj->can('pred')) {
+        if (! $values_obj->pred($value)) {
+          print " oops, pred false\n";
+        }
+        while ($pred_upto < $value) {
+          if ($values_obj->pred($pred_upto)) {
+            print " oops, pred($pred_upto) is true\n";
+          }
+          $pred_upto++;
+        }
+        $pred_upto = $value+1;
       }
       if ($values_obj->can('ith')) {
         my $ith_value = $values_obj->ith($i);
@@ -146,7 +161,8 @@ $|=1;
           }
         }
         if (defined $value) {
-          print "$i=$value,";
+          print "$value,";
+          # print "$i=$value,";
         } else {
           print "$i,";
           $value=$i;
@@ -169,12 +185,12 @@ $|=1;
 {
   require App::MathImage::NumSeq::Sequence::Tribonacci;
   my $values_obj = App::MathImage::NumSeq::Sequence::Tribonacci->new (hi => 13);
-  my @next = [ $values_obj->next,
+  my @next = ( $values_obj->next,
                $values_obj->next,
                $values_obj->next,
                $values_obj->next,
                $values_obj->next,
-               $values_obj->next ];
+               $values_obj->next );
   ### @next
   print $values_obj->pred(12),"\n";
   ### $values_obj

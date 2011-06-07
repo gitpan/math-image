@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -171,8 +171,7 @@ sub INIT_INSTANCE {
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### Drawing SET_PROPERTY
-  ### $pname
+  ### Drawing SET_PROPERTY: $pname
   ### $newval
 
   my $oldval = $self->get($pname);
@@ -214,7 +213,7 @@ sub SET_PROPERTY {
       my $hadj = $self->{'hadjustment'};
       my $width = $self->allocation->width;
       my $scale = $self->get('scale');
-      ### new basis hadj
+      ### new basis hadj...
       ### $x
       ### $old_x
       ### add: ($x-$old_x)*(-$width/$scale/2 - -1/2)
@@ -224,7 +223,7 @@ sub SET_PROPERTY {
       my $vadj = $self->{'vadjustment'};
       my $height = $self->allocation->height;
       my $scale = $self->get('scale');
-      ### new basis vadj
+      ### new basis vadj...
       ### $y
       ### $old_y
       ### add: ($y-$old_y)*(-$height/$scale/2 - -1/2)
@@ -348,9 +347,9 @@ sub _pixmap_is_good {
 
 sub pixmap {
   my ($self) = @_;
-  ### pixmap()
+  ### pixmap()...
   if (! _pixmap_is_good($self)) {
-    ### new pixmap
+    ### new pixmap...
     $self->start_drawing_window ($self->window);
   }
   return $self->{'pixmap'};
@@ -381,20 +380,21 @@ sub gen_object {
      undrawnground    => $undrawnground_colorobj->to_string,
      draw_progressive => $self->get('draw-progressive'),
 
-     path_parameters => {
-                         %{$self->{'path_parameters'} || {}},
-                         width           => $width,
-                         height          => $height,
-                        },
-     values_parameters => $self->{'values_parameters'},
-
      width           => $width,
      height          => $height,
      step_time       => _IDLE_TIME_SLICE,
      step_figures    => _IDLE_TIME_FIGURES,
 
      values          => $self->get('values'),
+     values_parameters => $self->{'values_parameters'},
+
      path            => $self->get('path'),
+     path_parameters => {
+                         %{$self->{'path_parameters'} || {}},
+                         width           => $width,
+                         height          => $height,
+                        },
+
      scale           => $self->get('scale'),
      figure          => $self->get('figure'),
 
@@ -470,7 +470,7 @@ sub pointer_xy_to_image_xyn {
 
 sub centre {
   my ($self) = @_;
-  ### Drawing centre()
+  ### Drawing centre()...
   my ($x, $y) = _centre_values($self);
   $self->{'hadjustment'}->set_value ($x);
   $self->{'vadjustment'}->set_value ($y);
@@ -490,32 +490,6 @@ sub _centre_basis {
   # return (($self->x_negative || $path eq 'MultipleRings'),
   #         ($self->y_negative || $path eq 'MultipleRings'));
 }
-
-# AdjustmentBits ...
-#
-# my %scroll_direction_to_vh = (left  => 'h',
-#                               right => 'h',
-#                               up   => 'v',
-#                               down => 'v');
-# my %scroll_direction_to_inv = (left  => 1,
-#                                right => 0,
-#                                up   => 1,
-#                                down => 0);
-# # 'scroll-event' class closure
-# sub _do_scroll_event {
-#   my ($self, $event) = @_;
-#   ### Drawing _do_scroll_event(): "$self->{'hadjustment'}, $self->{'vadjustment'}"
-#   # my $dir = $event->direction;
-#   # my $vh = $scroll_direction_to_vh{$dir};
-#   # App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_increment
-#   #     ($self->get_property("${vh}adjustment"),
-#   #      $event->state & 'control-mask' ? 'page' : 'step',
-#   #      $scroll_direction_to_inv{$dir} ^ ($vh eq 'v'));
-# 
-#   App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vhi
-#       ($self, $event);
-#   return $self->signal_chain_from_overridden ($event);
-# }
 
 # 'button-press-event' class closure
 sub _do_button_press {
@@ -544,7 +518,7 @@ sub _update_adjustment_extents {
   my ($self) = @_;
   my (undef, undef, $width, $height) = $self->allocation->values;
   my $scale = $self->get('scale');
-  ### _update_adjustment_extents()
+  ### _update_adjustment_extents()...
   ### $width
   ### $height
   ### $scale

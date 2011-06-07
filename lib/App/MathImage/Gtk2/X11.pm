@@ -32,7 +32,7 @@ use Glib::Ex::SourceIds;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 sub new {
   my ($class, %self) = @_;
@@ -70,7 +70,7 @@ sub new {
 
 sub _do_read {
   my ($fd, $conditions, $ref_weak_self) = @_;
-  ### X11 _do_read()
+  ### X11 _do_read()...
   my $self = $$ref_weak_self || return Glib::SOURCE_REMOVE;
   my $X = $self->{'X'} || return Glib::SOURCE_REMOVE;
   $X->handle_input;
@@ -84,7 +84,7 @@ sub _do_read {
       $X->flush;
 
       if (! $x11gen->draw_steps) {
-        ### X11 _do_read() finished
+        ### X11 _do_read() finished...
         delete $self->{'x11gen'};
       }
     }

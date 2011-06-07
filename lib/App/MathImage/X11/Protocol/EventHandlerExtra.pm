@@ -31,7 +31,7 @@ HERE
 }
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -56,6 +56,7 @@ sub DESTROY {
   my ($self) = @_;
   $self->restore;
 }
+
 sub restore {
   my ($self) = @_;
   ### EventHandlerExtra restore()

@@ -53,6 +53,7 @@ my %maximum_planepath
      'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
      'Math::PlanePath::Hypot'                => 21, # new in v.21
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
+     'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
 
      'Math::PlanePath::DiamondSpiral'        => 1,
@@ -79,6 +80,9 @@ my %maximum_planepath
      'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
+     'Math::PlanePath::KochCurve'            => 30, # new in v.30
+     'Math::PlanePath::KochPeaks'            => 30, # new in v.30
+     'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
     );
 
 MyMakeMakerExtras::WriteMakefile
@@ -96,6 +100,8 @@ MyMakeMakerExtras::WriteMakefile
     # 'constant::defer' => 0,
     'Bit::Vector'     => 0,
     'Compress::Zlib'  => 0,
+    'Data::Float'  => 0,
+
     # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
     # handles by outsmarting itself in some compares plus File::Temp having a
     # bogus numize.  File::Copy 2.14 looks slightly better, though enquiring
@@ -186,6 +192,10 @@ MyMakeMakerExtras::WriteMakefile
     # my Math-PlanePath, and can work with any set of paths, hopefully
     'Math::PlanePath' => 1,
     'Math::PlanePath::SquareSpiral'   => 1,
+
+    # for gosper island
+    'Math::PlanePath::SacksSpiral' => 1,
+    'Math::PlanePath::KochCurve' => 1,
    },
 
    META_MERGE =>
@@ -260,7 +270,7 @@ sub postamble {
 
 #------------------------------------------------------------------------------
 
-oeis lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm: make-oeis-catalogue.pl lib/App/MathImage/NumSeq/Sequence/*.pm
-	$(PERL) make-oeis-catalogue.pl || (rm -f $@; false)
+oeis lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm: math-numseq-make-oeis-catalogue.pl lib/App/MathImage/NumSeq/Sequence/*.pm
+	$(PERL) math-numseq-make-oeis-catalogue.pl || (rm -f $@; false)
 HERE
 }

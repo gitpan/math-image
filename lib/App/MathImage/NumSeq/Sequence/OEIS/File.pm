@@ -30,9 +30,10 @@ use POSIX ();
 use Locale::TextDomain 'App-MathImage';
 
 use base 'App::MathImage::NumSeq::Base::Array';
+use App::MathImage::NumSeq::Sequence::OEIS;
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -45,14 +46,7 @@ sub description {
   }
   return __('OEIS sequence from file.');
 }
-# use constant parameter_list =>
-#   ({
-#     name    => 'filename',
-#     display => __('Filename'),
-#     width   => 40,
-#     type    => 'string',
-#     default => '',
-#    });
+*parameter_list = \&App::MathImage::NumSeq::Sequence::OEIS::parameter_list;
 
 sub is_type {
   my ($self, $type) = @_;

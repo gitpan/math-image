@@ -65,13 +65,13 @@ use Smart::Comments;
     ### info: $info->[0]
     my $anum = $info->[0]->{'anum'};
     require App::MathImage::NumSeq::Sequence::OEIS;
-    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_anum=>$anum);
+    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(anum=>$anum);
   }
   exit 0;
 }
 {
   require App::MathImage::NumSeq::Sequence::OEIS;
-  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(oeis_anum=>'A000032');
+  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(anum=>'A000032');
   ### $seq
   exit 0;
 }

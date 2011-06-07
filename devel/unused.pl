@@ -169,7 +169,7 @@ use constant DEFAULT_MODEL => do {
         } Gtk2::Gdk::Pixbuf->get_formats;
 
   } else {
-    @formats = [ 'png', 'jpeg' ]; # Gtk 2.0 writables
+    @formats = ( 'png', 'jpeg' ); # Gtk 2.0 writables
   }
   ### @formats
   my %formats;

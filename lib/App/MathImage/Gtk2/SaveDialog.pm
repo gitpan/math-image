@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -178,7 +178,7 @@ use constant STRFTIME_FORMAT_RFC822 => '%a, %d %b %Y %H:%M:%S %z';
 
 sub save {
   my ($self) = @_;
-  ### Math-Image-SaveDialog save()
+  ### Math-Image-SaveDialog save()...
 
   my $filename = $self->get_filename;
   # Gtk2-Perl 1.200 $chooser->get_filename gives back wide chars (where it
@@ -302,7 +302,7 @@ sub _change_extension {
 
 sub _filename_has_extension {
   my ($filename, $aref, $case_sensitive) = @_;
-  ### _filename_has_extension()
+  ### _filename_has_extension()...
   ### $filename
   ### $aref
   foreach my $ext (@$aref) {
@@ -313,7 +313,7 @@ sub _filename_has_extension {
       return $1;
     }
   }
-  ### no
+  ### no...
   return;
 }
 

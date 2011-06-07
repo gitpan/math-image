@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 exit App::MathImage->command_line;
 
 __END__
@@ -65,20 +65,10 @@ the way up to the desired part.
 
 =head2 Values Options
 
-The following control what set of values to display.
+The following otpions control what set of values to display.  The
+C<--values> option described last is the most general.
 
 =over
-
-=item --values=MODULE
-
-Draw values from the given C<App::MathImage::NumSeq::Sequence> module.  For
-example
-
-    math-image --values=Emirps
-
-The names for the values modules are not yet settled, so expect some splits,
-mergers or renamings.  There's no way to set module parameters from the
-command line yet (only in the GUI).
 
 =item --primes
 
@@ -183,23 +173,49 @@ Draw lines along the path instead of a set of selected points.  This shows
 where a path travels but you may have to increase the C<--scale> to see it
 properly.
 
+=item --values=MODULE
+
+=item --values=MODULE,NAME=VALUE,NAME=VALUE,...
+
+Draw values from the given C<App::MathImage::NumSeq::Sequence> module.  For
+example
+
+    math-image --values=Emirps
+
+The names for these modules are not settled, so expect some splits, mergers
+or renamings.  Parameters can be passed as comma separated NAME=VALUE, for
+example
+
+    math-image --values=TwinPrimes,pairs=both
+
+This can be used to read values from a text file
+
+    math-image --values=File,filename=/my/dir/data.txt
+
+And the OEIS module takes a sequence of values by its OEIS A-number, for
+example tribonnaci numbers A000073
+
+    math-image --values=OEIS,anum=A000073
+
+This selects whichever module implements the desired sequence, or will read
+downloaded OEIS files from a F<$HOME/OEIS/> directory,
+
+    A000073.internal     # for info
+    A000073.html         # fragile for info, but accepted
+    b000073.txt          # values file, if available
+
+A F<.internal> file is the "internal format" OEIS info download.  The
+F<.html> rendition of the same works, but parsing it is likely to be fragile
+and may or may not work.
+
 =back
 
 =head2 Path Options
 
-The following control the path in the plane where the values will be
-displayed as pixels (or circles for Sacks and Vogel).
+The following control the path in the plane where on which the values will
+be displayed.  The C<--path> option described last is the most general.
 
 =over 4
-
-=item --path=MODULE
-
-Draw following the given C<Math::PlanePath> module.  For example
-
-    math-image --path=HeptSpiralSkewed
-
-This can also select experimental paths called "MathImageFoo" (the names
-change when completed).
 
 =item --ulam
 
@@ -251,6 +267,22 @@ L<Math::PlanePath::Corner> and L<Math::PlanePath::Diagonals>.
 
 Points drawn in successive rows or columns.
 
+=item --path=MODULE
+
+=item --path=MODULE,NAME=VALUE,NAME=VALUE,...
+
+Draw following the given C<Math::PlanePath> module.  For example
+
+    math-image --path=HeptSpiralSkewed
+
+This includes experimental paths called "MathImageFoo", but expect their
+names to change when finished.
+
+Parameters to the path are supplied as comma separated C<NAME=VALUE>, for
+example,
+
+    math-image --path=SquareSpiral,wider=3
+
 =back
 
 =head2 Output Options
@@ -272,8 +304,10 @@ a random image from your F<~/.xsession> file,
 
     math-image --root --random
 
-Add C<--verbose> to print what was in fact chosen and displayed.  (Output in
-F<~/.xsession> normally goes to the F<~/.xsession-errors> file.)
+Add C<--verbose> to print what was in fact chosen and displayed.  Output in
+F<~/.xsession> normally goes to the F<~/.xsession-errors> file.  Sometimes
+C<--random> may use a lot of memory, so consider a C<limit> (see L<sh(1)>)
+or timeout (see L<timeout(1)>), or both.
 
 Under X the root window is set with C<X11::Protocol> if available, otherwise
 C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and

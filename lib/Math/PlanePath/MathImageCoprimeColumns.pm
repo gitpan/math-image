@@ -27,7 +27,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 58;
+$VERSION = 59;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -213,7 +213,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Math-Image is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

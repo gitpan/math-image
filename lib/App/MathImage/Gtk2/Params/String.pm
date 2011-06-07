@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog;
 use Glib::Object::Subclass
@@ -72,7 +72,8 @@ sub SET_PROPERTY {
   if ($pname eq 'parameter_value') {
     $self->{'parameter_value_set'} = $newval;
     if (my $child = $self->get_child) {
-      $child->set_value ($newval);
+      if (! defined $newval) { $newval = ''; }
+      $child->set (text => $newval);
     }
 
   } else {
@@ -111,7 +112,7 @@ sub SET_PROPERTY {
 
 sub _do_entry_activate {
   my ($entry, $ref_weak_self) = @_;
-  ### Params-String _do_entry_activate()
+  ### Params-String _do_entry_activate()...
   my $self = $$ref_weak_self || return;
   $self->notify ('parameter-value');
 }

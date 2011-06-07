@@ -16,6 +16,11 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# scroll_event() hard code the control-mask ?
+
+
+
+
 package App::MathImage::Gtk2::Ex::AdjustmentBits;
 use 5.008;
 use strict;
@@ -28,7 +33,7 @@ use Gtk2::Ex::AdjustmentBits 40;  # new v.40
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 sub scroll_increment {
   my ($adj, $type, $neg) = @_;

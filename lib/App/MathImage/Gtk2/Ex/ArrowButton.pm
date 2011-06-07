@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 # Priority level ":gtk" treating these as widget level defaults.  An
 # "application" or user RC file can override.
@@ -96,8 +96,7 @@ sub GET_PROPERTY {
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### ArrowButton SET_PROPERTY
-  ### $pname
+  ### ArrowButton SET_PROPERTY: $pname
   ### $newval
 
   if ($pname eq 'arrow_type') {

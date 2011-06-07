@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,7 +34,7 @@ use constant description => __('OEIS sequence, by its A-number.  There\'s code f
 sub parameter_list {
   require App::MathImage::NumSeq::OeisCatalogue;
   return  ({
-            name       => 'oeis_anum',
+            name       => 'anum',
             type       => 'string',
             display    => __('A-number'),
             type_hint  => 'oeis_anum',

@@ -28,7 +28,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Gtk2::Ex::ToolItem::ComboEnum;
 use Glib::Object::Subclass
@@ -48,9 +48,9 @@ use Glib::Object::Subclass
                 ],
   signals => { notify => \&_do_notify };
 
-sub INIT_INSTANCE {
-  my ($self) = @_;
-}
+# sub INIT_INSTANCE {
+#   my ($self) = @_;
+# }
 
 sub _do_notify {
   my ($self, $pspec) = @_;
@@ -58,7 +58,7 @@ sub _do_notify {
 
   my $pname = $pspec->get_name;
   if ($pname eq 'active_nick') {
-    ### Enum notify value
+    ### Enum notify value...
     $self->notify('parameter_value');
   }
 }
@@ -66,7 +66,7 @@ sub _do_notify {
 sub GET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### Enum GET_PROPERTY: $pname
+  ### Params-Enum GET_PROPERTY: $pname
 
   if ($pname eq 'parameter_value') {
     return $self->get('active_nick');
@@ -78,10 +78,12 @@ sub GET_PROPERTY {
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### Enum SET_PROPERTY: $pname
+  ### Params-Enum SET_PROPERTY: $pname, $newval
 
   if ($pname eq 'parameter_value') {
     $self->set (active_nick => $newval);
+    ### Params-Enum active-nick now: $self->get('active-nick')
+
   } else {
     my $name = $newval->{'name'};
     my $display = ($newval->{'display'} || $name);

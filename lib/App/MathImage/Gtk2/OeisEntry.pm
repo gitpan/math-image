@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -88,7 +88,7 @@ HERE
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  ### OeisEntry INIT_INSTANCE()
+  ### OeisEntry INIT_INSTANCE()...
 
   # $self->set_spacing (0);
 
@@ -102,21 +102,19 @@ sub INIT_INSTANCE {
   # $self->add ($entry);
   $self->pack_start ($entry, 1,1,0);
 
-  $self->{'right'} = my $aspect = Gtk2::AspectFrame->new ('', .5,.5, .5, 0);
-  $aspect->set_label (undef);
-  $aspect->set_shadow_type ('none');
-
+  # $self->{'right'} = my $aspect = Gtk2::AspectFrame->new ('', .5,.5, .5, 0);
+  # $aspect->set_label (undef);
+  # $aspect->set_shadow_type ('none');
   # $aspect->set_border_width (0);
-  ### aspect border_width: $aspect->get_border_width
+  # ### aspect border_width: $aspect->get_border_width
   # ### xt: $aspect->get_style->xthickness
+  # $self->add ($vbox);
+  # $aspect->add ($vbox);
 
   my $vbox = Gtk2::VBox->new (0, 0);
+  # initial arrow width, per _do_size_allocate()
+  $vbox->set_size_request ($entry->size_request->height / 2, -1);
   $self->pack_start ($vbox, 0,0,0);
-  # $self->add ($vbox);
-  #  $aspect->add ($vbox);
-
-  my $h = $entry->size_request->height;
-  $vbox->set_size_request ($h/2, -1);
 
   # $self->pack_start ($vbox, 0,0,0);
   # my $group = $self->{'size_group'} = Gtk2::SizeGroup->new ('vertical');
@@ -156,11 +154,10 @@ sub SET_PROPERTY {
 # 'size-request' class handler
 sub _do_size_request {
   my ($self, $req) = @_;
-  $self->{'right'}->size_request;
   my $entry_req = $self->{'entry'}->size_request;
-  my $h = $entry_req->height;
-  $req->width ($entry_req->width + int($h/2));
-  $req->height ($h);
+  my $height = $entry_req->height;
+  $req->width ($entry_req->width + int($height/2));
+  $req->height ($height);
 }
 
 # 'size-allocate' class closure
@@ -170,12 +167,12 @@ sub _do_size_request {
 # 
 sub _do_size_allocate {
   my ($self, $alloc) = @_;
-  ### _do_size_allocate()
+  ### OeisEntry _do_size_allocate()...
   $self->signal_chain_from_overridden ($alloc);
 
   my $entry = $self->{'entry'};
   my $right = $self->{'right'};
-  $right->set_size_request ($alloc->height / 2, -1);
+  $right->set_size_request (int ($alloc->height / 2), -1);
 
   # my $border_width  = $self->get_border_width;
   # my $x = $alloc->x + $border_width;
@@ -269,7 +266,7 @@ sub activate {
               #  button_press_event => \&_do_button_press_event,
 # sub new {
 #   my ($class, $adj, $climb_rate, $digits) = @_;
-#   ### OeisEntry new()
+#   ### OeisEntry new()...
 #   return $class->SUPER::new (adjustment => $adj,
 #                              climb_rate => $climb_rate,
 #                              digits     => $digits);
@@ -326,7 +323,7 @@ sub activate {
 #     $self->set_value (App::MathImage::NumSeq::OeisCatalogue->num_last);
 # 
 #   } else {
-#     ### chain
+#     ### chain...
 #     shift->signal_chain_from_overridden (@_);
 #   }
 # }

@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -43,7 +43,7 @@ sub rewind {
 }
 sub next {
   my ($self) = @_;
-  ### Cumulative next()
+  ### Cumulative next()...
   my ($i, $value) = $self->{'sequence'}->next();
   return ($i, $self->{'sum'} += $value);
 }

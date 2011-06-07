@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -130,6 +130,111 @@ sub _path_to_mnemonic {
           || Glib::Ex::EnumBits::to_display_default($str));
 }
 
+my $actions_array
+  = [
+     { name  => 'FileMenu',
+       label => dgettext('gtk20-properties','_File'),
+     },
+     { name     => 'SaveAs',
+       stock_id => 'gtk-save-as',
+       tooltip  => __('Save the image to a file.'),
+       callback => sub {
+         my ($action, $self) = @_;
+         $self->popup_save_as;
+       },
+     },
+     { name     => 'SetRoot',
+       label    => __('Set _Root Window'),
+       callback => \&_do_action_setroot,
+       tooltip  => __('Set the current image as the root window background.'),
+     },
+     { name     => 'Print',
+       stock_id => 'gtk-print',
+       tooltip  => __('Print image to a printer.  Currently this merely draws at the screen resolution so might not scale well on a printer with limited resolution.'),
+       callback => sub {
+         my ($action, $self) = @_;
+         $self->print_image;
+       },
+     },
+     { name        => 'Quit',
+       stock_id    => 'gtk-quit',
+       accelerator => __p('Main-accelerator-key','<Control>Q'),
+       callback    => sub {
+         my ($action, $self) = @_;
+         $self->destroy;
+       },
+     },
+
+     { name  => 'ViewMenu',
+       label => dgettext('gtk20-properties','_View'),
+     },
+     { name  => 'PathMenu',
+       label => dgettext('gtk20-properties','_Path'),
+     },
+     { name  => 'ValuesMenu',
+       label => dgettext('gtk20-properties','_Values'),
+     },
+     { name     => 'Centre',
+       label    => __('_Centre'),
+       tooltip  => __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
+       callback => sub {
+         my ($action, $self) = @_;
+         $self->{'draw'}->centre;
+       },
+     },
+
+     { name  => 'ToolsMenu',
+       label => dgettext('gtk20-properties','_Tools'),
+     },
+     { name     => 'RunGolly',
+       label    => __('Run _Golly Program'),
+       callback => \&_do_action_golly,
+       tooltip  => __('Run the "golly" game-of-life program on the current display.'),
+     },
+
+     { name  => 'HelpMenu',
+       label => dgettext('gtk20-properties','_Help'),
+     },
+     { name     => 'About',
+       stock_id => 'gtk-about',
+       callback => sub {
+         my ($action, $self) = @_;
+         $self->popup_about;
+       },
+     },
+     (defined (Module::Util::find_installed('Gtk2::Ex::PodViewer'))
+      ? ({ name     => 'PodDialog',
+           label    => __('_Program POD'),
+           tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
+           callback => \&_do_action_pod_dialog,
+         },
+         { name     => 'PodDialogPath',
+           label    => __('_Path POD'),
+           tooltip  => __('Display the Math::PlanePath module documentation for the current path (using Gtk2::Ex::PodViewer).'),
+           callback => \&_do_action_pod_dialog_path,
+         })
+      : ()),
+     (defined (Module::Util::find_installed('Browser::Open'))
+      ? ({ name     => 'OeisBrowse',
+           label    => __('OEIS Web Page'),
+           callback => sub {
+             my ($action, $self) = @_;
+             if (my $url = _oeis_url($self)) {
+               require Browser::Open;
+               Browser::Open::open_browser ($url);
+             }
+           },
+         })
+      : ()),
+
+     { name     => 'Random',
+       label    => __('Random'),
+       callback => \&_do_action_random,
+       tooltip  => __('Choose a random path, values, scale, etc.
+Click repeatedly to see interesting things.'),
+     },
+    ];
+
 sub INIT_INSTANCE {
   my ($self) = @_;
 
@@ -141,101 +246,7 @@ sub INIT_INSTANCE {
   $draw->signal_connect ('notify::values-parameters' => \&_do_values_changed);
 
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
-  Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-
-  $actiongroup->add_actions
-    ([
-      { name  => 'FileMenu',
-        label => dgettext('gtk20-properties','_File'),
-      },
-      { name     => 'SaveAs',
-        stock_id => 'gtk-save-as',
-        tooltip  => __('Save the image to a file.'),
-        callback => sub {
-          my ($action, $self) = @_;
-          $self->popup_save_as;
-        },
-      },
-      { name     => 'SetRoot',
-        label    => __('Set _Root Window'),
-        callback => \&_do_action_setroot,
-        tooltip  => __('Set the current image as the root window background.'),
-      },
-      { name     => 'Print',
-        stock_id => 'gtk-print',
-        tooltip  => __('Print image to a printer.  Currently this merely draws at the screen resolution so might not scale well on a printer with limited resolution.'),
-        callback => sub {
-          my ($action, $self) = @_;
-          $self->print_image;
-        },
-      },
-      { name        => 'Quit',
-        stock_id    => 'gtk-quit',
-        accelerator => __p('Main-accelerator-key','<Control>Q'),
-        callback    => sub {
-          my ($action, $self) = @_;
-          $self->destroy;
-        },
-      },
-
-      { name  => 'ViewMenu',
-        label => dgettext('gtk20-properties','_View'),
-      },
-      { name  => 'PathMenu',
-        label => dgettext('gtk20-properties','_Path'),
-      },
-      { name  => 'ValuesMenu',
-        label => dgettext('gtk20-properties','_Values'),
-      },
-      { name     => 'Centre',
-        label    => __('_Centre'),
-        tooltip  => __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
-        callback => sub {
-          my ($action, $self) = @_;
-          $self->{'draw'}->centre;
-        },
-      },
-
-      { name  => 'ToolsMenu',
-        label => dgettext('gtk20-properties','_Tools'),
-      },
-      { name     => 'RunGolly',
-        label    => __('Run _Golly Program'),
-        callback => \&_do_action_golly,
-        tooltip  => __('Run the "golly" game-of-life program on the current display.'),
-      },
-
-      { name  => 'HelpMenu',
-        label => dgettext('gtk20-properties','_Help'),
-      },
-      { name     => 'About',
-        stock_id => 'gtk-about',
-        callback => sub {
-          my ($action, $self) = @_;
-          $self->popup_about;
-        },
-      },
-      (defined (Module::Util::find_installed('Gtk2::Ex::PodViewer'))
-       ? ({ name     => 'PodDialog',
-            label    => __('_POD Documentation'),
-            tooltip  => __('Display the Math-Image program POD documentation (using Gtk2::Ex::PodViewer).'),
-            callback => \&_do_action_pod_dialog,
-          },
-          { name     => 'PodDialogPath',
-            label    => __('_POD for Current Path'),
-            tooltip  => __('Display the Math::PlanePath module documentation for the current path (using Gtk2::Ex::PodViewer).'),
-            callback => \&_do_action_pod_dialog_path,
-          })
-       : ()),
-
-      { name     => 'Random',
-        label    => __('Random'),
-        callback => \&_do_action_random,
-        tooltip  => __('Choose a random path, values, scale, etc.
-Click repeatedly to see interesting things.'),
-      },
-     ],
-     $self);
+  $actiongroup->add_actions ($actions_array, $self);
 
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
@@ -380,7 +391,7 @@ HERE
     <menu action='HelpMenu'>
       <menuitem action='About'/>
 HERE
-  foreach my $name ('PodDialog', 'PodDialogPath') {
+  foreach my $name ('PodDialog', 'PodDialogPath','OeisBrowse') {
     if ($actiongroup->get_action($name)) {
       $ui_str .= "<menuitem action='$name'/>\n";
     }
@@ -500,10 +511,10 @@ HERE
     my $path_params = $self->{'path_params'}
       = App::MathImage::Gtk2::Params->new (toolbar => $toolbar,
                                            after_toolitem => $toolitem);
-    ### path_params path to parameter_list
+    ### path_params path to parameter_info_array...
     Glib::Ex::ConnectProperties->new
         ([$draw,'path'],
-         [$path_params,'parameter-list',
+         [$path_params,'parameter-info-array',
           write_only => 1,
           func_in => sub {
             my ($path) = @_;
@@ -514,7 +525,7 @@ HERE
                     : $App::MathImage::Generator::pathname_parameter_info_array{$path}
                     || []);
           }]);
-    ### path_params values to draw
+    ### path_params values to draw...
     Glib::Ex::ConnectProperties->new ([$path_params,'parameter-values'],
                                       [$draw,'path-parameters']);
   }
@@ -548,10 +559,10 @@ HERE
     my $values_params = $self->{'values_params'}
       = App::MathImage::Gtk2::Params->new (toolbar => $toolbar,
                                            after_toolitem => $toolitem);
-    ### values_params values to parameter_list
+    ### values_params values to parameter_info_array...
     Glib::Ex::ConnectProperties->new
         ([$draw,'values'],
-         [$values_params,'parameter-list',
+         [$values_params,'parameter-info-array',
           write_only => 1,
           func_in => sub {
             my ($values) = @_;
@@ -640,12 +651,15 @@ HERE
   }
 
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
+  if (my $action = $actiongroup->get_action ('OeisBrowse')) {
+    Gtk2::Ex::ActionTooltips::action_tooltips_to_menuitems_dynamic ($action);
+  }
 }
 
 # 'destroy' class closure
 sub _do_destroy {
   my ($self) = @_;
-  ### Main FINALIZE_INSTANCE(), break circular refs
+  ### Main FINALIZE_INSTANCE(), break circular refs...
   delete $self->{'actiongroup'};
   delete $self->{'ui'};
   return shift->signal_chain_from_overridden(@_);
@@ -653,28 +667,36 @@ sub _do_destroy {
 
 sub _update_values_tooltip {
   my ($self) = @_;
-  ### _update_values_tooltip()
+  ### _update_values_tooltip()...
 
-  my $tooltip = __('The values to display.');
-  my $toolitem = $self->{'values_toolitem'};
-  my $values_combobox = $self->{'values_combobox'} || return;
-  my $enum_type = $values_combobox->get('enum_type');
-  my $values = $values_combobox->get('active-nick');
+  {
+    my $tooltip = __('The values to display.');
+    my $toolitem = $self->{'values_toolitem'};
+    my $values_combobox = $self->{'values_combobox'} || return;
+    my $enum_type = $values_combobox->get('enum_type');
+    my $values = $values_combobox->get('active-nick');
 
-  # my $desc = Glib::Ex::EnumBits::to_description($enum_type, $values)
-  my $values_obj;
-  if (($values_obj = $self->{'draw'}->gen_object->values_object)
-      && (my $desc = $values_obj->description)) {
-    my $name = Glib::Ex::EnumBits::to_display ($enum_type, $values);
-    $tooltip .= "\n\n"
-      . __x('Current setting: {name}', name => $name)
-        . "\n"
-          . $desc;
+    # my $desc = Glib::Ex::EnumBits::to_description($enum_type, $values)
+    my $values_obj;
+    if (($values_obj = $self->{'draw'}->gen_object->values_object)
+        && (my $desc = $values_obj->description)) {
+      my $name = Glib::Ex::EnumBits::to_display ($enum_type, $values);
+      $tooltip .= "\n\n"
+        . __x('Current setting: {name}', name => $name)
+          . "\n"
+            . $desc;
+    }
+    ### values_obj: "$values_obj"
+    ### $tooltip
+    set_property_maybe ($toolitem, tooltip_text => $tooltip);
   }
-  ### values_obj: "$values_obj"
-  ### $tooltip
 
-  set_property_maybe ($toolitem, tooltip_text => $tooltip);
+  if (my $action = $self->{'actiongroup'}->get_action('OeisBrowse')) {
+    my $url = _oeis_url($self);
+    $action->set (tooltip => __x("Open browser at Online Encyclopedia of Integer Sequences (OEIS) web page for the current values\n{url}",
+                                 url => ($url||'')),
+                  sensitive => defined($url));
+  }
 }
 sub _do_values_changed {
   my ($widget) = @_;
@@ -682,9 +704,18 @@ sub _do_values_changed {
   _update_values_tooltip($self);
 }
 
+sub _oeis_url {
+  my ($self) = @_;
+  my ($values_obj, $anum);
+  return (($values_obj = $self->{'draw'}->gen_object->values_object)
+          && ($anum = $values_obj->oeis_anum)
+          && "http://oeis.org/$anum");
+}
+
+
 sub _do_motion_notify {
   my ($draw, $event) = @_;
-  ### Main _do_motion_notify()
+  ### Main _do_motion_notify()...
 
   my $self;
   if (($self = $draw->get_ancestor (__PACKAGE__))
@@ -762,7 +793,7 @@ sub SET_PROPERTY {
       $self->unfullscreen;
     }
   }
-  ### SET_PROPERTY done
+  ### SET_PROPERTY done...
 }
 
 # 'window-state-event' class closure
@@ -915,7 +946,7 @@ sub _do_action_crosshair {
                                   active => 1);
     Glib::Ex::ConnectProperties->new ([$action,'active'],
                                       [$cross,'active']);
-    my $max_line_width = POSIX::ceil (Gtk2::Ex::Units::width($draw, "1mm"));
+    my $max_line_width = POSIX::ceil (Gtk2::Ex::Units::width($draw, ".5mm"));
     Glib::Ex::ConnectProperties->new ([$draw,'scale'],
                                       [$cross,'line-width',
                                        write_only => 1,
@@ -1022,7 +1053,7 @@ sub print_image {
 
 sub _draw_page {
   my ($print, $pcontext, $pagenum, $ref_weak_self) = @_;
-  ### _draw_page()
+  ### _draw_page()...
   my $self = $$ref_weak_self || return;
   my $c = $pcontext->get_cairo_context;
 
@@ -1079,9 +1110,6 @@ sub command_line {
 
   if ($mathimage->{'gui_options'}->{'flash'}) {
     my $rootwin = Gtk2::Gdk->get_default_root_window;
-    # if ($mathimage->{'gui_options'}->{'fullscreen'}) {
-    # } els
-    # ($width, $height) = (map {$_*0.8} $rootwin->get_size);
     if (! $width) {
       ($width, $height) = $rootwin->get_size;
     }
@@ -1112,15 +1140,24 @@ sub command_line {
     $self->set_default_size (map {$_*0.8} $self->get_root_window->get_size);
   }
   ### draw set: $gen_options
-  my $fg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'foreground'});
-  my $bg_color = Gtk2::Gdk::Color->parse (delete $gen_options->{'background'});
-  $draw->modify_fg ('normal', $fg_color);
-  $draw->modify_bg ('normal', $bg_color);
-  ### draw set gen_options: $gen_options
+  $draw->modify_fg ('normal',
+                    Gtk2::Gdk::Color->parse
+                    (delete $gen_options->{'foreground'}));
+  $draw->modify_bg ('normal',
+                    Gtk2::Gdk::Color->parse
+                    (delete $gen_options->{'background'}));
+  my $path_parameters = delete $gen_options->{'path_parameters'};
+  my $values_parameters = delete $gen_options->{'values_parameters'};
+  ### draw set gen_options: keys %$gen_options
   foreach my $key (keys %$gen_options) {
     $draw->set ($key, $gen_options->{$key});
   }
+  $draw->set (path_parameters => $path_parameters);
+  $draw->set (values_parameters => $values_parameters);
   ### draw values now: $draw->get('values')
+  ### values_parameters: $draw->get('values_parameters')
+  ### path: $draw->get('path')
+  ### path_parameters: $draw->get('path_parameters')
 
   $self->show;
   Gtk2->main;

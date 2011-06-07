@@ -26,7 +26,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -108,15 +108,16 @@ sub next {
   return ($self->{'i'}++, $found_hypot);
 }
 
+# ENHANCE-ME: check the factorization, or a least a few smallish 4n+3 primes
 sub pred {
   my ($self, $n) = @_;
   if ($n == $n-1) {
     return 0;
   }
   my $limit = int(sqrt($n/2));
-  foreach my $x (1 .. $limit) {
-    my $y = sqrt($n - $x*$x);
-    if ($y == int($y)) {
+  for (my $x = 1; $x <= $limit; $x++) {
+    my $y = int(sqrt($n - $x*$x));
+    if ($x*$x + $y*$y == $n) {
       unless ($self->{'distinct'} && $y == $x) {
         return 1;
       }

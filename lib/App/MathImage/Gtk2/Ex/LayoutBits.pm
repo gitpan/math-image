@@ -24,14 +24,14 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(move_maybe);
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 sub move_maybe {
   my ($layout, $child, $x, $y) = @_;
-  ### LayoutBits move_maybe()
+  ### LayoutBits move_maybe()...
   if ($layout->child_get_property($child,'x') != $x
       || $layout->child_get_property($child,'y') != $y) {
     ### move to: "$x,$y"

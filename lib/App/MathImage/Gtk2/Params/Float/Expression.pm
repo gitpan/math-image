@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog;
 use Glib::Object::Subclass
@@ -97,7 +97,9 @@ sub SET_PROPERTY {
   ### Float SET_PROPERTY: $pname
 
   if ($pname eq 'parameter_value') {
-    return $self->get_child->set_value ($newval);
+    if (! defined $newval) { $newval = ''; }
+    return $self->get_child->set_text ($newval);
+
   } else {
     my $oldval = $self->{$pname};
     $self->{$pname} = $newval;

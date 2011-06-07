@@ -23,7 +23,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 sub is_type {
   my ($self, $type) = @_;

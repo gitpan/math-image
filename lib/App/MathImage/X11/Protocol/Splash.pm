@@ -28,7 +28,7 @@ use X11::Protocol::WM;
 use X11::AtomConstants;
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -128,100 +128,6 @@ sub create_window {
     X11::Protocol::WM::set_net_wm_window_type ($X, $window, 'SPLASH');
   }
   return $self->{'window'};
-}
-
-#------------------------------------------------------------------------------
-#
-# return undef on error from $frame itself ? 
-
-# =item C<$window = frame_window_to_client($X,$frame)>
-#
-# C<$frame> (an XID) is a window manager frame window, usually an immediate
-# child of the root window.  Return the client window (XID) contained in it.
-#
-# If no client window can be found then return C<undef>.  This may be
-# because C<$frame> is an icon or similar created by the window manager
-# itself, or an override-redirect client without a frame, or because there's
-# no window manager running, in which case C<$frame> is the client already.
-#
-# The current strategy is to look at C<$frame> and down the window tree
-# seeking a window with a C<WM_STATE> property which the window manager sets
-# on a client's toplevel.  The search depth and total windows is limited, in
-# case the window manager does its decoration in some ridiculous way, or the
-# client uses excessive windows (traversed when there's no window manager).
-#
-# This is similar to Xlib C<XmuClientWindow()> and the private F<dmsimple.c>
-# C<Select_Window()> in C<xwininfo> and similar programs.
-#
-# Care is taken not to error out if some windows are destroyed during the
-# search.  They belong to other clients, so could be destroyed at any time.
-# If C<$frame> itself doesn't exist then the return is C<undef>.
-
-# /usr/share/doc/libxmu-headers/Xmu.txt.gz for XmuClientWindow()
-# https://bugs.freedesktop.org/show_bug.cgi?id=7474
-#     XmuClientWindow() bottom-up was hurting fluxbox and probably ion, pekwm
-#
-sub frame_window_to_client {
-  my ($X, $frame) = @_;
-
-  my @search = ($frame);
-  my $property = $X->atom('WM_STATE');
-
-  # ENHANCE-ME: do three reqs in parallel, better yet all reqs for an
-  # @search depth level in parallel
-
-  my $count = 0;
- OUTER: foreach (1 .. 5) {   # limit search depth for safety
-    foreach my $child (splice @search) {   # breadth-first search
-      ### look at: sprintf '0x%X', $child
-
-      if ($count++ > 50) {
-        ### abandon search at count: $count
-        return undef;
-      }
-
-      {
-        my $ret = $X->robust_req ('GetWindowAttributes', $child);
-        if (! ref $ret) {
-          ### some error, skip this child
-          next;
-        }
-        my %attr = @$ret;
-        ### map_state: $attr{'map_state'}
-        if ($attr{'map_state'} ne 'Viewable') {
-          ### not viewable, skip
-          next;
-        }
-      }
-      {
-        my $ret = $X->robust_req ('GetProperty',
-                                  $child, $property, 'AnyPropertyType',
-                                  0,  # offset
-                                  0,  # length
-                                  0); # delete;
-        if (! ref $ret) {
-          ### some error, skip this child
-          next;
-        }
-        my ($value, $type, $format, $bytes_after) = @$ret;
-        if ($type) {
-          ### found
-          return $child;
-        }
-      }
-      {
-        my $ret = $X->robust_req ('QueryTree', $child);
-        if (ref $ret) {
-          my ($root, $parent, @children) = @$ret;
-          ### push children: @children
-          # @children are in bottom up order, prefer the topmost
-          push @search, reverse @children;
-        }
-      }
-    }
-  }
-  ### not found
-  return undef;
 }
 
 
@@ -359,117 +265,6 @@ sub _net_wm_allowed_action_to_atom {
 }
 
 #------------------------------------------------------------------------------
-# WM_STATE
-
-# =item C<($state, $icon_window) = _get_wm_state ($X, $window)>
-#
-# Return the C<WM_STATE> property from C<$window>.  This is set by the
-# window manager on top-level application windows.  If there's no such
-# property then the return is an empty list.
-#
-# C<$state> returned is an enum string, or integer value if
-# $X->{'do_interp'} is disabled or value unrecognised.
-#
-#     WithdrawnState    0
-#     NormalState       1
-#     IconicState       3
-#
-# ZoomState (2) and InactiveState (4) are recognised but are no longer in
-# the ICCCM and are unlikely to be encountered.
-#
-# C<$icon_window> returned is the window (integer XID) used by the window
-# manager to display an icon of C<$window>.  If there's no such window then
-# C<$icon_window> is string "None", or integer 0 if $X->{'do_interp'} is
-# disabled.
-#
-# C<$icon_window> might be the icon window from the client's C<WM_HINTS>, or
-# it might be created by the window manager.  Either way the client can draw
-# into it for animations etc (perhaps selecting Expose events).
-#
-sub _get_wm_state {
-  my ($X, $window) = @_;
-  my $xa_wm_state = $X->atom('WM_STATE');
-  my ($value, $type, $format, $bytes_after)
-    = $X->GetProperty ($window,
-                       $xa_wm_state,  # property
-                       $xa_wm_state,  # type
-                       0,             # offset
-                       2,             # length, 2 x CARD32
-                       0);            # delete
-  if ($format == 32) {
-    my ($state, $icon_window) = unpack 'L*', $value;
-    return (_wmstate_interp($X,$state), _none_interp($X,$icon_window));
-  } else {
-    return;
-  }
-}
-
-# or maybe $X->interp('IDorNone',$xid)
-sub _none_interp {
-  my ($X, $xid) = @_;
-  if ($X->{'do_interp'} && $xid == 0) {
-    return 'None';
-  } else {
-    return $xid;
-  }
-}
-
-{
-  # DontCareState==0 no longer ICCCM
-  my @wmstate = ('WithdrawnState', # 0
-                 'NormalState',    # 1
-                 'ZoomState',      # 2, no longer ICCCM
-                 'IconicState',    # 3
-                 'InactiveState',  # 4, no longer in ICCCM
-                );
-  sub _wmstate_interp {
-    my ($X, $num) = @_;
-    if ($X->{'do_interp'} && defined (my $str = $wmstate[$num])) {
-      return $str;
-    }
-    return $num;
-  }
-}
-
-{
-  # $X->interp('WmState',$num);
-  # $X->num('WmState',$str);
-  my %const_arrays
-    = (
-       WmState => ['WithdrawnState', # 0
-                   'NormalState',    # 1
-                   'ZoomState',      # 2, no longer ICCCM
-                   'IconicState',    # 3
-                   'InactiveState',  # 4, no longer in ICCCM
-                  ],
-       # motif has the name "MWM_INPUT_APPLICATION_MODAL" as an alias for
-       # "MWM_INPUT_PRIMARY_APPLICATION_MODAL", but says prefer the latter
-       MwmModal => ['modeless',                  # 0
-                    'primary_application_modal', # 1
-                    'system_modal',              # 2
-                    'full_application_modal',    # 3
-                   ],
-       MwmStatus => ['tearoff_window',           # 0
-                   ],
-      );
-
-  my %const_hashes
-    = (map { $_ => { X11::Protocol::make_num_hash($const_arrays{$_}) } }
-       keys %const_arrays);
-
-
-  sub ext_const_init {
-    my ($X) = @_;
-    unless ($X->{'ext_const'}->{'WmState'}) {
-      %{$X->{'ext_const'}} = (%{$X->{'ext_const'}}, %const_arrays);
-      $X->{'ext_const_num'} ||= {};
-      %{$X->{'ext_const_num'}} = (%{$X->{'ext_const_num'}}, %const_hashes);
-    }
-  }
-}
-
-
-#------------------------------------------------------------------------------
 # _NET_WM_STATE
 
 # =item C<($state1, $state2, ..) = _get_net_wm_state ($X, $window)>
@@ -573,8 +368,7 @@ sub _set_net_wm_pid_from_self {
 #
 # Set the C<_NET_WM_PID> property on C<$window> to the given C<$pid> process
 # ID.  If C<$pid> is C<undef> then the property is deleted.  If C<$pid> is
-# omitted then the current process is set, that being the Perl C<$$>
-# variable.
+# omitted then the C<$$> current process ID is set (see L<perlvar>).
 #
 # A window manager or similar might use this to forcibly kill an
 # unresponsive client.  But it's only useful if C<WM_CLIENT_MACHINE> has
@@ -594,7 +388,7 @@ sub _set_net_wm_pid {
 #
 # Set the C<WM_NAME> property on C<$window> (an XID) to C<$name> (a string).
 # The window manager might display this as a title above the window, in a
-# menu of the windows, etc.
+# menu of windows, etc.
 #
 # If C<$name> is a Perl 5.8 wide-char string then it will be encoded as
 # "STRING" or "COMPOUND_TEXT" as necessary.  Otherwise C<$name> is a byte
@@ -712,12 +506,11 @@ sub _to_STRING {
 # Compound text pre-5.8 ?
 #
 # Set the C<WM_COMMAND> property on C<$window> (an XID).  This is a program
-# command name and argument strings which can be used to run or restart the
-# client program.  C<$command> is the command name, followed by argument
-# strings.
+# name and argument strings which can be used to run or restart the client.
+# C<$command> is the command name, followed by argument strings.
 #
 # A client program can set this at any time, or if it's participating in the
-# C<WM_SAVE_YOURSELF> session manager protocol then it should set it in
+# C<WM_SAVE_YOURSELF> session manager protocol then it must set it in
 # response to a C<WM_SAVE_YOURSELF> ClientMessage.
 #
 # The command should be something which will start the client in its current
@@ -1092,34 +885,6 @@ sub _aspect_to_numden {
 
 #------------------------------------------------------------------------------
 # _NET_WM_USER_TIME
-
-# set_NET_WM_USER_TIME
-
-# =item C<_set_new_wm_user_time ($X, $window, $time)>
-#
-# Set the C<_NET_WM_USER_TIME> property on C<$window>.  This should be a
-# server C<time> field from the event which caused this window to be popped
-# up, usually a C<KeyPress> or C<ButtonPress>.
-#
-sub _set_new_wm_user_time {
-  my ($X, $window, $time) = @_;
-  _set_card32_property ($X, $window,
-                        $X->atom('_NET_WM_USER_TIME'), $time);
-}
-
-sub _set_card32_property {
-  my ($X, $window, $prop, $value) = @_;
-  if (defined $value) {
-    $X->ChangeProperty($window,
-                       $prop,
-                       X11::AtomConstants::CARDINAL, # type
-                       32,                           # format
-                       'Replace',
-                       pack('L',$value));
-  } else {
-    $X->DeleteProperty ($window, $prop);
-  }
-}
 
 sub _get_net_user_time_window {
   my ($X, $window) = @_;

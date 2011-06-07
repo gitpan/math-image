@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::Ex::ToolItem::CheckButton;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 58;
+my $want_version = 59;
 {
   is ($App::MathImage::Gtk2::Ex::ToolItem::CheckButton::VERSION,
       $want_version,

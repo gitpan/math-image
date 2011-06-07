@@ -19,13 +19,14 @@ package App::MathImage;
 use 5.004;
 use strict;
 use Carp;
-use List::Util qw(min max);
+use List::Util 'min','max';
+use POSIX 'floor';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -40,12 +41,24 @@ sub _hopt {
   $self->{$hashname}->{$key} = $value;
 }
 
+sub _with_parameters {
+  my ($self, $str, $key) = @_;
+  my ($value, my @options) = split ',', $str;
+  _hopt($self,'gen_options',$key, $value);
+  foreach my $option (@options) {
+    $option =~ /^(.+?)=(.*)$/
+      or die "Option \"$option\" should be NAME=VALUE";
+    $self->{'gen_options'}->{"${key}_parameters"}->{$1} = $2;
+  }
+}
+
 sub getopt_long_specifications {
   my ($self) = @_;
   return
-    ('values=s'  =>
-     sub { my ($optname, $value) = @_;
-           _hopt($self,'gen_options','values', "$value"); },
+    ('values=s' => sub {
+       my ($optname, $value) = @_;
+       _with_parameters ($self, $value, 'values');
+     },
      'primes'   => sub {_hopt($self,'gen_options','values', 'Primes'); },
      'twin'     => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
                          _hopt($self,'gen_options','pairs', 'both'); },
@@ -96,8 +109,10 @@ sub getopt_long_specifications {
        _hopt($self,'gen_options','filter', 'Primes');
      },
 
-     'path=s'  => sub{ my ($optname, $value) = @_;
-                       _hopt($self,'gen_options','path', "$value");  },
+     'path=s'  => sub {
+       my ($optname, $value) = @_;
+       _with_parameters ($self, $value, 'path');
+     },
      do {
        my %path_options = (ulam             => 'SquareSpiral',
                            'sacks'          => 'SacksSpiral',
@@ -659,6 +674,8 @@ sub output_method_numbers {
       or next;
     if ($x == 0) { $x = 0; }  # no signed zeros
     if ($y == 0) { $y = 0; }
+    $x = floor ($x + 0.5);
+    $y = floor ($y + 0.5);
     ($array{$x}->{$y} .= "/$n") =~ s{^/}{};
     $x_min = min ($x_min, $x);
     $x_max = max ($x_max, $x);
@@ -688,6 +705,116 @@ sub output_method_numbers {
     foreach my $x ($x_min .. $x_max) {
       my $elem = $array{$x}->{$y};
       if (! defined $elem) { $elem = ''; }
+      printf "%*s", $cell_width, $elem;
+    }
+    print "\n";
+  }
+  return 0;
+}
+
+sub output_method_numbers_tdash {
+  my ($self) = @_;
+  $self->term_size;
+  my $gen = $self->make_generator;
+
+  my $path = $gen->path_object;
+  my $width = $gen->{'width'};
+  my $height = $gen->{'height'};
+  my $pwidth = int($width/5);
+  my $pwidth_half = int($pwidth/2);
+  my $height_half = int($height/2);
+
+  my $rect_x1 = 0;
+  my $rect_x2 = $pwidth-1;
+  my $rect_y1 = 0;
+  my $rect_y2 = $height-1;
+  if ($gen->x_negative) {
+    $rect_x1 = -$pwidth_half;
+    $rect_x2 = $pwidth_half;
+  }
+  if ($gen->y_negative) {
+    $rect_y1 = -$height_half;
+    $rect_y2 = $height_half;
+  }
+  my ($n_lo, $n_hi) = $path->rect_to_n_range
+    ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
+
+  my $values_class = $gen->values_class ($gen->{'values'});
+  my $values_obj = $values_class->new (%$gen, lo => $n_lo, hi => $n_hi);
+
+  my %array;
+  my $x_min = 0;
+  my $y_min = 0;
+  my $x_max = 0;
+  my $y_max = 0;
+  my $prev_x = 0;
+  my $prev_y = 0;
+  my (%left, %right, %upright, %downleft, %upleft, %downright);
+  while (my ($n) = $values_obj->next) {
+    last if ! defined $n || $n > $n_hi;
+    next if $n < $n_lo;
+    my ($x, $y) = $path->n_to_xy ($n)
+      or next;
+    if ($x == 0) { $x = 0; }  # no signed zeros
+    if ($y == 0) { $y = 0; }
+    $x = floor ($x + 0.5);
+    $y = floor ($y + 0.5);
+    ($array{$x}->{$y} .= "/$n") =~ s{^/}{};
+    $x_min = min ($x_min, $x);
+    $x_max = max ($x_max, $x);
+    $y_min = min ($y_min, $y);
+    $y_max = max ($y_max, $y);
+
+    if ($x == $prev_x + 2 && $y == $prev_y) {
+      $left{$x}->{$y} = '-';
+      $array{$x-1}->{$y} = '-';
+    } elsif ($x == $prev_x - 2 && $y == $prev_y) {
+      $right{$x}->{$y} = '-';
+      $array{$x+1}->{$y} = '-';
+    } elsif ($x == $prev_x + 1 && $y == $prev_y + 1) {
+      $downleft{$x}->{$y} = '/';
+    } elsif ($x == $prev_x - 1 && $y == $prev_y + 1) {
+      $downright{$x}->{$y} = '\\';
+    } elsif ($x == $prev_x - 1 && $y == $prev_y - 1) {
+      $upright{$x}->{$y} = '/';
+    } elsif ($x == $prev_x + 1 && $y == $prev_y - 1) {
+      $upleft{$x}->{$y} = '\\';
+    }
+    $prev_x = $x;
+    $prev_y = $y;
+  }
+  if ($x_min < 0) {
+    $x_min = -$pwidth_half;
+    $x_max = $pwidth_half;
+  } else {
+    $x_max = min ($x_max, $pwidth);
+  }
+  if ($y_min < 0) {
+    $y_min = -$height_half;
+    $y_max = $height_half;
+  } else {
+    $y_max = min ($y_max, $height);
+  }
+  my $cell_width = 0;
+  foreach my $y (reverse $y_min .. $y_max) {
+    foreach my $x ($x_min .. $x_max) {
+      my $elem = $array{$x}->{$y} || next;
+      $cell_width = max ($cell_width, length($elem) + 1) ;
+    }
+  }
+  foreach my $y (reverse $y_min .. $y_max) {
+    foreach my $x ($x_min .. $x_max) {
+      my $elem = $array{$x}->{$y};
+      if (! defined $elem) { $elem = ''; }
+      if ($elem eq '-') { $elem x= $cell_width; }
+      # $elem .= $right{$x}->{$y} || $left{$x+1}->{$y} || '';
+      printf "%*s", $cell_width, $elem;
+    }
+    print "\n ";
+    foreach my $x ($x_min .. $x_max) {
+      my $forw = $upright{$x}->{$y+1}; # || $upleft{$x+1}->{$y+1};
+      my $back; # = $downleft{$x+1}->{$y} || $upright{$x}->{$y+1};
+      my $elem = ($forw && $back ? 'X' : $forw || $back || '');
       printf "%*s", $cell_width, $elem;
     }
     print "\n";

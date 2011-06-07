@@ -48,20 +48,20 @@ require Test::Weaken::Gtk2;
 require Test::Weaken::ExtraBits;
 
 {
-  my $path_parameter_list;
+  my $path_parameter_info_array;
   my $leaks = Test::Weaken::leaks
     ({ constructor => sub {
          my $main = App::MathImage::Gtk2::Main->new;
          $main->show_all;
-         $path_parameter_list = $main->{'path_params'}->get('parameter-list');
+         $path_parameter_info_array = $main->{'path_params'}->get('parameter_info_array');
          return $main;
        },
        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
        contents => \&Test::Weaken::Gtk2::contents_container,
        ignore => sub {
          my ($ref) = @_;
-         return ($ref == $path_parameter_list
-                 || List::Util::first{$ref==$_} @$path_parameter_list);
+         return ($ref == $path_parameter_info_array
+                 || List::Util::first{$ref==$_} @$path_parameter_info_array);
        },
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');

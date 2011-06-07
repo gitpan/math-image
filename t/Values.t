@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 344;
+use Test::More tests => 356;
 
 use lib 't';
 use MyTestHelpers;
@@ -27,7 +27,7 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use POSIX ();
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
@@ -111,6 +111,21 @@ sub _delete_duplicates {
      # PiBits.pm
      # Repdigits.pm
      # SqrtDigits.pm
+
+     [ 'CullenNumbers', 0,
+       [ 1, 3, 9, 25, 65, 161, 385, 897, 2049, 4609, ] ],
+
+     # [ 'ProthNumbers', 0,
+     #   [ 3, 5, 9, 13, 17, 25, 33, 41, 49, 57, 65, 81, 97, 113, 129, 145,
+     #   161, 177, 193, 209, 225, 241, 257, 289, 321, 353, 385, 417, 449, 481,
+     #   513, 545, 577, 609, 641, 673, 705, 737, 769, 801, 833, 865, 897, 929,
+     #   961, 993, 1025, 1089, 1153, 1217, 1281, 1345, 1409 ] ],
+
+     [ 'LoeschianNumbers', 0,
+       [ 0,1,3,4,7,9,12,13,16,19,21,25 ] ],
+
+     [ 'SumXsq3Ysq', 0,
+       [ 4,7,12,13,16,19,21,28,31,36,37 ] ],
      
      [ 'Palindromes', 0,
        [ 0, 1, 3, 5, 7, 9, 15, 17, 21, 27, 31, 33, 45, 51,
@@ -819,7 +834,7 @@ sub _delete_duplicates {
               }
             }
             if (! $bfile) {
-              # diag "pred got ".join(',',@got_pred);
+              diag "pred got ".join(',',@got_pred);
             }
             _delete_duplicates($want);
             ### $want

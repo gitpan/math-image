@@ -31,7 +31,7 @@ use Gtk2::Ex::MenuBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Glib::Object',
@@ -42,8 +42,8 @@ use Glib::Object::Subclass
                    Glib::G_PARAM_READWRITE),
 
                   Glib::ParamSpec->scalar
-                  ('parameter-list',
-                   'Parameter List',
+                  ('parameter-info-array',
+                   'Parameter Info Arrayref',
                    'Blurb.',
                    Glib::G_PARAM_READWRITE),
 
@@ -65,7 +65,8 @@ use Glib::Object::Subclass
 sub INIT_INSTANCE {
   my ($self) = @_;
   $self->{'toolitems_hash'} = {};
-  $self->{'parameter_list'} = [];
+  $self->{'parameter_info_array'} = [];
+  $self->{'parameter_values'} = {};
 }
 
 sub GET_PROPERTY {
@@ -76,20 +77,20 @@ sub GET_PROPERTY {
   if ($pname eq 'parameter_values') {
     my $toolitems_hash = $self->{'toolitems_hash'};
     # ### $toolitems_hash
-    ### parameter_list: $self->{'parameter_list'}
+    ### parameter_info_array: $self->{'parameter_info_array'}
     my %ret;
-    foreach my $pinfo (@{$self->{'parameter_list'} || []}) {
+    foreach my $pinfo (@{$self->{'parameter_info_array'} || []}) {
       if (_pinfo_when($self,$pinfo)
           && (my $toolitem = _pinfo_to_toolitem ($self, $pinfo))) {
         ### $pinfo
         $ret{$pinfo->{'name'}} = $toolitem->get('parameter-value');
       }
     }
-    ### Params: %ret
+    ### GET_PROPERTY parameter_values: \%ret
     return \%ret;
 
   } else {
-    ### get: $self->{$pname}
+    ### GET_PROPERTY other value: $self->{$pname}
     return $self->{$pname};
   }
 }
@@ -98,9 +99,25 @@ sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
   ### Params SET_PROPERTY: $pname, $newval
+
+  if ($pname eq 'parameter_values') {
+    if (defined $newval) {
+      my %newval = (%{$self->{'parameter_values'}},
+                    %$newval);
+      foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
+        my $name = $pinfo->{'name'};
+        my $key = $pinfo->{'share_key'} || $name;
+        if (my $toolitem = $self->{'toolitems_hash'}->{$key}) {
+          $toolitem->set (parameter_value => delete $newval{$name});
+        }
+      }
+      $self->{'parameter_values'} = \%newval;
+    }
+    return;
+  }
   $self->{$pname} = $newval;
 
-  if ($pname eq 'parameter_list') {
+  if ($pname eq 'parameter_info_array') {
     my $toolbar = $self->{'toolbar'};
     my $toolitems_hash = $self->{'toolitems_hash'};
     my %hide = %$toolitems_hash;
@@ -118,7 +135,7 @@ sub SET_PROPERTY {
         my $ptype = $pinfo->{'type'};
         my $display = ($pinfo->{'display'} || $name);
         Scalar::Util::weaken (my $weak_self = $self);
-        ### new toolitem
+        ### new toolitem...
         ### $name
         ### $ptype
         ### $display
@@ -170,7 +187,7 @@ sub SET_PROPERTY {
       $toolitem->hide;
     }
     _update_visible ($self);
-    $self->notify('parameter-values');
+    $self->notify('parameter_values');
   }
 }
 
@@ -179,7 +196,7 @@ sub _do_toolitem_changed {
   my $ref_weak_self = $_[-1];
   my $self = $$ref_weak_self || return;
   _update_visible ($self);
-  ### Params notify values
+  ### Params notify values...
   $self->notify ('parameter-values');
 }
 
@@ -187,7 +204,7 @@ sub _update_visible {
   my ($self) = @_;
   ### _update_visible
   my $toolitems_hash = $self->{'toolitems_hash'};
-  foreach my $pinfo (@{$self->{'parameter_list'}}) {
+  foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
     ### name: $pinfo->{'name'}
     if (my $toolitem = _pinfo_to_toolitem($self,$pinfo)) {
       $toolitem->set (visible => _pinfo_when($self,$pinfo));
@@ -199,7 +216,7 @@ sub _pinfo_when {
   my ($self, $pinfo) = @_;
   if (my $when_name = $pinfo->{'when_name'}) {
     ### $when_name
-    if (my $when_pinfo = List::Util::first {$_->{'name'} eq $when_name} @{$self->{'parameter_list'}}) {
+    if (my $when_pinfo = List::Util::first {$_->{'name'} eq $when_name} @{$self->{'parameter_info_array'}}) {
       if (my $when_toolitem = _pinfo_to_toolitem($self,$when_pinfo)) {
         my $got_value = $when_toolitem->get('parameter-value');
         ### $got_value

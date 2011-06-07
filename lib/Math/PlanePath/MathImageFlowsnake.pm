@@ -32,10 +32,10 @@ use strict;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 58;
+$VERSION = 59;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -507,6 +507,7 @@ either added to or subtracted from X or Y.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
@@ -517,7 +518,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Math-Image is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

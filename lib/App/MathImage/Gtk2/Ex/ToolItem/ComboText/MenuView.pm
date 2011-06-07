@@ -26,7 +26,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::ComboText::MenuItem;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',
@@ -52,7 +52,7 @@ sub _do_item_create_or_update {
 # from combobox change
 sub set_active_iter {
   my ($self, $iter) = @_;
-  ### ComboText-MenuView set_active_iter()
+  ### ComboText-MenuView set_active_iter()...
 
   my $model;
   my $path = $iter

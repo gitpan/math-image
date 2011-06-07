@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 58;
+our $VERSION = 59;
 
 use Glib::Object::Subclass
   'Gtk2::CheckMenuItem',
@@ -36,13 +36,13 @@ unshift @ISA, 'Gtk2::Ex::MenuItem::Subclass';
 
 sub INIT_INSTANCE {
   my ($self) = @_;
-  ### ComboText MenuItem INIT_INSTANCE()
+  ### ComboText MenuItem INIT_INSTANCE()...
   $self->set_draw_as_radio(1);
 }
 
 sub _do_activate {
   my ($self) = @_;
-  ### ComboText MenuItem _do_activate()
+  ### ComboText MenuItem _do_activate()...
   $self->signal_chain_from_overridden;
 
   $self->get_active || return;
@@ -66,7 +66,7 @@ sub _menu_get_ancestor {
       $widget = $widget->get_parent;
     }
   } while ($widget);
-  ### _menu_get_ancestor() not found
+  ### _menu_get_ancestor() not found...
   return undef;
 }
 

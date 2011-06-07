@@ -25,7 +25,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base::Text;
 @ISA = ('Image::Base::Text');
 
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -288,7 +288,7 @@ sub colour_to_bit {
 1;
 __END__
 
-=for stopwords PNG LifeBitmap filename undef Ryde ImageLifeBitmap RLE
+=for stopwords LifeBitmap filename Ryde RLE
 
 =head1 NAME
 
