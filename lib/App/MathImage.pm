@@ -23,10 +23,10 @@ use List::Util 'min','max';
 use POSIX 'floor';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -500,15 +500,16 @@ sub output_method_png {
   my ($self) = @_;
   my $module;
   binmode (\*STDOUT) or die;
-  foreach my $module (defined $self->{'gui_options'}->{'module'}
-                      ? ($module = $self->{'gui_options'}->{'module'})
-                      : ('GD',
-                         'PNGwriter',
-                         'Imager',
-                         'Magick',
-                         'Gtk2::Gdk::Pixbuf',
-                         'Prima',
-                        )) {
+  foreach my $module
+    (defined $self->{'gui_options'}->{'module'}
+     ? ($module = $self->{'gui_options'}->{'module'})
+     : ((eval { require GD } && GD::Image->can('png') ? ('GD') : ()),
+        'PNGwriter',
+        'Imager',
+        'Magick',
+        'Gtk2::Gdk::Pixbuf',
+        'Prima',
+       )) {
     if ($self->try_module($module)) {
       $self->output_image ($module, -file_format => 'PNG');
       return 0;
@@ -712,7 +713,7 @@ sub output_method_numbers {
   return 0;
 }
 
-sub output_method_numbers_tdash {
+sub output_method_numbers_dash {
   my ($self) = @_;
   $self->term_size;
   my $gen = $self->make_generator;
@@ -720,104 +721,124 @@ sub output_method_numbers_tdash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $pwidth = int($width/5);
+  my $cell_width = 4;   # 4 chars each
+  my $pwidth = int($width/$cell_width) - 1;
+  my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);
-  my $height_half = int($height/2);
+  my $pheight_half = int($pheight/2);
+  ### $pwidth
+  ### $pheight
+  ### $pwidth_half
+  ### $pheight_half
 
-  my $rect_x1 = 0;
-  my $rect_x2 = $pwidth-1;
-  my $rect_y1 = 0;
-  my $rect_y2 = $height-1;
+  my ($rect_x1, $rect_x2, $rect_y1, $rect_y2);
   if ($gen->x_negative) {
     $rect_x1 = -$pwidth_half;
     $rect_x2 = $pwidth_half;
+  } else {
+    $rect_x1 = 0;
+    $rect_x2 = $pwidth-1;
   }
   if ($gen->y_negative) {
-    $rect_y1 = -$height_half;
-    $rect_y2 = $height_half;
+    $rect_y1 = -$pheight_half;
+    $rect_y2 = $pheight_half;
+  } else {
+    $rect_y1 = 0;
+    $rect_y2 = $pheight-1;
   }
+  ### $rect_y1
+  ### $rect_y2
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
+  $n_lo = max(0,$n_lo);
+
+  my $n_cell_limit = (10 ** ($cell_width-1)) - 1;
+  ### $n_cell_limit
+  $n_hi = min($n_cell_limit,$n_hi);
+  ### $n_hi
 
   my $values_class = $gen->values_class ($gen->{'values'});
   my $values_obj = $values_class->new (%$gen, lo => $n_lo, hi => $n_hi);
 
-  my %array;
-  my $x_min = 0;
-  my $y_min = 0;
-  my $x_max = 0;
-  my $y_max = 0;
-  my $prev_x = 0;
-  my $prev_y = 0;
-  my (%left, %right, %upright, %downleft, %upleft, %downright);
+  my @rows = ((' ' x ($cell_width*$pwidth)) x ($pheight*2));
+  my $prev_x;
+  my $prev_y;
+  my $blank = (' ' x $cell_width);
+
+  my $store_slash = sub {
+    my ($rx, $ry, $slash) = @_;
+    my $old = substr ($rows[$ry], $rx, 1);
+    if ($old ne $slash && $old ne ' ') {
+      $slash = 'X';
+    }
+    substr ($rows[$ry], $rx, 1) = $slash;
+  };
+
   while (my ($n) = $values_obj->next) {
-    last if ! defined $n || $n > $n_hi;
+    last if ! defined $n;
+    last if $n > $n_hi;
     next if $n < $n_lo;
     my ($x, $y) = $path->n_to_xy ($n)
-      or next;
-    if ($x == 0) { $x = 0; }  # no signed zeros
-    if ($y == 0) { $y = 0; }
+      or do {
+        undef $prev_x;
+        next;
+      };
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-    ($array{$x}->{$y} .= "/$n") =~ s{^/}{};
-    $x_min = min ($x_min, $x);
-    $x_max = max ($x_max, $x);
-    $y_min = min ($y_min, $y);
-    $y_max = max ($y_max, $y);
 
-    if ($x == $prev_x + 2 && $y == $prev_y) {
-      $left{$x}->{$y} = '-';
-      $array{$x-1}->{$y} = '-';
-    } elsif ($x == $prev_x - 2 && $y == $prev_y) {
-      $right{$x}->{$y} = '-';
-      $array{$x+1}->{$y} = '-';
-    } elsif ($x == $prev_x + 1 && $y == $prev_y + 1) {
-      $downleft{$x}->{$y} = '/';
-    } elsif ($x == $prev_x - 1 && $y == $prev_y + 1) {
-      $downright{$x}->{$y} = '\\';
-    } elsif ($x == $prev_x - 1 && $y == $prev_y - 1) {
-      $upright{$x}->{$y} = '/';
-    } elsif ($x == $prev_x + 1 && $y == $prev_y - 1) {
-      $upleft{$x}->{$y} = '\\';
+    my $ry = ($y-$rect_y1) * 2;
+    my $rx = ($x-$rect_x1) * $cell_width;
+    next if $ry < 0 || $ry > $#rows;
+    my $num = sprintf('%*d', $cell_width-1, $n);
+    next if $rx < 0;
+    next if $rx >= length($rows[0]);
+    substr ($rows[$ry], $rx+1, length($num)) = $num;
+
+    if (defined $prev_x) {
+      if ($x == $prev_x + 1 && $y == $prev_y) {
+        substr ($rows[$ry], $rx, 1) = '-';
+        if (substr($rows[$ry],$rx+1,1) eq ' ') {
+          substr($rows[$ry],$rx+1,1) = '-';
+        }
+      } elsif ($x == $prev_x - 1 && $y == $prev_y) {
+        substr ($rows[$ry], $rx+$cell_width, 1) = '-';
+        if (substr($rows[$ry],$rx+$cell_width+1,1) eq ' ') {
+          substr($rows[$ry],$rx+$cell_width+1,1) = '-';
+        }
+
+      } elsif ($x == $prev_x + 2 && $y == $prev_y) {
+        substr ($rows[$ry], $rx, 1) = '-';
+        if (substr($rows[$ry],$rx-$cell_width,length($blank)) eq $blank) {
+          substr($rows[$ry],$rx-$cell_width,length($blank))
+            = ('-' x length($blank));
+        }
+      } elsif ($x == $prev_x - 2 && $y == $prev_y) {
+        substr ($rows[$ry], $rx+$cell_width, 1) = '-';
+        if (substr($rows[$ry],$rx+$cell_width+1,length($blank)) eq $blank) {
+          substr($rows[$ry],$rx+$cell_width+1,length($blank))
+            = ('-' x length($blank));
+        }
+
+      } elsif ($x == $prev_x && $y == $prev_y-1) {
+        substr ($rows[$ry+1], $rx+$cell_width-1, 1) = '|';
+      } elsif ($x == $prev_x && $y == $prev_y+1) {
+        substr ($rows[$ry-1], $rx+$cell_width-1, 1) = '|';
+
+      } elsif ($x == $prev_x + 1 && $y == $prev_y + 1) {
+        $store_slash->($rx, $ry-1, '/');
+      } elsif ($x == $prev_x - 1 && $y == $prev_y + 1) {
+        $store_slash->($rx+$cell_width, $ry-1, '\\');
+      } elsif ($x == $prev_x + 1 && $y == $prev_y - 1) {
+        $store_slash->($rx, $ry+1, '\\');
+      } elsif ($x == $prev_x - 1 && $y == $prev_y - 1) {
+        $store_slash->($rx+$cell_width, $ry+1, '/');
+      }
     }
     $prev_x = $x;
     $prev_y = $y;
   }
-  if ($x_min < 0) {
-    $x_min = -$pwidth_half;
-    $x_max = $pwidth_half;
-  } else {
-    $x_max = min ($x_max, $pwidth);
-  }
-  if ($y_min < 0) {
-    $y_min = -$height_half;
-    $y_max = $height_half;
-  } else {
-    $y_max = min ($y_max, $height);
-  }
-  my $cell_width = 0;
-  foreach my $y (reverse $y_min .. $y_max) {
-    foreach my $x ($x_min .. $x_max) {
-      my $elem = $array{$x}->{$y} || next;
-      $cell_width = max ($cell_width, length($elem) + 1) ;
-    }
-  }
-  foreach my $y (reverse $y_min .. $y_max) {
-    foreach my $x ($x_min .. $x_max) {
-      my $elem = $array{$x}->{$y};
-      if (! defined $elem) { $elem = ''; }
-      if ($elem eq '-') { $elem x= $cell_width; }
-      # $elem .= $right{$x}->{$y} || $left{$x+1}->{$y} || '';
-      printf "%*s", $cell_width, $elem;
-    }
-    print "\n ";
-    foreach my $x ($x_min .. $x_max) {
-      my $forw = $upright{$x}->{$y+1}; # || $upleft{$x+1}->{$y+1};
-      my $back; # = $downleft{$x+1}->{$y} || $upright{$x}->{$y+1};
-      my $elem = ($forw && $back ? 'X' : $forw || $back || '');
-      printf "%*s", $cell_width, $elem;
-    }
-    print "\n";
+  foreach (reverse @rows) {
+    print $_,"\n";
   }
   return 0;
 }

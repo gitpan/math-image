@@ -24,13 +24,13 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant description => __('Number of steps to reach 1 in the Collatz "3n+1" problem.');
-use constant type_hash => { count => 1 };
+use constant characteristic_count => 1;
 use constant values_min => 1;
 
 use constant parameter_list =>

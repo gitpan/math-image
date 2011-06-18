@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 59;
+our $VERSION = 60;
 
 use App::MathImage::Gtk2::Params::String;
 use Glib::Object::Subclass

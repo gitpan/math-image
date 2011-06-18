@@ -16,7 +16,7 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# is_type('monotonic')
+# characteristic('monotonic')
 #    from .internal sample values
 #    otherwise reading whole B-File
 #    subclass Sequence::File for b-file with extra info
@@ -33,10 +33,10 @@ use base 'App::MathImage::NumSeq::Base::Array';
 use App::MathImage::NumSeq::Sequence::OEIS;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant name => __('OEIS File');
 sub description {
@@ -48,29 +48,24 @@ sub description {
 }
 *parameter_list = \&App::MathImage::NumSeq::Sequence::OEIS::parameter_list;
 
-sub is_type {
-  my ($self, $type) = @_;
-  return $self->{'type_hash'}->{$type};
-}
-
 sub new {
   my ($class, %options) = @_;
   ### OEIS-File: %options
 
-  my %info;
-  if (my $oeis_anum = $options{'oeis_anum'}) {
+  my %self;
+  if (my $anum = $options{'anum'}) {
     my $self = {};
-    ### $oeis_anum
-    _read_values (\%info, $oeis_anum);
-    if (! _read_internal(\%info, $oeis_anum)) {
-      _read_html(\%info, $oeis_anum);
+    ### $anum
+    _read_values (\%self, $anum);
+    if (! _read_internal(\%self, $anum)) {
+      _read_html(\%self, $anum);
     }
-    if (! $info{'array'}) {
-      croak 'B-file, Internal or HTML not found for A-number "',$oeis_anum,'"';
+    if (! $self{'array'}) {
+      croak 'B-file, Internal or HTML not found for A-number "',$anum,'"';
     }
 
-    if ($info{'type_hash'}->{'radix'}) {
-      my $aref = $info{'array'};
+    if ($self{'characteristic'}->{'radix'}) {
+      my $aref = $self{'array'};
       my $max = 0;
       foreach my $i (1 .. $#$aref) {
         if ($aref->[$i] > 50) {
@@ -80,12 +75,12 @@ sub new {
           $max = $aref->[$i];
         }
       }
-      $info{'values_max'} = $max;
-      $info{'radix'} = $max+1;
+      $self{'values_max'} = $max;
+      $self{'radix'} = $max+1;
     }
   }
 
-  return $class->SUPER::new (%info,
+  return $class->SUPER::new (%self,
                              %options);
 }
 
@@ -101,11 +96,11 @@ sub anum_to_bfile {
   my ($anum, $prefix) = @_;
   $prefix ||= 'b';
   $anum =~ s/^A/$prefix/;
-  return $anum;
+  return "$anum.txt";
 }
 
 sub _read_values {
-  my ($info, $anum) = @_;
+  my ($self, $anum) = @_;
   ### NumSeq-OEIS-File _read_values(): @_
 
   require File::Spec;
@@ -141,14 +136,14 @@ sub _read_values {
       }
     }
     close FH or die "Error reading $filename: $!";
-    $info->{'filename'} = $filename;
-    $info->{'array'} = \@array;
+    $self->{'filename'} = $filename;
+    $self->{'array'} = \@array;
   }
   return;
 }
 
 sub _read_internal {
-  my ($info, $anum, $aref) = @_;
+  my ($self, $anum, $aref) = @_;
 
   my $basefile = "$anum.internal";
   my $filename = File::Spec->catfile (oeis_dir(), $basefile);
@@ -161,8 +156,8 @@ sub _read_internal {
   my $contents = do { local $/; <FH> }; # slurp
   close FH or die "Error reading $filename: ",$!;
 
-  my %type_hash = (integer => 1);
-  $info->{'type_hash'} = \%type_hash;
+  my %characteristic = (integer => 1);
+  $self->{'characteristic'} = \%characteristic;
 
   my $offset;
   if ($contents =~ /^%O\s+(\d+)/) {
@@ -171,27 +166,9 @@ sub _read_internal {
     $offset = 0;
   }
 
-  if ($contents =~ /^%K (.*?)(<tt>|$)/) {
-    my %K;
-    @K{split /[, \t]+/, $1} = ();
-    if (exists $K{'nonn'}) {
-      $info->{'values_min'} = 0;
-    }
-    # "base" means dependent on some number base
-    # "cons" means decimal expansion of a number
-    if (exists $K{'base'} || exists $K{'cons'}) {
-      $type_hash{'radix'} = 1;
-    }
-    if (exists $K{'cofr'}) {
-      $type_hash{'continued_fraction'} = 1;
-    }
-    foreach my $key (keys %K) {
-      $type_hash{"OEIS_$key"} = 1;
-    }
-  }
-
+  my $description;
   if ($contents =~ /^%N (.*?)(<tt>|$)/) {
-    my $description = $1;
+    $description = $1;
     $description =~ s/\s+/ /g;
     $description =~ s/<.*?>//sg;
     $description =~ s/&lt;/</sg;
@@ -199,24 +176,27 @@ sub _read_internal {
     $description =~ s/&amp;/&/sg;
 
     if ($description =~ /^number of /i) {
-      $type_hash{'count'} = 1;
+      $characteristic{'count'} = 1;
     }
-    $description .= "\n" . (defined $info->{'filename'}
+    $description .= "\n" . (defined $self->{'filename'}
                             ? __x('Values from B-file {filename}',
-                                  filename => $info->{'filename'})
+                                  filename => $self->{'filename'})
                             : __('First few values from HTML'));
-    $info->{'description'} = $description;
+    $self->{'description'} = $description;
   }
 
-  if (! $info->{'array'}) {
+  _set_characteristics ($self, $description,
+                        $contents =~ /^%K (.*?)(<tt>|$)/ && $1);
+
+  if (! $self->{'array'}) {
     $contents =~ m{^%S (.*?)(</tt>|$)}m
       or croak "Oops list of values not found in ",$filename;
-    _split_sample_values ($info, $filename, $1, $offset);
+    _split_sample_values ($self, $filename, $1, $offset);
   }
 }
 
 sub _read_html {
-  my ($info, $anum) = @_;
+  my ($self, $anum) = @_;
   foreach my $basefile ("$anum.html", "$anum.htm") {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
@@ -225,6 +205,7 @@ sub _read_html {
       my $contents = do { local $/; <FH> }; # slurp
       close FH or die;
 
+      my $description;
       if ($contents =~
           m{$anum\n.*?
             <td[^>]*>\s*</td>   # blank <td ...></td>
@@ -233,7 +214,7 @@ sub _read_html {
             ([^>]+)             # text
             <(br|/td)>          # to <br> or </td>
          }sx) {
-        my $description = $1;
+        $description = $1;
         $description =~ s/^\s+//;
         $description =~ s/\s+$//;
         $description =~ s/\s+/ /g;    # collapse whitespace
@@ -241,11 +222,11 @@ sub _read_html {
         $description =~ s/&lt;/</sg;
         $description =~ s/&gt;/>/sg;
         $description =~ s/&amp;/&/sg;
-        $description .= "\n" . (defined $info->{'filename'}
+        $description .= "\n" . (defined $self->{'filename'}
                                 ? __x('Values from B-file {filename}',
-                                      filename => $info->{'filename'})
+                                      filename => $self->{'filename'})
                                 : __('First few values from HTML'));
-        $info->{'description'} = $description;
+        $self->{'description'} = $description;
       }
 
       # fragile grep out of the html ...
@@ -253,12 +234,20 @@ sub _read_html {
                     && $1);
       ### $offset
 
-      if (! $info->{'array'}) {
+      # fragile grep out of the html ...
+      my $keywords;
+      if ($contents =~ m{KEYWORD.*?<tt[^>]*>(.*?)</tt>}s) {
+        ### keywords match: $1
+        ($keywords = $1) =~ s{</?span[^>]*>}{}g;
+      }
+      _set_characteristics ($self, $description, $keywords);
+
+      if (! $self->{'array'}) {
         # fragile grep out of the html ...
         $contents =~ s{>graph</a>.*}{};
         $contents =~ m{.*<tt>([^<]+)</tt>};
         my $list = $1;
-        _split_sample_values ($info, $filename, $list, $offset);
+        _split_sample_values ($self, $filename, $list, $offset);
       }
       return;
     }
@@ -267,18 +256,41 @@ sub _read_html {
   return;
 }
 
+sub _set_characteristics {
+  my ($self, $description, $keywords) = @_;
+  ### _set_characteristics()
+  ### $description
+  ### $keywords
+
+  foreach my $key (split /[, \t]+/, ($keywords||'')) {
+    ### $key
+    if ($key eq 'nonn') {   # non-negative
+      $self->{'values_min'} = 0;
+    }
+    # "base" means dependent on some number base
+    # "cons" means decimal expansion of a number
+    if ($key eq 'base' || $key eq 'cons') {
+      $self->{'characteristic'}->{'radix'} = 1;
+    }
+    if ($key eq 'cofr') {
+      $self->{'characteristic'}->{'continued_fraction'} = 1;
+    }
+    $self->{'characteristic'}->{"OEIS_$key"} = 1;
+  }
+}
+
 sub _split_sample_values {
-  my ($info, $filename, $str, $offset) = @_;
+  my ($self, $filename, $str, $offset) = @_;
   unless ($str =~ m{^([0-9,-]|\s)+$}) {
     croak "Oops unrecognised list of values not found in ",$filename,"\n",$str;
   }
-  $info->{'array'} = [ split /[, \t\r\n]+/, $str ];
+  $self->{'array'} = [ split /[, \t\r\n]+/, $str ];
 
   # %O "OFFSET" is subscript of first number, or for digit expansions it's
   # the position of the decimal point
   # http://oeis.org/eishelp2.html#RO
-  if ($offset && ! $info->{'type_hash'}->{'radix'}) {
-    unshift @{$info->{'array'}}, (undef) x $offset;
+  if ($offset && ! $self->{'characteristic'}->{'radix'}) {
+    unshift @{$self->{'array'}}, (undef) x $offset;
   }
 }
 

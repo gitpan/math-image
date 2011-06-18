@@ -25,15 +25,12 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
 use constant values_min => 0;
-sub is_type {
-  my ($self, $type) = @_;
-  return ($type eq 'monotonic' || $self->SUPER::is_type($type));
-}
+use constant characteristic_monotonic => 1;
 use constant parameter_list => ({ name => 'multiples',
                                   type => 'float',
                                   width => 10,
@@ -48,7 +45,8 @@ use constant parameter_list => ({ name => 'multiples',
 
 sub rewind {
   my ($self) = @_;
-  $self->{'i'} = ceil ($self->{'lo'} / abs($self->{'multiples'}))
+  $self->{'i'} = ($self->{'multiples'}
+                  && ceil ($self->{'lo'} / abs($self->{'multiples'})))
 }
 sub next {
   my ($self) = @_;

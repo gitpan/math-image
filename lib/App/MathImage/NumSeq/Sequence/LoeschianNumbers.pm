@@ -1,3 +1,8 @@
+# OEIS starts with i=1 for value=0 ...
+
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -26,20 +31,23 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Loeschian numbers');
 use constant description => __('Loeschian numbers x^2+xy+y^2 norms on hexagonal A2 grid, which is also (a^2+3*b^2)/4 for all a>=0,b>=0 and a,b opposite odd/even.');
+use constant i_start => 1; # per oeis ...
 
+# cf A132111 - triangle T(n,k) = n^2 + k*n + k^2, 0<=k<=n
+#
 use constant oeis_anum => 'A003136';
 
 sub rewind {
   my ($self) = @_;
   ### LoeschianNumbers rewind()
-  $self->{'i'} = 0;
+  $self->{'i'} = max (1, $self->{'lo'} || 0);
   $self->{'y_next_x'}     = [ 0, 1         ];
   $self->{'y_next_hypot'} = [ 0, 1*1+3*1*1 ];
   $self->{'prev_hypot'} = -1;
@@ -92,18 +100,18 @@ sub next {
 
 # ENHANCE-ME: check the factorization
 sub pred {
-  my ($self, $n) = @_;
-  if ($n == $n-1) {
+  my ($self, $value) = @_;
+  if ($value == $value-1) {
     return 0;
   }
-  $n *= 4;
-  my $limit = int(sqrt($n/3));
+  $value *= 4;
+  my $limit = int(sqrt($value/3));
   ### $limit
   for (my $y = 0; $y <= $limit; $y++) {
     my $ysq = 3*$y*$y;
-    my $x = int(sqrt($n - $ysq));
+    my $x = int(sqrt($value - $ysq));
     if ((($x ^ $y) & 1) == 0
-        && $x*$x + $ysq == $n) {
+        && $x*$x + $ysq == $value) {
       return 1;
     }
   }

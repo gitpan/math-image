@@ -26,14 +26,14 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Prime Numbers');
 use constant description => __('The primes which are at prime number index positions, 3, 5, 11, 17, 31, etc.');
-use constant type_hash => { count => 1 };
+use constant characteristic_count => 1;
 use constant values_min => 0;
 
 # cf A049076 number of steps for the N'th prime

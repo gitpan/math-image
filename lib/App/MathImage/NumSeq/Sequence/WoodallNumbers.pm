@@ -24,7 +24,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -32,6 +32,7 @@ $VERSION = 59;
 use constant name => __('WoodallNumbers');
 use constant description => __('Woodall numbers n*2^n-1.');
 use constant values_min => 1;
+use constant i_start => 1; # from 1*2^1-1==1
 
 # cf A002234 - Woodall primes
 #    A050918 - n for the Woodall primes
@@ -40,7 +41,7 @@ use constant oeis_anum => 'A003261';
 
 sub rewind {
   my ($self) = @_;
-  $self->{'i'} = 0;
+  $self->{'i'} = $self->i_start;
 }
 sub next {
   my ($self) = @_;

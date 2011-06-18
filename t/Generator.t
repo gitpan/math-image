@@ -26,7 +26,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 require POSIX;
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 59;
+  my $want_version = 60;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -146,19 +146,19 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
   # only exercise the dependencies and maybe supplied paths, not everything
   # in case some stuff not working
   foreach my $path ('SquareSpiral') {
-    diag "exercise path $path";
     my $gen = App::MathImage::Generator->new (width  => 10,
                                               height => 10,
                                               scale  => 1,
                                               path   => $path,
                                               values => 'All');
+    my $description = $gen->description; # exercise description string
+    diag "exercise path $path: $description";
     my $image = Image::Base::Text->new
       (-width  => 10,
        -height => 10,
        -cindex => { 'black' => ' ',
                     'white' => '*'});
     $gen->draw_Image ($image);
-    $gen->description; # exercise description string
   }
   ok ($good, "all path_choices exercised");
 }
@@ -189,13 +189,13 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                                               scale  => 1,
                                               path   => 'SquareSpiral',
                                               values => $values);
+    $gen->description; # exercise description string
     my $image = Image::Base::Text->new
       (-width  => 10,
        -height => 10,
        -cindex => { 'black' => ' ',
                     'white' => '*'});
     $gen->draw_Image ($image);
-    $gen->description; # exercise description string
   }
   ok ($good, "all values_choices exercised");
 }

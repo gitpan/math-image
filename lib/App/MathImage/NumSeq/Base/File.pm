@@ -23,7 +23,7 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -90,9 +90,9 @@ sub pred {
 }
 
 sub name            { return $_[0]->{'package'}->name        }
-sub is_type {
-  my ($self, $type) = @_;
-  return $self->{'package'}->is_type($type);
+sub characteristic {
+  my $self = shift;
+  return $self->{'package'}->characteristic(@_);
 }
 sub description     { return $_[0]->{'package'}->description }
 sub parameter_list  { return $_[0]->{'package'}->parameter_list  }

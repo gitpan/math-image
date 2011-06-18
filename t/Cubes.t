@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Sequence::Cubes;
 # VERSION
 
 {
-  my $want_version = 59;
+  my $want_version = 60;
   is ($App::MathImage::NumSeq::Sequence::Cubes::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Cubes->VERSION,  $want_version, 'VERSION class method');
 
@@ -48,11 +48,11 @@ use App::MathImage::NumSeq::Sequence::Cubes;
 
 
 #------------------------------------------------------------------------------
-# is_type
+# characteristic()
 
 {
   my $values_obj = App::MathImage::NumSeq::Sequence::Cubes->new;
-  is (! $values_obj->is_type('count'), 1, 'is_type(count)');
+  is (! $values_obj->characteristic('count'), 1, 'characteristic(count)');
 }
 
 

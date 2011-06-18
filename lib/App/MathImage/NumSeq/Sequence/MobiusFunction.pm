@@ -24,14 +24,11 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
-sub is_type {
-  my ($self, $type) = @_;
-  return ($type eq 'pn1' || $self->SUPER::is_type($type));
-}
+use constant characteristic_pn1 => 1;
 use constant values_min => -1;
 use constant values_max => 1;
 use constant oeis_anum => 'A008683'; # mobius -1,0,1

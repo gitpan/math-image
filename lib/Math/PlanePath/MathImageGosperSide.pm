@@ -16,10 +16,10 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageGosperIslandSide --lines --scale=10
-# math-image --path=MathImageGosperIslandSide --output=numbers
+# math-image --path=MathImageGosperSide --lines --scale=10
+# math-image --path=MathImageGosperSide --output=numbers
 
-package Math::PlanePath::MathImageGosperIslandSide;
+package Math::PlanePath::MathImageGosperSide;
 use 5.004;
 use strict;
 use List::Util qw(min max);
@@ -27,7 +27,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 59;
+$VERSION = 60;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,7 +40,7 @@ use constant n_start => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### GosperIslandSide n_to_xy(): $n
+  ### GosperSide n_to_xy(): $n
   if ($n < 0) {
     return;
   }
@@ -89,7 +89,7 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = floor($x + 0.5);
   $y = floor($y + 0.5);
-  ### GosperIslandSide xy_to_n(): "$x, $y"
+  ### GosperSide xy_to_n(): "$x, $y"
   return undef;
 }
 
@@ -124,16 +124,16 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS
+=for stopwords eg Ryde
 
 =head1 NAME
 
-Math::PlanePath::MathImageGosperIslandSide -- one side of the gosper island
+Math::PlanePath::MathImageGosperSide -- one side of the gosper island
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageGosperIslandSide;
- my $path = Math::PlanePath::MathImageGosperIslandSide->new;
+ use Math::PlanePath::MathImageGosperSide;
+ my $path = Math::PlanePath::MathImageGosperSide->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -144,7 +144,7 @@ I<In progress.>
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageGosperIslandSide-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageGosperSide-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -159,6 +159,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::KochCurve>
+
+L<Math::Fractal::Curve>
 
 =head1 HOME PAGE
 

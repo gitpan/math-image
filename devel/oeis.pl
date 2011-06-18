@@ -27,6 +27,36 @@ use Smart::Comments;
 
 {
   require App::MathImage::NumSeq::OeisCatalogue;
+  my $anum = 'A163544';
+  my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info($anum);
+  ### $info
+
+  require App::MathImage::NumSeq::Sequence::OEIS;
+  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(anum=>'A163544');
+  ### $seq
+  exit 0;
+}
+{
+  unshift @INC,'t';
+  require MyOEIS;
+  my @ret = MyOEIS::read_values('008683');
+  ### @ret
+  exit 0;
+}
+{
+  require App::MathImage::NumSeq::OeisCatalogue::Plugin::ZZ_Files;
+  require App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits;
+  foreach my $info (App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits->info_arrayref) {
+    ### info: $info->[0]
+    my $anum = $info->[0]->{'anum'};
+    require App::MathImage::NumSeq::Sequence::OEIS;
+    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(anum=>$anum);
+  }
+  exit 0;
+}
+
+{
+  require App::MathImage::NumSeq::OeisCatalogue;
   my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info('A000290');
   ### $info
   { my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
@@ -58,17 +88,7 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  require App::MathImage::NumSeq::OeisCatalogue::Plugin::ZZ_Files;
-  require App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits;
-  foreach my $info (App::MathImage::NumSeq::OeisCatalogue::Plugin::FractionDigits->info_arrayref) {
-    ### info: $info->[0]
-    my $anum = $info->[0]->{'anum'};
-    require App::MathImage::NumSeq::Sequence::OEIS;
-    my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(anum=>$anum);
-  }
-  exit 0;
-}
+
 {
   require App::MathImage::NumSeq::Sequence::OEIS;
   my $seq = App::MathImage::NumSeq::Sequence::OEIS->new(anum=>'A000032');

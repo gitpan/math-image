@@ -1,3 +1,7 @@
+# start at 1,1,1 or like oeis 1,0,0 ?
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -23,12 +27,21 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 use constant name => __('Padovan Numbers');
 use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
 use constant values_min => 1;
-use constant oeis_anum => 'A000931'; # padovan
+
+# cf A100891 - prime padovans
+#    A112882 - index position of those prime padovans
+#    A133034 - first differences of padovans
+#    A078027 - expansion (1-x)/(1-x^2-x^3), starts 1,-1,0
+#    A096231 - triangles generation starting 1,3,5
+#    A145462,A146973 - eisentriangle row sums value at left is padovan 
+#    A134816 - starting 1,1,1 spiral sides
+#    A000931 - starting 1,0,0
+# use constant oeis_anum => 'A000931'; # padovan, but starting 1,0,0
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -26,7 +26,7 @@ use Glib::Ex::ObjectBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 59;
+our $VERSION = 60;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',

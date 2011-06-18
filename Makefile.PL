@@ -55,6 +55,7 @@ my %maximum_planepath
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
+     'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
 
      'Math::PlanePath::DiamondSpiral'        => 1,
      'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
@@ -83,6 +84,7 @@ my %maximum_planepath
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
+     'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
     );
 
 MyMakeMakerExtras::WriteMakefile
@@ -136,7 +138,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
-    'Gtk2::Ex::ToolItem::OverflowToDialog' => 36,  # new in v.36
+    'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21

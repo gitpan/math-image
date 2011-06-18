@@ -22,23 +22,43 @@ use strict;
 use warnings;
 use List::Util 'min', 'max';
 
-use Smart::Comments;
+#use Devel::Comments;
 
 
 # roygbiv
 {
   my $w = 256*3;
+  #   $w = 16;
   my $h = 100;
-  require Image::Base::Gtk2::Gdk::Pixbuf;
   require Convert::Color::HSV;
   require Graphics::Color::HSV;
-  my $image = Image::Base::Gtk2::Gdk::Pixbuf->new (-width => $w,
-                                                   -height => $h);
-  foreach my $x (0 .. $w-1) {
-    my $hue = ($w-1 - $x)/$w;
+  require App::MathImage::Generator;
 
-  # $hue = int($hue * 7) / 7 + .5/7;  # quantize
-    my $colour = hsv($hue);
+  # require Image::Base::GD;
+  # my $image = Image::Base::GD->new (-width => $w,
+  #                                   -height => $h,
+  #                                   -truecolor => 1);
+
+  require Image::Base::PNGwriter;
+  my $image = Image::Base::PNGwriter->new (-width => $w,
+                                           -height => $h,
+                                           -truecolor => 1);
+
+  # require Image::Base::Gtk2::Gdk::Pixbuf;
+  # my $image = Image::Base::Gtk2::Gdk::Pixbuf->new (-width => $w,
+  #                                                  -height => $h);
+
+  foreach my $x (0 .. $w-1) {
+    my $hue = $x/$w;
+    # my $hue = ($w-1 - $x)/$w;
+
+    # $hue = int($hue * 7) / 7 + .5/7;  # quantize
+    # my $colour = hsv($hue);
+    my $colour = App::MathImage::Generator->colour_heat($hue);
+    ### $hue
+    ### $colour
+
+    $image->add_colours ($colour);
     $image->line ($x,0, $x,$h-1, $colour);
   }
   $image->save('/tmp/x.png');

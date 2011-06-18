@@ -1,3 +1,7 @@
+# oeis starts at i=1 value=0
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -23,7 +27,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

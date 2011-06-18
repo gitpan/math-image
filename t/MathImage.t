@@ -19,7 +19,7 @@
 
 use 5.008;
 use strict;
-use Test::More tests => 38;
+use Test::More tests => 36;
 
 use lib 't';
 use MyTestHelpers;
@@ -37,7 +37,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 59;
+  my $want_version = 60;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -71,17 +71,17 @@ foreach my $elem
    [ ['--output=list'] ],
    [ ['--xpm'],
      modules => ['Image::Xpm'] ],
+
+   # png is only actually optional in GD
    [ ['--png'],
-     modules => ['Image::Base::GD'] ],
-   [ ['--png','--module=GD'],
-     modules => ['Image::Base::GD'] ],
+     modules => ['Image::Base::PNGwriter'] ],
+   [ ['--png','--module=PNGwriter'],
+     modules => ['Image::Base::PNGwriter'] ],
    [ ['--png','--module=Magick'],
      modules => ['Image::Base::Magick'] ],
    [ ['--png','--module=Gtk2']
      # always have Image::Base::Gtk2::Gdk::Pixbuf
    ],
-   [ ['--png','--module=PNGwriter'],
-     modules => ['Image::Base::PNGwriter'] ],
 
    # [ ['--prima'],         module => 'Prima' ],
   ) {

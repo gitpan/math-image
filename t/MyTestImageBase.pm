@@ -24,6 +24,7 @@
 
 
 package MyTestImageBase;
+BEGIN { require 5 }
 use strict;
 
 use vars '$white', '$white_expect', '$black', '$skip', '$handle_input';
@@ -87,16 +88,18 @@ sub mung_colour {
 }
 
 sub dump_image {
-  my ($image, $x1,$x2, $y, $colour, $name) = @_;
+  my ($image) = @_;
   if (defined $skip) {
     return;
   }
   my $width = $image->get('-width');
   my $height = $image->get('-height');
   MyTestHelpers::diag("dump_image");
-  foreach my $y (0 .. $height-1) {
+  my $y;
+  foreach $y (0 .. $height-1) {
     my $str = '';
-    foreach my $x (0 .. $width-1) {
+    my $x;
+    foreach $x (0 .. $width-1) {
       my $colour = mung_colour($image->xy($x,$y));
       if ($colour eq $black) {
         $str .= '_';
@@ -130,7 +133,8 @@ sub is_hline {
   return 0 if $x2 < 0 || $x1 >= $width;
 
   my $bad = 0;
-  foreach my $x (max(0,$x1) .. min($x2,$width-1)) {
+  my $x;
+  foreach $x (max(0,$x1) .. min($x2,$width-1)) {
     my $got = mung_colour($image->xy($x,$y));
     is ($got, $colour,
         "hline $x,$y  $colour  on $name");
@@ -304,7 +308,7 @@ sub check_rectangle {
 
   foreach my $method ('rectangle',
                       ($image->can('Image_Base_Other_rectangles')
-                       ? (__PACKAGE__.'::rect_using_Other')
+                       ? ('MyTestImageBase::rect_using_Other')
                        : ())) {
 
     foreach my $elem (@sizes) {

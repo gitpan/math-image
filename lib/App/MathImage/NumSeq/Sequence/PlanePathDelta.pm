@@ -26,13 +26,15 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant name => __('PlanePath Deltas');
-# use constant description => __('');
+use constant characteristic_count => 1;
+use constant description => __('Step directions in a PlanePath');
+
 my @choices = (map { s/.*:://; $_ }
                Module::Util::find_in_namespace('Math::PlanePath'),
               );
@@ -118,7 +120,7 @@ sub next {
     ($self->{'prev_x'},$self->{'prev_y'}, $x,$y);
   $self->{'prev_x'} = $x;
   $self->{'prev_y'} = $y;
-  ### $ret
+  ### ret: [$i, $ret]
   return ($i, $ret);
 }
 

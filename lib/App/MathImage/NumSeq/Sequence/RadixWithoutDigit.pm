@@ -24,7 +24,7 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
@@ -36,7 +36,7 @@ use constant parameter_list =>
      display => __('Digit'),
      default => -1,
      minimum => -1,
-     width   => 4,
+     width   => 2,
      description => __('Digit to exclude.  Default -1 means the highest digit, radix-1.'),
    });
 
@@ -85,7 +85,7 @@ sub oeis_anum {
 # OeisCatalogue: A023737 radix=5 digit=5  # base 5 no 4
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 sub new {
   my ($class, %options) = @_;
@@ -128,10 +128,8 @@ sub new {
       }
     }
   }
-  return bless { i => $i,
-                 radix => $radix,
-                 digit => $digit,
-               }, $class;
+  $class->SUPER::new(radix => $radix,
+                     digit => $digit);
 }
 sub rewind {
   my ($self) = @_;
@@ -139,43 +137,59 @@ sub rewind {
 }
 sub next {
   my ($self) = @_;
-  return $self->ith ($self->{'i'}++);
+  my $i = $self->{'ith'}++;
+  return ($i, $self->ith($i));
 }
+
+# without 0
+#     1-9 1-9 ... 1-9
+#     each length 9^level
+#     start level at i =  9^1 + ... + 9^(level-1)
+#                      = (9^level - 1)/8
+#     8*i + 1 = 9^level
+#
 sub ith {
   my ($self, $i) = @_;
   ### RadixWithoutDigit ith(): $i
-  # $i converted to radix-1 digits, built back up as radix
   my $radix = $self->{'radix'};
   my $digit = $self->{'digit'};
   if ($radix == 2) {
     if ($digit == 0) {
-      return ($self->{'ith'}++, (2 << $i) - 1);
+      return (2 << $i) - 1;
     } else {
-      return;
+      return undef;
     }
   }
-  if ($i == 0) {
-    return ($self->{'ith'}++, ($digit ? 0 : 1));
+ 
+ my $r1 = $radix - 1;
+  if ($i < $r1) {
+    return $i + ($i >= $digit);
   }
+  # $i converted to radix-1 digits, built back up as radix
   my $ret = 0;
   my $power = 1;
-  my $r1 = $radix - 1;
-  do {
+  my $limit = $r1 - ($digit != 0);
+  while ($i > $limit) {
     my $d = $i % $r1;
     $i = int($i/$r1);
     ### $ret
     ### $d
     ### $power
-    if ($d >= $digit && ($i || $digit)) {
+    if ($d >= $digit) {
       $d++;
-      ### inc: $d
+      ### inc to d: $d
     }
     $ret += $power * $d;
     $power *= $radix;
-  } while ($i);
+  }
+  ### stop at i: $i
+  if ($digit != 0) {
+    $i++;
+  }
+  $ret += $power * $i;
 
   ### $ret
-  return ($self->{'ith'}++, $ret);
+  return $ret;
 
   # my $digit = 1;
   # my $x = $i;
@@ -194,14 +208,14 @@ sub ith {
 }
 
 sub pred {
-  my ($self, $n) = @_;
+  my ($self, $value) = @_;
   my $radix = $self->{'radix'};
   my $digit = $self->{'digit'};
-  while ($n) {
-    if (($n % $radix) == $digit) {
+  while ($value) {
+    if (($value % $radix) == $digit) {
       return 0;
     }
-    $n = int ($n / $radix);
+    $value = int ($value / $radix);
   }
   return 1;
 }

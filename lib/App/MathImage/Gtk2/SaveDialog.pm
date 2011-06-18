@@ -38,9 +38,9 @@ use Locale::TextDomain ('App-MathImage');
 use App::MathImage::Gtk2::Drawing;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-our $VERSION = 59;
+our $VERSION = 60;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -132,22 +132,10 @@ sub SET_PROPERTY {
     $self->set (action => 'save');
 
     my $draw = $newval;
-    my $scale  = $draw->get('scale');
-    $self->set_current_name
-      ($draw->get('values')
-       . '-' . $draw->get('path')
-       . '-' . $draw->allocation->width .'x'.$draw->allocation->height
-       . ($scale != 1 ? "-s$scale" : '')
-       . '.' . $self->{'combo'}->get('active-type'));
-
-    #     $self->{'draw_ids'} = Glib::Ex::SignalIds->new
-    #       ($draw,
-    #        $draw->signal_connect (size_allocate => sub {
-    #                                 my ($draw, $alloc) = @_;
-    #                                 $self->{'combo'}->set (for_width => $alloc->width,
-    #                                                        for_height => $alloc->height);
-    #                               }));
-
+    Scalar::Util::weaken (my $weak_self = $self);
+    $self->{'draw_ids'} = Glib::Ex::SignalIds->new
+      ($draw, $draw->signal_connect (notify => \&_do_draw_notify, \$weak_self));
+    _do_draw_notify (\$weak_self);
     $self->{'draw_connections'} = $draw
       && [ Glib::Ex::ConnectProperties->dynamic
            ([$draw,            'widget-allocation#width'],
@@ -158,6 +146,45 @@ sub SET_PROPERTY {
          ];
   }
 }
+
+sub _do_draw_notify {
+  my $ref_weak_self = $_[-1];
+  ### _do_draw_notify()
+  my $self = $$ref_weak_self || return;
+  my $draw = $self->{'draw'} || return;
+
+  my $fullname = $self->get_filename;
+  if (! defined $fullname) {
+    $self->set_current_name ($draw->gen_object->filename_base
+                             . '.' . $self->{'combo'}->get('active-type'));
+    return;
+  }
+  ### $fullname
+  my ($volume, $directories, $basename) = File::Spec->splitpath ($fullname);
+  my ($noext, $ext) = _split_ext ($basename);
+
+  ### $noext
+  ### generator_noext: $self->{'generator_noext'}
+
+  if (! defined $self->{'generator_noext'}
+      || $self->{'generator_noext'} eq $noext
+      || $noext eq '') {
+    my $new_noext = $draw->gen_object->filename_base;
+    $self->set_current_folder (File::Spec->catdir ($volume, $directories));
+    $self->set_current_name ($new_noext . $ext);
+    $self->{'generator_noext'} = $new_noext;
+  }
+}
+sub _split_ext {
+  my ($filename) = @_;
+  if ((my $pos = rindex($filename,'.')) >= 0) {
+    return (substr($filename,0,$pos),
+            substr($filename,$pos));
+  } else {
+    return $filename;
+  }
+}
+  
 
 sub _do_response {
   my ($self, $response) = @_;
@@ -205,7 +232,6 @@ sub save {
   }
 
   my $path = $draw->get('path');
-  # my $scale = $draw->get('scale');
   my $title = __x('{values} drawn as {path}',
                   values => $values,
                   path   => Text::Capitalize::capitalize($path));
@@ -283,20 +309,20 @@ sub _change_extension {
   my $fullname = $chooser->get_filename;
   if (! defined $fullname) { return; }
   my ($volume, $directories, $filename) = File::Spec->splitpath ($fullname);
+  my ($basename, $old_ext) = _split_ext($filename);
 
   if (defined (_filename_has_extension($filename, $new_aref,
                                        $case_sensitive))) {
     # already have one of the new extensions
     return;
   }
-  if (my ($basename) = _filename_has_extension($filename, $old_aref,
-                                               $case_sensitive)) {
+  if ($old_ext eq ''
+      || _filename_has_extension($filename, $old_aref, $case_sensitive)) {
     # found one of the old extensions to change
     my $new_ext = $new_aref->[0];
-    $new_ext =~ s/^([^.])/.$1/;  # "txt" -> ".txt"
-    $filename = $basename . $new_ext;
+    $new_ext =~ s/^([^.])/.$1/;  # prepend "." so "txt" -> ".txt"
     $chooser->set_current_folder (File::Spec->catdir ($volume, $directories));
-    $chooser->set_current_name ($filename);
+    $chooser->set_current_name ($basename . $new_ext);
   }
 }
 

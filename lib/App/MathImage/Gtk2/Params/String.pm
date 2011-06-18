@@ -29,9 +29,9 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 59;
+our $VERSION = 60;
 
-use Gtk2::Ex::ToolItem::OverflowToDialog;
+use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
   'Gtk2::Ex::ToolItem::OverflowToDialog',
   properties => [ Glib::ParamSpec->string

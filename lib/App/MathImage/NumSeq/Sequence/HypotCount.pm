@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::CountHypots;
+package App::MathImage::NumSeq::Sequence::HypotCount;
 use 5.004;
 use strict;
 use POSIX 'floor', 'ceil';
@@ -25,20 +25,20 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Count Hypotenuses');
 use constant description => __('Count of how many ways a given N = A^2+B^2 occurs, for integer A,B >=0 (and no swaps, so B<=A).');
-use constant type_hash => { count => 1 };
+use constant characteristic_count => 1;
 use constant values_min => 1;
 use constant oeis_anum => 'A000161';
 
 # sub new {
 #   my ($class, %options) = @_;
-#   ### CountHypots new()
+#   ### HypotCount new()
 # 
 #   $options{'lo'} = max (0, $options{'lo'}||0);
 #   my $hi = $options{'hi'} = max (0, $options{'hi'});
@@ -53,7 +53,7 @@ use constant oeis_anum => 'A000161';
 # 
 # sub rewind {
 #   my ($self) = @_;
-#   ### CountHypots rewind()
+#   ### HypotCount rewind()
 #   $self->{'i'} = 0;
 #   while ($self->{'i'} < $self->{'lo'}-1) {
 #     $self->next;
@@ -62,7 +62,7 @@ use constant oeis_anum => 'A000161';
 # 
 # sub next {
 #   my ($self) = @_;
-#   ### CountHypots next() from: $self->{'i'}
+#   ### HypotCount next() from: $self->{'i'}
 # 
 #   my $i = $self->{'i'}++;
 #   my $hi = $self->{'hi'};
@@ -89,7 +89,7 @@ use constant oeis_anum => 'A000161';
 # 
 # sub pred {
 #   my ($self, $n) = @_;
-#   ### CountHypots pred(): $n
+#   ### HypotCount pred(): $n
 #   return 1;
 # }
 
@@ -106,7 +106,7 @@ sub next {
 }
 sub ith {
   my ($self, $i) = @_;
-  ### CountHypots: $i
+  ### HypotCount: $i
 
   my $count = 0;
   my $r = floor(sqrt($i));
@@ -120,7 +120,7 @@ sub ith {
 
 sub pred {
   my ($self, $value) = @_;
-  ### CountHypots pred(): $value
+  ### HypotCount pred(): $value
   return ($value >= 0);
 }
 

@@ -16,7 +16,7 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# is_type('monotonic')
+# characteristic('monotonic')
 #    only by reading the whole file
 #    assume seekable
 
@@ -32,7 +32,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

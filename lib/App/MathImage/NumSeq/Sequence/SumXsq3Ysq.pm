@@ -26,13 +26,14 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => __('Loeschian numbers');
 use constant description => __('Loeschian numbers x^2+3*y^2 for all x>=0 and y>=0.');
+use constant i_start => 1;
 
 # cf A158937 - all x^2+3*y^2 with repetitions x>=0,y>=0
 #
@@ -41,7 +42,7 @@ use constant oeis_anum => 'A092572'; # all x^2+3*y^2 x>=1,y>=1
 sub rewind {
   my ($self) = @_;
   ### SumXsq3Ysq rewind()
-  $self->{'i'} = 0;
+  $self->{'i'} = $self->i_start;
   $self->{'y_next_x'}     = [ undef, 1         ];
   $self->{'y_next_hypot'} = [ undef, 1*1+3*1*1 ];
   $self->{'prev_hypot'} = 1;

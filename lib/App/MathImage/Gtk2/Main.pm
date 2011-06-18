@@ -35,7 +35,7 @@ use Locale::Messages 'dgettext';
 
 use Glib::Ex::EnumBits;
 use Glib::Ex::ObjectBits 'set_property_maybe';
-use Gtk2::Ex::ToolItem::OverflowToDialog 36; # new in v.36
+use Gtk2::Ex::ToolItem::OverflowToDialog;
 use Gtk2::Ex::ToolItem::ComboEnum;
 
 use App::MathImage::Gtk2::Drawing;
@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 59;
+our $VERSION = 60;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -519,11 +519,8 @@ HERE
           func_in => sub {
             my ($path) = @_;
             ### Main path parameter_list(): $path
-            my $path_class = App::MathImage::Generator->path_class($path);
-            return ($path_class->can('parameter_info_array')
-                    ? $path_class->parameter_info_array
-                    : $App::MathImage::Generator::pathname_parameter_info_array{$path}
-                    || []);
+            App::MathImage::Generator->path_class($path)
+                ->MathImage__parameter_info_array;
           }]);
     ### path_params values to draw...
     Glib::Ex::ConnectProperties->new ([$path_params,'parameter-values'],
@@ -611,12 +608,13 @@ HERE
 
     $hbox->pack_start (Gtk2::Label->new(__('Scale')), 0,0,0);
     my $adj = Gtk2::Adjustment->new (1,        # initial
-                                     1, 999,   # min,max
+                                     1, 9999,  # min,max
                                      1,10,     # step,page increment
                                      0);       # page_size
     Glib::Ex::ConnectProperties->new ([$draw,'scale'],
                                       [$adj,'value']);
     my $spin = Gtk2::SpinButton->new ($adj, 10, 0);
+    $spin->set_width_chars(3);
     $hbox->pack_start ($spin, 0,0,0);
     $toolitem->show_all;
 

@@ -16,8 +16,8 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# is_type('monotonic')      strictly non-decreasing
-# is_type('monotonic_from_i')   beyond a given value or i
+# characteristic('monotonic')      strictly non-decreasing
+# characteristic('monotonic_from_i')   beyond a given value or i
 
 
 # ->add ->sub   of sequence or constant
@@ -48,7 +48,7 @@ use strict;
 use App::MathImage::NumSeq::Base '__';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -72,16 +72,18 @@ sub values_max {
   my ($self) = @_;
   return $self->{'values_max'};
 }
-sub is_type {
-  my ($self, $type) = @_;
-  my $type_hash;
-  foreach my $type_hash (($self->{'type_hash'} || ()),
-                         ($self->can('type_hash') ? $self->type_hash : ())) {
-    if (exists $type_hash->{$type}) {
-      return $type_hash->{$type};
+sub characteristic {
+  my $self = shift;
+  my $type = shift;
+  if (my $href = $self->{'characteristic'}) {
+    if (exists $href->{$type}) {
+      return $href->{$type};
     }
   }
-  return '';
+  if (my $subr = $self->can("characteristic_${type}")) {
+    return $self->$subr (@_);
+  }
+  return undef;
 }
 use constant finish => undef;
 
@@ -180,7 +182,7 @@ C<undef> if unknown.  Currently if the maximum is infinity then the return
 is C<undef> too, but perhaps it should be a floating point infinity, if
 there is one.
 
-=item C<$ret = $seq-E<gt>is_type($type)>
+=item C<$ret = $seq-E<gt>characteristic($type)>
 
 Return true if the sequence is of the given C<$type> (a string).  This is
 intended as a loose set of types or properties a sequence might have.  The

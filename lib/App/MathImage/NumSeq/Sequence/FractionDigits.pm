@@ -24,7 +24,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');
@@ -39,10 +39,13 @@ use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
                                );
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-my %oeis = ('1/735'  => { 10  => 'A021739',   # 1/735 decimal
-                        },
+my %oeis = (
+            '1/7'   => { 10 => 'A020806' },   # 1/7 decimal
+            '22/7'  => { 10 => 'A068028' },   # 22/7 decimal
+            '1/11'  => { 10 => 'A010680' },   # 1/11 decimal
+            '1/735' => { 10 => 'A021739' },   # 1/735 decimal
            );
 sub oeis_anum {
   my ($class_or_self) = @_;
@@ -52,17 +55,22 @@ sub oeis_anum {
   my $radix = (ref $class_or_self
                ? $class_or_self->{'radix'}
                : $class_or_self->parameter_default('radix'));
+  if ($radix == 10
+      && $fraction =~ m{(\d+)/(\d+)}
+      && $1 == 1
+      && $2 >= 12 && $2 <= 999) {
+    return 'A0'.($2 + 21016-12);
+  }
   return $oeis{$fraction}->{$radix};
 }
 
-# cf
-# A010701 fraction=10/3 radix=10
-#     - being constant digits 3,3,3,... but better ways to generate that
-# 
 # OeisCatalogue: A020806 fraction=1/7 radix=10
 # OeisCatalogue: A068028 fraction=22/7 radix=10
 # OeisCatalogue: A010680 fraction=1/11 radix=10 # and duplicated in A021015
-# A021016 through A022003 fraction=1/12 to 1/999 in BuiltinCalc.pm
+# and A021016 through A022003 fraction=1/12 to 1/999 in BuiltinCalc.pm
+#
+# cf A010701 fraction=10/3 radix=10
+#      - being constant digits 3,3,3,... but better ways to generate that
 
 sub new {
   my ($class, %options) = @_;
@@ -103,12 +111,12 @@ sub new {
   $num .= '0' x max(0, $den_decimals - $num_decimals);
   $den .= '0' x max(0, $num_decimals - $den_decimals);
 
-  while ($den != 0 && $num >= $radix*$den) {
+  while ($den != 0 && $num >= $den) {
     $den *= $radix;
   }
-  while ($num && $num < $den) {
-    $num *= $radix;
-  }
+  # while ($num && $num < $den) {
+  #   $num *= $radix;
+  # }
 
   ### create
   ### $num
@@ -129,8 +137,8 @@ sub next {
   my $i = $self->{'i'};
   ### FractionDigits next(): "$i  $num/$den"
 
-  $num *= $radix;
   ### frac: "$num / $den"
+  $num *= $radix;
   my $quot = int ($num / $den);
   $self->{'num'} = $num - $quot * $den;
   ### $quot

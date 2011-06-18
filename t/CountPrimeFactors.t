@@ -26,33 +26,33 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::Sequence::CountPrimeFactors;
+use App::MathImage::NumSeq::Sequence::PrimeFactorCount;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 59;
-  is ($App::MathImage::NumSeq::Sequence::CountPrimeFactors::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Sequence::CountPrimeFactors->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 60;
+  is ($App::MathImage::NumSeq::Sequence::PrimeFactorCount::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Sequence::PrimeFactorCount->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Sequence::CountPrimeFactors->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Sequence::PrimeFactorCount->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Sequence::CountPrimeFactors->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Sequence::PrimeFactorCount->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
 
 #------------------------------------------------------------------------------
-# is_type
+# characteristic()
 
 {
-  my $values_obj = App::MathImage::NumSeq::Sequence::CountPrimeFactors->new
+  my $values_obj = App::MathImage::NumSeq::Sequence::PrimeFactorCount->new
     (lo => 1,
      hi => 30);
 
-  is (!! $values_obj->is_type('count'), 1, 'is_type(count)');
+  is ($values_obj->characteristic('count'), 1, 'characteristic(count)');
 }
 
 
@@ -60,43 +60,43 @@ use App::MathImage::NumSeq::Sequence::CountPrimeFactors;
 # values
 
 {
-  my $values_obj = App::MathImage::NumSeq::Sequence::CountPrimeFactors->new
-    (lo => 1,
+  my $values_obj = App::MathImage::NumSeq::Sequence::PrimeFactorCount->new
+    (lo => 0,
      hi => 30);
-  my $want_arrayref = [ 1,  # 1
-                        1,  # 2
-                        1,  # 3
-                        2,  # 4
-                        1,  # 5
-                        2,  # 6
-                        1,  # 7
-                        3,  # 8
-                        2,  # 9
-                        2,  # 10
-                        1,  # 11
-                        3,  # 12
-                        1,  # 13
-                        2,  # 14
-                        2,  # 15
-                        4,  # 16
-                        1,  # 17
-                        3,  # 18
-                        1,  # 19
-                        3,  # 20
-                        2,  # 21
-                        2,  # 22
-                        1,  # 23
-                        4,  # 24
-                        2,  # 25
-                        2,  # 26
-                        3,  # 27
-                        3,  # 28
-                        1,  # 29
-                        3,  # 30
+  my $want_arrayref = [ [1,0],  # 1
+                        [2,1],  # 2
+                        [3,1],  # 3
+                        [4,2],  # 4
+                        [5,1],  # 5
+                        [6,2],  # 6
+                        [7,1],  # 7
+                        [8,3],  # 8
+                        [9,2],  # 9
+                        [10,2],  # 10
+                        [11,1],  # 11
+                        [12,3],  # 12
+                        [13,1],  # 13
+                        [14,2],  # 14
+                        [15,2],  # 15
+                        [16,4],  # 16
+                        [17,1],  # 17
+                        [18,3],  # 18
+                        [19,1],  # 19
+                        [20,3],  # 20
+                        [21,2],  # 21
+                        [22,2],  # 22
+                        [23,1],  # 23
+                        [24,4],  # 24
+                        [25,2],  # 25
+                        [26,2],  # 26
+                        [27,3],  # 27
+                        [28,3],  # 28
+                        [29,1],  # 29
+                        [30,3],  # 30
                       ];
-  my $got_arrayref = [ map {($values_obj->next)[1]} 1..30 ];
+  my $got_arrayref = [ map {[$values_obj->next]} 1..30 ];
   is_deeply ($got_arrayref, $want_arrayref,
-             'CountPrimeFactors 1 to 30 iterator');
+             'PrimeFactorCount 1 to 30 iterator');
 
   # my %got_hashref;
   # foreach my $n (2 .. 17) {
@@ -105,7 +105,7 @@ use App::MathImage::NumSeq::Sequence::CountPrimeFactors;
   #   }
   # }
   # is_deeply ($got_arrayref, $want_arrayref,
-  #            'CountPrimeFactors 2 to 17 is_iter_arrayref()');
+  #            'PrimeFactorCount 2 to 17 is_iter_arrayref()');
 }
 
 exit 0;

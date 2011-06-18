@@ -19,7 +19,7 @@ package MyOEIS;
 use strict;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 my $without;
 
@@ -70,14 +70,13 @@ sub read_values {
   $anum = anum_validate ($anum);
 
   if ($without) {
-    return undef;
+    return;
   }
 
-  my ($aref, $filename) = _read_values($anum);
-  if (defined $aref) {
-    # MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
-  }
-  return $aref;
+  my ($aref, $lo, $filename) = _read_values($anum)
+    or return;
+  # MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
+  return ($aref, $lo, $filename);
 }
 
 sub _read_values {
@@ -91,24 +90,29 @@ sub _read_values {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
-    
+
     if (open FH, "<$filename") {
       my @array;
+      my $lo;
       while (defined (my $line = <FH>)) {
         chomp $line;
         next if $line =~ /^\s*$/;   # ignore blank lines
+        next if $line =~ /^#/;   # ignore comment lines, eg. b006450.txt
         my ($i, $n) = split /\s+/, $line;
+        if (! defined $lo) {
+          $lo = $i;
+        }
         if (! (defined $n && $n =~ /^-?[0-9]+$/)) {
           die "oops, bad line in $filename: '$line'";
         }
         if ($n > $max_value) {
-          MyTestHelpers::diag("$filename stop at bignum value: $line");
+          # MyTestHelpers::diag("$filename stop at bignum value: $line");
           last;
         }
         push @array, $n;
       }
       close FH or die;
-      return (\@array, $filename);
+      return (\@array, $lo, $filename);
     }
     ### no bfile: $!
   }
@@ -117,26 +121,33 @@ sub _read_values {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
-    if (open FH, "<$filename") {
-      my $contents = do { local $/; <FH> }; # slurp
-      close FH or die;
-
-      # fragile grep out of the html ...
-      $contents =~ s{>graph</a>.*}{};
-      $contents =~ m{.*<tt>([^<]+)</tt>};
-      my $list = $1;
-      unless ($list =~ m{^([0-9,-]|\s)+$}) {
-        MyTestHelpers::diag("$filename oops list of values not found");
-        return undef;
-      }
-      my @array = split /[, \t\r\n]+/, $list;
-      ### $list
-      ### @array
-      return (\@array, $filename);
+    unless (open FH, "< $filename") {
+      ### no html: $!
+      next;
     }
-    ### no html: $!
+    my $contents = do { local $/; <FH> }; # slurp
+    close FH or die;
+
+    unless ($contents =~ /OFFSET(\s*<[^>]*>)*\s*([0-9-]+)/s) {
+      MyTestHelpers::diag("$filename oops OFFSET not found");
+      die;
+    }
+    my $lo = $2;
+
+    # fragile grep out of the html ...
+    $contents =~ s{>graph</a>.*}{};
+    $contents =~ m{.*<tt>([^<]+)</tt>};
+    my $list = $1;
+    unless ($list =~ m{^([0-9,-]|\s)+$}) {
+      MyTestHelpers::diag("$filename oops list of values not found");
+      die;
+    }
+    my @array = split /[, \t\r\n]+/, $list;
+    ### $list
+    ### @array
+    return (\@array, $lo, $filename);
   }
-  return undef;
+  return;
 }
 
 # with Y reckoned increasing downwards

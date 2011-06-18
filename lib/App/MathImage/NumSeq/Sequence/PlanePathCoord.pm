@@ -17,7 +17,7 @@
 
 
 
-# is_type('permutation') when one planepath in the sequence of another
+# characteristic('permutation') when one planepath in the sequence of another
 
 
 package App::MathImage::NumSeq::Sequence::PlanePathCoord;
@@ -30,7 +30,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

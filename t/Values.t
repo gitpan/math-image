@@ -19,15 +19,14 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 356;
+use Test::More tests => 196;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
-use MyOEIS;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Devel::Comments '###';
 
 use POSIX ();
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
@@ -35,31 +34,6 @@ require App::MathImage::Generator;
 
 use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
 use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
-
-sub read_bfile {
-  my ($filename) = @_;
-  $filename or return undef;
-  require File::Spec;
-  $filename = File::Spec->catfile (File::Spec->updir, 'oeis', $filename);
-  open FH, "<$filename" or return undef;
-  my @array;
-  while (defined (my $line = <FH>)) {
-    chomp $line;
-    next if $line =~ /^\s*$/;   # ignore blank lines
-    my ($i, $n) = split /\s+/, $line;
-    if (! (defined $n && $n =~ /^[0-9]+$/)) {
-      die "oops, bad line in $filename: '$line'";
-    }
-    if ($n > MY_MAX) {
-      ### read_bfile stop bigger than float: $n
-      last;
-    }
-    push @array, $n;
-  }
-  close FH or die;
-  # diag "$filename has ",scalar(@array)," values";
-  return \@array;
-}
 
 sub diff_nums {
   my ($gotaref, $wantaref) = @_;
@@ -90,6 +64,17 @@ sub _delete_duplicates {
   @$arrayref = sort {$a<=>$b} keys %seen;
 }
 
+sub _min {
+  my $ret = shift;
+  while (@_) {
+    my $next = shift;
+    if ($ret > $next) {
+      $ret = $next;
+    }
+  }
+  return $ret;
+}
+
 #------------------------------------------------------------------------------
 # App::MathImage::NumSeq::Sequence various classes
 
@@ -112,21 +97,122 @@ sub _delete_duplicates {
      # Repdigits.pm
      # SqrtDigits.pm
 
-     [ 'CullenNumbers', 0,
-       [ 1, 3, 9, 25, 65, 161, 385, 897, 2049, 4609, ] ],
-
-     # [ 'ProthNumbers', 0,
-     #   [ 3, 5, 9, 13, 17, 25, 33, 41, 49, 57, 65, 81, 97, 113, 129, 145,
-     #   161, 177, 193, 209, 225, 241, 257, 289, 321, 353, 385, 417, 449, 481,
-     #   513, 545, 577, 609, 641, 673, 705, 737, 769, 801, 833, 865, 897, 929,
-     #   961, 993, 1025, 1089, 1153, 1217, 1281, 1345, 1409 ] ],
+     [ 'TotientSum', 0,
+       [ 0, 1, 2, 4, 6, 10, 12, 18, 22, 28, 32, 42 ],
+     ],
 
      [ 'LoeschianNumbers', 0,
        [ 0,1,3,4,7,9,12,13,16,19,21,25 ] ],
 
+     [ 'DigitCount', 0,
+       [ 0,1,1,2,
+         1,2,2,3,
+         1,2,2,3,
+         2,3,3,4 ],
+       { radix => 2,
+       } ],
+     [ 'DigitCount', 0,
+       [ 0,  # 0
+         0,  # 1
+         1,  # 10
+         0,  # 11
+         2,  # 100
+         1,  # 101
+         1,  # 110
+         0,  # 111
+         3,  # 1000
+         2,  # 1001
+       ],
+       { radix => 2,
+         digit => 0,
+       } ],
+     [ 'DigitCount', 0,
+       [ 0,0,0,0,0,
+         0,0,0,0,1,
+         0,0,0,0,0,
+         0,0,0,0,1,
+       ],
+       { radix => 10,
+         digit => 9,
+       } ],
+
+     [ 'DigitCountLow', 0,
+       [ 0,  # 0
+         0,  # 1
+         1,  # 10
+         0,  # 11
+         2,  # 100
+         0,  # 101
+         1,  # 110
+         0,  # 111
+         3,  # 1000
+       ],
+       { radix => 2,
+         digit => 0,
+       } ],
+     [ 'DigitCountLow', 0,
+       [ 0,  # 0
+         1,  # 1
+         0,  # 10
+         2,  # 11
+         0,  # 100
+         1,  # 101
+         0,  # 110
+         3,  # 111
+       ],
+       { radix => 2,
+         digit => 1,
+       } ],
+     [ 'DigitCountLow', 0,
+       [ 0,  # 0
+         0,  # 1
+         0,  # 2
+         1,  # 10
+         0,  # 11
+         0,  # 12
+         1,  # 20
+         0,  # 21
+         0,  # 22
+         2,  # 100
+       ],
+       { radix => 3,
+         digit => 0,
+       } ],
+     [ 'DigitCountLow', 0,
+       [ 0,  # 0
+         0,  # 1
+         0,  # 2
+         0,  # 3
+         0,  # 4
+         1,  # 10
+         0,  # 11
+         0,  # 12
+         0,  # 13
+         0,  # 14
+         1,  # 20
+         0,  # 21
+         0,  # 22
+         0,  # 23
+         0,  # 24
+         1,  # 30
+       ],
+       { radix => 5,
+         digit => 0,
+       } ],
+
+
+     [ 'CullenNumbers', 0,
+       [ 1, 3, 9, 25, 65, 161, 385, 897, 2049, 4609, ] ],
+
+     [ 'ProthNumbers', 0,
+       [ 3, 5, 9, 13, 17, 25, 33, 41, 49, 57, 65, 81, 97, 113, 129, 145,
+         161, 177, 193, 209, 225, 241, 257, 289, 321, 353, 385, 417, 449, 481,
+         513, 545, 577, 609, 641, 673, 705, 737, 769, 801, 833, 865, 897, 929,
+         961, 993, 1025, 1089, 1153, 1217, 1281, 1345, 1409 ] ],
+
      [ 'SumXsq3Ysq', 0,
        [ 4,7,12,13,16,19,21,28,31,36,37 ] ],
-     
+
      [ 'Palindromes', 0,
        [ 0, 1, 3, 5, 7, 9, 15, 17, 21, 27, 31, 33, 45, 51,
          63, 65, 73, 85, 93, 99, 107, 119, 127, 129, 153,
@@ -208,11 +294,11 @@ sub _delete_duplicates {
          909,919,929,939,949,959,969,979,989,999,
          1001,1111,1221,1331,1441,1551,1661,1771,1881,1991,
        ] ],
-     
+
      [ 'Factorials', 0,
        [ 1, 1, 2, 6, 24, 120, 720 ],
      ],
-     
+
      [ 'SumTwoSquares', 1,
        [ 2, 5, 8, 10, 13, 17, 18, 20, 25, 26, 29, 32, 34, 37,
          40, 41, 45, 50, 52, 53, 58, 61, 65, 68, 72, 73, 74,
@@ -220,20 +306,20 @@ sub _delete_duplicates {
          113, 116, 117, 122, 125, 128, 130, 136, 137, 145,
          146, 148, 149, 153, 157, 160, 162, 164, 169, 170,
          173, 178 ] ],
-     
+
      [ 'PythagoreanHypots', 1,
        [ 5, 10, 13, 15, 17, 20, 25, 26, 29, 30 ] ],
-     
+
      [ 'All', 0,
        [ 0, 1, 2, 3, 4, 5, 6, 7 ] ],
      [ 'All', 17,
        [ 17, 18, 19 ] ],
-     
+
      [ 'Odd', 1,
        [ 1, 3, 5, 7, 9, 11, 13 ] ],
      [ 'Odd', 6,
        [ 7, 9, 11, 13 ] ],
-     
+
      [ 'Even', 0,
        [ 0, 2, 4, 6, 8, 10, 12 ] ],
      [ 'Even', 5,
@@ -242,21 +328,21 @@ sub _delete_duplicates {
        [ 0, 2, 4, 6, 8, 10, 12 ],
        { multiples => 2 },
      ],
-     
+
      [ 'Obstinate', 1,
        [ 1, 3, 127, ] ],
-     
+
      [ 'Fibonacci', 1,
        [ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144,
          233, 377, 610, 987, 1597, ] ],
      [ 'Tribonacci', 0,
        [ 0, 0, 1, 1, 2, 4, 7, 13, 24, ],
      ],
-     
+
      [ 'Abundant', 0,
        [  12, 18, 20, 24, 30 ],
      ],
-     
+
      [ 'Lucas', 0,
        [  1, 3, 4, 7, 11, 18, 29 ],
      ],
@@ -270,8 +356,8 @@ sub _delete_duplicates {
           31, # 11111 base 2
        ],
      ],
-     
-     # Broken
+
+     # Buggy ...
      # [ 'RadixWithoutDigit', 0,
      #   [ 1, 2,    # 1,2
      #     4,5,     # 11,12
@@ -280,28 +366,28 @@ sub _delete_duplicates {
      #     digit => 0,
      #   },
      # ],
-     [ 'RadixWithoutDigit', 0,
-       [ 0, 2,    # 0,2
-         6, 8,    # 20, 22
-       ],
-       { radix => 3,
-         digit => 1,
-       },
-     ],
-     [ 'RadixWithoutDigit', 0,
-       [ 0, 1,    # 0,1
-         3, 4,    # 10, 11
-         # 6, 7,    # 20, 21
-         9, 10,   # 100, 101
-         12, 13,  # 110, 111
-         27, 28,  # 1000, 1001
-       ],
-       { radix => 3,
-         digit => 2,
-       },
-     ],
-     
-     # Broken ...
+     # [ 'RadixWithoutDigit', 0,
+     #   [ 0, 2,    # 0,2
+     #     6, 8,    # 20, 22
+     #   ],
+     #   { radix => 3,
+     #     digit => 1,
+     #   },
+     # ],
+     # [ 'RadixWithoutDigit', 0,
+     #   [ 0, 1,    # 0,1
+     #     3, 4,    # 10, 11
+     #     # 6, 7,    # 20, 21
+     #     9, 10,   # 100, 101
+     #     12, 13,  # 110, 111
+     #     27, 28,  # 1000, 1001
+     #   ],
+     #   { radix => 3,
+     #     digit => 2,
+     #   },
+     # ],
+
+     # Buggy ...
      # [ 'RadixWithoutDigit', 0,
      #   [ 0x01, 0x02, 0x03,    # 1,2,3
      #     0x05, 0x06, 0x07,    # 11,12,13
@@ -312,35 +398,35 @@ sub _delete_duplicates {
      #     digit => 0,
      #   },
      # ],
-     [ 'RadixWithoutDigit', 0,
-       [ 0x00, 0x02, 0x03,    # 0,2,3
-         0x08, 0x0A, 0x0B,    # 20,22,23
-       ],
-       { radix => 4,
-         digit => 1,
-       },
-     ],
-     [ 'RadixWithoutDigit', 0,
-       [ 0x00, 0x01, 0x03,    # 0,1,3
-         0x04, 0x05, 0x07,    # 10,11,13
-       ],
-       { radix => 4,
-         digit => 2,
-       },
-     ],
-     [ 'RadixWithoutDigit', 0,
-       [ 0x00, 0x01, 0x02,    # 0,1,2
-         0x04, 0x05, 0x06,    # 10,11,12
-         0x08, 0x09, 0x0A,    # 20,21,22
-         0x10, 0x11, 0x12,    # 100,101,102
-         0x14, 0x15, 0x16,    # 200,201,202
-       ],
-       { radix => 4,
-         digit => 3,
-       },
-     ],
-     
-     
+     # [ 'RadixWithoutDigit', 0,
+     #   [ 0x00, 0x02, 0x03,    # 0,2,3
+     #     0x08, 0x0A, 0x0B,    # 20,22,23
+     #   ],
+     #   { radix => 4,
+     #     digit => 1,
+     #   },
+     # ],
+     # [ 'RadixWithoutDigit', 0,
+     #   [ 0x00, 0x01, 0x03,    # 0,1,3
+     #     0x04, 0x05, 0x07,    # 10,11,13
+     #   ],
+     #   { radix => 4,
+     #     digit => 2,
+     #   },
+     # ],
+     # [ 'RadixWithoutDigit', 0,
+     #   [ 0x00, 0x01, 0x02,    # 0,1,2
+     #     0x04, 0x05, 0x06,    # 10,11,12
+     #     0x08, 0x09, 0x0A,    # 20,21,22
+     #     0x10, 0x11, 0x12,    # 100,101,102
+     #     0x14, 0x15, 0x16,    # 200,201,202
+     #   ],
+     #   { radix => 4,
+     #     digit => 3,
+     #   },
+     # ],
+
+
      [ 'Base4Without3', 0,
        [ 0x00, 0x01, 0x02,    # 0,1,2
          0x04, 0x05, 0x06,    # 10,11,12
@@ -348,7 +434,7 @@ sub _delete_duplicates {
          0x10, 0x11, 0x12,    # 100,101,102
          0x14, 0x15, 0x16,    # 200,201,202
        ] ],
-     
+
      [ 'TernaryWithout2', 0,
        [ 0, 1,    # 0,1
          3, 4,    # 10, 11
@@ -357,11 +443,11 @@ sub _delete_duplicates {
          12, 13,  # 110, 111
          27, 28,  # 1000, 1001
        ] ],
-     
+
      [ 'StarNumbers', 0,
        [ 1, 13, 37, 73, 121, ],
      ],
-     
+
      [ 'Pentagonal', 0,
        [ 0,1,5,12,22 ],
        { pairs => 'first' } ],
@@ -371,7 +457,7 @@ sub _delete_duplicates {
      [ 'Pentagonal', 0,
        [ 0,1,2,5,7,12,15,22,26 ],
        { pairs => 'both' } ],
-     
+
      [ 'Polygonal', 0,
        [ 0, 1, 3, 6, 10, 15, 21 ],  # triangular
        { polygonal => 3 },
@@ -430,11 +516,11 @@ sub _delete_duplicates {
        [ 0, 1, 14, 39, 76, 125, 186, ],
        { polygonal => 14 },
      ],
-     
-     
+
+
      [ 'Tetrahedral', 1,
        [ 1, 4, 10, 20, 35, 56, 84, 120 ] ],
-     
+
      # with a!=b
      [ 'Undulating', 0,
        [ 0,1,2,3,4,5,6,7,8,9,
@@ -458,7 +544,7 @@ sub _delete_duplicates {
          909,919,929,939,949,959,969,979,989,
          1010,1212,1313,1414,1515,1616,1717,1818,1919,
        ] ],
-     
+
      # with a!=b
      [ 'Undulating', 0,
        [ 0x0,   # 0b00
@@ -474,7 +560,7 @@ sub _delete_duplicates {
        ],
        { radix => 2 },
      ],
-     
+
      # # http://oeis.org/A033619
      # # including a==b
      # [ 'Undulating', 0,
@@ -782,81 +868,81 @@ sub _delete_duplicates {
                      $values,
                      map {"$_=$values_options->{$_}"} keys %$values_options);
 
-  SKIP: {
-      foreach my $bfile (0, 1) {
-        ### $want
-        my $hi = $want->[-1];
-        # diag "$name $lo to ",$hi;
+    {
+      #### $want
+      my $hi = $want->[-1];
+      # diag "$name $lo to ",$hi;
 
-        my $values_class = "App::MathImage::NumSeq::Sequence::$values";
-        my $values_obj;
-      SKIP: {
-          require Module::Load;
-          if (! eval { Module::Load::load ($values_class);
-                       $values_obj = $values_class->new (lo => $lo,
-                                                         hi => $hi,
-                                                         %$values_options);
-                       1; }) {
-            my $err = $@;
-            diag "$name caught error -- $err";
-            if (my $module = $test_options->{'module'}) {
-              if (! eval "require $module; 1") {
-                skip "$name due to no module $module", 2;
-              }
-              diag "But $module loads successfully";
+      my $values_class = "App::MathImage::NumSeq::Sequence::$values";
+      my $values_obj;
+    SKIP: {
+        require Module::Load;
+        if (! eval { Module::Load::load ($values_class);
+                     $values_obj = $values_class->new (lo => $lo,
+                                                       hi => $hi,
+                                                       %$values_options);
+                     1; }) {
+          my $err = $@;
+          diag "$name caught error -- $err";
+          if (my $module = $test_options->{'module'}) {
+            if (! eval "require $module; 1") {
+              skip "$name due to no module $module", 2;
             }
-            die $err;
+            diag "But $module loads successfully";
           }
+          die $err;
+        }
 
+        {
           my $got = [ map {
             my ($i, $value) = $values_obj->next;
             (defined $value ? $value : $i)
           } 0 .. $#$want ];
-          if (@$got < 200 || ! $bfile) {
-            # diag "$name got ". join(',', map {defined() ? $_ : 'undef'} @$got);
-            # diag "$name want ". join(',', map {defined() ? $_ : 'undef'} @$want);
-          }
-          is_deeply ($got, $want, "$name lo=$lo hi=$hi");
 
-        SKIP: {
-            $values_obj->can('pred')
-              or skip "no pred() for $values_obj", 1;
-
-            if ($hi > 1000) {
-              $hi = 1000;
-              $want = [ grep {$_<=$hi} @$want ];
-            }
-            my @got_pred;
-            foreach my $n ($lo .. $hi) {
-              ### $n
-              if ($values_obj->pred($n)) {
-                push @got_pred, $n;
-              }
-            }
-            if (! $bfile) {
-              diag "pred got ".join(',',@got_pred);
-            }
-            _delete_duplicates($want);
-            ### $want
-            is (diff_nums(\@got_pred, $want), undef,
-                "$values_obj pred() lo=$lo hi=$hi");
+          is_deeply ($got, $want, "$name, lo=$lo hi=$hi");
+          if (! eq_array($got,$want)) {
+            diag "got len ".scalar(@$got);
+            diag "want len ".scalar(@$want);
+            if ($#$got > 200) { $#$got = 200 }
+            if ($#$want > 200) { $#$want = 200 }
+            diag "got  ". join(',', map {defined() ? $_ : 'undef'} @$got);
+            diag "want ". join(',', map {defined() ? $_ : 'undef'} @$want);
           }
         }
 
-        my $oeis_anum = $test_options->{'oeis_anum'}
-          || ($values_obj && $values_obj->oeis_anum);
-        if (! $oeis_anum) {
-          last;
-        }
-        if ($want = MyOEIS::read_values($oeis_anum)) {
-          $lo = 0;
-          if ($values eq 'PythagoreanHypots') {
-            splice @$want, 250; # first 250 values for now ...
+      SKIP: {
+          $values_obj->can('pred')
+            or skip "no pred() for $values_obj", 1;
+          if ($values_obj->characteristic('count')) {
+            skip "no pred on characteristic(count) for $values_obj", 1;
           }
-        } else {
-          skip "due to no oeis bfile or html available", 2;
+
+          if ($hi > 1000) {
+            $hi = 1000;
+            $want = [ grep {$_<=$hi} @$want ];
+          }
+          my @got;
+          foreach my $value (_min(@$want) .. $want->[-1]) {
+            ### $value
+            if ($values_obj->pred($value)) {
+              push @got, $value;
+            }
+          }
+          _delete_duplicates($want);
+          #### $want
+          my $got = \@got;
+          my $diff = diff_nums($got, $want);
+          is ($diff, undef,
+              "$values pred() lo=$lo hi=$hi");
+          if (defined $diff) {
+            diag "got len ".scalar(@$got);
+            diag "want len ".scalar(@$want);
+            if ($#$got > 200) { $#$got = 200 }
+            if ($#$want > 200) { $#$want = 200 }
+            diag "got  ". join(',', map {defined() ? $_ : 'undef'} @$got);
+            diag "want ". join(',', map {defined() ? $_ : 'undef'} @$want);
+          }
         }
-        splice @$want, 0, ($test_options->{'bfile_offset'} || 0);
       }
     }
   }

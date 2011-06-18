@@ -24,10 +24,10 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant name => __('OEIS');
 use constant description => __('OEIS sequence, by its A-number.  There\'s code for some sequences, others look in ~/OEIS directory for a b123456.txt download (or A123456.html for just the first few values).');
@@ -57,15 +57,15 @@ sub new {
   my ($class, %options) = @_;
   ### NumSeq-OEIS: @_
 
-  my $oeis_anum = $options{'oeis_anum'};
-  if (! defined $oeis_anum) {
-    $oeis_anum = (parameter_list)[0]->{'default'};
+  my $anum = $options{'anum'};
+  if (! defined $anum) {
+    $anum = (parameter_list)[0]->{'default'};
   }
-  ### $oeis_anum
+  ### $anum
 
   require App::MathImage::NumSeq::OeisCatalogue;
-  my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info($oeis_anum)
-    || croak 'Unknown OEIS sequence ',$oeis_anum;
+  my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info($anum)
+    || croak 'Unknown OEIS sequence ',$anum;
   ### $info
 
   my $numseq_class = $info->{'class'};
@@ -88,7 +88,7 @@ App::MathImage::NumSeq::Sequence::OEIS -- OEIS sequence
 
  use App::MathImage;
  my $seq = App::MathImage::NumSeq::Sequence::OEIS->new
-             (oeis_anum => 'A000032');
+             (anum => 'A000032');
  my ($i, $value) = $seq->next;
  $value = $seq->ith(6);
 

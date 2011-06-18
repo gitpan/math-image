@@ -26,7 +26,7 @@ use App::MathImage::NumSeq::Base::File;
 use App::MathImage::NumSeq::Base::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,6 +34,7 @@ $VERSION = 59;
 use constant name => __('Obstinate Numbers');
 use constant description => __('Odd numbers N not representable as prime+2^k.');
 use constant values_min => 1;
+use constant i_start => 1;
 use constant oeis_anum => 'A133122'; # obstinates
 
 sub new {
@@ -79,7 +80,7 @@ sub new {
 
 sub rewind {
   my ($self) = @_;
-  $self->{'ith'} = 0;
+  $self->{'ith'} = $self->i_start;
 }
 sub next {
   my ($self) = @_;

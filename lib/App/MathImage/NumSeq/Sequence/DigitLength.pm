@@ -23,7 +23,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -31,7 +31,7 @@ $VERSION = 59;
 use constant name => __('Digit Length');
 use constant description => __('How many digits the number requires in the given radix.  For example binary 1,1,2,2,3,3,3,3,4, etc.');
 use constant values_min => 1;
-use constant type_hash => { count => 1 };
+use constant characteristic_count => 1;
 
 my @oeis = (undef,
             undef,

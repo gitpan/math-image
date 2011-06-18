@@ -1,3 +1,7 @@
+# FIXME: p=2 up wrong
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -31,7 +35,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -52,17 +56,17 @@ use constant parameter_list =>
 
 
 # OeisCatalogue: A006450  # PIPs 
-# OeisCatalogue: A049078 level=2
-# OeisCatalogue: A049079 level=3
-# OeisCatalogue: A049080 level=4
-# OeisCatalogue: A049081 level=5
+# # OeisCatalogue: A049078 level=2
+# # OeisCatalogue: A049079 level=3
+# # OeisCatalogue: A049080 level=4
+# # OeisCatalogue: A049081 level=5
 #
 my @oeis_anum = ('A000040',  # primes
                  'A006450',  # PIPs
-                 'A049078',  # prime index primes level 2
-                 'A049079',  # prime index primes level 3
-                 'A049080',  # prime index primes level 4
-                 'A049081',  # prime index primes level 5
+                 # 'A049078',  # prime index primes level 2
+                 # 'A049079',  # prime index primes level 3
+                 # 'A049080',  # prime index primes level 4
+                 # 'A049081',  # prime index primes level 5
                 );
 sub oeis_anum {
   my ($self) = @_;

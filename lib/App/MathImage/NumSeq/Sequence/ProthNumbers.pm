@@ -24,14 +24,15 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 use constant name => __('ProthNumbers');
 use constant description => __('Proth numbers k*2^n+1 for odd k and k < 2^n.');
-use constant values_min => 1;
+use constant values_min => 3;
+use constant i_start => 1;
 
 # cf A157892 - value of k
 #    A157893 - value of n
@@ -47,42 +48,58 @@ use constant oeis_anum => 'A080075';
 
 sub rewind {
   my ($self) = @_;
-  $self->{'i'} = 1;
-  $self->{'value'} = 0;
+  $self->{'i'} = $self->i_start;
 }
 sub next {
   my ($self) = @_;
+  # ENHANCE-ME: keep the k and its increment
   my $i = $self->{'i'}++;
-  my $value = $self->{'value'} + 1;
-  while (! $self->pred($value)) {
-    $value += 1;
-  }
-  ### $value
-  return ($i, $self->{'value'} = $value);
+  return ($i, $self->ith($i));
 }
 
 sub pred {
-  my ($self, $n) = @_;
-  ### ProthNumbers pred(): $n
-  ($n >= 3 && $n & 1) or return 0;
+  my ($self, $value) = @_;
+  ### ProthNumbers pred(): $value
+  ($value >= 3 && $value & 1) or return 0;
   my $pow = 2;
   for (;;) {
-    ### at: "$n   $pow"
-    $n >>= 1;
-    if ($n < $pow) {
+    ### at: "$value   $pow"
+    $value >>= 1;
+    if ($value < $pow) {
       return 1;
     }
-    if ($n & 1) {
-      return ($n < $pow);
+    if ($value & 1) {
+      return ($value < $pow);
     }
     $pow <<= 1;
   }
 }
 
-# sub ith {
-#   my ($self, $i) = @_;
-#   return ($radix ** $i - 1) / ($radix - 1) * $digit;
-# }
+sub ith {
+  my ($self, $i) = @_;
+  ### ProthNumbers ith(): $i
+  if ($i == 1) {
+    return 3;
+  }
+  $i += 1;
+  my $exp = 0;
+  my $rem = $i;
+  while ($rem > 3) {
+    $rem >>= 1;
+    $exp++;
+  }
+  my $bit = 2**$exp;
+
+  ### i: sprintf('0b%b', $i)
+  ### bit: sprintf('0b%b', $bit)
+  ### $rem
+  ### high: sprintf('0b%b', ($i - $bit*($rem-1)))
+  ### rem factor: ($rem - 1)
+  ### so: sprintf('0b%b', ($i - $bit*($rem-1)) * $bit * ($rem - 1) + 1)
+  ### assert: $rem==2 || $rem==3
+
+  return ($i - $bit*($rem-1)) * 2 * $bit * ($rem - 1) + 1;
+}
 
 1;
 __END__

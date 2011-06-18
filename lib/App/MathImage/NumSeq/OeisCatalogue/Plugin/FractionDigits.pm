@@ -25,7 +25,7 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -86,7 +86,8 @@ sub make_info {
   ### make_info(): $num
   return { anum  => sprintf('A%06d', $num),
            class => 'App::MathImage::NumSeq::Sequence::FractionDigits',
-           parameters_hashref => { fraction => '1/'.($num-21004) } };
+           parameters_hashref => { fraction => '1/'.($num-21004),
+                                   radix => 10 } };
 }
 
 1;

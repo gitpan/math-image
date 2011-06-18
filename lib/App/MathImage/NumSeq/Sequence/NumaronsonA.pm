@@ -23,18 +23,19 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant description => __('Numerical version of Aronson\'s sequence');
 use constant values_min => 0;
+use constant i_start => 1;
 use constant oeis_anum => 'A079000';
 
 sub rewind {
   my ($self) = @_;
-  $self->{'i'} = 0;
+  $self->{'i'} = $self->i_start;
   $self->{'p2k'} = 0;
   $self->{'j'} = -1;
 }

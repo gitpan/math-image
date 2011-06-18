@@ -323,6 +323,7 @@ myman:
 
 # find files in the dist with mod times this year, but without this year in
 # the copyright line
+MY_HIDE=
 check-copyright-years:
 	year=`date +%Y`; \
 	tar tvfz $(DISTVNAME).tar.gz \
@@ -340,7 +341,9 @@ check-copyright-years:
 	      | version.texi | */version.texi \
 	      | *utf16* | examples/rs''s2lea''fnode.conf \
 	      | */MathI''mage/ln2.gz | */MathI''mage/pi.gz \
-	      | *.mo | *.locatedb* | t/samp.*) \
+	      | *.mo | *.locatedb* | t/samp.* \
+	      | t/empty.dat | t/*.xpm | t/*.xbm | t/*.jpg | t/*.gif \
+	      | t/*.g$(MY_HIDE)d) \
 	        continue ;; \
 	      *.gz) GREP=zgrep ;; \
 	    esac; \

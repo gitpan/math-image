@@ -23,12 +23,9 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
-sub is_type {
-  my ($self, $type) = @_;
-  return ($type eq 'radix' || $self->SUPER::is_type($type));
-}
+use constant characteristic_radix => 1;
 use constant values_min => 0;
 sub values_max {
   my ($self) = @_;

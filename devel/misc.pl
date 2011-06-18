@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use POSIX;
 
-#use Smart::Comments;
+#use Devel::Comments;
 
 use lib 'devel/lib';
 
@@ -64,7 +64,6 @@ $|=1;
     # $values_class = $gen->values_class('Tribonacci');
     # $values_class = $gen->values_class('Perrin');
     # $values_class = $gen->values_class('Polygonal');
-    # $values_class = $gen->values_class('SqrtDigits');
     # $values_class = $gen->values_class('Expression');
     # $values_class = $gen->values_class('Pentagonal');
     # $values_class = $gen->values_class('TwinPrimes');
@@ -79,20 +78,28 @@ $|=1;
     $values_class = $gen->values_class('DigitLength');
     $values_class = $gen->values_class('DigitLengthCumulative');
     $values_class = $gen->values_class('OEIS');
-    $values_class = $gen->values_class('CountHypots');
+    $values_class = $gen->values_class('HypotCount');
     $values_class = $gen->values_class('PrimeIndexCount');
     $values_class = $gen->values_class('Primorials');
     $values_class = $gen->values_class('ReverseAddCount');
     $values_class = $gen->values_class('LoeschianNumbers');
     $values_class = $gen->values_class('SumXsq3Ysq');
-    $values_class = $gen->values_class('Hailstone');
-    my $values_obj = $values_class->new (fraction => '1/7',
+    # $values_class = $gen->values_class('Hailstone');
+    $values_class = $gen->values_class('ProthNumbers');
+    $values_class = $gen->values_class('DigitCountLow');
+    $values_class = $gen->values_class('DigitSumModulo');
+    $values_class = $gen->values_class('FractionDigits');
+    $values_class = $gen->values_class('PrimeFactorCount');
+    $values_class = $gen->values_class('RadixWithoutDigit');
+    my $values_obj = $values_class->new (fraction => '22/7',
                                          polygonal => 13,
                                          pairs => 'first',
-                                         lo => 1,
-                                         hi => 200*$rep,
-                                         radix => 10,
+                                         lo => 0,
+                                         hi => 10, # 200*$rep,
+                                         radix => 4,
                                          digit => 0,
+                                         sqrt => 99,
+                                         where => 'low',
                                          # expression => 'z=3; z*x^2 + 3*x + 2',
                                          expression => 'x^2 + 3*x + 2',
                                          expression_evaluator => 'MEE',
@@ -100,14 +107,16 @@ $|=1;
                                          # distinct => 1,
                                          planepath_class => 'HypotOctant',
                                          coord_type => 'Y',
+                                         multiplicity => 'distinct'
                                         );
+    print "anum ",($values_obj->oeis_anum||''),"\n";
     ### $values_obj
     # ### type: $values_obj->type
-    if ($values_obj->is_type('radix')) {
+    if ($values_obj->characteristic('radix')) {
       print "  radix ",$values_obj->{'radix'},"\n";
     }
-    my $check_pred_upto = ! $values_obj->is_type('radix')
-      && ! $values_obj->is_type('count');
+    my $check_pred_upto = ! $values_obj->characteristic('radix')
+      && ! $values_obj->characteristic('count');
     foreach (1 .. 11) {
       my ($i,$value) = $values_obj->next;
       if (! defined $i) {
@@ -116,7 +125,7 @@ $|=1;
       }
       if (defined $value) {
         # print "$value,";
-        #print "$i=";
+        print "$i=";
         print "$value,";
       } else {
         print "$i,";
@@ -129,7 +138,7 @@ $|=1;
 
       if ($values_obj->can('pred')) {
         if (! $values_obj->pred($value)) {
-          print " oops, pred false\n";
+          print " oops, pred($value) false\n";
         }
         while ($pred_upto < $value) {
           if ($values_obj->pred($pred_upto)) {
@@ -142,7 +151,7 @@ $|=1;
       if ($values_obj->can('ith')) {
         my $ith_value = $values_obj->ith($i);
         if ($ith_value != $value) {
-          print " oops, ith()=$ith_value next=$value\n";
+          print " oops, ith($i)=$ith_value next=$value\n";
         }
       }
     }
@@ -150,7 +159,7 @@ $|=1;
 
     if ($values_obj->can('ith')) {
       print "by ith(): ";
-      foreach my $i (0 .. 110) {
+      foreach my $i ($values_obj->i_start .. 110) {
         my $value = $values_obj->ith($i);
         if (! defined $value) {
           print "undef\n";
@@ -172,12 +181,32 @@ $|=1;
         }
 
         if ($values_obj->can('pred') && ! $values_obj->pred($value)) {
-          print " oops, pred false\n";
+          print " oops, pred($value) false\n";
         }
       }
       print "\n";
     }
   }
+  exit 0;
+}
+
+{
+  require App::MathImage::Generator;
+  my $gen = App::MathImage::Generator->new (width  => 10,
+                                            height => 10,
+                                            scale  => 1,
+                                            path   => 'SquareSpiral',
+                                            values => 'PlanePathDelta');
+  ### gen ...
+  require Image::Base::Text;
+  my $image = Image::Base::Text->new
+    (-width  => 10,
+     -height => 10,
+     -cindex => { 'black' => ' ',
+                  'white' => '*'});
+  ### draw_Image ...
+  $gen->draw_Image ($image);
+  $image->save('/dev/stdout');
   exit 0;
 }
 

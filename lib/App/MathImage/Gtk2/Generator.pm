@@ -31,7 +31,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 59;
+our $VERSION = 60;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests

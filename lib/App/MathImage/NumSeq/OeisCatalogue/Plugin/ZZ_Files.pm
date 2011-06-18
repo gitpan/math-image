@@ -26,17 +26,17 @@ use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 sub _make_info {
   my ($anum) = @_;
   ### _make_info(): $anum
   return { anum => $anum,
            class => 'App::MathImage::NumSeq::Sequence::OEIS::File',
-           parameters_hashref => { oeis_anum => $anum } };
+           parameters_hashref => { anum => $anum } };
 }
 
 sub anum_to_info {
@@ -51,6 +51,7 @@ sub anum_to_info {
      App::MathImage::NumSeq::Sequence::OEIS::File::anum_to_bfile($anum),
      App::MathImage::NumSeq::Sequence::OEIS::File::anum_to_bfile($anum,'a')) {
     my $filename = File::Spec->catfile ($dir, $basename);
+    ### $filename
     if (-e $filename) {
       return _make_info($anum);
     }
@@ -70,8 +71,10 @@ sub info_arrayref {
   }
   while (defined (my $basename = readdir DIR)) {
     ### $basename
-    if ($basename =~ /^[Aab](\d*)\.(html?|internal|txt)/i) {
-      my $anum = "A$1";
+    # FIXME: case insensitive ?
+    if ($basename =~ /^A(\d*)\.(html?|internal)
+                    |[ab](\d*)\.txt/x) {
+      my $anum = 'A'.($1||$3);
       unless ($seen{$anum}++) {
         push @ret, _make_info($anum);
       }

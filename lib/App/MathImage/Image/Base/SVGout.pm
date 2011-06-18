@@ -25,10 +25,10 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
-use Devel::Comments '###';
+#use Devel::Comments '###';
 
 sub new {
   my $class = shift;
@@ -53,7 +53,7 @@ sub xy {
     return undef;  # no fetch
   } else {
     push @{$self->{'-elements'}},
-      "<rect x=\"$x\" y=\"$y\" width=\"1\" height=\"1\" stroke="._attribute_quote($colour)."/>";
+      "<rect x=\"$x\" y=\"$y\" width=\"1\" height=\"1\" fill="._attribute_quote($colour)."/>";
   }
 }
 
@@ -167,6 +167,12 @@ HERE
           "</svg>\n");
 }
 
+sub _attribute_quote {
+  my ($value) = @_;
+  return '"'._entitize($value).'"';
+}
+
+# FIXME: entitize non-ascii chars too if output handle not wide?
 my %entity = ('&' => '&amp;',
              '"' => '&quot;',
              '<' => '&lt;',
@@ -176,11 +182,6 @@ sub _entitize {
   my ($value) = @_;
   $value =~ s/([&"<>])/$entity{$1}/eg;
   return $value;
-}
-
-sub _attribute_quote {
-  my ($value) = @_;
-  return '"'._entitize($value).'"';
 }
 
 1;

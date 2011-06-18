@@ -19,6 +19,7 @@
 # math-image --path=MathImageGosperIslands --lines --scale=10
 # math-image --path=MathImageGosperIslands --all --output=numbers
 
+
 package Math::PlanePath::MathImageGosperIslands;
 use 5.004;
 use strict;
@@ -26,10 +27,10 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 use Math::PlanePath::KochCurve;
 use Math::PlanePath::SacksSpiral;
-use Math::PlanePath::MathImageGosperIslandSide;
+use Math::PlanePath::MathImageGosperSide;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 59;
+$VERSION = 60;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -82,11 +83,11 @@ sub n_to_xy {
 
   $n -= $pow-2;  # remainder
   my $sixth = int ($n / $side);
-  my ($x, $y) = Math::PlanePath::MathImageGosperIslandSide->n_to_xy ($n % $side);
+  my ($x, $y) = Math::PlanePath::MathImageGosperSide->n_to_xy ($n - $sixth*$side);
 
   if (! exists $level_x[$level]) {
     ($level_x[$level], $level_y[$level]) =
-      Math::PlanePath::MathImageGosperIslandSide->n_to_xy ($side);
+      Math::PlanePath::MathImageGosperSide->n_to_xy ($side);
   }
   my $pos_x = $level_x[$level];
   my $pos_y = $level_y[$level];
@@ -150,7 +151,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS
+=for stopwords eg Ryde
 
 =head1 NAME
 
@@ -166,10 +167,10 @@ Math::PlanePath::MathImageGosperIslands -- concentric Gosper islands
 
 I<In progress.>
 
-This path is integer versions of the Gosper island arranged as concentric
-circles on a triangular lattice (see L<Math::PlanePath/Triangular Lattice>).
-These rings are the outlines of a self-similar tiling of the plane by
-hexagons.
+This path is integer versions of the Gosper island at successive levels
+arranged as concentric circles on a triangular lattice (see
+L<Math::PlanePath/Triangular Lattice>).  The Gosper island is the outline of
+a self-similar tiling of the plane by hexagons.
 
                    35----34                
                   /        \
@@ -187,7 +188,7 @@ hexagons.
                   /                          \
                 14           3---- 2           7              1
                   \        /        \    
-                   15     4     0---- 1    24             <- Y=0
+                   15     4     0     1    24             <- Y=0
                   /        \                 \
                 16           5----- 6         23             -1
                   \                          /
@@ -195,11 +196,14 @@ hexagons.
                            \        /
                             19----20                         -3
 
+
        -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 The side N=1 to N=2 expands to the zig-zag N=7 to N=10, then each section of
-that expands similarly (and at those angles) to become N=25 to N=34.  The
-N=25 ring is shown in part above is as follows.
+that expands similarly (and at those angles) to become N=25 to N=34, etc,
+becoming 3 times longer and wigglier at each level.  The N=25 ring shown in
+part above is as follows.
+
 
               * *                 
            * *   * *   * *        
@@ -219,44 +223,52 @@ N=25 ring is shown in part above is as follows.
            * *   * *   * *        
                     * *           
 
-Each ring is the outline of seven of the previous level shape arranged one
-in the centre and six around.  This N=25 shape is seven of the N=7 to N=24
-shapes.  The sides become successively bumpier at each level but they fit
-together exactly because the six sides are symmetric.
+Each ring is the outline of seven copies of the previous level's shape
+arranged one in the centre and six around.  So this N=25 shape is seven of
+the N=7 to N=24 shapes.  The sides become successively bumpier at each level
+but they fit together exactly because the six sides are symmetric.
 
 =head2 Level Ranges
 
 Counting the inner hexagon as level=1, the ring for each level begins at
 
-    Nstart(level) = 3^level - 2
-    length        = 2*3^level
+    Nstart = 3^level - 2
+    length = 2*3^level
 
 For example level=3 is at Nstart=3^3-2=25.
 
-The shape is kept on integer coordinates of L<Math::PlanePath/Triangular
-Lattice> by starting each ring at successively rotated positions.  The angle
-of the N=7 start at X=5,Y=1 is
+The packing of six copies of one island to make the next level happens at
+successively rotated positions, so the Nstart position is not on the X axis.
+Effectively a radial spoke N=0 to N=1 expands by the same zigzag as the side,
 
-    angle = atan(sqrt(3) / 5) = 19.106.. degrees
+                                *---*
+                               /
+    *---*     becomes     *---*
 
-The sqrt(3) is for the flattened triangular grid.  The subsequent starts at
-N=25 etc are multiples of this angle.
+And replicating in this self-similar at each level, the same as the sides.
+Spokes like this at each level are the corners where the six copied islands
+are positioned.  In any case the across, up, across pattern means each
+Nstart is at a successively rotated position.  N=7 start at X=5,Y=1 is
+
+    angle = atan(1*sqrt(3) / 5) = 19.106.. degrees
+
+The subsequent starts are multiples of this angle, for example N=25 at
+2*angle, then N=79 at 3*angle, etc.  The sqrt(3) factor as usual turns the
+flattened triangular grid into proper equilateral triangles.
 
 =head2 Fractal Island
 
-This construction is often made as a fractal, with each side of the initial
-hexagon having more and more detail at each level.  The code here can be
-used for that by rotating and scaling down to a fixed size starting at the X
-axis.
-
-Use Y*sqrt(3) on all points to make equilateral triangle grid.  A scale and
-rotation can be obtained from the Nstart first point of each level.
+The Gosper island is usually conceived as a fractal with the initial hexagon
+in a fixed position and ever finer level of wiggliness.  The code here can
+be used for that by rotating the Nstart position back to the X axis and
+scaling it down to a whatever desired unit radius.
 
     scale factor = 1 / hypot(Y*sqrt(3), X)
     rotate angle = - atan2 (Y*sqrt(3), X)
 
 This puts the Nstart at X=1,Y=0, and further points at the ring around from
-that.
+that.  Use Y*sqrt(3) on all points to turn the integer coordinates into
+proper equilateral triangles.
 
 =head1 FUNCTIONS
 

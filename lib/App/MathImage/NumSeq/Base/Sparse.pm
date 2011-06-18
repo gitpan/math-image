@@ -22,19 +22,12 @@ use warnings;
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-sub is_type {
-  my ($self, $type) = @_;
-  if ($type eq 'sparse') {
-    return 1;
-  } else {
-    return $self->SUPER::is_type($type);
-  }
-}
+use constant characteristic_sparse => 1;
 
 sub new {
   my $class = shift;

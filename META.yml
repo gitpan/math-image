@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            59
+version:            60
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -45,7 +45,7 @@ requires:
     Gtk2::Ex::SyncCall:   12
     Gtk2::Ex::ToolbarBits:  36
     Gtk2::Ex::ToolItem::ComboEnum:  28
-    Gtk2::Ex::ToolItem::OverflowToDialog:  36
+    Gtk2::Ex::ToolItem::OverflowToDialog:  41
     Gtk2::Ex::Units:      13
     Gtk2::Ex::WidgetBits:  40
     Gtk2::Ex::WidgetCursor:  15
@@ -135,6 +135,7 @@ optional_features:
             Math::Expression::Evaluator:  0
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::Columns:  26
+            Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
@@ -161,6 +162,7 @@ optional_features:
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
+            Math::PlanePath::SierpinskiArrowhead:  32
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
             Math::PlanePath::TheodorusSpiral:  6
@@ -181,6 +183,7 @@ optional_features:
         requires:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::Columns:  26
+            Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
@@ -207,6 +210,7 @@ optional_features:
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
+            Math::PlanePath::SierpinskiArrowhead:  32
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
             Math::PlanePath::TheodorusSpiral:  6
@@ -243,6 +247,7 @@ recommends:
     Math::Expression::Evaluator:  0
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::Columns:  26
+    Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiamondSpiral:  1
@@ -269,6 +274,7 @@ recommends:
     Math::PlanePath::PythagoreanTree:  26
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
+    Math::PlanePath::SierpinskiArrowhead:  32
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16
     Math::PlanePath::TheodorusSpiral:  6

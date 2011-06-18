@@ -24,10 +24,10 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant name => __('Square Root Digits');
 use constant description => __('The square root of a given number written out in decimal or a given radix.');
@@ -77,14 +77,26 @@ my %oeis = (2  => { 2  => 'A004539',   # sqrt2 binary digits
             23 => { 10 => 'A010479' },
             24 => { 10 => 'A010480' },
            );
+my %perfect_square = (map {$_=>1} 16,25,36,49,64,81);
 sub oeis_anum {
   my ($class_or_self) = @_;
+  ### oeis_anum() ...
   my $sqrt = (ref $class_or_self
               ? $class_or_self->{'sqrt'}
               : $class_or_self->parameter_default('sqrt'));
   my $radix = (ref $class_or_self
                ? $class_or_self->{'radix'}
                : $class_or_self->parameter_default('radix'));
+  if ($radix == 10
+      && $sqrt >= 17 && $sqrt <= 99
+      && ! $perfect_square{$sqrt}) {
+    ### calculated ...
+    my $offset = 0;
+    foreach my $i (11 .. $sqrt) {
+      $offset += ! $perfect_square{$i};
+    }
+    return 'A0'.(10467+$offset);
+  }
   return $oeis{$sqrt}->{$radix};
 }
 # OeisCatalogue: A004539 sqrt=2 radix=2
