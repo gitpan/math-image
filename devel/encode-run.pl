@@ -32,9 +32,14 @@ my @ords = grep { ! (($_ >= 0x80 && $_ <= 0x9F)
                      || ($_ >= 0xFFFE && $_ <= 0xFFFF)
                      || ($_ >= 0x1FFFE && $_ <= 0x1FFFF)) }
   32 .. 0x2FA1D;
+my $ords_str = join ('', map {chr} @ords);
+
+
 
 {
   # round trip
+  @ords = (0x20AC); #  euro sign
+
   foreach my $i (@ords) {
     my $chr = chr($i);
     my $input_chr = $chr;
@@ -53,6 +58,61 @@ my @ords = grep { ! (($_ >= 0x80 && $_ <= 0x9F)
   }
   exit 0;
 }
+{
+  foreach my $i (0x0 .. 0xFF) {
+    my $bytes = chr($i);
+    my $chars = Encode::decode ('jis0201-raw', $bytes, Encode::FB_QUIET());
+    if (! $bytes) {
+      my $u = ord($chars);
+      my $chars_left = $chars;
+      $bytes = Encode::encode ('jis0201-raw', $chars_left, Encode::FB_QUIET());
+      printf "%02X %02X  %s\n", $i, $u, bytestr($bytes);
+    }
+  }
+  exit 0;
+}
+
+{
+  my $bytes = "\xA0\xB4";
+  # $bytes = "\x20\x34";
+  $bytes = "\x21\x25";
+  my $ret = Encode::decode ('gb2312-raw', $bytes,  Encode::FB_QUIET());
+  print "ret  ",bytestr($ret),"\n";
+  print "left ",bytestr($bytes),"\n";
+  exit 0;
+}
+{
+  require File::Slurp;
+  printf "ords len %d\n", scalar(@ords);
+
+  foreach my $utf8name ('devel/encode-emacs23.ctext',
+                        # <devel/encode*.utf8>
+                       ) {
+    (my $ctextname = $utf8name) =~ s/utf8$/ctext/;
+
+    print "$ctextname len ",-s $ctextname,"\n";
+    my $chars = File::Slurp::read_file($utf8name, {binmode=>':utf8'});
+    printf "  chars %d\n", length($chars);
+
+    my $bytes = File::Slurp::read_file($ctextname, {binmode=>':raw'});
+    print "  bytes ",length($bytes),"\n";
+    my $left = $bytes;
+    my $decode = Encode::decode('x11-compound-text', $left, Encode::FB_QUIET());
+    printf "  decode %d  bytes left %d\n", length($decode), length($left);
+    my $upto = length($bytes) - length($left);
+    printf "  upto 0x%X\n", $upto;
+    print "  ",bytestr(substr($bytes,$upto-3,10)),"\n";
+    print "  last decode ",bytestr(substr($decode,-5)),"\n";
+
+    if ($chars ne $decode) {
+      printf "  different lens want %d got %d\n", length($chars), length($decode);
+    }
+
+    print "\n";
+  }
+  exit 0;
+}
+
 
 {
   foreach my $i (@ords) {

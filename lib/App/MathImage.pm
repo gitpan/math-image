@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -83,7 +83,7 @@ sub getopt_long_specifications {
      'fraction-bits=s' =>
      sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values',   'FractionDigits');
-           _hopt($self,'gen_options','fraction', $value);
+           $self->{'gen_options'}->{'values_parameters'}->{'fraction'} = $value;
          },
      'expression=s' =>
      sub { my ($optname, $value) = @_;
@@ -538,7 +538,34 @@ sub output_method_xpm {
   }
   die "Output $module not available";
 }
+sub output_method_svg {
+  my ($self) = @_;
+  # Imager 0.80 can't write xpm
+  my $module = "module(s)";
+  foreach my $module (defined $self->{'gui_options'}->{'module'}
+                      ? ($module = $self->{'gui_options'}->{'module'})
+                      : ('SVGout',
+                         'SVG',
+                        )) {
+    if ($module eq 'GD') {
+      eval { require GD::SVG; 1 } or next;
+    }
+    if ($self->try_module($module)) {
+      $self->output_image ($module,
+                           ($module eq 'GD' ? (-gd=>GD::SVG::Image->new) : ()),
+                           -file_format => 'svg');
+      return 0;
+    }
+  }
+  die "Output $module not available";
+}
 
+sub try_module {
+  my ($self, $module) = @_;
+  my $image_class = $self->module_image_class($module) || return 0;
+  require Module::Load;
+  return eval { Module::Load::load ($image_class); 1 };
+}
 sub module_image_class {
   my ($self, $module) = @_;
   foreach my $baseclass ("Image::Base::$module",
@@ -554,13 +581,6 @@ sub module_image_class {
   return undef;
 }
 
-sub try_module {
-  my ($self, $module) = @_;
-  my $image_class = $self->module_image_class($module) || return 0;
-  require Module::Load;
-  return eval { Module::Load::load ($image_class); 1 };
-}
-
 sub output_image {
   my ($self, $module, @image_options) = @_;
   my $image_class = $self->module_image_class($module)
@@ -568,6 +588,10 @@ sub output_image {
   ### output_image(): $image_class
   require Module::Load;
   Module::Load::load ($image_class);
+
+  require File::Temp;
+  my $tempfh = File::Temp->new();
+  my $tempfile = $tempfh->filename;
 
   my $gen_options = $self->{'gen_options'};
   if (! defined $gen_options->{'width'}) {
@@ -580,6 +604,7 @@ sub output_image {
      -height => $gen_options->{'height'},
      -zlib_compression => 9,
      @image_options);
+  $image->set(-file => $tempfile);
   if ($image->isa('Image::Base::Prima::Drawable')) {
     $image->get('-drawable')->begin_paint;
   }
@@ -590,8 +615,13 @@ sub output_image {
   if ($image->isa('Image::Base::Prima::Drawable')) {
     $image->get('-drawable')->end_paint;
   }
-  require App::MathImage::Image::Base::Other;
-  App::MathImage::Image::Base::Other::save_fh ($image, \*STDOUT);
+  
+  require File::Copy;
+  $image->save;
+  File::Copy::copy ($tempfile, \*STDOUT);
+
+  # require App::MathImage::Image::Base::Other;
+  # App::MathImage::Image::Base::Other::save_fh ($image, \*STDOUT);
   return 0;
 }
 

@@ -60,16 +60,20 @@ Esc $(A#$
   (set-buffer-file-coding-system 'compound-text-with-extensions)
   (write-file "/tmp/x.ctext"))
 
+
 (with-temp-buffer
   (dotimes (i #x2FA1)
     (unless (or (< i 32)
-                (and (>= i #x80) (<= i #x9F))
+                (and (>= i #x7F) (<= i #x9F))
                 (and (>= i #xD800) (<= i #xDFFF))
                 (and (>= i #xFDD0) (<= i #xFDEF))
                 (and (>= i #xFFFE) (<= i #xFFFF))
                 (and (>= i #x1FFFE) (<= i #x1FFFF)))
       (let* ((c   (decode-char 'ucs i))
-             (str (encode-coding-char c 'compound-text-with-extensions)))
+             (str (encode-coding-char c
+                                      'ctext
+                                      ;; 'compound-text-with-extensions
+                                      )))
         (when str
           (setq str (mapconcat (lambda (c)
                                  (format "%02X" c))
@@ -77,5 +81,38 @@ Esc $(A#$
           (insert (format "U+%04X = %s\n" i str))))))
   (set-buffer-file-coding-system 'compound-text-with-extensions)
   (set-buffer-file-coding-system 'utf-8)
-  (write-file "/tmp/e.ext"))
+  (write-file (format "%s%d.txt"
+                      (if (featurep 'xemacs) "xemacs" "emacs")
+                      emacs-major-version)))
 
+(insert (decode-coding-string (string-make-unibyte (string #x1B #x2D #x46 #xAA))
+                              'compound-text))
+(insert (decode-coding-string (string-make-unibyte (string #xAA))
+                              'iso-8859-7))
+
+(insert (decode-coding-string (string #x7E)
+                              'japanese-iso-8bit))~
+
+
+(with-temp-buffer
+  (set-buffer-file-coding-system 'ctext)
+  (insert (decode-coding-string (string #x1B #x28 #x4A #x7E) 'ctext))
+  (describe-char (point-min)))
+(insert #x203E)
+
+
+
+(progn
+  (switch-to-buffer "x")
+  (erase-buffer)
+  (require 'cl)
+  (loop for i from #x20 to #xFF
+        do
+        (let* ((str (decode-coding-string (string #x1B #x28 #x49
+                                                  #x1B #x29 #x49
+                                                  i) 'ctext))
+               (u   (and (length str)
+                         (encode-char (aref str 0) 'ucs))))
+          (insert (format "%02X %s  %02X\n" i str (or u -1)))))
+  (goto-char (point-min))
+  (set-buffer-file-coding-system 'compound-text))

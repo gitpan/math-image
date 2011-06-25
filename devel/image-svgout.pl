@@ -29,7 +29,8 @@ my $filename = '/tmp/x.svg';
   require App::MathImage::Image::Base::SVGout;
   my $image = App::MathImage::Image::Base::SVGout->new (-width => 400,
                                                         -height => 400);
-
+  $image->set(-file => $filename);
+  $image->set(-title => "blah \x{2022} blah");
   ### height: $image->get('-height')
 
   $image->xy (1,1, 'blue');
@@ -41,11 +42,11 @@ my $filename = '/tmp/x.svg';
 
   $image->line (30,340, 380,390, 'white', 1);
 
-  print $image->save($filename);
+  $image->save($filename);
   system ("cat $filename");
 
   {
-    use SVG::Parser 'Expat';
+    use SVG::Parser; # 'Expat';
     my $parser = SVG::Parser->new (-debug => 1);
     my $svg = $parser->parsefile ($filename);
   }

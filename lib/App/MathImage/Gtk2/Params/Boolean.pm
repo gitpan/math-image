@@ -24,12 +24,12 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 60;
+our $VERSION = 61;
 
 # Gtk2::ToggleToolButton
-use App::MathImage::Gtk2::Ex::ToolItem::CheckButton;
+use Gtk2::Ex::ToolItem::CheckButton;
 use Glib::Object::Subclass
-  'App::MathImage::Gtk2::Ex::ToolItem::CheckButton',
+  'Gtk2::Ex::ToolItem::CheckButton',
   properties => [ Glib::ParamSpec->boolean
                   ('parameter-value',
                    'Parameter Value',

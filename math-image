@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 exit App::MathImage->command_line;
 
 __END__
@@ -143,9 +143,11 @@ A decimal like 1.234 means 1234/1000.
 
 A fraction is always a repeating pattern, with length no longer than the
 denominator, but can give interesting patterns for various paths.  For
-example 1/137 in binary (choose radix 2 in the GUI) shows the fine structure
-constant 1/137 as a repeating pattern of an angry man with a beard and a
-skull wearing a hat.  No doubt this has deep cosmic significance.
+example in the Corner path the fine structure constant 1/137 in binary is a
+repeating pattern of an angry man with a beard and a skull wearing a hat.
+No doubt this has deep cosmic significance.
+
+    math-image --corner --values=FractionDigits,radix=2,fraction=1/137
 
 =item --all
 

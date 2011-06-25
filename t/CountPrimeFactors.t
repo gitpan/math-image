@@ -32,7 +32,7 @@ use App::MathImage::NumSeq::Sequence::PrimeFactorCount;
 # VERSION
 
 {
-  my $want_version = 60;
+  my $want_version = 61;
   is ($App::MathImage::NumSeq::Sequence::PrimeFactorCount::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::PrimeFactorCount->VERSION,  $want_version, 'VERSION class method');
 

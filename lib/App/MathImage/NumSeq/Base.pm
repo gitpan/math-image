@@ -26,7 +26,7 @@ use Exporter;
 @EXPORT_OK = ('__');
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 BEGIN {
   eval <<'HERE'

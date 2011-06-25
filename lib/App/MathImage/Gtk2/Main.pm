@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 60;
+our $VERSION = 61;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -235,18 +235,102 @@ Click repeatedly to see interesting things.'),
      },
     ];
 
-sub INIT_INSTANCE {
+my $toggle_actions_array
+  = [
+     { name    => 'Toolbar',
+       label   => __('_Toolbar'),
+       tooltip => __('Whether to show the toolbar.'),
+     },
+     { name    => 'Axes',
+       label   => __('A_xes'),
+       tooltip => __('Whether to show axes beside the image.'),
+       is_active  => 1,
+     },
+     { name        => 'ToolbarVertical',
+       label       =>  __('Toolbar _Vertical'),
+       callback    => \&_do_action_toolbar_vertical,
+       is_active   => 0,
+       # tooltip     => __('.'),
+     },
+
+     (Module::Util::find_installed('Gtk2::Ex::CrossHair')
+      ? { name        => 'Cross',
+          label       =>  __('_Cross'),
+          # "C" as an accelerator steals that key from the Gtk2::Entry of an
+          # expression.  Is that supposed to happen?
+          #   accelerator => __p('Main-accelerator-key','C'),
+          callback    => \&_do_action_crosshair,
+          is_active   => 0,
+          tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
+        } : ()),
+    ];
+
+sub ui_string {
   my ($self) = @_;
+  my $ui_str = <<'HERE';
+<ui>
+  <menubar name='MenuBar'>
+    <menu action='FileMenu'>
+      <menuitem action='SetRoot'/>
+      <menuitem action='SaveAs'/>
+      <menuitem action='Print'/>
+      <menuitem action='Quit'/>
+    </menu>
+    <menu action='ViewMenu'>
+      <menu action='ValuesMenu'>
+HERE
+  foreach my $values (App::MathImage::Generator->values_choices) {
+    $ui_str .= "      <menuitem action='Values-$values'/>\n";
+  }
+  $ui_str .= <<'HERE';
+      </menu>
+      <menu action='PathMenu'>
+HERE
+  foreach my $path (App::MathImage::Generator->path_choices) {
+    $ui_str .= "      <menuitem action='Path-$path'/>\n";
+  }
+  $ui_str .= <<'HERE';
+      </menu>
+    <menuitem action='Centre'/>
+    </menu>
+    <menu action='ToolsMenu'>
+HERE
+  if ($self->{'actiongroup'}->get_action('Cross')) {
+    $ui_str .= "<menuitem action='Cross'/>\n";
+  }
+  $ui_str .= <<'HERE';
+      <menuitem action='Fullscreen'/>
+      <menuitem action='DrawProgressive'/>
+      <menuitem action='Toolbar'/>
+      <menuitem action='ToolbarVertical'/>
+      <menuitem action='Axes'/>
+      <menuitem action='RunGolly'/>
+    </menu>
+    <menu action='HelpMenu'>
+      <menuitem action='About'/>
+HERE
+  foreach my $name ('PodDialog', 'PodDialogPath','OeisBrowse') {
+    if ($self->{'actiongroup'}->get_action($name)) {
+      $ui_str .= "<menuitem action='$name'/>\n";
+    }
+  }
+  $ui_str .= <<'HERE';
+    </menu>
+  </menubar>
+  <toolbar  name='ToolBar'>
+    <toolitem action='Random'/>
+    <separator/>
+  </toolbar>
+</ui>
+HERE
+  return $ui_str;
+}
 
-  my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
-  $vbox->show;
-  $self->add ($vbox);
-
-  my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
-  $draw->signal_connect ('notify::values-parameters' => \&_do_values_changed);
-
+sub init_actiongroup {
+  my ($self) = @_;
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   $actiongroup->add_actions ($actions_array, $self);
+  $actiongroup->add_toggle_actions ($toggle_actions_array, $self);
 
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
@@ -268,46 +352,22 @@ sub INIT_INSTANCE {
                                           tooltip => __('Whether to draw progressively on the screen, or show the final image when ready.'));
     $actiongroup->add_action ($action);
     Glib::Ex::ConnectProperties->new ([$action,'active'],
-                                      [$draw,  'draw-progressive']);
+                                      [$self->{'draw'}, 'draw-progressive']);
   }
-  {
-    my $action = Gtk2::ToggleAction->new
-      (name    => 'Axes',
-       label   => __('A_xes'),
-       tooltip => __('Whether to show axes beside the image.'),
-       active  => 1);
-    $actiongroup->add_action ($action);
-  }
-  $actiongroup->add_toggle_actions
-    ([ { name    => 'Toolbar',
-         label   => __('_Toolbar'),
-         tooltip => __('Whether to show the toolbar.')},
-     ]);
+  return $actiongroup;
+}
 
-  $actiongroup->add_toggle_actions
-    # name, stock id, label, accel, tooltip, subr, is_active
-    ([
-      { name        => 'ToolbarVertical',
-        label       =>  __('Toolbar _Vertical'),
-        callback    => \&_do_action_toolbar_vertical,
-        is_active   => 0,
-        # tooltip     => __('.'),
-      },
+sub INIT_INSTANCE {
+  my ($self) = @_;
 
-      (Module::Util::find_installed('Gtk2::Ex::CrossHair')
-       ?
-       { name        => 'Cross',
-         label       =>  __('_Cross'),
-         # "C" as an accelerator steals that key from the Gtk2::Entry of an
-         # expression.  Is that supposed to happen?
-         #   accelerator => __p('Main-accelerator-key','C'),
-         callback    => \&_do_action_crosshair,
-         is_active   => 0,
-         tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
-       }
-       : ()),
-     ],
-     $self);
+  my $vbox = $self->{'vbox'} = Gtk2::VBox->new (0, 0);
+  $vbox->show;
+  $self->add ($vbox);
+
+  my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
+  $draw->signal_connect ('notify::values-parameters' => \&_do_values_changed);
+
+  my $actiongroup = $self->init_actiongroup;
 
   {
     my $n = 0;
@@ -349,62 +409,7 @@ sub INIT_INSTANCE {
   my $ui = $self->{'ui'} = Gtk2::UIManager->new;
   $ui->insert_action_group ($actiongroup, 0);
   $self->add_accel_group ($ui->get_accel_group);
-  my $ui_str = <<'HERE';
-<ui>
-  <menubar name='MenuBar'>
-    <menu action='FileMenu'>
-      <menuitem action='SetRoot'/>
-      <menuitem action='SaveAs'/>
-      <menuitem action='Print'/>
-      <menuitem action='Quit'/>
-    </menu>
-    <menu action='ViewMenu'>
-      <menu action='ValuesMenu'>
-HERE
-  foreach my $values (App::MathImage::Generator->values_choices) {
-    $ui_str .= "      <menuitem action='Values-$values'/>\n";
-  }
-  $ui_str .= <<'HERE';
-      </menu>
-      <menu action='PathMenu'>
-HERE
-  foreach my $path (App::MathImage::Generator->path_choices) {
-    $ui_str .= "      <menuitem action='Path-$path'/>\n";
-  }
-  $ui_str .= <<'HERE';
-      </menu>
-    <menuitem action='Centre'/>
-    </menu>
-    <menu action='ToolsMenu'>
-HERE
-  if ($actiongroup->get_action('Cross')) {
-    $ui_str .= "<menuitem action='Cross'/>\n";
-  }
-  $ui_str .= <<'HERE';
-      <menuitem action='Fullscreen'/>
-      <menuitem action='DrawProgressive'/>
-      <menuitem action='Toolbar'/>
-      <menuitem action='ToolbarVertical'/>
-      <menuitem action='Axes'/>
-      <menuitem action='RunGolly'/>
-    </menu>
-    <menu action='HelpMenu'>
-      <menuitem action='About'/>
-HERE
-  foreach my $name ('PodDialog', 'PodDialogPath','OeisBrowse') {
-    if ($actiongroup->get_action($name)) {
-      $ui_str .= "<menuitem action='$name'/>\n";
-    }
-  }
-  $ui_str .= <<'HERE';
-    </menu>
-  </menubar>
-  <toolbar  name='ToolBar'>
-    <toolitem action='Random'/>
-    <separator/>
-  </toolbar>
-</ui>
-HERE
+  my $ui_str = $self->ui_string;
   $ui->add_ui_from_string ($ui_str);
 
   {
@@ -456,23 +461,26 @@ HERE
     $vaxis->signal_connect (button_press_event => \&_do_numaxis_button_press);
     $table->attach ($vaxis, 2,3, 1,2, [],['expand','fill'],0,0);
 
-    my $action = $actiongroup->get_action ('Axes');
-    Glib::Ex::ConnectProperties->new ([$action,'active'],
-                                      [$haxis,'visible'],
-                                      [$vaxis,'visible']);
-
+    my $quadbutton;
     if (Module::Util::find_installed('Gtk2::Ex::QuadButton::Scroll')) {
       # quadbutton if available
       require Gtk2::Ex::QuadButton::Scroll;
-      my $qb = Gtk2::Ex::QuadButton::Scroll->new
+      $quadbutton = Gtk2::Ex::QuadButton::Scroll->new
         (hadjustment => $hadj,
          vadjustment => $vadj,
          vinverted   => 1);
       set_property_maybe # tooltip-text new in 2.12
-        ($qb, tooltip_text => __('Click to scroll up/down/left/right, hold the control key down to scroll by a page.'));
-      $table->attach ($qb, 2,3, 2,3,
+        ($quadbutton, tooltip_text => __('Click to scroll up/down/left/right, hold the control key down to scroll by a page.'));
+      $table->attach ($quadbutton, 2,3, 2,3,
                       ['fill','shrink'],['fill','shrink'],2,2);
     }
+
+    my $action = $actiongroup->get_action ('Axes');
+    Glib::Ex::ConnectProperties->new
+        ([$action,'active'],
+         [$haxis,'visible'],
+         [$vaxis,'visible'],
+         ($quadbutton ? [$quadbutton,'visible'] : ()));
   }
   $table->show_all;
 

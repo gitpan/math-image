@@ -33,7 +33,7 @@ use base 'App::MathImage::NumSeq::Base::Array';
 use App::MathImage::NumSeq::Sequence::OEIS;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

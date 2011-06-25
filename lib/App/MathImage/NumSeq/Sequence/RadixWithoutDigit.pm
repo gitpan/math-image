@@ -24,7 +24,10 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 use constant name => __('Without chosen digit');
 use constant description => __('The integers which don\'t have a given digit when written out in the given radix.  Digit -1 means the highest digit, ie. radix-1.');
@@ -52,8 +55,8 @@ my %oeis = (3 => { 0 => 'A032924', # base 3 no 0
             5 => { 0 => 'A023721', # base 5 no 0
                    1 => 'A023725', # base 5 no 1
                    2 => 'A023729', # base 5 no 2
-                   4 => 'A023733', # base 5 no 3
-                   5 => 'A023737', # base 5 no 4
+                   3 => 'A023733', # base 5 no 3
+                   4 => 'A023737', # base 5 no 4
                  },
            );
 sub oeis_anum {
@@ -81,11 +84,8 @@ sub oeis_anum {
 # OeisCatalogue: A023721 radix=5 digit=0  # base 5 no 0
 # OeisCatalogue: A023725 radix=5 digit=1  # base 5 no 1
 # OeisCatalogue: A023729 radix=5 digit=2  # base 5 no 2
-# OeisCatalogue: A023733 radix=5 digit=4  # base 5 no 3
-# OeisCatalogue: A023737 radix=5 digit=5  # base 5 no 4
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
+# OeisCatalogue: A023733 radix=5 digit=3  # base 5 no 3
+# OeisCatalogue: A023737 radix=5 digit=4  # base 5 no 4
 
 sub new {
   my ($class, %options) = @_;
@@ -142,11 +142,22 @@ sub next {
 }
 
 # without 0
-#     1-9 1-9 ... 1-9
-#     each length 9^level
-#     start level at i =  9^1 + ... + 9^(level-1)
-#                      = (9^level - 1)/8
+#     1-9 1-9 ... 1-9 for len digits
+#     each is 9^len many
+#     start at i = 9^1 + ... + 9^(len-1)
+#                = 9^0 + 9^1 + ... + 9^(len-1)  - 1
+#                = (9^len - 1)/8 - 1
+#                = (9^len - 1 - 8)/8
+#                = (9^len - 9)/8
 #     8*i + 1 = 9^level
+#
+#     add sentinel 1*9^len, so
+#     from = i - (9^len - 9)/8 + 9^len
+#          = i + (- 9^len + 9)/8 + 9^len
+#          = i + (- 9^len + 9 + 8*9^len)/8
+#          = i + (7*9^len + 9) / 8
+#
+#     and which is then a high digit 2*9^len too big
 #
 sub ith {
   my ($self, $i) = @_;
@@ -160,36 +171,65 @@ sub ith {
       return undef;
     }
   }
- 
- my $r1 = $radix - 1;
-  if ($i < $r1) {
-    return $i + ($i >= $digit);
+
+  if ($i == $i-1) {
+    return $i;  # don't loop forever if $i is +infinity
   }
+
+  my $r1 = $radix - 1;
+  # if ($i < $r1) {
+  #   return $i + ($i >= $digit);
+  # }
+  my $r2 = $radix - 2;
+  ### $radix
+  ### $r1
+  ### $r2
+
+  my $value = 0;
+  if ($digit == 0) {
+    my $len = 1;
+    while (($r1**$len - $r1) / $r2 <= $i) {
+      $len++;
+    }
+    $len--;
+    ### $len
+    ### base: ($r1**$len - $r1) / $r2
+    ### sentinel: $r1**$len
+    ### adj add: $r1**$len - ($r1**$len - $r1) / $r2
+    ### adj formula: (($r2-1)*$r1**$len + $r1) / $r2
+
+    ### assert: $i >= ($r1 ** $len - $r1) / $r2
+    ### assert: $i < ($r1 ** $len - $r1) / $r2 + $r1 ** $len
+
+    $i += (($r2-1)*$r1**$len + $r1) / $r2;
+    $value = -2 * $radix**$len;
+    ### i remainder: $i
+    ### $value
+
+    ### assert: $i >= $r1 ** $len
+    ### assert: $i < 2 * $r1 ** $len
+  }
+
   # $i converted to radix-1 digits, built back up as radix
-  my $ret = 0;
   my $power = 1;
-  my $limit = $r1 - ($digit != 0);
-  while ($i > $limit) {
+  while ($i > 0) {
     my $d = $i % $r1;
     $i = int($i/$r1);
-    ### $ret
+    ### $value
     ### $d
     ### $power
     if ($d >= $digit) {
       $d++;
       ### inc to d: $d
     }
-    $ret += $power * $d;
+    $value += $power * $d;
     $power *= $radix;
   }
   ### stop at i: $i
-  if ($digit != 0) {
-    $i++;
-  }
-  $ret += $power * $i;
+  $value += $power * $i;
 
-  ### $ret
-  return $ret;
+  ### $value
+  return $value;
 
   # my $digit = 1;
   # my $x = $i;
@@ -211,6 +251,9 @@ sub pred {
   my ($self, $value) = @_;
   my $radix = $self->{'radix'};
   my $digit = $self->{'digit'};
+  if ($digit == 0 && $value == 0) {
+    return 0;
+  }
   while ($value) {
     if (($value % $radix) == $digit) {
       return 0;

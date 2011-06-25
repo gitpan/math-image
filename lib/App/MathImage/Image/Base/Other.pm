@@ -23,7 +23,7 @@ use strict;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -43,7 +43,7 @@ sub save_fh {
   require File::Copy;
   File::Copy->VERSION(2.14);
   my $tempfh = _save_to_tempfh ($image);
-  File::Copy::copy ($tempfh, $fh);
+  File::Copy::copy ($tempfh->filename, $fh);
 }
 
 sub save_string {

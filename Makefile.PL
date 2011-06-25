@@ -138,6 +138,7 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
     'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
+    'Gtk2::Ex::ToolItem::CheckButton' => 42,  # new in v.42
     'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
     'Gtk2::Ex::Units'          => 13, # new in v.13
     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
@@ -242,6 +243,7 @@ MyMakeMakerExtras::WriteMakefile
                      'Image::Base::Imager'    => 0,
                      'Image::Base::Magick'    => 0,
                      'Image::Base::PNGwriter' => 2, # bug fixes
+                     'Image::Base::SVG'       => 0,
 
                      'Math::Aronson'  => 4, # version 4 for lying
                      'Math::Symbolic' => 0.605, # 0.605 fix a simplify

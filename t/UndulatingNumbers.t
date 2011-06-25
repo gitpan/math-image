@@ -34,7 +34,7 @@ use App::MathImage::NumSeq::Sequence::Undulating;
 # VERSION
 
 {
-  my $want_version = 60;
+  my $want_version = 61;
   is ($App::MathImage::NumSeq::Sequence::Undulating::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Sequence::Undulating->VERSION,  $want_version, 'VERSION class method');
 

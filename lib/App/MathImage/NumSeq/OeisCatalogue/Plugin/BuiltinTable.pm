@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 60;
+$VERSION = 61;
 use App::MathImage::NumSeq::OeisCatalogue::Base;
 @ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
 
@@ -645,7 +645,7 @@ use constant info_arrayref =>
     'anum' => 'A023733',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
     'parameters_hashref' => {
-      'digit' => 4,
+      'digit' => 3,
       'radix' => 5
     }
   },
@@ -653,7 +653,7 @@ use constant info_arrayref =>
     'anum' => 'A023737',
     'class' => 'App::MathImage::NumSeq::Sequence::RadixWithoutDigit',
     'parameters_hashref' => {
-      'digit' => 5,
+      'digit' => 4,
       'radix' => 5
     }
   },
@@ -670,7 +670,10 @@ use constant info_arrayref =>
   },
   {
     'anum' => 'A030547',
-    'class' => 'App::MathImage::NumSeq::Sequence::ReverseAddCount'
+    'class' => 'App::MathImage::NumSeq::Sequence::ReverseAddSteps',
+    'parameters_hashref' => {
+      'radix' => 10
+    }
   },
   {
     'anum' => 'A005385',

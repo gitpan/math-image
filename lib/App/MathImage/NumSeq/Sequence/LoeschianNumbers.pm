@@ -31,7 +31,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -41,8 +41,11 @@ use constant description => __('Loeschian numbers x^2+xy+y^2 norms on hexagonal 
 use constant i_start => 1; # per oeis ...
 
 # cf A132111 - triangle T(n,k) = n^2 + k*n + k^2, 0<=k<=n
+#              same values different order?
 #
 use constant oeis_anum => 'A003136';
+
+# X^2+3Y^2 (X=y+x/2, Y=x/2)
 
 sub rewind {
   my ($self) = @_;
@@ -99,6 +102,8 @@ sub next {
 }
 
 # ENHANCE-ME: check the factorization
+# primes 3k+2 must have even exponent, other primes can be anything
+# divide out primes for progressively smaller sqrt limit of remaining
 sub pred {
   my ($self, $value) = @_;
   if ($value == $value-1) {

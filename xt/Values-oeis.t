@@ -117,6 +117,11 @@ for (my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
   } elsif ($anum eq 'A003434') {
     #  TotientSteps slow, only first 250 values for now ...
     splice @$want, 250;
+  } elsif ($anum eq 'A030547') {
+    # sample values start from i=1 but OFFSET=0
+    if ($want->[9] == 2) {
+      unshift @$want, 1;
+    }
   }
 
   my $hi = $want->[-1];

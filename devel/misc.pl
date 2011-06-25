@@ -81,7 +81,6 @@ $|=1;
     $values_class = $gen->values_class('HypotCount');
     $values_class = $gen->values_class('PrimeIndexCount');
     $values_class = $gen->values_class('Primorials');
-    $values_class = $gen->values_class('ReverseAddCount');
     $values_class = $gen->values_class('LoeschianNumbers');
     $values_class = $gen->values_class('SumXsq3Ysq');
     # $values_class = $gen->values_class('Hailstone');
@@ -91,13 +90,14 @@ $|=1;
     $values_class = $gen->values_class('FractionDigits');
     $values_class = $gen->values_class('PrimeFactorCount');
     $values_class = $gen->values_class('RadixWithoutDigit');
+    $values_class = $gen->values_class('ReverseAddSteps');
     my $values_obj = $values_class->new (fraction => '22/7',
                                          polygonal => 13,
                                          pairs => 'first',
                                          lo => 0,
                                          hi => 10, # 200*$rep,
-                                         radix => 4,
-                                         digit => 0,
+                                         radix => 10,
+                                         digit => 3,
                                          sqrt => 99,
                                          where => 'low',
                                          # expression => 'z=3; z*x^2 + 3*x + 2',
@@ -170,8 +170,8 @@ $|=1;
           }
         }
         if (defined $value) {
-          print "$value,";
-          # print "$i=$value,";
+          # print "$value,";
+          print "$i=$value,";
         } else {
           print "$i,";
           $value=$i;

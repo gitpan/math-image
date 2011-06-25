@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -417,6 +417,41 @@ sub y_negative {
 
 
 #------------------------------------------------------------------------------
+# path lattice
+
+{ package Math::PlanePath;
+  use constant MathImage__lattice_type => '';
+}
+{ package Math::PlanePath::HexSpiral;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::TriangularHypot;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::KochCurve;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::KochPeaks;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::KochSnowflakes;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::SierpinskiArrowhead;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::MathImageGosperSide;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::MathImageGosperIslands;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::MathImageFlowsnake;
+  use constant MathImage__lattice_type => 'triangular';
+}
+
+
+#------------------------------------------------------------------------------
 
 use constant path_choices => do {
   my %choices;
@@ -498,6 +533,8 @@ use constant figure_choices => qw(default
                                   plus
                                   X
                                   L
+                                  triangle
+                                  hexagon
                                   undiamond);
 
 #------------------------------------------------------------------------------
@@ -1325,6 +1362,8 @@ my %figure_method = (square  => 'rectangle',
                      X       => \&App::MathImage::Image::Base::Other::draw_X,
                      L       => \&App::MathImage::Image::Base::Other::draw_L,
                      undiamond => \&undiamond,
+                     triangle => \&_triangle,
+                     hexagon => \&_hexagon,
                     );
 sub undiamond {
   my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
@@ -1341,11 +1380,44 @@ sub undiamond {
   }
 }
 
+sub _triangle {
+  my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  my $xc = int (($x1+$x2)/2);  # top centre
+  $image->line ($xc,$y1, $x1,$y2, $colour);
+  $image->line ($xc,$y1, $x2,$y2, $colour);
+  $image->line ($x1,$y2, $x2,$y2, $colour);
+}
+# sub _triangle {
+#   my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+#   triangle ($image,
+#             int (($x1+$x2)/2), $y1,   # top vertex
+#             $x1,$y2,
+#             $x2,$y2,
+#             $colour,
+#             $fill);
+# }
+
+sub _hexagon {
+  my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  my $yc = int (($y1+$y2)/2);  # side centre
+  my $xoffset = int(.25 * ($x2-$x1+1));
+  ### $xoffset
+
+  $image->line ($x1,$yc, $x1+$xoffset,$y1, $colour);
+  $image->line ($x1,$yc, $x1+$xoffset,$y2, $colour);
+
+  $image->line ($x1+$xoffset,$y1, $x2-$xoffset,$y1, $colour);
+  $image->line ($x1+$xoffset,$y2, $x2-$xoffset,$y2, $colour);
+
+  $image->line ($x2-$xoffset,$y1, $x2,$yc, $colour);
+  $image->line ($x2-$xoffset,$y2, $x2,$yc, $colour);
+}
+
 sub draw_Image_steps {
   my ($self) = @_;
   #### draw_Image_steps()
   my $steps = 0;
-  
+
   my $path_object = $self->path_object;
   my $step_figures = $self->{'step_figures'};
   if ($pathname_square_grid{$self->{'path'}}) {
@@ -1381,7 +1453,7 @@ sub draw_Image_steps {
     }
     return 1; # continue
   };
-  
+
   my $image  = $self->{'image'};
   my $width  = $self->{'width'};
   my $height = $self->{'height'};
@@ -1389,18 +1461,21 @@ sub draw_Image_steps {
   my $background = $self->{'background'};
   my $scale = $self->{'scale'};
   ### $scale
-  
+
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my $values_obj = $self->{'values_obj'};
   my $filter_obj = $self->{'filter_obj'};
-  
+
   my $figure = $self->figure;
   my $pscale = $scale;
   if ($self->{'values'} =~ /^Lines/) {
     $pscale = int ($pscale * .4);
   } elsif ($path_object->figure eq 'circle' && ! $figure_is_circular{$figure}) {
     $pscale = max (1, floor ($self->{'scale'} * (1/sqrt(2))));
+  } elsif (($figure eq 'hexagon' || $figure eq 'triangle')
+           && $path_object->MathImage__lattice_type eq 'triangular') {
+    $pscale = max (1, floor ($self->{'scale'} * sqrt(3)));
   }
   if ($pscale == 1) {
     $figure = 'point';
@@ -1409,7 +1484,7 @@ sub draw_Image_steps {
   my $figure_method = $figure_method{$figure} || $figure;
   my $figure_fill = $figure_fill{$figure};
   ### $figure
-  
+
   my %points_by_colour;
   my %rectangles_by_colour;
   my $flush = sub {
@@ -1427,11 +1502,11 @@ sub draw_Image_steps {
           ($image, $colour, 1, @$aref);
     }
   };
-  
+
   my $count_total = $self->{'count_total'};
   my $count_outside = $self->{'count_outside'};
   my $n_hi = $self->{'n_hi'};
-  
+
   if ($self->{'values'} eq 'Lines') {
     my $n_offset_from = ($self->{'use_xy'} ? -1 : 0);
     my $n_offset_to = 1;
@@ -1441,7 +1516,7 @@ sub draw_Image_steps {
     }
     ### $n_offset_from
     ### $n_offset_to
-    
+
     my ($x,$y, $n);
     my $frag = sub {
       #### lines frag: "$n  $x,$y"
@@ -1457,7 +1532,7 @@ sub draw_Image_steps {
       }
       $x = floor ($x + 0.5);
       $y = floor ($y + 0.5);
-      
+
       foreach my $n_offset (($n_offset_from ? $n_offset_from : ()),
                             $n_offset_to) {
         my ($x2, $y2) = $path_object->n_to_xy($n+$n_offset)
@@ -1466,7 +1541,7 @@ sub draw_Image_steps {
         ### n offset: ($n+$n_offset)."   $x2, $y2"
         $x2 = floor ($x2 + 0.5);
         $y2 = floor ($y2 + 0.5);
-        
+
         my $drawn = _image_line_clipped ($image, $x,$y, $x2,$y2,
                                          $width,$height,
                                          $foreground);
@@ -1475,7 +1550,7 @@ sub draw_Image_steps {
         $count_figures += $drawn;
       }
     };
-    
+
     if ($self->{'use_xy'}) {
       ### Lines use_xy...
       $x = $self->{'x'};
@@ -1483,11 +1558,11 @@ sub draw_Image_steps {
       my $x_hi = $self->{'x_hi'};
       my $n_start = $path_object->n_start;
       #### draw by xy from: "$x,$y"
-      
+
       for (;;) {
         ### use_xy: "$x,$y"
         &$cont() or last;
-        
+
         if (++$x > $x_hi) {
           if (++$y > $self->{'y_hi'}) {
             last;
@@ -1495,7 +1570,7 @@ sub draw_Image_steps {
           $x = $self->{'x_lo'};
           #### next row: "$x,$y"
         }
-        
+
         if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
           next; # no N for this x,y
         }
@@ -1503,14 +1578,14 @@ sub draw_Image_steps {
       }
       $self->{'x'} = $x;
       $self->{'y'} = $y;
-      
+
     } else {
       ### Lines by N...
       $n = $self->{'upto_n'};
-      
+
       for ( ; $n < $n_hi; $n++) {
         &$cont() or last;
-        
+
         ($x, $y) = $path_object->n_to_xy($n)
           or next;
         &$frag();
@@ -1522,11 +1597,11 @@ sub draw_Image_steps {
     }
     return $more;
   }
-  
+
   if ($self->{'values'} eq 'LinesTree') {
     # math-image --path=PythagoreanTree --values=LinesTree --scale=100
     my $branches = $self->{'values_parameters'}->{'branches'};
-    
+
     if ($self->{'use_xy'}) {
       ### LinesTree use_xy...
       my $x    = $self->{'x'};
@@ -1534,11 +1609,11 @@ sub draw_Image_steps {
       my $y    = $self->{'y'};
       my $n_start = $path_object->n_start;
       #### draw by xy from: "$x,$y"
-      
+
       for (;;) {
         ### use_xy: "$x,$y"
         &$cont() or last;
-        
+
         if (++$x > $x_hi) {
           if (++$y > $self->{'y_hi'}) {
             last;
@@ -1546,7 +1621,7 @@ sub draw_Image_steps {
           $x = $self->{'x_lo'};
           #### next row: "$x,$y"
         }
-        
+
         my $n;
         if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
           next; # no N for this x,y
@@ -1555,7 +1630,7 @@ sub draw_Image_steps {
         my ($wx, $wy) = $affine->transform ($x, $y);
         $wx = floor ($wx + 0.5);
         $wy = floor ($wy + 0.5);
-        
+
         if ($pscale > 1) {
           my $x2 = $wx - int($pscale/2);
           my $y2 = $wy - int($pscale/2);
@@ -1565,7 +1640,7 @@ sub draw_Image_steps {
             $count_figures++;
           }
         }
-        
+
         foreach my $n_dest (_n_to_tree_children($n, $branches, $n_start)) {
           my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
             or next;

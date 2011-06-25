@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::ReverseAddCount;
+package App::MathImage::NumSeq::Sequence::ReverseAddSteps;
 use 5.004;
 use strict;
 use POSIX 'ceil';
@@ -26,17 +26,25 @@ use base 'App::MathImage::NumSeq::Sequence';
 use App::MathImage::NumSeq::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-use constant name => __('Reverse Add Count');
-use constant description => __('...');
+use constant name => __('Reverse Add Steps');
+use constant description => __('How many steps of reverse and add until a palindrome, also called the 196-algorithm.');
 use constant characteristic_count => 1;
 use constant values_min => 0;
+use constant i_start => 0;
 use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
-use constant oeis_anum => 'A030547';
+
+my @oeis;
+$oeis[10] = 'A030547';
+sub oeis_anum {
+  my ($self) = @_;
+  return $oeis[$self->{'radix'}];
+}
+# OeisCatalogue: A030547 radix=10
 
 sub rewind {
   my ($self) = @_;
@@ -46,7 +54,7 @@ sub rewind {
 }
 sub next {
   my ($self) = @_;
-  ### ReverseAddCount next(): $self->{'i'}
+  ### ReverseAddSteps next(): $self->{'i'}
   my $i = $self->{'i'}++;
   return ($i, $self->ith($i));
 }
@@ -56,43 +64,50 @@ sub pred {
 }
 sub ith {
   my ($self, $k) = @_;
+  ### ReverseAddSteps ith(): $k
   my $radix = $self->{'radix'};
 
-  $k = Math::BigInt->new($k);
+  # $k = Math::BigInt->new($k);
   my $count = 1;
- OUTER: for ( ; $count < 20; $count++) {
+ OUTER: for ( ; $count < 30; $count++) {
     my @digits;
-    my $d = $k;
+    ### $count
+    ### k: "$k"
 
     if (ref $k) {
+      my $d = $k->copy;
       while ($d) {
         push @digits, $d % $radix;
         $d->bdiv($radix);
       }
-      ### digits: join(', ',@digits)
+      ### big digits: join(',',@digits)
 
       for my $i (0 .. int(@digits/2)-1) {
         if ($digits[$i] != $digits[-1-$i]) {
+          ### not a palindrome ...
 
           foreach my $i (0 .. $#digits) {
             $d->bmul($radix);
             $d->badd($digits[$i]);
           }
-          $k += $d;
+          ### k: "$k"
           ### d: "$d"
-          ### add: "$k"
+          $k += $d;
+          ### sum now: "$k"
           next OUTER;
         }
       }
     } else {
+      my $d = $k;
       while ($d) {
         push @digits, $d % $radix;
         $d = int($d/$radix);
       }
-      ### digits: join(', ',@digits)
+      ### small digits: join(',',@digits)
 
       for my $i (0 .. int(@digits/2)-1) {
         if ($digits[$i] != $digits[-1-$i]) {
+          ### not a palindrome ...
 
           if (@digits >= 10) {
             $d = Math::BigInt->bzero;
@@ -101,9 +116,10 @@ sub ith {
             $d *= $radix;
             $d += $digits[$i];
           }
-          $k += $d;
+          ### k: "$k"
           ### d: "$d"
-          ### add: "$k"
+          $k += $d;
+          ### sum now: "$k"
           next OUTER;
         }
       }

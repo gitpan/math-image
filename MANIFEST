@@ -15,8 +15,16 @@ devel/bits.pl
 devel/caca.pl
 devel/Caca.pm
 devel/camel.pl
-devel/compound.el
-devel/compound.pl
+devel/encode-all.el
+devel/encode-all.pl
+devel/encode-dump.c
+devel/encode-run.el
+devel/encode-run.pl
+devel/Encode-X11-emacs.el
+devel/Encode-X11-emacs.t
+devel/Encode-X11-xlib.c
+devel/Encode-X11-xlib.t
+devel/Encode-X11-xlib2.c
 devel/Encode-X11.t
 devel/euler.pl
 devel/expression.pl
@@ -57,7 +65,6 @@ devel/run-about.pl
 devel/run-pod.pl
 devel/run-savedialog.pl
 devel/run-savetype.pl
-devel/svg.pl
 devel/tool-combotext.pl
 devel/triangular.pl
 devel/unused.pl
@@ -80,11 +87,9 @@ lib/App/MathImage/Gtk2/Drawing/Values.pm
 lib/App/MathImage/Gtk2/Ex/AdjustmentBits.pm
 lib/App/MathImage/Gtk2/Ex/ArrowButton.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
-lib/App/MathImage/Gtk2/Ex/LayoutBits.pm
 lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 lib/App/MathImage/Gtk2/Ex/PixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
-lib/App/MathImage/Gtk2/Ex/ToolItem/CheckButton.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuItem.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText/MenuView.pm
@@ -106,7 +111,6 @@ lib/App/MathImage/Gtk2/X11.pm
 lib/App/MathImage/Image/Base/LifeBitmap.pm
 lib/App/MathImage/Image/Base/LifeRLE.pm
 lib/App/MathImage/Image/Base/Other.pm
-lib/App/MathImage/Image/Base/SVG.pm
 lib/App/MathImage/Image/Base/SVGout.pm
 lib/App/MathImage/Image/Base/X/Drawable.pm
 lib/App/MathImage/Image/Base/X/Pixmap.pm
@@ -190,7 +194,7 @@ lib/App/MathImage/NumSeq/Sequence/PythagoreanHypots.pm
 lib/App/MathImage/NumSeq/Sequence/RadixWithoutDigit.pm
 lib/App/MathImage/NumSeq/Sequence/RepdigitAnyBase.pm
 lib/App/MathImage/NumSeq/Sequence/Repdigits.pm
-lib/App/MathImage/NumSeq/Sequence/ReverseAddCount.pm
+lib/App/MathImage/NumSeq/Sequence/ReverseAddSteps.pm
 lib/App/MathImage/NumSeq/Sequence/SafePrimes.pm
 lib/App/MathImage/NumSeq/Sequence/SemiPrimes.pm
 lib/App/MathImage/NumSeq/Sequence/SophieGermainPrimes.pm
@@ -252,8 +256,6 @@ t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
 t/Test/Weaken/ExtraBits.pm
-t/ToolItem-CheckButton-weaken.t
-t/ToolItem-CheckButton.t
 t/TotientSum.t
 t/UndulatingNumbers.t
 t/Values.t
@@ -261,6 +263,7 @@ t/ValuesFile.t
 t/X11-Protocol-Splash.t
 xt/0-desktop-file-validate.t
 xt/0-exe-shebang.t
+xt/0-file-is-part-of.t
 xt/0-META-read.t
 xt/0-no-debug-left-on.t
 xt/0-Test-ConsistentVersion.t
