@@ -32,7 +32,7 @@ use App::MathImage::NumSeq::Base '__';
 use base 'App::MathImage::NumSeq::Sequence';
 
 use vars '$VERSION';
-$VERSION = 61;
+$VERSION = 62;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

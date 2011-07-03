@@ -81,6 +81,7 @@ my %maximum_planepath
      'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
+     'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30

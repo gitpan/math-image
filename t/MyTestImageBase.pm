@@ -152,7 +152,8 @@ sub is_vline {
   return 0 if $y2 < 0 || $y1 >= $height;
 
   my $bad = 0;
-  foreach my $y (max(0,$y1) .. min($y2,$height-1)) {
+  my $y;
+  foreach $y (max(0,$y1) .. min($y2,$height-1)) {
     my $got = mung_colour($image->xy($x,$y));
     is ($got, $colour,
         "vline x=$x,y=$y want $colour  on $name");
@@ -181,7 +182,8 @@ sub is_rect {
 sub is_filled_rect {
   my ($image, $x1,$y1, $x2,$y2, $colour, $name) = @_;
   my $bad = 0;
-  foreach my $y ($y1 .. $y2) {
+  my $y;
+  foreach $y ($y1 .. $y2) {
     $bad += is_hline ($image, $x1,$x2, $y, $colour, $name);
   }
   return $bad;
@@ -192,7 +194,8 @@ sub some_hline {
   my ($image, $x1,$x2, $y, $colour, $name) = @_;
   my $bad = 1;
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  foreach my $x ($x1 .. $x2) {
+  my $x;
+  foreach $x ($x1 .. $x2) {
     ### some_hline look at: "$x,$y"
     my $got = mung_colour($image->xy($x,$y));
     if ($got eq $colour) {
@@ -209,7 +212,8 @@ sub some_vline {
   my ($image, $x, $y1,$y2, $colour, $name) = @_;
   my $bad = 1;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  foreach my $y ($y1 .. $y2) {
+  my $y;
+  foreach $y ($y1 .. $y2) {
     my $got = mung_colour($image->xy($x,$y));
     if ($got eq $colour) {
       $bad = 0;
@@ -226,7 +230,8 @@ sub all_hline {
   my ($image, $x1,$x2, $y, $colour, $name) = @_;
   my $bad = 0;
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  foreach my $x ($x1 .. $x2) {
+  my $x;
+  foreach $x ($x1 .. $x2) {
     ### all_hline look at: "$x,$y c=".$image->xy($x,$y)
     my $got = mung_colour($image->xy($x,$y));
     if ($got ne $colour) {
@@ -243,7 +248,8 @@ sub all_vline {
   my ($image, $x, $y1,$y2, $colour, $name) = @_;
   my $bad = 0;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  foreach my $y ($y1 .. $y2) {
+  my $y;
+  foreach $y ($y1 .. $y2) {
     ### all_hline look at: "$x,$y"
     my $got = mung_colour($image->xy($x,$y));
     if ($got ne $colour) {
@@ -281,7 +287,8 @@ sub check_line {
   my ($image) = @_;
   my ($width, $height) = $image->get('-width','-height');
 
-  foreach my $elem (@sizes) {
+  my $elem;
+  foreach $elem (@sizes) {
     my ($x1,$y1, $x2,$y2) = @$elem;
 
     my $name = "line $x1,$y1 $x2,$y2";
@@ -306,12 +313,14 @@ sub check_rectangle {
   my ($image) = @_;
   my ($width, $height) = $image->get('-width','-height');
 
-  foreach my $method ('rectangle',
+  my $method;
+  foreach $method ('rectangle',
                       ($image->can('Image_Base_Other_rectangles')
                        ? ('MyTestImageBase::rect_using_Other')
                        : ())) {
 
-    foreach my $elem (@sizes) {
+    my $elem;
+    foreach $elem (@sizes) {
       my ($x1,$y1, $x2,$y2) = @$elem;
 
       {
@@ -360,10 +369,12 @@ sub check_ellipse {
 
   my $basefunc = $options{'base_ellipse_func'} || sub { 0 };
 
-  foreach my $elem (@sizes) {
+  my $elem;
+  foreach $elem (@sizes) {
     my ($x1,$y1, $x2,$y2) = @$elem;
 
-    foreach my $fillaref ([], [1]) {
+    my $fillaref;
+    foreach $fillaref ([], [1]) {
       my $fill = ($fillaref->[0] || 0);
       my $name = "ellipse $x1,$y1, $x2,$y2, fill=$fill";
       # MyTestHelpers::diag($name);

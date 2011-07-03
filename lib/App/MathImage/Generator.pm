@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 61;
+$VERSION = 62;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -236,6 +236,7 @@ my %pathname_square_grid
                      PeanoCurve
                      HilbertCurve
                      ZOrderCurve
+                     GosperIslands
                      KochCurve
                      KochPeaks
                      KochSnowflakes
@@ -390,7 +391,7 @@ my %pathname_square_grid
 { package Math::PlanePath::KochSnowflakes;
   use constant MathImage__discontinuity => 0;
 }
-{ package Math::PlanePath::MathImageGosperIslands;
+{ package Math::PlanePath::GosperIslands;
   use constant MathImage__discontinuity => 0;
 }
      # PixelRings  => 0,
@@ -443,7 +444,7 @@ sub y_negative {
 { package Math::PlanePath::MathImageGosperSide;
   use constant MathImage__lattice_type => 'triangular';
 }
-{ package Math::PlanePath::MathImageGosperIslands;
+{ package Math::PlanePath::GosperIslands;
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::MathImageFlowsnake;
@@ -535,7 +536,9 @@ use constant figure_choices => qw(default
                                   L
                                   triangle
                                   hexagon
-                                  undiamond);
+                                  undiamond
+                                  unellipse
+                                  unellipunf);
 
 #------------------------------------------------------------------------------
 # random
@@ -1351,6 +1354,7 @@ my %figure_is_circular = (circle  => 1,
 my %figure_fill = (square  => 1,
                    circle  => 1,
                    diamond => 1,
+                   unellipse => 1,
                   );
 my %figure_method = (square  => 'rectangle',
                      box     => 'rectangle',
@@ -1361,6 +1365,8 @@ my %figure_method = (square  => 'rectangle',
                      plus    => \&App::MathImage::Image::Base::Other::plus,
                      X       => \&App::MathImage::Image::Base::Other::draw_X,
                      L       => \&App::MathImage::Image::Base::Other::draw_L,
+                     unellipse => \&App::MathImage::Image::Base::Other::unellipse,
+                     unellipunf => \&App::MathImage::Image::Base::Other::unellipse,
                      undiamond => \&undiamond,
                      triangle => \&_triangle,
                      hexagon => \&_hexagon,

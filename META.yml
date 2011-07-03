@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            61
+version:            62
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -141,6 +141,7 @@ optional_features:
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexSpiral:  9
@@ -189,6 +190,7 @@ optional_features:
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexSpiral:  9
@@ -253,6 +255,7 @@ recommends:
     Math::PlanePath::Corner:  1
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiamondSpiral:  1
+    Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GreekKeySpiral:  27
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexSpiral:  9

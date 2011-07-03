@@ -25,9 +25,10 @@ use strict;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 use Math::PlanePath::SacksSpiral;
+use Math::Libm 'hypot';
 
-use vars '$VERSION', '@ISA';
-$VERSION = 61;
+use vars '$VERSION', '@ISA', '@_xend','@_yend';
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -85,11 +86,108 @@ sub n_to_xy {
   return ($x, $y);
 }
 
+@_xend = (2);
+@_yend = (0);
+sub _ends_for_level {
+  my ($level) = @_;
+  ### $#_xend
+  if ($#_xend < $level) {
+    my $x = $_xend[-1];
+    my $y = $_yend[-1];
+    do {
+      ($x,$y) = ((5*$x - 3*$y)/2,   # 2*$x + rotate +60
+                 ($x + 5*$y)/2);    # 2*$y + rotate +60
+      ### _ends_for_level() push: scalar(@_xend)."  $x,$y"
+      # ### assert: "$x,$y" eq join(','__PACKAGE__->n_to_xy(scalar(@xend) ** 3))
+      push @_xend, $x;
+      push @_yend, $y;
+    } while ($#_xend < $level);
+  }
+}
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = floor($x + 0.5);
   $y = floor($y + 0.5);
   ### GosperSide xy_to_n(): "$x, $y"
+
+  if (($x ^ $y) & 1) {
+    return undef;
+  }
+
+  my $r = hypot($x,$y);
+  my $level = ceil(log($r+1)/log(sqrt(7)));
+  if (_is_infinite($level)) {
+    return $level;
+  }
+  return _xy_to_n_in_level($x,$y,$level);
+}
+
+
+sub _xy_to_n_in_level {
+  my ($x, $y, $level) = @_;
+
+  _ends_for_level($level);
+  my @pending_n = (0);
+  my @pending_x = ($x);
+  my @pending_y = ($y);
+  my @pending_level = ($level);
+
+  while (@pending_n) {
+    my $n = pop @pending_n;
+    $x = pop @pending_x;
+    $y = pop @pending_y;
+    $level = pop @pending_level;
+    ### consider: "$x,$y  n=$n level=$level"
+
+    if ($level == 0) {
+      if ($x == 0 && $y == 0) {
+        return $n;
+      }
+      next;
+    }
+    my $xend = $_xend[$level-1];
+    my $yend = $_yend[$level-1];
+    if (hypot($x,$y) * (.9/sqrt(7)) > hypot($xend,$yend)) {
+      ### radius out of range: hypot($x,$y)." cf end ".hypot($xend,$yend)
+      next;
+    }
+
+    $level--;
+    $n *= 3;
+
+    ### descend: "end=$xend,$yend"
+
+    # digit 0
+    push @pending_n, $n;
+    push @pending_x, $x;
+    push @pending_y, $y;
+    push @pending_level, $level;
+    ### push: "$x,$y  digit=0"
+
+    # digit 1
+    $x -= $xend;
+    $y -= $yend;
+    ($x,$y) = (($x+3*$y)/2,   # rotate -60
+               ($y-$x)/2);
+    push @pending_n, $n + 1;
+    push @pending_x, $x;
+    push @pending_y, $y;
+    push @pending_level, $level;
+    ### push: "$x,$y  digit=1"
+
+    # digit 2
+    $x -= $xend;
+    $y -= $yend;
+    ($x,$y) = (($x-3*$y)/2,   # rotate +60
+               ($x+$y)/2);
+    push @pending_n, $n + 2;
+    push @pending_x, $x;
+    push @pending_y, $y;
+    push @pending_level, $level;
+    ### push: "$x,$y  digit=2"
+  }
+
   return undef;
 }
 
@@ -117,7 +215,7 @@ sub rect_to_n_range {
   $y2 *= sqrt(3);
   my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range
     ($x1,$y1, $x2,$y2);
-  my $level = ceil (log($r_hi) - .69304) * 1.027749;
+  my $level = ceil (log($r_hi+.1) - .69304) * 1.027749;
   return (0, 3 ** $level - 1);
 }
 
@@ -140,6 +238,50 @@ Math::PlanePath::MathImageGosperSide -- one side of the gosper island
 
 I<In progress.>
 
+This path is a single side of the GosperIsland, extended out in integers.
+
+                                       20-...
+                                      /
+                              18----19
+                             /
+                           17
+                             \
+                              16
+                             /
+                           15
+                             \
+                              14----13
+                                      \
+                                       12
+                                      /
+                                    11
+                                      \
+                                       10
+                                      /
+                               8---- 9
+                             /
+                      6---- 7
+                    /
+                   5
+                    \
+                      4
+                    /
+             2---- 3
+           /
+    0---- 1
+
+It slowly spirals around counter clockwise, with a lot of wiggling in
+between, with the N=3^level point at
+
+   angle = level * atan(sqrt(3)/5)
+         = level * 19.106 degrees
+   radius = sqrt(7) ^ level
+
+A full revolution for example takes roughly level=19 which is about
+N=116,000,000.
+
+Both ends of such levels are in fact sub-spirals, like an "S" shape.
+
 =head1 FUNCTIONS
 
 =over 4
@@ -152,6 +294,9 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+Fractional C<$n> gives a point on the straight line between surrounding
+integer N.
 
 =back
 

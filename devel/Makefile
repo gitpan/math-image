@@ -16,21 +16,6 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-all: encode-emacs22.ctext encode-emacs22-ext.ctext \
-	encode-emacs23.ctext encode-emacs23-ext.ctext \
-	encode-xemacs21.ctext
-# encode-emacs21.ctext encode-emacs21-ext.ctext \
-
-encode-emacs21.ctext encode-emacs21-ext.ctext: encode-all.el
-	emacs21 -q -batch -l encode-all.el -f my-ctext 
-encode-emacs22.ctext encode-emacs22-ext.ctext: encode-all.el
-	emacs22 -q -batch -l encode-all.el -f my-ctext 
-encode-emacs23.ctext encode-emacs23-ext.ctext: encode-all.el
-	emacs23 -q -batch -l encode-all.el -f my-ctext 
-encode-xemacs21.ctext: encode-all.el
-	xemacs21 -q -batch -l encode-all.el -f my-ctext 
-
-
 CFLAGS = -Wall -g
 LOADLIBES = -lmpfr -lgmp
 
@@ -39,13 +24,3 @@ misc: misc.c Makefile
 
 gen-bits: gen-bits.c Makefile
 	$(CC) $(CFLAGS) gen-bits.c $(LOADLIBES) -o gen-bits
-
-
-encode-dump: encode-dump.c Makefile
-	$(CC) $(CFLAGS) encode-dump.c -lX11 -o encode-dump
-
-Encode-X11-xlib: Encode-X11-xlib.c Makefile
-	$(CC) $(CFLAGS) Encode-X11-xlib.c -lX11 -o Encode-X11-xlib
-Encode-X11-xlib2: Encode-X11-xlib2.c Makefile
-	$(CC) $(CFLAGS) Encode-X11-xlib2.c -lX11 -o Encode-X11-xlib2
-

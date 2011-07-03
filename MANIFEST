@@ -15,22 +15,10 @@ devel/bits.pl
 devel/caca.pl
 devel/Caca.pm
 devel/camel.pl
-devel/encode-all.el
-devel/encode-all.pl
-devel/encode-dump.c
-devel/encode-run.el
-devel/encode-run.pl
-devel/Encode-X11-emacs.el
-devel/Encode-X11-emacs.t
-devel/Encode-X11-xlib.c
-devel/Encode-X11-xlib.t
-devel/Encode-X11-xlib2.c
-devel/Encode-X11.t
 devel/euler.pl
 devel/expression.pl
 devel/gen-bits.c
 devel/heatmap.pl
-devel/image-svgout.pl
 devel/image-xpm.pl
 devel/inverse.pl
 devel/language-expr.pl
@@ -70,7 +58,6 @@ devel/triangular.pl
 devel/unused.pl
 devel/unused/Coord.pm
 devel/unused/SemiPrimesOdd.pm
-devel/x11-frame-to-client.pl
 devel/x11-protocol.pl
 devel/x11-splash.pl
 inc/my_pod2html
@@ -79,7 +66,6 @@ inc/MyModuleUtils_without.pm
 lib/App/MathImage.pm
 lib/App/MathImage/Curses/Drawing.pm
 lib/App/MathImage/Curses/Main.pm
-lib/App/MathImage/Encode/X11.pm
 lib/App/MathImage/Generator.pm
 lib/App/MathImage/Gtk2/AboutDialog.pm
 lib/App/MathImage/Gtk2/Drawing.pm
@@ -111,7 +97,6 @@ lib/App/MathImage/Gtk2/X11.pm
 lib/App/MathImage/Image/Base/LifeBitmap.pm
 lib/App/MathImage/Image/Base/LifeRLE.pm
 lib/App/MathImage/Image/Base/Other.pm
-lib/App/MathImage/Image/Base/SVGout.pm
 lib/App/MathImage/Image/Base/X/Drawable.pm
 lib/App/MathImage/Image/Base/X/Pixmap.pm
 lib/App/MathImage/Iterator/Aronson.pm
@@ -223,7 +208,6 @@ lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
 lib/Math/PlanePath/MathImageFlowsnake.pm
-lib/Math/PlanePath/MathImageGosperIslands.pm
 lib/Math/PlanePath/MathImageGosperSide.pm
 lib/Math/PlanePath/MathImagePlusSimilar.pm
 lib/Math/PlanePath/MathImageSierpinskiArrowheadSkewed.pm
@@ -270,6 +254,6 @@ xt/0-Test-ConsistentVersion.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t
+xt/1-Values-oeis.t
 xt/MyOEIS.pm
-xt/Values-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)
