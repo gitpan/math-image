@@ -26,7 +26,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use App::MathImage::NumSeq::OeisCatalogue;
+use App::MathImage::Values::OeisCatalogue;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
@@ -86,26 +86,39 @@ sub _min {
 # OeisCatalogue generated vs files
 
 my $good = 1;
-for (my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
+for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770';
      defined $anum;
-     $anum = App::MathImage::NumSeq::OeisCatalogue->anum_after($anum)) {
+     $anum = App::MathImage::Values::OeisCatalogue->anum_after($anum)) {
   ### $anum
 
-  my $info = App::MathImage::NumSeq::OeisCatalogue->anum_to_info($anum);
+  my $info = App::MathImage::Values::OeisCatalogue->anum_to_info($anum);
   if (! $info) {
     $good = 0;
     diag "bad: $anum";
     diag "info is undef";
     next;
   }
-  if ($info->{'class'} eq 'App::MathImage::NumSeq::Sequence::OEIS::File') {
+  if ($info->{'class'} eq 'App::MathImage::Values::Sequence::OEIS::File') {
     next;
   }
   ### $info
-  diag "$anum $info->{'class'}";
+
+  my $shortclass = $info->{'class'};
+  $shortclass =~ s/App::MathImage::Values::Sequence:://;
+
+  my $parameters_hashref= $info->{'parameters_hashref'};
+  my $name = join(',',
+                  $info->{'class'},
+                  map {
+                    my $value = $parameters_hashref->{$_};
+                    if (! defined $value) { $value = '[undef]'; }
+                    "$_=$value"
+                  } keys %$parameters_hashref);
+  diag "$anum $name";
 
   my ($want, $want_i_start, $filename) = MyOEIS::read_values($anum)
     or do {
+      diag "skip $anum $name, no file data";
       next;
     };
   ### read_values len: scalar(@$want)
@@ -117,11 +130,20 @@ for (my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
   } elsif ($anum eq 'A003434') {
     #  TotientSteps slow, only first 250 values for now ...
     splice @$want, 250;
+  } elsif ($anum eq 'A007770') {
+    #  Happy bit slow, only first few values for now, not B-file 140,000 ...
+    splice @$want, 20000;
   } elsif ($anum eq 'A030547') {
     # sample values start from i=1 but OFFSET=0
     if ($want->[9] == 2) {
       unshift @$want, 1;
     }
+  } elsif ($anum eq 'A004542') {  # sqrt(2) in base 5
+    diag "skip doubtful $anum $name";
+    next;
+  } elsif ($anum eq 'A022000') {  # FIXME: not 1/996 ???
+    diag "skip doubtful $anum $name";
+    next;
   }
 
   my $hi = $want->[-1];
@@ -131,15 +153,11 @@ for (my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
   ### $hi
 
   my $values_obj = eval {
-    App::MathImage::NumSeq::Sequence::OEIS->new
+    App::MathImage::Values::Sequence::OEIS->new
         (anum => $anum,
          hi   => $hi)
       } || next;
   ### values_obj: ref $values_obj
-
-  my $name = ref $values_obj;
-  $name =~ s/App::MathImage::NumSeq::Sequence:://;
-  $name = "$anum $name";
 
   {
     my $got_anum = $values_obj->oeis_anum;
@@ -204,6 +222,10 @@ for (my $anum = App::MathImage::NumSeq::OeisCatalogue->anum_first;
       next;
     }
 
+    $hi = 0;
+    foreach my $want (@$want) {
+      if ($want > $hi) { $hi = $want }
+    }
     if ($hi > 1000) {
       $hi = 1000;
       $want = [ grep {$_<=$hi} @$want ];

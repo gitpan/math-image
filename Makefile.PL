@@ -80,7 +80,7 @@ my %maximum_planepath
 
      'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
-     'Math::PlanePath::ZOrderCurve'          => 13, # new in v.13
+     'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
@@ -275,7 +275,7 @@ sub postamble {
 
 #------------------------------------------------------------------------------
 
-oeis lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm: math-numseq-make-oeis-catalogue.pl lib/App/MathImage/NumSeq/Sequence/*.pm
+oeis lib/App/MathImage/Values/OeisCatalogue/Plugin/BuiltinTable.pm: math-numseq-make-oeis-catalogue.pl lib/App/MathImage/Values/Sequence/*.pm
 	$(PERL) math-numseq-make-oeis-catalogue.pl || (rm -f $@; false)
 HERE
 }

@@ -26,20 +26,20 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require App::MathImage::NumSeq::Sequence::File;
+require App::MathImage::Values::Sequence::File;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 62;
-  is ($App::MathImage::NumSeq::Sequence::File::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Sequence::File->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 63;
+  is ($App::MathImage::Values::Sequence::File::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Values::Sequence::File->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Sequence::File->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Values::Sequence::File->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Sequence::File->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Values::Sequence::File->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -51,7 +51,7 @@ require App::MathImage::NumSeq::Sequence::File;
   require File::Spec;
   my $filename = File::Spec->catfile('t','File-1.txt');
   my @want = ([1,123], [2,456], [4,789]);
-  my $values_obj = App::MathImage::NumSeq::Sequence::File->new
+  my $values_obj = App::MathImage::Values::Sequence::File->new
     (filename => $filename);
   my @got;
   while (my ($i, $value) = $values_obj->next) {

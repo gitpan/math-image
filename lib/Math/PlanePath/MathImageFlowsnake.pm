@@ -16,7 +16,7 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=Flowsnake --lines --scale=10
+# math-image --path=MathImageFlowsnake --lines --scale=10
 
 # http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
 # http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
@@ -33,7 +33,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -394,7 +394,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageFlowsnake -- self-similar path traversal
+Math::PlanePath::MathImageFlowsnake -- path through self-similar hexagons
 
 =head1 SYNOPSIS
 

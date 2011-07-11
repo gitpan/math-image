@@ -27,9 +27,9 @@ use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-our $VERSION = 62;
+our $VERSION = 63;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -57,7 +57,7 @@ sub GET_PROPERTY {
   my $pname = $pspec->get_name;
   if ($pname eq 'parameter_value') {
     my $child;
-    return (($child = $self->get_child)
+    return (($child = $self->get('child-widget'))
             && $child->get('text'));
 
   } else {
@@ -71,7 +71,7 @@ sub SET_PROPERTY {
 
   if ($pname eq 'parameter_value') {
     $self->{'parameter_value_set'} = $newval;
-    if (my $child = $self->get_child) {
+    if (my $child = $self->get('child-widget')) {
       if (! defined $newval) { $newval = ''; }
       $child->set (text => $newval);
     }
@@ -80,7 +80,7 @@ sub SET_PROPERTY {
     my $oldval = $self->{$pname};
     $self->{$pname} = $newval;
 
-    my $entry = $self->get_child;
+    my $entry = $self->get('child-widget');
     unless ($entry) {
       my $entry_class = 'Gtk2::Entry';
       if (($newval->{'type_hint'}||'') eq 'oeis_anum') {
@@ -114,6 +114,7 @@ sub _do_entry_activate {
   my ($entry, $ref_weak_self) = @_;
   ### Params-String _do_entry_activate()...
   my $self = $$ref_weak_self || return;
+  ### parameter-value now: $self->get('parameter-value')
   $self->notify ('parameter-value');
 }
 

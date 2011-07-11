@@ -25,8 +25,8 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::Base::File;
-use App::MathImage::NumSeq::Base::FileWriter;
+use App::MathImage::Values::Base::File;
+use App::MathImage::Values::Base::FileWriter;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,23 +35,23 @@ use App::MathImage::NumSeq::Base::FileWriter;
 # VERSION
 
 {
-  my $want_version = 62;
-  is ($App::MathImage::NumSeq::Base::File::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Base::File->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 63;
+  is ($App::MathImage::Values::Base::File::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Values::Base::File->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Base::File->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Values::Base::File->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Base::File->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Values::Base::File->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
 
-  is ($App::MathImage::NumSeq::Base::FileWriter::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Base::FileWriter->VERSION,  $want_version, 'VERSION class method');
+  is ($App::MathImage::Values::Base::FileWriter::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Values::Base::FileWriter->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Base::FileWriter->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Values::Base::FileWriter->VERSION($want_version); 1 },
       "VERSION class check $want_version");
-  ok (! eval { App::MathImage::NumSeq::Base::FileWriter->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Values::Base::FileWriter->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -61,10 +61,10 @@ use App::MathImage::NumSeq::Base::FileWriter;
   my @values = (1, 2, 5, 19, 1234, 9999);
   my $hi = 10000;
   {
-    diag "NumSeq FileWriter create";
-    my $vfw = App::MathImage::NumSeq::Base::FileWriter->new
+    diag "Values FileWriter create";
+    my $vfw = App::MathImage::Values::Base::FileWriter->new
       (hi => $hi,
-       package => 'NumSeq File-test');
+       package => 'Values File-test');
     foreach my $n (@values) {
       $vfw->write_n ($n);
     }
@@ -72,17 +72,17 @@ use App::MathImage::NumSeq::Base::FileWriter;
   }
 
   {
-    diag "NumSeq File past hi";
-    my $vf = App::MathImage::NumSeq::Base::File->new
+    diag "Values File past hi";
+    my $vf = App::MathImage::Values::Base::File->new
       (hi => $hi+1,
-       package => 'NumSeq File-test');
+       package => 'Values File-test');
     is ($vf, undef);
   }
   {
-    diag "NumSeq File read";
-    my $vf = App::MathImage::NumSeq::Base::File->new
+    diag "Values File read";
+    my $vf = App::MathImage::Values::Base::File->new
       (hi => $hi,
-       package => 'NumSeq File-test');
+       package => 'Values File-test');
     is ($vf->{'hi'}, $hi);
 
     my @got;
@@ -93,7 +93,7 @@ use App::MathImage::NumSeq::Base::FileWriter;
       push @got, $got_value;
     }
     diag "got @got";
-    is_deeply (\@got, \@values, 'NumSeq File next()');
+    is_deeply (\@got, \@values, 'Values File next()');
   }
 }
 

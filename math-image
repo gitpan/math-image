@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 exit App::MathImage->command_line;
 
 __END__
@@ -179,7 +179,7 @@ properly.
 
 =item --values=MODULE,NAME=VALUE,NAME=VALUE,...
 
-Draw values from the given C<App::MathImage::NumSeq::Sequence> module.  For
+Draw values from the given C<App::MathImage::Values::Sequence> module.  For
 example
 
     math-image --values=Emirps

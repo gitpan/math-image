@@ -16,7 +16,8 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# rootwin for ewmh virtual root?
+# rootwin for ewmh virtual root ?
+# listen for randr root size ?
 
 package App::MathImage::X11::Protocol::Splash;
 use 5.004;
@@ -27,7 +28,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

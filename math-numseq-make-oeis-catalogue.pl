@@ -24,21 +24,21 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-my $outfilename = 'lib/App/MathImage/NumSeq/OeisCatalogue/Plugin/BuiltinTable.pm';
+my $outfilename = 'lib/App/MathImage/Values/OeisCatalogue/Plugin/BuiltinTable.pm';
 
 my %seen;
 my $exit_code = 0;
 
 my @info_arrayref;
-my @classes = Module::Util::find_in_namespace('App::MathImage::NumSeq::Sequence');
+my @classes = Module::Util::find_in_namespace('App::MathImage::Values::Sequence');
 @classes = sort @classes;
 foreach my $class (@classes) {
-  # next if $class =~ /^App::MathImage::NumSeq::Sequence::.*::/; # not sub-parts
+  # next if $class =~ /^App::MathImage::Values::Sequence::.*::/; # not sub-parts
 
   my $filename = Module::Util::find_installed($class) or die;
   ### $filename
@@ -114,14 +114,14 @@ print $out <<"HERE";
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::OeisCatalogue::Plugin::BuiltinTable;
+package App::MathImage::Values::OeisCatalogue::Plugin::BuiltinTable;
 use strict;
 use warnings;
 
 use vars '\$VERSION', '\@ISA';
 \$VERSION = $VERSION;
-use App::MathImage::NumSeq::OeisCatalogue::Base;
-\@ISA = ('App::MathImage::NumSeq::OeisCatalogue::Base');
+use App::MathImage::Values::OeisCatalogue::Base;
+\@ISA = ('App::MathImage::Values::OeisCatalogue::Base');
 
 use constant info_arrayref =>
 HERE

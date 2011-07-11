@@ -20,10 +20,10 @@ package App::MathImage::Image::Base::Other;
 use strict;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -109,6 +109,16 @@ sub draw_L {
   $image->line ($x1,$y2, $x2,$y2, $colour);  # bottom
 }
 
+# draw a V in the rectangle top-left x1,y1, bottom-right x2,y2,
+sub draw_V {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  my $xc = int(($x1+$x2)/2);
+  $image->line ($x1,$y1, $xc,$y2, $colour);
+  if ($x1 != $x2) {
+    $image->line ($xc,$y2, $x2,$y1, $colour);
+  }
+}
+
 
 
 sub xy_points {
@@ -126,12 +136,12 @@ sub xy_points {
 
 sub rectangles {
   my ($image) = @_;
-    ### Other rectangles()
+  ### Other rectangles()
   if (my $coderef = $image->can('Image_Base_Other_rectangles')) {
     ### goto: $coderef
     goto &$coderef;
   }
-    ### iterate
+  ### iterate
   shift;  # $image
   my $colour = shift;
   my $fill = shift;
@@ -139,94 +149,6 @@ sub rectangles {
   while (@_) {
     $image->rectangle (shift,shift,shift,shift, $colour, $fill);
   }
-}
-
-sub diamond {
-  my ($self, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
-  ### diamond(): "$x1,$y1, $x2,$y2, $colour fill=".($fill||0)
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-
-  my $a = $x2 - $x1;
-  my $b = $y2 - $y1;
-  if ($a < 2 || $b < 2) {
-    $self->rectangle ($x1,$y1, $x2,$y2, $colour, 1);
-    return;
-  }
-  $a = int ($a / 2);
-  $b = int ($b / 2);
-  ### $a
-  ### $b
-  ### x1+a: $x1+$a
-  ### x2-a: $x2-$a
-  ### y1+b: $y1+$b
-  ### y2-b: $y2-$b
-
-  my $x = $a;
-  my $y = 0;
-
-  my $whole = int ($a / $b);
-  $a -= $whole * $b;
-  ### $whole
-  ### $a
-  ### $b
-
-  my $rem = - int(($b+1)/2);
-  if ($fill) {
-    my $quad = sub {
-      ### fill: "x=$x y=$y   x ".($x1+$x).' to '.($x2-$x).' y='.($y1+$y)
-      $self->line ($x1+$x,$y1+$y, $x2-$x,$y1+$y, $colour); # upper
-      $self->line ($x1+$x,$y2-$y, $x2-$x,$y2-$y, $colour); # lower
-    };
-
-    while ($y <= $b) {
-      ### $x
-      ### $y
-      ### $rem
-
-      &$quad ();
-      $x -= $whole;
-      if (($rem += $a) > 0) {
-        $rem -= $b;
-        $x--;
-      }
-      $y++;
-    }
-
-  } else {
-    my $quad = sub {
-      ### points: ($x1+$x).','.($y1+$y)
-      $self->xy ($x1+$x,$y1+$y, $colour); # upper left
-      $self->xy ($x2-$x,$y1+$y, $colour); # upper right
-
-      $self->xy ($x1+$x,$y2-$y, $colour); # lower left
-      $self->xy ($x2-$x,$y2-$y, $colour); # lower right
-    };
-
-    while ($y <= $b) {
-      ### $x
-      ### $y
-      ### $rem
-      for (my $i = $whole; $i > 0; $i--) {
-        &$quad ();
-        $x--;
-      }
-      if (($rem += $a) > 0) {
-        $rem -= $b;
-        &$quad ();
-        $x--;
-      }
-      $y++;
-    }
-  }
-  # if ($fill) {
-  # } else {
-  #   $self->line ($x1,$y1+$h, $x1+$w,$y1, 'a'); # top left
-  #   $self->line ($x2-$w,$y1, $x2,$y1+$h, 'b'); # top right
-  #
-  #   $self->line ($x1,$y2-$h, $x1+$w,$y2, 'x'); # bottom left
-  #   $self->line ($x2-$w,$y2, $x2,$y2-$h, 'y'); # bottom right
-  # }
 }
 
 sub unellipse {

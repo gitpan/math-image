@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 62;
+our $VERSION = 63;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -63,7 +63,8 @@ sub GET_PROPERTY {
   my ($self, $pspec) = @_;
   my $pname = $pspec->get_name;
   if ($pname eq 'parameter_value') {
-    my $expression = $self->get_child->get_text;
+    my $entry = $self->get('child-widget') || return undef;
+    my $expression = $entry->get_text;
     if (eval { require Math::Symbolic;
                require Math::Symbolic::Constant;
              }) {
@@ -97,20 +98,23 @@ sub SET_PROPERTY {
   ### Float SET_PROPERTY: $pname
 
   if ($pname eq 'parameter_value') {
-    if (! defined $newval) { $newval = ''; }
-    return $self->get_child->set_text ($newval);
+    if (my $entry = $self->get('child-widget')) {
+      if (! defined $newval) { $newval = ''; }
+      $entry->set_text ($newval);
+    }
 
   } else {
     my $oldval = $self->{$pname};
     $self->{$pname} = $newval;
 
-    my $entry = $self->get_child;
-    if (! $oldval) {
-      $entry->set_text (defined $newval->{'default_expression'}
-                        ? $newval->{'default_expression'}
-                        : $newval->{'default'});
+    if (my $entry = $self->get('child-widget')) {
+      if (! $oldval) {
+        $entry->set_text (defined $newval->{'default_expression'}
+                          ? $newval->{'default_expression'}
+                          : $newval->{'default'});
+      }
+      $entry->set (width_chars => $newval->{'width'} || 5);
     }
-    $entry->set (width_chars => $newval->{'width'} || 5);
 
     my $display = ($newval->{'display'} || $newval->{'name'});
     $self->set (overflow_mnemonic =>

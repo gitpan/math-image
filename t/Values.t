@@ -76,7 +76,7 @@ sub _min {
 }
 
 #------------------------------------------------------------------------------
-# App::MathImage::NumSeq::Sequence various classes
+# App::MathImage::Values::Sequence various classes
 
 {
   my $gen = App::MathImage::Generator->new;
@@ -96,6 +96,12 @@ sub _min {
      # PiBits.pm
      # Repdigits.pm
      # SqrtDigits.pm
+
+     [ 'ProthNumbers', 0,
+       [ 3, 5, 9, 13, 17, 25, 33, 41, 49, 57, 65, 81, 97, 113, 129, 145,
+         161, 177, 193, 209, 225, 241, 257, 289, 321, 353, 385, 417, 449, 481,
+         513, 545, 577, 609, 641, 673, 705, 737, 769, 801, 833, 865, 897, 929,
+         961, 993, 1025, 1089, 1153, 1217, 1281, 1345, 1409 ] ],
 
      [ 'TotientSum', 0,
        [ 0, 1, 2, 4, 6, 10, 12, 18, 22, 28, 32, 42 ],
@@ -203,12 +209,6 @@ sub _min {
 
      [ 'CullenNumbers', 0,
        [ 1, 3, 9, 25, 65, 161, 385, 897, 2049, 4609, ] ],
-
-     [ 'ProthNumbers', 0,
-       [ 3, 5, 9, 13, 17, 25, 33, 41, 49, 57, 65, 81, 97, 113, 129, 145,
-         161, 177, 193, 209, 225, 241, 257, 289, 321, 353, 385, 417, 449, 481,
-         513, 545, 577, 609, 641, 673, 705, 737, 769, 801, 833, 865, 897, 929,
-         961, 993, 1025, 1089, 1153, 1217, 1281, 1345, 1409 ] ],
 
      [ 'SumXsq3Ysq', 0,
        [ 4,7,12,13,16,19,21,28,31,36,37 ] ],
@@ -873,7 +873,7 @@ sub _min {
       my $hi = $want->[-1];
       # diag "$name $lo to ",$hi;
 
-      my $values_class = "App::MathImage::NumSeq::Sequence::$values";
+      my $values_class = "App::MathImage::Values::Sequence::$values";
       my $values_obj;
     SKIP: {
         require Module::Load;

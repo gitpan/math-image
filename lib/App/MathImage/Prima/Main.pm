@@ -36,7 +36,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 @ISA = ('Prima::MainWindow');
 
 sub new {

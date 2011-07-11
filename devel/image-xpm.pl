@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,8 +27,9 @@ use Smart::Comments;
   require Image::Base::Text;
   require App::MathImage::Image::Base::Other;
 
-  my $image = Image::Base::Text->new (-width => 20, -height => 7);
-  $image->App::MathImage::Image::Base::Other::diamond (0,0, 3,3, '*', 1);
+  my $image = Image::Base::Text->new (-width => 40, -height => 20);
+  # $image->App::MathImage::Image::Base::Other::diamond (0,0, 16,4, '*', 0);
+  $image->line (0,3, 14,0, '*', 0);
   print App::MathImage::Image::Base::Other::save_string($image);
   exit 0;
 }

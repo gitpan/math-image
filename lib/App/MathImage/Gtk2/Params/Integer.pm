@@ -27,9 +27,9 @@ use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-our $VERSION = 62;
+our $VERSION = 63;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -104,7 +104,9 @@ sub SET_PROPERTY {
     ### $value
     $adj->set_value ($value);
 
-    $self->get_child->set (width_chars => ($newval->{'width'} || -1));
+    if (my $spin = $self->get('child-widget')) {
+      $spin->set (width_chars => ($newval->{'width'} || -1));
+    }
 
     my $display = ($newval->{'display'} || $newval->{'name'});
     $self->set (overflow_mnemonic =>

@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -84,9 +84,9 @@ sub new {
 use constant values_choices => do {
   my %choices;
   foreach my $module (Module::Util::find_in_namespace
-                      ('App::MathImage::NumSeq::Sequence')) {
+                      ('App::MathImage::Values::Sequence')) {
     my $choice = $module;
-    $choice =~ s/^App::MathImage::NumSeq::Sequence:://;
+    $choice =~ s/^App::MathImage::Values::Sequence:://;
     next if $choice eq 'OEIS::File';
     $choice =~ s/::/-/g;
     $choices{$choice} = 1;
@@ -184,7 +184,7 @@ sub values_class {
   my ($class_or_self, $values) = @_;
   $values ||= $class_or_self->{'values'};
   $values =~ s/-/::/g;
-  my $values_class = "App::MathImage::NumSeq::Sequence::$values";
+  my $values_class = "App::MathImage::Values::Sequence::$values";
   Module::Load::load ($values_class);
   return $values_class;
 }
@@ -274,8 +274,6 @@ my %pathname_square_grid
   }
   { package Math::PlanePath::SquareSpiral;
     use constant MathImage__parameter_info_array => $wider;
-    my $a = Math::PlanePath::SquareSpiral->MathImage__parameter_info_array;
-    ### $a
   }
   { package Math::PlanePath::HexSpiral;
     use constant MathImage__parameter_info_array => $wider;
@@ -292,8 +290,6 @@ my %pathname_square_grid
        minimum   => 0,
        default   => 6,
      }];
-  my $a = Math::PlanePath::MultipleRings->MathImage__parameter_info_array;
-  ### $a
 }
 { package Math::PlanePath::PyramidRows;
   use constant MathImage__parameter_info_array =>
@@ -350,6 +346,32 @@ my %pathname_square_grid
      },
     ];
 }
+{
+  my $radix;
+  BEGIN {
+    $radix = [{ name      => 'radix',
+                share_key => 'radix_binary',
+                type      => 'integer',
+                minimum   => 2,
+                default   => 2,
+                width     => 3,
+              }];
+  }
+  { package Math::PlanePath::ZOrderCurve;
+    use constant MathImage__parameter_info_array => $radix;
+  }
+}
+{ package Math::PlanePath::PeanoCurve;
+  use constant MathImage__parameter_info_array =>
+    [ { name      => 'radix',
+        share_key => 'radix_ternary',
+        type      => 'integer',
+        minimum   => 2,
+        default   => 3,
+        width     => 3,
+      } ];
+}
+
 
 #------------------------------------------------------------------------------
 # path discontinuity
@@ -403,10 +425,10 @@ my %pathname_square_grid
   sub MathImage__x_negative { $_[0]->x_negative }
   sub MathImage__y_negative { $_[0]->y_negative }
 }
-{ package Math::PlanePath::MathImageFlowsnake;
-  # override flowsnake looping around to negatives takes a very long time
-  use constant MathImage__y_negative => 0;
-}
+# { package Math::PlanePath::MathImageFlowsnake;
+#   # override flowsnake looping around to negatives takes a very long time
+#   use constant MathImage__y_negative => 0;
+# }
 sub x_negative {
   my ($self) = @_;
   return $self->path_object->MathImage__x_negative;
@@ -499,6 +521,7 @@ use constant path_choices => do {
                          PeanoCurve
                          HilbertCurve
                          ZOrderCurve
+                         GosperIslands
                          KochSnowflakes
                          KochPeaks
                          KochCurve
@@ -534,6 +557,7 @@ use constant figure_choices => qw(default
                                   plus
                                   X
                                   L
+                                  V
                                   triangle
                                   hexagon
                                   undiamond
@@ -570,7 +594,7 @@ sub random_options {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
       # $path =~ /MathImageFlowsnake/   reasonably ok
-      if ($path =~ /PythagoreanTree/  # values too big for many numseqs
+      if ($path =~ /PythagoreanTree/  # values too big for many seqs
           || $values eq 'LinesLevel'  # experimental
          ) {
         next;
@@ -970,6 +994,8 @@ sub colours_grey_exp {
     } elsif ($self->values_object->{'step_type'} eq 'both') {
       $shrink = 1 - 1/50;
     }
+  } elsif ($self->{'values'} eq 'HappySteps') {
+    $shrink = 1 - 1/10;
   }
   for (;;) {
     push @$colours, $self->colour_scaled ($f);
@@ -1365,6 +1391,7 @@ my %figure_method = (square  => 'rectangle',
                      plus    => \&App::MathImage::Image::Base::Other::plus,
                      X       => \&App::MathImage::Image::Base::Other::draw_X,
                      L       => \&App::MathImage::Image::Base::Other::draw_L,
+                     V       => \&App::MathImage::Image::Base::Other::draw_V,
                      unellipse => \&App::MathImage::Image::Base::Other::unellipse,
                      unellipunf => \&App::MathImage::Image::Base::Other::unellipse,
                      undiamond => \&undiamond,
@@ -1474,19 +1501,33 @@ sub draw_Image_steps {
   my $filter_obj = $self->{'filter_obj'};
 
   my $figure = $self->figure;
-  my $pscale = $scale;
+  my $xpscale = $scale;
+  my $ypscale = $scale;
   if ($self->{'values'} =~ /^Lines/) {
-    $pscale = int ($pscale * .4);
+    $xpscale = $ypscale = floor ($self->{'scale'} * .4);
   } elsif ($path_object->figure eq 'circle' && ! $figure_is_circular{$figure}) {
-    $pscale = max (1, floor ($self->{'scale'} * (1/sqrt(2))));
-  } elsif (($figure eq 'hexagon' || $figure eq 'triangle')
-           && $path_object->MathImage__lattice_type eq 'triangular') {
-    $pscale = max (1, floor ($self->{'scale'} * sqrt(3)));
+    $xpscale = $ypscale = floor ($self->{'scale'} * (1/sqrt(2)));
+  } elsif ($path_object->MathImage__lattice_type eq 'triangular'
+           && $figure_is_circular{$figure}) {
+    $xpscale = sqrt(2)*$self->{'scale'};
+    $ypscale = sqrt(2)*$self->{'scale'};
+  } elsif ($path_object->MathImage__lattice_type eq 'triangular'
+           && $figure eq 'triangle') {
+    $xpscale = 2*$self->{'scale'};
+    $ypscale = $self->{'scale'};
+  } elsif ($path_object->MathImage__lattice_type eq 'triangular'
+           && $figure eq 'hexagon') {
+    $xpscale = 2*$self->{'scale'};
+    $ypscale = $self->{'scale'};
+    # $xpscale = $ypscale = floor ($self->{'scale'} * sqrt(3));
   }
-  if ($pscale == 1) {
+  $xpscale = max (1, $xpscale);
+  $ypscale = max (1, $ypscale);
+  if ($xpscale == 1 && $ypscale == 1) {
     $figure = 'point';
   }
-  $pscale--;
+  $xpscale--;  # for x,y corner instead of width
+  $ypscale--;
   my $figure_method = $figure_method{$figure} || $figure;
   my $figure_fill = $figure_fill{$figure};
   ### $figure
@@ -1527,10 +1568,10 @@ sub draw_Image_steps {
     my $frag = sub {
       #### lines frag: "$n  $x,$y"
       my ($x, $y) = $affine->transform ($x, $y);
-      if ($pscale > 1) {
-        my $x2 = floor ($x - int($pscale/2) + .5);
-        my $y2 = floor ($y - int($pscale/2) + .5);
-        if (my @coords = ellipse_clipper ($x2,$y2, $x2+$pscale,$y2+$pscale,
+      if ($xpscale > 1) {
+        my $x2 = floor ($x - int($xpscale/2) + .5);
+        my $y2 = floor ($y - int($ypscale/2) + .5);
+        if (my @coords = ellipse_clipper ($x2,$y2, $x2+$xpscale,$y2+$ypscale,
                                           $width,$height)) {
           $image->ellipse (@coords, $foreground, 1);
           $count_figures++;
@@ -1637,10 +1678,10 @@ sub draw_Image_steps {
         $wx = floor ($wx + 0.5);
         $wy = floor ($wy + 0.5);
 
-        if ($pscale > 1) {
-          my $x2 = $wx - int($pscale/2);
-          my $y2 = $wy - int($pscale/2);
-          if (my @coords = ellipse_clipper ($x2,$y2, $x2+$pscale,$y2+$pscale,
+        if ($ypscale > 1) {
+          my $x2 = $wx - int($xpscale/2);
+          my $y2 = $wy - int($ypscale/2);
+          if (my @coords = ellipse_clipper ($x2,$y2, $x2+$xpscale,$y2+$ypscale,
                                             $width,$height)) {
             $image->ellipse (@coords, $foreground, 1);
             $count_figures++;
@@ -1684,10 +1725,10 @@ sub draw_Image_steps {
           $x = floor ($x + 0.5);
           $y = floor ($y + 0.5);
 
-          if ($pscale > 1) {
-            my $x2 = $x - int($pscale/2);
-            my $y2 = $y - int($pscale/2);
-            if (my @coords = ellipse_clipper ($x2,$y2, $x2+$pscale,$y2+$pscale,
+          if ($ypscale > 1) {
+            my $x2 = $x - int($xpscale/2);
+            my $y2 = $y - int($ypscale/2);
+            if (my @coords = ellipse_clipper ($x2,$y2, $x2+$xpscale,$y2+$ypscale,
                                               $width,$height)) {
               $image->ellipse (@coords, $foreground, 1);
               $count_figures++;
@@ -1762,7 +1803,7 @@ sub draw_Image_steps {
   }
 
   my $n_prev = $self->{'n_prev'};
-  my $offset = ($figure eq 'point' ? 0 : int(($pscale+1)/2));
+  my $offset = ($figure eq 'point' ? 0 : int(($xpscale+1)/2));
 
   my $background_fill_proc;
   if (! $covers && $figure eq 'point') {
@@ -1802,7 +1843,7 @@ sub draw_Image_steps {
         $x = floor ($x - $offset + 0.5);
         $y = floor ($y - $offset + 0.5);
         $count_total++;
-        my @rect = rect_clipper ($x, $y, $x+$pscale, $y+$pscale,
+        my @rect = rect_clipper ($x, $y, $x+$xpscale, $y+$ypscale,
                                  $width,$height)
           or do {
             $count_outside++;
@@ -1871,7 +1912,7 @@ sub draw_Image_steps {
               $flush->();
             }
           } elsif ($figure eq 'diamond') {
-            if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
+            if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
                                               $width,$height)) {
               $count_figures++;
               $image->$figure_method (@coords, $colour, $figure_fill);
@@ -1880,7 +1921,7 @@ sub draw_Image_steps {
             $count_figures++;
             push @{$rectangles_by_colour{$background}},
               rect_clipper ($wx, $wy,
-                            $wx+$pscale, $wy+$pscale,
+                            $wx+$xpscale, $wy+$ypscale,
                             $width,$height);
             if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
               $flush->();
@@ -1907,7 +1948,7 @@ sub draw_Image_steps {
           $flush->();
         }
       } elsif ($figure eq 'diamond') {
-        if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
+        if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
                                           $width,$height)) {
           $count_figures++;
           $image->$figure_method (@coords, $colour, $figure_fill);
@@ -1916,7 +1957,7 @@ sub draw_Image_steps {
         $count_figures++;
         push @{$rectangles_by_colour{$colour}},
           rect_clipper ($wx, $wy,
-                        $wx+$pscale, $wy+$pscale,
+                        $wx+$xpscale, $wy+$ypscale,
                         $width,$height);
         if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
           $flush->();
@@ -1994,7 +2035,7 @@ sub draw_Image_steps {
         $background_fill_proc->($n-1);
 
         $count_total++;
-        my @rect = rect_clipper ($x, $y, $x+$pscale, $y+$pscale,
+        my @rect = rect_clipper ($x, $y, $x+$xpscale, $y+$ypscale,
                                  $width,$height)
           or do {
             $count_outside++;
@@ -2007,7 +2048,7 @@ sub draw_Image_steps {
         }
 
       } else {
-        if (my @coords = ellipse_clipper ($x,$y, $x+$pscale,$y+$pscale,
+        if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
                                           $width,$height)) {
           $count_figures++;
           $image->$figure_method (@coords, $colour, $figure_fill);

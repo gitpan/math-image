@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::Sequence::MathSequence;
+package App::MathImage::Values::Sequence::MathSequence;
 use 5.004;
 use strict;
 use Carp;
 use Math::Sequence;
 
-use App::MathImage::NumSeq::Base '__';
-use base 'App::MathImage::NumSeq::Sequence';
+use App::MathImage::Values::Base '__';
+use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -43,7 +43,7 @@ use constant parameter_list =>
 
 sub rewind {
   my ($self) = @_;
-  ### NumSeq-File rewind()
+  ### Values-File rewind()
 
   $self->{'i'} = 0;
   $self->{'mseq'} = Math::Sequence->new ($self->{'expression'},

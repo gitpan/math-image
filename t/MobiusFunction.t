@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::Sequence::MobiusFunction;
+use App::MathImage::Values::Sequence::MobiusFunction;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,14 +34,14 @@ use App::MathImage::NumSeq::Sequence::MobiusFunction;
 # VERSION
 
 {
-  my $want_version = 62;
-  is ($App::MathImage::NumSeq::Sequence::MobiusFunction::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Sequence::MobiusFunction->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 63;
+  is ($App::MathImage::Values::Sequence::MobiusFunction::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Values::Sequence::MobiusFunction->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Sequence::MobiusFunction->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Values::Sequence::MobiusFunction->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Sequence::MobiusFunction->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Values::Sequence::MobiusFunction->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -50,7 +50,7 @@ use App::MathImage::NumSeq::Sequence::MobiusFunction;
 # values
 
 {
-  my $values_obj = App::MathImage::NumSeq::Sequence::MobiusFunction->new (lo => 1,
+  my $values_obj = App::MathImage::Values::Sequence::MobiusFunction->new (lo => 1,
                                                                           hi => 30);
   my $want_arrayref = [ [  1, 1 ],
                         [  2, -1 ],

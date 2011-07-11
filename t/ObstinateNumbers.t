@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::Sequence::Obstinate;
+use App::MathImage::Values::Sequence::Obstinate;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,14 +34,14 @@ use App::MathImage::NumSeq::Sequence::Obstinate;
 # VERSION
 
 {
-  my $want_version = 62;
-  is ($App::MathImage::NumSeq::Sequence::Obstinate::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Sequence::Obstinate->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 63;
+  is ($App::MathImage::Values::Sequence::Obstinate::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::Values::Sequence::Obstinate->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Sequence::Obstinate->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Values::Sequence::Obstinate->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Sequence::Obstinate->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Values::Sequence::Obstinate->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -51,7 +51,7 @@ use App::MathImage::NumSeq::Sequence::Obstinate;
 
 foreach my $rep (1 .. 3) {
   my $hi = 13000;
-  my $values_obj = App::MathImage::NumSeq::Sequence::Obstinate->new
+  my $values_obj = App::MathImage::Values::Sequence::Obstinate->new
     (lo => 1,
      hi => $hi);
   my @next = (0) x ($hi+1);

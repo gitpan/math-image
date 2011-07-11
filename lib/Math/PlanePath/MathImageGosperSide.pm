@@ -28,7 +28,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -215,7 +215,7 @@ sub rect_to_n_range {
   $y2 *= sqrt(3);
   my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range
     ($x1,$y1, $x2,$y2);
-  my $level = ceil (log($r_hi+.1) - .69304) * 1.027749;
+  my $level = ceil ((log($r_hi+.1) - .69304) * 1.027749);
   return (0, 3 ** $level - 1);
 }
 
@@ -271,8 +271,9 @@ This path is a single side of the GosperIsland, extended out in integers.
     0---- 1
 
 It slowly spirals around counter clockwise, with a lot of wiggling in
-between, with the N=3^level point at
+between.  The N=3^level point is at
 
+   N = 3^level
    angle = level * atan(sqrt(3)/5)
          = level * 19.106 degrees
    radius = sqrt(7) ^ level
