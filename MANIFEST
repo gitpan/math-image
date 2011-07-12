@@ -16,6 +16,8 @@ devel/caca.pl
 devel/Caca.pm
 devel/camel.pl
 devel/euler.pl
+devel/exe-misc.c
+devel/exe-perrin.c
 devel/expression.pl
 devel/gen-bits.c
 devel/gen-bits.pl
@@ -28,7 +30,6 @@ devel/MathSequence.pm
 devel/maybe-decprime.pl
 devel/maybe-ln.pl
 devel/menu-forcombo.pl
-devel/misc.c
 devel/misc.pl
 devel/oeis-entry.pl
 devel/oeis.pl
@@ -42,7 +43,6 @@ devel/old/ThueMorse.pm
 devel/old/ThueMorseEvil.pm
 devel/old/ThueMorseOdious.pm
 devel/OrNone.pm
-devel/perrin.c
 devel/perrin.pl
 devel/pixbuf-types.pl
 devel/prima.pl
@@ -212,7 +212,6 @@ lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
 lib/Math/PlanePath/MathImageCrossSide.pm
 lib/Math/PlanePath/MathImageFlowsnake.pm
-lib/Math/PlanePath/MathImageGosperSide.pm
 lib/Math/PlanePath/MathImageHexArms.pm
 lib/Math/PlanePath/MathImagePlusSimilar.pm
 lib/Math/PlanePath/MathImageSierpinskiArrowheadSkewed.pm

@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Champernowne Sequence LSB First');
 use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary, least significant bit first, 1 01 11 001 101 etc.');

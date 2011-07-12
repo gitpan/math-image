@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary

@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Tetrahedral');
 use constant description => __('The tetrahedral numbers 1, 4, 10, 20, 35, 56, 84, 120, etc, k*(k+1)*(k+2)/6.');

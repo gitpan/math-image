@@ -26,7 +26,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Cubes');
 use constant description => __('The cubes 1, 8, 27, 64, 125, etc, k*k*k.');

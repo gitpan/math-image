@@ -25,31 +25,41 @@ use App::MathImage::Values::OeisCatalogue::Base;
 @ISA = ('App::MathImage::Values::OeisCatalogue::Base');
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant num_first => 21016;
+# A021015 is 1/11 duplicating A010680, return it here so both numbers are
+# available for a by-A-number lookup
+use constant num_first => 21022;
 use constant num_last  => 21999;
 
 sub anum_after {
   my ($class, $anum) = @_;
   (my $num = $anum) =~ s/^A0*//g;
   $num ||= 0;
-  if ($num >= $class->num_last) {
+  $num++;
+  if (($class->num_to_denominator($num) % 10) == 0) {
+    $num++;
+  }
+  if ($num > $class->num_last) {
     return undef;
   }
-  return sprintf 'A%06d', max ($num+1, $class->num_first);
+  return sprintf 'A%06d', max ($num, $class->num_first);
 }
 sub anum_before {
   my ($class, $anum) = @_;
   (my $num = $anum) =~ s/^A0*//g;
   $num ||= 0;
+  $num--;
+  if (($class->num_to_denominator($num) % 10) == 0) {
+    $num--;
+  }
   if ($num <= $class->num_first) {
     return undef;
   }
-  return sprintf 'A%06d', min ($num-1, $class->num_last);
+  return sprintf 'A%06d', min ($num, $class->num_last);
 }
 
 sub anum_to_info {
@@ -62,12 +72,14 @@ sub anum_to_info {
   # that one (in BuiltinTable.pm)
 
   my $num = $anum;
-  if ($num =~ s/^A0*//g) {
-    if ($num >= $class->num_first && $num <= $class->num_last) {
-      return $class->make_info($num);
-    }
+  if (($num =~ s/^A0*//g)
+      && ($class->num_to_denominator($num) % 10) != 0
+      && $num >= $class->num_first
+      && $num <= $class->num_last) {
+    return $class->make_info($num);
+  } else {
+    return undef;
   }
-  return undef;
 }
 
 my @info_array;
@@ -75,7 +87,8 @@ sub info_arrayref {
   my ($class) = @_;
   if (! @info_array) {
     @info_array = map {$class->make_info($_)}
-      $class->num_first .. $class->num_last;
+      grep {($_ % 10) != 0}
+        $class->num_first .. $class->num_last;
     ### made info_arrayref: @info_array
   }
   return \@info_array;
@@ -86,8 +99,16 @@ sub make_info {
   ### make_info(): $num
   return { anum  => sprintf('A%06d', $num),
            class => 'App::MathImage::Values::Sequence::FractionDigits',
-           parameters_hashref => { fraction => '1/'.($num-21004),
-                                   radix => 10 } };
+           parameters_hashref =>
+           { fraction => '1/'.$class->num_to_denominator($num),
+             radix => 10,
+           },
+         };
+}
+
+sub num_to_denominator {
+  my ($class, $num) = @_;
+  return ($num-21004);
 }
 
 1;

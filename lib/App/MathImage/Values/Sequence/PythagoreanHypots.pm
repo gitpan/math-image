@@ -26,7 +26,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

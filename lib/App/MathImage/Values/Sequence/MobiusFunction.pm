@@ -24,7 +24,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Mobius Function');
 use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');

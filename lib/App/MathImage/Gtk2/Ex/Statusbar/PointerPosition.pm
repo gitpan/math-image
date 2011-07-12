@@ -27,7 +27,7 @@ use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 63;
+our $VERSION = 64;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

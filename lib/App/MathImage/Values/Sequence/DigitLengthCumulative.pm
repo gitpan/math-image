@@ -29,7 +29,7 @@ use constant parameter_list => (App::MathImage::Values::Base::Digits::parameter_
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Digit Length Cumulative');
 use constant description => __('Cumulative length of numbers 0,1,2,3,etc written out in the given radix.  For example binary 1,2,4,6,9,12,15,18,22,etc, 2 steps by 2, then 4 steps by 3, then 8 steps by 4, then 16 steps by 5, etc.');

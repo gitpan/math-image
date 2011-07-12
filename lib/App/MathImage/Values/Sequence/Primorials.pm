@@ -24,7 +24,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Primorials');
 use constant description => __('The primorials 1, 2, 6, 30, 210, etc, 2*3*5*7*...Prime(n).');

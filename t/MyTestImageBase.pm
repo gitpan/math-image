@@ -416,9 +416,9 @@ sub check_ellipse {
 
 sub check_diamond {
   my ($image, %options) = @_;
-  my ($width, $height) = $image->get('-width','-height');
 
-  my $basefunc = $options{'base_ellipse_func'} || sub { 0 };
+  my ($width, $height) = $image->get('-width','-height');
+  local $white_expect = $white_expect || $white;
 
   my $elem;
   foreach $elem (@sizes) {
@@ -464,13 +464,12 @@ sub check_diamond {
 }
 
 sub check_image {
-  my ($image, @options) = @_;
+  my ($image, %options) = @_;
   local $white_expect = $white_expect || $white;
 
-  check_diamond ($image, skip_top_hline_fill=>1, @options);
   check_line ($image);
   check_rectangle ($image);
-  check_ellipse ($image, @options);
+  check_ellipse ($image, %options);
 }
 
 1;

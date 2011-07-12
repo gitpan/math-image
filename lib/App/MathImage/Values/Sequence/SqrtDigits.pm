@@ -24,7 +24,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -36,6 +36,7 @@ use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
                                   display => __('Sqrt'),
                                   type    => 'integer',
                                   default => 2,
+                                  width   => 5,
                                   description => __('The number to take the square root of.  If this is a perfect square then there\'s just a handful of bits to show, non squares go on infinitely.'),
                                 },
                                );

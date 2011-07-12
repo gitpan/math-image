@@ -24,7 +24,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence::Even';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Odd Integers');
 use constant description => __('The odd integers 1, 3, 5, 7, 9, etc.');

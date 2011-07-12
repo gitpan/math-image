@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 use App::MathImage::Values::OeisCatalogue::Base;
 @ISA = ('App::MathImage::Values::OeisCatalogue::Base');
 
@@ -169,6 +169,54 @@ use constant info_arrayref =>
     'class' => 'App::MathImage::Values::Sequence::FractionDigits',
     'parameters_hashref' => {
       'fraction' => '1/11',
+      'radix' => 10
+    }
+  },
+  {
+    'anum' => 'A021015',
+    'class' => 'App::MathImage::Values::Sequence::FractionDigits',
+    'parameters_hashref' => {
+      'fraction' => '1/11',
+      'radix' => 10
+    }
+  },
+  {
+    'anum' => 'A021016',
+    'class' => 'App::MathImage::Values::Sequence::FractionDigits',
+    'parameters_hashref' => {
+      'fraction' => '1/12',
+      'radix' => 10
+    }
+  },
+  {
+    'anum' => 'A021017',
+    'class' => 'App::MathImage::Values::Sequence::FractionDigits',
+    'parameters_hashref' => {
+      'fraction' => '1/13',
+      'radix' => 10
+    }
+  },
+  {
+    'anum' => 'A021018',
+    'class' => 'App::MathImage::Values::Sequence::FractionDigits',
+    'parameters_hashref' => {
+      'fraction' => '1/14',
+      'radix' => 10
+    }
+  },
+  {
+    'anum' => 'A021019',
+    'class' => 'App::MathImage::Values::Sequence::FractionDigits',
+    'parameters_hashref' => {
+      'fraction' => '1/15',
+      'radix' => 10
+    }
+  },
+  {
+    'anum' => 'A021020',
+    'class' => 'App::MathImage::Values::Sequence::FractionDigits',
+    'parameters_hashref' => {
+      'fraction' => '1/16',
       'radix' => 10
     }
   },

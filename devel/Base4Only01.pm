@@ -41,7 +41,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # http://oeis.org/A000695
 #    Moser-de Bruijn sequence, sums of distinct powers of 4

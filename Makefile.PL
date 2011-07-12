@@ -82,6 +82,7 @@ my %maximum_planepath
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
+     'Math::PlanePath::GosperSide'           => 35, # new in v.35
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
@@ -163,10 +164,10 @@ MyMakeMakerExtras::WriteMakefile
     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
     'Gtk2::Ex::Splash' => 1,
 
-    'Image::Base' => '1.14',  # 1.14 for add_colours()
+    'Image::Base' => '1.16', # version 1.16 for diamond()
 
     # my Image-Base-Other
-    'Image::Base::Multiplex' => 0,
+    'Image::Base::Multiplex' => 7, # v.7 diamond()
     'Image::Base::Text'      => 0,
 
     # my Image-Base-Gtk2
@@ -183,7 +184,7 @@ MyMakeMakerExtras::WriteMakefile
     'Number::Format' => 0,
     'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
     'Scope::Guard' => 0,
-    'Software::License::GPL_3' => '0.001', # new in 0.001
+    'Software::License::GPL_3' => '0.001', # gpl3 in 0.001
     'Text::Capitalize' => 0,
     'Term::Size' => 0,
 
@@ -197,9 +198,8 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath' => 1,
     'Math::PlanePath::SquareSpiral'   => 1,
 
-    # for gosper island
+    # for CrossSide in progress ...
     'Math::PlanePath::SacksSpiral' => 1,
-    'Math::PlanePath::KochCurve' => 1,
    },
 
    META_MERGE =>
@@ -240,14 +240,17 @@ MyMakeMakerExtras::WriteMakefile
                      %gtk2_optionals,
 
                      'Image::Xpm'             => 0,
-                     'Image::Base::GD'        => 4, # bug fixes
+                     'Image::Base::GD'        => 8, # v.8 ellipse() $fill
                      'Image::Base::Imager'    => 0,
                      'Image::Base::Magick'    => 0,
-                     'Image::Base::PNGwriter' => 2, # bug fixes
-                     'Image::Base::SVG'       => 0,
+                     # v.5 ellipse() $fill
+                     # v.7 recommended for diamond()
+                     'Image::Base::PNGwriter' => 7,
+                     'Image::Base::SVG'       => 3, # v.3 diamond()
+                     'Image::Base::SVGout'    => 7, # v.7 diamond()
 
-                     'Math::Aronson'  => 4, # version 4 for lying
-                     'Math::Symbolic' => 0.605, # 0.605 fix a simplify
+                     'Math::Aronson'  => 4, # v.4 for lying parameter
+                     'Math::Symbolic' => 0.605, # 0.605 fix a simplify()
                      'Math::Expression::Evaluator' => 0,
                      'Language::Expr' => '0.14',
 

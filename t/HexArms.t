@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 105;
+plan tests => 125;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::MathImageHexArms;
 # VERSION
 
 {
-  my $want_version = 63;
+  my $want_version = 64;
   ok ($Math::PlanePath::MathImageHexArms::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageHexArms->VERSION,  $want_version,
@@ -76,10 +76,7 @@ require Math::PlanePath::MathImageHexArms;
 # first few points
 
 {
-  my @data = (# [ 0.5, 1,0 ],
-              # [ 3.5, 5,0 ],
-              
-              [ 1, 0,0 ],
+  my @data = ([ 1, 0,0 ],
 
               [ 2, 2,0 ],
               [ 8, 3,1 ],
@@ -104,6 +101,16 @@ require Math::PlanePath::MathImageHexArms;
               [ 7, 1,-1 ],
               [ 13, 3,-1 ],
               [ 19, 4,0 ],
+
+              [ 1.75,  .75, -.75 ],
+              [ 7.5,  2, -1 ],
+
+              [ 2.25,  2.25, .25 ],
+
+              [ 4.25,  -1.5, 1 ],
+
+              [ 5.25,  -2.25, -.25 ],
+
 
              );
   my $path = Math::PlanePath::MathImageHexArms->new;
@@ -150,7 +157,7 @@ require Math::PlanePath::MathImageHexArms;
 #       next if ($x ^ $y) & 1;
 #       my $n = $path->xy_to_n ($x,$y);
 #       next if ! defined $n;  # sparse
-# 
+#
 #       if ($seen{$n}) {
 #         MyTestHelpers::diag ("x=$x,y=$y n=$n seen before at $seen{$n}");
 #         last if $bad++ > 10;

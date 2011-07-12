@@ -26,7 +26,7 @@ use base 'App::MathImage::Values::Base::Array';
 use App::MathImage::Values::Base::Digits;
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

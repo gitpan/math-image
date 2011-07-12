@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            63
+version:            64
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -52,11 +52,11 @@ requires:
     Gtk2::Ex::WidgetCursor:  15
     Gtk2::Ex::WidgetEvents:  21
     Gtk2::Pango:          0
-    Image::Base:          1.14
+    Image::Base:          1.16
     Image::Base::Gtk2::Gdk::Pixbuf:  3
     Image::Base::Gtk2::Gdk::Pixmap:  2
     Image::Base::Gtk2::Gdk::Window:  2
-    Image::Base::Multiplex:  0
+    Image::Base::Multiplex:  7
     Image::Base::Text:    0
     List::MoreUtils:      0.24
     Locale::Messages:     0
@@ -64,7 +64,6 @@ requires:
     Math::BaseCnv:        0
     Math::Libm:           0
     Math::PlanePath:      1
-    Math::PlanePath::KochCurve:  1
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SquareSpiral:  1
     Math::Prime::XS:      0.23
@@ -123,12 +122,13 @@ optional_features:
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
             Gtk2::Ex::QuadButton:  0
-            Image::Base::GD:      4
+            Image::Base::GD:      8
             Image::Base::Imager:  0
             Image::Base::Magick:  0
-            Image::Base::PNGwriter:  2
+            Image::Base::PNGwriter:  7
             Image::Base::Prima:   1
-            Image::Base::SVG:     0
+            Image::Base::SVG:     3
+            Image::Base::SVGout:  7
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
@@ -142,6 +142,7 @@ optional_features:
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
             Math::PlanePath::GosperIslands:  33
+            Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexSpiral:  9
@@ -191,6 +192,7 @@ optional_features:
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondSpiral:  1
             Math::PlanePath::GosperIslands:  33
+            Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexSpiral:  9
@@ -256,6 +258,7 @@ recommends:
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiamondSpiral:  1
     Math::PlanePath::GosperIslands:  33
+    Math::PlanePath::GosperSide:  35
     Math::PlanePath::GreekKeySpiral:  27
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexSpiral:  9

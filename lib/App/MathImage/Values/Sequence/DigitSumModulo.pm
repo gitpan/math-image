@@ -24,7 +24,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');

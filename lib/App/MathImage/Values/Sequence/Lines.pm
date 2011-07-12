@@ -23,10 +23,19 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence::All';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Lines');
 use constant description => __('No numbers, instead lines showing the path taken.');
+use constant parameter_list => ({ name    => 'increment',
+                                  display => __('Increment'),
+                                  type    => 'integer',
+                                  default => 0,
+                                  minimum => 0,
+                                  width   => 3,
+                                  description => __('An N increment between line segments.  0 means the default for the path.'),
+                                },
+                               );
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

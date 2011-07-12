@@ -33,7 +33,7 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -57,7 +57,7 @@ sub n_to_xy {
   if ($n < 2) {
     ### centre
     $n--;
-    return ($n, -$n);  # towards n=7 ...
+    return ($n, -$n);  # from n=1 towards n=7 at x=1,y=-1
   }
   $n -= 2;
   my $frac;
@@ -232,7 +232,7 @@ This path follows six spiral arms, each advancing successively,
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 The X,Y points are integers using every second position to give a triangular
-lattice, as per L<Math::PlanePath/Triangular Lattice>.
+lattice, per L<Math::PlanePath/Triangular Lattice>.
 
 Each arm is N=6*k+rem for a remainder rem=0,1,2,3,4,5, so sequences related
 to multiples of 6 or with a modulo 6 patttern may fall on particular arms.
@@ -241,8 +241,9 @@ to multiples of 6 or with a modulo 6 patttern may fall on particular arms.
 
 The "abundant" numbers are those N with sum of proper divisors E<gt> N.  For
 example 12 is abundant because it's divisible by 1,2,3,4,6 and their sum is
-16.  All N=6*k multiples of six starting from 12 are abundant.  Plotting the
-abundant numbers on the path gives the 6*k arm and some others in between,
+16.  All multiples of 6 starting from 12 are abundant.  Plotting the
+abundant numbers on the path gives the 6*k arm and some other points in
+between,
 
                 * * * * * * * * * * * *   *   *   ...
                *                       *           *
@@ -273,7 +274,7 @@ abundant numbers on the path gives the 6*k arm and some others in between,
 
 There's blank arms either side of the 6*k because 6*k+1 and 6*k-1 are not
 abundant until some fairly big values.  The first abundant 6*k+1 might be
-5,391,411,025 and the first 6*k-1 might be 26,957,055,125.
+5,391,411,025, and the first 6*k-1 might be 26,957,055,125.
 
 =head1 FUNCTIONS
 
@@ -288,6 +289,10 @@ Create and return a new square spiral object.
 Return the X,Y coordinates of point number C<$n> on the path.
 
 For C<$n E<lt> 1> the return is an empty list, as the path starts at 1.
+
+Fractional C<$n> gives a point on the line between C<$n> and C<$n+6>, that
+C<$n+6> being the next on the same spiralling arm.  This is probably of
+limited use, but arises fairly naturally from the calculation.
 
 =back
 

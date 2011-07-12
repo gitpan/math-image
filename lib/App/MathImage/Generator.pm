@@ -23,7 +23,7 @@ use POSIX 'floor', 'ceil';
 use Math::Libm 'hypot';
 use Module::Load;
 use Module::Util;
-use Image::Base 1.14;
+use Image::Base 1.16; # 1.16 for diamond()
 use Time::HiRes;
 use List::Util 'min', 'max';
 use Locale::TextDomain 'App-MathImage';
@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -237,6 +237,7 @@ my %pathname_square_grid
                      HilbertCurve
                      ZOrderCurve
                      GosperIslands
+                     GosperSide
                      KochCurve
                      KochPeaks
                      KochSnowflakes
@@ -463,7 +464,7 @@ sub y_negative {
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant MathImage__lattice_type => 'triangular';
 }
-{ package Math::PlanePath::MathImageGosperSide;
+{ package Math::PlanePath::GosperSide;
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::GosperIslands;
@@ -522,6 +523,7 @@ use constant path_choices => do {
                          HilbertCurve
                          ZOrderCurve
                          GosperIslands
+                         GosperSide
                          KochSnowflakes
                          KochPeaks
                          KochCurve
@@ -1386,8 +1388,8 @@ my %figure_method = (square  => 'rectangle',
                      box     => 'rectangle',
                      circle  => 'ellipse',
                      ring    => 'ellipse',
-                     diamond => \&App::MathImage::Image::Base::Other::diamond,
-                     diamunf => \&App::MathImage::Image::Base::Other::diamond,
+                     diamond => 'diamond',
+                     diamunf => 'diamond',
                      plus    => \&App::MathImage::Image::Base::Other::plus,
                      X       => \&App::MathImage::Image::Base::Other::draw_X,
                      L       => \&App::MathImage::Image::Base::Other::draw_L,
@@ -1555,11 +1557,15 @@ sub draw_Image_steps {
   my $n_hi = $self->{'n_hi'};
 
   if ($self->{'values'} eq 'Lines') {
-    my $n_offset_from = ($self->{'use_xy'} ? -1 : 0);
-    my $n_offset_to = 1;
-    if (defined (my $disc = $path_object->MathImage__discontinuity)) {
+    my $increment = $self->{'values_parameters'}->{'increment'} ||
+      ($self->{'path'} eq 'MathImageHexArms' ? 6 : 1);
+    my $n_offset_from = ($self->{'use_xy'} ? -$increment : 0);
+    my $n_offset_to = $increment;
+
+    if ($increment == 1
+        && defined (my $disc = $path_object->MathImage__discontinuity)) {
       $n_offset_from = -$disc;
-      $n_offset_to = $n_offset_from + 0.9999;
+      $n_offset_to = $n_offset_from + .9999;
     }
     ### $n_offset_from
     ### $n_offset_to

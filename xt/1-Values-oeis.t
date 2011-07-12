@@ -81,6 +81,8 @@ sub _min {
   return $ret;
 }
 
+my %duplicate_anum = (A021015 => 'A010680',
+                     );
 
 #------------------------------------------------------------------------------
 # OeisCatalogue generated vs files
@@ -164,7 +166,8 @@ for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770'
     if (! defined $got_anum) {
       $got_anum = 'undef';
     }
-    if ($got_anum ne $anum) {
+    my $want_anum = $duplicate_anum{$anum} || $anum;
+    if ($got_anum ne $want_anum) {
       $good = 0;
       diag "bad: $name";
       diag "got anum  $got_anum";

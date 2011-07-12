@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence::All';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('LinesLevel');
 use constant description => __('No numbers, instead lines showing the path taken.');

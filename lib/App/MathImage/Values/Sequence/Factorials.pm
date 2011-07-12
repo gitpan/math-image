@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Factorials');
 use constant description => __('The factorials 1, 2, 6, 24, 120, etc, 1*2*...*N.');

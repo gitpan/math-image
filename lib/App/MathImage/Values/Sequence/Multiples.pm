@@ -25,7 +25,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Multiples of a given K');
 use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');

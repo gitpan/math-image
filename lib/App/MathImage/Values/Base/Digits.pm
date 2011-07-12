@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant characteristic_radix => 1;
 use constant values_min => 0;
@@ -38,7 +38,7 @@ use constant parameter_common_radix =>
     display => __('Radix'),
     default => 10,
     minimum => 2,
-    width   => 4,
+    width   => 3,
     description => __('Radix, ie. base, for the values calculation.  Default is decimal (base 10).'),
   };
 use constant parameter_list => (parameter_common_radix);

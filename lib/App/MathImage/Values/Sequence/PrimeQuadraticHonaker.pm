@@ -23,7 +23,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Sequence';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Prime Generating Quadratic of Honaker');
 use constant description => __('The quadratic numbers 4*k^2 + 4*k + 59.');

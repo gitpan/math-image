@@ -27,7 +27,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Padovan Numbers');
 use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');

@@ -24,7 +24,7 @@ use App::MathImage::Values::Base '__';
 use base 'App::MathImage::Values::Base::Digits';
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 use constant name => __('Fraction Digits');
 use constant description => __('A given fraction number written out in binary.');
@@ -41,6 +41,28 @@ use constant parameter_list => (__PACKAGE__->SUPER::parameter_list,
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
+# cf A010701 fraction=10/3 radix=10
+#      - being constant digits 3,3,3,... but better ways to generate that
+#
+# OeisCatalogue: A020806 fraction=1/7 radix=10
+# OeisCatalogue: A068028 fraction=22/7 radix=10
+# OeisCatalogue: A010680 fraction=1/11 radix=10
+
+# OeisCatalogue: A021015 fraction=1/11 radix=10  # duplicate
+# OeisCatalogue: A021016 fraction=1/12 radix=10
+# OeisCatalogue: A021017 fraction=1/13 radix=10
+# OeisCatalogue: A021018 fraction=1/14 radix=10
+# OeisCatalogue: A021019 fraction=1/15 radix=10
+# OeisCatalogue: A021020 fraction=1/16 radix=10
+# but A021021 is not 1/17, where is that one?
+#
+# Plugin/FractionDigits.pm has A021022 through A021999, 1/11 to 1/995;
+# 1/11 being a duplicate, and 1/996 missing apparently
+#
+# OeisCatalogue: A022001 fraction=1/997 radix=10
+# OeisCatalogue: A022002 fraction=1/998 radix=10
+# OeisCatalogue: A022003 fraction=1/999 radix=10
+#
 my %oeis = (
             '1/7'   => { 10 => 'A020806' },   # 1/7 decimal
             '22/7'  => { 10 => 'A068028' },   # 22/7 decimal
@@ -63,18 +85,6 @@ sub oeis_anum {
   }
   return $oeis{$fraction}->{$radix};
 }
-
-# OeisCatalogue: A020806 fraction=1/7 radix=10
-# OeisCatalogue: A068028 fraction=22/7 radix=10
-# OeisCatalogue: A010680 fraction=1/11 radix=10 # and duplicated in A021015
-# and A021016 through A021999 fraction=1/12 to 1/995 in Plugin/FractionDigits.pm
-# missing 1/996 apparently
-# OeisCatalogue: A022001 fraction=1/997 radix=10
-# OeisCatalogue: A022002 fraction=1/998 radix=10
-# OeisCatalogue: A022003 fraction=1/999 radix=10
-#
-# cf A010701 fraction=10/3 radix=10
-#      - being constant digits 3,3,3,... but better ways to generate that
 
 sub new {
   my ($class, %options) = @_;
