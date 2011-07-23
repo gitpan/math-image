@@ -24,7 +24,7 @@ use Exporter;
 our @ISA = ('Exporter');
 our @EXPORT_OK = qw(to_HRRGGBB);
 
-our $VERSION = 64;
+our $VERSION = 65;
 
 sub to_HRRGGBB {
   my ($color) = @_;

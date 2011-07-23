@@ -26,7 +26,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use App::MathImage::Values::OeisCatalogue;
+use App::MathImage::NumSeq::OEIS::Catalogue;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
@@ -85,32 +85,13 @@ my %duplicate_anum = (A021015 => 'A010680',
                      );
 
 #------------------------------------------------------------------------------
-# OeisCatalogue generated vs files
-
 my $good = 1;
-for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770';
-     defined $anum;
-     $anum = App::MathImage::Values::OeisCatalogue->anum_after($anum)) {
-  ### $anum
 
-  my $info = App::MathImage::Values::OeisCatalogue->anum_to_info($anum);
-  if (! $info) {
-    $good = 0;
-    diag "bad: $anum";
-    diag "info is undef";
-    next;
-  }
-  if ($info->{'class'} eq 'App::MathImage::Values::Sequence::OEIS::File') {
-    next;
-  }
-  ### $info
+sub check_class {
+  my ($anum, $class, $parameters_hashref) = @_;
 
-  my $shortclass = $info->{'class'};
-  $shortclass =~ s/App::MathImage::Values::Sequence:://;
-
-  my $parameters_hashref= $info->{'parameters_hashref'};
   my $name = join(',',
-                  $info->{'class'},
+                  $class,
                   map {
                     my $value = $parameters_hashref->{$_};
                     if (! defined $value) { $value = '[undef]'; }
@@ -121,7 +102,7 @@ for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770'
   my ($want, $want_i_start, $filename) = MyOEIS::read_values($anum)
     or do {
       diag "skip $anum $name, no file data";
-      next;
+      return;
     };
   ### read_values len: scalar(@$want)
   ### $want_i_start
@@ -140,12 +121,16 @@ for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770'
     if ($want->[9] == 2) {
       unshift @$want, 1;
     }
+  } elsif ($anum eq 'A082897') {
+    # full B-file goes to 2^32 which is too much to sieve
+    @$want = grep {$_ < 200_000} @$want;
+
   } elsif ($anum eq 'A004542') {  # sqrt(2) in base 5
     diag "skip doubtful $anum $name";
-    next;
+    return;
   } elsif ($anum eq 'A022000') {  # FIXME: not 1/996 ???
     diag "skip doubtful $anum $name";
-    next;
+    return;
   }
 
   my $hi = $want->[-1];
@@ -155,11 +140,13 @@ for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770'
   ### $hi
 
   my $values_obj = eval {
-    App::MathImage::Values::Sequence::OEIS->new
-        (anum => $anum,
-         hi   => $hi)
-      } || next;
+    $class->new (%$parameters_hashref,
+                 hi   => $hi)
+  } || return;
   ### values_obj: ref $values_obj
+  if ($values_obj->isa('App::MathImage::NumSeq::OEIS::File')) {
+    die "Oops, not meant to exercies $values_obj";
+  }
 
   {
     my $got_anum = $values_obj->oeis_anum;
@@ -220,6 +207,10 @@ for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770'
       ### no pred on characteristic(count) ..
       next;
     }
+    if ($values_obj->characteristic('digits')) {
+      ### no pred on characteristic(digits) ..
+      next;
+    }
     if ($values_obj->characteristic('pn1')) {
       ### no pred on characteristic(pn1) ..
       next;
@@ -260,6 +251,39 @@ for (my $anum = App::MathImage::Values::OeisCatalogue->anum_first;  #  'A007770'
       diag "want ". join(',', map {defined() ? $_ : 'undef'} @$want);
     }
   }
+}
+
+#------------------------------------------------------------------------------
+# duplicates or uncatalogued
+
+check_class ('A010701',
+             'App::MathImage::NumSeq::FractionDigits',
+             { fraction => '10/3', radix => 10 });
+
+
+#------------------------------------------------------------------------------
+# OEIS-Catalogue generated vs files
+
+for (my $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_first;  #  'A007770';
+     defined $anum;
+     $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_after($anum)) {
+  ### $anum
+
+  my $info = App::MathImage::NumSeq::OEIS::Catalogue->anum_to_info($anum);
+  if (! $info) {
+    $good = 0;
+    diag "bad: $anum";
+    diag "info is undef";
+    next;
+  }
+  if ($info->{'class'} eq 'App::MathImage::NumSeq::OEIS::File') {
+    next;
+  }
+  ### $info
+
+  check_class ($info->{'anum'},
+               $info->{'class'},
+               $info->{'parameters_hashref'});
 }
 
 $good = 1;

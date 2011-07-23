@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -151,6 +151,7 @@ sub getopt_long_specifications {
      'module=s' => sub{ my ($optname, $value) = @_;
                         _hopt($self, 'gui_options', 'module', "$value");  },
      'prima'    => sub{_hopt($self, 'gui_options', 'module', 'Prima');  },
+     'tk'       => sub{_hopt($self, 'gui_options', 'module', 'Tk');  },
      'curses'   => sub{_hopt($self, 'gui_options', 'module', 'Curses');  },
      'text'     => sub{_hopt($self, 'gui_options', 'output', 'text');
                        _hopt($self, 'gui_options', 'module', 'Text'); },
@@ -495,30 +496,35 @@ sub output_method_root_gtk2 {
 my %image_modules = (Prima => 'Image::Base::Prima::Image',
                      Gtk2  => 'Image::Base::Gtk2::Gdk::Pixbuf',
                      Xpm   => 'Image::Xpm',
+                     Tk    => 'App::MathImage::Image::Base::Tk::Photo',
                     );
 sub output_method_png {
   my ($self) = @_;
-  my $module;
   binmode (\*STDOUT) or die;
+  my $gui_module = $self->{'gui_options'}->{'module'};
+  my $err;
   foreach my $module
-    (defined $self->{'gui_options'}->{'module'}
-     ? ($module = $self->{'gui_options'}->{'module'})
+    (defined $gui_module
+     ? ($gui_module)
      : ((eval { require GD } && GD::Image->can('png') ? ('GD') : ()),
         'PNGwriter',
         'Imager',
         'Magick',
         'Gtk2::Gdk::Pixbuf',
         'Prima',
+        'Tk',
        )) {
     if ($self->try_module($module)) {
       $self->output_image ($module, -file_format => 'PNG');
       return 0;
     }
+    $err = $@;
+    ### $err
   }
-  if ($module) {
-    die "Output $module not available -- $@";
+  if ($gui_module) {
+    die "Output $gui_module not available -- $err";
   } else {
-    die "Output module(s) not available -- $@";
+    die "Output module(s) not available -- $err";
   }
 }
 sub output_method_xpm {
@@ -530,6 +536,7 @@ sub output_method_xpm {
                       : ('Xpm',
                          'Magick',
                          'Prima',
+                         'Tk',
                         )) {
     if ($self->try_module($module)) {
       $self->output_image ($module, -file_format => 'XPM');
@@ -562,17 +569,20 @@ sub output_method_svg {
 
 sub try_module {
   my ($self, $module) = @_;
+  ### try_module(): $module
   my $image_class = $self->module_image_class($module) || return 0;
   require Module::Load;
   return eval { Module::Load::load ($image_class); 1 };
 }
 sub module_image_class {
   my ($self, $module) = @_;
+  ### module_image_class() ...
   foreach my $baseclass ("Image::Base::$module",
                          $image_modules{$module},
                          ($module =~ /::/ ? ($module) : ())) {
     foreach my $class ($baseclass,
                        "App::MathImage::$baseclass") {
+      ### $class
       if (Module::Util::find_installed ($class)) {
         return $class;
       }
@@ -599,6 +609,13 @@ sub output_image {
     $gen_options->{'height'} = 200;
   }
 
+  if ($image_class->isa('App::MathImage::Image::Base::Tk::Photo')) {
+    eval 'use Tk; 1' or die;
+    my $mw = MainWindow->new;
+    push @image_options, '-for_widget', $mw;
+  }
+
+  ### @image_options
   my $image = $image_class->new
     (-width  => $gen_options->{'width'},
      -height => $gen_options->{'height'},

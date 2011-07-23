@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 exit App::MathImage->command_line;
 
 __END__
@@ -179,7 +179,7 @@ properly.
 
 =item --values=MODULE,NAME=VALUE,NAME=VALUE,...
 
-Draw values from the given C<App::MathImage::Values::Sequence> module.  For
+Draw values from the given C<App::MathImage::NumSeq> module.  For
 example
 
     math-image --values=Emirps
@@ -338,17 +338,14 @@ C<DISPLAY> environment variable (normally set at X startup).
 =item --xpm
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
-possible with GdkPixbuf but can also use C<Image::Base::GD>,
-C<Image::Base::PNGwriter>, C<Image::Base::Imager>, C<Image::Base::Magick> or
-C<Image::Base::Prima::Image> and their respective supporting libraries.
+possible with GdkPixbuf but can also use GD, PNGwriter, Imager, ImageMagick,
+Prima or Tk with the right libraries and C<Image::Base> supporting module.
 
     math-image --png >/tmp/my-file.png
 
-XPM output requires either C<Image::Xpm>, C<Image::Base::Magick> or
-C<Image::Base::Prima::Image>.
-
-Note that Prima for X11 requires an X server to do its drawing, either PNG
-or XPM (expect an obscure error if no display).
+XPM output requires either C<Image::Xpm>, ImageMagick, Prima, or Tk.  Note
+that Prima and Tk for X11 require an X server even for file output (expect
+an obscure error if no display).
 
 =item --text
 
@@ -366,12 +363,22 @@ C<Image::Base::Prima::Drawable> modules.  It doesn't yet have the full set
 of options the Gtk GUI does, but works as far as it goes.
 
 A combination C<--prima --png> means write a PNG image to standard output,
-using Prima.
+using Prima.  This requires a graphics screen (which other PNG output
+modules don't).
+
+=item --tk
+
+Run the Tk GUI.  This requires Perl-Tk.  It doesn't yet have the full set of
+options the Gtk GUI does, but works as far as it goes.
+
+A combination C<--tk --png> or C<--tk --xpm> means write a PNG or XPM image
+to standard output using C<Tk::Photo>.  This requires a graphics screen
+though (which other output modules don't).
 
 =item --curses
 
 Run the Curses interactive text interface.  This requires the C<Curses::UI>
-modules.  This is experimental and the control options are minimal.
+modules.  It's experimental and the control options are minimal.
 
 =back
 

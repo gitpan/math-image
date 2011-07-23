@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 5;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::Sequence::TotientSum;
+use App::MathImage::NumSeq::TotientSum;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,14 +35,14 @@ use App::MathImage::Values::Sequence::TotientSum;
 # VERSION
 
 {
-  my $want_version = 64;
-  is ($App::MathImage::Values::Sequence::TotientSum::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::Sequence::TotientSum->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 65;
+  is ($App::MathImage::NumSeq::TotientSum::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::TotientSum->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::Sequence::TotientSum->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::TotientSum->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::Sequence::TotientSum->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::TotientSum->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -51,32 +51,13 @@ use App::MathImage::Values::Sequence::TotientSum;
 # characteristic()
 
 {
-  my $values_obj = App::MathImage::Values::Sequence::TotientSum->new
+  my $values_obj = App::MathImage::NumSeq::TotientSum->new
     (lo => 1,
      hi => 30);
 
   is (! $values_obj->characteristic('count'), 1, 'characteristic(count)');
 }
 
-
-#------------------------------------------------------------------------------
-# _totient()
-
-{
-  ## no critic (ProtectPrivateSubs)
-  is (App::MathImage::Values::Sequence::TotientSum::_totient(0),
-      0);
-  is (App::MathImage::Values::Sequence::TotientSum::_totient(1),
-      1);
-  is (App::MathImage::Values::Sequence::TotientSum::_totient(2),
-      1);
-  is (App::MathImage::Values::Sequence::TotientSum::_totient(3),
-      2);
-  is (App::MathImage::Values::Sequence::TotientSum::_totient(4),
-      2);
-  is (App::MathImage::Values::Sequence::TotientSum::_totient(5),
-      4);
-}
 
 exit 0;
 

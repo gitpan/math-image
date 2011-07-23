@@ -34,7 +34,7 @@ $skip = undef;
 $handle_input = sub {};
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 sub min {
   my $ret = shift;
@@ -100,14 +100,37 @@ sub dump_image {
     my $str = '';
     my $x;
     foreach $x (0 .. $width-1) {
-      my $colour = mung_colour($image->xy($x,$y));
-      if ($colour eq $black) {
-        $str .= '_';
+      my $colour = $image->xy($x,$y);
+      if (! defined $colour) {
+        $str .= 'U';
       } else {
-        $str .= substr ($colour, 0,1);
+        $colour = mung_colour($colour);
+        if ($colour eq $black) {
+          $str .= '_';
+        } else {
+          $str .= substr ($colour, 0,1);
+        }
       }
     }
     MyTestHelpers::diag($str);
+  }
+  if (my $canvas = $image->get('-tkcanvas')) {
+    my @items = $canvas->find('all');
+    MyTestHelpers::diag("item count ",scalar(@items));
+    foreach my $item (@items) {
+      my $type = $canvas->type($item);
+      my @coords = $canvas->coords($item);
+      my @opts;
+      foreach my $spec ($canvas->itemconfigure($item)) {
+        my $key = $spec->[0];
+        if ($key eq '-fill') {
+          my $value = $canvas->itemcget($item,$key);
+          if (! defined $value) { $value = '[undef]'; }
+          push @opts, " $key=$value";
+        }
+      }
+      MyTestHelpers::diag("item $item $type @opts ",join(',',@coords));
+    }
   }
 }
 
@@ -284,22 +307,45 @@ my @sizes = ([0,0, 0,0],    # 1x1
             );
 
 sub check_line {
-  my ($image) = @_;
+  my ($image, %options) = @_;
   my ($width, $height) = $image->get('-width','-height');
+  my $image_clear_func = $options{'image_clear_func'};
 
   my $elem;
   foreach $elem (@sizes) {
     my ($x1,$y1, $x2,$y2) = @$elem;
 
-    my $name = "line $x1,$y1 $x2,$y2";
-    $image->rectangle (0,0, $width-1,$height-1, $black, 1);
-    $image->line ($x1,$y1, $x2,$y2, $white);
+    {
+      my $name = "line $x1,$y1 $x2,$y2";
+      &$image_clear_func();
+      $image->line ($x1,$y1, $x2,$y2, $white);
 
-    my $bad = (is_pixel ($image, $x1,$y1, $white, $name)
-               + is_pixel ($image, $x2,$y2, $white, $name)
-               + is_rect ($image, $x1-1,$x2+1, $y1-1,$y2+1, $black, $name));
-    if ($bad) {
-      dump_image ($image);
+      my $bad = (
+                 # endpoints
+                 is_pixel ($image, $x1,$y1, $white, $name)
+                 + is_pixel ($image, $x2,$y2, $white, $name)
+
+                 # nothing in surrounding rectangle
+                 + is_rect ($image, $x1-1,$y1-1, $x2+1,$y2+1, $black, $name));
+      if ($bad) {
+        dump_image ($image);
+      }
+    }
+    {
+      my $name = "line $x2,$y2 $x1,$y1, reversal";
+      &$image_clear_func();
+      $image->line ($x2,$y2, $x1,$y1, $white);
+
+      my $bad = (
+                 # endpoints
+                 is_pixel ($image, $x1,$y1, $white, $name)
+                 + is_pixel ($image, $x2,$y2, $white, $name)
+
+                 # nothing in surrounding rectangle
+                 + is_rect ($image, $x1-1,$y1-1, $x2+1,$y2+1, $black, $name));
+      if ($bad) {
+        dump_image ($image);
+      }
     }
   }
 }
@@ -310,14 +356,15 @@ sub rect_using_Other {
 }
 
 sub check_rectangle {
-  my ($image) = @_;
+  my ($image, %options) = @_;
   my ($width, $height) = $image->get('-width','-height');
+  my $image_clear_func = $options{'image_clear_func'};
 
   my $method;
   foreach $method ('rectangle',
-                      ($image->can('Image_Base_Other_rectangles')
-                       ? ('MyTestImageBase::rect_using_Other')
-                       : ())) {
+                   ($image->can('Image_Base_Other_rectangles')
+                    ? ('MyTestImageBase::rect_using_Other')
+                    : ())) {
 
     my $elem;
     foreach $elem (@sizes) {
@@ -326,7 +373,7 @@ sub check_rectangle {
       {
         my $name = "$method unfilled $x1,$y1, $x2,$y2";
         my $fill = undef;
-        $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+        &$image_clear_func();
 
         my @args = ($x1,$y1, $x2,$y2, $white, $fill);
         if ($method eq 'Image_Base_Other_rectangles') {
@@ -345,7 +392,7 @@ sub check_rectangle {
       {
         my $name = "$method filled $x1,$y1, $x2,$y2";
         my $fill = 123;
-        $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+        &$image_clear_func();
 
         my @args = ($x1,$y1, $x2,$y2, $white, $fill);
         if ($method eq 'Image_Base_Other_rectangles') {
@@ -366,7 +413,7 @@ sub check_rectangle {
 sub check_ellipse {
   my ($image, %options) = @_;
   my ($width, $height) = $image->get('-width','-height');
-
+  my $image_clear_func = $options{'image_clear_func'};
   my $basefunc = $options{'base_ellipse_func'} || sub { 0 };
 
   my $elem;
@@ -389,7 +436,7 @@ sub check_ellipse {
       #   next if $name eq 'ellipse 3,3, 13,3';  # dodgy
       # }
 
-      $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+        &$image_clear_func();
       $image->ellipse ($x1,$y1, $x2,$y2, $white, @$fillaref);
 
       my $bad = some_hline ($image, $x1,$x2, $y1, $white_expect, $name);
@@ -418,6 +465,7 @@ sub check_diamond {
   my ($image, %options) = @_;
 
   my ($width, $height) = $image->get('-width','-height');
+  my $image_clear_func = $options{'image_clear_func'};
   local $white_expect = $white_expect || $white;
 
   my $elem;
@@ -432,7 +480,7 @@ sub check_diamond {
       my $name = "diamond $x1,$y1, $x2,$y2, fill=$fill";
       # MyTestHelpers::diag($name);
 
-      $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+      &$image_clear_func();
       $image->diamond ($x1,$y1, $x2,$y2, $white, @$fillaref);
 
       my $bad;
@@ -467,8 +515,14 @@ sub check_image {
   my ($image, %options) = @_;
   local $white_expect = $white_expect || $white;
 
-  check_line ($image);
-  check_rectangle ($image);
+  $options{'image_clear_func'} ||= do {
+    my ($width, $height) = $image->get('-width','-height');
+    sub {
+      $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+    }
+  };
+  check_line ($image, %options);
+  check_rectangle ($image, %options);
   check_ellipse ($image, %options);
 }
 

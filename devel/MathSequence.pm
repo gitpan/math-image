@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::Sequence::MathSequence;
+package App::MathImage::NumSeq::MathSequence;
 use 5.004;
 use strict;
 use Carp;
 use Math::Sequence;
 
-use App::MathImage::Values::Base '__';
-use base 'App::MathImage::Values::Sequence';
+use App::MathImage::NumSeq '__';
+use base 'App::MathImage::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

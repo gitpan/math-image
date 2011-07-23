@@ -26,7 +26,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::Sequence::Cubes;
+use App::MathImage::NumSeq::Cubes;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,14 +35,14 @@ use App::MathImage::Values::Sequence::Cubes;
 # VERSION
 
 {
-  my $want_version = 64;
-  is ($App::MathImage::Values::Sequence::Cubes::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::Sequence::Cubes->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 65;
+  is ($App::MathImage::NumSeq::Cubes::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Cubes->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::Sequence::Cubes->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Cubes->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::Sequence::Cubes->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Cubes->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -51,7 +51,7 @@ use App::MathImage::Values::Sequence::Cubes;
 # characteristic()
 
 {
-  my $values_obj = App::MathImage::Values::Sequence::Cubes->new;
+  my $values_obj = App::MathImage::NumSeq::Cubes->new;
   is (! $values_obj->characteristic('count'), 1, 'characteristic(count)');
 }
 
@@ -60,17 +60,19 @@ use App::MathImage::Values::Sequence::Cubes;
 # pred()
 
 {
-  my $values_obj = App::MathImage::Values::Sequence::Cubes->new;
+  my $values_obj = App::MathImage::NumSeq::Cubes->new;
   ok ($values_obj->pred(27),
       'pred() 27 is cube');
 
 }
 
+
+#------------------------------------------------------------------------------
+# bit of a diagnostic to see how accurate cbrt() is, for the cbrt(27) not an
+# integer struck in the past
 {
   require Math::Libm;
   my $n = 27;
-  $n = Math::Libm::cbrt(27);
-  require Math::Libm;
   $n = Math::Libm::cbrt ($n);
   diag "cbrt(27) is $n";
   my $i = int($n);

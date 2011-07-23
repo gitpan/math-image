@@ -17,7 +17,7 @@
 
 
 # math-image --path=MathImageFlowsnake --lines --scale=10
-
+#
 # http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
 # http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
 #     Variations.
@@ -25,6 +25,11 @@
 #  Martin Gardner, In which "monster" curves force redefinition of the word
 #  "curve", Scientific American 235 (December issue), 1976, 124-133.
 #
+# http://80386.nl/pub/gosper-level21.png
+#
+# http://www.mathcurve.com/fractals/gosper/gosper.shtml
+#
+
 
 package Math::PlanePath::MathImageFlowsnake;
 use 5.004;
@@ -33,13 +38,10 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 
 #         *
@@ -303,14 +305,75 @@ sub n_to_xy {
   # ### ret: "$h, $i, $j  x=".($h*2 + $i - $j)." y=".($i+$j)
   # return ($h*2 + $i - $j,
   #         $i+$j);
-
 }
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  return undef;
   ### Flowsnake xy_to_n(): "$x, $y"
+
+    return undef;
+
+
+
+
+  $x = floor($x + 0.5);
+  $y = floor($y + 0.5);
+  if (($x + $y) % 2) {
+    return undef;
+  }
+
+  my $n = 0;
+  my $power = 1;
+  while ($x || $y) {
+    my $m = ($x + 2*$y) % 7;
+    ### at: "$x,$y"
+    ### modulo: $m
+
+    if ($m == 0) {
+      $m = 0;
+    } elsif ($m == 2) {  # 2,0
+      $m = 1;
+      $x += -2;
+      $y += 0;
+      $n = $power - $n;
+    } elsif ($m == 5) {  # 3,1
+      $m = 2;
+      $x += -3;
+      $y += -1;
+    } elsif ($m == 3) {  # 1,1
+      $m = 3;
+      $x += -1;
+      $y += -1;
+    } elsif ($m == 4) {  # 0,2
+      $m = 4;
+      $x += 0;
+      $y += -2;
+    } elsif ($m == 6) {  # 2,2
+      $m = 5;
+      $x += -2;
+      $y += -2;
+    } elsif ($m == 1) {  # 4,2
+      $m = 6;
+      $x += 1;
+      $y += -1;
+    }
+    $n += $power * $m;
+    $power *= 7;
+
+    ### $m
+    ### assert: (3*$y + 5*$x) % 14 == 0
+    ### assert: (5*$y - $x) % 14 == 0
+
+    ($x,$y) = ((3*$y + 5*$x) / 14,
+               (5*$y - $x) / 14);
+  }
+  return $n;
 }
+
+# no Devel::Comments;
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -534,3 +597,76 @@ You should have received a copy of the GNU General Public License along with
 Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+                        *---E
+                       /     \
+                  *---*       *---*  
+                 /     \     /     \ 
+                *       *---*       *
+                 \     /     \     / 
+                  *---*       *---*  
+                 /     \     /     \ 
+                *       *---*       *
+                 \     /     \     / 
+                  *---*       *---* 
+                       \     /     
+                        *---*      
+                     
+                     
+                     
+                     
+                     
+                        *     *
+                       / \   / \     
+                      /   \ /   \    
+                     *     *     *   
+                     |     |     |   
+                     |     |     |   
+                     *     *     *   
+                    / \   / \   / \  
+                   /   \ /   \ /   \ 
+                  *     *     *     *
+                  |     |     |     |
+                  |     |     |     |
+                  *     *     *     *
+                   \   / \   / \   / 
+                    \ /   \ /   \ /  
+                     *     *     *   
+                     |     |     |   
+                     |     |     |   
+                     *     *     *   
+                      \   / \   /
+                       \ /   \ /
+                        *     *
+
+
+
+
+                     
+                        *     *
+                       / \   / \     
+                      /   \ /   \    
+                     *     *     *   
+                     |     |     |   
+                     |     |     |   
+                     4.....5.....6   
+                    /.\   / \   /.\  
+                   /   \ /   \ /   \ 
+                  *   . *     *   . *
+                  |     |     |     |
+                  |    .|     |    .|
+                  *     3.....2     7...
+                   \   / \   /.\   / 
+                    \ /   \ /   \ /  
+                     *     * .   *   
+                     |     |     |   
+                     |     |.    |   
+                     0.....1     *   
+                      \   / \   /
+                       \ /   \ /
+                        *     *
+
+
+
+

@@ -26,7 +26,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::Values::Sequence::Emirps;
+use App::MathImage::NumSeq::Emirps;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,14 +35,14 @@ use App::MathImage::Values::Sequence::Emirps;
 # VERSION
 
 {
-  my $want_version = 64;
-  is ($App::MathImage::Values::Sequence::Emirps::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::Values::Sequence::Emirps->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 65;
+  is ($App::MathImage::NumSeq::Emirps::VERSION, $want_version, 'VERSION variable');
+  is (App::MathImage::NumSeq::Emirps->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::Values::Sequence::Emirps->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::Emirps->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Values::Sequence::Emirps->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::Emirps->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -51,7 +51,7 @@ use App::MathImage::Values::Sequence::Emirps;
 # characteristic()
 
 {
-  my $values_obj = App::MathImage::Values::Sequence::Emirps->new
+  my $values_obj = App::MathImage::NumSeq::Emirps->new
     (lo => 1,
      hi => 30);
 
@@ -64,11 +64,11 @@ use App::MathImage::Values::Sequence::Emirps;
 
 {
   ## no critic (ProtectPrivateSubs)
-  is (App::MathImage::Values::Sequence::Emirps::_reverse_in_radix(123,10),
+  is (App::MathImage::NumSeq::Emirps::_reverse_in_radix(123,10),
       321);
-  is (App::MathImage::Values::Sequence::Emirps::_reverse_in_radix(0xAB,16),
+  is (App::MathImage::NumSeq::Emirps::_reverse_in_radix(0xAB,16),
       0xBA);
-  is (App::MathImage::Values::Sequence::Emirps::_reverse_in_radix(6,2),
+  is (App::MathImage::NumSeq::Emirps::_reverse_in_radix(6,2),
       3);
 }
 

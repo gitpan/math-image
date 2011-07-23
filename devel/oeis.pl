@@ -26,13 +26,13 @@ use POSIX;
 use Smart::Comments;
 
 {
-  require App::MathImage::Values::OeisCatalogue;
+  require App::MathImage::NumSeq::OEIS::Catalogue;
   my $anum = 'A163544';
-  my $info = App::MathImage::Values::OeisCatalogue->anum_to_info($anum);
+  my $info = App::MathImage::NumSeq::OEIS::Catalogue->anum_to_info($anum);
   ### $info
 
-  require App::MathImage::Values::Sequence::OEIS;
-  my $seq = App::MathImage::Values::Sequence::OEIS->new(anum=>'A163544');
+  require App::MathImage::NumSeq::OEIS;
+  my $seq = App::MathImage::NumSeq::OEIS->new(anum=>'A163544');
   ### $seq
   exit 0;
 }
@@ -44,41 +44,41 @@ use Smart::Comments;
   exit 0;
 }
 {
-  require App::MathImage::Values::OeisCatalogue::Plugin::ZZ_Files;
-  require App::MathImage::Values::OeisCatalogue::Plugin::FractionDigits;
-  foreach my $info (App::MathImage::Values::OeisCatalogue::Plugin::FractionDigits->info_arrayref) {
+  require App::MathImage::NumSeq::OEIS::Catalogue::Plugin::ZZ_Files;
+  require App::MathImage::NumSeq::OEIS::Catalogue::Plugin::FractionDigits;
+  foreach my $info (App::MathImage::NumSeq::OEIS::Catalogue::Plugin::FractionDigits->info_arrayref) {
     ### info: $info->[0]
     my $anum = $info->[0]->{'anum'};
-    require App::MathImage::Values::Sequence::OEIS;
-    my $seq = App::MathImage::Values::Sequence::OEIS->new(anum=>$anum);
+    require App::MathImage::NumSeq::OEIS;
+    my $seq = App::MathImage::NumSeq::OEIS->new(anum=>$anum);
   }
   exit 0;
 }
 
 {
-  require App::MathImage::Values::OeisCatalogue;
-  my $info = App::MathImage::Values::OeisCatalogue->anum_to_info('A000290');
+  require App::MathImage::NumSeq::OEIS::Catalogue;
+  my $info = App::MathImage::NumSeq::OEIS::Catalogue->anum_to_info('A000290');
   ### $info
-  { my $anum = App::MathImage::Values::OeisCatalogue->anum_first;
+  { my $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_first;
     ### $anum
   }
-  { my $anum = App::MathImage::Values::OeisCatalogue->anum_last;
-    ### $anum
-  }
-  {
-    my $anum = App::MathImage::Values::OeisCatalogue->anum_after('A000032');
+  { my $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_last;
     ### $anum
   }
   {
-    my $anum = App::MathImage::Values::OeisCatalogue->anum_before('A000032');
+    my $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_after('A000032');
     ### $anum
   }
-  # my @list = App::MathImage::Values::OeisCatalogue->anum_list;
+  {
+    my $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_before('A000032');
+    ### $anum
+  }
+  # my @list = App::MathImage::NumSeq::OEIS::Catalogue->anum_list;
   # ### @list
 
   {
-    require App::MathImage::Values::OeisCatalogue;
-    foreach my $plugin (App::MathImage::Values::OeisCatalogue->plugins) {
+    require App::MathImage::NumSeq::OEIS::Catalogue;
+    foreach my $plugin (App::MathImage::NumSeq::OEIS::Catalogue->plugins) {
       ### $plugin
       ### first: $plugin->anum_first
       ### last: $plugin->anum_last
@@ -90,8 +90,8 @@ use Smart::Comments;
 
 
 {
-  require App::MathImage::Values::Sequence::OEIS;
-  my $seq = App::MathImage::Values::Sequence::OEIS->new(anum=>'A000032');
+  require App::MathImage::NumSeq::OEIS;
+  my $seq = App::MathImage::NumSeq::OEIS->new(anum=>'A000032');
   ### $seq
   exit 0;
 }
@@ -106,17 +106,17 @@ use Smart::Comments;
       goto $old;
     };
   }
-  require App::MathImage::Values::OeisCatalogue;
-  App::MathImage::Values::OeisCatalogue->plugins;
+  require App::MathImage::NumSeq::OEIS::Catalogue;
+  App::MathImage::NumSeq::OEIS::Catalogue->plugins;
   print "\n";
-  App::MathImage::Values::OeisCatalogue->plugins;
+  App::MathImage::NumSeq::OEIS::Catalogue->plugins;
   print "\n";
-  App::MathImage::Values::OeisCatalogue->plugins;
+  App::MathImage::NumSeq::OEIS::Catalogue->plugins;
 }
 
 {
-  require App::MathImage::Values::OeisCatalogue::Plugin::Files;
-  my $info = App::MathImage::Values::OeisCatalogue::Plugin::Files->anum_to_info(32);
+  require App::MathImage::NumSeq::OEIS::Catalogue::Plugin::Files;
+  my $info = App::MathImage::NumSeq::OEIS::Catalogue::Plugin::Files->anum_to_info(32);
   ### $info
 exit 0;
 }

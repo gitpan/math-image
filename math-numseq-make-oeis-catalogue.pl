@@ -24,21 +24,21 @@ use Data::Dumper;
 use Module::Util;
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-my $outfilename = 'lib/App/MathImage/Values/OeisCatalogue/Plugin/BuiltinTable.pm';
+my $outfilename = 'lib/App/MathImage/NumSeq/OEIS/Catalogue/Plugin/BuiltinTable.pm';
 
 my %seen;
 my $exit_code = 0;
 
 my @info_arrayref;
-my @classes = Module::Util::find_in_namespace('App::MathImage::Values::Sequence');
+my @classes = Module::Util::find_in_namespace('App::MathImage::NumSeq');
+@classes = grep {! /^App::MathImage::NumSeq::.*::/} @classes; # not sub-parts
 @classes = sort @classes;
 foreach my $class (@classes) {
-  # next if $class =~ /^App::MathImage::Values::Sequence::.*::/; # not sub-parts
 
   my $filename = Module::Util::find_installed($class) or die;
   ### $filename
@@ -47,9 +47,9 @@ foreach my $class (@classes) {
     chomp;
     my $where = "$filename:$.";
     my ($anum, $parameters, $comment);
-    if (/^# OeisCatalogue: /) {
-      ### OeisCatalogue
-      ($anum, $parameters, $comment) = /^# OeisCatalogue: (A[0-9]+)\s*(.*?)(#.*)?$/
+    if (/^# OEIS-Catalogue: /) {
+      ### OEIS-Catalogue
+      ($anum, $parameters, $comment) = /^# OEIS-Catalogue: (A[0-9]+)\s*(.*?)(#.*)?$/
         or die "$where: oops, bad OEIS line: $_";
     } elsif (/^use constant oeis_anum\W/) {
       ### use constant
@@ -114,14 +114,14 @@ print $out <<"HERE";
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::OeisCatalogue::Plugin::BuiltinTable;
+package App::MathImage::NumSeq::OEIS::Catalogue::Plugin::BuiltinTable;
 use strict;
 use warnings;
 
 use vars '\$VERSION', '\@ISA';
 \$VERSION = $VERSION;
-use App::MathImage::Values::OeisCatalogue::Base;
-\@ISA = ('App::MathImage::Values::OeisCatalogue::Base');
+use App::MathImage::NumSeq::OEIS::Catalogue::Plugin;
+\@ISA = ('App::MathImage::NumSeq::OEIS::Catalogue::Plugin');
 
 use constant info_arrayref =>
 HERE

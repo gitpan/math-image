@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::Sequence::PentagonalSecond;
+package App::MathImage::NumSeq::PentagonalSecond;
 use 5.004;
 use strict;
 use warnings;
 
-use App::MathImage::Values::Base '__';
-use base 'App::MathImage::Values::Sequence';
+use App::MathImage::NumSeq '__';
+use base 'App::MathImage::NumSeq';
 
 use vars '$VERSION';
 $VERSION = 38;

@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::Sequence::ThueMorse;
+package App::MathImage::NumSeq::ThueMorse;
 use 5.004;
 use strict;
 use warnings;
 use List::Util 'max';
 
-use App::MathImage::Values::Base '__';
-use base 'App::MathImage::Values::Sequence';
-use App::MathImage::Values::Base::Digits;
+use App::MathImage::NumSeq '__';
+use base 'App::MathImage::NumSeq';
+use App::MathImage::NumSeq::Digits;
 
 use vars '$VERSION';
 $VERSION = 38;
@@ -35,7 +35,7 @@ $VERSION = 38;
 
 use constant name => __('Digit Sum Modulo');
 use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
-use constant parameter_list => (App::MathImage::Values::Base::Digits::parameter_common_radix);
+use constant parameter_list => (App::MathImage::NumSeq::Digits::parameter_common_radix);
 
 # use constant parameter_list => ({ name    => 'parity',
 #                                   display => __('Parity'),

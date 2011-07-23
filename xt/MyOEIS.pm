@@ -95,9 +95,9 @@ sub _read_values {
       my @array;
       my $lo;
       while (defined (my $line = <FH>)) {
-        chomp $line;
-        next if $line =~ /^\s*$/;   # ignore blank lines
-        next if $line =~ /^#/;   # ignore comment lines, eg. b006450.txt
+        $line =~ s/^\s+//;     # leading white space
+        next if $line eq '';   # ignore blank lines
+        next if $line =~ /^#/; # ignore comment lines, eg. b006450.txt
         my ($i, $n) = split /\s+/, $line;
         if (! defined $lo) {
           $lo = $i;

@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 64;
+our $VERSION = 65;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -232,20 +232,20 @@ sub _do_scroll_action {
 
 sub _scroll {
   my ($self, $direction, $count) = @_;
-  require App::MathImage::Values::OeisCatalogue;
+  require App::MathImage::NumSeq::OEIS::Catalogue;
   my $method = $direction eq 'up' ? 'anum_after' : 'anum_before';
   my $entry = $self->{'entry'};
   my $anum  = my $orig_anum = $entry->get_text;
   for ( ; $count > 0; $count--) {
-    my $next_anum = App::MathImage::Values::OeisCatalogue->$method
+    my $next_anum = App::MathImage::NumSeq::OEIS::Catalogue->$method
       ($anum);
     if (defined $next_anum) {
       $anum = $next_anum;
     } else {
       if ($direction eq 'up') {
-        $anum = App::MathImage::Values::OeisCatalogue->anum_last;
+        $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_last;
       } else {
-        $anum = App::MathImage::Values::OeisCatalogue->anum_first;
+        $anum = App::MathImage::NumSeq::OEIS::Catalogue->anum_first;
       }
       last;
     }
@@ -279,9 +279,9 @@ sub activate {
 #   my $new_value = $self->get_value;
 #   if ($new_value != $old_value) {
 #     if ($new_value > $old_value) {
-#       $new_value = App::MathImage::Values::OeisCatalogue->num_after($new_value-1);
+#       $new_value = App::MathImage::NumSeq::OEIS::Catalogue->num_after($new_value-1);
 #     } else {
-#       $new_value = App::MathImage::Values::OeisCatalogue->num_before($new_value+1);
+#       $new_value = App::MathImage::NumSeq::OEIS::Catalogue->num_before($new_value+1);
 #     }
 #     $self->set_value ($new_value);
 #   }
@@ -305,7 +305,7 @@ sub activate {
 # 
 #     my $value = $self->get_value;
 #     while ($amount-- > 0) {
-#       if (defined (my $next = App::MathImage::Values::OeisCatalogue->$method($value))) {
+#       if (defined (my $next = App::MathImage::NumSeq::OEIS::Catalogue->$method($value))) {
 #         $value = $next;
 #       } else {
 #         last;
@@ -315,12 +315,12 @@ sub activate {
 #     $self->set_value($value);
 # 
 #   } elsif ($scroll_type eq 'start') {
-#     ### start: App::MathImage::Values::OeisCatalogue->num_first
-#     $self->set_value (App::MathImage::Values::OeisCatalogue->num_first);
+#     ### start: App::MathImage::NumSeq::OEIS::Catalogue->num_first
+#     $self->set_value (App::MathImage::NumSeq::OEIS::Catalogue->num_first);
 # 
 #   } elsif ($scroll_type eq 'end') {
-#     ### start: App::MathImage::Values::OeisCatalogue->num_last
-#     $self->set_value (App::MathImage::Values::OeisCatalogue->num_last);
+#     ### start: App::MathImage::NumSeq::OEIS::Catalogue->num_last
+#     $self->set_value (App::MathImage::NumSeq::OEIS::Catalogue->num_last);
 # 
 #   } else {
 #     ### chain...

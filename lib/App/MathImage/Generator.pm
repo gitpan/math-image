@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -83,11 +83,10 @@ sub new {
 # columns_of_pythagoras
 use constant values_choices => do {
   my %choices;
-  foreach my $module (Module::Util::find_in_namespace
-                      ('App::MathImage::Values::Sequence')) {
+  foreach my $module (Module::Util::find_in_namespace('App::MathImage::NumSeq')) {
     my $choice = $module;
-    $choice =~ s/^App::MathImage::Values::Sequence:://;
-    next if $choice eq 'OEIS::File';
+    $choice =~ s/^App::MathImage::NumSeq:://;
+    next if $choice =~ /::/; # not sub-modules
     $choice =~ s/::/-/g;
     $choices{$choice} = 1;
   }
@@ -126,6 +125,7 @@ use constant values_choices => do {
                          Padovan
                          Tribonacci
                          Factorials
+                         Primorials
 
                          FractionDigits
                          SqrtDigits
@@ -142,8 +142,16 @@ use constant values_choices => do {
                          ThueMorse
                          ChampernowneBinary
                          ChampernowneBinaryLsb
+
                          DigitLength
                          DigitLengthCumulative
+                         DigitSum
+                         DigitSumModulo
+                         DigitProduct
+                         DigitCount
+                         DigitCountHigh
+                         DigitCountLow
+
                          PrimeQuadraticEuler
                          PrimeQuadraticLegendre
                          PrimeQuadraticHonaker
@@ -156,9 +164,9 @@ use constant values_choices => do {
                          Base4Without3
                          RadixWithoutDigit
 
-                         CullenNumbers
-                         WoodallNumbers
-                         ProthNumbers
+                         Cullen
+                         Woodall
+                         Proth
 
                          Hailstone
                          Multiples
@@ -184,7 +192,7 @@ sub values_class {
   my ($class_or_self, $values) = @_;
   $values ||= $class_or_self->{'values'};
   $values =~ s/-/::/g;
-  my $values_class = "App::MathImage::Values::Sequence::$values";
+  my $values_class = "App::MathImage::NumSeq::$values";
   Module::Load::load ($values_class);
   return $values_class;
 }
@@ -222,6 +230,7 @@ my %pathname_square_grid
                      PentSpiralSkewed
                      HexSpiral
                      HexSpiralSkewed
+                     HexArms
                      HeptSpiralSkewed
                      OctagramSpiral
                      KnightSpiral
@@ -372,6 +381,14 @@ my %pathname_square_grid
         width     => 3,
       } ];
 }
+{ package Math::PlanePath::MathImageFile;
+  use constant MathImage__parameter_info_array =>
+    [ { name    => 'filename',
+        type    => 'filename',
+        width   => 40,
+        default => '',
+      } ];
+}
 
 
 #------------------------------------------------------------------------------
@@ -420,6 +437,19 @@ my %pathname_square_grid
      # PixelRings  => 0,
 
 #------------------------------------------------------------------------------
+# path line increment
+
+{ package Math::PlanePath;
+  use constant MathImage__line_increment => 1;
+}
+{ package Math::PlanePath::HexArms;
+  use constant MathImage__line_increment => 6;
+}
+{ package Math::PlanePath::MathImageSquareArms;
+  use constant MathImage__line_increment => 4;
+}
+
+#------------------------------------------------------------------------------
 # path variant x,y negative
 
 { package Math::PlanePath;
@@ -449,6 +479,9 @@ sub y_negative {
 { package Math::PlanePath::HexSpiral;
   use constant MathImage__lattice_type => 'triangular';
 }
+{ package Math::PlanePath::HexArms;
+  use constant MathImage__lattice_type => 'triangular';
+}
 { package Math::PlanePath::TriangularHypot;
   use constant MathImage__lattice_type => 'triangular';
 }
@@ -470,83 +503,84 @@ sub y_negative {
 { package Math::PlanePath::GosperIslands;
   use constant MathImage__lattice_type => 'triangular';
 }
-{ package Math::PlanePath::MathImageFlowsnake;
-  use constant MathImage__lattice_type => 'triangular';
-}
-
-
-#------------------------------------------------------------------------------
-
-use constant path_choices => do {
-  my %choices;
-  my $base = 'Math::PlanePath';
-  foreach my $module (Module::Util::find_in_namespace($base)) {
-    my $choice = $module;
-    $choice =~ s/^\Q$base\E:://;
-    next if $choice =~ /::/; # not sub-parts ?
-    $choices{$choice} = 1;
+  { package Math::PlanePath::MathImageFlowsnake;
+    use constant MathImage__lattice_type => 'triangular';
   }
-  my @choices;
-  foreach my $prefer (qw(SquareSpiral
-                         SacksSpiral
-                         VogelFloret
-                         TheodorusSpiral
-                         ArchimedeanChords
-                         MultipleRings
-                         PixelRings
-                         Hypot
-                         HypotOctant
-                         TriangularHypot
 
-                         DiamondSpiral
-                         PentSpiral
-                         PentSpiralSkewed
-                         HexSpiral
-                         HexSpiralSkewed
-                         HeptSpiralSkewed
-                         TriangleSpiral
-                         TriangleSpiralSkewed
-                         OctagramSpiral
-                         KnightSpiral
-                         GreekKeySpiral
 
-                         PyramidRows
-                         PyramidSides
-                         PyramidSpiral
-                         Corner
-                         Diagonals
-                         Staircase
-                         Rows
-                         Columns
+  #------------------------------------------------------------------------------
 
-                         PeanoCurve
-                         HilbertCurve
-                         ZOrderCurve
-                         GosperIslands
-                         GosperSide
-                         KochSnowflakes
-                         KochPeaks
-                         KochCurve
-                         SierpinskiArrowhead
-
-                         PythagoreanTree
-                       )) {
-    if (delete $choices{$prefer}) {
-      push @choices, $prefer;
+  use constant path_choices => do {
+    my %choices;
+    my $base = 'Math::PlanePath';
+    foreach my $module (Module::Util::find_in_namespace($base)) {
+      my $choice = $module;
+      $choice =~ s/^\Q$base\E:://;
+      next if $choice =~ /::/; # not sub-parts ?
+      $choices{$choice} = 1;
     }
-  }
-  if (! Module::Util::find_in_namespace('Math::PlanePath::SierpinskiArrowhead')) {
-    # unexpressed dependency ...
-    delete $choices{'MathImageSierpinskiArrowheadSkewed'};
-  }
-  my @mi = grep {/^MathImage/} keys %choices;
-  delete @choices{@mi}; # hash slice
-  ### path extras: %choices
-  push @choices, sort keys %choices;
-  push @choices, sort @mi;  # MathImageFoo ones last
-  ### path choices: @choices
-  @choices
-};
+    my @choices;
+    foreach my $prefer (qw(SquareSpiral
+                           SacksSpiral
+                           VogelFloret
+                           TheodorusSpiral
+                           ArchimedeanChords
+                           MultipleRings
+                           PixelRings
+                           Hypot
+                           HypotOctant
+                           TriangularHypot
+
+                           DiamondSpiral
+                           PentSpiral
+                           PentSpiralSkewed
+                           HexSpiral
+                           HexSpiralSkewed
+                           HexArms
+                           HeptSpiralSkewed
+                           TriangleSpiral
+                           TriangleSpiralSkewed
+                           OctagramSpiral
+                           KnightSpiral
+                           GreekKeySpiral
+
+                           PyramidRows
+                           PyramidSides
+                           PyramidSpiral
+                           Corner
+                           Diagonals
+                           Staircase
+                           Rows
+                           Columns
+
+                           PeanoCurve
+                           HilbertCurve
+                           ZOrderCurve
+                           GosperIslands
+                           GosperSide
+                           KochSnowflakes
+                           KochPeaks
+                           KochCurve
+                           SierpinskiArrowhead
+
+                           PythagoreanTree
+                         )) {
+      if (delete $choices{$prefer}) {
+        push @choices, $prefer;
+      }
+    }
+    if (! Module::Util::find_in_namespace('Math::PlanePath::SierpinskiArrowhead')) {
+      # unexpressed dependency ...
+      delete $choices{'MathImageSierpinskiArrowheadSkewed'};
+    }
+    my @mi = grep {/^MathImage/} keys %choices;
+    delete @choices{@mi}; # hash slice
+    ### path extras: %choices
+    push @choices, sort keys %choices;
+    push @choices, sort @mi;  # MathImageFoo ones last
+    ### path choices: @choices
+    @choices
+  };
 
 use constant figure_choices => qw(default
                                   point
@@ -986,8 +1020,10 @@ sub colours_grey_exp {
   my $colours = $self->{'colours'} = [];
   my $f = 1.0;
   my $shrink = 0.6;
-  if ($self->{'values'} eq 'TotientSteps') {
-    $shrink = 1 - 1/8;
+  if ($self->{'values'} eq 'Totient') {
+    $shrink = .9995;
+  } elsif ($self->{'values'} eq 'TotientSteps') {
+    $shrink = .88;
   } elsif ($self->{'values'} eq 'CollatzSteps') {
     if ($self->values_object->{'step_type'} eq 'up') {
       $shrink = 1 - 1/15;
@@ -998,6 +1034,8 @@ sub colours_grey_exp {
     }
   } elsif ($self->{'values'} eq 'HappySteps') {
     $shrink = 1 - 1/10;
+  } elsif ($self->{'values'} eq 'DigitProduct') {
+    $shrink = .99;
   }
   for (;;) {
     push @$colours, $self->colour_scaled ($f);
@@ -1558,7 +1596,7 @@ sub draw_Image_steps {
 
   if ($self->{'values'} eq 'Lines') {
     my $increment = $self->{'values_parameters'}->{'increment'} ||
-      ($self->{'path'} eq 'MathImageHexArms' ? 6 : 1);
+      $path_object->MathImage__line_increment;
     my $n_offset_from = ($self->{'use_xy'} ? -$increment : 0);
     my $n_offset_to = $increment;
 

@@ -15,18 +15,18 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::Sequence::SemiPrimesOdd;
+package App::MathImage::NumSeq::SemiPrimesOdd;
 use 5.004;
 use strict;
 
-use App::MathImage::Values::Base '__';
-use base 'App::MathImage::Values::Sequence::SemiPrimes';
+use App::MathImage::NumSeq '__';
+use base 'App::MathImage::NumSeq::SemiPrimes';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 use constant name => __('Semi-Primes, Odd');
 use constant description => __('The odd semi-primes, or bi-primes, 9, 15, 21, etc, being odd numbers with just two prime factors P*Q, including P==Q squares of primes.');

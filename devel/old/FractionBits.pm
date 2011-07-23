@@ -15,13 +15,23 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::Sequence::FractionBits;
+
+     # [ 'FractionBits', 0,
+     #   [ 1,2,3 ],
+     #   { fraction => '7' } ],
+     # [ 'FractionBits', 0,
+     #   [ 1,3,5,7,9,11,13 ],
+     #   { fraction => '1/3' } ],
+
+
+
+package App::MathImage::NumSeq::FractionBits;
 use 5.004;
 use strict;
 use List::Util 'max';
 
-use App::MathImage::Values::Base '__';
-use base 'App::MathImage::Values::Sequence';
+use App::MathImage::NumSeq '__';
+use base 'App::MathImage::NumSeq';
 
 use vars '$VERSION';
 $VERSION = 38;

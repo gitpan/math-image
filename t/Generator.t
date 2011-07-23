@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 64;
+  my $want_version = 65;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -142,7 +142,8 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 {
   my $good = 1;
   require Image::Base::Text;
-  diag "path_choices: ",join(' ',App::MathImage::Generator->path_choices);
+  # diag "path_choices: ",join(' ',App::MathImage::Generator->path_choices);
+
   # only exercise the dependencies and maybe supplied paths, not everything
   # in case some stuff not working
   foreach my $path ('SquareSpiral') {
@@ -152,7 +153,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
                                               path   => $path,
                                               values => 'All');
     my $description = $gen->description; # exercise description string
-    diag "exercise path $path: $description";
+    # diag "exercise path $path: $description";
     my $image = Image::Base::Text->new
       (-width  => 10,
        -height => 10,
@@ -170,7 +171,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
   require Image::Base::Text;
   my $good = 1;
   foreach my $values (App::MathImage::Generator->values_choices) {
-    diag "exercise values $values";
+    # diag "exercise values $values";
     if ($values eq 'OEIS-File') {
       diag "skip $values so as not to depend on OEIS downloads";
       next;

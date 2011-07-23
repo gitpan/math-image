@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Values::OeisCatalogue::Plugin::SqrtDigits;
+package App::MathImage::NumSeq::OEIS::Catalogue::Plugin::SqrtDigits;
 use 5.004;
 use strict;
 use List::Util 'min', 'max'; # FIXME: 5.6 only, maybe
 
 use vars '@ISA';
-use App::MathImage::Values::OeisCatalogue::Plugin::FractionDigits;
-@ISA = ('App::MathImage::Values::OeisCatalogue::Plugin::FractionDigits');
+use App::MathImage::NumSeq::OEIS::Catalogue::Plugin::FractionDigits;
+@ISA = ('App::MathImage::NumSeq::OEIS::Catalogue::Plugin::FractionDigits');
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
@@ -41,7 +41,7 @@ sub make_info {
   ### $sqrt
   $sqrt += max (0, int(sqrt($sqrt)) - 3);
   return { num => $num,
-           class => 'App::MathImage::Values::Sequence::SqrtDigits',
+           class => 'App::MathImage::NumSeq::SqrtDigits',
            parameters_hashref => { sqrt  => $sqrt,
                                    radix => 10 } };
 }

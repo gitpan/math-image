@@ -24,6 +24,13 @@ use ExtUtils::MakeMaker;
 use lib 'inc';
 use MyMakeMakerExtras;
 
+my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
+                                # suggest ErrorTextDialog v.7 for popup control
+                                'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
+                                'Gtk2::Ex::PodViewer'   => 0,
+                                'Gtk2::Ex::QuadButton'  => 0,
+                               );
+
 my %for_x11 = ('X11::Protocol' => 0,
                # my X11-Protocol-Other
                'X11::Protocol::Other'    => 1,
@@ -34,12 +41,18 @@ my %for_x11 = ('X11::Protocol' => 0,
                'Image::Base::X11::Protocol::Pixmap' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
               );
-my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
-                      # suggest ErrorTextDialog v.7 for popup control
-                      'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
-                      'Gtk2::Ex::PodViewer'   => 0,
-                      'Gtk2::Ex::QuadButton'  => 0,
-                     );
+
+my %tk_interface = ('Tk::MainWindow' => 0,
+                    'Tk::Balloon' => 0,
+                   );
+my %tk_optionals = ('Tk::PNG' => 0,
+                    'Tk::JPEG' => 0,
+                    'Tk::TIFF' => 0,
+                   );
+
+my %curses_interface = ('Curses::UI' => 0,
+                        'Curses::UI::Common' => 0,
+                       );
 
 my %maximum_planepath
   = (
@@ -62,6 +75,7 @@ my %maximum_planepath
      'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
      'Math::PlanePath::HexSpiral'            => 9,  # v.9 wider parameter
      'Math::PlanePath::HexSpiralSkewed'      => 9,  # v.9 wider parameter
+     'Math::PlanePath::HexArms'              => 36, # new in v.36
      'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
      'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
      'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
@@ -78,7 +92,7 @@ my %maximum_planepath
      'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
      'Math::PlanePath::Columns'              => 26, # v.26 against height==0
 
-     'Math::PlanePath::PeanoCurve'           => 16, # new in v.16
+     'Math::PlanePath::PeanoCurve'           => 36, # v.36 radix parameter
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
@@ -228,6 +242,20 @@ MyMakeMakerExtras::WriteMakefile
         requires => \%gtk2_optionals,
       },
 
+      tk_interface =>
+      { description => 'Tk GUI modules.',
+        requires => \%tk_interface,
+      },
+      tk_optionals =>
+      { description => 'Tk things used if available.',
+        requires => \%tk_optionals,
+      },
+
+      curses_interface =>
+      { description => 'Experimental Curses interface.',
+        requires => \%curses_interface,
+      },
+
       maximum_planepath =>
       { description => 'Recommended PlanePath modules',
         requires => \%maximum_planepath,
@@ -238,6 +266,8 @@ MyMakeMakerExtras::WriteMakefile
                      %maximum_planepath,
                      %for_x11,
                      %gtk2_optionals,
+                     %tk_interface,
+                     %tk_optionals,
 
                      'Image::Xpm'             => 0,
                      'Image::Base::GD'        => 8, # v.8 ellipse() $fill
@@ -278,7 +308,7 @@ sub postamble {
 
 #------------------------------------------------------------------------------
 
-oeis lib/App/MathImage/Values/OeisCatalogue/Plugin/BuiltinTable.pm: math-numseq-make-oeis-catalogue.pl lib/App/MathImage/Values/Sequence/*.pm
+oeis lib/App/MathImage/NumSeq/OEIS/Catalogue/Plugin/BuiltinTable.pm: math-numseq-make-oeis-catalogue.pl lib/App/MathImage/NumSeq/*.pm
 	$(PERL) math-numseq-make-oeis-catalogue.pl || (rm -f $@; false)
 HERE
 }

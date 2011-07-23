@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            64
+version:            65
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -92,6 +92,11 @@ meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
 optional_features:
+    curses_interface:
+        description:  Experimental Curses interface.
+        requires:
+            Curses::UI:          0
+            Curses::UI::Common:  0
     for_x11:
         description:  Things for native X through X11::Protocol.
         requires:
@@ -145,6 +150,7 @@ optional_features:
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
+            Math::PlanePath::HexArms:  36
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
             Math::PlanePath::HilbertCurve:  13
@@ -156,7 +162,7 @@ optional_features:
             Math::PlanePath::KochSnowflakes:  30
             Math::PlanePath::MultipleRings:  15
             Math::PlanePath::OctagramSpiral:  21
-            Math::PlanePath::PeanoCurve:  16
+            Math::PlanePath::PeanoCurve:  36
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
             Math::PlanePath::PixelRings:  28
@@ -177,6 +183,11 @@ optional_features:
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
+            Tk::Balloon:          0
+            Tk::JPEG:             0
+            Tk::MainWindow:       0
+            Tk::PNG:              0
+            Tk::TIFF:             0
             X11::AtomConstants:   2
             X11::Protocol:        0
             X11::Protocol::Other:  1
@@ -195,6 +206,7 @@ optional_features:
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
+            Math::PlanePath::HexArms:  36
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
             Math::PlanePath::HilbertCurve:  13
@@ -206,7 +218,7 @@ optional_features:
             Math::PlanePath::KochSnowflakes:  30
             Math::PlanePath::MultipleRings:  15
             Math::PlanePath::OctagramSpiral:  21
-            Math::PlanePath::PeanoCurve:  16
+            Math::PlanePath::PeanoCurve:  36
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
             Math::PlanePath::PixelRings:  28
@@ -240,6 +252,17 @@ optional_features:
             YAML::Syck:           0
             YAML::Tiny:           0
             YAML::XS:             0
+    tk_interface:
+        description:  Tk GUI modules.
+        requires:
+            Tk::Balloon:     0
+            Tk::MainWindow:  0
+    tk_optionals:
+        description:  Tk things used if available.
+        requires:
+            Tk::JPEG:  0
+            Tk::PNG:   0
+            Tk::TIFF:  0
 recommends:
     Gtk2::Ex::CrossHair:  0
     Gtk2::Ex::ErrorTextDialog::Handler:  7
@@ -261,6 +284,7 @@ recommends:
     Math::PlanePath::GosperSide:  35
     Math::PlanePath::GreekKeySpiral:  27
     Math::PlanePath::HeptSpiralSkewed:  4
+    Math::PlanePath::HexArms:  36
     Math::PlanePath::HexSpiral:  9
     Math::PlanePath::HexSpiralSkewed:  9
     Math::PlanePath::HilbertCurve:  13
@@ -272,7 +296,7 @@ recommends:
     Math::PlanePath::KochSnowflakes:  30
     Math::PlanePath::MultipleRings:  15
     Math::PlanePath::OctagramSpiral:  21
-    Math::PlanePath::PeanoCurve:  16
+    Math::PlanePath::PeanoCurve:  36
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
     Math::PlanePath::PixelRings:  28

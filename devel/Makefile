@@ -17,7 +17,7 @@
 
 
 CFLAGS = -Wall -g
-LOADLIBES = -lmpfr -lgmp
+LOADLIBES = -lmpfr -lgmp -lm
 
 misc: misc.c Makefile
 	$(CC) $(CFLAGS) misc.c $(LOADLIBES) -o misc

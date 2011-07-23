@@ -81,19 +81,21 @@ $|=1;
     $values_class = $gen->values_class('HypotCount');
     $values_class = $gen->values_class('PrimeIndexCount');
     $values_class = $gen->values_class('Primorials');
-    $values_class = $gen->values_class('LoeschianNumbers');
+    $values_class = $gen->values_class('Loeschian');
     $values_class = $gen->values_class('SumXsq3Ysq');
     # $values_class = $gen->values_class('Hailstone');
-    $values_class = $gen->values_class('ProthNumbers');
+    $values_class = $gen->values_class('Proth');
     $values_class = $gen->values_class('DigitCountLow');
     $values_class = $gen->values_class('DigitSumModulo');
     $values_class = $gen->values_class('PrimeFactorCount');
     $values_class = $gen->values_class('RadixWithoutDigit');
     $values_class = $gen->values_class('ReverseAddSteps');
-    $values_class = $gen->values_class('HarshadNumbers');
+    $values_class = $gen->values_class('Harshad');
     $values_class = $gen->values_class('HappySteps');
+    $values_class = $gen->values_class('TotientPerfect');
+    $values_class = $gen->values_class('TotientStepsSum');
     $values_class = $gen->values_class('FractionDigits');
-    my $values_obj = $values_class->new (fraction => '1/996',
+    my $values_obj = $values_class->new (fraction => '1/975',
                                          polygonal => 13,
                                          pairs => 'first',
                                          lo => 0,
@@ -171,8 +173,8 @@ $|=1;
           }
         }
         if (defined $value) {
-          # print "$value,";
-          print "$i=$value,";
+           print "$value,";
+          #print "$i=$value,";
         } else {
           print "$i,";
           $value=$i;
@@ -213,8 +215,8 @@ $|=1;
 
 
 {
-  require App::MathImage::Values::Sequence::Tribonacci;
-  my $values_obj = App::MathImage::Values::Sequence::Tribonacci->new (hi => 13);
+  require App::MathImage::NumSeq::Tribonacci;
+  my $values_obj = App::MathImage::NumSeq::Tribonacci->new (hi => 13);
   my @next = ( $values_obj->next,
                $values_obj->next,
                $values_obj->next,
@@ -277,9 +279,9 @@ $|=1;
   }
 
   require Math::PlanePath::MultipleRings;
-  require App::MathImage::Values::Sequence::PrimeQuadraticHonaker;
+  require App::MathImage::NumSeq::PrimeQuadraticHonaker;
   require B::Concise;
-  # B::Concise::compile('-exec',\&App::MathImage::Values::Sequence::PrimeQuadraticHonaker::pred)->();
+  # B::Concise::compile('-exec',\&App::MathImage::NumSeq::PrimeQuadraticHonaker::pred)->();
   B::Concise::compile('-exec',\&Math::PlanePath::MultipleRings::_xy_to_d)->();
   exit 0;
 }
@@ -364,7 +366,7 @@ $|=1;
 {
   require Module::Util;
   my @modules = Module::Util::find_in_namespace
-    ('App::MathImage::Values::Sequence');
+    ('App::MathImage::NumSeq');
   ### @modules
   exit 0;
 }
