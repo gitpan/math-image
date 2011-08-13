@@ -20,15 +20,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IteratePred;
-@ISA = ('App::MathImage::NumSeq::Base::IteratePred',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IteratePred;
+@ISA = ('Math::NumSeq::Base::IteratePred',
+        'Math::NumSeq');
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -45,8 +45,8 @@ $VERSION = 65;
 #
 #
 #
-use constant name => __('Golay Rudin Shapiro');
-use constant description => __('Numbers which have an odd number of "11" bit pairs in binary.');
+use constant name => Math::NumSeq::__('Golay Rudin Shapiro');
+use constant description => Math::NumSeq::__('Numbers which have an odd number of "11" bit pairs in binary.');
 use constant values_min => 3;
 use constant oeis_anum => 'A022155';  # positions of -1s
 

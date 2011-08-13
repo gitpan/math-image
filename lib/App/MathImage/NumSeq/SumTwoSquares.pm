@@ -22,17 +22,18 @@ use POSIX 'floor','ceil';
 use List::Util 'max';
 use List::MoreUtils;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Sum of Two Squares');
-use constant description => __('Sum of two squares, ie. all numbers which occur as x^2+y^2 for x>=1 and y>=1.');
+use constant name => Math::NumSeq::__('Sum of Two Squares');
+use constant description => Math::NumSeq::__('Sum of two squares, ie. all numbers which occur as x^2+y^2 for x>=1 and y>=1.');
+use constant characteristic_monotonic => 2;
 
 sub values_min {
   my ($self) = @_;

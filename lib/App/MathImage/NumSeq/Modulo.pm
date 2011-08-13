@@ -20,28 +20,32 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Modulo');
-use constant description => __('Remainder to a given modulus.');
-use constant characteristic_digits => 1;
-use constant parameter_list =>
-  ({ name        => 'modulus',
-     type        => 'integer',
-     display     => __('Modulus'),
-     default     => 13,
-     minimum     => 1,
-     width       => 3,
-     description => __('Modulus.'),
-   });
+use constant name => Math::NumSeq::__('Modulo');
+use constant description => Math::NumSeq::__('Remainder to a given modulus.');
+sub characteristic_modulus {
+  my ($self) = @_;
+  return $self->{'modulus'};
+}
+use constant characteristic_monotonic => 0;
+use constant parameter_info_array =>
+  [ { name        => 'modulus',
+      type        => 'integer',
+      display     => Math::NumSeq::__('Modulus'),
+      default     => 13,
+      minimum     => 1,
+      width       => 3,
+      description => Math::NumSeq::__('Modulus.'),
+    } ];
 
 use constant values_min => 0;
 sub values_max {

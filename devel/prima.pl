@@ -17,6 +17,54 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+use strict;
+use Prima;
+
+# uncomment this to run the ### lines
+use Devel::Comments;
+
+{
+  require Prima::PS::Drawable;
+  my $drawable = Prima::PS::Drawable->create (onSpool => sub {
+                                                open FH, '>/tmp/x' or die;
+                                                print FH $_[1] or die;
+                                                print $_[1];
+                                              });
+  my $w = $drawable->width;
+  my $h = $drawable->height;
+  ### $w
+  ### $h
+
+  $drawable->begin_doc;
+  $drawable->color (cl::Black);
+
+  # $drawable->fillPattern(fp::Solid);
+  # $drawable->rop(rop::CopyPut);
+  # $drawable->rop2(rop::CopyPut);
+  #$drawable-> text_out( "Z", 100, 100);
+  #$drawable-> text_out( "Z", 100, 100);
+
+  $drawable->clipRect (0,0,$h,$w);;
+  ### clip: $drawable->{'clipRect'}
+  $drawable->bar (0,0, $w,$h);
+  $drawable->new_page;
+
+  $drawable->clipRect (0,0,$w,$h-2000);;
+  ### clip: $drawable->{'clipRect'}
+  $drawable->bar (0,0, $w,$h);
+  $drawable->new_page;
+
+  $drawable->clipRect (0,0,0,0);;
+  ### clip: $drawable->{'clipRect'}
+  $drawable->bar (0,0, $w,$h);
+
+  # die "error:$@" unless $drawable-> begin_doc;
+  # $drawable-> font-> size( 30);
+  #$drawable-> text_out( "Z", 100, 100);
+
+  $drawable->end_doc;
+  exit 0;
+}
 
 {
   #   require Prima;

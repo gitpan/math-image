@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 65;
+  my $want_version = 66;
   is ($App::MathImage::Generator::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version, 'VERSION class method');
 
@@ -137,6 +137,43 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 }
 
 #------------------------------------------------------------------------------
+# values_choices
+
+{
+  require Image::Base::Text;
+  my $good = 1;
+  foreach my $values (App::MathImage::Generator->values_choices) {
+    # diag "exercise values $values";
+    if ($values eq 'OEIS-File') {
+      diag "skip $values so as not to depend on OEIS downloads";
+      next;
+    }
+    if ($values eq 'Expression' && ! eval { require Math::Symbolic }) {
+      diag "skip $values due to no Math::Symbolic -- $@";
+      next;
+    }
+    # if ($values eq 'Aronson' && ! eval { require Math::Aronson }) {
+    #   diag "skip $values due to no Math::Aronson -- $@";
+    #   next;
+    # }
+
+    my $gen = App::MathImage::Generator->new (width  => 10,
+                                              height => 10,
+                                              scale  => 1,
+                                              path   => 'SquareSpiral',
+                                              values => $values);
+    $gen->description; # exercise description string
+    my $image = Image::Base::Text->new
+      (-width  => 10,
+       -height => 10,
+       -cindex => { 'black' => ' ',
+                    'white' => '*'});
+    $gen->draw_Image ($image);
+  }
+  ok ($good, "all values_choices exercised");
+}
+
+#------------------------------------------------------------------------------
 # path_choices
 
 {
@@ -162,43 +199,6 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     $gen->draw_Image ($image);
   }
   ok ($good, "all path_choices exercised");
-}
-
-#------------------------------------------------------------------------------
-# values_choices
-
-{
-  require Image::Base::Text;
-  my $good = 1;
-  foreach my $values (App::MathImage::Generator->values_choices) {
-    # diag "exercise values $values";
-    if ($values eq 'OEIS-File') {
-      diag "skip $values so as not to depend on OEIS downloads";
-      next;
-    }
-    if ($values eq 'Expression' && ! eval { require Math::Symbolic }) {
-      diag "skip $values due to no Math::Symbolic -- $@";
-      next;
-    }
-    if ($values eq 'Aronson' && ! eval { require Math::Aronson }) {
-      diag "skip $values due to no Math::Aronson -- $@";
-      next;
-    }
-
-    my $gen = App::MathImage::Generator->new (width  => 10,
-                                              height => 10,
-                                              scale  => 1,
-                                              path   => 'SquareSpiral',
-                                              values => $values);
-    $gen->description; # exercise description string
-    my $image = Image::Base::Text->new
-      (-width  => 10,
-       -height => 10,
-       -cindex => { 'black' => ' ',
-                    'white' => '*'});
-    $gen->draw_Image ($image);
-  }
-  ok ($good, "all values_choices exercised");
 }
 
 #------------------------------------------------------------------------------

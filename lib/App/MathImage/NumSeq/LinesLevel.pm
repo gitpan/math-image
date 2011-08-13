@@ -19,23 +19,23 @@ package App::MathImage::NumSeq::LinesLevel;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
+use Math::NumSeq;
 use base 'App::MathImage::NumSeq::All';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('LinesLevel');
-use constant description => __('No numbers, instead lines showing the path taken.');
-use constant parameter_list =>
-  ({ name    => 'level',
-     display => __('Level'),
-     type    => 'integer',
-     minimum => 1,
-     maximum => 20,
-     default => 3,
-     # description => __('.'),
-   });
+use constant name => Math::NumSeq::__('LinesLevel');
+use constant description => Math::NumSeq::__('No numbers, instead lines showing the path taken.');
+use constant parameter_info_array =>
+  [ { name    => 'level',
+      display => Math::NumSeq::__('Level'),
+      type    => 'integer',
+      minimum => 1,
+      maximum => 999,
+      default => 3,
+      # description => Math::NumSeq::__('.'),
+    } ];
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

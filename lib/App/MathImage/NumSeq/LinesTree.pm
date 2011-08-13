@@ -19,22 +19,23 @@ package App::MathImage::NumSeq::LinesTree;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
+use Math::NumSeq;
 use base 'App::MathImage::NumSeq::All';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Lines');
-use constant description => __('No numbers, instead lines showing the path taken.');
-use constant parameter_list => ({ name    => 'branches',
-                                  display => __('Branches'),
-                                  type    => 'integer',
-                                  default => 3,
-                                  minimum => 2,
-                                  # description => __('...'),
-                                },
-                               );
+use constant name => Math::NumSeq::__('Lines');
+use constant description => Math::NumSeq::__('No numbers, instead lines showing the path taken.');
+use constant parameter_info_array => [ { name    => 'branches',
+                                         display => Math::NumSeq::__('Branches'),
+                                         type    => 'integer',
+                                         default => 3,
+                                         minimum => 2,
+                                         width   => 3,
+                                         # description => Math::NumSeq::__('...'),
+                                       },
+                                     ];
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

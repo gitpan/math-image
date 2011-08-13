@@ -21,25 +21,25 @@ use strict;
 use Carp;
 use Math::Sequence;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Math::Sequence expression');
-use constant description => __('Math::Sequence expression');
-use constant parameter_list =>
-  ({ name    => 'expression',
+use constant name => Math::NumSeq::__('Math::Sequence expression');
+use constant description => Math::NumSeq::__('Math::Sequence expression');
+use constant parameter_info_array =>
+  [{ name    => 'expression',
      display => __('Expression'),
      type    => 'string',
      default => ('3*x^2 + x + 2'),
      width   => 30,
      description => __('A mathematical expression for Math::Sequence.'),
-   });
+   }];
 
 sub rewind {
   my ($self) = @_;

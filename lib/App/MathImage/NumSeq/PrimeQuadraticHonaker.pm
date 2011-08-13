@@ -20,16 +20,17 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
-use constant name => __('Prime Generating Quadratic of Honaker');
-use constant description => __('The quadratic numbers 4*k^2 + 4*k + 59.');
+use constant name => Math::NumSeq::__('Prime Generating Quadratic of Honaker');
+use constant description => Math::NumSeq::__('The quadratic numbers 4*k^2 + 4*k + 59.');
 use constant values_min => 59;
+use constant characteristic_monotonic => 2;
 
 # http://oeis.org/A048988  # only the primes ones
 # use constant oeis_anum => undef;

@@ -16,6 +16,11 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+Version 66, August 2011
+    - flowsnake split out
+    - command line --twin and --polygonal fixes
+    - NumSeq split out
+
 Version 65, July 2011
     - some tk gui interface
 

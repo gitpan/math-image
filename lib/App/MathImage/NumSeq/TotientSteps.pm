@@ -20,12 +20,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 use App::MathImage::NumSeq::Totient;
 *_totient_by_sieve = \&App::MathImage::NumSeq::Totient::_totient_by_sieve;
@@ -33,8 +33,9 @@ use App::MathImage::NumSeq::Totient;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant description => __('Number of repeated applications of the totient function to reach 1.');
+use constant description => Math::NumSeq::__('Number of repeated applications of the totient function to reach 1.');
 use constant characteristic_count => 1;
+use constant characteristic_monotonic => 0;
 use constant values_min => 1;
 use constant i_start => 1;
 use constant oeis_anum => 'A003434';

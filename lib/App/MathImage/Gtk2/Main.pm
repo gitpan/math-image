@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 65;
+our $VERSION = 66;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -526,7 +526,7 @@ sub INIT_INSTANCE {
           write_only => 1,
           func_in => sub {
             my ($path) = @_;
-            ### Main path parameter_list(): $path
+            ### Main path parameter info: $path
             App::MathImage::Generator->path_class($path)
                 ->MathImage__parameter_info_array;
           }]);
@@ -571,10 +571,10 @@ sub INIT_INSTANCE {
           write_only => 1,
           func_in => sub {
             my ($values) = @_;
-            ### Main values parameter_list() for: $values
+            ### Main values parameter info for: $values
             my $values_class = App::MathImage::Generator->values_class($values);
-            ### list: [ $values_class->parameter_list ]
-            return [ $values_class->parameter_list ];
+            ### arrayref: $values_class->parameter_info_array
+            return $values_class->parameter_info_array;
           }]);
     Glib::Ex::ConnectProperties->new ([$draw,'values-parameters'],
                                       [$values_params,'parameter-values']);
@@ -626,6 +626,7 @@ sub INIT_INSTANCE {
     $hbox->pack_start ($spin, 0,0,0);
     $toolitem->show_all;
 
+    # hide for LinesLevel
     Glib::Ex::ConnectProperties->new
         ([$values_combobox,'active-nick'],
          [$toolitem,'visible',
@@ -648,12 +649,6 @@ sub INIT_INSTANCE {
     Glib::Ex::ConnectProperties->new
         ([$draw,'figure'],
          [$combobox,'active-nick']);
-    Glib::Ex::ConnectProperties->new
-        ([$values_combobox,'active-nick'],
-         [$toolitem,'visible',
-          write_only => 1,
-          func_in => sub { $_[0] ne 'Lines'
-                             && $_[0] ne 'LinesLevel' }]);
   }
 
   Gtk2::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
@@ -736,15 +731,31 @@ sub _do_motion_notify {
                              (int($y)==$y ? 0 : 2), $y);
       if (defined $n) {
         $message .= "   N=$n";
-        my ($values, $values_parameters, $radix);
-        if (($values = $draw->get('values'))
-            && $values ne 'Emirps'
-            && ($values_parameters = $draw->get('values-parameters'))
-            && ($radix = $values_parameters->{'radix'})
-            && $radix != 10
-            &&  $draw->gen_object->values_class->parameter_hash->{'radix'}) {
-          my $str = _my_cnv($n,$radix);
-          $message .= " ($str in base $radix)";
+        if ((my $values = $draw->get('values'))
+            && (my $values_obj = $draw->gen_object->values_object)) {
+          my $vstr = '';
+          my $radix;
+          if ($values_obj->can('ith')
+              && (($radix = $values_obj->characteristic('digits'))
+                  || $values_obj->characteristic('count')
+                  || $values_obj->characteristic('modulus'))) {
+            my $value = $values_obj->ith($n);
+            $vstr = " value=$value";
+            if ($value &&
+                $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+              $radix = $value;
+            }
+          }
+          my $values_parameters;
+          if (($radix && $radix != 10)
+              || ($values ne 'Emirps'
+                  && ($values_parameters = $draw->get('values-parameters'))
+                  && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
+                  && ($radix = $values_parameters->{'radix'}))) {
+            my $str = _my_cnv($n,$radix);
+            $message .= " ($str in base $radix)";
+          }
+          $message .= $vstr;
         }
       }
       ### $message
@@ -1049,7 +1060,7 @@ sub print_image {
     $print->set_print_settings ($settings);
   }
   Scalar::Util::weaken (my $weak_self = $self);
-  $print->signal_connect (draw_page => \&_draw_page, \$weak_self);
+  $print->signal_connect (draw_page => \&_print_draw_page, \$weak_self);
 
   my $result = $print->run ('print-dialog', $self);
   if ($result eq 'apply') {
@@ -1057,9 +1068,9 @@ sub print_image {
   }
 }
 
-sub _draw_page {
+sub _print_draw_page {
   my ($print, $pcontext, $pagenum, $ref_weak_self) = @_;
-  ### _draw_page()...
+  ### _print_draw_page()...
   my $self = $$ref_weak_self || return;
   my $c = $pcontext->get_cairo_context;
 
@@ -1097,6 +1108,10 @@ sub _draw_page {
   $c->rectangle (0,0, $pixmap_width,$pixmap_height);
   $c->paint;
 }
+
+
+#------------------------------------------------------------------------------
+# command line
 
 sub command_line {
   my ($class, $mathimage) = @_;

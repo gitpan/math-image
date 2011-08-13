@@ -21,16 +21,16 @@ use strict;
 use POSIX 'ceil';
 use List::Util 'max';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use vars '$VERSION','@ISA';
+$VERSION = 66;
 
-use vars '$VERSION';
-$VERSION = 65;
+use Math::NumSeq;
+@ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant description => __('Cumulative ...');
+use constant description => Math::NumSeq::__('Cumulative ...');
 sub values_min {
   my ($self) = @_;
   return $self->{'sequence'}->values_min;

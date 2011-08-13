@@ -19,17 +19,19 @@ package App::MathImage::NumSeq::Tribonacci;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Sparse';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Tribonacci Numbers');
-use constant description => __('Tribonacci numbers 0, 0, 1, 1, 2, 4, 7, 13, 24, being T(i) = T(i-1) + T(i-2) + T(i-3) starting from 0,0,1.');
+# use constant name => Math::NumSeq::__('Tribonacci Numbers');
+use constant description => Math::NumSeq::__('Tribonacci numbers 0, 0, 1, 1, 2, 4, 7, 13, 24, being T(i) = T(i-1) + T(i-2) + T(i-3) starting from 0,0,1.');
+use constant characteristic_monotonic => 2;
+use constant characteristic_monotonic_from_i => 3;
 use constant values_min => 1;
 use constant oeis_anum => 'A000073'; # tribonacci
 

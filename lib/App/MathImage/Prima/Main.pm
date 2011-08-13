@@ -33,10 +33,10 @@ use App::MathImage::Prima::Drawing;
 use App::MathImage::Generator;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -53,20 +53,18 @@ sub new {
      # text => 'Hello',
      menuItems =>
      [ [ "~File" => [
-                     [ __('E~xit') => sub {
-                         $::application->destroy;
-                       },
-                     ],
+                     [ __('~Print') => sub { $_[0]->print_image } ],
+                     [ __('E~xit')  => sub { $_[0]->destroy } ],
                     ] ],
        [ ef => "~Path" => [ _menu_for_path() ]],
        [ ef => "~Values" => [ _menu_for_values() ]],
 
        [ ef => "~Tools" => [ [ '*fullscreen', __('~Fullscreen'),
-                               \&_do_fullscreen_toggle]
+                               sub { $_[0]->fullscreen_toggle } ],
                            ]],
 
        # [],  # separator to put Help at the right
-       [ "~Help" => [ [ __('~About'), \&_do_about ],
+       [ "~Help" => [ [ __('~About'), sub { $_[0]->about_dialog } ],
 
                       [ __('~Program POD'),
                         sub {
@@ -359,66 +357,20 @@ sub nick_to_display {
 
 
 
-sub _do_fullscreen_toggle {
+sub fullscreen_toggle {
   my ($self, $itemname) = @_;
-  ### _do_fullscreen_toggle(): "@_"
+  ### fullscreen_toggle(): "@_"
   $self->windowState ($self->menu->toggle($itemname)
                       ? ws::Maximized()
                       : ws::Normal());
   ### windowState now: $self->windowState
 }
 
-sub _do_about {
+sub about_dialog {
   my ($self) = @_;
   require App::MathImage::Prima::About;
   App::MathImage::Prima::About->popup;
 }
-# sub _paint {
-#   my ($self, $canvas) = @_;
-#   ### _paint
-#   $canvas->clear;
-#   $canvas->fill_ellipse(50,50, 20,20);
-# 
-#   _draw_image ($canvas, _gen_options($self));
-# }
-# 
-# sub _draw_image {
-#   my ($drawable, $gen_options) = @_;
-#   ### _draw_image(): ref($drawable)
-# 
-#   my $gen = App::MathImage::Generator->new
-#     (%$gen_options,
-#      width  => $drawable->width,
-#      height => $drawable->height);
-#   #      foreground => $self->style->fg($self->state)->to_string,
-#   #      background => $background_colorobj->to_string,
-# 
-#   #   $self->{'path_object'} = $gen->path_object;
-# 
-#   ### width:  $drawable->width
-#   ### height: $drawable->height
-# 
-#   require Image::Base::Prima::Drawable;
-#   my $image = Image::Base::Prima::Drawable->new
-#     (-drawable => $drawable);
-#   ### width:  $image->get('-width')
-#   ### height: $image->get('-height')
-# 
-#   $gen->draw_Image_start ($image);
-#   $gen->draw_Image_steps (99999);
-# }
-
-# sub expose {
-#           if ( $d-> begin_paint) {
-#              $d-> color( cl::Black);
-#              $d-> bar( 0, 0, $d-> size);
-#              $d-> color( cl::White);
-#              $d-> fill_ellipse( $d-> width / 2, $d-> height / 2, 30, 30);
-#              $d-> end_paint;
-#           } else {
-#              die "can't draw on image:$@";
-#           }
-
 
 # sub INIT_INSTANCE {
 #   my ($self) = @_;
@@ -776,6 +728,93 @@ sub _do_about {
 #       $draw->modify_fg ('normal', $fg_color);
 #       $draw->modify_bg ('normal', $bg_color);
 
+
+#------------------------------------------------------------------------------
+# printer
+
+sub print_image {
+  my ($self) = @_;
+  require Prima::PrintDialog;
+  my $dialog = Prima::PrintSetupDialog->create;
+  if ($dialog->execute) {
+    _draw_to_printer($self);
+  }
+}
+
+sub _draw_to_printer {
+  my ($self) = @_;
+  my $printer = $::application->get_printer;
+  if (! $printer->begin_doc(__('Math-Image'))) {
+    warn "Print begin_doc() failed: $@\n";
+    return;
+  }
+
+  my $draw = $self->{'draw'};
+  my $gen_options = $draw->gen_options;
+  my $gen = App::MathImage::Generator->new
+    (step_time       => 0.25,
+     step_figures    => 1000,
+     %$gen_options,
+     #      foreground => $self->style->fg($self->state)->to_string,
+     #      background => $background_colorobj->to_string,
+    );
+
+  my $printer_width = $printer->width;
+  my $printer_height = $printer->height;
+
+  $printer->font->size(12);  # in points
+  # ### fonts: $printer->fonts
+
+  my $str = $gen->description . "\n\n";
+  my $str_height = $printer->draw_text
+    ($str, 0,10, $printer_width,$printer_height-10,
+     dt::Left | dt::NewLineBreak | tw::WordBreak | dt::UseExternalLeading
+     | dt::QueryHeight);
+  ### $str
+  ### $str_height
+  ### font height: $printer->font->height
+
+  ### clipRect is: $printer->clipRect
+  # $printer->clipRect (0, 0, $printer_width, $printer_height);
+  # $printer->translate (0, 20);  # up from bottom of page
+  my $factor = max ($printer_width / $draw->width,
+                    ($printer_height-10-5) / $draw->height);
+  $gen->{'scale'} *= $factor,
+
+  ### draw width: $draw->width
+  ### draw height: $draw->height
+  ### printer width: $printer->width
+  ### printer height: $printer->height
+  ### $factor
+  ### $gen_options
+
+  require Image::Base::Prima::Drawable;
+  my $image = Image::Base::Prima::Drawable->new (-drawable => $printer);
+  ### printer width:  $image->get('-width')
+  ### printer height: $image->get('-height')
+
+  $gen->draw_Image ($image);
+  ### printer end_doc() ...
+
+
+  $printer->translate (0, 0);  # up from bottom of page
+  $printer->color (cl::White);
+  $printer->bar (0, $printer_height-10-$str_height-5,
+                  $printer_width, $printer_height);
+
+  $printer->color (cl::Black);
+  $printer->draw_text
+    ($str, 0,10, $printer_width,$printer_height-10,
+     dt::Left | dt::NewLineBreak | tw::WordBreak | dt::UseExternalLeading
+     | dt::QueryHeight);
+
+  $printer->end_doc;
+  ### printer done ...
+}
+
+
+#------------------------------------------------------------------------------
+# command line
 
 sub command_line {
   my ($class, $mathimage) = @_;

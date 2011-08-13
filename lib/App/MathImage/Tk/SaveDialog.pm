@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-
 package App::MathImage::Tk::SaveDialog;
 use 5.008;
 use strict;
@@ -33,7 +32,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkSaveDialog');
 
-our $VERSION = 65;
+our $VERSION = 66;
 
 my %format_to_module = (png  => 'Tk::PNG',
                         jpeg => 'Tk::JPEG',

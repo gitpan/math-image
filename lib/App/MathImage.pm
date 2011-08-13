@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -61,11 +61,11 @@ sub getopt_long_specifications {
      },
      'primes'   => sub {_hopt($self,'gen_options','values', 'Primes'); },
      'twin'     => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
-                         _hopt($self,'gen_options','pairs', 'both'); },
+                         $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'both'; },
      'twin1'    => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
-                         _hopt($self,'gen_options','pairs', 'first');  },
+                         $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'first'; },
      'twin2'    => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
-                         _hopt($self,'gen_options','pairs', 'second'); },
+                         $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'second'; },
      'semi-primes|semiprimes' =>
      sub { _hopt($self,'gen_options','values', 'SemiPrimes'); },
      'semi-primes-odd|semiprimes-odd|semip-odd' =>
@@ -94,14 +94,14 @@ sub getopt_long_specifications {
      'polygonal=i' =>
      sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values', 'Polygonal');
-           _hopt($self,'gen_options','polygonal', "$value"); },
-     'pi'      =>sub { _hopt($self,'gen_options','values', 'PiBits');  },
-     'ln2'     => sub{_hopt($self,'gen_options','values', 'Ln2Bits');  },
-     'odd'     => sub{_hopt($self,'gen_options','values', 'Odd');  },
-     'even'    => sub{_hopt($self,'gen_options','values', 'Even');  },
-     'all'     => sub{_hopt($self,'gen_options','values', 'All');  },
-     'lines'   => sub{_hopt($self,'gen_options','values', 'Lines');  },
-     'aronson' => sub{_hopt($self,'gen_options','values', 'Aronson');  },
+           $self->{'gen_options'}->{'values_parameters'}->{'polygonal'} = "$value"; },
+     'pi'      => sub { _hopt($self,'gen_options','values', 'PiBits');  },
+     'ln2'     => sub { _hopt($self,'gen_options','values', 'Ln2Bits');  },
+     'odd'     => sub { _hopt($self,'gen_options','values', 'Odd');  },
+     'even'    => sub { _hopt($self,'gen_options','values', 'Even');  },
+     'all'     => sub { _hopt($self,'gen_options','values', 'All');  },
+     'lines'   => sub { _hopt($self,'gen_options','values', 'Lines');  },
+     'aronson' => sub { _hopt($self,'gen_options','values', 'Aronson');  },
 
      # this one undocumented yet ...
      'prime-quadratic-euler' => sub{
@@ -133,9 +133,7 @@ sub getopt_long_specifications {
                            # 'knight-spiral'         => 'KnightSpiral',
                            # 'square-spiral' => 'SquareSpiral',
                           );
-       (map { my $opt = $_;
-              ($opt => sub { _hopt ($self,'gen_options','path',
-                                    $path_options{$opt}) })
+       (map { my $opt = $_; ($opt => sub { _hopt ($self,'gen_options','path', $path_options{$opt}) })
             } keys %path_options)
      },
 
@@ -202,6 +200,16 @@ sub getopt_long_specifications {
        $self->{'gen_options'}->{'width_in_scale'} = 1;
        $self->{'gen_options'}->{'height_in_scale'} = 1;
      },
+
+     # undocumented ...
+     'offset=s' => sub {
+       my ($optname, $value) = @_;
+       my ($x_offset, $y_offset) = split /,/, $value;
+       if (! defined $y_offset) { $y_offset = $x_offset }
+       _hopt($self,'gen_options','x_offset', $x_offset);
+       _hopt($self,'gen_options','y_offset', $y_offset);
+     },
+
      'foreground=s'  => sub {
        my ($optname, $value) = @_;
        _hopt ($self, 'gen_options','foreground',$value);
@@ -496,7 +504,7 @@ sub output_method_root_gtk2 {
 my %image_modules = (Prima => 'Image::Base::Prima::Image',
                      Gtk2  => 'Image::Base::Gtk2::Gdk::Pixbuf',
                      Xpm   => 'Image::Xpm',
-                     Tk    => 'App::MathImage::Image::Base::Tk::Photo',
+                     Tk    => 'Image::Base::Tk::Photo',
                     );
 sub output_method_png {
   my ($self) = @_;
@@ -609,8 +617,8 @@ sub output_image {
     $gen_options->{'height'} = 200;
   }
 
-  if ($image_class->isa('App::MathImage::Image::Base::Tk::Photo')) {
-    eval 'use Tk; 1' or die;
+  if ($image_class->isa('Image::Base::Tk::Photo')) {
+    require Tk;
     my $mw = MainWindow->new;
     push @image_options, '-for_widget', $mw;
   }
@@ -768,7 +776,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 3;   # 4 chars each
+  my $cell_width = 4;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);
@@ -808,9 +816,8 @@ sub output_method_numbers_dash {
   my $values_obj = $values_class->new (%$gen, lo => $n_lo, hi => $n_hi);
 
   my @rows = ((' ' x ($cell_width*$pwidth)) x ($pheight*2));
-  my $prev_x;
-  my $prev_y;
   my $blank = (' ' x $cell_width);
+  my $increment = $path->MathImage__arms_count;
 
   my $store_slash = sub {
     my ($rx, $ry, $slash) = @_;
@@ -827,7 +834,6 @@ sub output_method_numbers_dash {
     next if $n < $n_lo;
     my ($x, $y) = $path->n_to_xy ($n)
       or do {
-        undef $prev_x;
         next;
       };
     $x = floor ($x + 0.5);
@@ -838,8 +844,11 @@ sub output_method_numbers_dash {
     next if $ry < 0 || $ry > $#rows;
     my $num = sprintf('%*d', $cell_width-1, $n);
     next if $rx < 0;
-    next if $rx >= length($rows[0]);
+    next if $rx >= length($rows[$ry]);
     substr ($rows[$ry], $rx+1, length($num)) = $num;
+
+    my ($prev_x,$prev_y) = $path->n_to_xy ($n - $increment);
+    ### point: "$n   $x,$y  prev $prev_x,$prev_y"
 
     if (defined $prev_x) {
       if ($x == $prev_x + 1 && $y == $prev_y) {
@@ -881,8 +890,6 @@ sub output_method_numbers_dash {
         $store_slash->($rx+$cell_width, $ry+1, '/');
       }
     }
-    $prev_x = $x;
-    $prev_y = $y;
   }
   foreach (reverse @rows) {
     print $_,"\n";

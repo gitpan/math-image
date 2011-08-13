@@ -20,15 +20,16 @@ use 5.004;
 use strict;
 use List::Util 'min','max';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Mobius Function');
-use constant description => __('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
+use constant name => Math::NumSeq::__('Mobius Function');
+use constant description => Math::NumSeq::__('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
 use constant characteristic_pn1 => 1;
+use constant characteristic_monotonic => 0;
 use constant values_min => -1;
 use constant values_max => 1;
 use constant oeis_anum => 'A008683'; # mobius -1,0,1
@@ -127,3 +128,75 @@ sub pred {
 
 1;
 __END__
+
+=for stopwords Ryde MathImage
+
+=head1 NAME
+
+App::MathImage::NumSeq::MobiusFunction -- Mobius function sequence
+
+=head1 SYNOPSIS
+
+ use App::MathImage::NumSeq::MobiusFunction;
+ my $seq = App::MathImage::NumSeq::MobiusFunction->new;
+ my ($i, $value) = $seq->next;
+
+=head1 DESCRIPTION
+
+The sequence of the Mobius function, 1, -1, -1, 0, -1, 1, etc,
+
+    1   if i has an even number of distinct prime factors
+    -1  if i has an odd number of distinct prime factors
+    0   if i has a repeated prime factor
+
+The sequence starts from i=1 and it's reckoned as no prime factors, ie. 0
+factors, which is considered even, hence Mobius function 1.  Then i=2 and
+i=3 are value -1 since they have one prime factor (they're primes), and i=4
+is value 0 because it's 2*2 which is a repeated prime 2.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<$seq = App::MathImage::NumSeq::MobiusFunction-E<gt>new (key=E<gt>value,...)>
+
+Create and return a new sequence object.
+
+=item C<$value = $seq-E<gt>ith($i)>
+
+Return the Mobius function of C<$i>, being 1, 0 or -1 according to the prime
+factors of C<$i>.
+
+=item C<$bool = $seq-E<gt>pred($value)>
+
+Return true if C<$value> is 1, 0 or -1.
+
+=back
+
+=head1 SEE ALSO
+
+L<App::MathImage::NumSeq>,
+L<App::MathImage::NumSeq::PrimeFactorCount>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-image/index.html
+
+=head1 LICENSE
+
+Copyright 2010, 2011 Kevin Ryde
+
+Math-Image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut

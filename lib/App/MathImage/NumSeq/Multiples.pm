@@ -21,27 +21,31 @@ use strict;
 use POSIX 'ceil';
 use List::Util 'max';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Multiples of a given K');
-use constant description => __('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
+use constant name => Math::NumSeq::__('Multiples of a given K');
+use constant description => Math::NumSeq::__('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
 use constant values_min => 0;
-use constant characteristic_monotonic => 1;
-use constant parameter_list => ({ name => 'multiples',
-                                  type => 'float',
-                                  width => 10,
-                                  decimals => 4,
-                                  page_increment => 10,
-                                  step_increment => 1,
-                                  minimum => 0,
-                                  default => 29,
-                                  description => __('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'),
-                                },
-                               );
+sub characteristic_monotonic {
+  my ($self) = @_;
+  # strictly monotonic if multiples of 1 or more
+  return 1 + ($self->{'multiples'} >= 1);
+}
+use constant parameter_info_array => [ { name => 'multiples',
+                                         type => 'float',
+                                         width => 10,
+                                         decimals => 4,
+                                         page_increment => 10,
+                                         step_increment => 1,
+                                         minimum => 0,
+                                         default => 29,
+                                         description => Math::NumSeq::__('Display multiples of this number.  For example 6 means show 6,12,18,24,30,etc.'),
+                                       },
+                                     ];
 
 # cf A017173 9n+1
 

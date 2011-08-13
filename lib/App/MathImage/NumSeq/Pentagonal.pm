@@ -19,19 +19,30 @@ package App::MathImage::NumSeq::Pentagonal;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Polygonal';
+use Math::NumSeq;
+use base 'Math::NumSeq::Polygonal';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Pentagonal Numbers');
-use constant description => __('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');
-use constant values_min => 1;
-use constant parameter_list => (App::MathImage::NumSeq->parameter_common_pairs);
+use constant name => Math::NumSeq::__('Pentagonal Numbers');
+use constant description => Math::NumSeq::__('The pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2.');
+
+# overriding Polygonal base class
+use constant parameter_info_array =>
+  [ { name    => 'pairs',
+      display => Math::NumSeq::__('Pairs'),
+      type    => 'enum',
+      default => 'first',
+      choices => ['first','second','both'],  # ,'average'
+      choices_display => [Math::NumSeq::__('First'),
+                          Math::NumSeq::__('Second'),
+                          Math::NumSeq::__('Both'),],  # Math::NumSeq::__('Average')
+      description => Math::NumSeq::__('Which of a pair of values to show.'),
+    } ];
 
 sub new {
   my $class = shift;

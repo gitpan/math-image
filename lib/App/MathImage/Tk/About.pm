@@ -29,7 +29,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::Dialog';
 Tk::Widget->Construct('AppMathImageTkAbout');
 
-our $VERSION = 65;
+our $VERSION = 66;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -40,9 +40,10 @@ sub Populate {
                     -text    => (__x('Math Image version {version}',
                                      version => $VERSION)
                                  . "\n\n"
-                                 . __x('Running under Perl {perl_version} and Perl-Tk {perl_tk_version}',
+                                 . __x('Running under Perl {perl_version} and Perl-Tk {perl_tk_version} (Tk version {tk_version})',
                                        perl_version => $],
-                                       perl_tk_version => Tk->VERSION)),
+                                       perl_tk_version => Tk->VERSION,
+                                       tk_version => $Tk::version)),
                    );
   my $button = $self->Subwidget('B_OK');
   $button->configure (-command => sub { $self->destroy });

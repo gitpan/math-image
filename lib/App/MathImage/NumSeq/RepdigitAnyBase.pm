@@ -23,34 +23,35 @@ package App::MathImage::NumSeq::RepdigitAnyBase;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Repdigits In Any Base');
-use constant description => __('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base (Sloane\'s A167782).');
+use constant name => Math::NumSeq::__('Repdigits In Any Base');
+use constant description => Math::NumSeq::__('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base (Sloane\'s A167782).');
 use constant values_min => 1;
+use constant characteristic_monotonic => 2;
 use constant oeis_anum => 'A167782';
 
 # b^2 + b + 1 = k
-# b^2+b+0.5 = k-0.5
-# (b+0.5)^2 = (k-0.5)
-# b = sqrt(k-0.5)-0.5;
+# (b+0.5)^2 + .75 = k
+# (b+0.5)^2 = (k-0.75)
+# b = sqrt(k-0.75)-0.5;
 
 sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
 
-  ### bases to: 2+int(sqrt($hi-0.5))
+  ### bases to: 2+int(sqrt($hi-0.75))
   my %ret = (0 => 1); # zero considered 000...
-  foreach my $base (2 .. 1+int(sqrt($hi-0.5))) {
-    my $n = ($base + 1) * $base + 1;
+  foreach my $base (2 .. 1+int(sqrt($hi-0.75))) {
+    my $n = ($base + 1) * $base + 1;  # 111 in $base
     while ($n <= $hi) {
       $ret{$n} = 1;
       foreach my $digit (2 .. $base-1) {

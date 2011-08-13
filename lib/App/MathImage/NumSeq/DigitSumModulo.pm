@@ -24,16 +24,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-use App::MathImage::NumSeq::Base::Digits;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq::Base::Digits');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+use Math::NumSeq::Base::Digits;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq::Base::Digits');
 
-use constant name => __('Digit Sum Modulo');
-use constant description => __('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
+use constant name => Math::NumSeq::__('Digit Sum Modulo');
+use constant description => Math::NumSeq::__('Sum of the digits in the given radix, modulo that radix.  Eg. for binary this is the bitwise parity.');
 
 # use constant oeis_anum => 'A001969'; # with even 1s
 # cf 'A026147'; # positions of 1s in evil

@@ -22,17 +22,17 @@ use Carp;
 use List::Util;
 use Math::Libm;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Arbitrary Expression');
-use constant description => __('An arbitrary expression.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*x)^2 would give the even perfect squares.
+use constant name => Math::NumSeq::__('Arbitrary Expression');
+use constant description => Math::NumSeq::__('An arbitrary expression.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*x)^2 would give the even perfect squares.
 
 Syntax is per the chosen evaluator, an invalid expression displays an error message.
 Math::Symbolic is like 2*x^2.
@@ -49,26 +49,28 @@ BEGIN {
        (defined(Module::Util::find_installed('Language::Expr'))
         ? 'LE' : ()));
 }
-use constant parameter_list => ({ name    => 'expression',
-                                  display => __('Expression'),
-                                  type    => 'string',
-                                  default => ($evaluators[0] eq 'LE'
-                                              ? '3*$x**2 + $x + 2'
-                                              : '3*x^2 + x + 2'),
-                                  width   => 30,
-                                  description => __('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see the chosen evaluator Math::Symbolic or Math::Expression::Evaluator for possible operators and function.'),
-                                },
-                                { name    => 'expression_evaluator',
-                                  display => __('Evaluator'),
-                                  type    => 'enum',
-                                  default => $evaluators[0],
-                                  choices => \@evaluators,
-                                  description => __('The expression evaluator module, either MS for Math::Symbolic or MEE for Math::Expression::Evaluator.'),
-                                },
-                               );
+use constant parameter_info_array =>
+  [
+   { name    => 'expression',
+     display => Math::NumSeq::__('Expression'),
+     type    => 'string',
+     default => ($evaluators[0] eq 'LE'
+                 ? '3*$x**2 + $x + 2'
+                 : '3*x^2 + x + 2'),
+     width   => 30,
+     description => Math::NumSeq::__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see the chosen evaluator Math::Symbolic or Math::Expression::Evaluator for possible operators and function.'),
+   },
+   { name    => 'expression_evaluator',
+     display => Math::NumSeq::__('Evaluator'),
+     type    => 'enum',
+     default => $evaluators[0],
+     choices => \@evaluators,
+     description => Math::NumSeq::__('The expression evaluator module, either MS for Math::Symbolic or MEE for Math::Expression::Evaluator.'),
+   },
+                                     ];
 
-### parameter_list: parameter_list
-### parameter_hash: __PACKAGE__->parameter_hash
+### parameter_info_array: parameter_info_array()
+### parameter_info_hash: __PACKAGE__->parameter_info_hash
 ### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
 
 {

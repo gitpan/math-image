@@ -20,20 +20,21 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 use App::MathImage::NumSeq::Base::File;
 use App::MathImage::NumSeq::Base::FileWriter;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Obstinate Numbers');
-use constant description => __('Odd numbers N not representable as prime+2^k.');
+use constant name => Math::NumSeq::__('Obstinate Numbers');
+use constant description => Math::NumSeq::__('Odd numbers N not representable as prime+2^k.');
 use constant values_min => 1;
+use constant characteristic_monotonic => 2;
 use constant i_start => 1;
 use constant oeis_anum => 'A133122'; # obstinates
 

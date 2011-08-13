@@ -26,37 +26,39 @@ use strict;
 use Carp;
 use List::Util 'max';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('PlanePath Coords');
-# use constant description => __('');
+use constant name => Math::NumSeq::__('PlanePath Coords');
+# use constant description => Math::NumSeq::__('');
 my @choices = (map { s/.*:://; $_ }
                Module::Util::find_in_namespace('Math::PlanePath'),
               );
 ### @choices
-use constant parameter_list => ({ name    => 'planepath_class',
-                                  display => __('PlanePath Class'),
-                                  type    => 'enum',
-                                  default => 'SquareSpiral',
-                                  choices => \@choices,
-                                  # width   => 3 + max(0,map{length}@choices),
-                                  # description => __(''),
-                                },
-                                { name    => 'coord_type',
-                                  display => __('Coord Type'),
-                                  type    => 'enum',
-                                  default => 'X',
-                                  choices => ['X','Y','Sum','SqDist'],
-                                  # description => __(''),
-                                },
-                               );
+use constant characteristic_monotonic => 0;
+use constant characteristic_smaller => 0;
+use constant parameter_info_array => [ { name    => 'planepath_class',
+                                         display => Math::NumSeq::__('PlanePath Class'),
+                                         type    => 'enum',
+                                         default => 'SquareSpiral',
+                                         choices => \@choices,
+                                         # width   => 3 + max(0,map{length}@choices),
+                                         # description => Math::NumSeq::__(''),
+                                       },
+                                       { name    => 'coord_type',
+                                         display => Math::NumSeq::__('Coord Type'),
+                                         type    => 'enum',
+                                         default => 'X',
+                                         choices => ['X','Y','Sum','SqDist'],
+                                         # description => Math::NumSeq::__(''),
+                                       },
+                                     ];
 # OEIS-Catalogue: A059253 planepath_class=HilbertCurve coord_type=X
 # OEIS-Catalogue: A059252 planepath_class=HilbertCurve coord_type=Y
 # OEIS-Catalogue: A163528 planepath_class=PeanoCurve coord_type=X
@@ -72,7 +74,7 @@ sub new {
   my $planepath_object = $options{'planepath_object'}
     || do {
       my $path_class = $options{'planepath_class'}
-        || (parameter_list)[0]->{'default'};
+        || $class->parameter_info_array->[0]->{'default'};
       unless ($path_class =~ /::/) {
         my $fullclass = "Math::PlanePath::$path_class";
         if (Module::Util::find_installed($fullclass)) {
@@ -86,7 +88,7 @@ sub new {
     };
   ### $planepath_object
 
-  my $coord_type = $options{'coord_type'} || (parameter_list)[1]->{'default'};
+  my $coord_type = $options{'coord_type'} || $class->parameter_info_array->[1]->{'default'};
   my $coord_func = $class->can("coord_func_$coord_type")
     || croak "Unrecognised coord_type: ",$coord_type;
 

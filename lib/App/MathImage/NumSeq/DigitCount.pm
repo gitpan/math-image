@@ -20,43 +20,45 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Digit Count');
-use constant description => __('How many of a given digit in each number, in a given radix, for example how many 1 bits in binary.');
+use constant name => Math::NumSeq::__('Digit Count');
+use constant description => Math::NumSeq::__('How many of a given digit in each number, in a given radix, for example how many 1 bits in binary.');
 use constant values_min => 1;
 use constant characteristic_count => 1;
-use constant parameter_list =>
-  ({ name        => 'radix',
+use constant characteristic_monotonic => 0;
+use constant parameter_info_array =>
+  [
+   { name        => 'radix',
      share_key   => 'radix-2',
      type        => 'integer',
-     display     => __('Radix'),
+     display     => Math::NumSeq::__('Radix'),
      default     => 2,
      minimum     => 2,
      width       => 3,
-     description => __('Radix, ie. base, for the values calculation.  Default is binary (base 2).'),
+     description => Math::NumSeq::__('Radix, ie. base, for the values calculation.  Default is binary (base 2).'),
    },
    { name        => 'digit',
      type        => 'integer',
      share_key   => 'digit-1',
-     display     => __('Digit'),
+     display     => Math::NumSeq::__('Digit'),
      default     => 1,
      minimum     => 0,
      width       => 2,
-     description => __('Digit to count.'),
+     description => Math::NumSeq::__('Digit to count.'),
    },
-  );
+  ];
 
 # cf A008687 - count 1s in twos-complement -n
-# 
+#
 my @oeis;
 BEGIN {
   $oeis[2]->[0] = 'A080791'; # base 2 count 0s
@@ -65,6 +67,13 @@ BEGIN {
 
   $oeis[2]->[1] = 'A000120'; # base 2 count 1s
   # OEIS-Catalogue: A000120 radix=2 digit=1
+
+  $oeis[3]->[0] = 'A077267'; # base 3 count 0s
+  # OEIS-Catalogue: A077267 radix=3 digit=0
+  $oeis[3]->[1] = 'A062756'; # base 3 count 1s
+  # OEIS-Catalogue: A062756 radix=3 digit=1
+  $oeis[3]->[2] = 'A081603'; # base 3 count 2s
+  # OEIS-Catalogue: A081603 radix=3 digit=1
 
   $oeis[10]->[9] = 'A102683'; # base 10 count 9s
   # OEIS-Catalogue: A102683 radix=10 digit=9

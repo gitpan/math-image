@@ -21,20 +21,21 @@ use strict;
 use List::Util 'max';
 use POSIX ();
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes
 
-use constant name => __('Sophie Germain Primes');
-use constant description => __('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
+use constant name => Math::NumSeq::__('Sophie Germain Primes');
+use constant description => Math::NumSeq::__('The Sophie Germain primes 3,5,7,11,23,29, being primes where 2*P+1 is also prime (those being the "safe" primes).');
+use constant characteristic_monotonic => 2;
 use constant values_min => 3;
 use constant oeis_anum => 'A005384';
 

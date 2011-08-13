@@ -24,6 +24,13 @@ use warnings;
 use Smart::Comments;
 
 {
+  require Image::Xpm;
+  my $image = Image::Xpm->new (-file => '/usr/share/pixmaps/xscreensaver.xpm');
+  ### $image
+  exit 0;
+}
+
+{
   require Image::Base::Text;
   require App::MathImage::Image::Base::Other;
 

@@ -21,13 +21,13 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-our $VERSION = 65;
+our $VERSION = 66;
 
-use App::MathImage::NumSeq;
-our @ISA = ('App::MathImage::NumSeq');
+use Math::NumSeq;
+our @ISA = ('Math::NumSeq');
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -93,14 +93,14 @@ sub pred {
   return vec($buf, $n&7,1);
 }
 
-sub name            { return $_[0]->{'package'}->name        }
+# sub name            { return $_[0]->{'package'}->name        }
 sub characteristic {
   my $self = shift;
   return $self->{'package'}->characteristic(@_);
 }
-sub description     { return $_[0]->{'package'}->description }
-sub parameter_list  { return $_[0]->{'package'}->parameter_list  }
-sub parameter_hash  { return $_[0]->{'package'}->parameter_hash  }
+sub description          { return $_[0]->{'package'}->description }
+sub parameter_info_array { return $_[0]->{'package'}->parameter_info_array  }
+sub parameter_info_hash  { return $_[0]->{'package'}->parameter_info_hash  }
 
 
 1;

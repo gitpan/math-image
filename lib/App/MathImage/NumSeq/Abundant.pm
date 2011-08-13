@@ -21,16 +21,16 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-@ISA = ('App::MathImage::NumSeq');
+use Math::NumSeq;
+@ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Abundant Numbers');
-use constant description => __('Numbers N with sum of its divisors >= N, eg. 12 is divisible by 1,2,3,4,6 total 16 is >= 12.');
+use constant name => Math::NumSeq::__('Abundant Numbers');
+use constant description => Math::NumSeq::__('Numbers N with sum of its divisors >= N, eg. 12 is divisible by 1,2,3,4,6 total 16 is >= 12.');
 use constant values_min => 12;
 
 use constant oeis_anum => 'A005101';

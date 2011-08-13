@@ -25,6 +25,7 @@ use Gtk2 1.200; # for Gtk2::GTK_PRIORITY_RESIZE and probably more
 use Gtk2::Ex::PodViewer;
 use Gtk2::Ex::WidgetCursor;
 use Gtk2::Ex::Units;
+use Module::Util;
 use Locale::TextDomain ('Math-Image');
 
 use App::MathImage::Generator;
@@ -32,7 +33,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 65;
+our $VERSION = 66;
 
 use Glib::Object::Subclass 'Gtk2::Dialog',
   properties => [
@@ -67,7 +68,9 @@ sub INIT_INSTANCE {
   foreach my $name (App::MathImage::Generator->path_choices) {
     $combobox->append_text ($name);
   }
-  $combobox->append_text ('Math::Aronson');
+  if (defined (Module::Util::find_installed('Math::Aronson'))) {
+    $combobox->append_text ('Math::Aronson');
+  }
   $combobox->append_text ('Math::Symbolic');
   $combobox->append_text ('Math::Expression::Evaluator');
   $combobox->set_active (0);

@@ -20,29 +20,30 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant name => __('Happy Steps');
-use constant description => __('Happy numbers steps to repeat iteration sum of squares of digits.');
+use constant name => Math::NumSeq::__('Happy Steps');
+use constant description => Math::NumSeq::__('How many sum of squares of digits steps to get to a repeating iteration.');
 use constant values_min => 0;
 use constant i_start => 0;
 use constant characteristic_count => 1;
+use constant characteristic_monotonic => 0;
+#
 # 1,9,13,8,12,17,6,13,12,2,10 not in OEIS apparently ...
 
-use App::MathImage::NumSeq::Base::Digits;
-use constant parameter_list =>
-  (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
+use Math::NumSeq::Base::Digits;
+use constant parameter_info_array =>
+  [ Math::NumSeq::Base::Digits::parameter_common_radix() ];
 
-# cf A035497 primes which are happy
-#    A001273 smallest happy which takes N steps
+# cf A001273 smallest happy which takes N steps
 #
 # sub oeis_anum {
 #   my ($class_or_self) = @_;
@@ -82,7 +83,7 @@ sub ith {
 
 sub pred {
   my ($self, $value) = @_;
-  ### Happy pred(): $value
+  ### HappySteps pred(): $value
   return ($value >= 0);
 }
 

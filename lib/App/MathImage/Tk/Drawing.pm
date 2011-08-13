@@ -20,7 +20,8 @@ use 5.008;
 use strict;
 use warnings;
 use Tk;
-use App::MathImage::Image::Base::Tk::Photo;
+use Scalar::Util 'refaddr';
+use Image::Base::Tk::Photo;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -28,7 +29,7 @@ use App::MathImage::Image::Base::Tk::Photo;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 65;
+our $VERSION = 66;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -48,6 +49,8 @@ sub Populate {
             -activeforeground => 'white',
             -disabledforeground => 'white',
             -borderwidth => 0, # default
+            -width => 1,  # desired size, any size, not from -image
+            -height => 1,
             %$args,
            );
   $self->SUPER::Populate($args);
@@ -60,15 +63,18 @@ sub Populate {
   ### background: $self->cget('-background')
   ### borderwidth: $self->cget('-borderwidth')
   $self->{'dirty'} = 1;
+  $self->{'photo_name'} = '';
 }
 
 sub queue_reimage {
   my ($self) = @_;
-  ### _update_draw() ...
+  ### queue_reimage() ...
   ### background: $self->cget('-background')
   $self->{'dirty'} = 1;
-  $self->{'update_id'} ||= $self->afterIdle(sub { delete $self->{'update_id'};
-                                                  _do_expose($self) });
+  $self->{'update_id'} ||= $self->afterIdle(sub {
+                                              delete $self->{'update_id'};
+                                              _do_expose($self);
+                                            });
 }
 sub _do_expose {
   my ($self) = @_;
@@ -77,7 +83,9 @@ sub _do_expose {
     return;
   }
   $self->{'dirty'} = 0;
+
   if (my $id = delete $self->{'draw_id'}) { $id->cancel; }
+  if (my $id = delete $self->{'update_id'}) { $id->cancel; }
 
   my $gen_options = $self->{'gen_options'} || {};
   ### $gen_options
@@ -92,7 +100,7 @@ sub _do_expose {
   ### $background
   ### $foreground
   ### state: $self->cget('-state')
-  my $photo = $self->Photo (-width => $width, -height => $height);
+
   my $gen = App::MathImage::Generator->new
     (step_time       => 0.5,
      step_figures    => 1000,
@@ -102,18 +110,39 @@ sub _do_expose {
      # background => $background,
      # foreground => $foreground,
     );
-  my $image = App::MathImage::Image::Base::Tk::Photo->new (-tkphoto => $photo);
+
+  # Perl-Tk 804.029 really destroy a Tk::Photo object with a ->delete().
+  # Re-use old ones with the "name" key.  New photo if new size, and old
+  # name re-used if an old size is wanted again later.
+  #
+  my $photo = $self->cget('-image');
+  my $photo_name = __PACKAGE__.'.'.refaddr($self).".${width}x${height}";
+  if ($self->{'photo_name'} ne $photo_name) {
+    if ($photo) {
+      ### delete old photo: $photo
+      $photo->delete;
+    }
+    ### create photo: "$width,$height   $photo_name"
+    $self->{'photo_name'} = $photo_name;
+    $photo = $self->Photo ($photo_name, -width => $width, -height => $height);
+    $self->configure (-image => $photo);
+  }
+
+  my $image = Image::Base::Tk::Photo->new (-tkphoto => $photo);
   $gen->draw_Image_start ($image);
-  $self->configure (-image => $photo);
-  $self->{'draw_id'} = $self->afterIdle(sub { _update_draw_steps($self,$gen,$photo) });
+
+  # Tk::After
+  # FIXME: want some sort of low-priority after()
+  #
+  $self->{'draw_id'} = $self->after(20,sub { _update_draw_steps($self,$gen,$photo) });
   $self->configure(-cursor => 'watch');
 }
 sub _update_draw_steps {
   my ($self,$gen,$photo) = @_;
-  ### _update_draw_steps()
+  ### _update_draw_steps() some ...
   if ($gen->draw_Image_steps) {
-    ### _update_draw_steps() more
-    $self->{'draw_id'} = $self->afterIdle(sub { _update_draw_steps($self,$gen,$photo) });
+    ### _update_draw_steps() more ...
+    $self->{'draw_id'} = $self->after(20,sub { _update_draw_steps($self,$gen,$photo) });
   } else {
     ### _update_draw_steps() finished
     $self->configure (-cursor => undef);

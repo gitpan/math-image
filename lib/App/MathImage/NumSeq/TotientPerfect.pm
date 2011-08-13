@@ -20,12 +20,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IteratePred;
-@ISA = ('App::MathImage::NumSeq::Base::IteratePred',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IteratePred;
+@ISA = ('Math::NumSeq::Base::IteratePred',
+        'Math::NumSeq');
 
 use App::MathImage::NumSeq::Totient;
 *_totient_by_sieve = \&App::MathImage::NumSeq::Totient::_totient_by_sieve;
@@ -33,7 +33,8 @@ use App::MathImage::NumSeq::Totient;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant description => __('Sum of repeated applications of the totient function equals N.  Eg. 9 is perfect because phi(9)=6, phi(6)=2, phi(2)=1 and their sum 6+2+1 == 9.');
+use constant description => Math::NumSeq::__('Numbers for which the sum of repeated applications of the totient function equals N.  Eg. 9 because phi(9)=6, phi(6)=2, phi(2)=1 and their sum 6+2+1 = 9.');
+use constant characteristic_monotonic => 2;
 use constant values_min => 3;
 use constant i_start => 1;
 use constant oeis_anum => 'A082897';

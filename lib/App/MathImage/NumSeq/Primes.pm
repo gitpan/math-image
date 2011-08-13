@@ -21,17 +21,18 @@ use strict;
 use List::Util 'min', 'max';
 use POSIX ();
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Prime Numbers');
-use constant description => __('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.');
+use constant name => Math::NumSeq::__('Prime Numbers');
+use constant description => Math::NumSeq::__('The prime numbers 2, 3, 5, 7, 11, 13, 17, etc.');
+use constant characteristic_monotonic => 2;
 use constant values_min => 2;
 
 # cf A010051 - boolean 0 or 1 according as N is prime

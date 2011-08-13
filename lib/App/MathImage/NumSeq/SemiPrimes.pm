@@ -21,17 +21,18 @@ use strict;
 use List::Util 'min', 'max';
 use POSIX ();
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Semi-Primes');
-use constant description => __('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');
+use constant name => Math::NumSeq::__('Semi-Primes');
+use constant description => Math::NumSeq::__('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');
+use constant characteristic_monotonic => 2;
 use constant values_min => 4;
 use constant oeis_anum => 'A001358'; # semi-primes
 

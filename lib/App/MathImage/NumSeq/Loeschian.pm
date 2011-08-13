@@ -27,18 +27,19 @@ use POSIX 'floor','ceil';
 use List::Util 'max';
 use List::MoreUtils;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Loeschian numbers');
-use constant description => __('Loeschian numbers x^2+xy+y^2 norms on hexagonal A2 grid, which is also (a^2+3*b^2)/4 for all a>=0,b>=0 and a,b opposite odd/even.');
+use constant name => Math::NumSeq::__('Loeschian numbers');
+use constant description => Math::NumSeq::__('Loeschian numbers x^2+xy+y^2 norms on hexagonal A2 grid, which is also (a^2+3*b^2)/4 for all a>=0,b>=0 and a,b opposite odd/even.');
 use constant i_start => 1; # per oeis ...
+use constant characteristic_monotonic => 1;
 
 # cf A132111 - triangle T(n,k) = n^2 + k*n + k^2, 0<=k<=n
 #              same values different order?

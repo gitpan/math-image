@@ -20,17 +20,18 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-@ISA = ('App::MathImage::NumSeq');
+use Math::NumSeq;
+@ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('All Integers');
-use constant description => __('All integers 0,1,2,3,etc.');
+use constant name => Math::NumSeq::__('All Integers');
+use constant description => Math::NumSeq::__('All integers 0,1,2,3,etc.');
 use constant values_min => 1;
+use constant characteristic_monotonic => 1;
 
 # cf A000027 natural numbers starting 1
 #

@@ -20,24 +20,46 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Twin Primes');
-use constant description => __('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
+use constant name => Math::NumSeq::__('Twin Primes');
+use constant description => Math::NumSeq::__('The twin primes, 3, 5, 7, 11, 13, being numbers where both K and K+2 are primes.');
 use constant values_min => 3;
-use constant parameter_list => (App::MathImage::NumSeq->parameter_common_pairs);
+use constant characteristic_monotonic => 2;
+use constant parameter_info_array => [ { name    => 'pairs',
+                                         display => Math::NumSeq::__('Pairs'),
+                                         type    => 'enum',
+                                         default => 'first',
+                                         choices => ['first','second','both','average'],
+                                         choices_display => [Math::NumSeq::__('First'),
+                                                             Math::NumSeq::__('Second'),
+                                                             Math::NumSeq::__('Both'),
+                                                             Math::NumSeq::__('Average')],
+                                         description => Math::NumSeq::__('Which of a pair of values to show.'),
+                                       } ];
 
-my %oeis = (first  => 'A001359',
+my %oeis = (
+            # OEIS-Catalogue: A001359 pairs=first
+            first  => 'A001359',
+
+            # OEIS-Catalogue: A006512 pairs=second,
             second => 'A006512',
+
+            # OEIS-Catalogue: A001097 pairs=both
             both   => 'A001097', # both, without repetition
-            #         'A077800'  # both, with repetition
+
+            # OEIS-Catalogue: A014574 pairs=average
+            average => 'A014574', # average
+
+            # cf A077800 both, with repetition
+            #      cf 'A077800'  # both, with repetition
            );
 sub oeis_anum {
   my ($class_or_self) = @_;
@@ -46,10 +68,6 @@ sub oeis_anum {
                : $class_or_self->parameter_default('pairs'));
   return $oeis{$pairs};
 }
-# OEIS-Catalogue: A001359 pairs=first
-# OEIS-Catalogue: A006512 pairs=second,
-# OEIS-Catalogue: A001097 pairs=both
-# cf A077800 both, with repetition
 
 sub new {
   my ($class, %options) = @_;
@@ -65,6 +83,7 @@ sub new {
 
   my $to = 0;
   my $offset = ($pairs eq 'second');
+  my $inc = ($pairs eq 'average');
   ### $pairs
   ### $offset
 
@@ -76,7 +95,7 @@ sub new {
           $array[$to++] = $array[++$i];
         } while ($i < $#array && $array[$i]+2 == $array[$i+1]);
       } else {
-        $array[$to++] = $array[$i+$offset];
+        $array[$to++] = $array[$i+$offset] + $inc;
       }
     }
   }

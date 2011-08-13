@@ -20,18 +20,19 @@ use 5.004;
 use strict;
 use Carp;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Pi Bits');
-use constant description => __('Pi 3.141529... written out in binary.');
+use constant name => Math::NumSeq::__('Pi Bits');
+use constant description => Math::NumSeq::__('Pi 3.141529... written out in binary.');
 use constant values_min => 0;
+use constant characteristic_monotonic => 1;
 
 # A004601 to A004608 - base 2 to 9
 # A000796 - base 10

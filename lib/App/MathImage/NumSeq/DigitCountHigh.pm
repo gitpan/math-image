@@ -20,23 +20,24 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Digit Count High');
-use constant description => __('How many of a given digit at the high end of a number, in a given radix.');
+use constant name => Math::NumSeq::__('Digit Count High');
+use constant description => Math::NumSeq::__('How many of a given digit at the high end of a number, in a given radix.');
 use constant values_min => 1;
+use constant characteristic_monotonic => 0;
 use constant characteristic_count => 1;
 
 use App::MathImage::NumSeq::DigitCount;
-*parameter_list = \&App::MathImage::NumSeq::DigitCount::parameter_list;
+*parameter_info_array = \&App::MathImage::NumSeq::DigitCount::parameter_info_array;
 
 # cf
 # 

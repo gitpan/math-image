@@ -19,15 +19,16 @@ package App::MathImage::NumSeq::Ln2Bits;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
+use Math::NumSeq;
 use base 'App::MathImage::NumSeq::PiBits';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Log(2) Bits');
-use constant description => __('Natural log(2), being 0.693147..., written out in binary.');
+use constant name => Math::NumSeq::__('Log(2) Bits');
+use constant description => Math::NumSeq::__('Natural log(2), being 0.693147..., written out in binary.');
 use constant values_min => 0;
+use constant characteristic_monotonic => 1;
 
 sub new {
   my $class = shift;

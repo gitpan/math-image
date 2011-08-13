@@ -34,7 +34,7 @@ use App::MathImage::NumSeq::Obstinate;
 # VERSION
 
 {
-  my $want_version = 65;
+  my $want_version = 66;
   is ($App::MathImage::NumSeq::Obstinate::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Obstinate->VERSION,  $want_version, 'VERSION class method');
 
@@ -59,7 +59,7 @@ foreach my $rep (1 .. 3) {
     last if ! defined $i;
     $next[$value] = 1;
   }
-  $values_obj->finish;
+  # $values_obj->finish;
 
   my $good = 1;
   foreach my $value (1 .. $hi) {

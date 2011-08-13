@@ -22,17 +22,18 @@ use POSIX 'floor','ceil';
 use List::Util 'max';
 use List::MoreUtils;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Loeschian numbers');
-use constant description => __('Loeschian numbers x^2+3*y^2 for all x>=0 and y>=0.');
+use constant name => Math::NumSeq::__('Loeschian numbers');
+use constant description => Math::NumSeq::__('Loeschian numbers x^2+3*y^2 for all x>=0 and y>=0.');
+use constant characteristic_monotonic => 2;
 use constant i_start => 1;
 
 # cf A158937 - all x^2+3*y^2 with repetitions x>=0,y>=0

@@ -28,7 +28,6 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 
 use App::MathImage::Generator;
 use App::MathImage::Tk::Drawing;
-use App::MathImage::Image::Base::Tk::Photo;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -36,7 +35,7 @@ use App::MathImage::Image::Base::Tk::Photo;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 65;
+our $VERSION = 66;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -79,7 +78,7 @@ sub Populate {
 
     $menu->command (-label => __('Save As ...'),
                     -underline => 5,
-                    -command => [ $self, 'save_as_dialog' ]);
+                    -command => [ $self, 'popup_save_as' ]);
 
     $menu->command (-label => 'Quit',
                     -command => [ $self, 'destroy' ],
@@ -118,8 +117,12 @@ sub Populate {
            require Tk::Pod;
            $self->Pod(-file => $module);
          }
-       })
-    }
+       });
+    $menu->command (-label => __('Diagnostics ...'),
+                    -underline => 3,
+                    -command => [ $self, 'popup_diagnostics' ]);
+
+  }
 
   # cf Tk::ToolBar
   my $toolbar = $self->Component('Frame','toolbar');
@@ -157,7 +160,7 @@ sub Populate {
     $frame->Label(-text => __('Scale'))->pack(-side => 'left');
     $frame->Spinbox (-from => 1,
                      -to => 9999,
-                     -width => 10,
+                     -width => 2,
                      -text => 3,
                      -command => sub {
                        my ($value, $direction) = @_;
@@ -293,13 +296,19 @@ sub _do_motion_notify {
   $statusbar->configure(-text => $message);
 }
 
-sub save_as_dialog {
+sub popup_save_as {
   my ($self) = @_;
   require App::MathImage::Tk::SaveDialog;
   my $dialog = ($self->{'save_dialog'}
                 ||= $self->AppMathImageTkSaveDialog
                 (-drawing => $self->Subwidget('drawing')));
   $dialog->Popup;
+}
+
+sub popup_diagnostics {
+  my ($self) = @_;
+  require App::MathImage::Tk::Diagnostics;
+  $self->AppMathImageTkDiagonostics->Popup;
 }
 
 sub command_line {

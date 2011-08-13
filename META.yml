@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            65
+version:            66
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -14,6 +14,7 @@ requires:
     Bit::Vector:          0
     Compress::Zlib:       0
     constant:             1.02
+    constant::defer:      0
     Data::Float:          0
     File::Copy:           2.14
     File::HomeDir:        0
@@ -63,8 +64,16 @@ requires:
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
     Math::Libm:           0
-    Math::PlanePath:      1
+    Math::NumSeq:         1
+    Math::NumSeq::Base::Array:  1
+    Math::NumSeq::Base::Digits:  1
+    Math::NumSeq::Base::IterateIth:  1
+    Math::NumSeq::Base::IteratePred:  1
+    Math::NumSeq::Base::Sparse:  1
+    Math::NumSeq::Polygonal:  1
+    Math::PlanePath:      37
     Math::PlanePath::SacksSpiral:  1
+    Math::PlanePath::SierpinskiArrowhead:  32
     Math::PlanePath::SquareSpiral:  1
     Math::Prime::XS:      0.23
     Module::Load:         0
@@ -117,9 +126,17 @@ optional_features:
     maximum_devel:
         description:  Stuff used variously for development.
         requires:
-            Pod::Simple::HTML:  0
-            Smart::Comments:    0
-            warnings::unused:   0
+            Parse::CPAN::Meta:   0
+            Pod::Simple::HTML:   0
+            Smart::Comments:     0
+            Test::DistManifest:  0
+            Test::Pod:           1.00
+            Test::YAML::Meta:    0.15
+            warnings::unused:    0
+            YAML:                0
+            YAML::Syck:          0
+            YAML::Tiny:          0
+            YAML::XS:            0
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
         requires:
@@ -134,18 +151,36 @@ optional_features:
             Image::Base::Prima:   1
             Image::Base::SVG:     3
             Image::Base::SVGout:  7
+            Image::Base::Tk::Photo:  0
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
             Language::Expr:       0.14
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
+            Math::NumSeq::Aronson:  6
+            Math::NumSeq::CollatzSteps:  1
+            Math::NumSeq::Cubes:  1
+            Math::NumSeq::CullenNumbers:  1
+            Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::Pronic:  1
+            Math::NumSeq::ProthNumbers:  1
+            Math::NumSeq::Squares:  1
+            Math::NumSeq::Tetrahedral:  1
+            Math::NumSeq::Triangular:  1
+            Math::NumSeq::WoodallNumbers:  1
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::Columns:  26
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
+            Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::DragonCurve:  39
+            Math::PlanePath::DragonMidpoint:  39
+            Math::PlanePath::File:  37
+            Math::PlanePath::Flowsnake:  38
+            Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
@@ -173,6 +208,7 @@ optional_features:
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
+            Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
             Math::PlanePath::TheodorusSpiral:  6
@@ -180,6 +216,7 @@ optional_features:
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  30
             Math::PlanePath::VogelFloret:  12
+            Math::PlanePath::ZigzagOct:  39
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
@@ -193,15 +230,36 @@ optional_features:
             X11::Protocol::Other:  1
             X11::Protocol::WM:    2
             X11::Protocol::XSetRoot:  3
+    maximum_numseq:
+        description:  Maximum NumSeq number sequence modules
+        requires:
+            Math::Aronson:        4
+            Math::NumSeq::Aronson:  6
+            Math::NumSeq::CollatzSteps:  1
+            Math::NumSeq::Cubes:  1
+            Math::NumSeq::CullenNumbers:  1
+            Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::Pronic:  1
+            Math::NumSeq::ProthNumbers:  1
+            Math::NumSeq::Squares:  1
+            Math::NumSeq::Tetrahedral:  1
+            Math::NumSeq::Triangular:  1
+            Math::NumSeq::WoodallNumbers:  1
     maximum_planepath:
-        description:  Recommended PlanePath modules
+        description:  Maximum PlanePath modules
         requires:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::Columns:  26
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
+            Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::DragonCurve:  39
+            Math::PlanePath::DragonMidpoint:  39
+            Math::PlanePath::File:  37
+            Math::PlanePath::Flowsnake:  38
+            Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
@@ -229,6 +287,7 @@ optional_features:
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
+            Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
             Math::PlanePath::TheodorusSpiral:  6
@@ -236,6 +295,7 @@ optional_features:
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  30
             Math::PlanePath::VogelFloret:  12
+            Math::PlanePath::ZigzagOct:  39
             Math::PlanePath::ZOrderCurve:  34
     maximum_tests:
         description:  Have "make test" do as much as possible.
@@ -243,20 +303,13 @@ optional_features:
             Image::Base::GD:      4
             Image::Base::PNGwriter:  2
             Image::Xpm:           0
-            Parse::CPAN::Meta:    0
-            Test::DistManifest:   0
-            Test::Pod:            1.00
             Test::Weaken:         3
-            Test::YAML::Meta:     0.15
-            YAML:                 0
-            YAML::Syck:           0
-            YAML::Tiny:           0
-            YAML::XS:             0
     tk_interface:
         description:  Tk GUI modules.
         requires:
-            Tk::Balloon:     0
-            Tk::MainWindow:  0
+            Image::Base::Tk::Photo:  0
+            Tk::Balloon:          0
+            Tk::MainWindow:       0
     tk_optionals:
         description:  Tk things used if available.
         requires:
@@ -274,12 +327,29 @@ recommends:
     Language::Expr:       0.14
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
+    Math::NumSeq::Aronson:  6
+    Math::NumSeq::CollatzSteps:  1
+    Math::NumSeq::Cubes:  1
+    Math::NumSeq::CullenNumbers:  1
+    Math::NumSeq::HarshadNumbers:  1
+    Math::NumSeq::Pronic:  1
+    Math::NumSeq::ProthNumbers:  1
+    Math::NumSeq::Squares:  1
+    Math::NumSeq::Tetrahedral:  1
+    Math::NumSeq::Triangular:  1
+    Math::NumSeq::WoodallNumbers:  1
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::Columns:  26
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
     Math::PlanePath::Diagonals:  2
+    Math::PlanePath::DiamondArms:  37
     Math::PlanePath::DiamondSpiral:  1
+    Math::PlanePath::DragonCurve:  39
+    Math::PlanePath::DragonMidpoint:  39
+    Math::PlanePath::File:  37
+    Math::PlanePath::Flowsnake:  38
+    Math::PlanePath::FlowsnakeCentres:  38
     Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GosperSide:  35
     Math::PlanePath::GreekKeySpiral:  27
@@ -307,6 +377,7 @@ recommends:
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  32
+    Math::PlanePath::SquareArms:  37
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16
     Math::PlanePath::TheodorusSpiral:  6
@@ -314,6 +385,7 @@ recommends:
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::PlanePath::TriangularHypot:  30
     Math::PlanePath::VogelFloret:  12
+    Math::PlanePath::ZigzagOct:  39
     Math::PlanePath::ZOrderCurve:  34
     Math::Symbolic:       0.605
     X11::AtomConstants:   2

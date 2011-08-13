@@ -19,17 +19,19 @@ package App::MathImage::NumSeq::NumaronsonA;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant description => __('Numerical version of Aronson\'s sequence');
+use constant name => Math::NumSeq::__('Numerical Aronson');
+use constant description => Math::NumSeq::__('Sloane\'s numerical version of Aronson\'s sequence');
 use constant values_min => 0;
+use constant characteristic_monotonic => 1;
 use constant i_start => 1;
 use constant oeis_anum => 'A079000';
 

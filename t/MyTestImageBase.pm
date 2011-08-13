@@ -36,6 +36,9 @@ $handle_input = sub {};
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
+use vars '@CARP_NOT';
+@CARP_NOT = ('Test');
+
 sub min {
   my $ret = shift;
   while (@_) {
@@ -463,6 +466,14 @@ sub check_ellipse {
 
 sub check_diamond {
   my ($image, %options) = @_;
+  MyTestHelpers::diag("check_diamond()");
+
+  $options{'image_clear_func'} ||= do {
+    my ($width, $height) = $image->get('-width','-height');
+    sub {
+      $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+    }
+  };
 
   my ($width, $height) = $image->get('-width','-height');
   my $image_clear_func = $options{'image_clear_func'};
@@ -505,7 +516,6 @@ sub check_diamond {
       }
 
       $bad += is_rect ($image, $x1-1,$y1-1, $x2+1,$y2+1, $black, $name);
-
       if ($bad) { dump_image($image); }
     }
   }
@@ -513,6 +523,8 @@ sub check_diamond {
 
 sub check_image {
   my ($image, %options) = @_;
+  MyTestHelpers::diag("check_image()");
+
   local $white_expect = $white_expect || $white;
 
   $options{'image_clear_func'} ||= do {
@@ -521,6 +533,7 @@ sub check_image {
       $image->rectangle (0,0, $width-1,$height-1, $black, 1);
     }
   };
+
   check_line ($image, %options);
   check_rectangle ($image, %options);
   check_ellipse ($image, %options);

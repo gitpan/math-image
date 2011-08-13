@@ -31,31 +31,32 @@ use List::Util 'min', 'max';
 use POSIX ();
 
 use App::MathImage::NumSeq::Primes;
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Prime Numbers');
-use constant description => __('The primes which are at prime number index positions, 3, 5, 11, 17, 31, etc.');
+use constant name => Math::NumSeq::__('Prime Numbers');
+use constant description => Math::NumSeq::__('The primes which are at prime number index positions, 3, 5, 11, 17, 31, etc.');
+use constant characteristic_monotonic => 2;
 use constant values_min => 3;
 
-use constant parameter_list =>
-  { name      => 'level',
-    share_key => 'prime_index_primes_level',
-    display   => __('Level'),
-    type      => 'integer',
-    default   => 1,
-    minimum   => 0,
-    description => __('The level of prime-index repetition to apply.'),
-  };
+use constant parameter_info_array =>
+  [ { name      => 'level',
+      share_key => 'prime_index_primes_level',
+      display   => Math::NumSeq::__('Level'),
+      type      => 'integer',
+      default   => 1,
+      minimum   => 0,
+      description => Math::NumSeq::__('The level of prime-index repetition to apply.'),
+    } ];
 
 
-# OEIS-Catalogue: A006450  # PIPs 
+# OEIS-Catalogue: A006450  # PIPs
 # # OEIS-Catalogue: A049078 level=2
 # # OEIS-Catalogue: A049079 level=3
 # # OEIS-Catalogue: A049080 level=4

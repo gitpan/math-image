@@ -47,22 +47,32 @@ require App::MathImage::Gtk2::Main;
 require Test::Weaken::Gtk2;
 require Test::Weaken::ExtraBits;
 
+sub my_ignore {
+  my ($ref) = @_;
+
+  foreach my $aref (App::MathImage::NumSeq::Primes->parameter_info_array,
+                    Math::PlanePath::SquareSpiral->MathImage__parameter_info_array) {
+    if ($ref == $aref) {
+      return 1;
+    }
+    if (List::Util::first {$ref == $_} @$aref) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 {
   my $path_parameter_info_array;
   my $leaks = Test::Weaken::leaks
     ({ constructor => sub {
          my $main = App::MathImage::Gtk2::Main->new;
          $main->show_all;
-         $path_parameter_info_array = $main->{'path_params'}->get('parameter_info_array');
          return $main;
        },
        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
        contents => \&Test::Weaken::Gtk2::contents_container,
-       ignore => sub {
-         my ($ref) = @_;
-         return ($ref == $path_parameter_info_array
-                 || List::Util::first{$ref==$_} @$path_parameter_info_array);
-       },
+       ignore => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
   MyTestHelpers::test_weaken_show_leaks($leaks);

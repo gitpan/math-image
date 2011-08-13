@@ -20,16 +20,17 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
-use constant name => __('Prime Generating Quadratic of Legendre');
-use constant description => __('The quadratic numbers 2*k^2 + 29.');
+use constant name => Math::NumSeq::__('Prime Generating Quadratic of Legendre');
+use constant description => Math::NumSeq::__('The quadratic numbers 2*k^2 + 29.');
 use constant values_min => 29;
+use constant characteristic_monotonic => 2;
 
 # http://oeis.org/A007641  # only the prime ones
 # use constant oeis_anum => undef;

@@ -26,10 +26,12 @@ use strict;
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
+use Math::PlanePath::SierpinskiArrowhead;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -38,16 +40,10 @@ use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
-sub new {
-  my $class = shift;
-  require Math::PlanePath::SierpinskiArrowhead;
-  $class->SUPER::new(@_);
-}
-
 sub n_to_xy {
   my ($self, $n) = @_;
   ### SierpinskiArrowheadSkewed n_to_xy(): $n
-  my ($x, $y) = Math::PlanePath::MathImageSierpinskiArrowhead->n_to_xy($n)
+  my ($x, $y) = Math::PlanePath::SierpinskiArrowhead->n_to_xy($n)
     or return;
   return (($y+$x)/2, ($y-$x)/2);
 }
@@ -56,7 +52,7 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = floor($x + 0.5);
   $y = floor($y + 0.5);
-  return Math::PlanePath::MathImageSierpinskiArrowhead->xy_to_n
+  return Math::PlanePath::SierpinskiArrowhead->xy_to_n
     ($y-$x, $y+$x);
 }
 
@@ -64,18 +60,18 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-  $y2 = floor($y2 + 0.5);
+  $y2 = _round_nearest ($y2);
   if ($y2 < 0) {
     return (1,0);
   }
 
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
-  $x2 = floor($x2 + 0.5);
+  $x2 = _round_nearest ($x2);
   if ($x2 < 0) {
     return (1,0);
   }
   my $h = $x2+$y2;
-  return Math::PlanePath::MathImageSierpinskiArrowhead->rect_to_n_range
+  return Math::PlanePath::SierpinskiArrowhead->rect_to_n_range
     (-$h,0, $h,$h);
 }
 

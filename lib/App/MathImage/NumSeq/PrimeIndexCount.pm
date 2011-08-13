@@ -22,18 +22,19 @@ use List::Util 'min', 'max';
 use POSIX ();
 
 use App::MathImage::NumSeq::Primes;
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Prime Numbers');
-use constant description => __('The primes which are at prime number index positions, 3, 5, 11, 17, 31, etc.');
+use constant name => Math::NumSeq::__('Prime Index Count');
+use constant description => Math::NumSeq::__('How many ...');
 use constant characteristic_count => 1;
+use constant characteristic_monotonic => 0;
 use constant values_min => 0;
 
 # cf A049076 number of steps for the N'th prime

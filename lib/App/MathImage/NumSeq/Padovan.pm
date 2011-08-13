@@ -23,14 +23,16 @@ package App::MathImage::NumSeq::Padovan;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Sparse';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
-use constant name => __('Padovan Numbers');
-use constant description => __('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
+# use constant name => Math::NumSeq::__('Padovan Numbers');
+use constant description => Math::NumSeq::__('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');
+use constant characteristic_monotonic => 2;
+use constant characteristic_monotonic_from_i => 5;
 use constant values_min => 1;
 
 # cf A100891 - prime padovans

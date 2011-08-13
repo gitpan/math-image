@@ -21,20 +21,24 @@ use strict;
 use List::Util 'min', 'max';
 use POSIX ();
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Array';
-use App::MathImage::NumSeq::Base::Digits;
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Emirps');
-use constant description => __('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
-use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
+use constant name => Math::NumSeq::__('Emirps');
+use constant description => Math::NumSeq::__('Numbers which are primes forwards and backwards, eg. 157 because both 157 and 751 are primes.  Palindromes like 131 are excluded.  Default is decimal, or select a radix.');
+
+use Math::NumSeq::Base::Digits;
+use constant parameter_info_array =>
+  [ Math::NumSeq::Base::Digits::parameter_common_radix() ];
+
 use constant values_min => 3;
+use constant characteristic_monotonic => 1;
 
 # A006567 - decimal reversal is a prime and different
 # A007500 - decimal reversal is a prime, so palindrome primes too
@@ -53,17 +57,6 @@ sub oeis_anum {
 sub _digits_in_radix {
   my ($n, $radix) = @_;
   return 1 + int(log($n)/log($radix));
-}
-
-sub _reverse_in_radix {
-  my ($n, $radix) = @_;
-  my $ret = 0;
-  # ### _reverse_in_radix(): sprintf '%#X %d', $n, $n
-  do {
-    $ret = $ret * $radix + ($n % $radix);
-  } while ($n = int($n/$radix));
-  # ### ret: sprintf '%#X %d', $ret, $ret
-  return $ret;
 }
 
 sub new {
@@ -113,6 +106,18 @@ sub new {
   return $class->SUPER::new (%options,
                              radix => $radix,
                              array => \@array);
+}
+
+# return $n value reversed in $radix
+sub _reverse_in_radix {
+  my ($n, $radix) = @_;
+  my $ret = 0;
+  # ### _reverse_in_radix(): sprintf '%#X %d', $n, $n
+  do {
+    $ret = $ret * $radix + ($n % $radix);
+  } while ($n = int($n/$radix));
+  # ### ret: sprintf '%#X %d', $ret, $ret
+  return $ret;
 }
 
 1;

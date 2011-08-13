@@ -21,35 +21,36 @@ use strict;
 use List::Util 'max';
 use POSIX 'ceil';
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant PHI => (1 + sqrt(5)) / 2;
 
-use constant name => __('Golden Sequence');
+use constant name => Math::NumSeq::__('Golden Sequence');
 use constant values_min => 1;
-# use constant description => __('');
+use constant characteristic_monotonic => 1;
+# use constant description => Math::NumSeq::__('');
 
-use constant parameter_list => ({ name    => 'spectrum',
-                                  display => __('Spectrum'),
-                                  type    => 'float',
-                                  default => PHI,
-                                  description => __('The to show the spectrum of, usually an irrational.'),
-                                },
-                               );
+use constant parameter_info_array => [ { name    => 'spectrum',
+                                         display => Math::NumSeq::__('Spectrum'),
+                                         type    => 'float',
+                                         default => PHI,
+                                         description => Math::NumSeq::__('The to show the spectrum of, usually an irrational.'),
+                                       },
+                                     ];
 
 # cf A003849  0,1,1,0,1,0,1
 sub oeis_anum {
   my ($class_or_self) = @_;
   my $spectrum = (ref $class_or_self
-              ? $class_or_self->{'spectrum'}
-              : $class_or_self->parameter_default('spectrum'));
+                  ? $class_or_self->{'spectrum'}
+                  : $class_or_self->parameter_default('spectrum'));
   if ($spectrum == PHI) {
     return 'A000201'; # Golden Sequence 1,3,4,6,8,9,11,12
   }

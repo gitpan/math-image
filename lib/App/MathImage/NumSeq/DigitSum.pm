@@ -20,20 +20,22 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
-use App::MathImage::NumSeq '__';
-use App::MathImage::NumSeq::Base::IterateIth;
-@ISA = ('App::MathImage::NumSeq::Base::IterateIth',
-        'App::MathImage::NumSeq');
+use Math::NumSeq;
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
-use constant name => __('Digit Sum');
-use constant description => __('Sum of the digits in the given radix.  For binary this is how many 1 bits.');
+use constant name => Math::NumSeq::__('Digit Sum');
+use constant description => Math::NumSeq::__('Sum of the digits in the given radix.  For binary this is how many 1 bits.');
 use constant values_min => 0;
-use constant characteristic_count => 1;
+use constant characteristic_monotonic => 0;
+use constant characteristic_smaller => 1;
 
-use App::MathImage::NumSeq::Base::Digits;
-use constant parameter_list => (App::MathImage::NumSeq::Base::Digits::parameter_common_radix);
+use Math::NumSeq::Base::Digits;
+use constant parameter_info_array =>
+  [ Math::NumSeq::Base::Digits::parameter_common_radix() ];
 
 my @oeis = (undef,
             undef,

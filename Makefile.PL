@@ -25,11 +25,11 @@ use lib 'inc';
 use MyMakeMakerExtras;
 
 my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
-                                # suggest ErrorTextDialog v.7 for popup control
-                                'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
-                                'Gtk2::Ex::PodViewer'   => 0,
-                                'Gtk2::Ex::QuadButton'  => 0,
-                               );
+                      # suggest ErrorTextDialog v.7 for popup control
+                      'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
+                      'Gtk2::Ex::PodViewer'   => 0,
+                      'Gtk2::Ex::QuadButton'  => 0,
+                     );
 
 my %for_x11 = ('X11::Protocol' => 0,
                # my X11-Protocol-Other
@@ -42,11 +42,17 @@ my %for_x11 = ('X11::Protocol' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
               );
 
-my %tk_interface = ('Tk::MainWindow' => 0,
+my %tk_interface = (# main Perl-Tk of whatever new enough version
+                    'Tk::MainWindow' => 0,
                     'Tk::Balloon' => 0,
+
+                    # my Image-Base-Tk
+                    'Image::Base::Tk::Photo' => 0,
                    );
-my %tk_optionals = ('Tk::PNG' => 0,
+my %tk_optionals = (# main Perl-Tk of whatever new enough version
+                    'Tk::PNG' => 0,
                     'Tk::JPEG' => 0,
+                    # separate Tk-TIFF dist
                     'Tk::TIFF' => 0,
                    );
 
@@ -75,12 +81,15 @@ my %maximum_planepath
      'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
      'Math::PlanePath::HexSpiral'            => 9,  # v.9 wider parameter
      'Math::PlanePath::HexSpiralSkewed'      => 9,  # v.9 wider parameter
-     'Math::PlanePath::HexArms'              => 36, # new in v.36
      'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
      'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
      'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
      'Math::PlanePath::OctagramSpiral'       => 21, # new in v.21
      'Math::PlanePath::KnightSpiral'         => 1,
+
+     'Math::PlanePath::SquareArms'           => 37, # new in v.37
+     'Math::PlanePath::DiamondArms'          => 37, # new in v.37
+     'Math::PlanePath::HexArms'              => 36, # new in v.36
      'Math::PlanePath::GreekKeySpiral'       => 27, # new in v.27
 
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
@@ -95,12 +104,43 @@ my %maximum_planepath
      'Math::PlanePath::PeanoCurve'           => 36, # v.36 radix parameter
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
+
+     'Math::PlanePath::Flowsnake'            => 38, # new in v.38
+     'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::GosperSide'           => 35, # new in v.35
+
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
+     'Math::PlanePath::DragonCurve'          => 39, # new in v.39
+     'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
+     'Math::PlanePath::ZigzagOct'            => 39, # new in v.39
+
+     'Math::PlanePath::File'                 => 37, # new in v.37
+    );
+
+my %maximum_numseq
+  = (
+     # cf App::MathImage::Generator values_choices() preferences
+     'Math::NumSeq::Squares'    => 1,
+     'Math::NumSeq::Pronic'     => 1,
+     'Math::NumSeq::Triangular' => 1,
+     'Math::NumSeq::Cubes'      => 1,
+     'Math::NumSeq::Tetrahedral'      => 1,
+
+     'Math::NumSeq::CullenNumbers'  => 1,
+     'Math::NumSeq::ProthNumbers'   => 1,
+     'Math::NumSeq::WoodallNumbers' => 1,
+
+     'Math::NumSeq::HarshadNumbers' => 1,
+
+     'Math::NumSeq::CollatzSteps' => 1,
+
+     # in Math-Aronson
+     'Math::Aronson'         => 4, # version 4 for lying option
+     'Math::NumSeq::Aronson' => 6, # new in v.6
     );
 
 MyMakeMakerExtras::WriteMakefile
@@ -115,7 +155,7 @@ MyMakeMakerExtras::WriteMakefile
    PREREQ_PM =>
    {
     'constant' => 1.02,  # leading underscore in prima bits
-    # 'constant::defer' => 0,
+    'constant::defer' => 0,
     'Bit::Vector'     => 0,
     'Compress::Zlib'  => 0,
     'Data::Float'  => 0,
@@ -212,8 +252,20 @@ MyMakeMakerExtras::WriteMakefile
     'Math::PlanePath' => 1,
     'Math::PlanePath::SquareSpiral'   => 1,
 
-    # for CrossSide in progress ...
-    'Math::PlanePath::SacksSpiral' => 1,
+    # my Math-NumSeq
+    'Math::NumSeq' => 1,
+    'Math::NumSeq::Polygonal' => 1,
+    # these for sequences in-progress ...
+    'Math::NumSeq::Base::Array' => 1,
+    'Math::NumSeq::Base::Digits' => 1,
+    'Math::NumSeq::Base::IterateIth' => 1,
+    'Math::NumSeq::Base::IteratePred' => 1,
+    'Math::NumSeq::Base::Sparse' => 1,
+
+
+    'Math::PlanePath' => 37, # for experimental paths _round_nearest() etc
+    'Math::PlanePath::SierpinskiArrowhead' => 32,  # Skewed experiment
+    'Math::PlanePath::SacksSpiral' => 1, # for CrossSide in progress ...
    },
 
    META_MERGE =>
@@ -223,9 +275,9 @@ MyMakeMakerExtras::WriteMakefile
      recommends =>
      {
       %maximum_planepath,
+      %maximum_numseq,
       %gtk2_optionals,
       %for_x11,
-      'Math::Aronson'  => 4, # version 4 for lying option
       'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
       'Math::Expression::Evaluator' => 0, # maybe any ok
       'Language::Expr' => '0.14',
@@ -257,13 +309,18 @@ MyMakeMakerExtras::WriteMakefile
       },
 
       maximum_planepath =>
-      { description => 'Recommended PlanePath modules',
+      { description => 'Maximum PlanePath modules',
         requires => \%maximum_planepath,
+      },
+      maximum_numseq =>
+      { description => 'Maximum NumSeq number sequence modules',
+        requires => \%maximum_numseq,
       },
       maximum_interoperation =>
       { description => 'All the optional things Math-Image can use.',
         requires => {
                      %maximum_planepath,
+                     %maximum_numseq,
                      %for_x11,
                      %gtk2_optionals,
                      %tk_interface,
@@ -279,7 +336,6 @@ MyMakeMakerExtras::WriteMakefile
                      'Image::Base::SVG'       => 3, # v.3 diamond()
                      'Image::Base::SVGout'    => 7, # v.7 diamond()
 
-                     'Math::Aronson'  => 4, # v.4 for lying parameter
                      'Math::Symbolic' => 0.605, # 0.605 fix a simplify()
                      'Math::Expression::Evaluator' => 0,
                      'Language::Expr' => '0.14',
@@ -299,16 +355,3 @@ MyMakeMakerExtras::WriteMakefile
      },
    },
   );
-
-#------------------------------------------------------------------------------
-package MY;
-sub postamble {
-  my ($makemaker) = @_;
-  return MyMakeMakerExtras::postamble ($makemaker) . <<'HERE';
-
-#------------------------------------------------------------------------------
-
-oeis lib/App/MathImage/NumSeq/OEIS/Catalogue/Plugin/BuiltinTable.pm: math-numseq-make-oeis-catalogue.pl lib/App/MathImage/NumSeq/*.pm
-	$(PERL) math-numseq-make-oeis-catalogue.pl || (rm -f $@; false)
-HERE
-}

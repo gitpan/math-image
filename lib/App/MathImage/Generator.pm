@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -83,15 +83,14 @@ sub new {
 # columns_of_pythagoras
 use constant values_choices => do {
   my %choices;
-  foreach my $module (Module::Util::find_in_namespace('App::MathImage::NumSeq')) {
+  foreach my $module (Module::Util::find_in_namespace('App::MathImage::NumSeq'),
+                      Module::Util::find_in_namespace('Math::NumSeq')) {
     my $choice = $module;
+    $choice =~ s/^Math::NumSeq:://;
     $choice =~ s/^App::MathImage::NumSeq:://;
     next if $choice =~ /::/; # not sub-modules
     $choice =~ s/::/-/g;
     $choices{$choice} = 1;
-  }
-  if (! defined (Module::Util::find_installed('Math::Aronson'))) {
-    delete $choices{'Aronson'};
   }
   if (! defined (Module::Util::find_installed('Math::Symbolic'))
       && ! defined (Module::Util::find_installed('Math::Expression::Evaluator'))
@@ -158,17 +157,15 @@ use constant values_choices => do {
 
                          Repdigits
                          RepdigitAnyBase
+                         RepdigitBase
                          Beastly
-                         Undulating
-                         TernaryWithout2
-                         Base4Without3
                          RadixWithoutDigit
+                         UndulatingNumbers
 
-                         Cullen
-                         Woodall
-                         Proth
+                         CullenNumbers
+                         WoodallNumbers
+                         ProthNumbers
 
-                         Hailstone
                          Multiples
                          OEIS
                          File
@@ -192,7 +189,9 @@ sub values_class {
   my ($class_or_self, $values) = @_;
   $values ||= $class_or_self->{'values'};
   $values =~ s/-/::/g;
-  my $values_class = "App::MathImage::NumSeq::$values";
+  my $values_class = (Module::Util::find_installed("App::MathImage::NumSeq::$values")
+                      ? "App::MathImage::NumSeq::$values"
+                      : "Math::NumSeq::$values");
   Module::Load::load ($values_class);
   return $values_class;
 }
@@ -230,10 +229,13 @@ my %pathname_square_grid
                      PentSpiralSkewed
                      HexSpiral
                      HexSpiralSkewed
-                     HexArms
                      HeptSpiralSkewed
                      OctagramSpiral
                      KnightSpiral
+
+                     SquareArms
+                     DiamondArms
+                     HexArms
                      GreekKeySpiral
 
                      PixelRings
@@ -245,8 +247,12 @@ my %pathname_square_grid
                      PeanoCurve
                      HilbertCurve
                      ZOrderCurve
+
+                     Flowsnake
+                     FlowsnakeCentres
                      GosperIslands
                      GosperSide
+
                      KochCurve
                      KochPeaks
                      KochSnowflakes
@@ -280,6 +286,7 @@ my %pathname_square_grid
                 description => __('Wider path.'),
                 minimum => 0,
                 default => 0,
+                width => 3,
                } ];
   }
   { package Math::PlanePath::SquareSpiral;
@@ -381,12 +388,23 @@ my %pathname_square_grid
         width     => 3,
       } ];
 }
-{ package Math::PlanePath::MathImageFile;
+{ package Math::PlanePath::File;
   use constant MathImage__parameter_info_array =>
     [ { name    => 'filename',
         type    => 'filename',
         width   => 40,
         default => '',
+      } ];
+}
+{ package Math::PlanePath::MathImageDragonRounded;
+  use constant MathImage__parameter_info_array =>
+    [ { name      => 'arms',
+        share_key => 'arms_4',
+        type      => 'integer',
+        minimum   => 1,
+        maximum   => 4,
+        default   => 1,
+        width     => 1,
       } ];
 }
 
@@ -440,35 +458,20 @@ my %pathname_square_grid
 # path line increment
 
 { package Math::PlanePath;
-  use constant MathImage__line_increment => 1;
+  sub MathImage__arms_count {
+    my ($self) = @_;
+    return $self->{'arms'} || 1;
+  }
+}
+{ package Math::PlanePath::SquareArms;
+  use constant MathImage__arms_count => 4;
+}
+{ package Math::PlanePath::DiamondArms;
+  use constant MathImage__arms_count => 4;
 }
 { package Math::PlanePath::HexArms;
-  use constant MathImage__line_increment => 6;
+  use constant MathImage__arms_count => 6;
 }
-{ package Math::PlanePath::MathImageSquareArms;
-  use constant MathImage__line_increment => 4;
-}
-
-#------------------------------------------------------------------------------
-# path variant x,y negative
-
-{ package Math::PlanePath;
-  sub MathImage__x_negative { $_[0]->x_negative }
-  sub MathImage__y_negative { $_[0]->y_negative }
-}
-# { package Math::PlanePath::MathImageFlowsnake;
-#   # override flowsnake looping around to negatives takes a very long time
-#   use constant MathImage__y_negative => 0;
-# }
-sub x_negative {
-  my ($self) = @_;
-  return $self->path_object->MathImage__x_negative;
-}
-sub y_negative {
-  my ($self) = @_;
-  return $self->path_object->MathImage__y_negative;
-}
-
 
 #------------------------------------------------------------------------------
 # path lattice
@@ -503,14 +506,33 @@ sub y_negative {
 { package Math::PlanePath::GosperIslands;
   use constant MathImage__lattice_type => 'triangular';
 }
-  { package Math::PlanePath::MathImageFlowsnake;
-    use constant MathImage__lattice_type => 'triangular';
-  }
+{ package Math::PlanePath::Flowsnake;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::FlowsnakeCentres;
+  use constant MathImage__lattice_type => 'triangular';
+}
 
 
-  #------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# path x,y negative
 
-  use constant path_choices => do {
+# { package Math::PlanePath;
+#   sub MathImage__x_negative { $_[0]->x_negative }
+#   sub MathImage__y_negative { $_[0]->y_negative }
+# }
+sub x_negative {
+  my ($self) = @_;
+  return $self->path_object->x_negative;
+}
+sub y_negative {
+  my ($self) = @_;
+  return $self->path_object->y_negative;
+}
+
+#------------------------------------------------------------------------------
+
+use constant path_choices => do {
     my %choices;
     my $base = 'Math::PlanePath';
     foreach my $module (Module::Util::find_in_namespace($base)) {
@@ -536,12 +558,15 @@ sub y_negative {
                            PentSpiralSkewed
                            HexSpiral
                            HexSpiralSkewed
-                           HexArms
                            HeptSpiralSkewed
                            TriangleSpiral
                            TriangleSpiralSkewed
                            OctagramSpiral
                            KnightSpiral
+
+                           SquareArms
+                           DiamondArms
+                           HexArms
                            GreekKeySpiral
 
                            PyramidRows
@@ -562,16 +587,15 @@ sub y_negative {
                            KochPeaks
                            KochCurve
                            SierpinskiArrowhead
+                           DragonCurve
+                           ZigzagOct
 
                            PythagoreanTree
+                           File
                          )) {
       if (delete $choices{$prefer}) {
         push @choices, $prefer;
       }
-    }
-    if (! Module::Util::find_in_namespace('Math::PlanePath::SierpinskiArrowhead')) {
-      # unexpressed dependency ...
-      delete $choices{'MathImageSierpinskiArrowheadSkewed'};
     }
     my @mi = grep {/^MathImage/} keys %choices;
     delete @choices{@mi}; # hash slice
@@ -629,7 +653,7 @@ sub random_options {
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
-      # $path =~ /MathImageFlowsnake/   reasonably ok
+      # || $path =~ /Dragon/  # reasonable
       if ($path =~ /PythagoreanTree/  # values too big for many seqs
           || $values eq 'LinesLevel'  # experimental
          ) {
@@ -796,19 +820,21 @@ sub description {
                    } @{$path_object->MathImage__parameter_info_array});
 
   my $values_object = $self->values_object;
-  my @values_desc = ($self->values_object->name, # $self->{'values'},
+  my @values_desc = ($self->{'values'},
+                     # $self->values_object->name,  # NumSeq name method
                      map {
                        my $pname = $_->{'name'};
                        my $dispname = ($pname eq 'radix' ? 'base' : $pname);
                        my $value = $values_object->{$pname};
                        if (! defined $value) { $value = $_->{'default'}; }
                        "$dispname $value"
-                     } $values_object->parameter_list);
+                     } $values_object->parameter_info_list);
 
   my $filtered;
   if (($self->{'filter'}||'') ne 'All') {
     $filtered = __x(", filtered {name}",
-                    name => $self->values_class($self->{'filter'})->name);
+                    name => $self->{'filter'});
+    # $self->values_class($self->{'filter'})->name); NumSeq name() method
   } else {
     $filtered = '';
   }
@@ -820,20 +846,6 @@ sub description {
              width => $self->{'width'},
              height => $self->{'height'},
              scale => $self->{'scale'});
-
-  # if ($values eq 'Aronson') {
-  #   my $lang = $self->{'lang'} || 'en';
-  #   if ($lang ne 'en') {
-  #     $ret .= " $lang";
-  #   }
-  #   my $default_letter = ($lang eq 'en' ? 'T'
-  #                         : $lang eq 'fr' ? 'E'
-  #                         : '');
-  #   my $letter = $self->{'letter'} || $default_letter;
-  #   if ($letter ne $default_letter) {
-  #     $ret .= " \U$letter";
-  #   }
-  # }
 }
 
 sub filename_base {
@@ -861,7 +873,7 @@ sub filename_base {
                     && $values_object->{$_->{'name'}} ne $_->{'default'})
                      ? $values_object->{$_->{'name'}}
                        : ()
-                     } $values_object->parameter_list
+                     } $values_object->parameter_info_list
                    },
                (($self->{'filter'}||'') eq 'All' ? () : $self->{'filter'}),
                $self->{'width'}.'x'.$self->{'height'},
@@ -917,17 +929,23 @@ sub path_object {
 sub affine_object {
   my ($self) = @_;
   return ($self->{'affine_object'} ||= do {
-    my $offset = int ($self->{'scale'} / 2);
+    my $s_mid = int ($self->{'scale'} / 2);
     my $path_object = $self->path_object;
     my $scale = $self->{'scale'};
     my $x_origin
       = (defined $self->{'x_left'} ? - $self->{'x_left'} * $scale
          : $self->x_negative ? int ($self->{'width'} / 2)
-         : $offset);
+         : $s_mid);
     my $y_origin
       = (defined $self->{'y_bottom'} ? $self->{'y_bottom'} * $scale + $self->{'height'}
          : $self->y_negative ? int ($self->{'height'} / 2)
-         : $self->{'height'} - $self->{'scale'} + $offset);
+         : $self->{'height'} - $self->{'scale'} + $s_mid);
+    if (defined (my $x_offset = $self->{'x_offset'})) {
+      $x_origin += $x_offset;
+    }
+    if (defined (my $y_offset = $self->{'y_offset'})) {
+      $y_origin -= $y_offset;
+    }
     ### x_negative: $self->x_negative
     ### y_negative: $self->y_negative
     ### $x_origin
@@ -935,6 +953,7 @@ sub affine_object {
 
     require Geometry::AffineTransform;
     Geometry::AffineTransform->VERSION('1.3'); # 1.3 for invert()
+
     my $affine = Geometry::AffineTransform->new;
     $affine->scale ($self->{'scale'}, - $self->{'scale'});
     $affine->translate ($x_origin, $y_origin);
@@ -994,7 +1013,9 @@ sub figure {
   }
   my $figure = $self->{'figure'};
   if (! $figure || $figure eq 'default') {
-    return $self->path_object->figure;
+    return ($self->{'values'} =~ /^Lines/
+            ? 'circle'
+            : $self->path_object->figure);
   }
   return $figure;
 }
@@ -1036,6 +1057,12 @@ sub colours_grey_exp {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'DigitProduct') {
     $shrink = .99;
+  } elsif ($self->{'values'} eq 'DigitSum') {
+    $shrink = .95;
+  } elsif ($self->{'values'} eq 'DigitCount') {
+    $shrink = .8;
+  } elsif ($self->{'values'} eq 'RepdigitBase') {
+    $shrink = .95;
   }
   for (;;) {
     push @$colours, $self->colour_scaled ($f);
@@ -1144,14 +1171,14 @@ sub draw_Image_start {
   my ($self, $image) = @_;
   ### draw_Image_start()...
   ### values: $self->{'values'}
-
+  
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
   my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
   ### $width
   ### $height
-
+  
   my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
@@ -1159,7 +1186,7 @@ sub draw_Image_start {
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my @colours = ($foreground);
-
+  
   # clear undrawn quadrants
   {
     my @undrawn_rects;
@@ -1192,7 +1219,7 @@ sub draw_Image_start {
     App::MathImage::Image::Base::Other::rectangles
         ($image, $background, 1, @background_rects);
   }
-
+  
   my ($n_lo, $n_hi);
   my $rectangle_area = 1;
   if ($self->{'values'} eq 'LinesLevel') {
@@ -1201,7 +1228,8 @@ sub draw_Image_start {
     $n_lo = $path_object->n_start;
     my $yfactor = 1;
     my $n_angle;
-    if ($path_object->isa ('Math::PlanePath::MathImageFlowsnake')) {
+    if ($path_object->isa ('Math::PlanePath::Flowsnake')
+        || $path_object->isa ('Math::PlanePath::FlowsnakeCentres')) {
       $yfactor = sqrt(3);
       $n_hi = 7 ** $level;
       $n_angle = 6;
@@ -1225,20 +1253,25 @@ sub draw_Image_start {
       $n_hi = 3 ** $level;
       $n_angle = 2 * 3**($level-1);
       $yfactor = sqrt(3);
+    } elsif ($path_object->isa ('Math::PlanePath::MathImageZigzagOct')) {
+      $n_hi = 8 ** $level;
+    } elsif ($path_object->isa ('Math::PlanePath::MathImageQuintetCurve')) {
+      $n_hi = 5 ** $level;
+      $n_angle =  4 * (5**($level-1) - 1);
     } else {
       $n_hi = $level*$level;
     }
     $n_angle ||= $n_hi;
-
+    
     ### $level
     ### $n_lo
     ### $n_hi
     ### $n_angle
     ### $yfactor
-
+    
     $affine = Geometry::AffineTransform->new;
     $affine->scale (1, $yfactor);
-
+    
     my ($xlo, $ylo) = $path_object->n_to_xy ($n_lo);
     my ($xang, $yang) = $path_object->n_to_xy ($n_angle);
     my $theta = - atan2 ($yang*$yfactor, $xang);
@@ -1248,7 +1281,7 @@ sub draw_Image_start {
     ### hi raw: $path_object->n_to_xy($n_hi)
     ### $theta
     ### $r
-
+    
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
@@ -1256,12 +1289,12 @@ sub draw_Image_start {
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * .15,
                         $self->{'height'} * .5);
-
+    
     ### width: $self->{'width'}
     ### scale x: $self->{'width'} * .7 / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
-
+    
     # FIXME: wrong when rotated ... ??
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
@@ -1273,20 +1306,20 @@ sub draw_Image_start {
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-
+    
     my ($x,$y) = $path_object->n_to_xy ($n_lo++);
     ### start raw: "$x, $y"
     ($x,$y) = $affine->transform ($x, $y);
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-
+    
     $self->{'xprev'} = $x;
     $self->{'yprev'} = $y;
     $self->{'affine_object'} = $affine;
     ### prev: "$x,$y"
     ### theta degrees: $theta*180/3.14159
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
-
+    
   } else {
     my $affine_inv = $affine->clone->invert;
     my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
@@ -1298,16 +1331,16 @@ sub draw_Image_start {
     ### $x2
     ### $y1
     ### $y2
-
+    
     ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
-
+    
     if ($self->{'values'} eq 'Lines') {
       $n_hi += 1;
     } elsif ($self->{'values'} eq 'LinesTree') {
       $n_hi += ($self->{'values_parameters'}->{'branches'} ||= 3);
     }
   }
-
+  
   ### $n_lo
   ### $n_hi
   $self->{'n_prev'} = $n_lo - 1;
@@ -1315,7 +1348,7 @@ sub draw_Image_start {
   $self->{'n_hi'}   = $n_hi;
   $self->{'count_total'} = 0;
   $self->{'count_outside'} = 0;
-
+  
   # origin point
   if ($scale >= 3 && $self->figure ne 'point') {
     my ($x,$y) = $affine->transform(0,0);
@@ -1325,15 +1358,15 @@ sub draw_Image_start {
       $image->xy ($x, $y, $foreground);
     }
   }
-
+  
   if ($self->{'values'} eq 'Lines') {
-
+    
   } elsif ($self->{'values'} eq 'LinesTree') {
     my $branches = ($self->{'values_parameters'}->{'branches'} ||= 3);
     $self->{'branch_i'} = $branches;
     my $n = $self->{'upto_n'} = $path_object->n_start - 1;
     $self->{'upto_n_dest'} = $path_object->n_start + 1;
-
+    
   } else {
     my $values_class = $self->values_class($self->{'values'});
     ### values_parameters: $self->{'values_parameters'}
@@ -1341,7 +1374,7 @@ sub draw_Image_start {
       = $values_class->new (%{$self->{'values_parameters'} || {}},
                             lo => $n_lo,
                             hi => $n_hi);
-
+    
     if ($values_obj->characteristic('pn1')) {
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ '-',' ','+' ];
@@ -1358,8 +1391,9 @@ sub draw_Image_start {
       ### pn1...
       ### colours: $self->{'colours'}
       ### colours_offset: $self->{'colours_offset'}
-
-    } elsif ($values_obj->characteristic('count')) {
+      
+    } elsif ($values_obj->characteristic('count')
+             || $values_obj->characteristic('smaller')) {
       $self->{'colours_offset'} = 0;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9 ];
@@ -1373,13 +1407,14 @@ sub draw_Image_start {
       ### colours_offset: $self->{'colours_offset'}
       ### per values_min: $values_obj->values_min
       ### colours: $self->{'colours'}
-
-    } elsif ($values_obj->characteristic('radix')) {
+      
+    } elsif (my $num = ($values_obj->characteristic('digits')
+                        || $values_obj->characteristic('modulus'))) {
       $self->{'colours_offset'} = 0;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
       } else {
-        $self->colours_grey_linear ($values_obj->{'radix'});
+        $self->colours_grey_linear ($num);
       }
       $self->{'use_colours'} = 1;
       push @colours, @{$self->{'colours'}};
@@ -1594,9 +1629,23 @@ sub draw_Image_steps {
   my $count_outside = $self->{'count_outside'};
   my $n_hi = $self->{'n_hi'};
 
+  my $figure_at_transformed =
+    ($figure eq 'point' || $xpscale < 2
+     ? sub { }
+     : sub {
+       my ($x,$y) = @_;
+       $x = floor ($x - int($xpscale/2) + .5);
+       $y = floor ($y - int($ypscale/2) + .5);
+       if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
+                                         $width,$height)) {
+         $image->$figure_method (@coords, $foreground, $figure_fill);
+         $count_figures++;
+       }
+     });
+
   if ($self->{'values'} eq 'Lines') {
     my $increment = $self->{'values_parameters'}->{'increment'} ||
-      $path_object->MathImage__line_increment;
+      $path_object->MathImage__arms_count;
     my $n_offset_from = ($self->{'use_xy'} ? -$increment : 0);
     my $n_offset_to = $increment;
 
@@ -1612,15 +1661,8 @@ sub draw_Image_steps {
     my $frag = sub {
       #### lines frag: "$n  $x,$y"
       my ($x, $y) = $affine->transform ($x, $y);
-      if ($xpscale > 1) {
-        my $x2 = floor ($x - int($xpscale/2) + .5);
-        my $y2 = floor ($y - int($ypscale/2) + .5);
-        if (my @coords = ellipse_clipper ($x2,$y2, $x2+$xpscale,$y2+$ypscale,
-                                          $width,$height)) {
-          $image->ellipse (@coords, $foreground, 1);
-          $count_figures++;
-        }
-      }
+      $figure_at_transformed->($x,$y);
+
       $x = floor ($x + 0.5);
       $y = floor ($y + 0.5);
 
@@ -1719,18 +1761,9 @@ sub draw_Image_steps {
         }
         #### path: "$x,$y  $n"
         my ($wx, $wy) = $affine->transform ($x, $y);
+        $figure_at_transformed->($wx,$wy);
         $wx = floor ($wx + 0.5);
         $wy = floor ($wy + 0.5);
-
-        if ($ypscale > 1) {
-          my $x2 = $wx - int($xpscale/2);
-          my $y2 = $wy - int($ypscale/2);
-          if (my @coords = ellipse_clipper ($x2,$y2, $x2+$xpscale,$y2+$ypscale,
-                                            $width,$height)) {
-            $image->ellipse (@coords, $foreground, 1);
-            $count_figures++;
-          }
-        }
 
         foreach my $n_dest (_n_to_tree_children($n, $branches, $n_start)) {
           my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
@@ -1766,18 +1799,9 @@ sub draw_Image_steps {
             or return 0; # no more
           ### n raw: "n=$n  $x,$y"
           ($x, $y) = $affine->transform ($x, $y);
+          $figure_at_transformed->($x,$y);
           $x = floor ($x + 0.5);
           $y = floor ($y + 0.5);
-
-          if ($ypscale > 1) {
-            my $x2 = $x - int($xpscale/2);
-            my $y2 = $y - int($ypscale/2);
-            if (my @coords = ellipse_clipper ($x2,$y2, $x2+$xpscale,$y2+$ypscale,
-                                              $width,$height)) {
-              $image->ellipse (@coords, $foreground, 1);
-              $count_figures++;
-            }
-          }
         }
 
         my ($x_dest, $y_dest) = $path_object->n_to_xy($n_dest);
@@ -1830,6 +1854,7 @@ sub draw_Image_steps {
 
       ($x,$y) = $affine->transform ($x, $y);
       ### xy affine: "$x,$y"
+      $figure_at_transformed->($x,$y);
       $x = floor ($x + 0.5);
       $y = floor ($y + 0.5);
 
@@ -1924,7 +1949,7 @@ sub draw_Image_steps {
 
       if (++$x > $x_hi) {
         if (++$y > $self->{'y_hi'}) {
-          $values_obj->finish;
+          # $values_obj->finish;
           last;
         }
         $x = $self->{'x_lo'};
@@ -2040,6 +2065,7 @@ sub draw_Image_steps {
           last;
         }
       }
+      # last if $n > 128;
       $filter_obj->pred($n)
         or next;
       my ($x, $y) = $path_object->n_to_xy($n) or next;

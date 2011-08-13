@@ -19,11 +19,11 @@ package App::MathImage::NumSeq::ChampernowneBinary;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq';
+use Math::NumSeq;
+use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
@@ -31,9 +31,10 @@ $VERSION = 65;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Champernowne Sequence');
-use constant description => __('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
+# use constant name => Math::NumSeq::__('Champernowne Sequence');
+use constant description => Math::NumSeq::__('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
 use constant values_min => 0;
+use constant characteristic_monotonic => 1;
 use constant oeis_anum => 'A030303';
 
 # # http://oeis.org/A030310  # binary 1 positions

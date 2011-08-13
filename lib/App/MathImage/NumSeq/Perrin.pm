@@ -19,17 +19,19 @@ package App::MathImage::NumSeq::Perrin;
 use 5.004;
 use strict;
 
-use App::MathImage::NumSeq '__';
-use base 'App::MathImage::NumSeq::Base::Sparse';
+use Math::NumSeq;
+use base 'Math::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => __('Perrin Numbers');
-use constant description => __('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
+# use constant name => Math::NumSeq::__('Perrin Numbers');
+use constant description => Math::NumSeq::__('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
+use constant characteristic_monotonic => 2;
+use constant characteristic_monotonic_from_i => 1;
 use constant values_min => 0;
 use constant oeis_anum => 'A001608'; # perrin
 
