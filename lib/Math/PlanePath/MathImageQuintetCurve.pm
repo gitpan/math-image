@@ -1,3 +1,7 @@
+# rect range not done
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -27,7 +31,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -38,7 +42,23 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
 
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 4) { $arms = 4; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
+
+my @rot_to_sx = (1,0,-1,0);
+my @rot_to_sy = (0,1,0,-1);
 my @digit_reverse = (0,1,0,0,1,0);
 
 sub n_to_xy {
@@ -48,16 +68,34 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
+  my $arms = $self->{'arms'};
+  $n += $arms-1;
   if (_is_infinite($n)) {
     return ($n,$n);
   }
+
+  {
+    my $int = int($n);
+    if ($n != $int) {
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+$arms);
+      my $frac = $n - $int;  # inherit possible BigFloat
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
+    $n = $int; # BigFloat int() gives BigInt, use that
+  }
+
+  my $rot = $n % $arms;
+  $n = int($n/$arms);
 
   my @digits;
   my @sx;
   my @sy;
   {
-    my $sx = 1;
-    my $sy = 0;
+    my $sx = 1; # $rot_to_sx[$rot];
+    my $sy = 0; # $rot_to_sy[$rot];
     while ($n) {
       push @digits, ($n % 5);
       push @sx, $sx;
@@ -85,7 +123,6 @@ sub n_to_xy {
   my $x = 0;
   my $y = 0;
   my $rev = 0;
-  my $rot = 0;
 
   while (defined (my $digit = pop @digits)) {  # high to low
     my $sx = pop @sx;
@@ -259,7 +296,7 @@ sub rect_to_n_range {
     $w = 2*$w + 2;
   }
 
-  return ($n_lo-1, $n_hi);
+  return ($n_lo-1, $n_hi * $self->{'arms'});
 }
 
 1;
@@ -310,6 +347,6 @@ Return 0, the first N in the path.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::KochCurve>
+L<Math::PlanePath::Flowsnake>
 
 =cut

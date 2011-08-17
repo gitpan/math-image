@@ -29,7 +29,7 @@ use Image::Base::Tk::Photo;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 66;
+our $VERSION = 67;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -63,8 +63,22 @@ sub Populate {
   ### background: $self->cget('-background')
   ### borderwidth: $self->cget('-borderwidth')
   $self->{'dirty'} = 1;
-  $self->{'photo_name'} = '';
 }
+
+sub destroy {
+  my ($self) = @_;
+  ### Drawing destroy() ...
+  if (my $image = $self->cget('-image')) {
+    $self->configure('-image',undef);
+    $image->delete;
+  }  
+  shift->SUPER::destroy(@_);
+}
+# sub DESTROY {
+#   my ($self) = @_;
+#   ### Drawing DESTROY() ...
+#   shift->SUPER::DESTROY(@_);
+# }
 
 sub queue_reimage {
   my ($self) = @_;
@@ -111,23 +125,11 @@ sub _do_expose {
      # foreground => $foreground,
     );
 
-  # Perl-Tk 804.029 really destroy a Tk::Photo object with a ->delete().
-  # Re-use old ones with the "name" key.  New photo if new size, and old
-  # name re-used if an old size is wanted again later.
-  #
   my $photo = $self->cget('-image');
-  my $photo_name = __PACKAGE__.'.'.refaddr($self).".${width}x${height}";
-  if ($self->{'photo_name'} ne $photo_name) {
-    if ($photo) {
-      ### delete old photo: $photo
-      $photo->delete;
-    }
-    ### create photo: "$width,$height   $photo_name"
-    $self->{'photo_name'} = $photo_name;
-    $photo = $self->Photo ($photo_name, -width => $width, -height => $height);
+  if (! $photo) {
+    $photo = $self->Photo (-width => $width, -height => $height);
     $self->configure (-image => $photo);
   }
-
   my $image = Image::Base::Tk::Photo->new (-tkphoto => $photo);
   $gen->draw_Image_start ($image);
 

@@ -1,3 +1,7 @@
+# binary pred() wrong ?
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -23,7 +27,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,6 +40,7 @@ use constant values_min => 1;
 
 # A033619 base 10 >=0 including a==b
 # A046075 base 10 >=101 with a!=b
+# A046076 binary, but how?
 sub oeis_anum {
   my ($class_or_self) = @_;
   # if (! ref $class_or_self ||
@@ -43,7 +48,7 @@ sub oeis_anum {
   #   return 'A033619'; # base 10 including a==b
   # }
   # if (ref $class_or_self && $class_or_self->{'radix'} == 2) {
-  #   return 'A046076';
+  #   return '';
   # }
   return undef;
 }
@@ -105,18 +110,18 @@ sub next {
 }
 
 sub pred {
-  my ($self, $n) = @_;
+  my ($self, $value) = @_;
   my $radix = $self->{'radix'};
-  my $a = $n % $radix;
-  if ($n = int($n/$radix)) {
-    my $b = $n % $radix;
+  my $a = $value % $radix;
+  if ($value = int($value/$radix)) {
+    my $b = $value % $radix;
     if ($a == $b) { return 0; }
 
-    while ($n = int($n/$radix)) {
-      if (($n % $radix) != $a) { return 0; }
+    while ($value = int($value/$radix)) {
+      if (($value % $radix) != $a) { return 0; }
 
-      $n = int($n/$radix) || last;
-      if (($n % $radix) != $b) { return 0; }
+      $value = int($value/$radix) || last;
+      if (($value % $radix) != $b) { return 0; }
     }
   }
   return 1;

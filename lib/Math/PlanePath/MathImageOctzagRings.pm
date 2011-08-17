@@ -16,20 +16,20 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageSquareflakes --lines --scale=10
+# math-image --path=MathImageOctzagRings --lines --scale=10
 
 # area approaches sqrt(48)/10
 
 
-package Math::PlanePath::MathImageSquareflakes;
+package Math::PlanePath::MathImageOctzagRings;
 use 5.004;
 use strict;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
-use Math::PlanePath::MathImageSquareflakeSide;
+use Math::PlanePath::MathImageOctzagCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -97,7 +97,7 @@ sub _prevpow8 {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MathImageSquareflakes n_to_xy(): $n
+  ### MathImageOctzagRings n_to_xy(): $n
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
@@ -123,7 +123,7 @@ sub n_to_xy {
   ### $rem
   $rem -= $side*$sidelen;
   ### assert: $side >= 0 && $side < 4
-  my ($x, $y) = Math::PlanePath::MathImageSquareflakeSide->n_to_xy ($rem);
+  my ($x, $y) = Math::PlanePath::MathImageOctzagCurve->n_to_xy ($rem);
 
   my $pos = 4**$level / 2;
   ### side calc: "$x,$y   for pos $pos"
@@ -149,7 +149,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MathImageSquareflakes xy_to_n(): "$x, $y"
+  ### MathImageOctzagRings xy_to_n(): "$x, $y"
 
   $x = floor($x + 0.5);
   if (abs($x) <= 1) {
@@ -191,7 +191,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my ($len,$level) = Math::PlanePath::MathImageSquareflakeSide::_round_down_pow4($y);
+  my ($len,$level) = Math::PlanePath::MathImageOctzagCurve::_round_down_pow4($y);
   $level += 1;
   ### $level
   ### $len
@@ -262,7 +262,7 @@ sub xy_to_n {
 #
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImageSquareflakes rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### MathImageOctzagRings rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = floor($x1 + 0.5);
   $y1 = floor($y1 + 0.5);
@@ -287,18 +287,17 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageSquareflakes -- Koch snowflakes as concentric rings
+Math::PlanePath::MathImageOctzagRings -- Koch snowflakes as concentric rings
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageSquareflakes;
- my $path = Math::PlanePath::MathImageSquareflakes->new;
+ use Math::PlanePath::MathImageOctzagRings;
+ my $path = Math::PlanePath::MathImageOctzagRings->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
-This path traces out concentric integer versions of the Koch snowflake at
-successively greater iteration levels.
+This is concentric Octzag curves making the sides of a square.
 
                                 ^
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
@@ -306,18 +305,15 @@ successively greater iteration levels.
 The initial figure is the square N=1,2,3,4 then for the next level each
 straight side expands to 4x longer and a zigzag like N=4 through N=12,
 
-                                    *---*
-                                    |   |
-      *---*     becomes     *---*   *   *---*
-                                |   |
                                 *---*
-
-The angle is maintained in each replacement, for example the segment N=5 to
-N=6 becomes N=20 to N=24 at the next level.
+                                |   |
+      *---*     becomes     *---*   *   *---*
+                                    |   |
+                                    *---*
 
 =head2 Level Ranges
 
-Counting the innermost triangle as level 0, each ring is
+Counting the innermost square as level 0, each ring is
 
     Nstart = 8^level
     length = 4*(8^level)   many points
@@ -325,68 +321,25 @@ Counting the innermost triangle as level 0, each ring is
 For example the outer ring shown above is level 2 starting N=8^2=16 and
 having length=3*4^2=48 points (through to N=63 inclusive).
 
-The X range at a given level is the initial triangle baseline iterated out.
-Each level expands the sides by a factor of 3 so
+The X range at a given level is ...
 
-     Xlo = -(3^level)
-     Xhi = +(3^level)
-
-For example level 2 above runs from X=-9 to X=+9.  The Y range is the points
-N=6 and N=12 iterated out
-
-    Ylo = -(2/3)*3^level
-    Yhi = +(2/3)*3^level
-
-except for the initial triangle which doesn't have a downward notch and is
-only Y=-1/3 not Y=-2/3.
-
-Notice that for each level the extents grow by a factor of 3 but the notch
-introduced in each segment is not big enough to go past the corner
-positions.  At level 1 they equal the corners horizontally, ie. N=14 is at
-X=-3 the same as N=4, and on the right N=10 at X=+3 the same as N=8, but no
-more than that.
-
-The snowflake is an example of a fractal curve with ever finer structure.
-The code here can be used for that by going from N=Nstart to
-N=Nstart+length-1 and scaling X/3^level Y/3^level for a 2-wide 1-high figure
-of desired fineness.  See F<examples/koch-svg.pl> for an complete program
-doing that as an SVG image file.
+     Xlo = -(4^level) - ...
+     Xhi = +(4^level) + ...
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageSquareflakes-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageOctzagRings-E<gt>new ()>
 
 Create and return a new path object.
 
 =back
 
-=head1 FORMULAS
-
-=head2 Rectangle to N Range
-
-As noted in L</Level Ranges> above, for a given level
-
-    -(3^level)   <= X <= 3^level
-    -2*(3^level) <= Y <= 2*(3^level)
-
-So the maximum X,Y in a rectangle gives a level,
-
-    level = ceil(log3(max(x1, x2, y1/2, y2/2)))
-
-and the last point in that level is
-
-     N = 4^(level+1) - 1
-
-Using that as an N range is an over-estimate, but an easy calculation.  It's
-not too difficult to trace down for an exact range
-
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>,
-L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::GosperIslands>,
 L<Math::PlanePath::KochSnowflakes>
 
 =cut

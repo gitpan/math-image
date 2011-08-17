@@ -1,3 +1,8 @@
+# use prime factorization/sieve
+
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -26,7 +31,7 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

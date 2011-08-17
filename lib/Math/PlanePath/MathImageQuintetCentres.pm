@@ -1,3 +1,6 @@
+# rect range not done
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -16,11 +19,11 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageSierpinskiCurve --lines --scale=10
-# math-image --path=MathImageSierpinskiCurve --all --output=numbers_dash
+# math-image --path=MathImageQuintetCentres --lines --scale=10
+# math-image --path=MathImageQuintetCentres --all --output=numbers_dash
 
 
-package Math::PlanePath::MathImageSierpinskiCurve;
+package Math::PlanePath::MathImageQuintetCentres;
 use 5.004;
 use strict;
 use List::Util qw(min max);
@@ -38,12 +41,30 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
-use constant x_negative => 0;
-use constant y_negative => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
+
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 4) { $arms = 4; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
+
+my @rot_to_x = (0,0,-1,-1);
+my @rot_to_y = (0,1,1,0);
+my @rot_to_sx = (1,0,-1,0);
+my @rot_to_sy = (0,1,0,-1);
+my @digit_reverse = (0,1,0,0,1,0);
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### SierpinskiCurve n_to_xy(): $n
+  ### QuintetCentres n_to_xy(): $n
 
   if ($n < 0) {
     return;
@@ -52,56 +73,112 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $frac;
+  my $arms = $self->{'arms'};
   {
     my $int = int($n);
-    $frac = $n - $int;
-    $n = $int;       # BigFloat int() gives BigInt, use that
+    if ($n != $int) {
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+$arms);
+      my $frac = $n - $int;  # inherit possible BigFloat
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
+    $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $x = ($n % 2);
-  $n = int($n/2);
+  my $rot = $n % $arms;
+  $n = int($n/$arms);
+
+  my @digits;
+  my @sx;
+  my @sy;
+  {
+    my $sx = $rot_to_sx[$rot];
+    my $sy = $rot_to_sy[$rot];
+    while ($n) {
+      push @digits, ($n % 5);
+      push @sx, $sx;
+      push @sy, $sy;
+      $n = int($n/5);
+
+      # 2*(sx,sy) + rot+90(sx,sy)
+      ($sx,$sy) = (2*$sx - $sy,
+                   2*$sy + $sx);
+    }
+    ### @digits
+    my $rev = 0;
+    for (my $i = $#digits; $i >= 0; $i--) {  # high to low
+      ### digit: $digits[$i]
+      if ($rev) {
+        ### reverse: "$digits[$i] to ".(5 - $digits[$i])
+        $digits[$i] = 4 - $digits[$i];
+      }
+      $rev ^= $digit_reverse[$digits[$i]];
+      ### now rev: $rev
+    }
+  }
+  ### reversed n: @digits
+
+
+  my $x = 0;
   my $y = 0;
-  if ($x == 0) {
-    $x = $frac;
-    $frac = 0;
-  }
+  my $ox = 0;
+  my $oy = 0;
+  # my $rot = 0;
 
-  my $len = 2;
-  while ($n) {
-    my $digit = $n % 4;
-    $n = int($n/4);
-    ### at: "$x,$y"
-    ### $digit
+  while (defined (my $digit = shift @digits)) {  # low to high
+    my $sx = shift @sx;
+    my $sy = shift @sy;
+    ### at: "$x,$y  digit $digit   side $sx,$sy"
+
+    # if ($rot & 2) {
+    #   ($sx,$sy) = (-$sx,-$sy);
+    # }
+    # if ($rot & 1) {
+    #   ($sx,$sy) = (-$sy,$sx);
+    # }
 
     if ($digit == 0) {
-      $x += $frac;
-      $y += $frac;
-      $frac = 0;
+      $x -= $sx;   # left at 180
+      $y -= $sy;
 
     } elsif ($digit == 1) {
-      ($x,$y) = (-$y + $len + $frac,   # rotate +90
-                 $x  + 1);
-      $frac = 0;
+      # centre
+      ($x,$y) = (-$y,$x);      # rotate -90
+      ### rotate to: "$x,$y"
+      # $rot--;
 
     } elsif ($digit == 2) {
-      ($x,$y) = ($y  + $len+1 + $frac,   # rotate -90
-                 -$x + $len   - $frac);
-      $frac = 0;
+      $x += $sy;   # down at -90
+      $y -= $sx;
+      ### offset to: "$x,$y"
 
-    } else {
-      $x += $len + 2;
+    } elsif ($digit == 3) {
+      ($x,$y) = (-$y,$x);      # rotate -90
+      $x += $sx;   # right at 0
+      $y += $sy;
+      # $rot++;
+
+    } else {  # $digit == 4
+      ($x,$y) = ($y,-$x);      # rotate +90
+      $x -= $sy;   # up at +90
+      $y += $sx;
+      # $rot++;
     }
-    $len = 2*$len+2;
+
+    $ox += $sx;
+    $oy += $sy;
   }
 
-  ### final: "$x,$y"
-  return ($x+$frac,$y+$frac);
+  ### final: "$x,$y  origin $ox,$oy"
+  return ($x + $ox + $rot_to_x[$rot],
+          $y + $oy + $rot_to_y[$rot]);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### SierpinskiPeaks xy_to_n(): "$x, $y"
+  ### QuintetPeaks xy_to_n(): "$x, $y"
 
   return undef;
 
@@ -161,7 +238,7 @@ sub xy_to_n {
 #
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### SierpinskiCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### QuintetCentres rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
@@ -201,59 +278,28 @@ sub rect_to_n_range {
     $w = 2*$w + 2;
   }
 
-  return ($n_lo-1, $n_hi);
+  return ($n_lo-1, $n_hi * $self->{'arms'});
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Math-PlanePath Nlevel
+=for stopwords eg Ryde Mandelbrot Math-PlanePath Nlevel
 
 =head1 NAME
 
-Math::PlanePath::MathImageSierpinskiCurve -- Sierpinski octant curve
+Math::PlanePath::MathImageQuintetCentres -- Mandelbrot quintet "cross" curve
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageSierpinskiCurve;
- my $path = Math::PlanePath::MathImageSierpinskiCurve->new;
+ use Math::PlanePath::MathImageQuintetCentres;
+ my $path = Math::PlanePath::MathImageQuintetCentres->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
-This path is an integer version of the self-similar curve by Sierpinski
-going along the X axis and making triangular excursions.
+This path is an integer version of the ...
 
-
-                                             63-64            14
-                                              |  |
-                                             62 65            13
-                                            /     \
-                                       60-61       66-67      12
-                                        |              |
-                                       59-58       69-68      11
-                                            \     /
-                                 51-52       57 70            10
-                                  |  |        |  |
-                                 50 53       56 71       ...   9
-                                /     \     /     \     /
-                           48-49       54-55       72-73       8
-                            |
-                           47-46       41-40                   7
-                                \     /     \
-                     15-16       45 42       39                6
-                      |  |        |  |        |
-                     14 17       44-43       38                5
-                    /     \                 /
-               12-13       18-19       36-37                   4
-                |              |        |
-               11-10       21-20       35-34                   3
-                    \     /                 \
-          3--4        9 22       27-28       33                2
-          |  |        |  |        |  |        |
-          2  5        8 23       26 29       32                1
-        /     \     /     \     /     \     /
-    0--1        6--7       24-25       30-31                 Y=0
 
     ^
    X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
@@ -262,7 +308,7 @@ going along the X axis and making triangular excursions.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageSierpinskiCurve-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageQuintetCentres-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -283,6 +329,6 @@ Return 0, the first N in the path.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::KochCurve>
+L<Math::PlanePath::Flowsnake>
 
 =cut

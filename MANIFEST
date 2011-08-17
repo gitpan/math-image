@@ -28,6 +28,7 @@ devel/menu-forcombo.pl
 devel/misc.pl
 devel/oeis-entry.pl
 devel/old/Coord.pm
+devel/old/MathImageQuintetArms.pm
 devel/OrNone.pm
 devel/perrin.pl
 devel/pixbuf-types.pl
@@ -96,8 +97,6 @@ lib/App/MathImage/NumSeq/Derived/Cumulative.pm
 lib/App/MathImage/NumSeq/DigitCount.pm
 lib/App/MathImage/NumSeq/DigitCountHigh.pm
 lib/App/MathImage/NumSeq/DigitCountLow.pm
-lib/App/MathImage/NumSeq/DigitProduct.pm
-lib/App/MathImage/NumSeq/DigitSum.pm
 lib/App/MathImage/NumSeq/DigitSumModulo.pm
 lib/App/MathImage/NumSeq/Emirps.pm
 lib/App/MathImage/NumSeq/Expression.pm
@@ -131,7 +130,7 @@ lib/App/MathImage/NumSeq/PrimeQuadraticHonaker.pm
 lib/App/MathImage/NumSeq/PrimeQuadraticLegendre.pm
 lib/App/MathImage/NumSeq/Primes.pm
 lib/App/MathImage/NumSeq/PythagoreanHypots.pm
-lib/App/MathImage/NumSeq/RepdigitAnyBase.pm
+lib/App/MathImage/NumSeq/RepdigitAny.pm
 lib/App/MathImage/NumSeq/RepdigitBase.pm
 lib/App/MathImage/NumSeq/ReverseAddSteps.pm
 lib/App/MathImage/NumSeq/SafePrimes.pm
@@ -162,15 +161,16 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
-lib/Math/PlanePath/MathImageDragonRounded.pm
+lib/Math/PlanePath/MathImageFlowsnakeArms.pm
 lib/Math/PlanePath/MathImageGosperIslandsTree.pm
+lib/Math/PlanePath/MathImageOctzagCurve.pm
+lib/Math/PlanePath/MathImageOctzagRings.pm
+lib/Math/PlanePath/MathImageQuintetCentres.pm
 lib/Math/PlanePath/MathImageQuintetCurve.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageQuintetTiling.pm
 lib/Math/PlanePath/MathImageSierpinskiArrowheadSkewed.pm
 lib/Math/PlanePath/MathImageSierpinskiCurve.pm
-lib/Math/PlanePath/MathImageSquareflakes.pm
-lib/Math/PlanePath/MathImageSquareflakeSide.pm
 lib/Math/PlanePath/MathImageSquareReplicate.pm
 lib/Math/PlanePath/MathImageWunderlichCurve.pm
 Makefile.PL
@@ -180,7 +180,6 @@ math-image
 SIGNATURE
 t/ChampernowneBinary.t
 t/CountPrimeFactors.t
-t/DragonRounded.t
 t/Emirps.t
 t/GdkColorBits.t
 t/Generator.t

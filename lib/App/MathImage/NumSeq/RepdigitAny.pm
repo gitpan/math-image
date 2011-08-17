@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::RepdigitAnyBase;
+package App::MathImage::NumSeq::RepdigitAny;
 use 5.004;
 use strict;
 
@@ -27,7 +27,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

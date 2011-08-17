@@ -28,7 +28,7 @@ use base 'Math::NumSeq::Base::Array';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 use constant name => Math::NumSeq::__('Semi-Primes');
 use constant description => Math::NumSeq::__('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');

@@ -1,8 +1,3 @@
-# up or down first ?
-
-
-
-
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -21,16 +16,16 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageSquareflakeSide --lines --scale=10
-# math-image --path=MathImageSquareflakeSide --all --output=numbers_dash --size=80x50
+# math-image --path=MathImageOctzagCurve --lines --scale=10
+# math-image --path=MathImageOctzagCurve --all --output=numbers_dash --size=80x50
 
-package Math::PlanePath::MathImageSquareflakeSide;
+package Math::PlanePath::MathImageOctzagCurve;
 use 5.004;
 use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -65,15 +60,15 @@ sub _round_down_pow4 {
   return ($pow, $exp);
 }
 
-#         5---6
-#         |   |
-# 0---1   4   7---8
-#     |   |
 #     2---3
+#     |   |
+# 0---1   4   7---8
+#         |   |
+#         5---6
 #
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MathImageSquareflakeSide n_to_xy(): $n
+  ### MathImageOctzagCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -96,28 +91,28 @@ sub n_to_xy {
     if ($digit == 0) {
 
     } elsif ($digit == 1) {
-      ($x,$y) = ($y + $len,     # rotate -90 and offset
-                 -$x);
+      ($x,$y) = (-$y + $len,     # rotate +90 and offset
+                 $x);
 
     } elsif ($digit == 2) {
       $x += $len;    # offset
-      $y -= $len;
+      $y += $len;
 
     } elsif ($digit == 3) {
-      ($x,$y) = (-$y + 2*$len,     # rotate +90 and offset
-                 $x  - $len);
+      ($x,$y) = ($y + 2*$len,     # rotate -90 and offset
+                 -$x  + $len);
 
     } elsif ($digit == 4) {
-      ($x,$y) = (-$y + 2*$len,     # rotate +90 and offset
-                 $x);
+      ($x,$y) = ($y + 2*$len,     # rotate -90 and offset
+                 -$x);
 
     } elsif ($digit == 5) {
       $x += 2*$len;    # offset
-      $y += $len;
+      $y -= $len;
 
     } elsif ($digit == 6) {
-      ($x,$y) = ($y + 3*$len,     # rotate -90 and offset
-                 -$x + $len);
+      ($x,$y) = (-$y + 3*$len,     # rotate +90 and offset
+                 $x - $len);
 
     } elsif ($digit == 7) {
       ### assert: $digit==7
@@ -133,27 +128,28 @@ sub n_to_xy {
 
 #         8
 #         |
-#     6---7
-#     |
-#     5---4---3
+#         7---6
 #             |
-#         1---2
+#     3---4---5
+#     |    
+#     2---1
 #         |
 #         0
 #
-#         *
-#       /   \
-#     /   5---6
-#   /     |   | \
-# 0---1   4   7---8
-#   \ |   |     / |
+#                     |
+#         *  11--12--13
+#       /   \ |
 #     2---3  10---9
-#      \    / |
+#   / |   |     \ |
+# 0---1   4   7---8
+#   \     |   | /
+#         5---6
+#      \    /
 #         *
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MathImageSquareflakeSide xy_to_n(): "$x, $y"
+  ### MathImageOctzagCurve xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
@@ -169,12 +165,12 @@ sub xy_to_n {
   }
 
   my $diamond_p = sub {
-    ### diamond_p(): "$x,$y  len=$len  is ".(($x == 0 && $y == 0) || ($y < $x && $y >= -$x && $y <= $len-$x && $y > $x-$len))
+    ### diamond_p(): "$x,$y  len=$len  is ".(($x == 0 && $y == 0) || ($y <= $x && $y > -$x && $y < $len-$x && $y >= $x-$len))
     return (($x == 0 && $y == 0)
-            || ($y < $x
-                && $y >= -$x
-                && $y <= $len-$x
-                && $y > $x-$len));
+            || ($y <= $x
+                && $y > -$x
+                && $y <  $len-$x
+                && $y >= $x-$len));
   };
 
   my $n = 0;
@@ -184,19 +180,19 @@ sub xy_to_n {
     if (&$diamond_p()) {
       # digit 0 ...
     } else {
-      ($x,$y) = (-$y, $x-$len);   # shift and rotate +90
+      ($x,$y) = ($y, -($x-$len));   # shift and rotate -90
 
       if (&$diamond_p()) {
         # digit 1 ...
         $n += 1;
       } else {
-        ($x,$y) = ($y, $len-$x);  # shift and rotate -90
+        ($x,$y) = (-$y, $x-$len);  # shift and rotate +90
 
         if (&$diamond_p()) {
           # digit 2 ...
           $n += 2;
         } else {
-          ($x,$y) = ($y, $len-$x);  # shift and rotate -90
+          ($x,$y) = (-$y, $x-$len);  # shift and rotate +90
 
           if (&$diamond_p()) {
             # digit 3 ...
@@ -208,19 +204,19 @@ sub xy_to_n {
               # digit 4 ...
               $n += 4;
             } else {
-              ($x,$y) = (-$y, $x-$len);   # shift and rotate +90
+              ($x,$y) = ($y, -($x-$len));   # shift and rotate -90
 
               if (&$diamond_p()) {
                 # digit 5 ...
                 $n += 5;
               } else {
-                ($x,$y) = (-$y, $x-$len);   # shift and rotate +90
+                ($x,$y) = ($y, -($x-$len));   # shift and rotate -90
 
                 if (&$diamond_p()) {
                   # digit 6 ...
                   $n += 6;
                 } else {
-                  ($x,$y) = ($y, $len-$x);   # shift and rotate -90
+                  ($x,$y) = (-$y, $x-$len);   # shift and rotate +90
 
                   if (&$diamond_p()) {
                     # digit 7 ...
@@ -250,7 +246,7 @@ sub xy_to_n {
 #
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImageSquareflakeSide rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### MathImageOctzagCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
@@ -260,16 +256,15 @@ sub rect_to_n_range {
   if ($x2 < 0) {
     return (1,0);  # rect all x negative, no points
   }
-
   $y1 = abs (_round_nearest ($y1));
   $y2 = abs (_round_nearest ($y2));
   if ($y2 < $y1) {
-    $y2 = $y1;   # y2 bigger
+    $y2 = $y1;   # y2 bigger abs
   }
 
-  my $level = ceil (log($x2+$y2+1) / log(4));
-  ### $level
-  return (0, 8**$level);
+  my $p4 = $x2+$y2+1;
+  ### $p4
+  return (0, $p4*$p4);
 }
 
 1;
@@ -279,55 +274,55 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageSquareflakeSide -- zig-zag of eight segments
+Math::PlanePath::MathImageOctzagCurve -- zig-zag of eight segments
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageSquareflakeSide;
- my $path = Math::PlanePath::MathImageSquareflakeSide->new;
+ use Math::PlanePath::MathImageOctzagCurve;
+ my $path = Math::PlanePath::MathImageOctzagCurve->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
-This path is a self-similar zig-zag of eight segments,
+This is a self-similar zig-zag of eight segments,
 
-                                 45-46                         5
-                                  |  |
-                           40-41 44 47-48                      4
-                            |  |  |     |
-                        38-39 42-43 50-49                      3
-                         |           |
-                        37-36-35    51-52-53                   2
-                               |           |
-          5--6             33-34       55-54 61-62             1
-          |  |              |           |     |  |
-    0--1  4  7--8          32          56-57 60 63-64      <- Y=0
-       |  |     |           |              |  |     |
-       2--3 10--9       30-31             58-59    ...        -1
-             |           |
-            11-12-13    29-28-27                              -2
-                   |           |
-               15-14 21-22 25-26                              -3
-                |     |  |  |
-               16-17 20 23-24                                 -4
-                   |  |
-                  18-19                                       -5
+                  18-19                                       5
+                   |  |                                  
+               16-17 20 23-24                                 4
+                |     |  |  |                            
+               15-14 21-22 25-26                              3
+                   |           |                         
+            11-12-13    29-28-27                              2
+             |           |                               
+       2--3 10--9       30-31             58-59    ...        1
+       |  |     |           |              |  |     |    
+    0--1  4  7--8          32          56-57 60 63-64     <- Y=0
+          |  |              |           |     |  |       
+          5--6             33-34       55-54 61-62           -1
+                               |           |             
+                        37-36-35    51-52-53                 -2
+                         |           |                   
+                        38-39 42-43 50-49                    -3
+                            |  |  |     |                
+                           40-41 44 47-48                    -4
+                                  |  |                   
+                                 45-46                       -5
     ^
    X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
 
-The base shape is the initial N=0 to N=8 section,
+The base figure is the initial N=0 to N=8 section,
 
-              5---6
-              |   |
-      0---1   4   7---8
-          |   |
           2---3
+          |   |    
+      0---1   4   7---8
+              |   |
+              5---6
 
-It then repeats, with sections turned to follow the edges, so N=8 to N=16 is
-the same shape going downwards, then N=16 to N=24 across, N=24 to N=32
-upwards, etc.
+It then repeats, with sections turned to follow edge directions, so N=8 to
+N=16 is the same shape going upwards, then N=16 to N=24 across, N=24 to N=32
+downwards, etc.
 
-The result is the base figure at ever greater scale, extending to the right,
+The result is the base zigzag at ever greater scale extending to the right
 and with wiggly lines making up the segments.  The wiggles don't overlap.
 
 A given replication extends to
@@ -344,7 +339,7 @@ A given replication extends to
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageSquareflakeSide-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageOctzagCurve-E<gt>new ()>
 
 Create and return a new path object.
 

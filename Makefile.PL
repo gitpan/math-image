@@ -95,6 +95,7 @@ my %maximum_planepath
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
      'Math::PlanePath::PyramidSides'         => 1,
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
+     'Math::PlanePath::CellularRule54'       => 40, # new in v.40
      'Math::PlanePath::Corner'               => 1,
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
      'Math::PlanePath::Staircase'            => 16, # new in v.16
@@ -115,8 +116,9 @@ my %maximum_planepath
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::DragonCurve'          => 39, # new in v.39
+     'Math::PlanePath::DragonRounded'        => 40, # new in v.40
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
-     'Math::PlanePath::ZigzagOct'            => 39, # new in v.39
+     # 'Math::PlanePath::ZigzagOct'            => 39, # new in v.39
 
      'Math::PlanePath::File'                 => 37, # new in v.37
     );
@@ -127,14 +129,35 @@ my %maximum_numseq
      'Math::NumSeq::Squares'    => 1,
      'Math::NumSeq::Pronic'     => 1,
      'Math::NumSeq::Triangular' => 1,
+     'Math::NumSeq::Polygonal'  => 1,
      'Math::NumSeq::Cubes'      => 1,
-     'Math::NumSeq::Tetrahedral'      => 1,
+     'Math::NumSeq::Tetrahedral'  => 1,
+     'Math::NumSeq::StarNumbers'  => 1,
+     'Math::NumSeq::Even'  => 1,
+     'Math::NumSeq::Odd'   => 1,
+
+     'Math::NumSeq::Factorials'   => 1,
+     'Math::NumSeq::Primorials'   => 1,
+     'Math::NumSeq::Fibonacci'    => 1,
+     'Math::NumSeq::LucasNumbers' => 1,
+
+     'Math::NumSeq::FractionDigits' => 1,
+     'Math::NumSeq::SqrtDigits' => 1,
+
+     'Math::NumSeq::DigitLength'           => 1,
+     'Math::NumSeq::DigitLengthCumulative' => 1,
+     'Math::NumSeq::RadixWithoutDigit'     => 1,
+     'Math::NumSeq::DigitSum' => 2,      # new in v.2
+     'Math::NumSeq::DigitProduct' => 2,  # new in v.2
+
+     'Math::NumSeq::Beastly' => 1,
+     'Math::NumSeq::Repdigits' => 1,
+     'Math::NumSeq::Palindromes' => 1,
+     'Math::NumSeq::HarshadNumbers' => 1,
 
      'Math::NumSeq::CullenNumbers'  => 1,
      'Math::NumSeq::ProthNumbers'   => 1,
      'Math::NumSeq::WoodallNumbers' => 1,
-
-     'Math::NumSeq::HarshadNumbers' => 1,
 
      'Math::NumSeq::CollatzSteps' => 1,
 
@@ -248,8 +271,8 @@ MyMakeMakerExtras::WriteMakefile
     'Math::Libm' => 0,
     # 'Math::Prime::TiedArray' => 0,
 
-    # my Math-PlanePath, and can work with any set of paths, hopefully
-    'Math::PlanePath' => 1,
+    # my Math-PlanePath, and should work with any set of paths
+    'Math::PlanePath' => 40, # v.40 for arms_count()
     'Math::PlanePath::SquareSpiral'   => 1,
 
     # my Math-NumSeq
@@ -263,7 +286,7 @@ MyMakeMakerExtras::WriteMakefile
     'Math::NumSeq::Base::Sparse' => 1,
 
 
-    'Math::PlanePath' => 37, # for experimental paths _round_nearest() etc
+    # 'Math::PlanePath' => 37, # for experimental paths _round_nearest() etc
     'Math::PlanePath::SierpinskiArrowhead' => 32,  # Skewed experiment
     'Math::PlanePath::SacksSpiral' => 1, # for CrossSide in progress ...
    },

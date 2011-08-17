@@ -28,7 +28,7 @@ use base 'Math::NumSeq::Base::Array';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 
 # cf. A007700 n,2n+1,4n+3 all primes

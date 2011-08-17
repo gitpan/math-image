@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -264,6 +264,7 @@ my %pathname_square_grid
                      Corner
                      PyramidRows
                      PyramidSides
+                     CellularRule54
                   )
      # SacksSpiral
      # VogelFloret
@@ -396,16 +397,55 @@ my %pathname_square_grid
         default => '',
       } ];
 }
-{ package Math::PlanePath::MathImageDragonRounded;
-  use constant MathImage__parameter_info_array =>
-    [ { name      => 'arms',
-        share_key => 'arms_4',
-        type      => 'integer',
-        minimum   => 1,
-        maximum   => 4,
-        default   => 1,
-        width     => 1,
-      } ];
+{
+  my $arms4;
+  BEGIN {
+    $arms4 = [ { name      => 'arms',
+                 share_key => 'arms_4',
+                 type      => 'integer',
+                 minimum   => 1,
+                 maximum   => 4,
+                 default   => 1,
+                 width     => 1,
+               } ];
+  }
+  { package Math::PlanePath::DragonCurve;
+    use constant MathImage__parameter_info_array => $arms4;
+  }
+  { package Math::PlanePath::DragonMidpoint;
+    use constant MathImage__parameter_info_array => $arms4;
+  }
+  { package Math::PlanePath::DragonRounded;
+    use constant MathImage__parameter_info_array => $arms4;
+  }
+  { package Math::PlanePath::MathImageQuintetArms;
+    use constant MathImage__parameter_info_array => $arms4;
+  }
+  { package Math::PlanePath::MathImageQuintetCurve;
+    use constant MathImage__parameter_info_array => $arms4;
+  }
+  { package Math::PlanePath::MathImageQuintetCentres;
+    use constant MathImage__parameter_info_array => $arms4;
+  }
+}
+{
+  my $arms3;
+  BEGIN {
+    $arms3 = [ { name      => 'arms',
+                 share_key => 'arms_3',
+                 type      => 'integer',
+                 minimum   => 1,
+                 maximum   => 3,
+                 default   => 1,
+                 width     => 1,
+               } ];
+  }
+  { package Math::PlanePath::Flowsnake;
+    use constant MathImage__parameter_info_array => $arms3;
+  }
+  { package Math::PlanePath::FlowsnakeCentres;
+    use constant MathImage__parameter_info_array => $arms3;
+  }
 }
 
 
@@ -419,6 +459,9 @@ my %pathname_square_grid
   use constant MathImage__discontinuity => .5;
 }
 { package Math::PlanePath::PyramidSides;
+  use constant MathImage__discontinuity => .5;
+}
+{ package Math::PlanePath::CellularRule54;
   use constant MathImage__discontinuity => .5;
 }
 { package Math::PlanePath::Corner;
@@ -453,25 +496,6 @@ my %pathname_square_grid
   use constant MathImage__discontinuity => 0;
 }
      # PixelRings  => 0,
-
-#------------------------------------------------------------------------------
-# path line increment
-
-{ package Math::PlanePath;
-  sub MathImage__arms_count {
-    my ($self) = @_;
-    return $self->{'arms'} || 1;
-  }
-}
-{ package Math::PlanePath::SquareArms;
-  use constant MathImage__arms_count => 4;
-}
-{ package Math::PlanePath::DiamondArms;
-  use constant MathImage__arms_count => 4;
-}
-{ package Math::PlanePath::HexArms;
-  use constant MathImage__arms_count => 6;
-}
 
 #------------------------------------------------------------------------------
 # path lattice
@@ -588,7 +612,8 @@ use constant path_choices => do {
                            KochCurve
                            SierpinskiArrowhead
                            DragonCurve
-                           ZigzagOct
+                           DragonRounded
+                           DragonMidpoint
 
                            PythagoreanTree
                            File
@@ -647,17 +672,24 @@ sub random_options {
   my @ret = (values_parameters => $values_parameters,
              path_parameters => $path_parameters);
 
+  my @path_choices = $class->path_choices;
+  @path_choices = grep {!/PythagoreanTree/}  # value too big for many seqs
+    @path_choices;
+  @path_choices = (@path_choices,
+                   grep {!/KochCurve|GosperSide/} @path_choices);
+
+  my @values_choices = $class->values_choices;
+  @values_choices = grep {!/LinesLevel     # experimental
+                            # coord values are only permutation of integers, or coord repetitions
+                          |PlanePathCoord
+                           /x}
+    @values_choices;
+
   my @path_and_values;
-  foreach my $path ($class->path_choices) {
-    foreach my $values ($class->values_choices) {
+  foreach my $path (@path_choices) {
+    foreach my $values (@values_choices) {
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
-      }
-      # || $path =~ /Dragon/  # reasonable
-      if ($path =~ /PythagoreanTree/  # values too big for many seqs
-          || $values eq 'LinesLevel'  # experimental
-         ) {
-        next;
       }
 
       # too sparse?
@@ -665,9 +697,6 @@ sub random_options {
 
       # bit sparse?
       # next if $values eq 'Perrin' || $values eq 'Padovan';
-
-      # coord values are only permutation of integers, or coord repetitions
-      next if $values =~ /PlanePathCoord/;
 
       if ($values eq 'Squares') {
         next if $path eq 'Corner'; # just a line across the bottom
@@ -753,10 +782,6 @@ sub random_options {
   {
     my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
                                      1 .. 20]);
-    # ZOrderCurve gets slow very quickly when wider, also it's undocumented
-    if ($path eq 'ZOrderCurve') {
-      $path_wider = 0; # min (1, $path_wider);
-    }
     $path_parameters->{'wider'} = $path_wider;
   }
   {
@@ -1645,7 +1670,7 @@ sub draw_Image_steps {
 
   if ($self->{'values'} eq 'Lines') {
     my $increment = $self->{'values_parameters'}->{'increment'} ||
-      $path_object->MathImage__arms_count;
+      $path_object->arms_count;
     my $n_offset_from = ($self->{'use_xy'} ? -$increment : 0);
     my $n_offset_to = $increment;
 

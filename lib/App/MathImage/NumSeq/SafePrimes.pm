@@ -26,7 +26,7 @@ use base 'App::MathImage::NumSeq::SophieGermainPrimes';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 use constant name => Math::NumSeq::__('Safe Primes');
 use constant description => Math::NumSeq::__('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those are the Sophie Germain primes).');
