@@ -31,7 +31,7 @@ HERE
 }
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,7 +49,7 @@ sub new {
   my %self = (X      => $X,
               old_event_handler => $old_event_handler);
   weaken($self{'X'});
-  return bless \%self, , $class;
+  return bless \%self, $class;
 }
 
 sub DESTROY {

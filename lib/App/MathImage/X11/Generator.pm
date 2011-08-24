@@ -20,6 +20,7 @@ package App::MathImage::X11::Generator;
 use 5.004;
 use strict;
 use Carp;
+use constant 1.02; # for underscores
 use Scalar::Util;
 use IO::Select;
 use Scope::Guard;
@@ -36,7 +37,7 @@ use App::MathImage::X11::Protocol::EventHandlerExtra;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests

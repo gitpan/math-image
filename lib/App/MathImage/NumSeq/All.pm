@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
@@ -49,7 +49,7 @@ sub next {
 
 use constant pred => 1;
 sub ith {
-  my ($class_or_self, $i) = @_;
+  my ($self, $i) = @_;
   return $i;
 }
 

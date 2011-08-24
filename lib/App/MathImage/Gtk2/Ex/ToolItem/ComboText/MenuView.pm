@@ -26,7 +26,7 @@ use App::MathImage::Gtk2::Ex::ToolItem::ComboText::MenuItem;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',

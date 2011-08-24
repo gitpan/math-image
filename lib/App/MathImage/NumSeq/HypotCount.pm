@@ -24,7 +24,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -170,7 +170,7 @@ simply any non-negative C<$value>.
 
 =head1 SEE ALSO
 
-L<App::MathImage::NumSeq>
+L<Math::NumSeq>
 
 =head1 HOME PAGE
 

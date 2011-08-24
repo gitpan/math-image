@@ -17,6 +17,7 @@
 
 
 package App::MathImage::Prima::Generator;
+use 5.006;
 use strict;
 use warnings;
 use Carp;
@@ -28,7 +29,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds

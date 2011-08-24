@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            67
+version:            68
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -211,6 +211,7 @@ optional_features:
             Math::PlanePath::HilbertCurve:  13
             Math::PlanePath::Hypot:  21
             Math::PlanePath::HypotOctant:  21
+            Math::PlanePath::ImaginaryBase:  41
             Math::PlanePath::KnightSpiral:  1
             Math::PlanePath::KochCurve:  30
             Math::PlanePath::KochPeaks:  30
@@ -225,6 +226,8 @@ optional_features:
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
             Math::PlanePath::PythagoreanTree:  26
+            Math::PlanePath::QuadricCurve:  41
+            Math::PlanePath::QuadricIslands:  41
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
@@ -309,6 +312,7 @@ optional_features:
             Math::PlanePath::HilbertCurve:  13
             Math::PlanePath::Hypot:  21
             Math::PlanePath::HypotOctant:  21
+            Math::PlanePath::ImaginaryBase:  41
             Math::PlanePath::KnightSpiral:  1
             Math::PlanePath::KochCurve:  30
             Math::PlanePath::KochPeaks:  30
@@ -323,6 +327,8 @@ optional_features:
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
             Math::PlanePath::PythagoreanTree:  26
+            Math::PlanePath::QuadricCurve:  41
+            Math::PlanePath::QuadricIslands:  41
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
@@ -418,6 +424,7 @@ recommends:
     Math::PlanePath::HilbertCurve:  13
     Math::PlanePath::Hypot:  21
     Math::PlanePath::HypotOctant:  21
+    Math::PlanePath::ImaginaryBase:  41
     Math::PlanePath::KnightSpiral:  1
     Math::PlanePath::KochCurve:  30
     Math::PlanePath::KochPeaks:  30
@@ -432,6 +439,8 @@ recommends:
     Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
     Math::PlanePath::PythagoreanTree:  26
+    Math::PlanePath::QuadricCurve:  41
+    Math::PlanePath::QuadricIslands:  41
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  32

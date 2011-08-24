@@ -24,7 +24,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -179,7 +179,7 @@ which can occur in the sequence.
 
 =head1 SEE ALSO
 
-L<App::MathImage::NumSeq>,
+L<Math::NumSeq>,
 L<App::MathImage::NumSeq::MobiusFunction>
 
 =head1 HOME PAGE

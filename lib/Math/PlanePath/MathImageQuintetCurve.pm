@@ -31,7 +31,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -316,7 +316,9 @@ Math::PlanePath::MathImageQuintetCurve -- Mandelbrot quintet "cross" curve
 
 =head1 DESCRIPTION
 
-This path is an integer version of the ...
+I<In progress.>
+
+This path is an integer version of ...
 
 
     ^

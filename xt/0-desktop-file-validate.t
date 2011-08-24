@@ -17,9 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this file.  If not, see <http://www.gnu.org/licenses/>.
 
-
+BEGIN { require 5 }
 use strict;
-use warnings;
 use ExtUtils::Manifest;
 use Test::More;
 

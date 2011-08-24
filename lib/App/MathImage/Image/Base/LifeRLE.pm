@@ -28,7 +28,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base::Text;
 @ISA = ('Image::Base::Text');
 
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -232,7 +232,7 @@ sub colour_to_character {
 1;
 __END__
 
-=for stopwords LifeRLE filename Ryde RGB
+=for stopwords LifeRLE filename Ryde RGB RLE multi-state
 
 =head1 NAME
 

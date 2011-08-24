@@ -27,13 +27,13 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => Math::NumSeq::__('Repdigits In Any Base');
-use constant description => Math::NumSeq::__('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base (Sloane\'s A167782).');
+use constant description => Math::NumSeq::__('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base.');
 use constant values_min => 1;
 use constant characteristic_monotonic => 2;
 use constant oeis_anum => 'A167782';

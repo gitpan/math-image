@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 14;
 
 use lib 't';
@@ -35,7 +34,7 @@ use App::MathImage::NumSeq::Totient;
 # VERSION
 
 {
-  my $want_version = 67;
+  my $want_version = 68;
   is ($App::MathImage::NumSeq::Totient::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Totient->VERSION,  $want_version, 'VERSION class method');
 

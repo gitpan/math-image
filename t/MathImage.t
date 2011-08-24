@@ -19,6 +19,7 @@
 
 use 5.008;
 use strict;
+use warnings;
 use Test::More tests => 44;
 
 use lib 't';
@@ -37,7 +38,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 67;
+  my $want_version = 68;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -84,7 +85,7 @@ foreach my $elem
      modules => ['Image::Base::PNGwriter'] ],
    [ ['--png','--module=Magick'],
      modules => ['Image::Base::Magick'] ],
-   [ ['--png','--module=Gtk2']
+   [ ['--png','--module=Gtk2'],
      # always have Image::Base::Gtk2::Gdk::Pixbuf
    ],
 

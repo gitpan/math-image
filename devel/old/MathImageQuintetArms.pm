@@ -37,6 +37,10 @@ use Math::PlanePath;
 use Math::PlanePath::MathImageQuintetCurve;
 
 use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
 
 sub new {
   my $class = shift;

@@ -84,8 +84,7 @@ plan tests => 3;
        ignore => sub {
          my ($ref) = @_;
          return (Test::Weaken::Gtk2::ignore_default_root_window($ref)
-                 || $ref == App::MathImage::Generator::default_options->{'path_parameters'}
-                );
+                 || $ref == App::MathImage::Generator::default_options->{'path_parameters'});
        },
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
@@ -105,8 +104,7 @@ plan tests => 3;
        ignore => sub {
          my ($ref) = @_;
          return (Test::Weaken::Gtk2::ignore_default_root_window($ref)
-                 || $ref == App::MathImage::Generator::default_options->{'path_parameters'}
-                );
+                 || $ref == App::MathImage::Generator::default_options->{'path_parameters'});
        },
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');

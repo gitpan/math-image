@@ -284,6 +284,10 @@ HERE
   $post .= <<'HERE';
 pc:
 HERE
+  # ------ pc: test vars ------
+  # the "." obscures it from MyExtractUse.pm
+  $post .= "\t-\$(PERLRUNINST) -e 'use "."Test::Vars; all_vars_ok()'\n";
+
   # ------ pc: podcoverage ------
   foreach (@{$my_options{'MyMakeMakerExtras_Pod_Coverage'}}) {
     my $class = $_;

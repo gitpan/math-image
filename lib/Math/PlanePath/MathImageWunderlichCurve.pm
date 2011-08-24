@@ -28,7 +28,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -180,7 +180,6 @@ sub xy_to_n {
     push @y, $y % $radix; $y = int($y/$radix);
   }
 
-  my $i = 0;
   my $xk = 0;
   my $yk = 0;
   my $n = 0;
@@ -420,6 +419,8 @@ Math::PlanePath::MathImageWunderlichCurve -- 3x3 self-similar quadrant traversal
  my $path5 = Math::PlanePath::MathImageWunderlichCurve->new (radix => 5);
 
 =head1 DESCRIPTION
+
+I<In progress.>
 
 This path is an integer version of ...
 

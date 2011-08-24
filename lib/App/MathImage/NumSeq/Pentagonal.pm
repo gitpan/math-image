@@ -23,7 +23,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Polygonal';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

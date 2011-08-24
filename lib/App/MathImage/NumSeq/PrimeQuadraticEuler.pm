@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -41,7 +41,7 @@ sub ith {
   return ($i + 1)*$i + 41;
 }
 sub pred {
-  my ($class_or_self, $n) = @_;
+  my ($self, $n) = @_;
   return ($n >= 41
           && do {
             my $i = sqrt($n - 40.75) - 0.5;

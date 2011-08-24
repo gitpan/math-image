@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -38,8 +38,31 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
-use constant x_negative => 0;
-use constant y_negative => 0;
+
+my @arms_to_x_negative = (0,  0,0, 1,1, 1,1, 1,1);
+my @arms_to_y_negative = (0,  0,0, 0,0, 1,1, 1,1);
+sub x_negative { 
+  my ($self) = @_;
+  return $arms_to_x_negative[$self->{'arms'}];
+}
+sub y_negative { 
+  my ($self) = @_;
+  return $arms_to_y_negative[$self->{'arms'}];
+}
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
+
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 8) { $arms = 8; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -59,17 +82,15 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  my $x = ($n % 2);
-  $n = int($n/2);
-  my $y = 0;
-  if ($x == 0) {
-    $x = $frac;
-    $frac = 0;
-  }
+  my $arms = $self->{'arms'};
+  my $rot = ($n % $arms);
+  $n = int($n/$arms);
 
-  my $len = 2;
+  my $x = 0;
+  my $y = 0;
+  my $len = 1;
   while ($n) {
-    my $digit = $n % 4;
+    my $digit = $n % 4;      # low to high
     $n = int($n/4);
     ### at: "$x,$y"
     ### $digit
@@ -81,12 +102,12 @@ sub n_to_xy {
 
     } elsif ($digit == 1) {
       ($x,$y) = (-$y + $len + $frac,   # rotate +90
-                 $x  + 1);
+                 $x + 1);
       $frac = 0;
 
     } elsif ($digit == 2) {
-      ($x,$y) = ($y  + $len+1 + $frac,   # rotate -90
-                 -$x + $len   - $frac);
+      ($x,$y) = ($y  + $len + 1 + $frac,   # rotate -90
+                 -$x + $len - $frac);
       $frac = 0;
 
     } else {
@@ -95,22 +116,54 @@ sub n_to_xy {
     $len = 2*$len+2;
   }
 
+  $x += 1;
+  if ($rot & 1) {
+    ($x,$y) = ($y,$x);   # mirror 45
+  }
+  if ($rot & 2) {
+    ($x,$y) = (-$y-1,$x);   # rotate +90
+  }
+  if ($rot & 4) {
+    $x = -$x-1;   # rotate 180
+    $y = -$y-1;
+  }
+
   ### final: "$x,$y"
-  return ($x+$frac,$y+$frac);
+  return ($x+$frac,$y);
 }
+
+my @xy_mod_off_curve = ([0,1,1,0],
+                        [1,0,0,1],
+                        [0,1,1,0],
+                        [0,1,1,0]);
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### SierpinskiPeaks xy_to_n(): "$x, $y"
 
-  return undef;
-
   $x = _round_nearest($x);
   $y = _round_nearest($y);
-  if ($y < 0 || $x < 0 || (($x ^ $y) & 1)) {
-    ### neg y or parity different ...
+  if ($xy_mod_off_curve[$x % 4][$y % 4]) {
     return undef;
   }
+
+  my $arm = 0;
+  if ($y < 0) {
+    $arm = 4;
+    $x = -$x;   # rotate -180
+    $y = -$y;
+  }
+  if ($x < 0) {
+    $arm += 2;
+    ($x,$y) = ($y,-$x);   # rotate -90
+  }
+  if ($y > $x) {     # second octant
+    $arm++;
+    ($x,$y) = ($y-1,$x+1); # mirror 45
+  }
+
+  return undef;
+
   my ($len,$level) = _round_down_pow3(($x/2)||1);
   ### $level
   ### $len
@@ -201,7 +254,7 @@ sub rect_to_n_range {
     $w = 2*$w + 2;
   }
 
-  return ($n_lo-1, $n_hi);
+  return ($n_lo-1, $n_hi * $self->{'arms'});
 }
 
 1;
@@ -220,6 +273,8 @@ Math::PlanePath::MathImageSierpinskiCurve -- Sierpinski octant curve
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
+
+I<In progress.>
 
 This path is an integer version of the self-similar curve by Sierpinski
 going along the X axis and making triangular excursions.

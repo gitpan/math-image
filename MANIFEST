@@ -161,17 +161,16 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
-lib/Math/PlanePath/MathImageFlowsnakeArms.pm
-lib/Math/PlanePath/MathImageGosperIslandsTree.pm
-lib/Math/PlanePath/MathImageOctzagCurve.pm
-lib/Math/PlanePath/MathImageOctzagRings.pm
+lib/Math/PlanePath/MathImageComplexIplus1.pm
+lib/Math/PlanePath/MathImageGosperTiling.pm
+lib/Math/PlanePath/MathImageKochQuadflakes.pm
 lib/Math/PlanePath/MathImageQuintetCentres.pm
 lib/Math/PlanePath/MathImageQuintetCurve.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageQuintetTiling.pm
-lib/Math/PlanePath/MathImageSierpinskiArrowheadSkewed.pm
 lib/Math/PlanePath/MathImageSierpinskiCurve.pm
 lib/Math/PlanePath/MathImageSquareReplicate.pm
+lib/Math/PlanePath/MathImageTwinDragon.pm
 lib/Math/PlanePath/MathImageWunderlichCurve.pm
 Makefile.PL
 MANIFEST			This list of files

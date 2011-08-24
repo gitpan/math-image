@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -184,7 +184,7 @@ sub _split_ext {
     return $filename;
   }
 }
-  
+
 
 sub _do_response {
   my ($self, $response) = @_;

@@ -28,7 +28,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 use Gtk2::Ex::ToolItem::ComboEnum;
 use Glib::Object::Subclass

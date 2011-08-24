@@ -23,7 +23,7 @@ package App::MathImage::Gtk2::OeisEntry;
 use 5.008;
 use strict;
 use warnings;
-use Gtk2;
+use Gtk2 1.220;  # for Gtk2::EVENT_PROPAGATE()
 use POSIX ();
 use List::Util 'max';
 use Locale::TextDomain 1.19 ('App-MathImage');
@@ -33,7 +33,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {

@@ -20,11 +20,12 @@ package App::MathImage::Gtk2::Drawing::Values;
 use 5.008;
 use strict;
 use warnings;
+use App::MathImage::Generator;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 67;
+our $VERSION = 68;
 our $TEXTDOMAIN = 'Math-Image';
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Values',
                            App::MathImage::Generator->values_choices);

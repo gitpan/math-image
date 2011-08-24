@@ -31,7 +31,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -62,7 +62,7 @@ sub new {
       (-for_drawable => $window,
        -width        => $width,
        -height       => $height);
-  my $pixmap = $self->{'pixmap'} = $image->get('-pixmap');
+  $self->{'pixmap'} = $image->get('-pixmap');
 
   if ($self->{'draw_progressive'}) {
     require Image::Base::Gtk2::Gdk::Window;

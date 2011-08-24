@@ -1,4 +1,7 @@
 # binary pred() wrong ?
+#
+# option min length ?
+# option A==B ?
 
 
 
@@ -27,7 +30,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -42,7 +45,7 @@ use constant values_min => 1;
 # A046075 base 10 >=101 with a!=b
 # A046076 binary, but how?
 sub oeis_anum {
-  my ($class_or_self) = @_;
+  # my ($class_or_self) = @_;
   # if (! ref $class_or_self ||
   #     $class_or_self->{'radix'} == 10) {
   #   return 'A033619'; # base 10 including a==b

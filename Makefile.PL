@@ -105,6 +105,7 @@ my %maximum_planepath
      'Math::PlanePath::PeanoCurve'           => 36, # v.36 radix parameter
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
+     'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
 
      'Math::PlanePath::Flowsnake'            => 38, # new in v.38
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
@@ -114,11 +115,13 @@ my %maximum_planepath
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
+     'Math::PlanePath::QuadricCurve'         => 41, # new in v.41
+     'Math::PlanePath::QuadricIslands'       => 41, # new in v.41
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::DragonCurve'          => 39, # new in v.39
      'Math::PlanePath::DragonRounded'        => 40, # new in v.40
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
-     # 'Math::PlanePath::ZigzagOct'            => 39, # new in v.39
+     # 'Math::PlanePath::TwinDragon'           => 41, # new in v.41
 
      'Math::PlanePath::File'                 => 37, # new in v.37
     );

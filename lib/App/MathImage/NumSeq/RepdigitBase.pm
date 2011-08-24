@@ -23,7 +23,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -69,7 +69,7 @@ sub ith {
   if ($i == 0) {
     return 2;
   }
-  my @ret = (2); # zero considered 000...
+
   foreach my $base (2 .. 1+int(sqrt($i-0.75))) {
     my $n = ($base + 1) * $base + 1;  # 111 in $base
     while ($n <= $i) {

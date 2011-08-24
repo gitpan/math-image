@@ -63,7 +63,6 @@ sub my_ignore {
 }
 
 {
-  my $path_parameter_info_array;
   my $leaks = Test::Weaken::leaks
     ({ constructor => sub {
          my $main = App::MathImage::Gtk2::Main->new;

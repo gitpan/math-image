@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -71,7 +71,6 @@ sub n_to_xy {
   my $y = 0;
   my $len_even = 1;
   my $len_odd = 1;
-  my $odd = 1;
   while ($n) {
     my $digit = ($n % 5);
 

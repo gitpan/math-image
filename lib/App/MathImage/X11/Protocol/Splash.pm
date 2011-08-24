@@ -28,7 +28,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -152,7 +152,7 @@ App::MathImage::X11::Protocol::Splash -- temporary splash window
 
 =over 4
 
-=item C<$splash = App::MathImage::X11::Protocol::Splash-E<gt>new (key=>value,...)>
+=item C<$splash = App::MathImage::X11::Protocol::Splash-E<gt>new (key=E<gt>value,...)>
 
 Create and return a new Splash object.  The key/value parameters are
 

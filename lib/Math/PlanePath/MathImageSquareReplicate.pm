@@ -25,7 +25,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -155,7 +155,7 @@ sub xy_to_n {
 # 2*X+1 <= 3^level
 # log3(2*X+1) <= level
 # level = log3(2X+1)
-# 
+#
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### MathImageSquareReplicate rect_to_n_range(): "$x1,$y1  $x2,$y2"
@@ -190,30 +190,30 @@ Math::PlanePath::MathImageSquareReplicate -- replicating squares
 
 =head1 DESCRIPTION
 
+I<In progress.>
+
 This path is a self-similar replicating square,
-                                                                            
-                                                                            
-                                                                            
-    40--39--38  31--30--29  22--21--20                    
-     |       |   |       |   |       |                    
-    41  36--37  32  27--28  23  18--19                    
-     |           |           |                            
-    42--43--44  33--34--35  24--25--26                    
-                                                          
-    49--48--47   4-- 3-- 2  13--12--11                    
-     |       |   |       |   |       |                    
+
+    40--39--38  31--30--29  22--21--20
+     |       |   |       |   |       |
+    41  36--37  32  27--28  23  18--19
+     |           |           |
+    42--43--44  33--34--35  24--25--26
+
+    49--48--47   4-- 3-- 2  13--12--11
+     |       |   |       |   |       |
     50  45--46   5   0-- 1  14   9--10     <- Y=0
-     |           |           |                            
-    51--52--53   6-- 7-- 8  15--16--17                    
-                                                          
-    58--57--56  67--66--65  76--75--74                    
-     |       |   |       |   |       |                    
-    59  54--55  68  63--64  77  72--73                    
-     |           |           |                            
-    60--61--62  69--70--71  78--79--80                    
-                                                                            
+     |           |           |
+    51--52--53   6-- 7-- 8  15--16--17
+
+    58--57--56  67--66--65  76--75--74
+     |       |   |       |   |       |
+    59  54--55  68  63--64  77  72--73
+     |           |           |
+    60--61--62  69--70--71  78--79--80
+
                      ^
-                    X=0  1   2   3   4 
+                    X=0  1   2   3   4
 
 The base shape is the initial N=0 to N=8 section,
 

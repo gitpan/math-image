@@ -24,7 +24,7 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 # Gtk2::ToggleToolButton
 use Gtk2::Ex::ToolItem::CheckButton;
@@ -65,7 +65,6 @@ sub SET_PROPERTY {
     $self->{'parameter_value_set'} = 1;
     $self->set_active ($newval);
   } else {
-    my $oldval = $self->{$pname};
     $self->{$pname} = $newval;
 
     my $display = $newval->{'display'};

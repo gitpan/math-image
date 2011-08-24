@@ -32,7 +32,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkSaveDialog');
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 my %format_to_module = (png  => 'Tk::PNG',
                         jpeg => 'Tk::JPEG',
@@ -93,7 +93,7 @@ sub Populate {
        -width => max(map{length} @values) + 1,
        -command => sub {
          my ($value, $direction) = @_;
-         $self->{'format'} = $value
+         $self->{'format'} = $value;
        });
     $spin->set('PNG');
     $spin->pack;
@@ -112,7 +112,7 @@ sub save {
   }
   my $result;
   if (eval {
-    my $photo = $drawing->cget('-image') || die "Oops, no photo in drawing";;
+    my $photo = $drawing->cget('-image') || die "Oops, no photo in drawing";
     my $format = 'png';
     if (my $module = $format_to_module{lc($format)}) {
       Module::Load::load($module);

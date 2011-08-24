@@ -25,7 +25,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 use constant name => Math::NumSeq::__('Multiples of a given K');
 use constant description => Math::NumSeq::__('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
@@ -52,7 +52,7 @@ use constant parameter_info_array => [ { name => 'multiples',
 sub rewind {
   my ($self) = @_;
   $self->{'i'} = ($self->{'multiples'}
-                  && ceil ($self->{'lo'} / abs($self->{'multiples'})))
+                  && ceil ($self->{'lo'} / abs($self->{'multiples'})));
 }
 sub next {
   my ($self) = @_;

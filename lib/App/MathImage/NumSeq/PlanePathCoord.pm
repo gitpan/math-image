@@ -21,16 +21,17 @@
 
 
 package App::MathImage::NumSeq::PlanePathCoord;
-use 5.004;
+use 5.005;
 use strict;
 use Carp;
+use Module::Util;
 use List::Util 'max';
 
 use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

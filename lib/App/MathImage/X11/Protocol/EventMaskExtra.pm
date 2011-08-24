@@ -31,7 +31,7 @@ HERE
 }
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -53,7 +53,7 @@ sub new {
     $X->ChangeWindowAttributes ($window,
                                 event_mask => ($old_event_mask | $event_mask));
   }
-  return bless \%self, , $class;
+  return bless \%self, $class;
 }
 
 sub DESTROY {

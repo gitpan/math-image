@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -43,7 +43,7 @@ sub _hopt {
 
 sub _with_parameters {
   my ($self, $str, $key) = @_;
-  my ($value, my @options) = split ',', $str;
+  my ($value, my @options) = split /,/, $str;
   _hopt($self,'gen_options',$key, $value);
   foreach my $option (@options) {
     $option =~ /^(.+?)=(.*)$/
@@ -434,7 +434,6 @@ sub output_method_root_x11 {
   $gen_options->{'height'} = $X->{'height_in_pixels'};
 
   my $rootwin = $X->{'root'};
-  my $colormap = $X->{'default_colormap'};
   ### $rootwin
 
   require App::MathImage::X11::Generator;
@@ -640,7 +639,7 @@ sub output_image {
   if ($image->isa('Image::Base::Prima::Drawable')) {
     $image->get('-drawable')->end_paint;
   }
-  
+
   require File::Copy;
   $image->save;
   File::Copy::copy ($tempfile, \*STDOUT);
@@ -776,7 +775,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 3;   # 4 chars each
+  my $cell_width = 4;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);

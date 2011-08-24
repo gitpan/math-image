@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -91,7 +91,7 @@ sub oeis_anum {
 #   }
 #   return ($self->{'i'}++, ($self->{'sum'} = ($sum % $radix)));
 # }
-  
+
 sub ith {
   my ($self, $i) = @_;
   my $radix = $self->{'radix'};

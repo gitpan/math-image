@@ -25,7 +25,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -68,6 +68,11 @@ sub _my_primes_list {
   require Math::Prime::XS;
   Math::Prime::XS->VERSION (0.23); # version 0.23 fix 1928099
   return Math::Prime::XS::sieve_primes ($lo, $hi);
+}
+
+sub pred {
+  my ($self, $value) = @_;
+  return Math::Prime::XS::is_prime($value);
 }
 
 # sub ith {

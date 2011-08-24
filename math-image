@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 exit App::MathImage->command_line;
 
 __END__
@@ -31,7 +31,8 @@ __END__
 png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
 --padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT
 --theodorus Theodorus semiprimes segfault Aronson's --aronson startup
-GdkPixbuf prima Prima --prima tty renamings MathImageFoo
+GdkPixbuf prima Prima --prima tty renamings MathImageFoo OEIS tribonnaci
+PseudoColor TrueColor PNGwriter Imager ImageMagick Tk tk PythagoreanTree
 
 =head1 NAME
 
@@ -65,7 +66,7 @@ the way up to the desired part.
 
 =head2 Values Options
 
-The following otpions control what set of values to display.  The
+The following options control what set of values to display.  The
 C<--values> option described last is the most general.
 
 =over

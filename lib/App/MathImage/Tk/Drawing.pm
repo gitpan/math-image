@@ -29,7 +29,7 @@ use Image::Base::Tk::Photo;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 67;
+our $VERSION = 68;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -71,7 +71,7 @@ sub destroy {
   if (my $image = $self->cget('-image')) {
     $self->configure('-image',undef);
     $image->delete;
-  }  
+  }
   shift->SUPER::destroy(@_);
 }
 # sub DESTROY {

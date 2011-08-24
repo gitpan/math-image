@@ -24,7 +24,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 use constant name => Math::NumSeq::__('Mobius Function');
 use constant description => Math::NumSeq::__('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');
@@ -129,7 +129,7 @@ sub pred {
 1;
 __END__
 
-=for stopwords Ryde MathImage
+=for stopwords Ryde MathImage Mobius ie
 
 =head1 NAME
 
@@ -175,7 +175,7 @@ Return true if C<$value> is 1, 0 or -1.
 
 =head1 SEE ALSO
 
-L<App::MathImage::NumSeq>,
+L<Math::NumSeq>,
 L<App::MathImage::NumSeq::PrimeFactorCount>
 
 =head1 HOME PAGE

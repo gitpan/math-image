@@ -25,7 +25,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -41,7 +41,7 @@ use constant values_min => 3;
 use constant characteristic_monotonic => 1;
 
 # A006567 - decimal reversal is a prime and different
-# A007500 - decimal reversal is a prime, so palindrome primes too
+# A007500 - decimal reversal is a prime, so palindromes which are primes too
 #
 sub oeis_anum {
   my ($class_or_self) = @_;
@@ -120,5 +120,54 @@ sub _reverse_in_radix {
   return $ret;
 }
 
+# ENHANCE-ME: could look for small divisors in both values simultaneously,
+# in case the reversal is even etc and easily excluded
+sub pred {
+  my ($self, $value) = @_;
+  return Math::Prime::XS::is_prime($value)
+    && Math::Prime::XS::is_prime(_reverse_in_radix($value, $self->{'radix'}));
+}
+
 1;
 __END__
+
+=for stopwords Ryde Math-NumSeq emirp emirps
+
+=head1 NAME
+
+App::MathImage::NumSeq::Emirps -- primes backwards and forwards
+
+=head1 SYNOPSIS
+
+ use App::MathImage::NumSeq::Emirps;
+ my $seq = App::MathImage::NumSeq::Emirps->new;
+ my ($i, $value) = $seq->next;
+
+=head1 DESCRIPTION
+
+The "emirps", being numbers which are primes backwards and forwards.  For
+example 157 is an emirp because both 157 and its reverse 751 are primes.
+Prime palindromes are excluded.  The default base is decimal, or the
+C<radix> parameter can select another base.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<$seq = App::MathImage::NumSeq::Emirps-E<gt>new (key=E<gt>value,...)>
+
+Create and return a new sequence object.
+
+=item C<$bool = $seq-E<gt>pred($value)>
+
+Return true if C<$value> is an emirp, meaning it and its digit reversal are
+both primes.
+
+=back
+
+=head1 SEE ALSO
+
+L<Math::NumSeq>,
+L<Math::NumSeq::Cubes>
+
+=cut

@@ -22,7 +22,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
@@ -66,7 +66,7 @@ App::MathImage::NumSeq::Derived::Cumulative -- cumulative sum of a sequence
 
 =head1 SEE ALSO
 
-L<App::MathImage::NumSeq>
+L<Math::NumSeq>
 
 =head1 HOME PAGE
 

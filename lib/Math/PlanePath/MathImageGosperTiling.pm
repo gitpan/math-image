@@ -16,11 +16,11 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageGosperIslandsTree --lines --scale=10
-# math-image --path=MathImageGosperIslandsTree --output=numbers
+# math-image --path=MathImageGosperTiling --lines --scale=10
+# math-image --path=MathImageGosperTiling --output=numbers
 #
 
-package Math::PlanePath::MathImageGosperIslandsTree;
+package Math::PlanePath::MathImageGosperTiling;
 use 5.004;
 use strict;
 use List::Util qw(min max);
@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -43,7 +43,7 @@ use constant n_start => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### GosperIslandsTree n_to_xy(): $n
+  ### GosperTiling n_to_xy(): $n
   return if $n < 0;
 
   {
@@ -127,7 +127,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### GosperIslandsTree xy_to_n(): "$x, $y"
+  ### GosperTiling xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
@@ -195,7 +195,7 @@ sub xy_to_n {
   #        / \
   #       5   6
 
-  my @rot = (1,2,3,4,5,6);
+  # my @rot = (1,2,3,4,5,6);
   my $n = 0;
   my $rot = 0;
   while (@digits) {
@@ -258,12 +258,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageGosperIslandsTree -- self-similar hexagons
+Math::PlanePath::MathImageGosperTiling -- self-similar hexagons
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageGosperIslandsTree;
- my $path = Math::PlanePath::MathImageGosperIslandsTree->new;
+ use Math::PlanePath::MathImageGosperTiling;
+ my $path = Math::PlanePath::MathImageGosperTiling->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -285,7 +285,7 @@ The basic pattern is ...
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageGosperIslandsTree-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageGosperTiling-E<gt>new ()>
 
 Create and return a new path object.
 
