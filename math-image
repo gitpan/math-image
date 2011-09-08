@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 exit App::MathImage->command_line;
 
 __END__
@@ -47,10 +47,10 @@ math-image -- display some mathematical images
 C<math-image> displays some mathematical images, either in a Gtk2 GUI, as an
 image file output, or setting the root window.
 
-There's lots of options for what to display, in particular including Ulam's
-spiral of prime numbers, and variations on the numbers in a path theme
-including Sacks spiral and Vogel floret.  Try C<--random> or the Randomize
-button for interesting combinations.
+There's lots of options for what to display, in particular it includes
+Ulam's spiral of prime numbers, and variations on the numbers in a path such
+as Sacks spiral and Vogel floret.  Try C<--random> or the Randomize button
+for interesting combinations.
 
 Most of the code is plain Perl, so it's not blindingly fast, but the GUI or
 the root window are drawn progressively so you can see what's happening.  In
@@ -58,9 +58,9 @@ the GUI you can change the controls while drawing to start again on
 something else.
 
 Mouse button 1 in the GUI drags the image to see parts away from the origin
-and which otherwise wouldn't fit on screen.  This can become particularly
-slow when displaying things like prime numbers which must be calculated all
-the way up to the desired part.
+and which otherwise wouldn't fit on screen.  This can become quite slow when
+displaying things like prime numbers which must be calculated all the way up
+to the desired part.
 
 =head1 OPTIONS
 
@@ -180,36 +180,25 @@ properly.
 
 =item --values=MODULE,NAME=VALUE,NAME=VALUE,...
 
-Draw values from the given C<App::MathImage::NumSeq> module.  For
-example
+Draw values from the given C<Math::NumSeq> module (plus experimental
+C<App::MathImage::NumSeq> ones).  For example
 
     math-image --values=Emirps
 
-The names for these modules are not settled, so expect some splits, mergers
-or renamings.  Parameters can be passed as comma separated NAME=VALUE, for
-example
+Parameters can be passed as comma separated NAME=VALUE, for example
 
     math-image --values=TwinPrimes,pairs=both
 
-This can be used to read values from a text file
+The File module can read values from a text file
 
     math-image --values=File,filename=/my/dir/data.txt
 
-And the OEIS module takes a sequence of values by its OEIS A-number, for
-example tribonnaci numbers A000073
+The OEIS module takes an OEIS A-number, using either a code module
+implementing it or downloaded files under F<~/OEIS/>.  See
+L<Math::NumSeq::OEIS> for details.  For example tribonnaci numbers are
+A000073,
 
     math-image --values=OEIS,anum=A000073
-
-This selects whichever module implements the desired sequence, or will read
-downloaded OEIS files from a F<$HOME/OEIS/> directory,
-
-    A000073.internal     # for info
-    A000073.html         # fragile for info, but accepted
-    b000073.txt          # values file, if available
-
-A F<.internal> file is the "internal format" OEIS info download.  The
-F<.html> rendition of the same works, but parsing it is likely to be fragile
-and may or may not work.
 
 =back
 
@@ -274,15 +263,15 @@ Points drawn in successive rows or columns.
 
 =item --path=MODULE,NAME=VALUE,NAME=VALUE,...
 
-Draw following the given C<Math::PlanePath> module.  For example
+Draw with the given C<Math::PlanePath> module.  For example
 
     math-image --path=HeptSpiralSkewed
 
-This includes experimental paths called "MathImageFoo", but expect their
-names to change when finished.
+This includes experimental paths "MathImageFoo", but expect them to change
+when finished.
 
-Parameters to the path are supplied as comma separated C<NAME=VALUE>, for
-example,
+Parameters to the path can be supplied as comma separated C<NAME=VALUE>.
+For example,
 
     math-image --path=SquareSpiral,wider=3
 
@@ -303,7 +292,7 @@ still work, just press Alt-F, Alt-T, etc as normal.
 =item --root
 
 Set the root window background to the requested image and exit.  For example
-a random image from your F<~/.xsession> file,
+draw a random image from your F<~/.xsession> file,
 
     math-image --root --random
 
@@ -314,8 +303,8 @@ or timeout (see L<timeout(1)>), or both.
 
 Under X the root window is set with C<X11::Protocol> if available, otherwise
 C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
-C<--background> colours to be preserved on a PseudoColor visual.  C<Gtk2> is
-fine on a TrueColor, or using black and white (those colours permanent in
+C<--background> colours to be preserved in a PseudoColor visual.  C<Gtk2> is
+fine on a TrueColor, or for black and white only (as they're permanent in
 the default colormap), but otherwise colours won't be preserved.
 
 =item --flash
@@ -346,7 +335,7 @@ Prima or Tk with the right libraries and C<Image::Base> supporting module.
 
 XPM output requires either C<Image::Xpm>, ImageMagick, Prima, or Tk.  Note
 that Prima and Tk for X11 require an X server even for file output (expect
-an obscure error if no display).
+obscure errors if no display).
 
 =item --text
 
@@ -359,11 +348,11 @@ line printer or similar.
 
 =item --prima
 
-Run the Prima GUI.  This requires the C<Prima> and
+Run the Prima GUI.  This requires the C<Prima> and the
 C<Image::Base::Prima::Drawable> modules.  It doesn't yet have the full set
 of options the Gtk GUI does, but works as far as it goes.
 
-A combination C<--prima --png> means write a PNG image to standard output,
+A combination C<--prima --png> means write a PNG image to standard output
 using Prima.  This requires a graphics screen (which other PNG output
 modules don't).
 
@@ -379,7 +368,7 @@ though (which other output modules don't).
 =item --curses
 
 Run the Curses interactive text interface.  This requires the C<Curses::UI>
-modules.  It's experimental and the control options are minimal.
+modules.  It's very experimental and the control options are minimal.
 
 =back
 
@@ -454,8 +443,8 @@ one which does much for C<math-image> is C<--display> to set the X display
 
 =head1 MODULES
 
-In addition to the modules noted above, the following are used in the GUI if
-available,
+In addition to the various modules noted above, the following are used in
+the Gtk GUI if available,
 
 =over
 
@@ -492,16 +481,23 @@ The X display to use.
 =head1 BUGS
 
 Some of the values plotted can be a bit slow to generate or use a lot of
-memory, or both.  When the path goes out to large positions, or when paged
-out away from the origin, the display can hang generating values.  This
-happens for example plotting primes on the PythagoreanTree.
+memory, or both.  When the path goes out to large positions, or when
+scrolled out away from the origin the display might hang a little or a lot
+while generating values.
 
 =head1 SEE ALSO
 
 L<gtk-options(7)>, L<xsetroot(1)>
 
-L<Math::PlanePath>, L<Math::Aronson>, L<Gtk2>, L<X11::Protocol>,
-L<Gtk2::Ex::PodViewer>, L<Gtk2::Ex::CrossHair>, L<Gtk2::Ex::ErrorTextDialog>
+L<Math::PlanePath>,
+L<Math::NumSeq>,
+L<Math::NumSeq::Aronson>
+
+L<Gtk2>,
+L<X11::Protocol>,
+L<Gtk2::Ex::PodViewer>,
+L<Gtk2::Ex::CrossHair>,
+L<Gtk2::Ex::ErrorTextDialog>
 
 =head1 HOME PAGE
 

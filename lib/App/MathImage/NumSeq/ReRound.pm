@@ -15,28 +15,30 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::SafePrimes;
+package App::MathImage::NumSeq::ReRound;
 use 5.004;
 use strict;
+use POSIX 'ceil';
+use List::Util 'max';
+
+use vars '$VERSION','@ISA';
+$VERSION = 69;
 
 use Math::NumSeq;
-use base 'App::MathImage::NumSeq::SophieGermainPrimes';
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use constant description => Math::NumSeq::__('...');
+use constant values_min => 0;
+use constant oeis_anum => 'A002491';
 
-use vars '$VERSION';
-$VERSION = 68;
-
-use constant name => Math::NumSeq::__('Safe Primes');
-use constant description => Math::NumSeq::__('The safe primes 5,7,11,23,47, being primes where (P-1)/2 is also prime (those are the Sophie Germain primes).');
-use constant values_min => 5;
-use constant characteristic_monotonic => 2;
-use constant oeis_anum => 'A005385';
-
-sub new {
-  my $class = shift;
-  return $class->SUPER::new (safe_primes => 1, @_);
+sub ith {
+  my ($self, $i) = @_;
+  for (my $m = $i-1; $m >= 2; $m--) {
+    $i += (-$i % $m);
+  }
+  return $i;
 }
 
 1;

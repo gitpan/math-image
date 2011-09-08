@@ -50,7 +50,7 @@ require Test::Weaken::ExtraBits;
 sub my_ignore {
   my ($ref) = @_;
 
-  foreach my $aref (App::MathImage::NumSeq::Primes->parameter_info_array,
+  foreach my $aref (Math::NumSeq::Primes->parameter_info_array,
                     Math::PlanePath::SquareSpiral->MathImage__parameter_info_array) {
     if ($ref == $aref) {
       return 1;

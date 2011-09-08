@@ -28,7 +28,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -445,6 +445,9 @@ This path is an integer version of ...
            X=0   1   2   3   4   5   6   7   8   9 ...
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

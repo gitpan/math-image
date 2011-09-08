@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -36,8 +36,8 @@ use constant values_min => 1;
 use constant characteristic_monotonic => 0;
 use constant characteristic_count => 1;
 
-use App::MathImage::NumSeq::DigitCount;
-*parameter_info_array = \&App::MathImage::NumSeq::DigitCount::parameter_info_array;
+use Math::NumSeq::DigitCount 4;
+*parameter_info_array = \&Math::NumSeq::DigitCount::parameter_info_array;
 
 # cf
 # 

@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
@@ -281,6 +281,9 @@ N=4,780,000.
 Both ends of such levels are in fact sub-spirals, like an "S" shape.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

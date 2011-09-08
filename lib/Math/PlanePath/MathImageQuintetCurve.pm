@@ -1,4 +1,6 @@
-# rect range not done
+# rect_to_n_range() not done
+# xy_to_n() not done
+
 
 
 
@@ -31,7 +33,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -306,7 +308,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageQuintetCurve -- Mandelbrot quintet "cross" curve
+Math::PlanePath::MathImageQuintetCurve -- "plus" shaped curve
 
 =head1 SYNOPSIS
 
@@ -318,13 +320,83 @@ Math::PlanePath::MathImageQuintetCurve -- Mandelbrot quintet "cross" curve
 
 I<In progress.>
 
-This path is an integer version of ...
+This path is a self-similar curve tracing out a "+" shape,
 
-
+             ...                     93--92 
+              |                       |   |             
+        123-124                      94  91--90--89--88 
+          |                           |               | 
+        122-121-120 103-102          95  82--83  86--87 
+                  |   |   |           |   |   |   |     
+        115-116 119 104 101-100--99  96  81  84--85     
+          |   |   |   |           |   |   |                        
+    113-114 117-118 105  32--33  98--97  80--79--78                
+      |               |   |   |                   |                
+    112-111-110-109 106  31  34--35--36--37  76--77                
+                  |   |   |               |   |                    
+                108-107  30  43--42  39--38  75                    
+                          |   |   |   |       |                    
+                 25--26  29  44  41--40  73--74                    
+                  |   |   |   |           |                        
+             23--24  27--28  45--46--47  72--71--70--69--68        
+              |                       |                   |        
+             22--21--20--19--18  49--48  55--56--57  66--67        
+                              |   |       |       |   |            
+              5---6---7  16--17  50--51  54  59--58  65            
+              |       |   |           |   |   |       |            
+      0---1   4   9---8  15          52--53  60--61  64            
+          |   |   |       |                       |   |            
+          2---3  10--11  14                      62--63            
+                      |   |                                        
+                     12--13                                        
+                                                                   
+                                                                   
     ^
    X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
 
+
+The base figure is the initial N=0 to N=4.
+
+              |
+              |
+      0---1   4      base figure
+          |   |
+          |   |
+          2---3
+
+It corresponds to a traversal of a "+" shape,
+
+            .....5
+            .    |
+            .   <|
+            .    |
+       0----1....4.....
+       . v  |    |    .
+       .    |>   |>   .
+       .    |    |    .
+       .....2----3.....
+            . v  .
+            .    .
+            .    .
+            ......
+
+The "v", ">" etc notches are side the figure is directed at the higher
+replication levels.  The 0, 2 and 3 parts are the right hand side of the
+line which means a plain repetition of the base figure.  The 1 and 4 parts
+are to the left which means a reversal.  The first such reversal is seen
+above as N=5 to N=10.
+
+      5---6---7
+              |    
+              |       reversed figure
+          9---8
+          |
+          |
+
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

@@ -16,17 +16,17 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageQuintetTiling --lines --scale=10
-# math-image --path=MathImageQuintetTiling --output=numbers
+# math-image --path=MathImageQuintetReplicate --lines --scale=10
+# math-image --path=MathImageQuintetReplicate --output=numbers
 
-package Math::PlanePath::MathImageQuintetTiling;
+package Math::PlanePath::MathImageQuintetReplicate;
 use 5.004;
 use strict;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -49,7 +49,7 @@ my @oY = (0,1,2,-1,-2);
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### QuintetTiling n_to_xy(): $n
+  ### QuintetReplicate n_to_xy(): $n
   if ($n < 0 || _is_infinite($n)) {
     return;
   }
@@ -97,7 +97,7 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   return undef;
-  ### QuintetTiling xy_to_n(): "$x, $y"
+  ### QuintetReplicate xy_to_n(): "$x, $y"
 }
 
 # level 1   s=0            snext=5*s+2
@@ -128,12 +128,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageQuintetTiling -- self-similar path traversal
+Math::PlanePath::MathImageQuintetReplicate -- self-similar path traversal
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageQuintetTiling;
- my $path = Math::PlanePath::MathImageQuintetTiling->new;
+ use Math::PlanePath::MathImageQuintetReplicate;
+ my $path = Math::PlanePath::MathImageQuintetReplicate->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -158,9 +158,12 @@ I<In progress.>
 
 =head1 FUNCTIONS
 
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
+
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageQuintetTiling-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageQuintetReplicate-E<gt>new ()>
 
 Create and return a new path object.
 

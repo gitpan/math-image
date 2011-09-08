@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -254,7 +254,7 @@ __END__
 #
 #                            39        40
 
-=for stopwords eg Ryde
+=for stopwords eg Ryde Gosper
 
 =head1 NAME
 
@@ -282,6 +282,9 @@ triangles, but on a square grid this comes out a little flatter.
 The basic pattern is ...
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

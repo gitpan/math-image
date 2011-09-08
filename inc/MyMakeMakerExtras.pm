@@ -451,7 +451,7 @@ lintian-source:
 	mv -T $(DISTVNAME) $(DEBNAME)-$(VERSION); \
 	dpkg-source -b $(DEBNAME)-$(VERSION) \
 	               $(DEBNAME)_$(VERSION).orig.tar.gz; \
-	lintian -I -i --suppress-tags empty-debian-diff *.dsc; \
+	lintian -I -i --suppress-tags empty-debian-diff,debian-rules-uses-deprecated-makefile *.dsc; \
 	cd ..; \
 	rm -rf temp-lintian
 

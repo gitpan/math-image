@@ -34,7 +34,7 @@ use App::MathImage::Image::Base::Other;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -118,6 +118,10 @@ use constant values_choices => do {
                          Cubes
                          Tetrahedral
 
+                         Odd
+                         Even
+                         All
+
                          Fibonacci
                          Lucas
                          Perrin
@@ -131,16 +135,13 @@ use constant values_choices => do {
                          PiBits
                          Ln2Bits
 
-                         Odd
-                         Even
-                         All
-
                          Aronson
                          Pell
                          GoldenSequence
                          ThueMorse
                          ChampernowneBinary
                          ChampernowneBinaryLsb
+                         SternDiatomic
 
                          DigitLength
                          DigitLengthCumulative
@@ -226,6 +227,7 @@ my %pathname_square_grid
                      TriangleSpiral
                      TriangleSpiralSkewed
                      DiamondSpiral
+                     PentSpiral
                      PentSpiralSkewed
                      HexSpiral
                      HexSpiralSkewed
@@ -241,23 +243,31 @@ my %pathname_square_grid
                      PixelRings
                      Hypot
                      HypotOctant
+                     TriangularHypot
                      PythagoreanTree
                      CoprimeColumns
 
                      PeanoCurve
                      HilbertCurve
                      ZOrderCurve
+                     ImaginaryBase
 
                      Flowsnake
                      FlowsnakeCentres
                      GosperIslands
                      GosperSide
+                     DragonCurve
+                     DragonRounded
+                     DragonMidpoint
 
                      KochCurve
                      KochPeaks
                      KochSnowflakes
                      QuadricCurve
                      QuadricIslands
+                     SierpinskiArrowhead
+                     SierpinskiArrowheadCentres
+                     SierpinskiTriangle
 
                      Rows
                      Columns
@@ -267,13 +277,41 @@ my %pathname_square_grid
                      PyramidRows
                      PyramidSides
                      CellularRule54
+
+                     MathImageTwinDragon
+                     MathImageComplexIplus1
+
+                     MathImageCornerReplicate
+                     MathImageGosperTiling
+                     MathImageKochSquareflakes
+                     MathImageQuintetCentres
+ MathImageQuintetCurve
+ MathImageQuintetReplicate
+ MathImageQuintetSide
+ MathImageSierpinskiCurve
+ MathImageSquareReplicate
+ MathImageWunderlichCurve
                   )
-     # SacksSpiral
-     # VogelFloret
-     # TheodorusSpiral
-     # MultipleRings
-     # ArchimedeanChords
     );
+# my %pathname_fractional_grid
+#   = (SacksSpiral => 1,
+#      VogelFloret => 1,
+#      TheodorusSpiral => 1,
+#      MultipleRings => 1,
+#      ArchimedeanChords => 1,
+#      File => 1,
+#      
+#     );
+# {
+#   my %all;
+#   @all{__PACKAGE__->path_choices} = (); # hash slice
+#   delete @all{keys %pathname_square_grid};
+#   delete @all{keys %pathname_fractional_grid};
+#   my @omitted = sort keys %all;
+#   print "pathname_square_grid omitted: ",scalar(@omitted),
+#     "  ",join(' ', @omitted),"\n";
+# }
+
 
 #------------------------------------------------------------------------------
 # path parameter info
@@ -473,13 +511,39 @@ my %pathname_square_grid
     use constant MathImage__parameter_info_array => $arms8;
   }
 }
-{ package Math::PlanePath::MathImageKochQuads;
+{ package Math::PlanePath::MathImageKochSquareflakes;
   use constant MathImage__parameter_info_array =>
-    [ { name      => 'inout',
-        type      => 'enum',
-        choices   => ['out','in'],
-        default   => 'out',
+    [ { name      => 'inward',
+        type      => 'boolean',
+        default   => 0,
       } ];
+}
+{ package Math::PlanePath::MathImageTwinDragon;
+  use constant MathImage__parameter_info_array =>
+    [ { name      => 'realpart',
+        type      => 'integer',
+        default   => 1,
+        minimum   => 1,
+        width     => 2,
+      } ];
+}
+{ package Math::PlanePath::MathImageComplexIplus1;
+  use constant MathImage__parameter_info_array =>
+    [ { name      => 'realpart',
+        type      => 'integer',
+        default   => 1,
+        minimum   => 1,
+        width     => 2,
+      },
+      { name      => 'arms',
+        share_key => 'arms_2',
+        type      => 'integer',
+        minimum   => 1,
+        maximum   => 2,
+        default   => 1,
+        width     => 1,
+      },
+    ];
 }
 
 
@@ -526,6 +590,9 @@ my %pathname_square_grid
 { package Math::PlanePath::KochSnowflakes;
   use constant MathImage__discontinuity => 0;
 }
+{ package Math::PlanePath::MathImageKochSquareflakes;
+  use constant MathImage__discontinuity => 0;
+}
 { package Math::PlanePath::GosperIslands;
   use constant MathImage__discontinuity => 0;
 }
@@ -555,7 +622,13 @@ my %pathname_square_grid
 { package Math::PlanePath::KochSnowflakes;
   use constant MathImage__lattice_type => 'triangular';
 }
+{ package Math::PlanePath::SierpinskiTriangle;
+  use constant MathImage__lattice_type => 'triangular';
+}
 { package Math::PlanePath::SierpinskiArrowhead;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::GosperSide;
@@ -646,7 +719,9 @@ use constant path_choices => do {
                            KochSnowflakes
                            KochPeaks
                            KochCurve
+                           SierpinskiTriangle
                            SierpinskiArrowhead
+                           SierpinskiArrowheadCentres
                            DragonCurve
                            DragonRounded
                            DragonMidpoint
@@ -724,7 +799,11 @@ sub random_options {
 
   my @path_and_values;
   foreach my $path (@path_choices) {
+    next if $path eq 'File';
+
     foreach my $values (@values_choices) {
+      next if $values eq 'File';
+
       if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
         next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
       }
@@ -1110,8 +1189,12 @@ sub colours_grey_exp {
   my $shrink = 0.6;
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
+  } elsif ($self->{'values'} eq 'CunninghamChain') {
+    $shrink = .7;
   } elsif ($self->{'values'} eq 'TotientSteps') {
     $shrink = .88;
+  } elsif ($self->{'values'} eq 'SternDiatomic') {
+    $shrink = 1 - 1/30;
   } elsif ($self->{'values'} eq 'CollatzSteps') {
     if ($self->values_object->{'step_type'} eq 'up') {
       $shrink = 1 - 1/15;
@@ -1316,7 +1399,9 @@ sub draw_Image_start {
       $n_lo = 4 ** $level;
       $n_hi = 4 ** ($level+1) - 1;
       $yfactor = sqrt(3)*2;
-    } elsif ($path_object->isa ('Math::PlanePath::SierpinskiArrowhead')) {
+    } elsif ($path_object->isa ('Math::PlanePath::SierpinskiArrowhead')
+             || $path_object->isa ('Math::PlanePath::SierpinskiArrowheadCentres')
+             || $path_object->isa ('Math::PlanePath::SierpinskiTriangle')) {
       $n_hi = 3 ** $level;
       $n_angle = 2 * 3**($level-1);
       $yfactor = sqrt(3);
@@ -1498,11 +1583,9 @@ sub draw_Image_start {
     ### $rectangle_area
     ### $n_hi
     ### $n_lo
-    if ($pathname_square_grid{$self->{'path'}}
-        && $values_obj->can('pred')
-        && $values_obj->can('ith')
-        && $n_hi - $n_lo > $rectangle_area * 100
-       ) {
+
+    if ($n_hi - $n_lo > $rectangle_area * 100
+        && $self->can_use_xy) {
       ### use_xy from the start due to big n_hi: $n_hi
       $self->use_xy($image);
     }
@@ -2243,13 +2326,23 @@ sub maybe_use_xy {
   my ($count_total, $values_obj);
   if (($count_total = $self->{'count_total'}) > 1000
       && $self->{'count_outside'} > .5 * $count_total
-      && $pathname_square_grid{$self->{'path'}}
-      && (! ($values_obj = $self->{'values_obj'})
-          || ($values_obj->can('pred')
-              && $values_obj->can('ith')))) {
+      && $self->can_use_xy ) {
     ### use_xy from now on...
     $self->use_xy($self->{'image'});
   }
+}
+
+sub can_use_xy {
+  my ($self) = @_;
+  my $values_object;
+  return ($self->path_object->figure eq 'square'
+          && (! ($values_object = $self->values_object)  # Lines can use xy
+              || $values_object->can($self->{'use_colours'}
+                                     ? 'ith' : 'pred')));
+
+  # $pathname_square_grid{$self->{'path'}}
+  # $values_obj->can('pred')
+  #         && $values_obj->can('ith')) {
 }
 
 sub use_xy {

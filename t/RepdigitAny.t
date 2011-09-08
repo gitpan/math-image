@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -19,13 +19,14 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 8;
+use Test;
+plan tests => 6;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
-use App::MathImage::NumSeq::Emirps;
+use App::MathImage::NumSeq::RepdigitAny;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,43 +35,40 @@ use App::MathImage::NumSeq::Emirps;
 # VERSION
 
 {
-  my $want_version = 68;
-  is ($App::MathImage::NumSeq::Emirps::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::Emirps->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 69;
+  ok ($App::MathImage::NumSeq::RepdigitAny::VERSION, $want_version, 'VERSION variable');
+  ok (App::MathImage::NumSeq::RepdigitAny->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Emirps->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::RepdigitAny->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Emirps->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::RepdigitAny->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 }
 
 
 #------------------------------------------------------------------------------
-# characteristic()
+# next()
 
-{
-  my $values_obj = App::MathImage::NumSeq::Emirps->new
-    (lo => 1,
-     hi => 30);
-
-  is (! $values_obj->characteristic('count'), 1, 'characteristic(count)');
+sub collect {
+  my ($seq, $count) = @_;
+  my @i;
+  my @values;
+  foreach (1 .. ($count||11)) {
+    my ($i, $value) = $seq->next
+      or last;
+    push @i, $i;
+    push @values, $value;
+  }
+  return join(',',@i) . ' -- ' . join(',',@values);
 }
-
-
-#------------------------------------------------------------------------------
-# _reverse_in_radix()
-
+    
 {
-  ## no critic (ProtectPrivateSubs)
-  is (App::MathImage::NumSeq::Emirps::_reverse_in_radix(123,10),
-      321);
-  is (App::MathImage::NumSeq::Emirps::_reverse_in_radix(0xAB,16),
-      0xBA);
-  is (App::MathImage::NumSeq::Emirps::_reverse_in_radix(6,2),
-      3);
+  my $seq = App::MathImage::NumSeq::RepdigitAny->new;
+  ok ($seq->oeis_anum, 'A167782');
+  ok (collect($seq), '1,2,3,4,5,6,7,8,9,10,11 -- 0,7,13,15,21,26,31,40,42,43,57');
 }
 
 exit 0;
-
-

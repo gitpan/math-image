@@ -1,3 +1,8 @@
+# rect range ?
+# realpart parameter name?
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -25,7 +30,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -36,6 +41,17 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
+
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $realpart = $self->{'realpart'};
+  if (! defined $realpart || $realpart < 1) {
+    $self->{'realpart'} = $realpart = 1;
+  }
+  $self->{'norm'} = $realpart*$realpart + 1;
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -64,20 +80,23 @@ sub n_to_xy {
   my $y = 0;
   my $dx = 1;
   my $dy = 0;
+  my $realpart = $self->{'realpart'};
+  my $norm = $self->{'norm'};
 
   while ($n) {
     ### at: "$x,$y"
-    ### digit: ($n % 2)
-    if ($n % 2) {
-      $x += $dx;
-      $y += $dy;
-    }
-    $n = int($n/2);
+    ### digit: ($n % $norm)
 
-    # *(-1+i)
+    my $digit = $n % $norm;
+    $n = int($n/$norm);
+
+    $x += $digit * $dx;
+    $y += $digit * $dy;
+
+    # (dx,dy) = (dx + i*dy)*(i-$realpart)
     $dy = -$dy;
-    ($dx,$dy) = ($dy-$dx, $dx+$dy);
-  }
+    ($dx,$dy) = ($dy - $realpart*$dx, $dx + $realpart*$dy);
+ }
 
   ### final: "$x,$y"
   return ($x,$y);
@@ -92,17 +111,34 @@ sub xy_to_n {
   if (_is_infinite($x)) { return ($x); }
   if (_is_infinite($y)) { return ($y); }
 
+  my $realpart = $self->{'realpart'};
+  my $norm = $self->{'norm'};
+
   my $n = 0;
   my $power = 1;
-  while ($x || $y) {
-    if (($x + $y) % 2) {
-      $x -= 1;
-      $n += $power;
-    }
-    # div i-1, is *-(1+i)/2
 
-    ($x,$y) = (($x-$y)/-2, ($x+$y)/-2);
-    $power *= 2;
+  while ($x || $y) {
+    my $new_y = $y*$realpart + $x;
+
+    my $digit = $new_y % $norm;
+    $n += $digit * $power;
+
+    $x -= $digit;
+    $new_y = $digit - $new_y;
+
+    # div i-realpart,
+    # is (i*y + x) * -(i+realpart)/norm
+    #  x = [ x*realpart - y ] / -norm
+    #    = [ y - x*realpart ] / norm
+    #  y = - [ y*realpart + x ] / norm
+    #
+
+    ### assert: (($y - $x*$realpart) % $norm) == 0
+    ### assert: ($new_y % $norm) == 0
+
+    ($x,$y) = (($y - $x*$realpart) / $norm,
+               $new_y / $norm);
+    $power *= $norm;
   }
   return $n;
 }
@@ -118,24 +154,29 @@ sub rect_to_n_range {
   my $xm = ($x1 > $x2 ? $x1 : $x2);
   my $ym = ($y1 > $y2 ? $y1 : $y2);
   my $r = $xm*$xm + $ym*$ym;
-  my $level = ceil(log($r || 1) / log(2 - .1)) + 6;
+
+  my $rp = $self->{'realpart'} + 1;
+  my $norm = $self->{'norm'};
+
+  my $level = ceil(log($r + $rp) / log($rp - .1)) + 4;
   ### $level
-  return (0, 2**$level - 1);
+  # return (0, $norm**3 - 1);
+  return (0, $norm**$level - 1);
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath abcde ie
 
 =head1 NAME
 
-Math::PlanePath::MathImageTwinDragon -- points in complex number base i-1
+Math::PlanePath::MathImageTwinDragon -- points in complex number base i-r
 
 =head1 SYNOPSIS
 
  use Math::PlanePath::MathImageTwinDragon;
- my $path = Math::PlanePath::MathImageTwinDragon->new;
+ my $path = Math::PlanePath::MathImageTwinDragon->new (realpart=>1);
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -143,7 +184,7 @@ Math::PlanePath::MathImageTwinDragon -- points in complex number base i-1
 I<In progress.>
 
 This an integer version of the "twindragon" formed from the complex number
-base i-1,
+base i-1, and other i-r.
 
            26  27          10  11                             3
                24  25           8   9                         2
@@ -179,6 +220,38 @@ rotates around by +135 degrees and a factor sqrt(2) on the radius each time.
 So for example b^3 = 2+2i is followed by b^4 = -4 which is 135 degrees
 around, and the radius |b^3|=sqrt(8) becomes |b^4|=sqrt(16).
 
+=head2 Real Part
+
+The C<realpart> option gives complex bases i-r for a given rE<gt>=1.  For
+example C<realpart =E<gt> 2> is
+
+    20 21 22 23 24                                               4
+          15 16 17 18 19                                         3
+                10 11 12 13 14                                   2
+                       5  6  7  8  9                             1
+             45 46 47 48 49  0  1  2  3  4                   <- Y=0
+                   40 41 42 43 44                               -1
+                         35 36 37 38 39                         -2
+                               30 31 32 33 34                   -3
+                      70 71 72 73 74 25 26 27 28 29             -4
+                            65 66 67 68 69                      -5
+                                  60 61 62 63 64                -6
+                                        55 56 57 58 59          -7
+                                              50 51 52 53 54    -8
+                             ^
+    -8 -7  -6 -5-4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10
+
+N is broken into digits of base norm=r*r+1.  This makes horizontal runs of
+norm many points, such as N=0 to N=4, then N=5 to N=9, etc.  For the default
+r=1 above these are 2 long, for r=2 they're 2*2+1=5, r=3 would be 3*3+1=10,
+etc.
+
+The offset back for each run like N=5 shown is the r in i-r, then the next
+level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at X=-2*2=-4,Y=2*2-1=3.
+
+The successive replications end up tiling the plane, though the N values to
+come around and do so may become large if the norm=r*r+1 is large.
+
 =head2 Radius Range
 
 In general, after the first few innermost levels, each N=2^level increases
@@ -190,7 +263,7 @@ the covered radius around by a factor sqrt(2), ie.
 
 The "level-7" is since the innermost few levels take a while to cover the
 points surrounding the origin.  Notice for example X=1,Y=-1 is not reached
-until N=58.  But after that it grows like N ~ pi*R^2.
+until N=58.  But after that it grows like N approx = pi*R^2.
 
 =head2 Fractal
 
@@ -208,9 +281,14 @@ and divisor (-4)^k would be almost as easy too.)
 
 =head1 FUNCTIONS
 
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
+
 =over 4
 
 =item C<$path = Math::PlanePath::MathImageTwinDragon-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::MathImageTwinDragon-E<gt>new (realpart =E<gt> $r)>
 
 Create and return a new path object.
 

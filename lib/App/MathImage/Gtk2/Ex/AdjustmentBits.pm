@@ -1,3 +1,8 @@
+# scroll_event() hard code the control-mask ?
+
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -15,25 +20,18 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# scroll_event() hard code the control-mask ?
-
-
-
-
 package App::MathImage::Gtk2::Ex::AdjustmentBits;
 use 5.008;
 use strict;
 use warnings;
 use Carp;
 use Gtk2 1.220;
-use List::Util 'min', 'max';
 use Gtk2::Ex::AdjustmentBits 40;  # new v.40
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 68;
+our $VERSION = 69;
 
 sub scroll_increment {
   my ($adj, $type, $neg) = @_;
@@ -48,8 +46,8 @@ sub scroll_widget_ai {
 
 my %scroll_direction_to_vh = (left  => 'h',
                               right => 'h',
-                              up   => 'v',
-                              down => 'v');
+                              up    => 'v',
+                              down  => 'v');
 sub scroll_widget_event_vhi {
   my ($widget, $event) = @_;
   my $vh = $scroll_direction_to_vh{$event->direction};

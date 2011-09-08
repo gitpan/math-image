@@ -1,3 +1,7 @@
+# Calculate in integers not float rounding.
+
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -16,10 +20,6 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# ENHANCE-ME: Calculate in integers not float rounding.
-
-
-
 package App::MathImage::NumSeq::GoldenSequence;
 use 5.004;
 use strict;
@@ -30,7 +30,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

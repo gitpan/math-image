@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            68
+version:            69
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -70,10 +70,12 @@ requires:
     Math::NumSeq::Base::IterateIth:  1
     Math::NumSeq::Base::IteratePred:  1
     Math::NumSeq::Base::Sparse:  1
+    Math::NumSeq::DigitCount:  4
     Math::NumSeq::Polygonal:  1
+    Math::NumSeq::Primes:  4
     Math::PlanePath:      40
+    Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
-    Math::PlanePath::SierpinskiArrowhead:  32
     Math::PlanePath::SquareSpiral:  1
     Math::Prime::XS:      0.23
     Module::Load:         0
@@ -163,10 +165,12 @@ optional_features:
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  1
+            Math::NumSeq::DigitCount:  4
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
+            Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Factorials:  1
             Math::NumSeq::Fibonacci:  1
@@ -176,16 +180,20 @@ optional_features:
             Math::NumSeq::Odd:    1
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Polygonal:  1
+            Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::Repdigits:  1
+            Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::Squares:  1
             Math::NumSeq::StarNumbers:  1
+            Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
             Math::NumSeq::Triangular:  1
+            Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::CellularRule54:  40
@@ -231,6 +239,8 @@ optional_features:
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
+            Math::PlanePath::SierpinskiArrowheadCentres:  42
+            Math::PlanePath::SierpinskiTriangle:  42
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
@@ -261,10 +271,12 @@ optional_features:
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  1
+            Math::NumSeq::DigitCount:  4
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
+            Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Factorials:  1
             Math::NumSeq::Fibonacci:  1
@@ -274,16 +286,20 @@ optional_features:
             Math::NumSeq::Odd:    1
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Polygonal:  1
+            Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::Repdigits:  1
+            Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::Squares:  1
             Math::NumSeq::StarNumbers:  1
+            Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
             Math::NumSeq::Triangular:  1
+            Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
     maximum_planepath:
         description:  Maximum PlanePath modules
@@ -332,6 +348,8 @@ optional_features:
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
+            Math::PlanePath::SierpinskiArrowheadCentres:  42
+            Math::PlanePath::SierpinskiTriangle:  42
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
@@ -376,10 +394,12 @@ recommends:
     Math::NumSeq::CollatzSteps:  1
     Math::NumSeq::Cubes:  1
     Math::NumSeq::CullenNumbers:  1
+    Math::NumSeq::DigitCount:  4
     Math::NumSeq::DigitLength:  1
     Math::NumSeq::DigitLengthCumulative:  1
     Math::NumSeq::DigitProduct:  2
     Math::NumSeq::DigitSum:  2
+    Math::NumSeq::Emirps:  4
     Math::NumSeq::Even:   1
     Math::NumSeq::Factorials:  1
     Math::NumSeq::Fibonacci:  1
@@ -389,16 +409,20 @@ recommends:
     Math::NumSeq::Odd:    1
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Polygonal:  1
+    Math::NumSeq::Primes:  4
     Math::NumSeq::Primorials:  1
     Math::NumSeq::Pronic:  1
     Math::NumSeq::ProthNumbers:  1
     Math::NumSeq::RadixWithoutDigit:  1
     Math::NumSeq::Repdigits:  1
+    Math::NumSeq::SophieGermainPrimes:  4
     Math::NumSeq::SqrtDigits:  1
     Math::NumSeq::Squares:  1
     Math::NumSeq::StarNumbers:  1
+    Math::NumSeq::SternDiatomic:  4
     Math::NumSeq::Tetrahedral:  1
     Math::NumSeq::Triangular:  1
+    Math::NumSeq::TwinPrimes:  4
     Math::NumSeq::WoodallNumbers:  1
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::CellularRule54:  40
@@ -444,6 +468,8 @@ recommends:
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  32
+    Math::PlanePath::SierpinskiArrowheadCentres:  42
+    Math::PlanePath::SierpinskiTriangle:  42
     Math::PlanePath::SquareArms:  37
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16

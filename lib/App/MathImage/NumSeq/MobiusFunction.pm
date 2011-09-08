@@ -24,7 +24,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 use constant name => Math::NumSeq::__('Mobius Function');
 use constant description => Math::NumSeq::__('The Mobius function, being 1 for an even number of prime factors, -1 for an odd number, or 0 if any repeated factors (ie. not square-free).');

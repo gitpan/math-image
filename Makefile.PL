@@ -117,7 +117,9 @@ my %maximum_planepath
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
      'Math::PlanePath::QuadricCurve'         => 41, # new in v.41
      'Math::PlanePath::QuadricIslands'       => 41, # new in v.41
+     'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
+     'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
      'Math::PlanePath::DragonCurve'          => 39, # new in v.39
      'Math::PlanePath::DragonRounded'        => 40, # new in v.40
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
@@ -139,6 +141,11 @@ my %maximum_numseq
      'Math::NumSeq::Even'  => 1,
      'Math::NumSeq::Odd'   => 1,
 
+     'Math::NumSeq::Primes'              => 4, # new in v.4
+     'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
+     'Math::NumSeq::SophieGermainPrimes' => 4, # new in v.4
+     'Math::NumSeq::Emirps'              => 4, # new in v.4
+
      'Math::NumSeq::Factorials'   => 1,
      'Math::NumSeq::Primorials'   => 1,
      'Math::NumSeq::Fibonacci'    => 1,
@@ -147,6 +154,7 @@ my %maximum_numseq
      'Math::NumSeq::FractionDigits' => 1,
      'Math::NumSeq::SqrtDigits' => 1,
 
+     'Math::NumSeq::DigitCount'            => 4, # new in v.4
      'Math::NumSeq::DigitLength'           => 1,
      'Math::NumSeq::DigitLengthCumulative' => 1,
      'Math::NumSeq::RadixWithoutDigit'     => 1,
@@ -163,11 +171,137 @@ my %maximum_numseq
      'Math::NumSeq::WoodallNumbers' => 1,
 
      'Math::NumSeq::CollatzSteps' => 1,
+     'Math::NumSeq::SternDiatomic' => 4, # new in v.4
 
      # in Math-Aronson
      'Math::Aronson'         => 4, # version 4 for lying option
      'Math::NumSeq::Aronson' => 6, # new in v.6
     );
+
+my %prereq_pm
+  = (
+     'constant' => 1.02,  # leading underscore in prima bits
+     'constant::defer' => 0,
+     'Bit::Vector'     => 0,
+     'Compress::Zlib'  => 0,
+     'Data::Float'  => 0,
+
+     # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
+     # handles by outsmarting itself in some compares plus File::Temp having a
+     # bogus numize.  File::Copy 2.14 looks slightly better, though enquiring
+     # into the overloadedness of handles really doesn't sound like a good
+     # idea.
+     'File::Copy'      => '2.14',
+
+     'File::HomeDir' => 0,
+     'Geometry::AffineTransform' => '1.3', # version 1.3 for invert()
+
+     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
+     'Glib::Object::Subclass' => 0,
+     'Glib::Ex::ConnectProperties' => 14, # v.14 for response-sensitive#
+
+     # my Glib-Ex-ObjectBits
+     'Glib::Ex::EnumBits'     => 11, # new in v.11
+     # 'Glib::Ex::FreezeNotify' => 0,
+     'Glib::Ex::ObjectBits'   => 12, # new in v.12
+     'Glib::Ex::SourceIds'    => 2,  # new in v.2
+     'Glib::Ex::SignalBits'   => 9,  # new in v.9
+     'Glib::Ex::SignalIds'    => 0,
+
+     'Gtk2' => '1.220',
+     'Gtk2::Pango' => 0, # part of Gtk2, used explicitly
+
+     # my Gtk2-Ex-WidgetBits
+     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
+     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
+     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
+     'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
+     'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
+     'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
+     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
+     'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
+     'Gtk2::Ex::ToolItem::CheckButton' => 42,  # new in v.42
+     'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
+     'Gtk2::Ex::Units'          => 13, # new in v.13
+     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
+     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
+     'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
+
+     # QuadButton / QuadScroll
+     'Gtk2::Ex::AdjustmentBits' => 40, # new in v.40
+     'Gtk2::Ex::WidgetBits'     => 40, # v.40 for pixel_size_mm()
+
+     # my Gtk2-Ex-ComboBoxBits
+     # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
+     'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
+     'Gtk2::Ex::ComboBox::Text' => 2,
+     'Gtk2::Ex::ComboBox::PixbufType' => 31, # v.31 fix initial for_width
+     'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
+     'Gtk2::Ex::ToolItem::ComboEnum' => 28, # new in version 28
+
+     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
+     'Gtk2::Ex::NumAxis' => 2,
+     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
+     'Gtk2::Ex::Splash' => 1,
+
+     'Image::Base' => '1.16', # version 1.16 for diamond()
+
+     # my Image-Base-Other
+     'Image::Base::Multiplex' => 7, # v.7 diamond()
+     'Image::Base::Text'      => 0,
+
+     # my Image-Base-Gtk2
+     'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
+     'Image::Base::Gtk2::Gdk::Window' => 2,
+     'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
+
+     'List::MoreUtils' => '0.24', # 0.24 for stack growing, maybe
+     'Locale::TextDomain' => '1.19',
+     'Locale::Messages' => 0,
+     'Module::Load' => 0,
+     'Module::Pluggable' => 0,
+     'Module::Util' => 0,
+     'Number::Format' => 0,
+     'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
+     'Scope::Guard' => 0,
+     'Software::License::GPL_3' => '0.001', # gpl3 in 0.001
+     'Text::Capitalize' => 0,
+     'Term::Size' => 0,
+
+     'Math::Prime::XS' => '0.23', # version 0.23 for fix of 1928099
+
+     'Math::BaseCnv' => 0,
+     'Math::Libm' => 0,
+     # 'Math::Prime::TiedArray' => 0,
+
+     # my Math-PlanePath, and should work with any set of paths
+     'Math::PlanePath' => 40, # v.40 for arms_count()
+     'Math::PlanePath::SquareSpiral' => 1, # at least this path
+
+     # my Math-NumSeq
+     'Math::NumSeq' => 1,
+     'Math::NumSeq::Polygonal' => 1,
+     # these for sequences in-progress ...
+     'Math::NumSeq::Base::Array' => 1,
+     'Math::NumSeq::Base::Digits' => 1,
+     'Math::NumSeq::Base::IterateIth' => 1,
+     'Math::NumSeq::Base::IteratePred' => 1,
+     'Math::NumSeq::Base::Sparse' => 1,
+     'Math::NumSeq::Primes' => 4,  # _prime_list()
+    );
+
+# for experimental paths in-progress
+sub add_prereq {
+  my ($module, $version) = @_;
+  if (! $prereq_pm{$module}
+      || $prereq_pm{$module} < $version) {
+    $prereq_pm{$module} = $version;
+  }
+}
+add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
+add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
+add_prereq ('Math::PlanePath::SacksSpiral', 1); # for CrossSide
+add_prereq ('Math::NumSeq::DigitCount',4);
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',
@@ -178,121 +312,7 @@ MyMakeMakerExtras::WriteMakefile
    SIGN         => 1,
    EXE_FILES    => [ 'math-image' ],
    MIN_PERL_VERSION => '5.008',
-   PREREQ_PM =>
-   {
-    'constant' => 1.02,  # leading underscore in prima bits
-    'constant::defer' => 0,
-    'Bit::Vector'     => 0,
-    'Compress::Zlib'  => 0,
-    'Data::Float'  => 0,
-
-    # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
-    # handles by outsmarting itself in some compares plus File::Temp having a
-    # bogus numize.  File::Copy 2.14 looks slightly better, though enquiring
-    # into the overloadedness of handles really doesn't sound like a good
-    # idea.
-    'File::Copy'      => '2.14',
-
-    'File::HomeDir' => 0,
-    'Geometry::AffineTransform' => '1.3', # version 1.3 for invert()
-
-    'Glib' => '1.220', # for Glib::SOURCE_REMOVE
-    'Glib::Object::Subclass' => 0,
-    'Glib::Ex::ConnectProperties' => 14, # v.14 for response-sensitive#
-
-    # my Glib-Ex-ObjectBits
-    'Glib::Ex::EnumBits'     => 11, # new in v.11
-    # 'Glib::Ex::FreezeNotify' => 0,
-    'Glib::Ex::ObjectBits'   => 12, # new in v.12
-    'Glib::Ex::SourceIds'    => 2,  # new in v.2
-    'Glib::Ex::SignalBits'   => 9,  # new in v.9
-    'Glib::Ex::SignalIds'    => 0,
-
-    'Gtk2' => '1.220',
-    'Gtk2::Pango' => 0, # part of Gtk2, used explicitly
-
-    # my Gtk2-Ex-WidgetBits
-    'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
-    'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
-    'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
-    'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
-    'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
-    'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
-    'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
-    'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
-    'Gtk2::Ex::ToolItem::CheckButton' => 42,  # new in v.42
-    'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
-    'Gtk2::Ex::Units'          => 13, # new in v.13
-    'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
-    'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
-    'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
-
-    # QuadButton / QuadScroll
-    'Gtk2::Ex::AdjustmentBits' => 40, # new in v.40
-    'Gtk2::Ex::WidgetBits'     => 40, # v.40 for pixel_size_mm()
-
-    # my Gtk2-Ex-ComboBoxBits
-    # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
-    'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
-    'Gtk2::Ex::ComboBox::Text' => 2,
-    'Gtk2::Ex::ComboBox::PixbufType' => 31, # v.31 fix initial for_width
-    'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
-    'Gtk2::Ex::ToolItem::ComboEnum' => 28, # new in version 28
-
-    'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
-    'Gtk2::Ex::NumAxis' => 2,
-    'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
-    'Gtk2::Ex::Splash' => 1,
-
-    'Image::Base' => '1.16', # version 1.16 for diamond()
-
-    # my Image-Base-Other
-    'Image::Base::Multiplex' => 7, # v.7 diamond()
-    'Image::Base::Text'      => 0,
-
-    # my Image-Base-Gtk2
-    'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
-    'Image::Base::Gtk2::Gdk::Window' => 2,
-    'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
-
-    'List::MoreUtils' => '0.24', # 0.24 for stack growing, maybe
-    'Locale::TextDomain' => '1.19',
-    'Locale::Messages' => 0,
-    'Module::Load' => 0,
-    'Module::Pluggable' => 0,
-    'Module::Util' => 0,
-    'Number::Format' => 0,
-    'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
-    'Scope::Guard' => 0,
-    'Software::License::GPL_3' => '0.001', # gpl3 in 0.001
-    'Text::Capitalize' => 0,
-    'Term::Size' => 0,
-
-    'Math::Prime::XS' => '0.23', # version 0.23 for fix of 1928099
-
-    'Math::BaseCnv' => 0,
-    'Math::Libm' => 0,
-    # 'Math::Prime::TiedArray' => 0,
-
-    # my Math-PlanePath, and should work with any set of paths
-    'Math::PlanePath' => 40, # v.40 for arms_count()
-    'Math::PlanePath::SquareSpiral'   => 1,
-
-    # my Math-NumSeq
-    'Math::NumSeq' => 1,
-    'Math::NumSeq::Polygonal' => 1,
-    # these for sequences in-progress ...
-    'Math::NumSeq::Base::Array' => 1,
-    'Math::NumSeq::Base::Digits' => 1,
-    'Math::NumSeq::Base::IterateIth' => 1,
-    'Math::NumSeq::Base::IteratePred' => 1,
-    'Math::NumSeq::Base::Sparse' => 1,
-
-
-    # 'Math::PlanePath' => 37, # for experimental paths _round_nearest() etc
-    'Math::PlanePath::SierpinskiArrowhead' => 32,  # Skewed experiment
-    'Math::PlanePath::SacksSpiral' => 1, # for CrossSide in progress ...
-   },
+   PREREQ_PM    => \%prereq_pm,
 
    META_MERGE =>
    { resources =>

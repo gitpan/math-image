@@ -30,7 +30,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -43,7 +43,9 @@ use constant values_min => 1;
 
 # A033619 base 10 >=0 including a==b
 # A046075 base 10 >=101 with a!=b
-# A046076 binary, but how?
+#
+# cf A046076 "binary undulants", 2^N in decimal has 010 or 101 somewhere
+#
 sub oeis_anum {
   # my ($class_or_self) = @_;
   # if (! ref $class_or_self ||

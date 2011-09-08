@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
-our $VERSION = 68;
+our $VERSION = 69;
 
 use Glib::Object::Subclass
   'Gtk2::CheckMenuItem',

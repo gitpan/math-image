@@ -1,4 +1,5 @@
-# rect range not done
+# rect_to_n_range() not done
+# xy_to_n() not done
 
 
 # Copyright 2011 Kevin Ryde
@@ -30,7 +31,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -288,7 +289,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageQuintetCentres -- Mandelbrot quintet "cross" curve
+Math::PlanePath::MathImageQuintetCentres -- "plus" shape centres
 
 =head1 SYNOPSIS
 
@@ -298,13 +299,62 @@ Math::PlanePath::MathImageQuintetCentres -- Mandelbrot quintet "cross" curve
 
 =head1 DESCRIPTION
 
-This path is an integer version of the ...
+This a self-similar curve tracing out a "+" shape like the QuintetCurve but
+taking the centre of each square visited by that curve.
 
+                                         92                        12
+                                       /  |
+            124-...                  93  91--90      88            11
+              |                        \       \   /   \
+        122-123 120     102              94  82  89  86--87        10
+           \   /  |    /  |            /   /  |       |
+            121 119 103 101-100      95  81  83--84--85             9
+                   \   \       \       \   \
+        114-115-116 118 104  32  99--98  96  80  78                 8
+          |       |/   /   /  |       |/      |/   \
+    112-113 110 117 105  31  33--34  97  36  79  76--77             7
+       \   /   \       \   \       \   /   \      |
+        111     109-108 106  30  42  35  38--37  75                 6
+                      |/   /   /  |       |    /
+                    107  29  43  41--40--39  74                     5
+                           \   \              |
+                 24--25--26  28  44  46  72--73  70      68         4
+                  |       |/      |/   \   \   /   \   /   \
+             22--23  20  27  18  45  48--47  71  56  69  66--67     3
+               \   /   \   /   \      |        /   \      |
+                 21   6  19  16--17  49  54--55  58--57  65         2
+                   /   \      |       |    \      |    /
+              4-- 5   8-- 7  15      50--51  53  59  64             1
+               \      |    /              |/      |    \
+          0-- 1   3   9  14              52      60--61  63     <- Y=0
+              |/      |    \                          |/
+              2      10--11  13                      62            -1
+                          |/
+                         12                                        -2
 
-    ^
-   X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
+          ^
+     -1  X=0  1   2   3   4   5   6   7   8   9  10  11  12  13
+
+The base figure is "+" shape of the initial N=0 to N=4,
+
+           .....
+           .   .
+           . 4 .
+           .  \.
+       ........\....
+       .   |   .\  .
+       . 0---1 . 3 .
+       .   | | ./  .
+       ......|./....
+           . |/.
+           . 2 .
+           .   .
+           .....
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

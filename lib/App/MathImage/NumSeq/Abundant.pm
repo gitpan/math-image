@@ -21,7 +21,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
@@ -33,15 +33,15 @@ use constant name => Math::NumSeq::__('Abundant Numbers');
 use constant description => Math::NumSeq::__('Numbers N with sum of its divisors >= N, eg. 12 is divisible by 1,2,3,4,6 total 16 is >= 12.');
 use constant values_min => 12;
 
+# cf A005100 deficient numbers sigma(n) < 2*n
+#    A000396 perfect sigma(n) == 2*n
+#
+#    A005231 odd abundants, starting 945
+#    A091191 primitive abundants (no abundant divisor)
+#    A091192 non-primitives (at least one abundant divisor)
+#
 use constant oeis_anum => 'A005101';
 
-# cf
-# A005100 deficient numbers sigma(n) < 2*n
-# A000396 perfect sigma(n) == 2*n
-#
-# A005231 odd abundants, starting 945
-# A091191 primitive abundants (no abundant divisor)
-# A091192 non-primitives (at least one abundant divisor)
 
 sub new {
   my ($class, %options) = @_;

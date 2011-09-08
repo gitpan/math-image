@@ -1,5 +1,6 @@
 # use prime factorization/sieve
 
+# option for A or B ?
 
 
 
@@ -31,7 +32,7 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

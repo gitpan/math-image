@@ -30,12 +30,12 @@ use strict;
 use List::Util 'min', 'max';
 use POSIX ();
 
-use App::MathImage::NumSeq::Primes;
+use Math::NumSeq::Primes;
 use Math::NumSeq;
 use base 'Math::NumSeq::Base::Array';
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -81,7 +81,7 @@ sub new {
   my $level = $options{'level'};
   if (! defined $level) { $level = 1; }
 
-  my @array = App::MathImage::NumSeq::Primes::_my_primes_list ($lo, $hi);
+  my @array = Math::NumSeq::Primes::_primes_list ($lo, $hi);
   my $primes = \@array;
   foreach (1 .. $level) {
     my $i = 0;

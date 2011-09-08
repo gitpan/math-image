@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -725,12 +725,19 @@ sub output_method_numbers {
   while (my ($n) = $values_obj->next) {
     last if ! defined $n || $n > $n_hi;
     next if $n < $n_lo;
+
     my ($x, $y) = $path->n_to_xy ($n)
       or next;
     if ($x == 0) { $x = 0; }  # no signed zeros
     if ($y == 0) { $y = 0; }
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
+
+    my $new_x_min = min ($x_min, $x);
+    my $new_x_max = max ($x_max, $x);
+    my $new_y_min = min ($y_min, $y);
+    my $new_y_max = max ($y_max, $y);
+
     ($array{$x}->{$y} .= "/$n") =~ s{^/}{};
     $x_min = min ($x_min, $x);
     $x_max = max ($x_max, $x);
@@ -753,7 +760,7 @@ sub output_method_numbers {
   foreach my $y (reverse $y_min .. $y_max) {
     foreach my $x ($x_min .. $x_max) {
       my $elem = $array{$x}->{$y} || next;
-      $cell_width = max ($cell_width, length($elem) + 1) ;
+      $cell_width = max ($cell_width, length($elem)+1) ;
     }
   }
   foreach my $y (reverse $y_min .. $y_max) {
@@ -767,6 +774,137 @@ sub output_method_numbers {
   return 0;
 }
 
+sub output_method_numbers_xy {
+  my ($self) = @_;
+  $self->term_size;
+  my $gen = $self->make_generator;
+
+  my $path = $gen->path_object;
+  my $width = $gen->{'width'};
+  my $height = $gen->{'height'};
+  ### $width
+  ### $height
+
+  my $values_class = $gen->values_class ($gen->{'values'});
+  my $values_obj = $values_class->new (%$gen);
+
+  my @rows;
+  my $xmin = 0;
+  my $xmax = -1;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $cellwidth = 0;
+
+ OUTER: for (;;) {
+    my $more;
+    ### @rows
+    {
+      my $x = $xmax+1;
+      my @new_col;
+      foreach my $y ($ymin .. $ymax) {
+        my $n = $path->xy_to_n($x,$y);
+        ### consider right: "$x,$y  n=".(defined $n && $n)
+        next unless defined $n && $values_obj->pred($n);
+        my $new_cellwidth = max ($cellwidth, length($n) + 1);
+        if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_XMAX; }
+        $cellwidth = $new_cellwidth;
+        $new_col[$y-$ymin] = $n;
+      }
+      foreach my $i (0 .. $#new_col) {
+        push @{$rows[$i]}, $new_col[$i];   # at right
+      }
+      ### @new_col
+      ### $cellwidth
+      ### @rows
+      $xmax++;
+      $more = 1;
+    NO_XMAX:
+    }
+    if ($ymax - $ymin + 1 < $height) {
+      my $y = $ymax+1;
+      ### extend ymax: ($ymax-$ymin)." cf height=$height"
+      ### $xmin
+      ### $xmax
+      ### $y
+      my @new_row;
+      foreach my $x ($xmin .. $xmax) {
+        $new_row[$x-$xmin] = undef;
+        my $n = $path->xy_to_n($x,$y);
+        ### consider above: "$x,$y  n=".(defined $n && $n)
+        next unless defined $n && $values_obj->pred($n);
+        my $new_cellwidth = max ($cellwidth, length($n) + 1);
+        if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_YMAX; }
+        $new_row[$x-$xmin] = $n;
+      }
+      push @rows, \@new_row;  # at top
+      ### @new_row
+      ### $cellwidth
+      ### @rows
+      $ymax++;
+      $more = 1;
+    NO_YMAX:
+    }
+    if ($xmin > 0 || $path->x_negative) {
+      ### extend xmin ...
+      my $x = $xmin-1;
+      my @new_col;
+      foreach my $y ($ymin .. $ymax) {
+        my $n = $path->xy_to_n($x,$y);
+        ### consider left: "$x,$y  n=".(defined $n && $n)
+        next unless defined $n && $values_obj->pred($n);
+        my $new_cellwidth = max ($cellwidth, length($n) + 1);
+        if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_XMIN; }
+        $cellwidth = $new_cellwidth;
+        $new_col[$y-$ymin] = $n;
+      }
+      ### $cellwidth
+      foreach my $i (0 .. $#new_col) {
+        unshift @{$rows[$i]}, $new_col[$i];   # at left
+      }
+      $xmin--;
+      $more = 1;
+    NO_XMIN:
+    }
+    if ($ymax - $ymin + 1 < $height && ($ymin > 0 || $path->y_negative)) {
+      my $y = $ymin-1;
+      ### extend ymin ...
+      ### $xmin
+      ### $xmax
+      ### $y
+      my @new_row;
+      foreach my $x ($xmin .. $xmax) {
+        $new_row[$x-$xmin] = undef;
+        my $n = $path->xy_to_n($x,$y);
+        ### consider bottom: "$x,$y  n=".(defined $n && $n)
+        next unless defined $n && $values_obj->pred($n);
+        my $new_cellwidth = max ($cellwidth, length($n) + 1);
+        if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_YMIN; }
+        $new_row[$x-$xmin] = $n;
+      }
+      ### $cellwidth
+      unshift @rows, \@new_row;   # at bottom
+      $ymin--;
+      $more = 1;
+    NO_YMIN:
+    }
+    ### $more
+    last unless $more;
+  }
+
+  ### $cellwidth
+  ### width total: $cellwidth * ($xmax-$xmin+1)
+
+  $cellwidth--;
+  foreach my $row (reverse @rows) {
+    print join(' ',
+               map {sprintf '%*s', $cellwidth, $_}
+               map {defined($_) ? $_ : ''}
+               @$row), "\n";
+  }
+
+  return 0;
+}
+
 sub output_method_numbers_dash {
   my ($self) = @_;
   $self->term_size;
@@ -775,7 +913,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 4;   # 4 chars each
+  my $cell_width = 3;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);
@@ -891,6 +1029,7 @@ sub output_method_numbers_dash {
     }
   }
   foreach (reverse @rows) {
+    s/ +$//;
     print $_,"\n";
   }
   return 0;

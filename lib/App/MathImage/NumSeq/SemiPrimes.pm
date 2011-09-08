@@ -28,9 +28,9 @@ use base 'Math::NumSeq::Base::Array';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 68;
+$VERSION = 69;
 
-use constant name => Math::NumSeq::__('Semi-Primes');
+# use constant name => Math::NumSeq::__('Semi-Primes');
 use constant description => Math::NumSeq::__('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');
 use constant characteristic_monotonic => 2;
 use constant values_min => 4;
@@ -47,8 +47,8 @@ sub new {
   my $primes_lo = $prime_base;
   my $primes_hi = int($hi/$prime_base);
 
-  require App::MathImage::NumSeq::Primes;
-  my @primes = App::MathImage::NumSeq::Primes::_my_primes_list
+  require Math::NumSeq::Primes;
+  my @primes = Math::NumSeq::Primes::_primes_list
     ($primes_lo, $primes_hi);
 
   require Bit::Vector;

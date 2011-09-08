@@ -43,7 +43,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 68;
+our $VERSION = 69;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -206,7 +206,7 @@ sub SET_PROPERTY {
                                $self->allocation->height / $newval);
   }
 
-  if ($pname eq 'path') {
+  if ($pname eq 'path' || $pname eq 'path_parameters') {
     my ($x, $y) = _centre_basis($self);
     my ($old_x, $old_y) = @{$self->{'path_basis'}};
     if ($x != $old_x) {
