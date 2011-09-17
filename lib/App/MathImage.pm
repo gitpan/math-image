@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 69;
+$VERSION = 70;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -283,8 +283,8 @@ sub new {
                                    App::MathImage::Generator->default_options->{'values'},
                                    path       =>
                                    App::MathImage::Generator->default_options->{'path'},
-                                   foreground => 'white',
-                                   background => 'black',
+                                   foreground => '#FFFFFF',
+                                   background => '#000000',
                                  },
                  gui_options  => {},
                  other_options => {},
@@ -500,11 +500,6 @@ sub output_method_root_gtk2 {
   return 0;
 }
 
-my %image_modules = (Prima => 'Image::Base::Prima::Image',
-                     Gtk2  => 'Image::Base::Gtk2::Gdk::Pixbuf',
-                     Xpm   => 'Image::Xpm',
-                     Tk    => 'Image::Base::Tk::Photo',
-                    );
 sub output_method_png {
   my ($self) = @_;
   binmode (\*STDOUT) or die;
@@ -581,12 +576,19 @@ sub try_module {
   require Module::Load;
   return eval { Module::Load::load ($image_class); 1 };
 }
+# module names which are not "Image::Base::Foo"
+my %image_modules = (Prima => 'Image::Base::Prima::Image',
+                     Gtk2  => 'Image::Base::Gtk2::Gdk::Pixbuf',
+                     Xpm   => 'Image::Xpm',
+                     Tk    => 'Image::Base::Tk::Photo',
+                    );
 sub module_image_class {
   my ($self, $module) = @_;
   ### module_image_class() ...
-  foreach my $baseclass ("Image::Base::$module",
-                         $image_modules{$module},
-                         ($module =~ /::/ ? ($module) : ())) {
+  foreach my $baseclass
+    ("Image::Base::$module",
+     ($image_modules{$module} ? $image_modules{$module} : ()),
+     ($module =~ /::/ ? ($module) : ())) {
     foreach my $class ($baseclass,
                        "App::MathImage::$baseclass") {
       ### $class
@@ -790,10 +792,11 @@ sub output_method_numbers_xy {
 
   my @rows;
   my $xmin = 0;
-  my $xmax = -1;
+  my $xmax = 0;
   my $ymin = 0;
   my $ymax = 0;
   my $cellwidth = 0;
+  $rows[0][0] = $path->xy_to_n($xmin,$ymin);
 
  OUTER: for (;;) {
     my $more;
@@ -810,7 +813,7 @@ sub output_method_numbers_xy {
         $cellwidth = $new_cellwidth;
         $new_col[$y-$ymin] = $n;
       }
-      foreach my $i (0 .. $#new_col) {
+      foreach my $i (0 .. $#rows) {
         push @{$rows[$i]}, $new_col[$i];   # at right
       }
       ### @new_col
@@ -837,11 +840,13 @@ sub output_method_numbers_xy {
         $new_row[$x-$xmin] = $n;
       }
       push @rows, \@new_row;  # at top
+      $ymax++;
+      $more = 1;
       ### @new_row
       ### $cellwidth
       ### @rows
-      $ymax++;
-      $more = 1;
+      ### $ymin
+      ### $ymax
     NO_YMAX:
     }
     if ($xmin > 0 || $path->x_negative) {
@@ -858,7 +863,7 @@ sub output_method_numbers_xy {
         $new_col[$y-$ymin] = $n;
       }
       ### $cellwidth
-      foreach my $i (0 .. $#new_col) {
+      foreach my $i (0 .. $#rows) {
         unshift @{$rows[$i]}, $new_col[$i];   # at left
       }
       $xmin--;
@@ -913,7 +918,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 3;   # 4 chars each
+  my $cell_width = 4;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);

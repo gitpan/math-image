@@ -30,11 +30,8 @@ use Locale::TextDomain 'App-MathImage';
 
 use App::MathImage::Image::Base::Other;
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
-
 use vars '$VERSION';
-$VERSION = 69;
+$VERSION = 70;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -245,6 +242,7 @@ my %pathname_square_grid
                      HypotOctant
                      TriangularHypot
                      PythagoreanTree
+                     RationalsTree
                      CoprimeColumns
 
                      PeanoCurve
@@ -263,6 +261,7 @@ my %pathname_square_grid
                      KochCurve
                      KochPeaks
                      KochSnowflakes
+                     KochSquareflakes
                      QuadricCurve
                      QuadricIslands
                      SierpinskiArrowhead
@@ -285,12 +284,12 @@ my %pathname_square_grid
                      MathImageGosperTiling
                      MathImageKochSquareflakes
                      MathImageQuintetCentres
- MathImageQuintetCurve
- MathImageQuintetReplicate
- MathImageQuintetSide
- MathImageSierpinskiCurve
- MathImageSquareReplicate
- MathImageWunderlichCurve
+                     MathImageQuintetCurve
+                     MathImageQuintetReplicate
+                     MathImageQuintetSide
+                     MathImageSierpinskiCurve
+                     MathImageSquareReplicate
+                     MathImageWunderlichCurve
                   )
     );
 # my %pathname_fractional_grid
@@ -300,7 +299,7 @@ my %pathname_square_grid
 #      MultipleRings => 1,
 #      ArchimedeanChords => 1,
 #      File => 1,
-#      
+#
 #     );
 # {
 #   my %all;
@@ -314,287 +313,52 @@ my %pathname_square_grid
 
 
 #------------------------------------------------------------------------------
-# path parameter info
-
-{ package Math::PlanePath;
-  use constant MathImage__parameter_info_array => [];
-  sub MathImage__parameter_info_hash {
-    my ($class) = @_;
-    return { map { $_->{'name'}, $_ }
-             @{$class->MathImage__parameter_info_array} };
-  }
-}
-{ my $wider;
-  BEGIN {
-    $wider = [ {
-                name => 'wider',
-                type => 'integer',
-                description => __('Wider path.'),
-                minimum => 0,
-                default => 0,
-                width => 3,
-               } ];
-  }
-  { package Math::PlanePath::SquareSpiral;
-    use constant MathImage__parameter_info_array => $wider;
-  }
-  { package Math::PlanePath::HexSpiral;
-    use constant MathImage__parameter_info_array => $wider;
-  }
-  { package Math::PlanePath::HexSpiralSkewed;
-    use constant MathImage__parameter_info_array => $wider;
-  }
-}
-{ package Math::PlanePath::MultipleRings;
-  use constant MathImage__parameter_info_array =>
-    [{ name      => 'step',
-       share_key => 'rings_step',
-       type      => 'integer',
-       minimum   => 0,
-       default   => 6,
-     }];
-}
-{ package Math::PlanePath::PyramidRows;
-  use constant MathImage__parameter_info_array =>
-    [{ name      => 'step',
-       share_key => 'pyramid_step',
-       type      => 'integer',
-       minimum   => 0,
-       default   => 2,
-     }];
-}
-{ package Math::PlanePath::PythagoreanTree;
-  use constant MathImage__parameter_info_array =>
-    [ { name    => 'tree_type',
-        type    => 'enum',
-        choices => ['UAD','FB'],
-        default => 'UAD',
-      },
-      { name    => 'coordinates',
-        type    => 'enum',
-        choices => ['AB','PQ'], # 'Octant'
-        default => 'AB',
-      } ];
-}
-{ package Math::PlanePath::VogelFloret;
-  use constant MathImage__parameter_info_array =>
-    [
-     {
-      name      => 'rotation_type',
-      type      => 'enum',
-      share_key => 'vogel_rotation_type',
-      choices   => ['phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom'],
-      default   => 'phi',
-     },
-     {
-      name => 'rotation_factor',
-      type => 'float',
-      type_hint => 'expression',
-      description => Locale::Messages::dgettext('App-MathImage','Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.'),
-      default => - (1 + sqrt(5)) / 2,
-      default_expression => '-phi',
-      width => 10,
-      when_name  => 'rotation_type',
-      when_value => 'custom',
-     },
-     { name           => 'radius_factor',
-       description    => Locale::Messages::dgettext('App-MathImage','Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.'),
-       type           => 'float',
-       minimum        => 0,
-       maximum        => 999,
-       page_increment => 1,
-       step_increment => .1,
-       decimals       => 2,
-       default        => 1,
-     },
-    ];
-}
-{
-  my $radix2;
-  BEGIN {
-    $radix2 = [{ name      => 'radix',
-                 share_key => 'radix_binary',
-                 type      => 'integer',
-                 minimum   => 2,
-                 default   => 2,
-                 width     => 3,
-               }];
-  }
-  { package Math::PlanePath::ZOrderCurve;
-    use constant MathImage__parameter_info_array => $radix2;
-  }
-  { package Math::PlanePath::ImaginaryBase;
-    use constant MathImage__parameter_info_array => $radix2;
-  }
-}
-{ package Math::PlanePath::PeanoCurve;
-  use constant MathImage__parameter_info_array =>
-    [ { name      => 'radix',
-        share_key => 'radix_ternary',
-        type      => 'integer',
-        minimum   => 2,
-        default   => 3,
-        width     => 3,
-      } ];
-}
-{ package Math::PlanePath::File;
-  use constant MathImage__parameter_info_array =>
-    [ { name    => 'filename',
-        type    => 'filename',
-        width   => 40,
-        default => '',
-      } ];
-}
-{
-  my $arms4;
-  BEGIN {
-    $arms4 = [ { name      => 'arms',
-                 share_key => 'arms_4',
-                 type      => 'integer',
-                 minimum   => 1,
-                 maximum   => 4,
-                 default   => 1,
-                 width     => 1,
-               } ];
-  }
-  { package Math::PlanePath::DragonCurve;
-    use constant MathImage__parameter_info_array => $arms4;
-  }
-  { package Math::PlanePath::DragonMidpoint;
-    use constant MathImage__parameter_info_array => $arms4;
-  }
-  { package Math::PlanePath::DragonRounded;
-    use constant MathImage__parameter_info_array => $arms4;
-  }
-  { package Math::PlanePath::MathImageQuintetArms;
-    use constant MathImage__parameter_info_array => $arms4;
-  }
-  { package Math::PlanePath::MathImageQuintetCurve;
-    use constant MathImage__parameter_info_array => $arms4;
-  }
-  { package Math::PlanePath::MathImageQuintetCentres;
-    use constant MathImage__parameter_info_array => $arms4;
-  }
-}
-{
-  my $arms3;
-  BEGIN {
-    $arms3 = [ { name      => 'arms',
-                 share_key => 'arms_3',
-                 type      => 'integer',
-                 minimum   => 1,
-                 maximum   => 3,
-                 default   => 1,
-                 width     => 1,
-               } ];
-  }
-  { package Math::PlanePath::Flowsnake;
-    use constant MathImage__parameter_info_array => $arms3;
-  }
-  { package Math::PlanePath::FlowsnakeCentres;
-    use constant MathImage__parameter_info_array => $arms3;
-  }
-}
-{
-  my $arms8;
-  BEGIN {
-    $arms8 = [ { name      => 'arms',
-                 share_key => 'arms_8',
-                 type      => 'integer',
-                 minimum   => 1,
-                 maximum   => 8,
-                 default   => 1,
-                 width     => 1,
-               } ];
-  }
-  { package Math::PlanePath::MathImageSierpinskiCurve;
-    use constant MathImage__parameter_info_array => $arms8;
-  }
-}
-{ package Math::PlanePath::MathImageKochSquareflakes;
-  use constant MathImage__parameter_info_array =>
-    [ { name      => 'inward',
-        type      => 'boolean',
-        default   => 0,
-      } ];
-}
-{ package Math::PlanePath::MathImageTwinDragon;
-  use constant MathImage__parameter_info_array =>
-    [ { name      => 'realpart',
-        type      => 'integer',
-        default   => 1,
-        minimum   => 1,
-        width     => 2,
-      } ];
-}
-{ package Math::PlanePath::MathImageComplexIplus1;
-  use constant MathImage__parameter_info_array =>
-    [ { name      => 'realpart',
-        type      => 'integer',
-        default   => 1,
-        minimum   => 1,
-        width     => 2,
-      },
-      { name      => 'arms',
-        share_key => 'arms_2',
-        type      => 'integer',
-        minimum   => 1,
-        maximum   => 2,
-        default   => 1,
-        width     => 1,
-      },
-    ];
-}
-
-
-#------------------------------------------------------------------------------
 # path discontinuity
 
 { package Math::PlanePath;
-  use constant MathImage__discontinuity => undef;
+  use constant MathImage__n_fraction_discontinuity => undef;
 }
 { package Math::PlanePath::PyramidRows;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::PyramidSides;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::CellularRule54;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::Corner;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::Staircase;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::Rows;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::Columns;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::Diagonals;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::KochPeaks;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
 { package Math::PlanePath::CoprimeColumns;
-  use constant MathImage__discontinuity => .5;
+  use constant MathImage__n_fraction_discontinuity => .5;
 }
-
 { package Math::PlanePath::MultipleRings;
-  use constant MathImage__discontinuity => 0;
+  use constant MathImage__n_fraction_discontinuity => 0;
 }
 { package Math::PlanePath::KochSnowflakes;
-  use constant MathImage__discontinuity => 0;
+  use constant MathImage__n_fraction_discontinuity => 0;
 }
-{ package Math::PlanePath::MathImageKochSquareflakes;
-  use constant MathImage__discontinuity => 0;
+{ package Math::PlanePath::KochSquareflakes;
+  use constant MathImage__n_fraction_discontinuity => 0;
 }
 { package Math::PlanePath::GosperIslands;
-  use constant MathImage__discontinuity => 0;
+  use constant MathImage__n_fraction_discontinuity => 0;
 }
      # PixelRings  => 0,
 
@@ -620,6 +384,9 @@ my %pathname_square_grid
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::KochSnowflakes;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::KochSquareflakes;
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::SierpinskiTriangle;
@@ -714,9 +481,12 @@ use constant path_choices => do {
                            ZOrderCurve
                            ImaginaryBase
 
+                           Flowsnake
+                           FlowsnakeCentres
                            GosperIslands
                            GosperSide
                            KochSnowflakes
+                           KochSquareflakes
                            KochPeaks
                            KochCurve
                            SierpinskiTriangle
@@ -728,6 +498,7 @@ use constant path_choices => do {
                            TwinDragon
 
                            PythagoreanTree
+                           RationalsTree
                            File
                          )) {
       if (delete $choices{$prefer}) {
@@ -785,8 +556,9 @@ sub random_options {
              path_parameters => $path_parameters);
 
   my @path_choices = $self->path_choices;
-  @path_choices = grep {!/PythagoreanTree/}  # value too big for many seqs
-    @path_choices;
+  @path_choices
+    = grep {!/PythagoreanTree|RationalsTree/}  # values too big for many seqs
+      @path_choices;
   @path_choices = (@path_choices,
                    grep {!/KochCurve|GosperSide/} @path_choices);
 
@@ -903,7 +675,7 @@ sub random_options {
     $path_parameters->{'wider'} = $path_wider;
   }
   {
-    if (my $info = $path_class->MathImage__parameter_info_hash->{'radix'}) {
+    if (my $info = $path_class->parameter_info_hash->{'radix'}) {
       $path_parameters->{'radix'} = _rand_of_array([ ($info->{'default'}) x 3,
                                                      2 .. 7 ]);
     }
@@ -964,7 +736,7 @@ sub description {
                    map {
                      my $pname = $_->{'name'};
                      "$pname $path_object->{$pname}"
-                   } @{$path_object->MathImage__parameter_info_array});
+                   } @{$path_object->parameter_info_array});
 
   my $values_object = $self->values_object;
   my @values_desc = ($self->{'values'},
@@ -1003,14 +775,14 @@ sub filename_base {
                do {
                  my $path_object = $self->path_object;
                  ### $path_object
-                 ### info array: $path_object->MathImage__parameter_info_array
+                 ### info array: $path_object->parameter_info_array
                  map {
                    (defined $path_object->{$_->{'name'}}
                     && $path_object->{$_->{'name'}} ne $_->{'default'})
                      ? $path_object->{$_->{'name'}}
                        : ()
                      }
-                   @{$path_object->MathImage__parameter_info_array}
+                   @{$path_object->parameter_info_array}
                  },
                $self->{'values'},
                do {
@@ -1398,6 +1170,10 @@ sub draw_Image_start {
     } elsif ($path_object->isa ('Math::PlanePath::KochSnowflakes')) {
       $n_lo = 4 ** $level;
       $n_hi = 4 ** ($level+1) - 1;
+      $yfactor = sqrt(3)*2;
+    } elsif ($path_object->isa ('Math::PlanePath::KochSquareflakes')) {
+      $n_lo = (4 ** ($level+1) - 1) / 3;
+      $n_hi = (4 ** ($level+2) - 4) / 3;
       $yfactor = sqrt(3)*2;
     } elsif ($path_object->isa ('Math::PlanePath::SierpinskiArrowhead')
              || $path_object->isa ('Math::PlanePath::SierpinskiArrowheadCentres')
@@ -1802,7 +1578,7 @@ sub draw_Image_steps {
     my $n_offset_to = $increment;
 
     if ($increment == 1
-        && defined (my $disc = $path_object->MathImage__discontinuity)) {
+        && defined (my $disc = $path_object->MathImage__n_fraction_discontinuity)) {
       $n_offset_from = -$disc;
       $n_offset_to = $n_offset_from + .9999;
     }
@@ -2296,9 +2072,15 @@ sub draw_Image_steps {
 
 sub _n_to_tree_children {
   my ($n, $branches, $n_start) = @_;
+  ### _n_to_tree_children() ...
+  if ($n < $n_start) { return }
   $n_start ||= 0;
   $n -= ($n_start-1);
   my $h = ($branches-1)*($n-1)+1;
+  ### $branches
+  ### $n_start
+  ### $n
+  ### $h
   my $level = int(log($h)/log($branches));
   my $range = $branches ** $level;
   my $base = ($range - 1)/($branches-1) + 1;

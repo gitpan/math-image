@@ -1,5 +1,5 @@
 # rect range ?
-
+# how many arms ?
 
 
 # Copyright 2011 Kevin Ryde
@@ -20,16 +20,16 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageComplexIplus1 --all --scale=5
-# math-image --path=MathImageComplexIplus1 --all --output=numbers_dash --size=80x50
+# math-image --path=MathImageComplexPlus --all --scale=5
+# math-image --path=MathImageComplexPlus --all --output=numbers_dash --size=80x50
 
-package Math::PlanePath::MathImageComplexIplus1;
+package Math::PlanePath::MathImageComplexPlus;
 use 5.004;
 use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -44,6 +44,23 @@ sub arms_count {
   my ($self) = @_;
   return $self->{'arms'} || 1;
 }
+
+use constant parameter_info_array =>
+  [ { name      => 'realpart',
+      type      => 'integer',
+      default   => 1,
+      minimum   => 1,
+      width     => 2,
+    },
+    { name      => 'arms',
+      share_key => 'arms_2',
+      type      => 'integer',
+      minimum   => 1,
+      maximum   => 2,
+      default   => 1,
+      width     => 1,
+    },
+  ];
 
 sub new {
   my $class = shift;
@@ -65,7 +82,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MathImageComplexIplus1 n_to_xy(): $n
+  ### MathImageComplexPlus n_to_xy(): $n
 
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -128,7 +145,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### ComplexIplus1 xy_to_n(): "$x, $y"
+  ### ComplexPlus xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
@@ -188,7 +205,7 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImageComplexIplus1 rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### MathImageComplexPlus rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
@@ -212,12 +229,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageComplexIplus1 -- points in quater-imaginary base 2i
+Math::PlanePath::MathImageComplexPlus -- points in quater-imaginary base 2i
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageComplexIplus1;
- my $path = Math::PlanePath::MathImageComplexIplus1->new;
+ use Math::PlanePath::MathImageComplexPlus;
+ my $path = Math::PlanePath::MathImageComplexPlus->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -235,7 +252,7 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageComplexIplus1-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageComplexPlus-E<gt>new ()>
 
 Create and return a new path object.
 

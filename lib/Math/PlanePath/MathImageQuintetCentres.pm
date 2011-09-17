@@ -1,5 +1,4 @@
-# rect_to_n_range() not done
-# xy_to_n() not done
+# xy_to_n() not done ?
 
 
 # Copyright 2011 Kevin Ryde
@@ -31,37 +30,22 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
+
+# inherit new(), rect_to_n_range(), arms_count(), n_start(),
+# parameter_info_array()
+use Math::PlanePath::MathImageQuintetCurve;
+@ISA = ('Math::PlanePath::MathImageQuintetCurve');
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
-
-use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
-  $self->{'arms'} = $arms;
-  return $self;
-}
 
 my @rot_to_x = (0,0,-1,-1);
 my @rot_to_y = (0,1,1,0);
 my @rot_to_sx = (1,0,-1,0);
 my @rot_to_sy = (0,1,0,-1);
-my @digit_reverse = (0,1,0,0,1,0);
+my @digit_reverse = (0,1,0,0,1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -177,119 +161,125 @@ sub n_to_xy {
           $y + $oy + $rot_to_y[$rot]);
 }
 
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
+
+# modulus 2*X+Y
+#              3
+#          0   2   4
+#         /    1
+#   X=0,Y=0
+#
+my @modulus_to_x = (0,1,1,1,2);
+my @modulus_to_y = (0,-1,0,1,0);
+
+my @modulus_to_digit
+  = (0,2,1,4,3,    0,0,10,30,20,     #  0  base
+     0,4,3,1,2,    0,10,50,40,10,    # 10
+     4,0,1,3,2,    60,20,40,50,20,   # 20  rotated +90
+     2,1,3,4,0,    30,60,0,30,50,    # 30
+     1,0,3,2,4,    30,20,70,40,40,   # 40
+     3,4,1,2,0,    70,10,30,50,50,   # 50  rotated +180
+     4,2,3,0,1,    60,60,20,70,10,   # 60
+     2,3,1,0,4,    70,0,60,70,40,    # 70  rotated +270
+    );
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### QuintetPeaks xy_to_n(): "$x, $y"
-
-  return undef;
+  ### QuintetCentres xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
-  if ($y < 0 || $x < 0 || (($x ^ $y) & 1)) {
-    ### neg y or parity different ...
-    return undef;
+
+  my $level_limit = log($x*$x + $y*$y + 1) * 1 * 2;
+  if (_is_infinite($x)) { return $level_limit; }
+
+  my @digits;
+  my $arm;
+  my $state;
+  for (;;) {
+    if ($level_limit-- < 0) {
+      ### oops, level limit ...
+      return undef;
+    }
+    if ($x == 0) {
+      if ($y == 0) {
+        ### found first arm 0,0 ...
+        $arm = 0;
+        $state = 0;
+        last;
+      }
+      if ($y == 1) {
+        ### found second arm 0,1 ...
+        $arm = 1;
+        $state = 20;
+        last;
+      }
+    } elsif ($x == -1) {
+      if ($y == 1) {
+        ### found third arm -1,1 ...
+        $arm = 2;
+        $state = 50;
+        last;
+      }
+      if ($y == 0) {
+        ### found fourth arm -1,0 ...
+        $arm = 3;
+        $state = 70;
+        last;
+      }
+    }
+    my $m = (2*$x + $y) % 5;
+    ### at: "$x,$y   digits=".join(',',@digits)
+    ### mod remainder: $m
+
+    $x -= $modulus_to_x[$m];
+    $y -= $modulus_to_y[$m];
+    push @digits, $m;
+
+    ### digit: "$m  to $x,$y"
+    ### shrink to: ((2*$x + $y) / 5).','.((2*$y - $x) / 5)
+    ### assert: (2*$x + $y) % 5 == 0
+    ### assert: (2*$y - $x) % 5 == 0
+
+    # shrink
+    # (2 -1)  inverse (2  1)
+    # (1 2)           (-1 2)
+    #
+    ($x,$y) = ((2*$x + $y) / 5,
+               (2*$y - $x) / 5);
   }
-  my ($len,$level) = _round_down_pow3(($x/2)||1);
-  ### $level
-  ### $len
-  if (_is_infinite($level)) {
-    return $level;
+
+  ### @digits
+  my $arms = $self->{'arms'};
+  if ($arm >= $arms) {
+    return undef;
   }
 
   my $n = 0;
-  foreach (0 .. $level) {
-    $n *= 4;
-    ### at: "level=$level len=$len   x=$x,y=$y  n=$n"
-    if ($x < 3*$len) {
-      if ($x < 2*$len) {
-        ### digit 0 ...
-      } else {
-        ### digit 1 ...
-        $x -= 2*$len;
-        ($x,$y) = (($x+3*$y)/2,   # rotate -60
-                   ($y-$x)/2);
-        $n++;
-      }
-    } else {
-      $x -= 4*$len;
-      ### digit 2 or 3 to: "x=$x"
-      if ($x < $y) {   # before diagonal
-        ### digit 2...
-        $x += $len;
-        $y -= $len;
-        ($x,$y) = (($x-3*$y)/2,     # rotate +60
-                   ($x+$y)/2);
-        $n += 2;
-      } else {
-        #### digit 3...
-        $n += 3;
-      }
-    }
-    $len /= 3;
-  }
-  ### end at: "x=$x,y=$y   n=$n"
-  if ($x != 0 || $y != 0) {
-    return undef;
-  }
-  return $n;
-}
+  foreach my $m (reverse @digits) {  # high to low
+    ### $m
+    ### digit: $modulus_to_digit[$state + $m]
+    ### state: $state
+    ### next state: $modulus_to_digit[$state+5 + $m]
 
-# level extends to x= 2*3^level
-#                  level = log3(x/2)
-#
-sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### QuintetCentres rect_to_n_range(): "$x1,$y1  $x2,$y2"
-
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
-  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-
-  #            x2
-  # y2 +-------+      *
-  #    |       |    *
-  # y1 +-------+  *
-  #             *
-  #           *
-  #         *
-  #       ------------------
-  #
-  if ($y2 < 0  || $x2 < $y1) {
-    ### outside first octant
-    return (1,0);
+    $n = 5*$n + $modulus_to_digit[$state + $m];
+    $state = $modulus_to_digit[$state+5 + $m];
   }
-  if (_is_infinite($x2)) {
-    return (0, $x2);
-  }
+  ### final n along arm: $n
 
-  my $n_lo = 1;
-  my $w = 2;
-  while ($w < $x1) {
-    $n_lo *= 4;
-    $w = 2*$w + 2;
-  }
-
-  my $n_hi = 1;
-  $w = 0;
-  while ($w < $x2) {
-    $n_hi *= 4;
-    $w = 2*$w + 2;
-  }
-
-  return ($n_lo-1, $n_hi * $self->{'arms'});
+  return $n*$arms + $arm;
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Mandelbrot Math-PlanePath Nlevel
+=for stopwords eg Ryde Mandelbrot Math-PlanePath
 
 =head1 NAME
 
-Math::PlanePath::MathImageQuintetCentres -- "plus" shape centres
+Math::PlanePath::MathImageQuintetCentres -- self-similar "plus" shape centres
 
 =head1 SYNOPSIS
 
@@ -350,6 +340,62 @@ The base figure is "+" shape of the initial N=0 to N=4,
            . 2 .
            .   .
            .....
+
+=head2 Arms
+
+The optional C<arms> parameter can give up to four copies of the curve, each
+advancing successively.  For example C<arms=E<gt>4> is as follows.  Notice
+the N=4*k points are the plain curve, and N=4*k+1, N=3*k+2 and N=3*k+3 are
+rotated copies of it.
+
+                         69                     ...              7
+                       /  |                        \
+        121     113  73  65--61      53             120          6
+       /   \   /   \   \       \   /   \           /
+    ...     117 105-109  77  29  57  45--49     116              5
+                  |    /   /  |       |            \
+                101  81  25  33--37--41  96-100-104 112          4
+                  |    \   \              |       |/
+             50  97--93  85  21  13  88--92  80 108  72          3
+           /  |       |/      |/   \   \   /   \   /   \
+         54  46--42  89  10  17   5-- 9  84  24  76  64--68      2
+           \      |    /  |       |        /   \      |
+             58  38  14   6-- 2   1  16--20  32--28  60          1
+           /      |    \               \      |    /
+         62  30--34  22--18   3   0-- 4  12  36  56          <- Y=0
+          |    \   /          |       |/      |    \
+     70--66  78  26  86  11-- 7  19   8  91  40--44  52         -1
+       \   /   \   /   \   \   /  |    /  |       |/
+         74 110  82  94--90  15  23  87  95--99  48             -2
+           /  |       |            \   \      |
+        114 106-102--98  43--39--35  27  83 103                 -3
+           \              |       |/   /      |
+            118      51--47  59  31  79 111-107 119     ...     -4
+           /           \   /   \       \   \   /   \   /
+        122              55      63--67  75 115     123         -5
+           \                          |/
+            ...                      71                         -6
+
+                                  ^
+     -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6
+
+The pattern an ever expanding "+" shape with first cell N=0 at the origin.
+The further parts are effectively as follows, though with wiggly spiralling
+sides.  Four parts mesh together and fill the plane.
+
+                +---+
+                |   |
+        +---+---    +---+
+        |   |           |
+    +---+   +---+   +---+
+    |         2 | 1 |   |
+    +---+   +---+---+   +---+
+        |   | 3 | 0         |
+        +---+   +---+   +---+
+        |           |   |
+        +---+   +---+---+
+            |   |
+            +---+
 
 =head1 FUNCTIONS
 

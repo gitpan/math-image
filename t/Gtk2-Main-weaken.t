@@ -37,6 +37,9 @@ MyTestHelpers::glib_gtk_versions();
 eval "use Test::Weaken 3; 1"
   or plan skip_all => "Test::Weaken 3 not available -- $@";
 
+eval { require Test::Weaken::ExtraBits; 1 }
+  or plan skip_all => "due to Test::Weaken::ExtraBits not available -- $@";
+
 plan tests => 1;
 
 require App::MathImage::Gtk2::Main;
@@ -45,13 +48,15 @@ require App::MathImage::Gtk2::Main;
 # Test::Weaken
 
 require Test::Weaken::Gtk2;
-require Test::Weaken::ExtraBits;
 
 sub my_ignore {
   my ($ref) = @_;
 
-  foreach my $aref (Math::NumSeq::Primes->parameter_info_array,
-                    Math::PlanePath::SquareSpiral->MathImage__parameter_info_array) {
+  foreach my $aref ((Math::NumSeq::Primes->can('parameter_info_array')
+                     && Math::NumSeq::Primes->parameter_info_array),
+                    (Math::PlanePath::SquareSpiral->can('parameter_info_array')
+                     && Math::PlanePath::SquareSpiral->parameter_info_array)) {
+    next unless $aref;
     if ($ref == $aref) {
       return 1;
     }

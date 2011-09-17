@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 69;
+our $VERSION = 70;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -83,9 +83,14 @@ sub SET_PROPERTY {
     my $entry = $self->get('child-widget');
     unless ($entry) {
       my $entry_class = 'Gtk2::Entry';
-      if (($newval->{'type_hint'}||'') eq 'oeis_anum') {
+      my $type_hint = ($newval->{'type_hint'} || '');
+      if ($type_hint eq 'oeis_anum') {
         require App::MathImage::Gtk2::OeisEntry;
         $entry_class = 'App::MathImage::Gtk2::OeisEntry';
+      }
+      if ($type_hint eq 'fraction') {
+        require App::MathImage::Gtk2::FractionEntry;
+        $entry_class = 'App::MathImage::Gtk2::FractionEntry';
       }
       $entry = $entry_class->new;
       if (exists $self->{'parameter_value_set'}) {

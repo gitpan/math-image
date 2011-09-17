@@ -74,6 +74,7 @@ my %maximum_planepath
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
+     'Math::PlanePath::RationalsTree'        => 43, # new in v.43
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
 
      'Math::PlanePath::DiamondSpiral'        => 1,
@@ -115,6 +116,7 @@ my %maximum_planepath
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
+     'Math::PlanePath::KochSquareflakes'       => 30, # new in v.30
      'Math::PlanePath::QuadricCurve'         => 41, # new in v.41
      'Math::PlanePath::QuadricIslands'       => 41, # new in v.41
      'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
@@ -275,7 +277,7 @@ my %prereq_pm
      # 'Math::Prime::TiedArray' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
-     'Math::PlanePath' => 40, # v.40 for arms_count()
+     'Math::PlanePath' => 43, # v.43 for parameter_info_array()
      'Math::PlanePath::SquareSpiral' => 1, # at least this path
 
      # my Math-NumSeq
@@ -392,10 +394,11 @@ MyMakeMakerExtras::WriteMakefile
       },
       maximum_tests =>
       { description => 'Have "make test" do as much as possible.',
-        requires => { 'Test::Weaken'           => 3,
-                      'Image::Xpm'             => 0,
-                      'Image::Base::GD'        => 4, # bug fixes
-                      'Image::Base::PNGwriter' => 2, # bug fixes
+        requires => { 'Test::Weaken'            => 3,
+                      'Test::Weaken::ExtraBits' => 1,
+                      'Image::Xpm'              => 0,
+                      'Image::Base::GD'         => 4, # bug fixes
+                      'Image::Base::PNGwriter'  => 2, # bug fixes
                     },
       },
      },

@@ -27,7 +27,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 69;
+$VERSION = 70;
 
 # use constant name => Math::NumSeq::__('Padovan Numbers');
 use constant description => Math::NumSeq::__('Padovan numbers 1, 1, 1, 2, 2, 3, 4, 5, 7, 9, etc, being P(i) = P(i-2) + P(i-3) starting from 1,1,1.');

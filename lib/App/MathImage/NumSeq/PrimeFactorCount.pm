@@ -24,7 +24,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 69;
+$VERSION = 70;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

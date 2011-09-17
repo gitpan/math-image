@@ -29,7 +29,6 @@ use Glib 1.220; # for SOURCE_REMOVE
 use Gtk2 1.220;
 use Gtk2::Ex::ActionTooltips;
 use Gtk2::Ex::NumAxis 2;
-use Number::Format;
 use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 
@@ -45,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 69;
+our $VERSION = 70;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -527,8 +526,7 @@ sub INIT_INSTANCE {
           func_in => sub {
             my ($path) = @_;
             ### Main path parameter info: $path
-            App::MathImage::Generator->path_class($path)
-                ->MathImage__parameter_info_array;
+            App::MathImage::Generator->path_class($path)->parameter_info_array;
           }]);
     ### path_params values to draw...
     Glib::Ex::ConnectProperties->new ([$path_params,'parameter-values'],

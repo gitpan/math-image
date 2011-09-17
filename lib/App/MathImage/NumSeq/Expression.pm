@@ -21,28 +21,30 @@ use strict;
 use Carp;
 use List::Util;
 use Math::Libm;
+use Module::Util;
 
 use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 69;
+$VERSION = 70;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant name => Math::NumSeq::__('Arbitrary Expression');
-use constant description => Math::NumSeq::__('An arbitrary expression.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*x)^2 would give the even perfect squares.
+use constant description => Math::NumSeq::__('An arbitrary expression.  It should have a single variable which will be evaluated at 0,1,2, etc.  For example (2*i)^2 would give the even perfect squares.
 
 Syntax is per the chosen evaluator, an invalid expression displays an error message.
-Math::Symbolic is like 2*x^2.
-Math::Expression::Evaluator is like t=2*x;t^2
+Math::Symbolic is like 2*i^2.
+Math::Expression::Evaluator is like t=2*i;t^2
 Language::Expr is like $k**2 + $k - 1.');
 
 my @evaluators;
 BEGIN {
   @evaluators
-    = ((defined(Module::Util::find_installed('Math::Symbolic'))
+    = ('Perl',
+       (defined(Module::Util::find_installed('Math::Symbolic'))
         ? 'MS' : ()),
        (defined(Module::Util::find_installed('Math::Expression::Evaluator'))
         ? 'MEE' : ()),
@@ -54,9 +56,7 @@ use constant parameter_info_array =>
    { name    => 'expression',
      display => Math::NumSeq::__('Expression'),
      type    => 'string',
-     default => ($evaluators[0] eq 'LE'
-                 ? '3*$x**2 + $x + 2'
-                 : '3*x^2 + x + 2'),
+     default => '3*i^2 + i + 2',
      width   => 30,
      description => Math::NumSeq::__('A mathematical expression giving values to display, for example x^2+x+41.  Only one variable is allowed, see the chosen evaluator Math::Symbolic or Math::Expression::Evaluator for possible operators and function.'),
    },
@@ -65,13 +65,13 @@ use constant parameter_info_array =>
      type    => 'enum',
      default => $evaluators[0],
      choices => \@evaluators,
-     description => Math::NumSeq::__('The expression evaluator module, either MS for Math::Symbolic or MEE for Math::Expression::Evaluator.'),
+     description => Math::NumSeq::__('The expression evaluator module, Perl for Perl itself, MS for Math::Symbolic, MEE for Math::Expression::Evaluator, LE for Language::Expr.'),
    },
                                      ];
 
-### parameter_info_array: parameter_info_array()
-### parameter_info_hash: __PACKAGE__->parameter_info_hash
-### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
+# ### parameter_info_array: parameter_info_array()
+# ### parameter_info_hash: __PACKAGE__->parameter_info_hash
+# ### evaluator default: __PACKAGE__->parameter_default('expression_evaluator')
 
 {
   package App::MathImage::NumSeq::Expression::LanguageExpr;
@@ -119,8 +119,8 @@ sub new {
   } elsif ($evaluator eq 'MEE') {
     require Math::Expression::Evaluator;
     my $me = Math::Expression::Evaluator->new;
-    $me->set_function('min',  \&List::Util::min);
-    $me->set_function('max',  \&List::Util::max);
+    $me->set_function('min', \&List::Util::min);
+    $me->set_function('max', \&List::Util::max);
     $me->parse('pi='.Math::Libm::M_PI()
                .'; e='.Math::Libm::M_E()
                .'; phi=(1+sqrt(5))/2'
@@ -154,7 +154,7 @@ sub new {
     eval { $varef = $le->enum_vars ($expression); 1 }
       or croak "Cannot parse LE expression: $expression\n$@";
     ### $varef
-    my @vars = grep {
+    my @vars = grep {   # only vars, not functions as such
       do {
         no strict;
         ! defined ${"App::MathImage::NumSeq::Expression::LanguageExpr::$_"}
@@ -179,6 +179,65 @@ sub new {
       or croak "Cannot compile $expression\n$perlstr\n$@";
     ### $subr
     ### at zero: $subr->(0)
+
+  } elsif ($evaluator eq 'Perl') {
+    require Safe;
+    my $safe = Safe->new;
+    $safe->permit('print',
+                  ':base_math',  # sqrt(), rand(), etc
+                 );
+    if (eval { require List::Util; 1 }) {
+      $safe->share_from('List::Util', [ 'min','max' ]);
+    }
+    require POSIX;
+    $safe->share_from('POSIX', [ 'floor','ceil' ]);
+    require Math::Trig;
+    $safe->share_from('Math::Trig', [qw(tan
+                                        asin acos atan
+                                        csc cosec sec cot cotan
+                                        acsc acosec asec acot acotan
+                                        sinh cosh tanh
+                                        csch cosech sech coth cotanh
+                                        asinh acosh atanh
+                                        acsch acosech asech acoth acotanh
+                                      )]);
+    require Math::Libm;
+    $safe->share_from('Math::Libm', [qw(cbrt
+                                        erf
+                                        erfc
+                                        expm1
+                                        hypot
+                                        j0
+                                        j1
+                                        jn
+                                        lgamma_r
+                                        log10
+                                        log1p
+                                        pow
+                                        rint
+                                        y0
+                                        y1
+                                        yn)]);
+
+    my $pi = Math::Libm::M_PI();
+    my $e  = Math::Libm::M_E();
+    $subr = $safe->reval("#line ".(__LINE__+2)." \"".__FILE__."\"\n"
+                         . <<"HERE");
+my \$pi = $pi;
+my \$e = $e;
+my \$phi = (1+sqrt(5))/2;
+my \$gam = 0.5772156649015328606065120;
+my \$i;
+sub i { return \$i }
+sub {
+  \$i = local \$_ = \$_[0];
+  return do { $expression }
+}
+HERE
+    ### $subr
+    if (! $subr) {
+      croak "Invalid or unsafe expression: $@\n";
+    }
 
   } else {
     croak "Unknown evaluator: $evaluator";
@@ -244,3 +303,97 @@ sub next {
 
 1;
 __END__
+
+=for stopwords Ryde Math-NumSeq
+
+=head1 NAME
+
+Math::NumSeq::Expression -- mathematical expression values
+
+=head1 SYNOPSIS
+
+ use Math::NumSeq::Expression;
+ my $seq = Math::NumSeq::Expression->new (expression => '2*i+1');
+ my ($i, $value) = $seq->next;
+
+=head1 DESCRIPTION
+
+I<In progress ...>
+
+An expression string evaluated at i=0, 1, 2, etc.  There's a choice of
+evaluators for the given string, according to which evaluator modules are
+available.
+
+=head2 Perl
+
+The default C<expression_evaluator =E<gt> 'Perl'> is to evaluate the input
+string with Perl itself, compiled using the C<Safe> module so as to restrict
+it to arithmetic.  This is always available.
+
+The C<$i> sequence index is in ...
+
+The functions made available include
+
+    atan2 sin cos exp log                 \    Perl builtins
+      sqrt rand                           /
+    min max                               List::Util (currently)
+    floor ceil                            POSIX module
+    cbrt hypot erf erfc expm1             \
+      j0 j1 jn lgamma_r log10              |  Math::Libm
+      log1p pow rint y0 y1 yn             /
+    tan asin acos atan                    \
+      csc cosec sec cot cotan              |  Math::Trig
+      acsc acosec asec acot acotan         |
+      sinh cosh tanh                       |
+      csch cosech sech coth cotanh         |
+      asinh acosh atanh                    |
+      acsch acosech asech acoth acotanh   /
+
+=head2 Math-Symbolic
+
+C<expression_evaluator =E<gt> 'MS'> selects the C<Math::Symbolic> module, if
+available.
+
+The expression should use a single variable, of any name, which will be the
+C<$i> index in the sequence.
+
+=head2 Math-Expression-Evaluator
+
+C<expression_evaluator =E<gt> 'MEE'> selects the
+C<Math::Expression::Evaluator> module, if
+available.
+
+The expression should use a single input variable, of any name, which will
+be the C<$i> index in the sequence.  Temporary variables can be
+
+=head2 Language-Expr
+
+C<expression_evaluator =E<gt> 'LE'> selects the C<Language::Expr> module.
+See L<Language::Expr::Manual::Syntax> for its expression syntax, if
+available.
+
+The expression should use a single variable, of any name, which will be the
+C<$i> index in the sequence.
+
+=head1 FUNCTIONS
+
+See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
+
+=over 4
+
+=item C<$seq = Math::NumSeq::Expression-E<gt>new (radix =E<gt> $r, modulus =E<gt> $d)>
+
+Create and return a new sequence object.
+
+=item C<$value = $seq-E<gt>ith($i)>
+
+Return the C<expression> evaluated at C<$i>.
+
+=back
+
+=head1 SEE ALSO
+
+L<Math::NumSeq>,
+L<Safe>
+
+=cut

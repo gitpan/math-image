@@ -31,9 +31,9 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use App::MathImage::Gtk2::Ex::ArrowButton;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-our $VERSION = 69;
+our $VERSION = 70;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -98,6 +98,7 @@ sub INIT_INSTANCE {
   $entry->signal_connect (scroll_event => \&_do_scroll_event);
   $entry->signal_connect (activate => \&_do_entry_activate);
   $entry->signal_connect (insert_text => \&_do_entry_insert_text);
+  $entry->signal_connect (populate_popup => \&_do_entry_populate_popup);
   $entry->show;
   # $self->add ($entry);
   $self->pack_start ($entry, 1,1,0);
@@ -148,7 +149,9 @@ sub SET_PROPERTY {
   if ($pname eq 'text' || $pname eq 'width_chars') {
     return $self->{'entry'}->set_property ($pname, $newval);
   }
-  return $self->{$pname};
+  if ($pname eq 'text') {
+    _update_sensitive($self);
+  }
 }
 
 # 'size-request' class handler
@@ -200,6 +203,71 @@ sub _do_entry_insert_text {
   return;
 }
 
+sub _do_entry_populate_popup {
+  my ($entry, $menu) = @_;
+  ### _do_entry_populate_popup(): @_
+  my $self = $entry->get_ancestor(__PACKAGE__) || return;
+  my $weak_self = $self;
+  Scalar::Util::weaken($self);
+  {
+    my $item = Gtk2::MenuItem->new_with_mnemonic (__('Open Web _Browser'));
+    $menu->append ($item);
+    $item->signal_connect (activate => \&_do_browser, \$weak_self);
+    $item->show;
+  }
+  {
+    my $item = $self->{'browser_local'} 
+      = Gtk2::MenuItem->new_with_mnemonic (__('Open Web _Browser - Local Page'));
+    $menu->append ($item);
+    $item->signal_connect (activate => \&_do_browser_local, \$weak_self);
+    _update_sensitive($self);
+    $item->show;
+  }
+}
+sub _update_sensitive {
+  my ($self) = @_;
+  if (my $item = $self->{'browser_local'}) {
+    if (my $anum = $self->get('text')) {
+      my $filename = _anum_to_filename($anum);
+      $item->set_sensitive (-e $filename);
+    }
+  }
+}
+sub _do_browser {
+  my ($item, $ref_weak_self) = @_;
+  ### _do_browser(): @_
+  my $self = $$ref_weak_self || return;
+  my $anum = $self->get('text') || return;
+  ### $anum
+  _browse_url ("http://oeis.org/$anum", $item);
+}
+sub _do_browser_local {
+  my ($item, $ref_weak_self) = @_;
+  ### _do_browser_local(): @_
+  my $self = $$ref_weak_self || return;
+  my $anum = $self->get('text') || return;
+  _browse_url ("file://"._anum_to_filename($anum), $item);
+}
+sub _browse_url {
+  my ($url, $parent_widget) = @_;
+  ### _browse_url(): $url
+  if (Gtk2->can('show_uri')) { # new in Gtk 2.14
+    my $screen = $parent_widget && $parent_widget->get_screen;
+    if (eval { Gtk2::show_uri ($screen, $url); 1 }) {
+      return;
+    }
+    # possible Glib::Error "operation not supported" on http urls
+    ### show_uri() error: $@
+  }
+}
+sub _anum_to_filename {
+  my ($anum) = @_;
+  require File::Spec;
+  require File::HomeDir;
+  return File::Spec->catfile (File::HomeDir->my_home,
+                              'OEIS', "$anum.html");
+}
+
 sub _do_entry_activate {
   my ($entry) = @_;
   my $self = $entry->get_ancestor (__PACKAGE__) || return;
@@ -212,6 +280,7 @@ sub _do_arrow_clicked {
   _scroll ($self, $button->{'direction'}, 1);
 }
 
+# arrow button 'scroll-event' handler
 sub _do_scroll_event {
   my ($child, $event) = @_;
   my $self = $child->get_ancestor (__PACKAGE__) || return;

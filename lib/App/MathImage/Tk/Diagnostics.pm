@@ -31,7 +31,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkDiagonostics');
 
-our $VERSION = 69;
+our $VERSION = 70;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -345,9 +345,6 @@ sub hash_format {
 # force LC_NUMERIC to the locale, whereas perl normally runs with "C"
 use constant::defer number_formatter => sub {
   ### number_formatter() ...
-  # eval { require Number::Format; 1 };
-  # my $err = $@;
-  # ### $err
   eval { require Number::Format; 1 } || return undef;
   require POSIX;
   my $oldlocale = POSIX::setlocale(POSIX::LC_NUMERIC());

@@ -26,6 +26,20 @@ use Smart::Comments;
 use lib 'devel/lib';
 
 {
+  my $expression = '$k = $i; $k*$phi';
+
+  require Safe;
+  my $safe = Safe->new;
+  ### hypot: $safe->reval('hypot(3,4)')
+  ### subr: $safe->reval('sub { 123 }')
+  # print "_[0] = ".(defined \$_[0] ? \$_[0] : 'undef')."\n";
+
+  } else {
+    print $subr->(10);
+  }
+  exit 0;
+}
+{
   require Math::Sequence;
   my $seq = Math::Sequence->new ('3*x', 2, 'x');
   { my $expr = $seq->next;

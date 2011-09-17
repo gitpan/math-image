@@ -21,16 +21,16 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageTwinDragon --lines --scale=10
-# math-image --path=MathImageTwinDragon --all --output=numbers_dash --size=80x50
+# math-image --path=MathImageComplexMinus --lines --scale=10
+# math-image --path=MathImageComplexMinus --all --output=numbers_dash --size=80x50
 
-package Math::PlanePath::MathImageTwinDragon;
+package Math::PlanePath::MathImageComplexMinus;
 use 5.004;
 use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -41,6 +41,14 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
+
+use constant parameter_info_array =>
+  [ { name      => 'realpart',
+      type      => 'integer',
+      default   => 1,
+      minimum   => 1,
+      width     => 2,
+    } ];
 
 sub new {
   my $class = shift;
@@ -55,7 +63,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MathImageTwinDragon n_to_xy(): $n
+  ### MathImageComplexMinus n_to_xy(): $n
 
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -104,7 +112,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MathImageTwinDragon xy_to_n(): "$x, $y"
+  ### MathImageComplexMinus xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
@@ -145,7 +153,7 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImageTwinDragon rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### MathImageComplexMinus rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = abs($x1);
   $y1 = abs($y1);
@@ -171,20 +179,20 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageTwinDragon -- points in complex number base i-r
+Math::PlanePath::MathImageComplexMinus -- complex number base i-r, including "twindragon"
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageTwinDragon;
- my $path = Math::PlanePath::MathImageTwinDragon->new (realpart=>1);
+ use Math::PlanePath::MathImageComplexMinus;
+ my $path = Math::PlanePath::MathImageComplexMinus->new (realpart=>1);
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
 I<In progress.>
 
-This an integer version of the "twindragon" formed from the complex number
-base i-1, and other i-r.
+This path traverses points by complex number base i-r.  The default is base
+i-1 giving an integer version of the "twindragon".
 
            26  27          10  11                             3
                24  25           8   9                         2
@@ -200,30 +208,30 @@ base i-1, and other i-r.
                         ^
     -5  -4  -3  -2 -1  X=0  1   2   3   4   5   6   7
 
-With base b=i-1, a complex integer can be represented by
+With base b=i-1, a complex integer can be represented
 
-    X+Yi = a[n]*b^n + ... + a2*b^2 + a1*b + a0
+    X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-where the digits a[n] to a0 are each either 0 or 1.  The index N is those a[i]
-in binary and the X,Y is the resulting complex number.  It can be shown that
-this is a one-to-one transformation, that every integer point of the plane
-is visited, just once.
+The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] as bits, the
+X,Y is the resulting complex number.  It can be shown that this is a
+one-to-one transformation so every integer point of the plane is visited.
 
-The pattern of a given 0 to 2^level-1 is repeated in the following 2^level
-to (2*2^level)-1.  For example the shape of N=0 to N=7 is repeated as N=8 to
-N=15, but starting up at X=2,Y=2.  This is due to the base b^3 = 2+2i.
-There's no rotations or mirroring etc in this replication, just a simple
-shift.
+The shape of a given N=0 to N=2^level-1 range is repeated in the next
+N=2^level to N=(2*2^level)-1.  For example the N=0 to N=7 is repeated as N=8
+to N=15, starting at X=2,Y=2 instead of the origin.  That 2,2 is because b^3
+= 2+2i.  There's no rotations or mirroring etc in this replication, just the
+position.
 
-Each each N=2^level point is at b^level, and that powering of the base
-rotates around by +135 degrees and a factor sqrt(2) on the radius each time.
-So for example b^3 = 2+2i is followed by b^4 = -4 which is 135 degrees
-around, and the radius |b^3|=sqrt(8) becomes |b^4|=sqrt(16).
+In general each N=2^level point starts at b^level.  The powering of that b
+means the start rotates around by +135 degrees each time, and outward by a
+factor sqrt(2) on the radius.  So for example b^3 = 2+2i is followed by b^4
+= -4, which is 135 degrees around, and radius |b^3|=sqrt(8) becomes
+|b^4|=sqrt(16).
 
 =head2 Real Part
 
-The C<realpart> option gives complex bases i-r for a given rE<gt>=1.  For
-example C<realpart =E<gt> 2> is
+The C<realpart =E<gt> $r> option gives a complex base b=i-r for a given
+rE<gt>=1.  For example C<realpart =E<gt> 2> is
 
     20 21 22 23 24                                               4
           15 16 17 18 19                                         3
@@ -241,21 +249,22 @@ example C<realpart =E<gt> 2> is
                              ^
     -8 -7  -6 -5-4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10
 
-N is broken into digits of base norm=r*r+1.  This makes horizontal runs of
-norm many points, such as N=0 to N=4, then N=5 to N=9, etc.  For the default
-r=1 above these are 2 long, for r=2 they're 2*2+1=5, r=3 would be 3*3+1=10,
-etc.
+N is broken into digits 0 to r*r, inclusive.  This makes horizontal runs of
+norm=r*r+1 many points, for example N=0 to N=4, then N=5 to N=9, etc.  In
+the default r=1 above these are 2 long, whereas for r=2 they're 2*2+1=5
+long, or r=3 would be 3*3+1=10, etc.
 
 The offset back for each run like N=5 shown is the r in i-r, then the next
 level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at X=-2*2=-4,Y=2*2-1=3.
 
-The successive replications end up tiling the plane, though the N values to
-come around and do so may become large if the norm=r*r+1 is large.
+The successive replications end up tiling the plane for any r, though the N
+values needed to come around and do so may become large if the norm=r*r+1 is
+large.
 
 =head2 Radius Range
 
-In general, after the first few innermost levels, each N=2^level increases
-the covered radius around by a factor sqrt(2), ie.
+In general for i-1 after the first few innermost levels each N=2^level
+increases the covered radius around by a factor sqrt(2), ie.
 
     N = 0 to 2^level-1
     Xmin,Ymin closest to origin
@@ -267,17 +276,17 @@ until N=58.  But after that it grows like N approx = pi*R^2.
 
 =head2 Fractal
 
-The twindragon is generally conceived as taking fractional N like binary
-0.abcde and giving complex components X,Y components.  The twindragon is
-then all the points of the real plane reached by such N -- which can be
-shown to be connected and having a certain radius around the origin which is
-completely covered.
+The i-1 twindragon is generally conceived as taking fractional N like
+0.abcde in binary and giving fractional complex components X,Y.  The
+twindragon is then all the points of the complex plane reached by such N.
+Those points can be shown to be connected and cover a certain radius around
+the origin which is completely covered.
 
-The code here might be pressed into use for that, for some finite number of
-N digits, by taking a suitable power N*256^k to get an integer then X/16^k,
-Y/16^k for fractions X,Y.  256 is a good base because b^8=16 so there's no
-rotations to apply to the X,Y, just a division.  (b^4=-4 for multiplier 16^k
-and divisor (-4)^k would be almost as easy too.)
+The code here might be pressed into use for that for finite bits of N by
+taking a suitable power N*256^k to get an integer then use X/16^k, Y/16^k
+for fractional coordinates.  256 is a good base because b^8=16 so there's no
+rotations to apply to the X,Y, just a division.  b^4=-4 for multiplier 16^k
+and divisor (-4)^k would be almost as easy too.
 
 =head1 FUNCTIONS
 
@@ -286,9 +295,9 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageTwinDragon-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageComplexMinus-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::MathImageTwinDragon-E<gt>new (realpart =E<gt> $r)>
+=item C<$path = Math::PlanePath::MathImageComplexMinus-E<gt>new (realpart =E<gt> $r)>
 
 Create and return a new path object.
 

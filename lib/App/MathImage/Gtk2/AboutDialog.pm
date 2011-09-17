@@ -23,13 +23,13 @@ use Glib;
 use Gtk2;
 use Locale::TextDomain ('Math-Image');
 
-our $VERSION = 69;
+our $VERSION = 70;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';
 
 # this applies to the whole program
-my $copyright_string = __('Copyright (C) 2010 Kevin Ryde');
+my $copyright_string = __('Copyright (C) 2010, 2011 Kevin Ryde');
 
 sub popup {
   my ($self, $parent) = @_;

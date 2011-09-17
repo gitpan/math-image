@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            69
+version:            70
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -73,7 +73,7 @@ requires:
     Math::NumSeq::DigitCount:  4
     Math::NumSeq::Polygonal:  1
     Math::NumSeq::Primes:  4
-    Math::PlanePath:      40
+    Math::PlanePath:      43
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SquareSpiral:  1
@@ -224,6 +224,7 @@ optional_features:
             Math::PlanePath::KochCurve:  30
             Math::PlanePath::KochPeaks:  30
             Math::PlanePath::KochSnowflakes:  30
+            Math::PlanePath::KochSquareflakes:  30
             Math::PlanePath::MultipleRings:  15
             Math::PlanePath::OctagramSpiral:  21
             Math::PlanePath::PeanoCurve:  36
@@ -236,6 +237,7 @@ optional_features:
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::QuadricCurve:  41
             Math::PlanePath::QuadricIslands:  41
+            Math::PlanePath::RationalsTree:  43
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
@@ -333,6 +335,7 @@ optional_features:
             Math::PlanePath::KochCurve:  30
             Math::PlanePath::KochPeaks:  30
             Math::PlanePath::KochSnowflakes:  30
+            Math::PlanePath::KochSquareflakes:  30
             Math::PlanePath::MultipleRings:  15
             Math::PlanePath::OctagramSpiral:  21
             Math::PlanePath::PeanoCurve:  36
@@ -345,6 +348,7 @@ optional_features:
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::QuadricCurve:  41
             Math::PlanePath::QuadricIslands:  41
+            Math::PlanePath::RationalsTree:  43
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
@@ -366,6 +370,7 @@ optional_features:
             Image::Base::PNGwriter:  2
             Image::Xpm:           0
             Test::Weaken:         3
+            Test::Weaken::ExtraBits:  1
     tk_interface:
         description:  Tk GUI modules.
         requires:
@@ -453,6 +458,7 @@ recommends:
     Math::PlanePath::KochCurve:  30
     Math::PlanePath::KochPeaks:  30
     Math::PlanePath::KochSnowflakes:  30
+    Math::PlanePath::KochSquareflakes:  30
     Math::PlanePath::MultipleRings:  15
     Math::PlanePath::OctagramSpiral:  21
     Math::PlanePath::PeanoCurve:  36
@@ -465,6 +471,7 @@ recommends:
     Math::PlanePath::PythagoreanTree:  26
     Math::PlanePath::QuadricCurve:  41
     Math::PlanePath::QuadricIslands:  41
+    Math::PlanePath::RationalsTree:  43
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  32

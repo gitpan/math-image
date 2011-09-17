@@ -1,3 +1,7 @@
+# setting -file dodgy ...
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -23,7 +27,7 @@ use Carp;
 use Image::BMP ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Image::Base;
 @ISA = ('Image::Base');
@@ -61,6 +65,7 @@ my %attr_to_get_field = (-width    => 'Width',
                          -file     => 'file',
                          -ncolours => 'ColorsUsed',
                         );
+### %attr_to_get_field
 sub _get {
   my ($self, $key) = @_;
   ### Image-Base-BMP _get(): $key
@@ -88,7 +93,10 @@ sub set {
     $self->{'-imagebmp'} = $bmp;
   }
 
-  foreach my $key (%param) {
+  foreach my $key (keys %param) {
+    ### $key
+    ### value: $param{$key}
+    ### field: $attr_to_get_field{$key}
     if (my $field = $attr_to_get_field{$key}) {
       $self->{'-imagebmp'}->{$field} = delete $param{$key};
     }
@@ -102,8 +110,10 @@ sub load {
   ### Image-Base-BMP load(): @_
   my $bmp = $self->{'-imagebmp'};
   if (@_ == 1) {
+    ### load() existing ...
     $bmp->load;
   } else {
+    ### load(): $filename
     $bmp->load($filename);
   }
 }
@@ -161,8 +171,8 @@ App::MathImage::Image::Base::BMP -- draw BMP images using Image::BMP
  use App::MathImage::Image::Base::BMP;
  my $image = App::MathImage::Image::Base::BMP->new (-width => 100,
                                                     -height => 100);
- $image->rectangle (0,0, 99,99, 'white');
- $image->xy (20,20, 'black');
+ $image->rectangle (0,0, 99,99, '#FFF'); # white
+ $image->xy (20,20, '#000');             # black
  $image->line (50,50, 70,70, '#FF00FF');
  $image->line (50,50, 70,70, '#0000AAAA9999');
  $image->save ('/some/filename.bmp');
@@ -212,9 +222,9 @@ Or an C<Image::BMP> object can be given,
 
 There's no image clone as yet.
 
-=item C<< $image->load >>
+=item C<$image-E<gt>load ()>
 
-=item C<< $image->load ($filename) >>
+=item C<$image-E<gt>load ($filename)>
 
 Read the C<-file>, or set C<-file> to C<$filename> and then read.
 

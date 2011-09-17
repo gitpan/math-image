@@ -30,7 +30,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -56,6 +56,15 @@ sub arms_count {
   my ($self) = @_;
   return $self->{'arms'};
 }
+
+use constant parameter_info_array => [ { name      => 'arms',
+                                         share_key => 'arms_8',
+                                         type      => 'integer',
+                                         minimum   => 1,
+                                         maximum   => 8,
+                                         default   => 1,
+                                         width     => 1,
+                                       } ];
 
 sub new {
   my $class = shift;

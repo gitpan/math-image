@@ -62,7 +62,7 @@ sub max {
 
 sub is {
   &$handle_input();
-  if (Test::More->can('is')) {
+  if (eval { Test::More->can('is') }) {
     if (defined $skip) {
     SKIP: {
         &Test::More::skip ($skip, 1); # no prototypes
@@ -120,11 +120,13 @@ sub dump_image {
   if (my $canvas = $image->get('-tkcanvas')) {
     my @items = $canvas->find('all');
     MyTestHelpers::diag("item count ",scalar(@items));
-    foreach my $item (@items) {
+    my $item;
+    foreach $item (@items) {
       my $type = $canvas->type($item);
       my @coords = $canvas->coords($item);
       my @opts;
-      foreach my $spec ($canvas->itemconfigure($item)) {
+      my $spec;
+      foreach $spec ($canvas->itemconfigure($item)) {
         my $key = $spec->[0];
         if ($key eq '-fill') {
           my $value = $canvas->itemcget($item,$key);

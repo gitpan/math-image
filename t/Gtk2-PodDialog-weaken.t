@@ -29,7 +29,6 @@ use MyTestHelpers;
 # BEGIN { MyTestHelpers::nowarnings() }
 
 use Test::Weaken::Gtk2;
-use Test::Weaken::ExtraBits; # in 't' dir
 
 use Gtk2;
 Gtk2->init_check
@@ -42,6 +41,9 @@ eval { require Gtk2::Ex::PodViewer }
 # Test::Weaken 3 for "contents"
 eval "use Test::Weaken 3; 1"
   or plan skip_all => "due to Test::Weaken 3 not available -- $@";
+
+eval { require Test::Weaken::ExtraBits; 1 }
+  or plan skip_all => "due to Test::Weaken::ExtraBits not available -- $@";
 
 plan tests => 1;
 

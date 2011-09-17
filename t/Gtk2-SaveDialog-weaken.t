@@ -28,7 +28,6 @@ BEGIN { MyTestHelpers::nowarnings() }
 
 use App::MathImage::Gtk2::SaveDialog;
 use Test::Weaken::Gtk2;
-use Test::Weaken::ExtraBits; # in 't' dir
 
 use Gtk2;
 Gtk2->init_check
@@ -38,6 +37,9 @@ MyTestHelpers::glib_gtk_versions();
 # Test::Weaken 3 for "contents"
 eval "use Test::Weaken 3; 1"
   or plan skip_all => "Test::Weaken 3 not available -- $@";
+
+eval { require Test::Weaken::ExtraBits; 1 }
+  or plan skip_all => "due to Test::Weaken::ExtraBits not available -- $@";
 
 plan tests => 1;
 

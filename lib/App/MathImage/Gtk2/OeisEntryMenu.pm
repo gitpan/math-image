@@ -22,7 +22,7 @@ use warnings;
 use Gtk2;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 69;
+our $VERSION = 70;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',
@@ -46,6 +46,20 @@ sub INIT_INSTANCE {
     $item->signal_connect (activate => \&_do_download);
     $item->show;
   }
+  {
+    my $item = $self->{'browser'}
+      = Gtk2::MenuItem->new_with_mnemonic (__('_Browser'));
+    $self->append ($item);
+    $item->signal_connect (activate => \&_do_browser);
+    $item->show;
+  }
+  {
+    my $item = $self->{'browser_local'}
+      = Gtk2::MenuItem->new_with_mnemonic (__('_Browser Local'));
+    $self->append ($item);
+    $item->signal_connect (activate => \&_do_browser);
+    $item->show;
+  }
 }
 
 sub SET_PROPERTY {
@@ -59,6 +73,9 @@ sub _update_sensitive {
   my ($self) = @_;
   my $anum = $self->{'anum'};
   $self->{'download'}->set_sensitive (!! $anum);
+
+  my $filename = _anum_to_filename($anum);
+  $self->{'browser_local'}->set_sensitive (-e $filename);
 }
 
 sub _do_download {
@@ -66,6 +83,38 @@ sub _do_download {
   my $self = $item->get_toplevel;
   my $anum = $self->{'anum'} || return;
 
+}
+sub _do_browser {
+  my ($item) = @_;
+  my $self = $item->get_toplevel;
+  my $anum = $self->{'anum'} || return;
+  _browse_url ("http://oeis.org/$anum", $item);
+}
+sub _do_browser_local {
+  my ($item) = @_;
+  my $self = $item->get_toplevel;
+  my $anum = $self->{'anum'} || return;
+  require File::HomeDir;
+  _browse_url ("file://"._anum_to_filename($anum), $item);
+}
+
+sub _anum_to_filename {
+  my ($anum) = @_;
+  require File::Spec;
+  return File::Spec->catfile (File::HomeDir->my_home,
+                              'OEIS', "$anum.html");
+}
+
+sub _browse_url {
+  my ($url, $parent_widget) = @_;
+  if (Gtk2->can('show_uri')) { # new in Gtk 2.14
+    my $screen = $parent_widget && $parent_widget->get_screen;
+    if (eval { Gtk2::show_uri ($screen, $url); 1 }) {
+      return;
+    }
+    # possible Glib::Error "operation not supported" on http urls
+    ### show_uri() error: $@
+  }
 }
 
 sub popup_from_entry {
