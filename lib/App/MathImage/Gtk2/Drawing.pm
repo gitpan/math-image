@@ -24,7 +24,6 @@ use Carp;
 use List::Util qw(min max);
 use POSIX ();
 use Scalar::Util;
-use List::MoreUtils;
 use Module::Load;
 use App::MathImage::Generator;
 use Glib 1.220; # for Glib::SOURCE_REMOVE and probably more
@@ -43,7 +42,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -322,13 +321,12 @@ sub _adjustment_value_changed {
 
 sub _do_expose {
   my ($self, $event) = @_;
-  ### Image _do_expose(): $event->area->values
+  ### Drawing _do_expose(): $event->area->values
   ### _pixmap_is_good says: _pixmap_is_good($self)
   #### $self
   my $win = $self->window;
   $self->pixmap;
   Gtk2::Ex::GdkBits::window_clear_region ($win, $event->region);
-  $win->clear_area ($event->area->values);
   if (my $pixmap = $self->{'generator'}->{'pixmap'}) {
     $win->draw_drawable ($self->style->black_gc, $pixmap,
                          $event->area->x,
@@ -336,13 +334,6 @@ sub _do_expose {
                          $event->area->values);
   }
   return Gtk2::EVENT_PROPAGATE;
-}
-
-sub _pixmap_is_good {
-  my ($self) = @_;
-  ### _pixmap_is_good() pixmap: $self->{'pixmap'}
-  my $pixmap = $self->{'pixmap'};
-  return ($pixmap && _drawable_size_equal($pixmap,$self->window));
 }
 
 sub pixmap {
@@ -353,6 +344,12 @@ sub pixmap {
     $self->start_drawing_window ($self->window);
   }
   return $self->{'pixmap'};
+}
+sub _pixmap_is_good {
+  my ($self) = @_;
+  ### _pixmap_is_good() pixmap: $self->{'pixmap'}
+  my $pixmap = $self->{'pixmap'};
+  return ($pixmap && _drawable_size_equal($pixmap,$self->window));
 }
 
 sub gen_object {
@@ -426,19 +423,10 @@ sub start_drawing_window {
   my ($self, $window) = @_;
 
   $self->widgetcursor->active(1);
-
-  my (undef, undef, $width, $height) = $self->allocation->values;
-  my $style = $self->style;
-  my $background_colorobj = $style->bg($self->state);
-  my $foreground_colorobj = $style->fg($self->state);
-  $window->set_background ($background_colorobj);
-
-  my $undrawnground_colorobj = Gtk2::Gdk::Color->new
-    (map {0.8 * $background_colorobj->$_()
-            + 0.2 * $foreground_colorobj->$_()}
-     'red', 'blue', 'green');
-  if (my $colormap = $window->get_colormap) {
-    $colormap->rgb_find_color ($undrawnground_colorobj);
+  {
+    my $style = $self->style;
+    my $background_colorobj = $style->bg($self->state);
+    $window->set_background ($background_colorobj);
   }
 
   my $gen = $self->{'generator'}

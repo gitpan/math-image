@@ -33,7 +33,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 use Glib::Object::Subclass 'Gtk2::Dialog',
   properties => [
@@ -210,12 +210,11 @@ sub _do_viewer_link_clicked {
 }
 
 sub _empty {
-  my ($viewer, $target, $filename) = @_;
+  my ($viewer, $target) = @_;
   my $textbuf = $viewer->get_buffer;
   $textbuf->delete ($textbuf->get_start_iter, $textbuf->get_end_iter);
   $textbuf->insert ($textbuf->get_start_iter,
-                    __x("Nothing for {target}\n",
-                        target => $target));
+                    __x("Nothing for {target}\n", target => $target));
 }
 
 1;

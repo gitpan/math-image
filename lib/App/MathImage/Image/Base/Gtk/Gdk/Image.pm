@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Image::Base;
 @ISA = ('Image::Base');
@@ -62,8 +62,7 @@ sub new {
   return $self;
 }
 
-my %attr_to_get_method = (-colormap   => 'get_colormap',
-                          -visual     => 'get_visual',
+my %attr_to_get_method = (-visual     => 'get_visual',
                           -width      => 'get_width',
                           -height     => 'get_height',
                           -depth      => 'get_depth',
@@ -80,17 +79,14 @@ sub _get {
   return $self->SUPER::_get($key);
 }
 
-sub set {
-  my ($self, %params) = @_;
-  ### Image-GdkImage set(): \%params
-
-  %$self = (%$self, %params);
-
-  if (defined (my $colormap = delete $self->{'-colormap'})) {
-    $self->{'-gdkimage'}->set_colormap ($colormap);
-  }
-  ### set leaves: $self
-}
+# sub set {
+#   my ($self, %params) = @_;
+#   ### Image-GdkImage set(): \%params
+# 
+#   %$self = (%$self, %params);
+# 
+#   ### set leaves: $self
+# }
 
 sub xy {
   my ($self, $x, $y, $colour) = @_;
@@ -119,10 +115,7 @@ sub colour_to_pixel {
   }
 
   my $gdkimage = $self->{'-gdkimage'};
-  if (my $colormap = $gdkimage->get_colormap) {
-    # think parse and rgb_find are client-side operations, no need to cache
-    # the results
-    #
+  if (my $colormap = $self->get('-colormap') || Gtk::Gdk::Colormap->get_system) {
     my $colorobj = Gtk::Gdk::Color->parse_color ($colour)
       || croak "Cannot parse colour: $colour";
     $colormap->rgb_find_color ($colorobj);
@@ -131,9 +124,9 @@ sub colour_to_pixel {
     return $colorobj->pixel;
   }
   if ($gdkimage->get_depth == 1) {
-    if ($colour =~ /^#(000000)+$/) {
+    if ($colour =~ /^#(000)+$/) {
       return 0;
-    } elsif ($colour  =~ /^#(FFFFFF)+$/i) {
+    } elsif ($colour  =~ /^#(FFF)+$/i) {
       return 1;
     }
   }
@@ -143,7 +136,7 @@ sub colour_to_pixel {
 sub pixel_to_colour {
   my ($self, $pixel) = @_;
   ### pixel_to_colour: $pixel
-  if (my $colormap = $self->{'-gdkimage'}->get_colormap) {
+  if (my $colormap = $self->get('-colormap')) {
     my $colorobj = $colormap->query_color($pixel);
     ### in colormap: $colorobj->to_string
     ### pixel: $colorobj->pixel
@@ -184,17 +177,15 @@ C<App::MathImage::Image::Base::Gtk::Gdk::Image> is a subclass of C<Image::Base>,
 
 I<In progress ...>
 
-C<App::MathImage::Image::Base::Gtk::Gdk::Image> extends C<Image::Base> to create and draw
-into GdkImage objects.  It requires Perl-Gtk 1.240 for the full GdkImage
-support there.  A GdkImage is pixel data in client-side memory.  There's no
-file load or save, just drawing operations.
+C<App::MathImage::Image::Base::Gtk::Gdk::Image> extends C<Image::Base> to
+create and draw into GdkImage objects.  A GdkImage is pixel data in
+client-side memory.  There's no file load or save, just drawing operations.
 
 Colour names are raw integer pixel values, and special names "set" and
-"clear" for pixel values 1 and 0 to use with bitmaps.  If the GdkImage has a
-colormap then also anything recognised by
+"clear" for pixel values 1 and 0 to use with bitmaps.  If the C<-colormap>
+attribute is set then also anything recognised by
 C<< Gtk::Gdk::Color->parse_color() >>, such as "pink" and hex #RRGGBB or
-#RRRRGGGGBBB.  As of Gtk 2.20 the colour names are the Pango compiled-in
-copy of the X11 F<rgb.txt>.
+#RRRRGGGGBBB.
 
 A GdkImage is designed to copy pixel data between client memory and a window
 (or pixmap) on the server.  Because it uses a C<Gtk::Gdk::Visual> it's

@@ -25,7 +25,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 
 use constant name => Math::NumSeq::__('Multiples of a given K');
 use constant description => Math::NumSeq::__('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');

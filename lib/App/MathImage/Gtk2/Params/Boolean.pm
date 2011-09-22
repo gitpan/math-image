@@ -24,7 +24,7 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 # Gtk2::ToggleToolButton
 use Gtk2::Ex::ToolItem::CheckButton;
@@ -55,7 +55,7 @@ sub _do_notify {
 }
 
 sub GET_PROPERTY {
-  my ($self, $pspec, $newval) = @_;
+  my ($self) = @_;  # ($self, $pspec)
   return $self->get_active;
 }
 sub SET_PROPERTY {

@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Base::FileWriter;
 # VERSION
 
 {
-  my $want_version = 70;
+  my $want_version = 71;
   is ($App::MathImage::NumSeq::Base::File::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Base::File->VERSION,  $want_version, 'VERSION class method');
 

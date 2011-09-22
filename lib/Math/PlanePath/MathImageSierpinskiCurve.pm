@@ -27,10 +27,9 @@ package Math::PlanePath::MathImageSierpinskiCurve;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -75,8 +74,6 @@ sub new {
   $self->{'arms'} = $arms;
   return $self;
 }
-
-my $wid = 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -138,14 +135,14 @@ sub n_to_xy {
       $frac = 0;
 
     } elsif ($digit == 2) {
-      ($x,$y) = ($y  + $len + 1 + $frac   +$wid,   # rotate -90
+      ($x,$y) = ($y  + $len + 1 + $frac,   # rotate -90           +$wid
                  -$x + $len     - $frac);
       $frac = 0;
 
     } else {
-      $x += $len + 2    +$wid;
+      $x += $len + 2; # +$wid;
     }
-    $len = 2*$len+2   +$wid;
+    $len = 2*$len+2;  # +$wid;
   }
 
   # n=0 or n=33..33
@@ -163,6 +160,14 @@ sub n_to_xy {
     $x = -$x-1;   # rotate 180
     $y = -$y-1;
   }
+
+  # use POSIX 'floor';
+  # $x += floor($x/3);
+  # $y += floor($y/3);
+
+  # $x += floor(($x-1)/3) + floor(($x-2)/3);
+  # $y += floor(($y-1)/3) + floor(($y-2)/3);
+
 
   ### final: "$x,$y"
   return ($x,$y);
@@ -396,9 +401,9 @@ Math::PlanePath::MathImageSierpinskiCurve -- Sierpinski curve
 
 I<In progress.>
 
-This is an integer version of the self-similar curve by Sierpinski tiling
-with right triangles.  The default is a single arm of the curve in an eighth
-of the plane.
+This is an integer version of the self-similar curve by Waclaw Sierpinski
+tiling with right triangles.  The default is a single arm of the curve in an
+eighth of the plane.
 
                                      31-32                   10
                                     /     \
@@ -450,6 +455,7 @@ block are used.  In general a point is used if
 
     X%3==1 or Y%3==1, but not both
 
+    which means
     ((X%3)+(Y%3)) % 2 == 1
 
 =head2 Level Ranges
@@ -466,18 +472,18 @@ For example level=2 is Nend = 2^(2*2)-1 = 15 at X=3*2^2-2 = 10.
 The top of each level is half way along,
 
     Ntop = (4^level)/2 - 1
-    Xtop = 3*2^(level-1)-1
-    Ytop = 3*2^(level-1)-2
+    Xtop = 3*2^(level-1) - 1
+    Ytop = 3*2^(level-1) - 2
 
 For example level=3 is Ntop = 2^(2*3-1)-1 = 31 at X=3*2^(3-1)-1 = 10 and
 Y=3*2^(3-1)-1 = 11.
 
 The factor of 3 arises because there's a gap between each level, increasing
-each level by a fixed extra each time,
+it by a fixed extra each time,
 
     length(level) = 2*length(level-1) + 2
-                  = 2^level +  2^level + 2^(level-1) + ... + 2
-                  = 2^level +  2^(level+1)-1 - 1
+                  = 2^level + (2^level + 2^(level-1) + ... + 2)
+                  = 2^level + (2^(level+1)-1 - 1)
                   = 3*2^level - 2
 
 =head2 Arms
@@ -518,7 +524,7 @@ The N=0 point is at X=1,Y=0 (in all arms forms) so that the second arm is
 within the first quadrant.
 
 Anywhere between 1 and 8 arms can be done this way.  C<arms=E<gt>8> is as
-follows (the middle "." is the origin X=0,Y=0).
+follows.
 
            ...                       ...           6
             |                          |
@@ -551,6 +557,11 @@ follows (the middle "." is the origin X=0,Y=0).
                            ^
      -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
+The middle "." is the origin X=0,Y=0.  It'd be more symmetrical to make the
+origin the middle of the eight arms, at X=-0.5,Y=-0.5 in the above, but that
+would give fractional X,Y values.  Apply an offset as X+0.5,Y+0.5 if
+desired.
+
 =head2 Closed Curve
 
 Sierpinki's original conception was a closed curve filling a unit square by
@@ -581,8 +592,18 @@ ever greater self-similar detail,
     \/ \/ \/ \/ \/ \/ \/ \/
 
 The code here might be pressed into use for this by drawing a mirror image
-of the curve (N=0 through Nlevel above), or using the C<arms=E<gt>2> form
+of the curve (N=0 through Nlevel above).  Or using the C<arms=E<gt>2> form
 (N=0 to N=4^level, inclusive), and joining up the ends.
+
+The curve is usually conceived as scaling down by quarters too.  The integer
+steps used here mean it doesn't come out that way as the horizontal and
+vertical segments are only 1 long not 2.  They can be stretched if desired
+by
+
+    X + floor((X-2)/3)
+    Y + floor((Y-2)/3)
+
+(Perhaps there could be an option for this.)
 
 =head1 FUNCTIONS
 

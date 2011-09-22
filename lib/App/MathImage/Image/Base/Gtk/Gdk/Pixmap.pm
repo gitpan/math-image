@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use App::MathImage::Image::Base::Gtk::Gdk::Drawable;
 @ISA = ('App::MathImage::Image::Base::Gtk::Gdk::Drawable');
@@ -71,23 +71,32 @@ sub new {
         || Gtk::Gdk::Window->new_foreign(Gtk::Gdk->ROOT_WINDOW());
 
     if (! exists $params{'-colormap'}) {
-      if (my $default_colormap
-          = ($for_drawable && $for_drawable->get_colormap)
-          || ($for_widget && $for_widget->get_colormap)) {
-        if (! defined $depth
-            || $depth == $default_colormap->get_visual->get_depth) {
-          $params{'-colormap'} = $default_colormap;
-        }
+      if (my $colormap = (($for_drawable && $for_drawable->get_colormap)
+                          || ($for_widget && $for_widget->get_colormap))) {
+        $params{'-colormap'} = $colormap;
       }
+
+      # can't check depth ?
+      # if (my $default_colormap
+      #     = ($for_drawable && $for_drawable->get_colormap)
+      #     || ($for_widget && $for_widget->get_colormap)) {
+      #   if (! defined $depth
+      #       || $depth == $default_colormap->get_visual->depth) {
+      #     $params{'-colormap'} = $default_colormap;
+      #   }
+      # }
     }
     if (! defined $params{'-colormap'}) {
       delete $params{'-colormap'};
     }
 
     if (! defined $depth) {
-      if ($params{'-colormap'}) {
-        $depth = $params{'-colormap'}->get_visual->depth;
-      } elsif ($for_drawable) {
+      # depth from colormap ?
+      # if ($params{'-colormap'}) {
+      #   $depth = $params{'-colormap'}->get_visual->depth;
+      # } els
+
+      if ($for_drawable) {
         $depth = $for_drawable->get_depth;
       } else {
         $depth = -1;
@@ -121,10 +130,9 @@ sub new_from_image {
 #
 sub _drawable_clone_to_pixmap {
   my ($drawable, $gc) = @_;
-  my ($width, $height) = $drawable->get_size;
-  my $new_pixmap = Gtk::Gdk::Pixmap->new ($drawable, $drawable->get_size, -1);
+  my ($height, $width) = $drawable->get_size;
+  my $new_pixmap = Gtk::Gdk::Pixmap->new ($drawable, $width, $height, -1);
 
-  # Perl-Gtk 1.220 set_colormap() doesn't accept undef, so must check
   if (my $colormap = $drawable->get_colormap) {
     $new_pixmap->set_colormap ($colormap);
   }
@@ -223,7 +231,7 @@ widget, window, or another pixmap,
     -for_widget    => Gtk::Widget object
 
 These targets give a colormap and depth.  C<-colormap> and/or C<-depth> can
-be given to override if desired though.
+be given to override if desired.
 
 If a widget plays tricks with its window colormap or depth then it might
 only have the right settings after realized (ie. has created its window).

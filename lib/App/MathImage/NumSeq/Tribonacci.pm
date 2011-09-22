@@ -23,7 +23,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

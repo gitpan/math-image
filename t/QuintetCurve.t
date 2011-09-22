@@ -36,7 +36,7 @@ require Math::PlanePath::MathImageQuintetCurve;
 # VERSION
 
 {
-  my $want_version = 70;
+  my $want_version = 71;
   ok ($Math::PlanePath::MathImageQuintetCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageQuintetCurve->VERSION,  $want_version,

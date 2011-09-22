@@ -22,7 +22,7 @@ use Scalar::Util;
 use Locale::TextDomain ('Math-Image');
 
 use vars '$VERSION','@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -40,7 +40,7 @@ sub popup {
 my $instance;
 sub instance {
   my ($class) = @_;
-  ### About instance(): $class
+  ### AboutDialog instance(): $class
   ### $instance
   return $instance || $class->new;
 }
@@ -61,12 +61,12 @@ sub new {
 
 sub GTK_CLASS_INIT {
   my ($class) = @_;
-  ### About GTK_CLASS_INIT() ...
+  ### AboutDialog GTK_CLASS_INIT() ...
 }
 
 sub GTK_OBJECT_INIT {
   my ($self) = @_;
-  ### About GTK_OBJECT_INIT() ...
+  ### AboutDialog GTK_OBJECT_INIT() ...
 
   $self->set_title(__('Math-Image: About'));
 

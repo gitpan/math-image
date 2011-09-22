@@ -31,7 +31,10 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -41,7 +44,8 @@ use constant default_options => {
                                  height       => 10,
                                  foreground   => 'white',
                                  background   => 'black',
-                                 filter          => 'All',
+                                 filter       => 'All',
+                                 figure       => 'default',
 
                                  # hack for prima code
                                  path_parameters => { wider => 0 },
@@ -257,6 +261,7 @@ my %pathname_square_grid
                      DragonCurve
                      DragonRounded
                      DragonMidpoint
+                     ComplexMinus
 
                      KochCurve
                      KochPeaks
@@ -277,9 +282,7 @@ my %pathname_square_grid
                      PyramidSides
                      CellularRule54
 
-                     MathImageTwinDragon
-                     MathImageComplexIplus1
-
+                     MathImageComplexPlus
                      MathImageCornerReplicate
                      MathImageGosperTiling
                      MathImageKochSquareflakes
@@ -495,7 +498,7 @@ use constant path_choices => do {
                            DragonCurve
                            DragonRounded
                            DragonMidpoint
-                           TwinDragon
+                           ComplexMinus
 
                            PythagoreanTree
                            RationalsTree
@@ -1150,6 +1153,7 @@ sub draw_Image_start {
     $n_lo = $path_object->n_start;
     my $yfactor = 1;
     my $n_angle;
+    my $xmargin = .05;
     if ($path_object->isa ('Math::PlanePath::Flowsnake')
         || $path_object->isa ('Math::PlanePath::FlowsnakeCentres')) {
       $yfactor = sqrt(3);
@@ -1181,6 +1185,9 @@ sub draw_Image_start {
       $n_hi = 3 ** $level;
       $n_angle = 2 * 3**($level-1);
       $yfactor = sqrt(3);
+    } elsif ($path_object->isa ('Math::PlanePath::MathImageSierpinskiCurve')) {
+      $n_hi = 4 ** $level;
+      $yfactor = 2;
     } elsif ($path_object->isa ('Math::PlanePath::QuadricCurve')) {
       $n_hi = 8 ** $level;
     } elsif ($path_object->isa ('Math::PlanePath::QuadricIslands')) {
@@ -1215,13 +1222,13 @@ sub draw_Image_start {
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
-    $affine->scale ($self->{'width'} * .7 / $r,
+    $affine->scale ($self->{'width'} * (1-2*$xmargin) / $r,
                     - $self->{'width'} * .7 / $r * .3);
-    $affine->translate ($self->{'width'} * .15,
+    $affine->translate ($self->{'width'} * $xmargin,
                         $self->{'height'} * .5);
 
     ### width: $self->{'width'}
-    ### scale x: $self->{'width'} * .7 / $r
+    ### scale x: $self->{'width'} * (1-2*$xmargin) / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
 
@@ -1977,25 +1984,30 @@ sub draw_Image_steps {
       if ($use_colours) {
         $n = $i;
         if (! defined $n || $n > $n_hi) {
+          ### n under or past n_hi, stop ...
           last;
         }
       } else {
         $n = $value;
         if (! defined $n) {
           if (++$self->{'n_outside'} > 10) {
+            ### n_outside >= 10, stop ...
             last;
           }
           next;
         }
         if (($n <= $n_prev || $n > $n_hi)
             && ++$self->{'n_outside'} > 10) {
+          ### n_outside >= 10 on n<prev n>hi, stop ...
           last;
         }
       }
-      # last if $n > 128;
+      $n_prev = $n;
+
       $filter_obj->pred($n)
         or next;
       my ($x, $y) = $path_object->n_to_xy($n) or next;
+      ### $n
       ### path: "$x,$y"
 
       if ($use_colours) {
@@ -2051,8 +2063,6 @@ sub draw_Image_steps {
           $image->$figure_method (@coords, $colour, $figure_fill);
         }
       }
-
-      $n_prev = $n;
     }
 
     $self->{'n_prev'} = $n_prev;
@@ -2102,9 +2112,12 @@ sub _n_to_tree_children {
 
 sub maybe_use_xy {
   my ($self) = @_;
+
+  ### maybe_use_xy() ...
   ### count_total: $self->{'count_total'}
   ### count_outside: $self->{'count_outside'}
   ### square_grid: $pathname_square_grid{$self->{'path'}}
+
   my ($count_total, $values_obj);
   if (($count_total = $self->{'count_total'}) > 1000
       && $self->{'count_outside'} > .5 * $count_total

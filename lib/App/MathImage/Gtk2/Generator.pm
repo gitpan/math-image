@@ -31,7 +31,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -143,9 +143,8 @@ sub _drawing_finished {
   my $window = $self->{'window'};
   ### set_back_pixmap: "$pixmap"
   $window->set_back_pixmap ($pixmap);
-  # FIXME: whole window pending 1.240 for undef rectangle for all
-  $window->invalidate_rect (Gtk2::Gdk::Rectangle->new (0,0, $window->get_size),
-                            0);
+  $window->clear;
+
   if (my $wc = $self->{'widgetcursor'}) {
     $wc->active(0);
     # Scalar::Util::weaken($wc);

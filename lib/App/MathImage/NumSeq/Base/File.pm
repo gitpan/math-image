@@ -21,13 +21,13 @@ use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-our $VERSION = 70;
+our $VERSION = 71;
 
 use Math::NumSeq;
 our @ISA = ('Math::NumSeq');
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

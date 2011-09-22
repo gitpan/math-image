@@ -27,25 +27,22 @@ use POSIX ();
 use Locale::TextDomain 1.19 ('App-MathImage');
 use Locale::Messages 'dgettext';
 
+use App::MathImage::Gtk1::Drawing;
+use App::MathImage::Gtk1::Ex::SpinButtonBits;
+use App::MathImage::Gtk1::Ex::WidgetBits;
+
 # use Module::Util;
-# use Glib::Ex::ConnectProperties 8;  # v.8 for write_only
-# use Gtk::Ex::ActionTooltips;
 # use Gtk::Ex::NumAxis 2;
 #
 # use Glib::Ex::EnumBits;
-# use Glib::Ex::ObjectBits 'set_property_maybe';
 # use Gtk::Ex::ToolItem::OverflowToDialog;
 # use Gtk::Ex::ToolItem::ComboEnum;
-#
-# use App::MathImage::Gtk::Drawing;
-# use App::MathImage::Gtk::Drawing::Values;
-# use App::MathImage::Gtk::Params;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use constant::defer init => sub {
   ### Main init(): @_
@@ -61,11 +58,16 @@ sub new {
   return Gtk::Widget->new(@_);
 }
 
-sub GTK_CLASS_INIT {
-  my ($class) = @_;
-  ### Main GTK_CLASS_INIT() ...
-  $class->add_arg_type ('fullscreen', 'gboolean', 3); #R/W
-}
+# sub DESTROY {
+#   my ($self) = @_;
+#   if (my $tooltips = delete $self->{'tooltips'}) {
+#     $tooltips->destroy;
+#   }
+#   if (my $accel = delete $self->{'accel'}) {
+#     $accel->destroy;
+#   }
+#   $self->SUPER::DESTROY;
+# }
 
 sub GTK_OBJECT_INIT {
   my ($self) = @_;
@@ -73,6 +75,12 @@ sub GTK_OBJECT_INIT {
 
   my $vbox = $self->{'vbox'} = Gtk::VBox->new (0, 0);
   $self->add ($vbox);
+
+  my $tooltips = $self->{'tooltips'} = Gtk::Tooltips->new;
+  $tooltips->enable;
+
+  my $accel_group = $self->{'accel_group'} = Gtk::AccelGroup->new;
+  $self->add_accel_group ($accel_group);
 
   my $weak_self = $self;
   Scalar::Util::weaken ($weak_self);
@@ -82,10 +90,19 @@ sub GTK_OBJECT_INIT {
   $vbox->pack_start ($menubar, 0,0,0);
   {
     my $menu = Gtk::Menu->new;
-    {  my $item = Gtk::MenuItem->new_with_label (__('File'));
-       $menubar->append ($item);
-       $item->set_submenu ($menu);
-     }
+    {
+      my $item = Gtk::MenuItem->new_with_label (__('File'));
+      my $label = $item->child;
+      my $keyval = 102; # $label->parse_uline ('_File');
+      ### $keyval
+      $item->add_accelerator ('activate', $accel_group,
+                              $keyval, 'mod1-mask', 'locked');
+      $menubar->append ($item);
+      $item->set_submenu ($menu);
+      $item->signal_connect(activate => sub {
+                              ### File activate
+                            });
+    }
     {
       my $item = Gtk::MenuItem->new_with_label (__('Quit'));
       $item->signal_connect(activate => \&_do_menuitem_quit, $ref_weak_self);
@@ -94,7 +111,41 @@ sub GTK_OBJECT_INIT {
   }
   {
     my $menu = Gtk::Menu->new;
+    {
+      my $item = Gtk::MenuItem->new_with_label (__('View'));
+      my $label = $item->child;
+      my $keyval = 118; # $label->parse_uline ('_View');
+      ### $keyval
+      $item->add_accelerator ('activate', $accel_group,
+                              $keyval, 'mod1-mask', 'locked');
+      $menubar->append ($item);
+      $item->set_submenu ($menu);
+      $item->signal_connect(activate => sub {
+                              ### File activate
+                            });
+
+    }
+    {
+      my $item = Gtk::MenuItem->new_with_label (__('Centre'));
+      $item->signal_connect (activate => sub {
+                               my ($item, $ref_weak_self) = @_;
+                               my $self = $$ref_weak_self || return;
+                               $self->{'draw'}->centre;
+                             }, $ref_weak_self);
+      $tooltips->set_tip ($item,
+                          __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
+                          '');
+      $menu->append ($item);
+    }
+  }
+  {
+    my $menu = Gtk::Menu->new;
     { my $item = Gtk::MenuItem->new_with_label (dgettext('gtk+','Help'));
+      my $label = $item->child;
+      my $keyval = 104; # $label->parse_uline ('_Help');
+      ### $keyval
+      $item->add_accelerator ('activate', $accel_group,
+                              $keyval, 'mod1-mask', 'locked');
       $menubar->append ($item);
       $item->set_submenu ($menu);
     }
@@ -103,29 +154,105 @@ sub GTK_OBJECT_INIT {
       $item->signal_connect (activate => \&_do_menuitem_about, $ref_weak_self);
       $menu->append ($item);
     }
+    if (Module::Util::find_installed('Browser::Open')) {
+      my $item = $self->{'menuitem_oeis'}
+        = Gtk::MenuItem->new_with_label (__('OEIS Web Page'));
+      $item->signal_connect (activate => \&_do_menuitem_oeis, $ref_weak_self);
+      $menu->append ($item);
+      $self->{'accel'} = $item->child;
+    }
   }
+
+  my $draw = $self->{'draw'} = App::MathImage::Gtk1::Drawing->new;
+  $draw->add_events ('pointer-motion-mask');
+  $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
 
   my $toolbar = $self->{'toolbar'} = Gtk::Toolbar->new (0, 0);
   $vbox->pack_start ($toolbar, 0,0,0);
+
+  my $toolpos = -999;
+  {
+    my $hbox = $self->{'scale_hbox'} = Gtk::HBox->new;
+    $toolbar->append_widget ($hbox, __('How many pixels per square.'), '');
+
+    $hbox->pack_start (Gtk::Label->new(__('Scale')), 0,0,0);
+    my $adj = Gtk::Adjustment->new ($draw->get('scale'), # initial
+                                    1, 9999,  # min,max
+                                    1,10,     # step,page increment
+                                    0);       # page_size
+    # Glib::Ex::ConnectProperties->new ([$draw,'scale'],
+    #                                   [$adj,'value']);
+    ### $adj
+    my $spin = Gtk::SpinButton->new ($adj, 10, 0);
+    App::MathImage::Gtk1::Ex::SpinButtonBits::mouse_wheel($spin);
+    # $spin->set_width_chars(3);
+    $hbox->pack_start ($spin, 0,0,0);
+    $hbox->show_all;
+
+    $spin->signal_connect
+      (changed => sub {
+         my ($spin) = @_;
+         my $self = $spin->get_ancestor(__PACKAGE__) || return;
+         $self->{'draw'}->set (scale => $spin->get_value_as_int);
+       });
+
+    # # hide for LinesLevel
+    # Glib::Ex::ConnectProperties->new
+    #     ([$values_combobox,'active-nick'],
+    #      [$toolitem,'visible',
+    #       write_only => 1,
+    #       func_in => sub { $_[0] ne 'LinesLevel' }]);
+  }
+
+  {
+    my $combo = $self->{'figure_combo'} = Gtk::Combo->new;
+    $combo->set_popdown_strings (App::MathImage::Generator->figure_choices);
+    $toolbar->append_widget ($combo,
+                             __('The figure to draw at each position.'),
+                             '');
+
+    $combo->entry->signal_connect
+      (changed => sub {
+         my ($entry) = @_;
+         ### figure combo changed: @_
+         my $self = $entry->get_ancestor(__PACKAGE__) || return;
+         $self->{'draw'}->set (figure => $entry->get_text);
+       });
+
+    # Glib::Ex::ConnectProperties->new
+    #     ([$draw,'figure'],
+    #      [$combobox,'active-nick']);
+  }
+
+  $vbox->pack_start ($draw, 1,1,0);
 
   {
     my $statusbar = $self->{'statusbar'} = Gtk::Statusbar->new;
     $vbox->pack_end ($statusbar, 0,0,0);
   }
+  _update_oeis($self);
+
   $vbox->show_all;
-  ### done ...
+  ### Main GTK_OBJECT_INIT() done ...
 }
 
+sub GTK_CLASS_INIT {
+  my ($class) = @_;
+  ### Main GTK_CLASS_INIT() ...
+  $class->add_arg_type ('fullscreen', 'gboolean', 3); #R/W
+  $class->add_arg_type ('statusbar', 'GtkWidget', 3); #R/W
+}
 sub GTK_OBJECT_SET_ARG {
   my ($self,$arg,$id, $value) = @_;
-  ### Main GTK_OBJECT_SET_ARG() ...
+  ### Main GTK_OBJECT_SET_ARG(): "$arg to $value"
   # $self->{_color} = [split(' ',$value)];
   # $self->update_color;
 }
 sub GTK_OBJECT_GET_ARG {
   my ($self,$arg,$id) = @_;
-  ### Main GTK_OBJECT_GET_ARG() ...
-  #  return join(' ',@{$self->{_color}});
+  ### Main GTK_OBJECT_GET_ARG(): $arg
+  ### is: $self->{$arg}
+  return $self->{$arg};
 }
 
 sub _do_menuitem_quit {
@@ -145,6 +272,97 @@ sub popup_about {
   ### popup_about() ...
   require App::MathImage::Gtk1::AboutDialog;
   App::MathImage::Gtk1::AboutDialog->popup;
+}
+
+sub _do_menuitem_oeis {
+  my ($item, $ref_weak_self) = @_;
+  ### _do_menuitem_oeis(): $item
+  my $self = $$ref_weak_self || return;
+  if (my $url = _oeis_url($self)) {
+    require Browser::Open;
+    Browser::Open::open_browser ($url);
+  }
+}
+sub _oeis_url {
+  my ($self) = @_;
+  my ($values_obj, $anum);
+  return (($values_obj = $self->{'draw'}->gen_object->values_object)
+          && ($anum = $values_obj->oeis_anum)
+          && "http://oeis.org/$anum");
+}
+sub _update_oeis {
+  my ($self) = @_;
+  my $url = _oeis_url($self);
+  $self->{'menuitem_oeis'}->set (sensitive => !!$url);
+  $self->{'tooltips'}->set_tip ($self->{'menuitem_oeis'},
+                                __x("Open browser at Online Encyclopedia of Integer Sequences (OEIS) web page for the current values\n{url}",
+                                    url => ($url||'')),
+                                '');
+}
+
+sub _do_motion_notify {
+  my ($draw, $event) = @_;
+  ### Main _do_motion_notify()...
+
+  my $self;
+  if (($self = $draw->get_ancestor (__PACKAGE__))
+      && (my $statusbar = $self->get('statusbar'))) {
+    ### $statusbar
+    my $id = $statusbar->get_context_id (__PACKAGE__);
+    $statusbar->pop ($id);
+
+    my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->{'x'}, $event->{'y'});
+    if (defined $x) {
+      my $message = sprintf ("x=%.*f, y=%.*f",
+                             (int($x)==$x ? 0 : 2), $x,
+                             (int($y)==$y ? 0 : 2), $y);
+      if (defined $n) {
+        $message .= "   N=$n";
+        if ((my $values = $draw->get('values'))
+            && (my $values_obj = $draw->gen_object->values_object)) {
+          my $vstr = '';
+          my $radix;
+          if ($values_obj->can('ith')
+              && (($radix = $values_obj->characteristic('digits'))
+                  || $values_obj->characteristic('count')
+                  || $values_obj->characteristic('modulus'))) {
+            my $value = $values_obj->ith($n);
+            $vstr = " value=$value";
+            if ($value &&
+                $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+              $radix = $value;
+            }
+          }
+          my $values_parameters;
+          if (($radix && $radix != 10)
+              || ($values ne 'Emirps'
+                  && ($values_parameters = $draw->{'values-parameters'})
+                  && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
+                  && ($radix = $values_parameters->{'radix'}))) {
+            my $str = _my_cnv($n,$radix);
+            $message .= " ($str in base $radix)";
+          }
+          $message .= $vstr;
+        }
+      }
+      ### $message
+      $statusbar->push ($id, $message);
+    }
+  }
+  return 0; # EVENT_PROPAGATE
+}
+sub _my_cnv {
+  my ($n, $radix) = @_;
+  if ($radix <= 36) {
+    require Math::BaseCnv;
+    return Math::BaseCnv::cnv($n,10,$radix);
+  } else {
+    my $ret = '';
+    do {
+      $ret = sprintf('[%d]', $n % $radix) . $ret;
+    } while ($n = int($n/$radix));
+    return $ret;
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -191,28 +409,34 @@ sub command_line {
 
   my $draw = $self->{'draw'};
   if (defined $width) {
-    require Gtk::Ex::Units;
-    Gtk::Ex::Units::set_default_size_with_subsizes
-        ($self, [ $draw, $width, $height ]);
+    App::MathImage::Gtk1::Ex::WidgetBits::set_usize_until_mapped
+        ($draw, $width,$height);
   } else {
     $self->set_default_size (Gtk::Gdk->screen_width() * .8,
                              Gtk::Gdk->screen_height() * .8);
   }
   ### draw set: $gen_options
-  # $draw->modify_fg ('normal',
-  #                   Gtk::Gdk::Color->parse_color
-  #                   (delete $gen_options->{'foreground'}));
-  # $draw->modify_bg ('normal',
-  #                   Gtk::Gdk::Color->parse_color
-  #                   (delete $gen_options->{'background'}));
-  # my $path_parameters = delete $gen_options->{'path_parameters'};
-  # my $values_parameters = delete $gen_options->{'values_parameters'};
+
+  my $rcstyle = Gtk::RcStyle->new;
+  ### $rcstyle
+  $rcstyle->modify_color (1,  # fg
+                          'normal',
+                          Gtk::Gdk::Color->parse_color
+                          (delete $gen_options->{'foreground'}));
+  $rcstyle->modify_color (2,  # bg
+                          'normal',
+                          Gtk::Gdk::Color->parse_color
+                          (delete $gen_options->{'background'}));
+  $draw->modify_style ($rcstyle);
+
+  my $path_parameters = delete $gen_options->{'path_parameters'};
+  my $values_parameters = delete $gen_options->{'values_parameters'};
   # ### draw set gen_options: keys %$gen_options
   # foreach my $key (keys %$gen_options) {
   #   $draw->set ($key, $gen_options->{$key});
   # }
-  # $draw->set (path_parameters => $path_parameters);
-  # $draw->set (values_parameters => $values_parameters);
+  $draw->{'path-parameters'} = $path_parameters || {};
+  $draw->{'values-parameters'} = $values_parameters || {};
   # ### draw values now: $draw->get('values')
   # ### values_parameters: $draw->get('values_parameters')
   # ### path: $draw->get('path')
@@ -263,59 +487,8 @@ use Glib::Object::Subclass
 
                 ];
 
-my %_values_to_mnemonic =
-  (Primes             => __('_Primes'),
-   TwinPrimes         => __('_Twin Primes'),
-   Squares            => __('S_quares'),
-   Pronic             => __('Pro_nic'),
-   Triangular         => __('Trian_gular'),
-   Cubes              => __('_Cubes'),
-   Tetrahedral        => __('_Tetrahedral'),
-   Perrin             => __('Perr_in'),
-   Padovan            => __('Pado_van'),
-   Fibonacci          => __('_Fibonacci'),
-   FractionDigits  => __('F_raction Digits'),
-   Polygonal       => __('Pol_ygonal Numbers'),
-   PiBits          => __('_Pi Bits'),
-   Ln2Bits         => __x('_Log Natural {logarg} Bits', logarg => 2),
-   Ln3Bits         => __x('_Log Natural {logarg} Bits', logarg => 3),
-   Ln10Bits        => __x('_Log Natural {logarg} Bits', logarg => 10),
-   Odd             => __('_Odd Integers'),
-   Even            => __('_Even Integers'),
-   All             => __('_All Integers'),
-  );
-sub _values_to_mnemonic {
-  my ($str) = @_;
-  return ($_values_to_mnemonic{$str}
-          || Glib::Ex::EnumBits->to_display_default($str));
-}
-
-my %_path_to_mnemonic =
-  (SquareSpiral    => __('_Square Spiral'),
-   SacksSpiral     => __('_Sacks Spiral'),
-   VogelFloret     => __('_Vogel Floret'),
-   DiamondSpiral   => __('_Diamond Spiral'),
-   PyramidRows     => __('_Pyramid Rows'),
-   PyramidSides    => __('_Pyramid Sides'),
-   HexSpiral       => __('_Hex Spiral'),
-   HexSpiralSkewed => __('_Hex Spiral Skewed'),
-   KnightSpiral    => __('_Knight Spiral'),
-   Corner          => __('_Corner'),
-   Diagonals       => __('_Diagonals'),
-   Rows            => __('_Rows'),
-   Columns         => __('_Columns'),
-  );
-sub _path_to_mnemonic {
-  my ($str) = @_;
-  return ($_path_to_mnemonic{$str}
-          || Glib::Ex::EnumBits::to_display_default($str));
-}
-
 my $actions_array
   = [
-     { name  => 'FileMenu',
-       label => dgettext('gtk20-properties','_File'),
-     },
      { name     => 'SaveAs',
        stock_id => 'gtk-save-as',
        tooltip  => __('Save the image to a file.'),
@@ -347,14 +520,6 @@ my $actions_array
      { name  => 'ValuesMenu',
        label => dgettext('gtk20-properties','_Values'),
      },
-     { name     => 'Centre',
-       label    => __('_Centre'),
-       tooltip  => __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
-       callback => sub {
-         my ($action, $self) = @_;
-         $self->{'draw'}->centre;
-       },
-     },
 
      { name  => 'ToolsMenu',
        label => dgettext('gtk20-properties','_Tools'),
@@ -364,31 +529,6 @@ my $actions_array
        callback => \&_do_action_golly,
        tooltip  => __('Run the "golly" game-of-life program on the current display.'),
      },
-
-     (defined (Module::Util::find_installed('Gtk::Ex::PodViewer'))
-      ? ({ name     => 'PodDialog',
-           label    => __('_Program POD'),
-           tooltip  => __('Display the Math-Image program POD documentation (using Gtk::Ex::PodViewer).'),
-           callback => \&_do_action_pod_dialog,
-         },
-         { name     => 'PodDialogPath',
-           label    => __('_Path POD'),
-           tooltip  => __('Display the Math::PlanePath module documentation for the current path (using Gtk::Ex::PodViewer).'),
-           callback => \&_do_action_pod_dialog_path,
-         })
-      : ()),
-     (defined (Module::Util::find_installed('Browser::Open'))
-      ? ({ name     => 'OeisBrowse',
-           label    => __('OEIS Web Page'),
-           callback => sub {
-             my ($action, $self) = @_;
-             if (my $url = _oeis_url($self)) {
-               require Browser::Open;
-               Browser::Open::open_browser ($url);
-             }
-           },
-         })
-      : ()),
 
      { name     => 'Random',
        label    => __('Random'),
@@ -409,23 +549,6 @@ my $toggle_actions_array
        tooltip => __('Whether to show axes beside the image.'),
        is_active  => 1,
      },
-     { name        => 'ToolbarVertical',
-       label       =>  __('Toolbar _Vertical'),
-       callback    => \&_do_action_toolbar_vertical,
-       is_active   => 0,
-       # tooltip     => __('.'),
-     },
-
-     (Module::Util::find_installed('Gtk::Ex::CrossHair')
-      ? { name        => 'Cross',
-          label       =>  __('_Cross'),
-          # "C" as an accelerator steals that key from the Gtk::Entry of an
-          # expression.  Is that supposed to happen?
-          #   accelerator => __p('Main-accelerator-key','C'),
-          callback    => \&_do_action_crosshair,
-          is_active   => 0,
-          tooltip     => __('Display a crosshair of horizontal and vertical lines following the mouse.'),
-        } : ()),
     ];
 
 sub ui_string {
@@ -457,26 +580,12 @@ HERE
     </menu>
     <menu action='ToolsMenu'>
 HERE
-  if ($self->{'actiongroup'}->get_action('Cross')) {
-    $ui_str .= "<menuitem action='Cross'/>\n";
-  }
   $ui_str .= <<'HERE';
       <menuitem action='Fullscreen'/>
       <menuitem action='DrawProgressive'/>
       <menuitem action='Toolbar'/>
-      <menuitem action='ToolbarVertical'/>
       <menuitem action='Axes'/>
       <menuitem action='RunGolly'/>
-    </menu>
-    <menu action='HelpMenu'>
-      <menuitem action='About'/>
-HERE
-  foreach my $name ('PodDialog', 'PodDialogPath','OeisBrowse') {
-    if ($self->{'actiongroup'}->get_action($name)) {
-      $ui_str .= "<menuitem action='$name'/>\n";
-    }
-  }
-  $ui_str .= <<'HERE';
     </menu>
   </menubar>
   <toolbar  name='ToolBar'>
@@ -522,7 +631,6 @@ sub init_actiongroup {
 sub INIT_INSTANCE {
   my ($self) = @_;
 
-  my $draw = $self->{'draw'} = App::MathImage::Gtk::Drawing->new;
   $draw->signal_connect ('notify::values-parameters' => \&_do_values_changed);
 
   my $actiongroup = $self->init_actiongroup;
@@ -576,15 +684,10 @@ sub INIT_INSTANCE {
   $toolbar->show;
   $table->attach ($toolbar, 1,3, 0,1, ['expand','fill'],[],0,0);
   # $vbox->pack_start ($toolbar, 0,0,0);
-  Glib::Ex::ConnectProperties->new
-      ([$toolbar,'visible'],
-       [$actiongroup->get_action('ToolbarVertical'),'sensitive']);
 
   my $vbox2 = $self->{'vbox2'} = Gtk::VBox->new;
   $table->attach ($vbox2, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
 
-  $draw->add_events ('pointer-motion-mask');
-  $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
 
   {
@@ -641,12 +744,10 @@ sub INIT_INSTANCE {
                                       [$action,'active']);
   }
 
-  my $toolpos = -999;
   my $path_combobox;
   {
     my $toolitem = Gtk::Ex::ToolItem::ComboEnum->new
-      (enum_type => 'App::MathImage::Gtk::Drawing::Path',
-       overflow_mnemonic => __('_Path'));
+      (overflow_mnemonic => __('_Path'));
     set_property_maybe
       ($toolitem, # tooltip-text new in 2.12
        tooltip_text  => __('The path for where to place values in the plane.'));
@@ -663,7 +764,7 @@ sub INIT_INSTANCE {
 
 
     my $path_params = $self->{'path_params'}
-      = App::MathImage::Gtk::Params->new (toolbar => $toolbar,
+      = App::MathImage::Gtk1::Params->new (toolbar => $toolbar,
                                            after_toolitem => $toolitem);
     ### path_params path to parameter_info_array...
     Glib::Ex::ConnectProperties->new
@@ -689,8 +790,7 @@ sub INIT_INSTANCE {
   {
     my $toolitem = $self->{'values_toolitem'}
       = Gtk::Ex::ToolItem::ComboEnum->new
-        (enum_type => 'App::MathImage::Gtk::Drawing::Values',
-         overflow_mnemonic => __('_Values'));
+        (overflow_mnemonic => __('_Values'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
 
@@ -705,9 +805,9 @@ sub INIT_INSTANCE {
     ### values combobox initial: $values_combobox->get('active-nick')
 
 
-    require App::MathImage::Gtk::Params;
+    require App::MathImage::Gtk1::Params;
     my $values_params = $self->{'values_params'}
-      = App::MathImage::Gtk::Params->new (toolbar => $toolbar,
+      = App::MathImage::Gtk1::Params->new (toolbar => $toolbar,
                                            after_toolitem => $toolitem);
     ### values_params values to parameter_info_array...
     Glib::Ex::ConnectProperties->new
@@ -748,58 +848,8 @@ sub INIT_INSTANCE {
         ([$draw,'filter'],
          [$combobox,'active-nick']);
   }
-  {
-    my $toolitem = Gtk::Ex::ToolItem::OverflowToDialog->new
-      (overflow_mnemonic => __('_Scale'));
-    $toolbar->insert ($toolitem, $toolpos++);
 
-    my $hbox = Gtk::HBox->new;
-    set_property_maybe ($toolitem,
-                        # tooltip-text new in 2.12
-                        tooltip_text => __('How many pixels per square.'));
-    $toolitem->add ($hbox);
 
-    $hbox->pack_start (Gtk::Label->new(__('Scale')), 0,0,0);
-    my $adj = Gtk::Adjustment->new (1,        # initial
-                                     1, 9999,  # min,max
-                                     1,10,     # step,page increment
-                                     0);       # page_size
-    Glib::Ex::ConnectProperties->new ([$draw,'scale'],
-                                      [$adj,'value']);
-    my $spin = Gtk::SpinButton->new ($adj, 10, 0);
-    $spin->set_width_chars(3);
-    $hbox->pack_start ($spin, 0,0,0);
-    $toolitem->show_all;
-
-    # hide for LinesLevel
-    Glib::Ex::ConnectProperties->new
-        ([$values_combobox,'active-nick'],
-         [$toolitem,'visible',
-          write_only => 1,
-          func_in => sub { $_[0] ne 'LinesLevel' }]);
-  }
-  {
-    my $toolitem = Gtk::Ex::ToolItem::ComboEnum->new
-      (enum_type => 'App::MathImage::Gtk::Drawing::FigureType',
-       overflow_mnemonic => __('_Figure'));
-    set_property_maybe ($toolitem,
-                        tooltip_text  => __('The figure to show at each position.'));
-    $toolitem->show;
-    $toolbar->insert ($toolitem, $toolpos++);
-
-    my $combobox = $toolitem->get_child;
-    set_property_maybe ($combobox, # tearoff-title new in 2.10
-                        tearoff_title => __('Math-Image: Figure'));
-
-    Glib::Ex::ConnectProperties->new
-        ([$draw,'figure'],
-         [$combobox,'active-nick']);
-  }
-
-  Gtk::Ex::ActionTooltips::group_tooltips_to_menuitems ($actiongroup);
-  if (my $action = $actiongroup->get_action ('OeisBrowse')) {
-    Gtk::Ex::ActionTooltips::action_tooltips_to_menuitems_dynamic ($action);
-  }
 }
 
 # 'destroy' class closure
@@ -836,102 +886,11 @@ sub _update_values_tooltip {
     ### $tooltip
     set_property_maybe ($toolitem, tooltip_text => $tooltip);
   }
-
-  if (my $action = $self->{'actiongroup'}->get_action('OeisBrowse')) {
-    my $url = _oeis_url($self);
-    $action->set (tooltip => __x("Open browser at Online Encyclopedia of Integer Sequences (OEIS) web page for the current values\n{url}",
-                                 url => ($url||'')),
-                  sensitive => defined($url));
-  }
 }
 sub _do_values_changed {
   my ($widget) = @_;
   my $self = $widget->get_ancestor(__PACKAGE__) || return;
   _update_values_tooltip($self);
-}
-
-sub _oeis_url {
-  my ($self) = @_;
-  my ($values_obj, $anum);
-  return (($values_obj = $self->{'draw'}->gen_object->values_object)
-          && ($anum = $values_obj->oeis_anum)
-          && "http://oeis.org/$anum");
-}
-
-
-sub _do_motion_notify {
-  my ($draw, $event) = @_;
-  ### Main _do_motion_notify()...
-
-  my $self;
-  if (($self = $draw->get_ancestor (__PACKAGE__))
-      && (my $statusbar = $self->get('statusbar'))) {
-    my $id = $statusbar->get_context_id (__PACKAGE__);
-    $statusbar->pop ($id);
-
-    my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
-    if (defined $x) {
-      my $message = sprintf ("x=%.*f, y=%.*f",
-                             (int($x)==$x ? 0 : 2), $x,
-                             (int($y)==$y ? 0 : 2), $y);
-      if (defined $n) {
-        $message .= "   N=$n";
-        if ((my $values = $draw->get('values'))
-            && (my $values_obj = $draw->gen_object->values_object)) {
-          my $vstr = '';
-          my $radix;
-          if ($values_obj->can('ith')
-              && (($radix = $values_obj->characteristic('digits'))
-                  || $values_obj->characteristic('count')
-                  || $values_obj->characteristic('modulus'))) {
-            my $value = $values_obj->ith($n);
-            $vstr = " value=$value";
-            if ($value &&
-                $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
-              $radix = $value;
-            }
-          }
-          my $values_parameters;
-          if (($radix && $radix != 10)
-              || ($values ne 'Emirps'
-                  && ($values_parameters = $draw->get('values-parameters'))
-                  && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
-                  && ($radix = $values_parameters->{'radix'}))) {
-            my $str = _my_cnv($n,$radix);
-            $message .= " ($str in base $radix)";
-          }
-          $message .= $vstr;
-        }
-      }
-      ### $message
-      $statusbar->push ($id, $message);
-    }
-  }
-  return Gtk::EVENT_PROPAGATE;
-}
-sub _my_cnv {
-  my ($n, $radix) = @_;
-  if ($radix <= 36) {
-    require Math::BaseCnv;
-    return Math::BaseCnv::cnv($n,10,$radix);
-  } else {
-    my $ret = '';
-    do {
-      $ret = sprintf('[%d]', $n % $radix) . $ret;
-    } while ($n = int($n/$radix));
-    return $ret;
-  }
-}
-
-my %ui_widget = (menubar => '/MenuBar',
-                   toolbar => '/ToolBar');
-sub GET_PROPERTY {
-  my ($self, $pspec) = @_;
-  my $pname = $pspec->get_name;
-  if (my $uname = $ui_widget{$pname}) {
-    return $self->{'ui'}->get_widget($uname);
-  }
-  return (exists $self->{$pname} ? $self->{$pname} : $pspec->get_default_value);
 }
 
 sub SET_PROPERTY {
@@ -981,15 +940,6 @@ sub _do_window_state_event {
   }
 }
 
-sub menubar {
-  my ($self) = @_;
-  return $self->{'ui'}->get_widget('/MenuBar');
-}
-sub toolbar {
-  my ($self) = @_;
-  return $self->{'ui'}->get_widget('/ToolBar');
-}
-
 sub popup_save_as {
   my ($self) = @_;
   require App::MathImage::Gtk::SaveDialog;
@@ -1007,7 +957,7 @@ sub _do_action_setroot {
   my $rootwin = $self->get_root_window;
   if ($rootwin->can('XID') && eval { require App::MathImage::Gtk::X11; 1 }) {
     require App::MathImage::Gtk::X11;
-    $self->{'x11'} = App::MathImage::Gtk::X11->new
+    $self->{'x11'} = App::MathImage::Gtk1::X11->new
       (gdk_window => $self->get_root_window,
        gen        => $self->{'draw'}->gen_object);
   } else {
@@ -1057,22 +1007,6 @@ sub _do_action_golly {
   Proc::SyncExec::sync_exec ('golly', $filename);
 }
 
-sub _do_action_pod_dialog {
-  my ($action, $self, $initial_pod) = @_;
-  require Gtk::Ex::WidgetCursor;
-  Gtk::Ex::WidgetCursor->busy;
-  require App::MathImage::Gtk::PodDialog;
-  my $dialog = App::MathImage::Gtk::PodDialog->new
-    (screen => $self->get_screen,
-     pod => $initial_pod);
-  $dialog->present;
-}
-sub _do_action_pod_dialog_path {
-  my ($action, $self) = @_;
-  _do_action_pod_dialog ($action, $self,
-                         $self->{'draw'}->get('path'));
-}
-
 sub _do_action_random {
   my ($action, $self) = @_;
   my $draw = $self->{'draw'};
@@ -1087,79 +1021,6 @@ sub _do_action_random {
   #   $draw->set($pname => $options{$key});
   # }
 }
-
-sub _do_action_crosshair {
-  my ($action, $self) = @_;
-  $self->{'crosshair_connp'} ||=  do {
-    require Gtk::Ex::CrossHair;
-    require Gtk::Ex::Units;
-    my $draw = $self->{'draw'};
-    my $cross = $self->{'crosshair'}
-      = Gtk::Ex::CrossHair->new (widget => $draw,
-                                  foreground => 'orange',
-                                  active => 1);
-    Glib::Ex::ConnectProperties->new ([$action,'active'],
-                                      [$cross,'active']);
-    my $max_line_width = POSIX::ceil (Gtk::Ex::Units::width($draw, ".5mm"));
-    Glib::Ex::ConnectProperties->new ([$draw,'scale'],
-                                      [$cross,'line-width',
-                                       write_only => 1,
-                                       func_in => sub { min($_[0],$max_line_width) }]);
-    #     $self->{'draw'}->signal_connect
-    #       ('notify::scale' => sub {
-    #          my ($draw) = @_;
-    #          my $scale = $draw->get('scale');
-    #          $cross->set (line_width => min($scale,3));
-    #        });
-    #     $self->{'draw'}->notify('scale'); # initial
-  };
-}
-sub _do_action_toolbar_vertical {
-  my ($action, $self) = @_;
-  my $vertical = $action->get_active;
-  my $toolbar = $self->get('toolbar');
-  $toolbar->set (orientation => ($vertical ? 'vertical' : 'horizontal'));
-
-  $self->{'table'}->child_set_property ($toolbar,
-                                        $vertical
-                                        ? (left_attach => 0,
-                                           right_attach => 1,
-                                           top_attach => 1,
-                                           bottom_attach => 3,
-                                           x_options => [],
-                                           y_options => ['expand','fill'],
-                                          )
-                                        : (left_attach => 1,
-                                           right_attach => 3,
-                                           top_attach => 0,
-                                           bottom_attach => 1,
-                                           x_options => ['expand','fill'],
-                                           y_options => [],
-                                          ));
-}
-
-# my %type_to_adjname = (left  => 'hadjustment',
-#                        right => 'hadjustment',
-#                        up    => 'vadjustment',
-#                        down  => 'vadjustment');
-# my %type_factor = (left  => -1,
-#                    right => 1,
-#                    up    => -1,
-#                    down  => 1);
-# sub _do_arrow_button_clicked {
-#   my ($button) = @_;
-#   my $self = $button->get_ancestor (__PACKAGE__);
-#   my $arrow = $button->get_child;
-#   my $type = $arrow->get('arrow-type');
-#   ### _do_arrow_button_clicked(): $type
-#   my $adj = $self->{'draw'}->get($type_to_adjname{$type});
-#
-#   ### adj value was: $adj->value.' page='.$adj->page_size
-#   ### add: $adj->step_increment
-#   ### value upper limit: $adj->upper - $adj->page_size
-#   $adj->set_value ($adj->value + $adj->step_increment * $type_factor{$type});
-#   ### adj value now: $adj->value
-# }
 
 my %orientation_to_adjname = (horizontal => 'hadjustment',
                               vertical   => 'vadjustment');

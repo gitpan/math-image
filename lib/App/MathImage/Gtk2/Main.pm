@@ -42,9 +42,9 @@ use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Params;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -636,7 +636,7 @@ sub INIT_INSTANCE {
       (enum_type => 'App::MathImage::Gtk2::Drawing::FigureType',
        overflow_mnemonic => __('_Figure'));
     set_property_maybe ($toolitem,
-                        tooltip_text  => __('The figure to show at each position.'));
+                        tooltip_text  => __('The figure to draw at each position.'));
     $toolitem->show;
     $toolbar->insert ($toolitem, $toolpos++);
 

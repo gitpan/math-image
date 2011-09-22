@@ -25,7 +25,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -68,9 +68,8 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  my $x = 0;
-  my $y = 0;
-  my $len = 1;
+  my $x = my $y = ($n & 0);  # inherit bignum 0
+  my $len = $x + 1;          # inherit bignum 1
 
   while ($n) {
     my $digit = $n % 4;
@@ -101,74 +100,151 @@ sub xy_to_n {
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
-  my ($len,$level_limit);
-  {
-    my $xa = abs($x);
-    my $ya = abs($x);
-    ($len,$level_limit) = _round_down_pow (2*($xa > $ya ? $xa : $ya) || 1, 2);
-    ### $level_limit
+  my ($len, $level) = _round_down_pow (($x > $y ? $x : $y) || 1,
+                                       2);
+  if (_is_infinite($level)) {
+    return $level;
+  }
+
+  my $n = ($x & 0 & $y);  # inherit bignum 0
+  while ($level-- >= 0) {
+    ### $level
     ### $len
-  }
-  $level_limit += 2;
-  if (_is_infinite($level_limit)) {
-    return $level_limit;
-  }
+    ### n: sprintf '0x%X', $n
+    ### $x
+    ### $y
 
-  my $n = 0;
-  my $power = 1;
-  while ($x != 0 || $y != 0) {
-    if ($level_limit-- < 0) {
-      ### oops, level limit reached ...
-      return undef;
+    $n *= 4;
+    if ($x < $len) {
+      # left
+      if ($y >= $len) {
+        $n += 1;  # top left
+        $y -= $len;
+      }
+    } else {
+      # right
+      $x -= $len;
+      if ($y < $len) {
+        $n += 3;  # bottom right
+      } else {
+        $n += 2;  # top right
+        $y -= $len;
+      }
     }
-    my $m = ($x % 2) + 2*($y % 2);
-    my $digit = $mod_to_digit[$m];
-    ### at: "$x,$y  m=$m digit=$digit"
-
-    $x -= $digit_to_x[$digit];
-    $y -= $digit_to_y[$digit];
-    ### subtract: "$digit_to_x[$digit],$digit_to_y[$digit] to $x,$y"
-
-    ### assert: $x % 2 == 0
-    ### assert: $y % 2 == 0
-    $x /= 2;
-    $y /= 2;
-    $n += $digit * $power;
-    $power *= 4;
+    $len /= 2;
   }
   return $n;
 }
 
-# level   N    Xmax
-#   1   4^1-1    1
-#   2   4^2-1    1+2
-#   3   4^3-1    1+3+4
-# X <= 2^0+2^1+...+2^(level-1)
-# X <= 2^level - 1
-# X+1 <= 2^level
-# log2(X+1) <= level
-# level = log2(X+1)
-#
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### MathImageCornerReplicate rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
   $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
   $y2 = _round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+  ### rect: "X = $x1 to $x2, Y = $y1 to $y2"
 
   if ($x2 < 0 || $y2 < 0) {
-    return (1,0);
+    return (1, 0); # rectangle outside first quadrant
   }
 
-  my $max = ($x2 > $y2 ? $x2 : $y2);
-  my $level = ceil(log(($max+1) || 1) / log(2));
+  my ($len, $level) = _round_down_pow (($x2 > $y2 ? $x2 : $y2),
+                                       2);
+  ### $len
   ### $level
-  return (0, 4**$level - 1);
+  if (_is_infinite($level)) {
+    return (0,$level);
+  }
+
+  my $n_min = my $n_max
+    = my $x_min = my $y_min
+      = my $x_max = my $y_max
+        = ($x1 & 0 & $x2 & $y1 & $y2); # inherit bignum 0
+
+  my $i_min = my $i_max = ($level & 1) << 2;
+  while ($level-- >= 0) {
+    ### $len
+    ### $level
+    {
+      my $x_cmp = $x_max + $len;
+      my $y_cmp = $y_max + $len;
+
+      my $digit;
+      if ($x2 < $x_cmp) {
+        # left only
+        if ($y2 < $y_cmp) {
+          $digit = 0;  # bottom left
+        } else {
+          $digit = 1;  # top left
+          $y_max += $len;
+        }
+      } else {
+        # right included
+        $x_max += $len;
+        if ($y1 >= $y_cmp) {
+          # top only
+          $digit = 2;  # top right
+          $y_max += $len;
+        } else {
+          # bottom included
+          $digit = 3;  # bottom right
+        }
+      }
+
+      $n_max = 4*$n_max + $digit;
+      ### max ...
+      ### $digit
+      ### n_max: sprintf "%#X", $n_max
+      ### $x_max
+      ### $y_max
+      ### len:  sprintf "%#X", $len
+    }
+    {
+      my $x_cmp = $x_min + $len;
+      my $y_cmp = $y_min + $len;
+
+      my $digit;
+      if ($x1 >= $x_cmp) {
+        # right only
+        $x_min += $len;
+        if ($y2 < $y_cmp) {
+          # bottom only
+          $digit = 3;  # bottom right
+        } else {
+          # top included
+          $digit = 2;  # top right
+          $y_min += $len;
+        }
+      } else {
+        # left included
+        if ($y1 >= $y_cmp) {
+          # top only
+          $digit = 1;  # top left
+          $y_min += $len;
+        } else {
+          # bottom included
+          $digit = 0;  # bottom left
+        }
+      }
+
+      $n_min = 4*$n_min + $digit;
+      ### min ...
+      ### $digit
+      ### n_min: sprintf "%#X", $n_min
+      ### $x_min
+      ### $y_min
+      ### len:  sprintf "%#X", $len
+    }
+    $len /= 2;
+  }
+
+  return ($n_min, $n_max);
 }
+
 
 1;
 __END__
@@ -248,6 +324,6 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::HilbertCurve>
 
 =cut

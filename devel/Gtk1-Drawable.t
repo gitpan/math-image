@@ -52,7 +52,7 @@ my $rootwin = Gtk::Gdk::Window->new_foreign(Gtk::Gdk->ROOT_WINDOW());
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 70;
+my $want_version = 71;
 is ($App::MathImage::Image::Base::Gtk::Gdk::Drawable::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Gtk::Gdk::Drawable->VERSION,
@@ -158,7 +158,8 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Drawable->VERSION($check_ver
   my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin,
                                        10,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Drawable->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->xy (2,2, 'black');
   $image->xy (3,3, 'white');
   $image->xy (4,4, '#ffffff');
@@ -174,7 +175,8 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Drawable->VERSION($check_ver
   my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin,
                                        20,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Drawable->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->rectangle (0,0, 19,9, 'black', 1);
   $image->rectangle (5,5, 7,7, 'white', 0);
   is ($image->xy (5,5), '#FFFFFF');
@@ -186,13 +188,40 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Drawable->VERSION($check_ver
   my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin,
                                        20,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Drawable->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->rectangle (0,0, 19,9, 'black', 1);
   $image->rectangle (0,0, 2,2, '#FFFFFF', 1);
   is ($image->xy (0,0), '#FFFFFF');
   is ($image->xy (1,1), '#FFFFFF');
   is ($image->xy (2,1), '#FFFFFF');
   is ($image->xy (3,3), '#000000');
+}
+
+#------------------------------------------------------------------------------
+# diamond()
+
+{
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin,
+                                       20,10, -1);
+  my $image = App::MathImage::Image::Base::Gtk::Gdk::Drawable->new
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
+  $image->diamond (0,0, 19,9, 'black', 1);
+  $image->diamond (5,5, 7,7, 'white', 0);
+}
+
+#------------------------------------------------------------------------------
+# ellipse()
+
+{
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin,
+                                       20,10, -1);
+  my $image = App::MathImage::Image::Base::Gtk::Gdk::Drawable->new
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
+  $image->ellipse (0,0, 19,9, 'black', 1);
+  $image->ellipse (5,5, 7,7, 'white', 0);
 }
 
 #------------------------------------------------------------------------------

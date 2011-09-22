@@ -30,7 +30,7 @@ require Gtk;
 Gtk->init_check
   or plan skip_all => 'due to no DISPLAY available';
 
-plan tests => 25;
+plan tests => 21;
 
 use_ok ('App::MathImage::Image::Base::Gtk::Gdk::Pixmap');
 diag "Image::Base version ", Image::Base->VERSION;
@@ -40,7 +40,7 @@ my $rootwin = Gtk::Gdk::Window->new_foreign(Gtk::Gdk->ROOT_WINDOW());
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 70;
+my $want_version = 71;
 is ($App::MathImage::Image::Base::Gtk::Gdk::Pixmap::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION,
@@ -83,7 +83,7 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION($check_versi
      -depth  => 1);
   is ($image->get('-width'),  8, 'bitmap get() -width');
   is ($image->get('-height'), 9, 'bitmap get() -height');
-  is ($image->get('-depth'),  1, 'bitmap get() -depth');
+  # is ($image->get('-depth'),  1, 'bitmap get() -depth');
 }
 
 
@@ -91,9 +91,10 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION($check_versi
 # colour_to_colorobj() pixels
 
 {
-  my $pixmap = Gtk::Gdk::Pixmap->new (Gtk::Gdk->get_default_root_window, 10,10, -1);
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin, 10,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-    (-drawable => $pixmap);
+    (-drawable => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   foreach my $colour ('black', 'white', '#FF00FF', '#0000AAAAbbbb') {
     my $c1 = $image->colour_to_colorobj('black');
     my $c2 = $image->colour_to_colorobj('black');
@@ -110,12 +111,27 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION($check_versi
 }
 
 #------------------------------------------------------------------------------
+# xy
+
+{
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin, 10,10, -1);
+  my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
+  $image->xy (2,2, 'black');
+  $image->xy (3,3, 'white');
+  #   is ($image->xy (2,2), 'black', 'xy()  ');
+  #   is ($image->xy (3,3), 'white', 'xy() *');
+}
+
+#------------------------------------------------------------------------------
 # line
 
 {
-  my $pixmap = Gtk::Gdk::Pixmap->new (Gtk::Gdk->get_default_root_window, 10,10, -1);
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin, 10,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->rectangle (0,0, 19,9, 'black', 1);
   $image->line (5,5, 7,7, 'white', 0);
   #   is ($image->xy (4,4), ' ');
@@ -126,9 +142,10 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION($check_versi
   #   is ($image->xy (8,8), ' ');
 }
 {
-  my $pixmap = Gtk::Gdk::Pixmap->new (Gtk::Gdk->get_default_root_window, 10,10, -1);
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin, 10,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->rectangle (0,0, 19,9, 'black', 1);
   $image->line (0,0, 2,2, 'white', 1);
   #   is ($image->xy (0,0), 'white');
@@ -138,25 +155,13 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION($check_versi
 }
 
 #------------------------------------------------------------------------------
-# xy
-
-{
-  my $pixmap = Gtk::Gdk::Pixmap->new (Gtk::Gdk->get_default_root_window, 10,10, -1);
-  my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-    (-pixmap => $pixmap);
-  $image->xy (2,2, 'black');
-  $image->xy (3,3, 'white');
-  #   is ($image->xy (2,2), 'black', 'xy()  ');
-  #   is ($image->xy (3,3), 'white', 'xy() *');
-}
-
-#------------------------------------------------------------------------------
 # rectangle
 
 {
-  my $pixmap = Gtk::Gdk::Pixmap->new (Gtk::Gdk->get_default_root_window, 10,10, -1);
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin, 10,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->rectangle (0,0, 19,9, 'black', 1);
   $image->rectangle (5,5, 7,7, 'white', 0);
   #   is ($image->xy (5,5), 'white');
@@ -165,9 +170,10 @@ ok (! eval { App::MathImage::Image::Base::Gtk::Gdk::Pixmap->VERSION($check_versi
   #   is ($image->xy (8,8), 'black');
 }
 {
-  my $pixmap = Gtk::Gdk::Pixmap->new (Gtk::Gdk->get_default_root_window, 10,10, -1);
+  my $pixmap = Gtk::Gdk::Pixmap->new ($rootwin, 10,10, -1);
   my $image = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-    (-pixmap => $pixmap);
+    (-pixmap => $pixmap,
+     -colormap => Gtk::Gdk::Colormap->get_system());
   $image->rectangle (0,0, 19,9, 'black', 1);
   $image->rectangle (0,0, 2,2, 'white', 1);
   #   is ($image->xy (0,0), 'white');

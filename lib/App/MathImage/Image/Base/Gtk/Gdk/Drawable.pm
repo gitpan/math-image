@@ -1,3 +1,7 @@
+# xy() read back rgb?
+
+
+
 # Copyright, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -22,7 +26,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Image::Base;
 @ISA = ('Image::Base');
@@ -45,6 +49,11 @@ my %attr_to_get_method = (-depth    => sub {
                             # my ($window) = @_;
                             # return $window->get_visual->get_depth;
                           },
+                          # no get_width method or property, just
+                          # get_size(), and the return from it is
+                          # ($height,$width)
+                          -width  => sub { ($_[0]->get_size)[1] },
+                          -height => sub { ($_[0]->get_size)[0] },
                          );
 sub _get {
   my ($self, $key) = @_;
@@ -52,13 +61,6 @@ sub _get {
   if (my $method = $attr_to_get_method{$key}) {
     return $self->{'-drawable'}->$method;
   }
-  if ($key eq '-width') {   # no get_width method or property, just get_size
-    return ($self->{'-drawable'}->get_size)[1];
-  }
-  if ($key eq '-height') {  # no get_height method or property, just get_size
-    return ($self->{'-drawable'}->get_size)[0];
-  }
-
   if ($key eq '-pixmap' || $key eq '-window') {  # aliasing
     $key = '-drawable';
   }
@@ -97,8 +99,8 @@ sub set {
   my $width  = delete $params{'-width'};
   my $height = delete $params{'-height'};
   if (defined $width || defined $height) {
-    if (! defined $width)  { $width  = ($self->{'-drawable'}->get_size)[0]; }
-    if (! defined $height) { $height = ($self->{'-drawable'}->get_size)[1]; }
+    if (! defined $width)  { $width  = ($self->{'-drawable'}->get_size)[1]; }
+    if (! defined $height) { $height = ($self->{'-drawable'}->get_size)[0]; }
     $self->{'-drawable'}->resize ($width, $height);
   }
 
@@ -106,33 +108,58 @@ sub set {
   ### set leaves: $self
 }
 
+#------------------------------------------------------------------------------
+# drawing
+
 sub xy {
   my ($self, $x, $y, $colour) = @_;
+  my $drawable = $self->{'-drawable'};
   if (@_ >= 4) {
     ### Image-GtkGdkDrawable xy: "$x, $y, $colour"
-    $self->{'-drawable'}->draw_point ($self->gc_for_colour($colour), $x, $y);
+    $drawable->draw_point ($self->gc_for_colour($colour), $x, $y);
   } else {
     ### Image-GtkGdkDrawable xy() fetch: "$x, $y"
-    my $drawable = $self->{'-drawable'};
-    my $gdkimage = Gtk::Gdk::Image->get ($drawable, $x,$y, 1,1);
-    my $pixel = $gdkimage->get_pixel (0,0);
-    ### $pixel
-    my $colormap = $self->get('-colormap');
-    ### $colormap
-    my $visual = $colormap->get_visual;
-    ### $visual
-    return undef;
 
+    # ENHANCE-ME: pixel colour fetch from colormap ?
+    my $gdkimage = Gtk::Gdk::Image->get ($drawable, $x,$y, 1,1);
+    return $gdkimage->get_pixel (0,0);
+
+
+
+    # ### $pixel
+    # ### $colormap
+    # my $visual = $colormap->get_visual;
+    # ### $visual
+    # return $pixel;
 
     # my $visual_type = $visual->get_type;
     # ### $visual_type
-    # my $color = $colormap->color ($pixel);
+    # my $color = $colormap->color ($pixel);  # not range checked ...
     # ### $color
     # if ($color) {
-    #   return sprintf '#%04X%04X%04X', $color->red, $color->green, $color->blue;
-    # } else {
-    #   return undef;
+    #   return sprintf '#%04X%04X%04X',
+    #     $color->red, $color->green, $color->blue;
     # }
+
+    # get_from_drawable() ref count bad in 0.7009
+    # if (my $colormap = $self->get('-colormap')) {
+    #   ### use pixbuf ...
+    #   require Gtk::Gdk::Pixbuf;
+    #   Gtk::Gdk::Pixbuf->init;
+    #   my $pixbuf = Gtk::Gdk::Pixbuf->new (0,     # colorspace rgb
+    #                                       0,     # has_alpha
+    #                                       8,     # bits_per_sample
+    #                                       1,1);  # width,height
+    #   ### $pixbuf
+    #   ### $drawable
+    #   ### $colormap
+    #   Gtk::Gdk::Pixbuf::get_from_drawable ($drawable, $colormap,
+    #                               $x,$y,  # src x,y
+    #                               0,0,    # dst x,y
+    #                               1,1);   # width,height
+    #   return sprintf '#%04X%04X%04X', unpack 'CCC', $pixbuf->get_pixels (0,0);
+    # } else {
+    #    }
   }
 }
 
@@ -260,6 +287,9 @@ sub diamond {
   }
 }
 
+#------------------------------------------------------------------------------
+# colours
+
 # return '-gc' with its foreground set to $colour
 # -gc is created if not already set
 # the colour set is recorded to save work if the next drawing is the same
@@ -279,7 +309,7 @@ sub gc_for_colour {
       if (! $gc) {
         return ($self->{'-gc'}
                 = Gtk::Gdk::GC->new ($self->{'-drawable'},
-                                      { foreground => $colorobj }));
+                                     { foreground => $colorobj }));
       }
       $gc->set_foreground ($colorobj);
     }
@@ -287,32 +317,39 @@ sub gc_for_colour {
   return $gc;
 }
 
+use constant::defer _COLOROBJ_SET => sub {
+  my $color = Gtk::Gdk::Color->parse_color ('#FFFFFF');
+  $color->pixel(1);
+  $color->{'pixel'} = 1;
+  ### $color
+  return $color;
+};
+use constant::defer _COLOROBJ_CLEAR => sub {
+  my $color = Gtk::Gdk::Color->parse_color ('#000');
+  $color->pixel(0);
+  $color->{'pixel'} = 0;
+  ### $color
+  return $color;
+};
+
 sub colour_to_colorobj {
   my ($self, $colour) = @_;
   ### colour_to_colorobj(): $colour
 
   if ($colour =~ /^\d+$/) {
-    return Gtk::Gdk::Color->new (0,0,0, $colour);
+    my $colorobj = Gtk::Gdk::Color->parse_color ('#000');
+    $colorobj->pixel($colour);
+    return $colorobj;
   }
   if ($colour eq 'set') {
-    my $color = Gtk::Gdk::Color->parse_color ('#FFFFFFFFFFFF');
-    ### $color
-    $color->pixel(1);
-    $color->{'pixel'} = 1;
-    ### $color
-    return $color;
+    return _COLOROBJ_SET();
   }
   if ($colour eq 'clear') {
-    my $color = Gtk::Gdk::Color->parse_color ('#000');
-    $color->pixel(0);
-    $color->{'pixel'} = 0;
-    ### $color
-    return $color;
+    return _COLOROBJ_CLEAR();
   }
 
   my $drawable = $self->{'-drawable'};
-  my $colormap = $self->{'-colormap'};
-  # my $colormap = $drawable->get_colormap;
+  my $colormap = $self->get('-colormap');
   if (! $colormap) {
     # if ($drawable->get_depth == 1) {
     #   if ($colour =~ /^#(000)+$/) {
@@ -371,9 +408,8 @@ Gdk drawable, meaning either a window or a pixmap.
 
 Colour names are anything recognised by
 C<< Gtk::Gdk::Color->parse_color() >>, which means various names like "pink"
-plus hex #RRGGBB or #RRRRGGGGBBB.  As of Gtk 2.20 the colour names are the
-Pango compiled-in copy of the X11 F<rgb.txt>.  Special names "set" and
-"clear" mean pixel values 1 and 0 for use with bitmaps.
+plus hex #RRGGBB or #RRRRGGGGBBB.  Special names "set" and "clear" mean
+pixel values 1 and 0 for use with bitmaps.
 
 The C<Image::Base::Gtk::Gdk::Pixmap> subclass has some specifics for
 creating pixmaps, but this base Drawable is enough to draw into an existing
@@ -432,7 +468,7 @@ The target drawable.
 
 =item C<-height> (integer)
 
-The size of the drawable per C<< $drawable->get_size >>.
+The size of the drawable per C<< $drawable->get_size() >>.
 
 =item C<-colormap> (C<Gtk::Gdk::Colormap>, or C<undef>)
 

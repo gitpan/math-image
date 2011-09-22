@@ -23,10 +23,13 @@ use Glib;
 use Gtk2;
 use Locale::TextDomain ('Math-Image');
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 # this applies to the whole program
 my $copyright_string = __('Copyright (C) 2010, 2011 Kevin Ryde');

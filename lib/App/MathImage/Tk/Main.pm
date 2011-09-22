@@ -35,7 +35,7 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 70;
+our $VERSION = 71;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -182,7 +182,7 @@ sub Populate {
          $draw->queue_reimage;
        });
     $spin->pack(-side => 'left');
-    $balloon->attach($spin, -balloonmsg => __('The figure to show at each position.'));
+    $balloon->attach($spin, -balloonmsg => __('The figure to draw at each position.'));
   }
 
   $self->Component ('Label','statusbar',

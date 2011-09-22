@@ -24,7 +24,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::Base::Sparse';
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 
 # use constant name => Math::NumSeq::__('Pell Numbers');
 use constant description => Math::NumSeq::__('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');

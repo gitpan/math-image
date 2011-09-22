@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 71, September 2011
+    - fix drawing non-ith() sequences like Aronson when away from origin
+    - fix die on unrecognised command line options
 
 Version 70, September 2011
     - koch squareflakes split out

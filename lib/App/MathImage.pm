@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -133,7 +133,12 @@ sub getopt_long_specifications {
                            # 'knight-spiral'         => 'KnightSpiral',
                            # 'square-spiral' => 'SquareSpiral',
                           );
-       (map { my $opt = $_; ($opt => sub { _hopt ($self,'gen_options','path', $path_options{$opt}) })
+       (map { my $opt = $_;
+              ($opt => sub {
+                 ### $opt
+                 ### path option set: $path_options{$opt}
+                 _hopt ($self,'gen_options','path', $path_options{$opt})
+               })
             } keys %path_options)
      },
 
@@ -295,12 +300,13 @@ sub new {
 sub command_line {
   my ($self) = @_;
   ref $self or $self = $self->new;
+  ### ARGV initial: @ARGV
 
   require Getopt::Long;
   Getopt::Long::Configure ('no_ignore_case');
   Getopt::Long::Configure ('pass_through');
   Getopt::Long::GetOptions ($self->getopt_long_specifications) or return 1;
-  ### @ARGV
+  ### ARGV after getopt: @ARGV
 
   my $gui_options = $self->{'gui_options'};
   my $gen_options = $self->{'gen_options'};
@@ -324,7 +330,7 @@ sub command_line {
     }
   }
 
-  ### command line: $gen_options
+  ### command line gen_options: $gen_options
   %$gen_options = (%$gen_defaults,
                    %$gen_options);
   ### gen_options: $gen_options
@@ -334,25 +340,29 @@ sub command_line {
          ? ($gen_options->{'values'} eq 'Lines' ? 2 : 1)
          : ($gen_options->{'values'} eq 'Lines' ? 5 : 3));
   }
-  if (defined $gen_options->{'width'} && delete $gen_options->{'width_in_scale'}) {
+  if (defined $gen_options->{'width'}
+      && delete $gen_options->{'width_in_scale'}) {
     $gen_options->{'width'} *= $gen_options->{'scale'};
   }
-  if ($gen_options->{'height'} && delete $gen_options->{'height_in_scale'}) {
+  if ($gen_options->{'height'}
+      && delete $gen_options->{'height_in_scale'}) {
     $gen_options->{'height'} *= $gen_options->{'scale'};
   }
   ### gen_options now: $gen_options
 
-  if (! defined $module) {
-    if ($output eq 'gui') {
-      if (eval { require Image::Base::Prima::Image }) {
-        $module = 'Prima';
-      }
-    }
-  }
-
   if (@ARGV) {
     die "Unrecognised option(s): ",join(' ',@ARGV);
   }
+
+  # maybe Image::Base::Prima::Image v.8 to avoid "use Prima" eating @ARGV
+  #
+  # if (! defined $module) {
+  #   if ($output eq 'gui') {
+  #     if (eval { require Image::Base::Prima::Image }) {
+  #       $module = 'Prima';
+  #     }
+  #   }
+  # }
 
   if ($self->{'verbose'}) {
     print STDERR $self->make_generator->description,"\n";
@@ -366,11 +376,15 @@ sub command_line {
 
 sub try_gtk {
   my ($self) = @_;
+  ### try_gtk() ...
+  ### @ARGV
+
   if ($self->{'gtk_tried'}) {
     return 0;
   }
   if (defined (my $display = $self->{'other_options'}->{'display'})) {
     unshift @ARGV, '--display', $display;
+    ### add --display for ARGV: @ARGV
   }
   ### Gtk2 init
   ### @ARGV

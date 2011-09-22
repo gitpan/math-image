@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -26,11 +26,12 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -42,10 +43,12 @@ use constant n_start => 0;
 #      3  0  1  9
 #         4
 
-my @X = (0,1,0,-1,0);
-my @Y = (0,0,1,0,-1);
-my @oX = (0,2,-1,-2,1);
-my @oY = (0,1,2,-1,-2);
+# my @digit_to_xbx = (0,1,0,-1,0);
+# my @digit_to_xby = (0,0,-1,0,1);
+# my @digit_to_y = (0,0,1,0,-1);
+# my @digit_to_yby = (0,0,1,0,-1);
+#     $x += $bx * $digit_to_xbx[$digit] + $by * $digit_to_xby[$digit];
+#     $y += $bx * $digit_to_ybx[$digit] + $by * $digit_to_yby[$digit];
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -67,37 +70,86 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $x = 0;
-  my $y = 0;
-  my $len_even = 1;
-  my $len_odd = 1;
-  while ($n) {
+  my $x = my $y = my $by = ($n & 0); # inherit bignum 0
+  my $bx = $x+1; # inherit bignum 1
+  do {
     my $digit = ($n % 5);
-
-    ### even ...
     ### $digit
-    $x += $len_even * $X[$digit];
-    $y += $len_even * $Y[$digit];
-    $len_even *= 5;
+    ### $bx
+    ### $by
 
-    $n = int($n/5) || last;
-    $digit = ($n % 5);
-    $n = int($n/5);
+    if ($digit == 1) {
+      $x += $bx;
+      $y += $by;
+    } elsif ($digit == 2) {
+      $x -= $by;  # i*(bx+i*by) = rotate +90
+      $y += $bx;
+    } elsif ($digit == 3) {
+      $x -= $bx;  # -1*(bx+i*by) = rotate 180
+      $y -= $by;
+    } elsif ($digit == 4) {
+      $x += $by;  # -i*(bx+i*by) = rotate -90
+      $y -= $bx;
+    }
 
-    ### odd ...
-    ### $digit
-    $x += $len_odd * $oX[$digit];
-    $y += $len_odd * $oY[$digit];
-    $len_odd *= 5;
-  }
+    # power (bx,by) = (bx + i*by)*(i+2)
+    #
+    ($bx,$by) = (2*$bx-$by, 2*$by+$bx);
+
+  } while ($n = int($n/5));
 
   return ($x, $y);
 }
 
+# digit   modulus 2Y+X mod 5
+#   2        2
+# 3 0 1    1 0 4
+#   4        3
+#
+my @modulus_to_x = (0,-1,0,0,1);
+my @modulus_to_y = (0,0,1,-1,0);
+my @modulus_to_digit = (0,3,2,4,1);
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  return undef;
   ### QuintetReplicate xy_to_n(): "$x, $y"
+
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
+  if (_is_infinite($x)) { return ($x); }
+  if (_is_infinite($y)) { return ($y); }
+
+  my $n = ($x & 0 & $y);  # inherit bignum 0
+  my $power = $n + 1;     # inherit bignum 1
+
+  while ($x || $y) {
+    ### at: "$x,$y n=$n power=$power"
+
+    my $m = (2*$y - $x) % 5;
+    ### $m
+    ### digit: $modulus_to_digit[$m]
+    ### powered: $modulus_to_digit[$m] * $power
+
+    $n += $modulus_to_digit[$m] * $power;
+    $power *= 5;
+
+    $x -= $modulus_to_x[$m];
+    $y -= $modulus_to_y[$m];
+    ### shrink to: "$x,$y"
+
+    # div i+2,
+    # = (i*y + x) * (i-2)/-5
+    # = (-y -2*y*i + x*i -2*x) / -5
+    # = (y + 2*y*i - x*i + 2*x) / 5
+    # = (2x+y + (2*y-x)i) / 5
+    #
+    ### assert: ((2*$x + $y) % 5) == 0
+    ### assert: ((2*$y - $x) % 5) == 0
+    #
+    ($x,$y) = ((2*$x + $y) / 5,
+               (2*$y - $x) / 5);
+  }
+  return $n;
 }
 
 # level 1   s=0            snext=5*s+2
@@ -128,7 +180,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageQuintetReplicate -- self-similar path traversal
+Math::PlanePath::MathImageQuintetReplicate -- self-similar "+" tiling
 
 =head1 SYNOPSIS
 
@@ -140,21 +192,38 @@ Math::PlanePath::MathImageQuintetReplicate -- self-similar path traversal
 
 I<In progress.>
 
-                12
+This is a self-similar tiling of the plane with "+" shapes.  It's the same
+kind of tiling as the QuintetCurve (and QuintetCentres), but with the middle
+square of the "+" centred on the origin.
 
-            13  10  11       7
+            12                         3
 
-                14   2   8   5   6
+        13  10  11       7             2
 
-            17   3   0   1   9                             <-  y=0
+            14   2   8   5   6         1
 
-        18  15  16   4  22
+        17   3   0   1   9         <- Y=0
 
-            19      23  20  21
+    18  15  16   4  22                -1
 
-                        24
+        19      23  20  21            -2
 
-      x=-4 -3 -2 -1  0  1  2  3  4  5  6  7  8  9 10 11
+                    24                -3
+
+                 ^
+    -4 -3 -2 -1 X=0  1  2  3  4
+
+=head2 Complex Base
+
+This tiling corresponds to expressing a complex integer X+i*Y in base b=i+2
+
+    X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
+
+with each digit a[i] = 0, 1, i, -1, or -i.  Those digits are then
+represented in integer N by 0,1,2,3,4.
+
+The base b=i+2 is at an angle atan(1/2) = 26.56 degrees and successive
+powers b^2, b^3, b^4 etc rotate around by that much each time.
 
 =head1 FUNCTIONS
 
@@ -188,7 +257,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2011 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

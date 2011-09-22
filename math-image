@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 exit App::MathImage->command_line;
 
 __END__
@@ -371,6 +371,14 @@ Run the Curses interactive text interface.  This requires the C<Curses::UI>
 modules.  It's very experimental and the control options are minimal.
 
 =back
+
+The Gtk and Prima GUIs have printer output through their usual printing
+mechanisms.  In the current code the Gtk one is a screen dump but the Prima
+one is a PostScript re-run of the image drawing which might be a bit slow.
+
+There's some very rudimentary support for other GUIs with C<--module=Wx> for
+wxWidgets and C<--module=Gtk1> for the older Gtk 1.2 and corresponding
+Gtk-Perl.  They're only meant to see how well those GUIs work as yet.
 
 =head2 Other Options
 

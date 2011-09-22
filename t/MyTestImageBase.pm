@@ -95,6 +95,7 @@ sub dump_image {
   if (defined $skip) {
     return;
   }
+  require MyTestHelpers;
   my $width = $image->get('-width');
   my $height = $image->get('-height');
   MyTestHelpers::diag("dump_image");
@@ -117,6 +118,7 @@ sub dump_image {
     }
     MyTestHelpers::diag($str);
   }
+
   if (my $canvas = $image->get('-tkcanvas')) {
     my @items = $canvas->find('all');
     MyTestHelpers::diag("item count ",scalar(@items));
@@ -533,8 +535,13 @@ sub check_image {
     my ($width, $height) = $image->get('-width','-height');
     sub {
       $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+      # { print "blank to\n"; dump_image($image); }
     }
   };
+
+  ### $white
+  ### $black
+  ### $white_expect
 
   check_line ($image, %options);
   check_rectangle ($image, %options);

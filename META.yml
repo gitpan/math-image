@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            70
+version:            71
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -170,6 +170,7 @@ optional_features:
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
+            Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Factorials:  1
@@ -198,6 +199,7 @@ optional_features:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
+            Math::PlanePath::ComplexMinus:  44
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
@@ -278,6 +280,7 @@ optional_features:
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
+            Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Factorials:  1
@@ -309,6 +312,7 @@ optional_features:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
+            Math::PlanePath::ComplexMinus:  44
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::Diagonals:  2
@@ -404,6 +408,7 @@ recommends:
     Math::NumSeq::DigitLengthCumulative:  1
     Math::NumSeq::DigitProduct:  2
     Math::NumSeq::DigitSum:  2
+    Math::NumSeq::DigitSumModulo:  5
     Math::NumSeq::Emirps:  4
     Math::NumSeq::Even:   1
     Math::NumSeq::Factorials:  1
@@ -432,6 +437,7 @@ recommends:
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::CellularRule54:  40
     Math::PlanePath::Columns:  26
+    Math::PlanePath::ComplexMinus:  44
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
     Math::PlanePath::Diagonals:  2

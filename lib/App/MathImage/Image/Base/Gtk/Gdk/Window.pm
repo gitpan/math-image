@@ -21,13 +21,38 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use App::MathImage::Image::Base::Gtk::Gdk::Drawable;
 @ISA = ('App::MathImage::Image::Base::Gtk::Gdk::Drawable');
 
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
+sub _get {
+  my ($self, $key) = @_;
+  if ($key eq '-colormap') {
+    return $self->{'-drawable'}->get_colormap;
+  }
+  return $self->SUPER::_get($key);
+}
+
 sub set {
   my ($self, %params) = @_;
+
+  # aliasing
+  if (exists $params{'-pixmap'}) {
+    $params{'-drawable'} = delete $params{'-pixmap'};
+  }
+  if (exists $params{'-window'}) {
+    $params{'-drawable'} = delete $params{'-window'};
+  }
+
+  # set -drawable now so as to apply -colormap and size to possible new one
+  if (exists $params{'-drawable'}) {
+    $self->{'-drawable'} = delete $params{'-drawable'};
+  }
+
   if (exists $params{'-colormap'}) {
     $self->{'-drawable'}->set_colormap (delete $params{'-colormap'});
   }

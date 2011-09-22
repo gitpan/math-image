@@ -34,7 +34,7 @@ use App::MathImage::NumSeq::MobiusFunction;
 # VERSION
 
 {
-  my $want_version = 70;
+  my $want_version = 71;
   is ($App::MathImage::NumSeq::MobiusFunction::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::MobiusFunction->VERSION,  $want_version, 'VERSION class method');
 

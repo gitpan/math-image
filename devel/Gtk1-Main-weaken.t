@@ -27,6 +27,9 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
+# uncomment this to run the ### lines
+use Devel::Comments;
+
 eval { require Gtk; 1 }
   or plan skip_all => "Gtk 1.x not available -- $@";
 Gtk->init_check
@@ -73,12 +76,48 @@ sub my_ignore {
          $main->show_all;
          return $main;
        },
-       destructor => \&Test::Weaken::Gtk2::destructor_destroy,
-       contents => \&Test::Weaken::Gtk2::contents_container,
+       destructor => sub {
+         my ($ref) = @_;
+         $ref->destroy;
+       },
+       contents => sub {
+         my ($ref) = @_;
+         require Scalar::Util;
+         if (Scalar::Util::blessed($ref) && $ref->isa('Gtk::Container')) {
+           return $ref->children;
+         }
+         return;
+       },
        ignore => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
+
+  # {
+  #   my $unfreed = $leaks->unfreed_proberefs;
+  #   my $label = $unfreed->[0];
+  #   ### text: $label->get
+  # }
   MyTestHelpers::test_weaken_show_leaks($leaks);
+
 }
+
+# {
+#   my $leaks = Test::Weaken::leaks
+#     ({ constructor => sub {
+#          my $widget = Gtk::Label->new;
+#          my $adj = Gtk::Label->new;
+#          print "$widget\n";
+#          print "$adj\n";
+#          # = $widget->{'adj'}
+#          # Gtk::Adjustment->new (0,0,0,0,0,0);
+#          return [$widget,$adj];
+#        },
+#        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
+#        contents => \&Test::Weaken::Gtk2::contents_container,
+#        ignore => \&my_ignore,
+#      });
+#   is ($leaks, undef, 'Test::Weaken deep garbage collection');
+#   MyTestHelpers::test_weaken_show_leaks($leaks);
+# }
 
 exit 0;

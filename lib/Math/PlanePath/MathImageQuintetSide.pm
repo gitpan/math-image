@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
@@ -186,17 +186,6 @@ sub _xy_to_n_in_level {
   }
 
   return undef;
-}
-
-sub _round_up_pow2 {
-  my ($x) = @_;
-  my $exp = ceil (log(max(1, $x)) / log(2));
-  my $pow = 2 ** $exp;
-  if ($pow < $x) {
-    return (2*$pow, $exp+1)
-  } else {
-    return ($pow, $exp);
-  }
 }
 
 # radius = sqrt(5) ^ level

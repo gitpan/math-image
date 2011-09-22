@@ -125,7 +125,7 @@ my %maximum_planepath
      'Math::PlanePath::DragonCurve'          => 39, # new in v.39
      'Math::PlanePath::DragonRounded'        => 40, # new in v.40
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
-     # 'Math::PlanePath::TwinDragon'           => 41, # new in v.41
+     'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
 
      'Math::PlanePath::File'                 => 37, # new in v.37
     );
@@ -160,8 +160,9 @@ my %maximum_numseq
      'Math::NumSeq::DigitLength'           => 1,
      'Math::NumSeq::DigitLengthCumulative' => 1,
      'Math::NumSeq::RadixWithoutDigit'     => 1,
-     'Math::NumSeq::DigitSum' => 2,      # new in v.2
-     'Math::NumSeq::DigitProduct' => 2,  # new in v.2
+     'Math::NumSeq::DigitSum'              => 2, # new in v.2
+     'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
+     'Math::NumSeq::DigitProduct'          => 2, # new in v.2
 
      'Math::NumSeq::Beastly' => 1,
      'Math::NumSeq::Repdigits' => 1,
