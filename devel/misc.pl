@@ -34,7 +34,7 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
                                             height => 10,
                                             scale  => 1,
                                             path   => 'SquareSpiral',
-                                            values => 'PlanePathDelta');
+                                            values => 'PlanePath');
   ### gen ...
   require Image::Base::Text;
   my $image = Image::Base::Text->new

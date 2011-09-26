@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            71
+version:            72
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -173,14 +173,18 @@ optional_features:
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
+            Math::NumSeq::Expression:  6
             Math::NumSeq::Factorials:  1
             Math::NumSeq::Fibonacci:  1
+            Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::HarshadNumbers:  1
             Math::NumSeq::LucasNumbers:  1
+            Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::Odd:    1
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Polygonal:  1
+            Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
             Math::NumSeq::Pronic:  1
@@ -283,14 +287,18 @@ optional_features:
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
+            Math::NumSeq::Expression:  6
             Math::NumSeq::Factorials:  1
             Math::NumSeq::Fibonacci:  1
+            Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::HarshadNumbers:  1
             Math::NumSeq::LucasNumbers:  1
+            Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::Odd:    1
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Polygonal:  1
+            Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
             Math::NumSeq::Pronic:  1
@@ -411,14 +419,18 @@ recommends:
     Math::NumSeq::DigitSumModulo:  5
     Math::NumSeq::Emirps:  4
     Math::NumSeq::Even:   1
+    Math::NumSeq::Expression:  6
     Math::NumSeq::Factorials:  1
     Math::NumSeq::Fibonacci:  1
+    Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  1
     Math::NumSeq::HarshadNumbers:  1
     Math::NumSeq::LucasNumbers:  1
+    Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::Odd:    1
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Polygonal:  1
+    Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
     Math::NumSeq::Primorials:  1
     Math::NumSeq::Pronic:  1

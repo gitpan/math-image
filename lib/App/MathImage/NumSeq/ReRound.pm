@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -22,7 +22,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;

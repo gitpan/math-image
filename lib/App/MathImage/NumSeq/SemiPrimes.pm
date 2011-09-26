@@ -28,12 +28,19 @@ use base 'Math::NumSeq::Base::Array';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 71;
+$VERSION = 72;
 
 # use constant name => Math::NumSeq::__('Semi-Primes');
-use constant description => Math::NumSeq::__('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P==Q squares of primes.');
+use constant description => Math::NumSeq::__('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P*P squares of primes.');
 use constant characteristic_monotonic => 2;
 use constant values_min => 4;
+
+# cf A006881 - two distinct primes
+#    A014612 - three primes, with multiplicity
+#    A014613 - four primes
+#    A014614 - five primes
+#    A068318 - sum of the prime factors of the nth semiprime
+#
 use constant oeis_anum => 'A001358'; # semi-primes
 
 sub new {

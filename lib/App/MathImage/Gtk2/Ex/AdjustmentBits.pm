@@ -31,7 +31,7 @@ use Gtk2::Ex::AdjustmentBits 40;  # new v.40
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 71;
+our $VERSION = 72;
 
 sub scroll_increment {
   my ($adj, $type, $neg) = @_;

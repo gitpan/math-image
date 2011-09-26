@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');

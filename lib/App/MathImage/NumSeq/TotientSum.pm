@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::Totient;
 *_totient_by_sieve = \&App::MathImage::NumSeq::Totient::_totient_by_sieve;
 
 use vars '$VERSION';
-$VERSION = 71;
+$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

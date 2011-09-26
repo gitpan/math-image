@@ -21,11 +21,11 @@ use strict;
 use Wx;
 
 use base qw(Wx::Window);
+our $VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 71;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -41,9 +41,10 @@ sub new {
   @{$self}{keys %$options} = values %$options;
   $self->{'scale'} = 3;
 
-  Wx::Event::EVT_PAINT ($self, \&_OnPaint);
-  Wx::Event::EVT_SIZE ($self, \&_OnSize);
-  Wx::Event::EVT_IDLE ($self, \&_OnIdle);
+  Wx::Event::EVT_PAINT ($self, '_OnPaint');
+  Wx::Event::EVT_SIZE ($self, '_OnSize');
+  Wx::Event::EVT_IDLE ($self, '_OnIdle');
+  Wx::Event::EVT_MOTION ($self, '_do_motion');
   return $self;
 }
 
@@ -234,6 +235,30 @@ sub _OnIdle {
   if (my $gen = $self->{'generator'}) {
     $gen->OnIdle ($event);
   }
+}
+
+sub _do_motion {
+  my ($self, $event) = @_;
+  ### Draw _do_motion() ...
+  if (my $main = $self->GetParent) {
+    $main->mouse_motion ($event);
+  }
+}
+
+sub pointer_xy_to_image_xyn {
+  my ($self, $x, $y) = @_;
+  ### pointer_xy_to_image_xyn(): "$x,$y"
+  my $affine_object = $self->{'affine_object'} || return;
+  my ($px,$py) = $affine_object->clone->invert->transform($x,$y);
+  ### $px
+  ### $py
+  my $path_object =  $self->{'path_object'}
+    || return ($px, $py);
+  if ($path_object->figure eq 'square') {
+    $px = POSIX::floor ($px + 0.5);
+    $py = POSIX::floor ($py + 0.5);
+  }
+  return ($px, $py, $path_object->xy_to_n($px,$py));
 }
 
 1;

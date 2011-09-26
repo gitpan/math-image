@@ -147,6 +147,8 @@ my %maximum_numseq
      'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
      'Math::NumSeq::SophieGermainPrimes' => 4, # new in v.4
      'Math::NumSeq::Emirps'              => 4, # new in v.4
+     'Math::NumSeq::MobiusFunction'      => 6, # new in v.6
+     'Math::NumSeq::PrimeFactorCount'    => 6, # new in v.6
 
      'Math::NumSeq::Factorials'   => 1,
      'Math::NumSeq::Primorials'   => 1,
@@ -154,7 +156,7 @@ my %maximum_numseq
      'Math::NumSeq::LucasNumbers' => 1,
 
      'Math::NumSeq::FractionDigits' => 1,
-     'Math::NumSeq::SqrtDigits' => 1,
+     'Math::NumSeq::SqrtDigits'     => 1,
 
      'Math::NumSeq::DigitCount'            => 4, # new in v.4
      'Math::NumSeq::DigitLength'           => 1,
@@ -164,7 +166,7 @@ my %maximum_numseq
      'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
      'Math::NumSeq::DigitProduct'          => 2, # new in v.2
 
-     'Math::NumSeq::Beastly' => 1,
+     'Math::NumSeq::Beastly'   => 1,
      'Math::NumSeq::Repdigits' => 1,
      'Math::NumSeq::Palindromes' => 1,
      'Math::NumSeq::HarshadNumbers' => 1,
@@ -173,8 +175,11 @@ my %maximum_numseq
      'Math::NumSeq::ProthNumbers'   => 1,
      'Math::NumSeq::WoodallNumbers' => 1,
 
-     'Math::NumSeq::CollatzSteps' => 1,
+     'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4
+
+     'Math::NumSeq::File'       => 1,
+     'Math::NumSeq::Expression' => 6,  # new in v.6
 
      # in Math-Aronson
      'Math::Aronson'         => 4, # version 4 for lying option

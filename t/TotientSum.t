@@ -34,7 +34,7 @@ use App::MathImage::NumSeq::TotientSum;
 # VERSION
 
 {
-  my $want_version = 71;
+  my $want_version = 72;
   is ($App::MathImage::NumSeq::TotientSum::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::TotientSum->VERSION,  $want_version, 'VERSION class method');
 

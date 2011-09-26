@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IteratePred;
@@ -105,19 +105,19 @@ App::MathImage::NumSeq::HappyNumbers -- happy numbers
 
 =head1 DESCRIPTION
 
-This sequence is the happy numbers, which means those for which repeatedly
-taking the sum of the squares of its digits eventually gives 1.
+This sequence is the happy numbers, those where repeatedly taking the sum of
+the squares of the digits eventually gives 1.
 
-For example 23 is a happy number because 2^2+3^2=13, then 1^2+3^2=10, then
-1^2+0^2=1.
+For example 23 is a happy number because 2*2+3*3=13, then 1*1+3*3=10, then
+1*1+0*0=1.
 
-In decimal it can be shown that this sum of squares of digits procedure
-always reaches one of the ten values 0, 1, 4, 16, 20, 37, 42, 58, 89, 145.
-Those which reach 1 are called happy numbers.
+In decimal it can be shown that this procedure always reaches one of the ten
+values 0, 1, 4, 16, 20, 37, 42, 58, 89, 145.  Values which reach 1 are
+called happy numbers.
 
-An optional C<radix> parameter can select a base other than decimal for the
-procedure.  Base 2 (binary) and base 4 are not very interesting since for
-them every number is happy.
+An optional C<radix> parameter can select a base other than decimal.  Base 2
+(binary) and base 4 are not very interesting since for them every number is
+happy (except 0).
 
 =head1 FUNCTIONS
 

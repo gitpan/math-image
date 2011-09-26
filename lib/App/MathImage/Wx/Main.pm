@@ -24,13 +24,14 @@ use Locale::TextDomain ('Math-Image');
 
 use App::MathImage::Generator;
 use App::MathImage::Wx::Drawing;
+use App::MathImage::Wx::Params;
 
 use base qw(Wx::Frame);
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 71;
+our $VERSION = 72;
 
 sub new {
   my ($class, $label) = @_;
@@ -46,17 +47,26 @@ sub new {
 
   my $id = 0;
   {
-    my $mfile = Wx::Menu->new;
-    $menubar->Append ($mfile, "&File");
+    my $menu = Wx::Menu->new;
+    $menubar->Append ($menu, "&File");
 
-    $mfile->Append(Wx::wxID_EXIT(), "E&xit\tAlt-X", "Quit this program");
+    $menu->Append(Wx::wxID_EXIT(), "E&xit\tCtrl-Q", "Exit this program");
     EVT_MENU ($self, Wx::wxID_EXIT(), 'quit');
   }
   {
-    my $mhelp = Wx::Menu->new;
-    $menubar->Append ($mhelp, "&Help");
+    my $menu = Wx::Menu->new;
+    $menubar->Append ($menu, "&Tools");
+    {
+      my $item = $self->{'menuitem_fullscreen'} =
+        $menu->AppendCheckItem (++$id, "&Fullscreen\tCtrl-F", "");
+      EVT_MENU ($self, $item, '_menu_fullscreen');
+    }
+  }
+  {
+    my $menu = Wx::Menu->new;
+    $menubar->Append ($menu, "&Help");
 
-    $mhelp->Append (Wx::wxID_ABOUT(), "&About...\tCtrl-A", "Show about dialog");
+    $menu->Append (Wx::wxID_ABOUT(), "&About...", "Show about dialog");
     EVT_MENU ($self, Wx::wxID_ABOUT(), 'popup_about');
   }
 
@@ -72,16 +82,56 @@ sub new {
     # EVT_MENU ($self, $id, 'randomize');
 
     {
-      my $button = Wx::Button->new ($toolbar, ++$id, __('Randomize'));
+      my $button = Wx::Button->new ($toolbar, Wx::wxID_ANY(), __('Randomize'));
       $toolbar->AddControl($button);
-      $toolbar->SetToolShortHelp ($id, __("Random path, values, etc"));
-      Wx::Event::EVT_BUTTON ($self, $id, 'randomize');
+      $toolbar->SetToolShortHelp ($button->GetId,
+                                  __("Random path, values, etc"));
+      Wx::Event::EVT_BUTTON ($self, $button, 'randomize');
     }
 
     {
+      my $choice = $self->{'path_choice'}
+        = Wx::Choice->new ($toolbar,
+                           Wx::wxID_ANY(),
+                           Wx::wxDefaultPosition(),
+                           Wx::wxDefaultSize(),
+                           [App::MathImage::Generator->path_choices]);
+      # 0,  # style
+      # Wx::wxDefaultValidator(),
+      $toolbar->AddControl($choice);
+      $toolbar->SetToolShortHelp
+        ($choice->GetId,
+         __('The path for where to place values in the plane.'));
+      Wx::Event::EVT_CHOICE ($self, $choice, 'path_update');
+
+      my $path_params = $self->{'path_params'}
+        = App::MathImage::Wx::Params->new (toolbar => $toolbar,
+                                           after_item => $choice);
+    }
+
+    {
+      my $choice = $self->{'values_choice'}
+        = Wx::Choice->new ($toolbar,
+                           Wx::wxID_ANY(),
+                           Wx::wxDefaultPosition(),
+                           Wx::wxDefaultSize(),
+                           [App::MathImage::Generator->values_choices]);
+      # 0,  # style
+      # Wx::wxDefaultValidator(),
+      $toolbar->AddControl($choice);
+      $toolbar->SetToolShortHelp
+        ($choice->GetId,
+         __('The values for where to place values in the plane.'));
+      Wx::Event::EVT_CHOICE ($self, $choice, 'values_update');
+
+      my $values_params = $self->{'values_params'}
+        = App::MathImage::Wx::Params->new (toolbar => $toolbar,
+                                           after_item => $choice);
+    }
+    {
       my $spin = $self->{'scale_spin'}
         = Wx::SpinCtrl->new ($toolbar,
-                             ++$id,
+                             Wx::wxID_ANY(),
                              3,  # initial value
                              Wx::wxDefaultPosition(),
                              Wx::Size->new(40,-1),
@@ -90,61 +140,46 @@ sub new {
                              POSIX::INT_MAX(),   # max
                              3);                 # initial
       $toolbar->AddControl($spin);
-      $toolbar->SetToolShortHelp ($id, __('How many pixels per square.'));
-      Wx::Event::EVT_SPINCTRL ($self, $id, 'scale_update');
-    }
-
-    {
-      my $choice = $self->{'path_choice'}
-        = Wx::Choice->new ($toolbar,
-                           ++$id,
-                           Wx::wxDefaultPosition(),
-                           Wx::wxDefaultSize(),
-                           [App::MathImage::Generator->path_choices]);
-                           # 0,  # style
-                           # Wx::wxDefaultValidator(),
-      $toolbar->AddControl($choice);
-      $toolbar->SetToolShortHelp
-        ($id, __('The path for where to place values in the plane.'));
-      Wx::Event::EVT_CHOICE ($self, $id, 'path_update');
-    }
-    {
-      my $choice = $self->{'values_choice'}
-        = Wx::Choice->new ($toolbar,
-                           ++$id,
-                           Wx::wxDefaultPosition(),
-                           Wx::wxDefaultSize(),
-                           [App::MathImage::Generator->values_choices]);
-                           # 0,  # style
-                           # Wx::wxDefaultValidator(),
-      $toolbar->AddControl($choice);
-      $toolbar->SetToolShortHelp
-        ($id, __('The values for where to place values in the plane.'));
-      Wx::Event::EVT_CHOICE ($self, $id, 'values_update');
+      $toolbar->SetToolShortHelp ($spin->GetId,
+                                  __('How many pixels per square.'));
+      Wx::Event::EVT_SPINCTRL ($self, $spin, 'scale_update');
     }
 
     {
       my $choice = $self->{'figure_choice'}
         = Wx::Choice->new ($toolbar,
-                           ++$id,
+                           Wx::wxID_ANY(),
                            Wx::wxDefaultPosition(),
                            Wx::wxDefaultSize(),
                            [App::MathImage::Generator->figure_choices]);
-                           # 0,  # style
-                           # Wx::wxDefaultValidator(),
       $toolbar->AddControl($choice);
       $toolbar->SetToolShortHelp
-        ($id, __('The figure to draw at each position.'));
-      Wx::Event::EVT_CHOICE ($self, $id, 'figure_update');
+        ($choice->GetId,
+         __('The figure to draw at each position.'));
+      Wx::Event::EVT_CHOICE ($self, $choice, 'figure_update');
     }
   }
 
   $self->CreateStatusBar;
 
   my $draw = $self->{'draw'} = App::MathImage::Wx::Drawing->new ($self);
+  path_update($self); # initial
+  values_update($self); # initial
   _update_controls ($self);
 
   return $self;
+}
+
+sub _menu_fullscreen {
+  my ($self, $event) = @_;
+  ### Main _menu_fullscreen() ...
+  $self->ShowFullScreen ($self->{'menuitem_fullscreen'}->IsChecked,
+                         Wx::wxFULLSCREEN_ALL());
+
+  # } else {
+  #   ### Show ...
+  #   $self->Show;
+  # }
 }
 
 sub randomize {
@@ -175,10 +210,12 @@ sub figure_update {
   $draw->Refresh;
 }
 sub path_update {
-  my ($self, $event) = @_;
-  ### Main path_update() ...
+  my ($self) = @_;  # ($self, $event)
+  ### Main path_update(): "$self"
   my $draw = $self->{'draw'};
-  $draw->{'path'} = $self->{'path_choice'}->GetStringSelection;
+  my $path = $draw->{'path'} = $self->{'path_choice'}->GetStringSelection;
+  $self->{'path_params'}->SetParameterInfoArray
+    (App::MathImage::Generator->path_class($path)->parameter_info_array);
   delete $draw->{'bitmap'};
   $draw->Refresh;
 }
@@ -186,7 +223,9 @@ sub values_update {
   my ($self, $event) = @_;
   ### Main values_update() ...
   my $draw = $self->{'draw'};
-  $draw->{'values'} = $self->{'values_choice'}->GetStringSelection;
+  my $values = $draw->{'values'} = $self->{'values_choice'}->GetStringSelection;
+  $self->{'values_params'}->SetParameterInfoArray
+    (App::MathImage::Generator->values_class($values)->parameter_info_array);
   delete $draw->{'bitmap'};
   $draw->Refresh;
 }
@@ -243,6 +282,55 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the license for more.
   Wx::AboutBox($info);
 }
 
+sub mouse_motion {
+  my ($self, $event) = @_;
+  ### Main _do_motion() ...
+
+  my $statusbar = $self->GetStatusBar;
+  $statusbar->SetStatusText ('');
+
+  my $draw = $self->{'draw'};
+  my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->GetX, $event->GetY);
+  my $message = '';
+  if (defined $x) {
+    $message = sprintf ("x=%.*f, y=%.*f",
+                        (int($x)==$x ? 0 : 2), $x,
+                        (int($y)==$y ? 0 : 2), $y);
+    if (defined $n) {
+      $message .= "   N=$n";
+      if ((my $values = $draw->{'values'})
+          && (my $values_obj = $draw->gen_object->values_object)) {
+        my $vstr = '';
+        my $radix;
+        if ($values_obj->can('ith')
+            && (($radix = $values_obj->characteristic('digits'))
+                || $values_obj->characteristic('count')
+                || $values_obj->characteristic('modulus'))) {
+          my $value = $values_obj->ith($n);
+          $vstr = " value=$value";
+          if ($value &&
+              $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+            $radix = $value;
+          }
+        }
+        my $values_parameters;
+        if (($radix && $radix != 10)
+            || ($values ne 'Emirps'
+                && ($values_parameters = $draw->{'values_parameters'})
+                && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
+                && ($radix = $values_parameters->{'radix'}))) {
+          my $str = _my_cnv($n,$radix);
+          $message .= " ($str in base $radix)";
+        }
+        $message .= $vstr;
+      }
+    }
+  }
+
+  ### $message
+  $statusbar->SetStatusText ($message);
+}
+
 #------------------------------------------------------------------------------
 # command line
 
@@ -288,7 +376,7 @@ sub command_line {
   }
 
   if (delete $mathimage->{'gui_options'}->{'fullscreen'}) {
-    $self->ShowFullScreen (Wx::wxFULLSCREEN_ALL());
+    $self->{'menuitem_fullscreen'}->Check(1);
   } else {
     $self->Show;
   }

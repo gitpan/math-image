@@ -35,7 +35,7 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 71;
+our $VERSION = 72;
 
 sub Populate {
   my ($self, $args) = @_;

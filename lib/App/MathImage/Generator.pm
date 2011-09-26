@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 71;
+$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -567,10 +567,10 @@ sub random_options {
 
   my @values_choices = $self->values_choices;
   @values_choices = grep {!/LinesLevel     # experimental
-                            # coord values are only permutation of integers, or coord repetitions
-                          |PlanePathCoord
                            /x}
     @values_choices;
+  #   # coord values are only permutation of integers, or coord repetitions ?
+  # |PlanePath
 
   my @path_and_values;
   foreach my $path (@path_choices) {
@@ -1339,7 +1339,7 @@ sub draw_Image_start {
       }
       push @colours, @{$self->{'colours'}};
       $self->{'use_colours'} = 1;
-      $self->{'colours_offset'} = - $values_obj->values_min;
+      $self->{'colours_offset'} = - ($values_obj->values_min || 0);
       ### type "count" ...
       ### colours_offset: $self->{'colours_offset'}
       ### per values_min: $values_obj->values_min

@@ -24,7 +24,7 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 71;
+our $VERSION = 72;
 
 # Gtk2::ToggleToolButton
 use Gtk2::Ex::ToolItem::CheckButton;

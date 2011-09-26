@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::TotientStepsSum;
+package App::MathImage::NumSeq::TotientStepsCumul;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
-
+$VERSION = 72;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -33,7 +32,7 @@ use App::MathImage::NumSeq::Totient;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant description => Math::NumSeq::__('Sum of repeated applications of the totient function until reaching 1.');
+use constant description => Math::NumSeq::__('Cumulative number of repeated applications of the totient function until reaching 1.');
 use constant values_min => 0;
 use constant characteristic_monotonic => 0;
 use constant i_start => 1;

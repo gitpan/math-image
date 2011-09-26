@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::NumAronsonA;
+package App::MathImage::NumSeq::NumAronson;
 use 5.004;
 use strict;
 
@@ -23,7 +23,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 71;
+$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -33,7 +33,26 @@ use constant description => Math::NumSeq::__('Sloane\'s numerical version of Aro
 use constant values_min => 0;
 use constant characteristic_monotonic => 1;
 use constant i_start => 1;
+
+# cf A080596 - a(1)=1
+#    A079253 - even
+#    A081023 - lying
+#    A014132 - lying opposite parity
 use constant oeis_anum => 'A079000';
+
+# a(9*2^k-3 + j) = 12*2^k - 3 + (3/2)*j + (1/2)*abs(j)
+# step
+# a(n+1) - 2*a(n) + a(n-1) = 1   if n=9*2^k-3, k>=0
+#                          = -1  if n = 2 and 3*2^k-3, k>=1           
+#                          = 0   otherwise.                                                                       
+
+
+#
+# lying
+# g(3*2^k-1 + j) = 2*2^(k+1)-1 + (3/2)*j + (1/2)*abs(j)
+# where -2^k <= j < 2^k  and k>0
+#
+# then lying is d(n)=g(n+1)-1  n>=1
 
 sub rewind {
   my ($self) = @_;
@@ -41,10 +60,11 @@ sub rewind {
   $self->{'p2k'} = 0;
   $self->{'j'} = -1;
 }
+
 sub next {
   my ($self) = @_;
   my $p2k = $self->{'p2k'};
-  my $j = ++$self->{'j'};
+  my $j = ++ $self->{'j'};
 
   if ($p2k == 0) {
     # low special cases initial 1,4,

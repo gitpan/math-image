@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 71;
+$VERSION = 72;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -90,6 +90,7 @@ sub getopt_long_specifications {
            ### expression value: $value
            _hopt($self,'gen_options','values', 'Expression');
            $self->{'gen_options'}->{'values_parameters'}->{'expression'} = $value;
+           $self->{'gen_options'}->{'values_parameters'}->{'expression_evaluator'} = 'Perl';
          },
      'polygonal=i' =>
      sub { my ($optname, $value) = @_;

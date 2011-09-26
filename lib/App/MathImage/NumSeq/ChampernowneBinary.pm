@@ -23,7 +23,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq';
 
 use vars '$VERSION';
-$VERSION = 71;
+$VERSION = 72;
 
 # FIXME: parameter for endian instead of sep series?
 # ENHANCE-ME: radix parameter instead of binary
