@@ -24,10 +24,10 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
-
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
+
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

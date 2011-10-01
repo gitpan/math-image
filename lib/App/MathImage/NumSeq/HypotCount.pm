@@ -20,11 +20,11 @@ use 5.004;
 use strict;
 use POSIX 'ceil';
 
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

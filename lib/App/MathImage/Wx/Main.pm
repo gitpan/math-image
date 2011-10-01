@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 72;
+our $VERSION = 73;
 
 sub new {
   my ($class, $label) = @_;
@@ -50,7 +50,7 @@ sub new {
     my $menu = Wx::Menu->new;
     $menubar->Append ($menu, "&File");
 
-    $menu->Append(Wx::wxID_EXIT(), "E&xit\tCtrl-Q", "Exit this program");
+    $menu->Append(Wx::wxID_EXIT(), '', ''); # "Exit this program");
     EVT_MENU ($self, Wx::wxID_EXIT(), 'quit');
   }
   {
@@ -66,7 +66,7 @@ sub new {
     my $menu = Wx::Menu->new;
     $menubar->Append ($menu, "&Help");
 
-    $menu->Append (Wx::wxID_ABOUT(), "&About...", "Show about dialog");
+    $menu->Append (Wx::wxID_ABOUT(), '', ''); # "Show about dialog");
     EVT_MENU ($self, Wx::wxID_ABOUT(), 'popup_about');
   }
 

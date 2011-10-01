@@ -36,7 +36,7 @@ require Math::PlanePath::MathImageSierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::MathImageSierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageSierpinskiCurve->VERSION,  $want_version,
@@ -182,5 +182,24 @@ foreach my $arms (1 .. 8) {
     }
   }
 }
+
+
+#------------------------------------------------------------------------------
+# xy_to_n() rectangle around origin
+
+# foreach my $arms (1 .. 8) {
+#   my $path = Math::PlanePath::MathImageSierpinskiCurve->new (arms => $arms);
+#   foreach my $x (-8 .. 8) {
+#     foreach my $y (-8 .. 8) {
+#       my $n = $path->xy_to_n ($x,$y);
+#       next unless defined $n;
+#       my ($nx,$ny) = $path->n_to_xy ($n);
+# 
+#       ok ("$nx,$ny", "$x,$y",
+#           "xy_to_n($x,$y) arms=$arms reverse, n=$n");
+#     }
+#   }
+# }
+
 
 exit 0;

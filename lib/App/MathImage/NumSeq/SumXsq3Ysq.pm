@@ -22,11 +22,11 @@ use POSIX 'floor','ceil';
 use List::Util 'max';
 use List::MoreUtils;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

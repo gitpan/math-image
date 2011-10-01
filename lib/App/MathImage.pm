@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 72;
+$VERSION = 73;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -156,6 +156,7 @@ sub getopt_long_specifications {
                         _hopt($self, 'gui_options', 'module', "$value");  },
      'prima'    => sub{_hopt($self, 'gui_options', 'module', 'Prima');  },
      'tk'       => sub{_hopt($self, 'gui_options', 'module', 'Tk');  },
+     'wx'       => sub{_hopt($self, 'gui_options', 'module', 'Wx');  },
      'curses'   => sub{_hopt($self, 'gui_options', 'module', 'Curses');  },
      'text'     => sub{_hopt($self, 'gui_options', 'output', 'text');
                        _hopt($self, 'gui_options', 'module', 'Text'); },
@@ -963,6 +964,8 @@ sub output_method_numbers_dash {
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
   $n_lo = max(0,$n_lo);
+
+  # $n_hi = 124;
 
   my $n_cell_limit = (10 ** ($cell_width-1)) - 1;
   ### $n_cell_limit

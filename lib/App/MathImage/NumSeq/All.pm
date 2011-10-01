@@ -1,3 +1,6 @@
+# from 1 or 0 ?
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -20,8 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
-
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

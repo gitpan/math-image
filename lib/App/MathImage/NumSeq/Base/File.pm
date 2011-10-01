@@ -16,18 +16,15 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 package App::MathImage::NumSeq::Base::File;
-use 5.006;
+use 5.004;
 use strict;
 use warnings;
 
 use vars '$VERSION', '@ISA';
-our $VERSION = 72;
-
+$VERSION = 73;
 use Math::NumSeq;
-our @ISA = ('Math::NumSeq');
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

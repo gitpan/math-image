@@ -1,3 +1,7 @@
+# FIXME: parameter for endian instead of sep series?
+# ENHANCE-ME: radix parameter instead of binary
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -19,14 +23,11 @@ package App::MathImage::NumSeq::ChampernowneBinary;
 use 5.004;
 use strict;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 72;
-
-# FIXME: parameter for endian instead of sep series?
-# ENHANCE-ME: radix parameter instead of binary
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

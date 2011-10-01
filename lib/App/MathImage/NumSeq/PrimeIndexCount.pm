@@ -18,15 +18,14 @@
 package App::MathImage::NumSeq::PrimeIndexCount;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
-use POSIX ();
+
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
+use Math::NumSeq;
+@ISA = ('Math::NumSeq');
 
 use Math::NumSeq::Primes;
-use Math::NumSeq;
-use base 'Math::NumSeq';
 
-use vars '$VERSION';
-$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -28,14 +28,14 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
 use App::MathImage::NumSeq::Totient;
 *_totient_by_sieve = \&App::MathImage::NumSeq::Totient::_totient_by_sieve;
 
-use vars '$VERSION';
-$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

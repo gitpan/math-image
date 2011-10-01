@@ -33,7 +33,6 @@ devel/menu-forcombo.pl
 devel/misc.pl
 devel/oeis-entry.pl
 devel/old/Coord.pm
-devel/old/MathImageQuintetArms.pm
 devel/OrNone.pm
 devel/perrin.pl
 devel/pixbuf-types.pl
@@ -124,6 +123,7 @@ lib/App/MathImage/NumSeq/CunninghamPrimes.pm
 lib/App/MathImage/NumSeq/Derived/Cumulative.pm
 lib/App/MathImage/NumSeq/DigitCountHigh.pm
 lib/App/MathImage/NumSeq/DigitCountLow.pm
+lib/App/MathImage/NumSeq/Fibbinary.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/GoldenSequence.pm
 lib/App/MathImage/NumSeq/HappyNumbers.pm
@@ -189,12 +189,10 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
+lib/Math/NumSeq/OEIS/Catalogue/Plugin/MathImagePlanePath.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageCornerReplicate.pm
-lib/Math/PlanePath/MathImageGosperTiling.pm
-lib/Math/PlanePath/MathImageQuintetCentres.pm
-lib/Math/PlanePath/MathImageQuintetCurve.pm
-lib/Math/PlanePath/MathImageQuintetReplicate.pm
+lib/Math/PlanePath/MathImageGosperReplicate.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageSierpinskiCurve.pm
 lib/Math/PlanePath/MathImageSquareReplicate.pm
@@ -222,8 +220,6 @@ t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
-t/QuintetCentres.t
-t/QuintetCurve.t
 t/RepdigitAny.t
 t/SierpinskiCurve.t
 t/Totient.t

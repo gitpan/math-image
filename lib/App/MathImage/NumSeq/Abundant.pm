@@ -21,8 +21,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
-
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

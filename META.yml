@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            72
+version:            73
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -243,7 +243,10 @@ optional_features:
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::QuadricCurve:  41
             Math::PlanePath::QuadricIslands:  41
-            Math::PlanePath::RationalsTree:  43
+            Math::PlanePath::QuintetCentres:  45
+            Math::PlanePath::QuintetCurve:  45
+            Math::PlanePath::QuintetReplicate:  45
+            Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
@@ -360,7 +363,10 @@ optional_features:
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::QuadricCurve:  41
             Math::PlanePath::QuadricIslands:  41
-            Math::PlanePath::RationalsTree:  43
+            Math::PlanePath::QuintetCentres:  45
+            Math::PlanePath::QuintetCurve:  45
+            Math::PlanePath::QuintetReplicate:  45
+            Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
@@ -489,7 +495,10 @@ recommends:
     Math::PlanePath::PythagoreanTree:  26
     Math::PlanePath::QuadricCurve:  41
     Math::PlanePath::QuadricIslands:  41
-    Math::PlanePath::RationalsTree:  43
+    Math::PlanePath::QuintetCentres:  45
+    Math::PlanePath::QuintetCurve:  45
+    Math::PlanePath::QuintetReplicate:  45
+    Math::PlanePath::RationalsTree:  45
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  32

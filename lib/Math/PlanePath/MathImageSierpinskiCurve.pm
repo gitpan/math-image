@@ -29,7 +29,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -56,14 +56,28 @@ sub arms_count {
   return $self->{'arms'};
 }
 
-use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_8',
-                                         type      => 'integer',
-                                         minimum   => 1,
-                                         maximum   => 8,
-                                         default   => 1,
-                                         width     => 1,
-                                       } ];
+use constant parameter_info_array =>
+  [ { name      => 'arms',
+      share_key => 'arms_8',
+      type      => 'integer',
+      minimum   => 1,
+      maximum   => 8,
+      default   => 1,
+      width     => 1,
+    },
+
+    { name      => 'straight_spacing',
+      type      => 'integer',
+      minimum   => 0,
+      default   => 0,
+      width     => 1,
+    },
+    { name      => 'diagonal_spacing',
+      type      => 'integer',
+      minimum   => 0,
+      default   => 0,
+      width     => 1,
+    } ];
 
 sub new {
   my $class = shift;
@@ -72,6 +86,8 @@ sub new {
   if (! defined $arms || $arms <= 0) { $arms = 1; }
   elsif ($arms > 8) { $arms = 8; }
   $self->{'arms'} = $arms;
+  $self->{'straight_spacing'} ||= 0;
+  $self->{'diagonal_spacing'} ||= 0;
   return $self;
 }
 
@@ -115,6 +131,8 @@ sub n_to_xy {
     $n = int($n/$arms);
   }
 
+  my $straight_spacing = $self->{'straight_spacing'};
+  my $diagonal_spacing = $self->{'diagonal_spacing'};
   my $x = 0;
   my $y = 0;
   my $len = 1;
@@ -130,19 +148,20 @@ sub n_to_xy {
       $frac = 0;
 
     } elsif ($digit == 1) {
-      ($x,$y) = (-$y + $len + $frac,   # rotate +90
-                 $x + 1);
+      ($x,$y) = (-$y + $len + $diagonal_spacing + $frac,   # rotate +90
+                 $x + 1     + $diagonal_spacing);
       $frac = 0;
 
     } elsif ($digit == 2) {
-      ($x,$y) = ($y  + $len + 1 + $frac,   # rotate -90           +$wid
-                 -$x + $len     - $frac);
+      # rotate -90
+      ($x,$y) = ($y  + $len+1 + $diagonal_spacing + $straight_spacing + $frac,
+                 -$x + $len +   $diagonal_spacing                     - $frac);
       $frac = 0;
 
     } else {
-      $x += $len + 2; # +$wid;
+      $x += $len + 2 + 2*$diagonal_spacing + $straight_spacing;
     }
-    $len = 2*$len+2;  # +$wid;
+    $len = 2*$len+2 + 2*$diagonal_spacing + $straight_spacing;
   }
 
   # n=0 or n=33..33
@@ -154,11 +173,11 @@ sub n_to_xy {
     ($x,$y) = ($y,$x);   # mirror 45
   }
   if ($arm & 2) {
-    ($x,$y) = (-$y-1,$x);   # rotate +90
+    ($x,$y) = (-1-$y,$x);   # rotate +90
   }
   if ($arm & 4) {
-    $x = -$x-1;   # rotate 180
-    $y = -$y-1;
+    $x = -1-$x;   # rotate 180
+    $y = -1-$y;
   }
 
   # use POSIX 'floor';
@@ -175,7 +194,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### SierpinskiPeaks xy_to_n(): "$x, $y"
+  ### SierpinskiCurve xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
@@ -184,10 +203,23 @@ sub xy_to_n {
   #                         [0,1,0],
   #                         [1,0,1]);
   #
-  unless ((($x%3) + ($y%3)) % 2) {
-    ### x,y not on 3x3 block usage ...
-    return undef;
-  }
+  #  1  1  1  1
+  #  1  0  1  1
+  #  0  1  0  1
+  #  1  0  1  1
+  #
+  #  1  1  0  1
+  #  0  1  1  0
+  #  1  1  1  1
+  #  1  0  1  1
+  #
+  #
+  #
+  #
+  # unless ((($x%3) + ($y%3)) % 2) {
+  #   ### x,y not on 3x3 block usage ...
+  #   return undef;
+  # }
 
   my $arm = 0;
   if ($y < 0) {
@@ -197,14 +229,15 @@ sub xy_to_n {
   }
   if ($x < 0) {
     $arm += 2;
-    ($x,$y) = ($y,-($x+1));   # rotate -90
+    ($x,$y) = ($y, -1-$x);  # rotate -90
   }
   if ($y > $x) {       # second octant
     $arm++;
     ($x,$y) = ($y,$x); # mirror 45
   }
 
-  if ($arm > $self->{'arms'}) {
+  my $arms = $self->{'arms'};
+  if ($arm >= $arms) {
     return undef;
   }
 
@@ -213,10 +246,12 @@ sub xy_to_n {
   ### assert: $x >= 0
   ### assert: $y >= 0
 
-  my ($len,$level) = _round_up_pow2 (($x+$y+1)/3 || 1);
+  my $straight_spacing = $self->{'straight_spacing'};
+  my $diagonal_spacing = $self->{'diagonal_spacing'};
+  my $base = (3+$diagonal_spacing+$straight_spacing);
+  my ($len,$level) = _round_up_pow2 (($x+$y+1)/3  || 1);
   ### $level
   ### level pow2: $len
-
   if (_is_infinite($level)) {
     return $level;
   }
@@ -263,7 +298,7 @@ sub xy_to_n {
   ### assert: $x == 0
   ### assert: $y == 0
 
-  return $n;
+  return $n*$arms + $arm;
 }
 
 sub rect_to_n_range {

@@ -74,7 +74,7 @@ my %maximum_planepath
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
-     'Math::PlanePath::RationalsTree'        => 43, # new in v.43
+     'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
 
      'Math::PlanePath::DiamondSpiral'        => 1,
@@ -112,6 +112,10 @@ my %maximum_planepath
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::GosperSide'           => 35, # new in v.35
+
+     'Math::PlanePath::QuintetCurve'         => 45, # new in v.45
+     'Math::PlanePath::QuintetCentres'       => 45, # new in v.45
+     'Math::PlanePath::QuintetReplicate'     => 45, # new in v.45
 
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30

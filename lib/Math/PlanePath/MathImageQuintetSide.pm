@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
@@ -209,7 +209,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageQuintetSide -- one side of the Mandelbrot quintet tiling
+Math::PlanePath::MathImageQuintetSide -- one side of the quintet tiling
 
 =head1 SYNOPSIS
 

@@ -26,11 +26,11 @@ use strict;
 use List::Util 'max';
 use POSIX 'ceil';
 
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 72;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -42,15 +42,18 @@ use constant values_min => 1;
 use constant characteristic_monotonic => 1;
 # use constant description => Math::NumSeq::__('');
 
-use constant parameter_info_array => [ { name    => 'spectrum',
-                                         display => Math::NumSeq::__('Spectrum'),
-                                         type    => 'float',
-                                         default => PHI,
-                                         description => Math::NumSeq::__('The to show the spectrum of, usually an irrational.'),
-                                       },
-                                     ];
+use constant parameter_info_array =>
+  [ { name    => 'spectrum',
+      display => Math::NumSeq::__('Spectrum'),
+      type    => 'float',
+      default => PHI,
+      description => Math::NumSeq::__('The to show the spectrum of, usually an irrational.'),
+    },
+  ];
 
 # cf A003849  0,1,1,0,1,0,1
+#    A178482 Golden Patterns Phi-antipalindromic 
+#
 sub oeis_anum {
   my ($class_or_self) = @_;
   my $spectrum = (ref $class_or_self

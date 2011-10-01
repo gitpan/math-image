@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IteratePred;
@@ -99,8 +99,8 @@ App::MathImage::NumSeq::HappyNumbers -- happy numbers
 
 =head1 SYNOPSIS
 
- use App::MathImage::NumSeq::Squares;
- my $seq = App::MathImage::NumSeq::Squares->new;
+ use App::MathImage::NumSeq::HappyNumbers;
+ my $seq = App::MathImage::NumSeq::HappyNumbers->new;
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -123,7 +123,7 @@ happy (except 0).
 
 =over 4
 
-=item C<$seq = App::MathImage::NumSeq::Squares-E<gt>new (key=E<gt>value,...)>
+=item C<$seq = App::MathImage::NumSeq::HappyNumbers-E<gt>new (key=E<gt>value,...)>
 
 Create and return a new sequence object.
 

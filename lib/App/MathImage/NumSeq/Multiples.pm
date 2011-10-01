@@ -19,13 +19,12 @@ package App::MathImage::NumSeq::Multiples;
 use 5.004;
 use strict;
 use POSIX 'ceil';
-use List::Util 'max';
 
+use vars '$VERSION', '@ISA';
+$VERSION = 73;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 72;
 
 use constant name => Math::NumSeq::__('Multiples of a given K');
 use constant description => Math::NumSeq::__('The multiples K, 2*K, 3*K, 4*K, etc of a given number.');
