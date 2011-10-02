@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
@@ -32,7 +32,24 @@ use constant info_arrayref =>
     parameters => [ planepath => 'HilbertCurve',
                     coord_type => 'Y' ],
    },
-,
+   {
+    anum  => 'A059253',
+    class => 'App::MathImage::NumSeq::PlanePath',
+    parameters => [ planepath => 'HilbertCurve',
+                    coord_type => 'X' ],
+   },
+   {
+    anum  => 'A163538',
+    class => 'App::MathImage::NumSeq::PlanePath',
+    parameters => [ planepath => 'HilbertCurve',
+                    coord_type => 'dY' ],
+   },
+   {
+    anum  => 'A163539',
+    class => 'App::MathImage::NumSeq::PlanePath',
+    parameters => [ planepath => 'HilbertCurve',
+                    coord_type => 'dX' ],
+   },
   ];
 
 1;

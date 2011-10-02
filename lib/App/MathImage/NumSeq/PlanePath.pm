@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -162,19 +162,18 @@ sub rewind {
   my $n = $planepath_object->n_start;
   ### $n
 
-  my ($x, $y) = $planepath_object->n_to_xy ($n++);
-  $self->{'prev_x'} = $x;
-  $self->{'prev_y'} = $y;
-
-  if ($self->{'coord_type'} eq 'Turn') {
-    my ($next_x, $next_y) = $planepath_object->n_to_xy ($n++);
-    $self->{'prev_dx'} = $next_x - $x;
-    $self->{'prev_dy'} = $next_y - $y;
-    $self->{'prev_x'} = $next_x;
-    $self->{'prev_y'} = $next_y;
-  } else {
-    $self->{'prev_x'} = $x;
-    $self->{'prev_y'} = $y;
+  if ($self->{'coord_type'} =~ /^[dT]/) {
+    my ($x, $y) = $planepath_object->n_to_xy ($n++);
+    if ($self->{'coord_type'} eq 'Turn') {
+      my ($next_x, $next_y) = $planepath_object->n_to_xy ($n++);
+      $self->{'prev_dx'} = $next_x - $x;
+      $self->{'prev_dy'} = $next_y - $y;
+      $self->{'prev_x'} = $next_x;
+      $self->{'prev_y'} = $next_y;
+    } else {
+      $self->{'prev_x'} = $x;
+      $self->{'prev_y'} = $y;
+    }
   }
   $self->{'n_next'} = $n;
 }
@@ -241,15 +240,15 @@ sub coord_func_Y {
   return $y;
 }
 sub coord_func_Sum {
-  my ($self, $x,$y) = @_;
-  return $x+$y;
+  my ($self, $x,$y, $prev_x,$prev_y) = @_;
+  return $prev_x+$prev_y;
 }
 sub coord_func_Radius {
   return sqrt(coord_func_RSquared(@_));
 }
 sub coord_func_RSquared {
-  my ($self, $x,$y) = @_;
-  return $x*$x + $y*$y;
+  my ($self, $x,$y, $prev_x,$prev_y) = @_;
+  return $prev_x*$prev_x + $prev_y*$prev_y;
 }
 
 sub coord_func_dX {
@@ -404,8 +403,7 @@ sub values_max {
   # return undef;
 }
 
-{
-  package Math::PlanePath;
+{ package Math::PlanePath;
   sub MathImage__NumSeq_X_min {
     my ($self) = @_;
     return ($self->x_negative ? undef : 0);

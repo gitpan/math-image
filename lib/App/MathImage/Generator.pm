@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 73;
+$VERSION = 74;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -92,11 +92,6 @@ use constant values_choices => do {
     next if $choice =~ /::/; # not sub-modules
     $choice =~ s/::/-/g;
     $choices{$choice} = 1;
-  }
-  if (! defined (Module::Util::find_installed('Math::Symbolic'))
-      && ! defined (Module::Util::find_installed('Math::Expression::Evaluator'))
-      && ! defined (Module::Util::find_installed('Language::Expr'))) {
-    delete $choices{'Expression'};
   }
   my @choices;
   foreach my $prefer (qw(Primes
@@ -160,15 +155,20 @@ use constant values_choices => do {
                          Repdigits
                          RepdigitAnyBase
                          RepdigitBase
-                         Beastly
                          RadixWithoutDigit
+
+                         Palindromes
+                         Beastly
                          UndulatingNumbers
+                         HarshadNumbers
+                         HappyNumbers
 
                          CullenNumbers
                          WoodallNumbers
                          ProthNumbers
 
                          Multiples
+                         Expression
                          OEIS
                          File
                        )) {
@@ -258,6 +258,7 @@ my %pathname_square_grid
 
                      Flowsnake
                      FlowsnakeCentres
+                     GosperReplicate
                      GosperIslands
                      GosperSide
 
@@ -405,16 +406,19 @@ my %pathname_square_grid
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant MathImage__lattice_type => 'triangular';
 }
-{ package Math::PlanePath::GosperSide;
-  use constant MathImage__lattice_type => 'triangular';
-}
-{ package Math::PlanePath::GosperIslands;
-  use constant MathImage__lattice_type => 'triangular';
-}
 { package Math::PlanePath::Flowsnake;
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::FlowsnakeCentres;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::GosperReplicate;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::GosperSide;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::GosperIslands;
   use constant MathImage__lattice_type => 'triangular';
 }
 
@@ -494,6 +498,7 @@ sub y_negative {
 
                            Flowsnake
                            FlowsnakeCentres
+                           GosperReplicate
                            GosperIslands
                            GosperSide
 
@@ -998,6 +1003,8 @@ sub colours_grey_exp {
     $shrink = .99;
   } elsif ($self->{'values'} eq 'DigitSum') {
     $shrink = .95;
+  } elsif ($self->{'values'} eq 'DigitSumSquares') {
+    $shrink = .98;
   } elsif ($self->{'values'} eq 'DigitCount') {
     $shrink = .8;
   } elsif ($self->{'values'} eq 'RepdigitBase') {
@@ -1169,7 +1176,8 @@ sub draw_Image_start {
     my $n_angle;
     my $xmargin = .05;
     if ($path_object->isa ('Math::PlanePath::Flowsnake')
-        || $path_object->isa ('Math::PlanePath::FlowsnakeCentres')) {
+        || $path_object->isa ('Math::PlanePath::FlowsnakeCentres')
+        || $path_object->isa ('Math::PlanePath::GosperReplicate')) {
       $yfactor = sqrt(3);
       $n_hi = 7 ** $level;
       $n_angle = 6;
@@ -2084,12 +2092,13 @@ sub draw_Image_steps {
     $self->{'count_total'} = $count_total;
     $self->{'count_outside'} = $count_outside;
     $self->maybe_use_xy;
+
+    if (! $more) {
+      ### final background fill...
+      $background_fill_proc->($n_hi);
+    }
   }
 
-  if (! $more) {
-    ### final background fill...
-    $background_fill_proc->($n_hi);
-  }
   $flush->();
   ### $more
   return $more;

@@ -36,7 +36,7 @@ require Math::PlanePath::MathImageCornerReplicate;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::MathImageCornerReplicate::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageCornerReplicate->VERSION,  $want_version,

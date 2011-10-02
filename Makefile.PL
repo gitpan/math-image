@@ -110,6 +110,7 @@ my %maximum_planepath
 
      'Math::PlanePath::Flowsnake'            => 38, # new in v.38
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
+     'Math::PlanePath::GosperReplicate'      => 46, # new in v.46
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::GosperSide'           => 35, # new in v.35
 
@@ -174,6 +175,7 @@ my %maximum_numseq
      'Math::NumSeq::Repdigits' => 1,
      'Math::NumSeq::Palindromes' => 1,
      'Math::NumSeq::HarshadNumbers' => 1,
+     'Math::NumSeq::HappyNumbers'   => 7,  # new in v.7
 
      'Math::NumSeq::CullenNumbers'  => 1,
      'Math::NumSeq::ProthNumbers'   => 1,
@@ -292,14 +294,7 @@ my %prereq_pm
 
      # my Math-NumSeq
      'Math::NumSeq' => 1,
-     'Math::NumSeq::Polygonal' => 1,
-     # these for sequences in-progress ...
-     'Math::NumSeq::Base::Array' => 1,
-     'Math::NumSeq::Base::Digits' => 1,
-     'Math::NumSeq::Base::IterateIth' => 1,
-     'Math::NumSeq::Base::IteratePred' => 1,
-     'Math::NumSeq::Base::Sparse' => 1,
-     'Math::NumSeq::Primes' => 4,  # _prime_list()
+     'Math::NumSeq::All' => 1,  # base for Lines classes
     );
 
 # for experimental paths in-progress
@@ -314,6 +309,15 @@ add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for CrossSide
 add_prereq ('Math::NumSeq::DigitCount',4);
+#
+add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
+add_prereq ('Math::NumSeq::Base::Array',1);
+add_prereq ('Math::NumSeq::Base::Digits',1);
+add_prereq ('Math::NumSeq::Base::IterateIth',1);
+add_prereq ('Math::NumSeq::Base::IteratePred',1);
+add_prereq ('Math::NumSeq::Base::Sparse',1);
+add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
+add_prereq ('Math::NumSeq::Polygonal',1);  # for Pentagonal
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',

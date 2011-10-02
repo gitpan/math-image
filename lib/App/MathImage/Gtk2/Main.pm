@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 73;
+our $VERSION = 74;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -174,6 +174,7 @@ my $actions_array
        label => dgettext('gtk20-properties','_Values'),
      },
      { name     => 'Centre',
+       accelerator => __p('Gtk2Main-accelerator-key','C'),
        label    => __('_Centre'),
        tooltip  => __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
        callback => sub {

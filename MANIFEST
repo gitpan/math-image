@@ -113,7 +113,6 @@ lib/App/MathImage/Image/Base/X/Pixmap.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/math-image.desktop
 lib/App/MathImage/NumSeq/Abundant.pm
-lib/App/MathImage/NumSeq/All.pm
 lib/App/MathImage/NumSeq/Base/File.pm
 lib/App/MathImage/NumSeq/Base/FileWriter.pm
 lib/App/MathImage/NumSeq/ChampernowneBinary.pm
@@ -126,7 +125,6 @@ lib/App/MathImage/NumSeq/DigitCountLow.pm
 lib/App/MathImage/NumSeq/Fibbinary.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/GoldenSequence.pm
-lib/App/MathImage/NumSeq/HappyNumbers.pm
 lib/App/MathImage/NumSeq/HappySteps.pm
 lib/App/MathImage/NumSeq/HypotCount.pm
 lib/App/MathImage/NumSeq/Lines.pm
@@ -192,7 +190,6 @@ lib/App/MathImage/X11/Protocol/Splash.pm
 lib/Math/NumSeq/OEIS/Catalogue/Plugin/MathImagePlanePath.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageCornerReplicate.pm
-lib/Math/PlanePath/MathImageGosperReplicate.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageSierpinskiCurve.pm
 lib/Math/PlanePath/MathImageSquareReplicate.pm

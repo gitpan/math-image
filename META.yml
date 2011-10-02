@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            73
+version:            74
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -64,7 +64,8 @@ requires:
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
     Math::Libm:           0
-    Math::NumSeq:         1
+    Math::NumSeq:         7
+    Math::NumSeq::All:    1
     Math::NumSeq::Base::Array:  1
     Math::NumSeq::Base::Digits:  1
     Math::NumSeq::Base::IterateIth:  1
@@ -128,6 +129,7 @@ optional_features:
     maximum_devel:
         description:  Stuff used variously for development.
         requires:
+            Devel::Comments:     0
             Parse::CPAN::Meta:   0
             Pod::Simple::HTML:   0
             Smart::Comments:     0
@@ -178,6 +180,7 @@ optional_features:
             Math::NumSeq::Fibonacci:  1
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
+            Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HarshadNumbers:  1
             Math::NumSeq::LucasNumbers:  1
             Math::NumSeq::MobiusFunction:  6
@@ -216,6 +219,7 @@ optional_features:
             Math::PlanePath::Flowsnake:  38
             Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::GosperIslands:  33
+            Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
@@ -295,6 +299,7 @@ optional_features:
             Math::NumSeq::Fibonacci:  1
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
+            Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HarshadNumbers:  1
             Math::NumSeq::LucasNumbers:  1
             Math::NumSeq::MobiusFunction:  6
@@ -336,6 +341,7 @@ optional_features:
             Math::PlanePath::Flowsnake:  38
             Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::GosperIslands:  33
+            Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
@@ -430,6 +436,7 @@ recommends:
     Math::NumSeq::Fibonacci:  1
     Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  1
+    Math::NumSeq::HappyNumbers:  7
     Math::NumSeq::HarshadNumbers:  1
     Math::NumSeq::LucasNumbers:  1
     Math::NumSeq::MobiusFunction:  6
@@ -468,6 +475,7 @@ recommends:
     Math::PlanePath::Flowsnake:  38
     Math::PlanePath::FlowsnakeCentres:  38
     Math::PlanePath::GosperIslands:  33
+    Math::PlanePath::GosperReplicate:  46
     Math::PlanePath::GosperSide:  35
     Math::PlanePath::GreekKeySpiral:  27
     Math::PlanePath::HeptSpiralSkewed:  4

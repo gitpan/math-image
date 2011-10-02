@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -33,7 +33,6 @@ use Math::NumSeq::Base::IterateIth;
 use constant name => Math::NumSeq::__('Happy Steps');
 use constant description => Math::NumSeq::__('How many sum of squares of digits steps to get to a repeating iteration.');
 use constant values_min => 0;
-use constant i_start => 0;
 use constant characteristic_count => 1;
 use constant characteristic_monotonic => 0;
 #

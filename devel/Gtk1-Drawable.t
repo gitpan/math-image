@@ -52,7 +52,7 @@ my $rootwin = Gtk::Gdk::Window->new_foreign(Gtk::Gdk->ROOT_WINDOW());
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 73;
+my $want_version = 74;
 is ($App::MathImage::Image::Base::Gtk::Gdk::Drawable::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Gtk::Gdk::Drawable->VERSION,

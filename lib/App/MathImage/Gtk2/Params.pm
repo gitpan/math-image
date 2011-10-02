@@ -31,7 +31,7 @@ use Gtk2::Ex::MenuBits;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 73;
+our $VERSION = 74;
 
 use Glib::Object::Subclass
   'Glib::Object',

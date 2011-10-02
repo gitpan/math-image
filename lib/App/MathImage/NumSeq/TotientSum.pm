@@ -29,7 +29,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -43,7 +43,6 @@ use App::MathImage::NumSeq::Totient;
 use constant description => Math::NumSeq::__('Sum of totient(1..n).');
 use constant characteristic_monotonic => 2;
 use constant values_min => 0;
-use constant i_start => 0;
 
 use constant oeis_anum => 'A002088';
 

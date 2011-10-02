@@ -32,7 +32,7 @@ use Glib::Ex::SourceIds;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 73;
+our $VERSION = 74;
 
 sub new {
   my ($class, %self) = @_;

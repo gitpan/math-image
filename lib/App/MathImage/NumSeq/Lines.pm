@@ -20,10 +20,10 @@ use 5.004;
 use strict;
 
 use Math::NumSeq;
-use base 'App::MathImage::NumSeq::All';
+use base 'Math::NumSeq::All';
 
 use vars '$VERSION';
-$VERSION = 73;
+$VERSION = 74;
 
 # use constant name => Math::NumSeq::__('Lines');
 use constant description => Math::NumSeq::__('No numbers, instead lines showing the path taken.');

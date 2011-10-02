@@ -29,7 +29,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -44,7 +44,6 @@ use constant description => Math::NumSeq::__('How many steps of reverse and add 
 use constant characteristic_count => 1;
 use constant characteristic_monotonic => 0;
 use constant values_min => 0;
-use constant i_start => 0;
 
 use Math::NumSeq::Base::Digits;
 use constant parameter_info_array =>
