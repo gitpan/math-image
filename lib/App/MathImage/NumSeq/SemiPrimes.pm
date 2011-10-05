@@ -1,3 +1,7 @@
+# progressive sieve
+# maybe N primes
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -19,16 +23,14 @@ package App::MathImage::NumSeq::SemiPrimes;
 use 5.004;
 use strict;
 use List::Util 'min', 'max';
-use POSIX ();
 
-use Math::NumSeq;
-use base 'Math::NumSeq::Base::Array';
+use vars '$VERSION', '@ISA';
+$VERSION = 75;
+use Math::NumSeq::Base::Array;
+@ISA = ('Math::NumSeq::Base::Array');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-use vars '$VERSION';
-$VERSION = 74;
 
 # use constant name => Math::NumSeq::__('Semi-Primes');
 use constant description => Math::NumSeq::__('The semi-primes, or bi-primes, 4, 6, 9, 10, 14 15, etc, being numbers with just two prime factors P*Q, including P*P squares of primes.');

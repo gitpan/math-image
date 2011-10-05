@@ -29,7 +29,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -57,27 +57,29 @@ sub arms_count {
 }
 
 use constant parameter_info_array =>
-  [ { name      => 'arms',
-      share_key => 'arms_8',
-      type      => 'integer',
-      minimum   => 1,
-      maximum   => 8,
-      default   => 1,
-      width     => 1,
-    },
+  [
+   { name      => 'arms',
+     share_key => 'arms_8',
+     type      => 'integer',
+     minimum   => 1,
+     maximum   => 8,
+     default   => 1,
+     width     => 1,
+   },
 
-    { name      => 'straight_spacing',
-      type      => 'integer',
-      minimum   => 0,
-      default   => 0,
-      width     => 1,
-    },
-    { name      => 'diagonal_spacing',
-      type      => 'integer',
-      minimum   => 0,
-      default   => 0,
-      width     => 1,
-    } ];
+   { name      => 'straight_spacing',
+     type      => 'integer',
+     minimum   => 0,
+     default   => 0,
+     width     => 1,
+   },
+   { name      => 'diagonal_spacing',
+     type      => 'integer',
+     minimum   => 0,
+     default   => 0,
+     width     => 1,
+   },
+  ];
 
 sub new {
   my $class = shift;
@@ -249,7 +251,7 @@ sub xy_to_n {
   my $straight_spacing = $self->{'straight_spacing'};
   my $diagonal_spacing = $self->{'diagonal_spacing'};
   my $base = (3+$diagonal_spacing+$straight_spacing);
-  my ($len,$level) = _round_up_pow2 (($x+$y+1)/3  || 1);
+  my ($len,$level) = _round_up_pow2 (($x+$y+1)/$base  || 1);
   ### $level
   ### level pow2: $len
   if (_is_infinite($level)) {
@@ -258,11 +260,12 @@ sub xy_to_n {
 
   # Xtop = 3*2^(level-1)-1
   #
-  $len = 3*$len - 1;
+  $len = $base * $len;
   ### initial len: $len
 
   my $n = 0;
   foreach (0 .. $level) {
+    $len -= 1;
     $n *= 4;
     ### at: "loop=$_ len=$len   x=$x,y=$y  n=$n"
 
@@ -282,8 +285,8 @@ sub xy_to_n {
       ### digit 2 or 3 to: "x=$x"
       if ($x < $y) {   # before diagonal
         ### digit 2...
-        # y-(len-1) then rot neg -(y-(len-1))=-y+(len-1)=len-1-y
-        ($x,$y) = ($len-$y, $x);     # rotate +90
+        # y-(len-1)-d then rot neg -(y-(len-1)-d)=-y+(len-1)+d=len-1+d-y
+        ($x,$y) = ($len-$y+$diagonal_spacing, $x);     # rotate +90
         $n += 2;
       } else {
         #### digit 3...
@@ -291,8 +294,10 @@ sub xy_to_n {
         $n += 3;
       }
     }
+    $len += 2;
+    ### end len: $len
+    ### assert: ($len % 2) == 0 || $_==$level
     $len = $len/2;
-    ### assert: $len == int($len) || $_==$level
   }
   ### end at: "x=$x,y=$y   n=$n"
   ### assert: $x == 0

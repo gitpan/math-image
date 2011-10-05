@@ -115,6 +115,7 @@ lib/App/MathImage/math-image.desktop
 lib/App/MathImage/NumSeq/Abundant.pm
 lib/App/MathImage/NumSeq/Base/File.pm
 lib/App/MathImage/NumSeq/Base/FileWriter.pm
+lib/App/MathImage/NumSeq/BaumSweet.pm
 lib/App/MathImage/NumSeq/ChampernowneBinary.pm
 lib/App/MathImage/NumSeq/ChampernowneBinaryLsb.pm
 lib/App/MathImage/NumSeq/CunninghamChain.pm
@@ -122,7 +123,6 @@ lib/App/MathImage/NumSeq/CunninghamPrimes.pm
 lib/App/MathImage/NumSeq/Derived/Cumulative.pm
 lib/App/MathImage/NumSeq/DigitCountHigh.pm
 lib/App/MathImage/NumSeq/DigitCountLow.pm
-lib/App/MathImage/NumSeq/Fibbinary.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/GoldenSequence.pm
 lib/App/MathImage/NumSeq/HappySteps.pm
@@ -134,11 +134,9 @@ lib/App/MathImage/NumSeq/Ln2Bits.pm
 lib/App/MathImage/NumSeq/Loeschian.pm
 lib/App/MathImage/NumSeq/Modulo.pm
 lib/App/MathImage/NumSeq/Multiples.pm
-lib/App/MathImage/NumSeq/NumAronson.pm
 lib/App/MathImage/NumSeq/Obstinate.pm
 lib/App/MathImage/NumSeq/Padovan.pm
 lib/App/MathImage/NumSeq/Pell.pm
-lib/App/MathImage/NumSeq/Pentagonal.pm
 lib/App/MathImage/NumSeq/Perrin.pm
 lib/App/MathImage/NumSeq/PiBits.pm
 lib/App/MathImage/NumSeq/PlanePath.pm
@@ -160,7 +158,6 @@ lib/App/MathImage/NumSeq/TotientPerfect.pm
 lib/App/MathImage/NumSeq/TotientSteps.pm
 lib/App/MathImage/NumSeq/TotientStepsCumul.pm
 lib/App/MathImage/NumSeq/TotientSum.pm
-lib/App/MathImage/NumSeq/Tribonacci.pm
 lib/App/MathImage/NumSeq/UndulatingNumbers.pm
 lib/App/MathImage/pi.gz
 lib/App/MathImage/Prima/About.pm
@@ -187,12 +184,11 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
-lib/Math/NumSeq/OEIS/Catalogue/Plugin/MathImagePlanePath.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageCornerReplicate.pm
+lib/Math/PlanePath/MathImageDigitGroups.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageSierpinskiCurve.pm
-lib/Math/PlanePath/MathImageSquareReplicate.pm
 lib/Math/PlanePath/MathImageWunderlichCurve.pm
 Makefile.PL
 MANIFEST			This list of files

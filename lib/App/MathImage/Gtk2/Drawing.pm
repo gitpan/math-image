@@ -42,7 +42,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 74;
+our $VERSION = 75;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests

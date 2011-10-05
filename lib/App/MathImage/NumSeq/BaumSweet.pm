@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,40 +15,44 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::PrimeQuadraticHonaker;
+package App::MathImage::NumSeq::BaumSweet;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
+use vars '$VERSION','@ISA';
 $VERSION = 75;
-
-use Math::NumSeq;
+use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
         'Math::NumSeq');
+*_is_infinite = \&Math::NumSeq::_is_infinite;
 
-use constant name => Math::NumSeq::__('Prime Generating Quadratic of Honaker');
-use constant description => Math::NumSeq::__('The quadratic numbers 4*k^2 + 4*k + 59.');
-use constant values_min => 59;
-use constant characteristic_monotonic => 2;
-
-# http://oeis.org/A048988  # only the primes ones
-# use constant oeis_anum => undef;
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use constant description => Math::NumSeq::__('...');
+use constant values_min => 0;
+use constant values_max => 1;
+use constant characteristic_count => 1;
+use constant characteristic_boolean => 1;
+use constant oeis_anum => 'A086747';
 
 sub ith {
   my ($self, $i) = @_;
-  return 4*($i + 1)*$i + 59;
-}
-sub pred {
-  my ($self, $n) = @_;
-  return ($n >= 59
-          && do {
-            my $i = sqrt((1/4) * $n - 29/2) -1/2;
-            ($i==int($i))
-          });
+  if (_is_infinite($i)) {
+    return $i;
+  }
+  while ($i) {
+    if (($i % 2) == 0) {
+      my $odd = 1;
+      do {
+        $i /= 2;
+        $odd ^= 1;
+      } until ($i % 2);
+      if ($odd) {
+        return 0;
+      }
+    }
+    $i = int($i/2);
+  }
+  return 1;
 }
 
 1;

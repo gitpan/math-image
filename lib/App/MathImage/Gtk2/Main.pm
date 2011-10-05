@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 74;
+our $VERSION = 75;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -723,45 +723,54 @@ sub _do_motion_notify {
     my $id = $statusbar->get_context_id (__PACKAGE__);
     $statusbar->pop ($id);
 
-    my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
-    if (defined $x) {
-      my $message = sprintf ("x=%.*f, y=%.*f",
-                             (int($x)==$x ? 0 : 2), $x,
-                             (int($y)==$y ? 0 : 2), $y);
-      if (defined $n) {
-        $message .= "   N=$n";
-        if ((my $values = $draw->get('values'))
-            && (my $values_obj = $draw->gen_object->values_object)) {
-          my $vstr = '';
-          my $radix;
-          if ($values_obj->can('ith')
-              && (($radix = $values_obj->characteristic('digits'))
-                  || $values_obj->characteristic('count')
-                  || $values_obj->characteristic('modulus'))) {
-            my $value = $values_obj->ith($n);
-            $vstr = " value=$value";
-            if ($value &&
-                $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
-              $radix = $value;
-            }
-          }
-          my $values_parameters;
-          if (($radix && $radix != 10)
-              || ($values ne 'Emirps'
-                  && ($values_parameters = $draw->get('values-parameters'))
-                  && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
-                  && ($radix = $values_parameters->{'radix'}))) {
-            my $str = _my_cnv($n,$radix);
-            $message .= " ($str in base $radix)";
-          }
-          $message .= $vstr;
-        }
-      }
+    if (my $message = _mouse_message ($self, $draw, $event)) {
       ### $message
       $statusbar->push ($id, $message);
     }
   }
   return Gtk2::EVENT_PROPAGATE;
+}
+sub _mouse_message {
+  my ($self, $draw, $event) = @_;
+  my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
+  return undef unless defined $x;
+
+  my $message = sprintf ("x=%.*f, y=%.*f",
+                         (int($x)==$x ? 0 : 2), $x,
+                         (int($y)==$y ? 0 : 2), $y);
+  return $message unless defined $n;
+  $message .= "   N=$n";
+
+  ((my $values = $draw->get('values'))
+   && (my $values_obj = $draw->gen_object->values_object))
+    || return $message;
+
+  my $vstr = '';
+  my $radix;
+  if ($values_obj->can('ith')
+      && (($radix = $values_obj->characteristic('digits'))
+          || $values_obj->characteristic('count')
+          || $values_obj->characteristic('smaller')
+          || $values_obj->characteristic('modulus'))) {
+    my $value = $values_obj->ith($n);
+    $vstr = " value=$value";
+    if ($value &&
+        $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+      $radix = $value;
+    }
+  }
+  my $values_parameters;
+  if ($radix
+      && ($radix != 10
+          || ($values ne 'Emirps'
+              && ($values_parameters = $draw->get('values-parameters'))
+              && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
+              && ($radix = $values_parameters->{'radix'})
+              && $radix != 10))) {
+    my $str = _my_cnv($n,$radix);
+    $message .= " ($str in base $radix)";
+  }
+  return $message . $vstr;
 }
 sub _my_cnv {
   my ($n, $radix) = @_;

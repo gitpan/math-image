@@ -19,11 +19,11 @@ package App::MathImage::NumSeq::Perrin;
 use 5.004;
 use strict;
 
-use Math::NumSeq;
-use base 'Math::NumSeq::Base::Sparse';
+use vars '$VERSION', '@ISA';
+$VERSION = 75;
+use Math::NumSeq::Base::Sparse;
+@ISA = ('Math::NumSeq::Base::Sparse');
 
-use vars '$VERSION';
-$VERSION = 74;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

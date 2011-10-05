@@ -28,7 +28,13 @@ use POSIX;
   require Math::BigFloat;
   Math::BigFloat->import (try => 'GMP');
   Math::BigFloat->round_mode('-inf');
-  my $f = Math::BigFloat->bpi(10000);
-  print $f, "\n";
+  for (my $digits = 2; $digits < 10000000; $digits *= 2) {
+    print "$digits\n";
+    # my $f = Math::BigFloat->new(0);
+    # $f->precision($digits);
+    my $f = Math::BigFloat->bpi($digits);
+    # print $f, "\n";
+  }
   exit 0;
 }
+

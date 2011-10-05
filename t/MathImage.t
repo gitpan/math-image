@@ -20,7 +20,7 @@
 use 5.008;
 use strict;
 use warnings;
-use Test::More tests => 44;
+use Test::More tests => 46;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 74;
+  my $want_version = 75;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -63,6 +63,7 @@ foreach my $elem
    [ ['--text', '--twin'] ],
    [ ['--text', '--twin1'] ],
    [ ['--text', '--twin2'] ],
+   [ ['--text', '--pentagonal'] ],
    [ ['--text', '--polygonal=7'] ],
 
    [ ['--text'] ],

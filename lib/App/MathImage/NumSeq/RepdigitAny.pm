@@ -24,18 +24,23 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
-
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant name => Math::NumSeq::__('Repdigits In Any Base');
+
 use constant description => Math::NumSeq::__('Numbers which are a "repdigit" like 1111, 222, 999 etc of 3 or more digits in some number base.');
+use constant i_start => 1;
 use constant values_min => 1;
 use constant characteristic_monotonic => 2;
+
+# cf A167783 - in more than one base
+#    A053696 - repunit in some base
+#    A158235 - square is a repdigit in some base
+#
 use constant oeis_anum => 'A167782';
 
 sub rewind {

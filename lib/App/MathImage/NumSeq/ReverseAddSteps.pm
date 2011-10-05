@@ -1,6 +1,6 @@
 # count of 1 always ?
 # hard limit on steps ?
-
+# -1 if infinite ...
 
 
 
@@ -26,10 +26,9 @@ package App::MathImage::NumSeq::ReverseAddSteps;
 use 5.004;
 use strict;
 use POSIX 'ceil';
-use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -39,29 +38,42 @@ use Math::NumSeq::Base::IterateIth;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
+
 # use constant name => Math::NumSeq::__('Reverse Add Steps');
 use constant description => Math::NumSeq::__('How many steps of reverse and add until a palindrome is reached, sometimes called the 196-algorithm.');
 use constant characteristic_count => 1;
 use constant characteristic_monotonic => 0;
-use constant values_min => 0;
+use constant values_min => -1;
 
 use Math::NumSeq::Base::Digits;
-use constant parameter_info_array =>
-  [ Math::NumSeq::Base::Digits::parameter_common_radix() ];
+*parameter_info_array = \&Math::NumSeq::Base::Digits::parameter_info_array;
 
+#------------------------------------------------------------------------------
+
+# cf A030547 - num steps starting at 196 trajectory elements ? A006960
+#    A015976 - numbers needing 1 iteration to reach palindrome
+#    A065206 - 1 iteration to reach palindrome, excluding palindromes
+#    A015977 - 2 iterations to reach palindrome
+#    A015979 - 3 iterations to reach palindrome
+#    A023109 - first number requiring n iterations to palindrome
+# ~/OEIS/a058042.txt  on reaching binary palindromes
+#
 my @oeis_anum;
-$oeis_anum[10] = 'A030547';
-# OEIS-Catalogue: A030547 radix=10
+$oeis_anum[10] = 'A016016';  # steps to palindrome, or -1 if infinite
+# OEIS-Catalogue: A016016
 sub oeis_anum {
   my ($self) = @_;
   return $oeis_anum[$self->{'radix'}];
 }
+#------------------------------------------------------------------------------
+
+use constant _LIMIT => 50;
 
 sub rewind {
   my ($self) = @_;
-  require Math::BigInt;
-  Math::BigInt->import (try => 'GMP');
-  $self->{'i'} = max(0,$self->{'lo'});
+  # _bigint();
+  # $self->{'i'} = max(0,$self->{'lo'});
+  $self->{'i'} = 0;
 }
 sub next {
   my ($self) = @_;
@@ -69,14 +81,20 @@ sub next {
   my $i = $self->{'i'}++;
   return ($i, $self->ith($i));
 }
+
+use constant::defer _bigint => sub {
+  require Math::BigInt;
+  eval { Math::BigInt->import (try => 'GMP') };
+  return 'Math::BigInt';
+};
 sub ith {
   my ($self, $k) = @_;
   ### ReverseAddSteps ith(): $k
   my $radix = $self->{'radix'};
 
-  # $k = Math::BigInt->new($k);
+  # $k = _bigint()->new($k);
   my $count = 1;
- OUTER: for ( ; $count < 30; $count++) {
+ OUTER: for ( ; $count < _LIMIT; $count++) {
     my @digits;
     ### $count
     ### k: "$k"
@@ -117,7 +135,7 @@ sub ith {
           ### not a palindrome ...
 
           if (@digits >= 10) {
-            $d = Math::BigInt->bzero;
+            $d = _bigint()->bzero;
           }
           foreach my $i (0 .. $#digits) {
             $d *= $radix;
@@ -131,11 +149,11 @@ sub ith {
         }
       }
     }
-    # palindrome
-    last;
+    ### palindrome: $count
+    return $count;
   }
-  ### return: $count
-  return $count;
+  ### limit reached, -1 ...
+  return -1;
 }
 
 sub pred {
@@ -160,22 +178,36 @@ App::MathImage::NumSeq::ReverseAddSteps -- steps of the reverse-add algorithm
 
 =head1 DESCRIPTION
 
-The number of steps to reach a palindrome by the digits "reverse and add"
-algorithm.  For example the i=19 is 3 because 19+91=110, then 110+011=121
+The number of steps to reach a palindrome by the digit "reverse and add"
+algorithm.  For example the i=19 is 2 because 19+91=110 then 110+011=121.
+
+At least one reverse-add is applied, so an i which is itself a palindrome is
+not value 0, but wherever that minimum one step might end up.  A repunit
+palindrome like 111...11 reverse-adds to 222...22 so it's always 1 (except
+in binary).
+
+The default is to reverse digits in decimal, or the C<radix> parameter can
+select another base.
+
+The number of steps can be infinite.  In binary for example 3 = 11 binary
+never reaches a palindrome, and in decimal it's conjectured that 196 doesn't
+(and from which this is sometimes called the 196-algorithm).  In the current
+code a limit of 50 is imposed on the search.
+
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$seq = App::MathImage::NumSeq::ReverseAddSteps-E<gt>new (key=E<gt>value,...)>
+=item C<$seq = App::MathImage::NumSeq::ReverseAddSteps-E<gt>new ()>
+
+=item C<$seq = App::MathImage::NumSeq::ReverseAddSteps-E<gt>new (radix =E<gt> $r)>
 
 Create and return a new sequence object.
 
 =item C<$value = $seq-E<gt>ith($i)>
 
-Return the number of reverse-add steps required to reach a palindrome.  For
-some numbers this is very large and conjectured to be infinite, so in the
-current code a limit of 30 is imposed.
+Return the number of reverse-add steps required to reach a palindrome.
 
 =item C<$bool = $seq-E<gt>pred($value)>
 
@@ -185,7 +217,6 @@ Return true if C<$value E<gt>= 0>, since any count of steps is possible.
 
 =head1 SEE ALSO
 
-L<Math::NumSeq>,
-L<Math::NumSeq::Cubes>
+L<Math::NumSeq>
 
 =cut

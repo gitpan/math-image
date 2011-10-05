@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 74;
+$VERSION = 75;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -108,7 +108,6 @@ use constant values_choices => do {
                          Squares
                          Pronic
                          Triangular
-                         Pentagonal
                          Polygonal
                          StarNumbers
                          Cubes
@@ -120,6 +119,7 @@ use constant values_choices => do {
 
                          Fibonacci
                          Lucas
+                         Fibbinary
                          Perrin
                          Padovan
                          Tribonacci
@@ -132,6 +132,7 @@ use constant values_choices => do {
                          Ln2Bits
 
                          Aronson
+                         NumAronson
                          Pell
                          GoldenSequence
                          ThueMorse
@@ -255,6 +256,7 @@ my %pathname_square_grid
                      HilbertCurve
                      ZOrderCurve
                      ImaginaryBase
+                     SquareReplicate
 
                      Flowsnake
                      FlowsnakeCentres
@@ -826,6 +828,13 @@ sub filename_base {
 
 #------------------------------------------------------------------------------
 
+use constant _SV_N_LIMIT => do {
+  # NV might be long double, but don't trust that to things like floor(),ceil() yet
+  my $uv_max = (~0) / 8;
+  my $dbl_max = POSIX::DBL_MAX() / 8;
+  ($uv_max > $dbl_max ? $uv_max : $dbl_max)
+};
+
 sub path_choice_to_class {
   my ($self, $path) = @_;
   my $class = "Math::PlanePath::$path";
@@ -1293,6 +1302,11 @@ sub draw_Image_start {
     ### $y2
 
     ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
+    # if ($n_hi > _SV_N_LIMIT) {
+    #   ### n_hi: "$n_hi"
+    #   ### bigint n range ...
+    #   ($n_lo, $n_hi) = $path_object->rect_to_n_range (_bigint()->new(floor($x1)),$y1, $x2,$y2);
+    # }
 
     if ($self->{'values'} eq 'Lines') {
       $n_hi += 1;
@@ -1301,8 +1315,9 @@ sub draw_Image_start {
     }
   }
 
-  ### $n_lo
-  ### $n_hi
+  ### n_lo: "$n_lo"
+  ### n_hi: "$n_hi"
+
   $self->{'n_prev'} = $n_lo - 1;
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'}   = $n_hi;
@@ -1806,7 +1821,7 @@ sub draw_Image_steps {
 
       my ($x,$y) = $path_object->n_to_xy($n)
         or last; # no more
-      ### $n
+      ### n: "$n"
       ### xy raw: "$x,$y"
 
       ($x,$y) = $affine->transform ($x, $y);
@@ -1994,15 +2009,15 @@ sub draw_Image_steps {
     $self->{'y'} = $y;
 
   } else {
-    #### draw by N...
+    ### draw by N...
 
     for (;;) {
       &$cont() or last;
 
       my ($i, $value) = $values_obj->next;
-      ### $n_prev
+      ### n_prev: "$n_prev"
       ### $i
-      ### $value
+      ### value: "$value"
       my $n;
       if ($use_colours) {
         $n = $i;
@@ -2030,8 +2045,7 @@ sub draw_Image_steps {
       $filter_obj->pred($n)
         or next;
       my ($x, $y) = $path_object->n_to_xy($n) or next;
-      ### $n
-      ### path: "$x,$y"
+      ### at: "n=$n  path xy=$x,$y"
 
       if ($use_colours) {
         if (! defined $value || $value == 0) {
@@ -2043,11 +2057,14 @@ sub draw_Image_steps {
         #### at index: $value + $colours_offset
       }
 
+      # BigInt no good for $affine->transform multiplies
+      if (ref $x) { $x = $x->numify; }
+      if (ref $y) { $y = $y->numify; }
       ($x, $y) = $affine->transform($x, $y);
+      ### affined to: "$x,$y"
       $x = floor ($x - $offset + 0.5);
       $y = floor ($y - $offset + 0.5);
-      ### $x
-      ### $y
+      ### round to: "$x,$y"
 
       if ($figure eq 'point') {
         $background_fill_proc->($n-1);
@@ -2164,6 +2181,11 @@ sub can_use_xy {
   #         && $values_obj->can('ith')) {
 }
 
+use constant::defer _bigint => sub {
+  require Math::BigInt;
+  eval { Math::BigInt->import (try => 'GMP') };
+  return 'Math::BigInt';
+};
 sub use_xy {
   my ($self, $image) = @_;
   # print "use_xy from now on\n";
@@ -2200,9 +2222,17 @@ sub use_xy {
   #### x: "$x_lo to $x_hi start $self->{'x'}"
   #### y: "$y_lo to $y_hi start $self->{'y'}"
 
+  # ENHANCE-ME: use bigints when all the planepath xy_to_n()'s are bigint capable
+  # if ($self->{'n_hi'} > _SV_N_LIMIT) {
+  #   ### bigint XY: "$self->{'y'}"
+  #   $self->{'y'} = _bigint()->new($self->{'y'});
+  #   ### y: $self->{'y'}
+  # }
+
   my $x_width = $self->{'x_width'} = $x_hi - $x_lo + 1;
   $self->{'xy_total'} = ($y_hi - $y_lo + 1) * $x_width;
 }
+
 
 sub draw_progress_fraction {
   my ($self) = @_;

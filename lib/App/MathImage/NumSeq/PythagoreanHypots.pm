@@ -32,7 +32,7 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 74;
+$VERSION = 75;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

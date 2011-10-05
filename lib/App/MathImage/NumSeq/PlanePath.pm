@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -33,11 +33,12 @@ use Math::NumSeq;
 
 use constant characteristic_smaller => 1;
 use constant characteristic_monotonic => 0;
-use constant description => Math::NumSeq::__('Step directions in a PlanePath');
+use constant description => Math::NumSeq::__('Coordinates from a PlanePath');
 
 use constant::defer parameter_info_array =>
   sub {
     require Module::Util;
+
     # cf App::MathImage::Generator->path_choices() order
     # my @choices = sort map { s/.*:://;
     #                          if (length() > $width) { $width = length() }
@@ -63,8 +64,8 @@ use constant::defer parameter_info_array =>
               display => Math::NumSeq::__('Coordinate Type'),
               type    => 'enum',
               default => 'X',
-              choices => ['X','Y','Sum','Radius','RSquared',
-                          'dX','dY','dDist','dDistSq',
+              choices => ['X','Y','Sum','Radius','SqRadius',
+                          'dX','dY','dDist','dSqDist',
                           'ENSW', 'Turn'],
               # description => Math::NumSeq::__(''),
             },
@@ -94,17 +95,31 @@ my %oeis_anum
        # OEIS-Catalogue: A163529 planepath=PeanoCurve coord_type=Y
 
        dX => 'A163532',
-       # OEIS-Catalogue: A163532 planepath=PeanoCurve coord_type=x
+       # OEIS-Catalogue: A163532 planepath=PeanoCurve coord_type=X
 
        dY => 'A163533',
-       # OEIS-Catalogue: A163533 planepath=PeanoCurve coord_type=y
+       # OEIS-Catalogue: A163533 planepath=PeanoCurve coord_type=Y
 
        Sum => 'A16353',
        # OEIS-Catalogue: A163530 planepath=PeanoCurve coord_type=Sum
 
-       SqDist => 'A163531',
-       # OEIS-Catalogue: A163531 planepath=PeanoCurve coord_type=SqDist
+       SqRadius => 'A163531',
+       # OEIS-Catalogue: A163531 planepath=PeanoCurve coord_type=SqRadius
      },
+
+     'Math::PlanePath::RationalsTree,tree_type=Bird' =>
+     { X => 'A162909', # Bird tree numerators
+       Y => 'A162910', # Bird tree denominators
+       # OEIS-Catalogue: A162909 planepath=RationalsTree,tree_type=Bird coord_type=X
+       # OEIS-Catalogue: A162910 planepath=RationalsTree,tree_type=Bird coord_type=Y
+     },
+     'Math::PlanePath::RationalsTree,tree_type=Drib' =>
+     { X => 'A068611', # Drib tree numerators
+       Y => 'A068612', # Drib tree denominators
+       # OEIS-Catalogue: A068611 planepath=RationalsTree,tree_type=Drib coord_type=X
+       # OEIS-Catalogue: A068612 planepath=RationalsTree,tree_type=Drib coord_type=Y
+     },
+
     );
 
 sub oeis_anum {
@@ -244,9 +259,9 @@ sub coord_func_Sum {
   return $prev_x+$prev_y;
 }
 sub coord_func_Radius {
-  return sqrt(coord_func_RSquared(@_));
+  return sqrt(coord_func_SqRadius(@_));
 }
-sub coord_func_RSquared {
+sub coord_func_SqRadius {
   my ($self, $x,$y, $prev_x,$prev_y) = @_;
   return $prev_x*$prev_x + $prev_y*$prev_y;
 }
@@ -260,9 +275,9 @@ sub coord_func_dY {
   return $y - $prev_y;
 }
 sub coord_func_dDist {
-  return sqrt(coord_func_dDistSq(@_));
+  return sqrt(coord_func_dSqDist(@_));
 }
-sub coord_func_dDistSq {
+sub coord_func_dSqDist {
   my ($self, $x,$y, $prev_x,$prev_y) = @_;
   $x -= $prev_x;
   $y -= $prev_y;
@@ -366,9 +381,9 @@ sub values_min {
   #   return $planepath_object->MathImage__NumSeq_Sum_min;
   # 
   # } elsif ($coord_type eq 'Radius'
-  #          || $coord_type eq 'RSquared'
+  #          || $coord_type eq 'SqRadius'
   #          || $coord_type eq 'dDist'
-  #          || $coord_type eq 'dDistSq'
+  #          || $coord_type eq 'dSqDist'
   #          ) {
   #   return 0;
   # 
@@ -377,8 +392,8 @@ sub values_min {
   # } elsif ($coord_type eq 'dY') {
   #   return $planepath_object->MathImage__NumSeq_dY_min;
   # 
-  # } elsif ($coord_type eq 'dDistSq') {
-  #   return $planepath_object->MathImage__NumSeq_dDistSq_min;
+  # } elsif ($coord_type eq 'dSqDist') {
+  #   return $planepath_object->MathImage__NumSeq_dSqDist_min;
   # }
 }
 
@@ -396,8 +411,8 @@ sub values_max {
   # } elsif ($coord_type eq 'dY') {
   #   return $planepath_object->MathImage__NumSeq_dY_max;
   # 
-  # } elsif ($coord_type eq 'dDistSq') {
-  #   return $planepath_object->MathImage__NumSeq_dDistSq_max;
+  # } elsif ($coord_type eq 'dSqDist') {
+  #   return $planepath_object->MathImage__NumSeq_dSqDist_max;
   # }
   # 
   # return undef;
@@ -424,13 +439,13 @@ sub values_max {
   }
   use constant MathImage__NumSeq_Sum_max => undef;
 
-  sub MathImage__NumSeq_Radius_min { sqrt($_[0]->MathImage__NumSeq_RSquared_min) }
+  sub MathImage__NumSeq_Radius_min { sqrt($_[0]->MathImage__NumSeq_SqRadius_min) }
   sub MathImage__NumSeq_Radius_max {
-    my $max = $_[0]->MathImage__NumSeq_RSquared_max;
+    my $max = $_[0]->MathImage__NumSeq_SqRadius_max;
     return (defined $max ? sqrt($max) : undef);
   }
-  use constant MathImage__NumSeq_RSquared_min => 0;
-  use constant MathImage__NumSeq_RSquared_max => undef;
+  use constant MathImage__NumSeq_SqRadius_min => 0;
+  use constant MathImage__NumSeq_SqRadius_max => undef;
 
   use constant MathImage__NumSeq_dX_min => undef;
   use constant MathImage__NumSeq_dX_max => undef;
@@ -438,14 +453,14 @@ sub values_max {
   use constant MathImage__NumSeq_dY_min => undef;
   use constant MathImage__NumSeq_dY_max => undef;
 
-  sub MathImage__NumSeq_dDist_min { sqrt($_[0]->MathImage__NumSeq_dDistSq_min) }
+  sub MathImage__NumSeq_dDist_min { sqrt($_[0]->MathImage__NumSeq_dSqDist_min) }
   sub MathImage__NumSeq_dDist_max {
-    my $max = $_[0]->MathImage__NumSeq_dDistSq_max;
+    my $max = $_[0]->MathImage__NumSeq_dSqDist_max;
     return (defined $max ? sqrt($max) : undef);
   }
 
-  use constant MathImage__NumSeq_dDistSq_min => undef;
-  use constant MathImage__NumSeq_dDistSq_max => undef;
+  use constant MathImage__NumSeq_dSqDist_min => undef;
+  use constant MathImage__NumSeq_dSqDist_max => undef;
 
   use constant MathImage__NumSeq_Turn_min => -1;
   use constant MathImage__NumSeq_Turn_max => 1;
@@ -459,8 +474,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -469,8 +484,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -479,8 +494,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
-  use constant MathImage__NumSeq_dDistSq_max => 4;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
+  use constant MathImage__NumSeq_dSqDist_max => 4;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -489,8 +504,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -499,8 +514,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -509,8 +524,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -519,8 +534,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
-  use constant MathImage__NumSeq_dDistSq_max => 4;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
+  use constant MathImage__NumSeq_dSqDist_max => 4;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -529,8 +544,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -539,8 +554,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -549,16 +564,16 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
 }
 { package Math::PlanePath::KnightSpiral;
   use constant MathImage__NumSeq_dX_min => -2;
   use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_min => -2;
   use constant MathImage__NumSeq_dY_max => 2;
-  use constant MathImage__NumSeq_dDistSq_min => 5;
-  use constant MathImage__NumSeq_dDistSq_max => 5;
+  use constant MathImage__NumSeq_dSqDist_min => 5;
+  use constant MathImage__NumSeq_dSqDist_max => 5;
 }
 { package Math::PlanePath::SquareArms;
 }
@@ -571,11 +586,11 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
 }
 { package Math::PlanePath::SacksSpiral;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
   use constant MathImage__NumSeq_Turn_min => 1; # left always
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -594,8 +609,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
   use constant MathImage__NumSeq_Turn_min => 1; # left always
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -604,8 +619,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
   use constant MathImage__NumSeq_Turn_min => 1; # left always
   use constant MathImage__NumSeq_Turn_max => 1;
 }
@@ -613,16 +628,16 @@ sub values_max {
   use constant MathImage__NumSeq_dX_min => -1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1; # FIXME: bit bigger actually
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1; # FIXME: bit bigger actually
 }
 { package Math::PlanePath::PixelRings;
   use constant MathImage__NumSeq_dX_min => -1;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
 }
 { package Math::PlanePath::Hypot;
 }
@@ -659,13 +674,13 @@ sub values_max {
             ? 1
             : undef);
   }
-  sub MathImage__NumSeq_dDistSq_min {
+  sub MathImage__NumSeq_dSqDist_min {
     my ($self) = @_;
     return ($self->{'radix'} % 2
             ? 1
             : undef);
   }
-  sub MathImage__NumSeq_dDistSq_max {
+  sub MathImage__NumSeq_dSqDist_max {
     my ($self) = @_;
     return ($self->{'radix'} % 2
             ? 1
@@ -677,13 +692,13 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
 }
 { package Math::PlanePath::ZOrderCurve;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::ImaginaryBase;
 }
@@ -712,13 +727,13 @@ sub values_max {
             ? 1
             : undef);
   }
-  sub MathImage__NumSeq_dDistSq_min {
+  sub MathImage__NumSeq_dSqDist_min {
     my ($self) = @_;
     return ($self->{'arms'} == 1
             ? 1
             : undef);
   }
-  sub MathImage__NumSeq_dDistSq_max {
+  sub MathImage__NumSeq_dSqDist_max {
     my ($self) = @_;
     return ($self->{'arms'} == 1
             ? 4
@@ -729,36 +744,36 @@ sub values_max {
   # inherit from Flowsnake
 }
 { package Math::PlanePath::GosperIslands;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::GosperSide;
   use constant MathImage__NumSeq_dX_min => -2;
   use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
-  use constant MathImage__NumSeq_dDistSq_max => 4;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
+  use constant MathImage__NumSeq_dSqDist_max => 4;
 }
 
 { package Math::PlanePath::KochCurve;
   use constant MathImage__NumSeq_dX_min => -2;
   use constant MathImage__NumSeq_dX_max => 2;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
-  use constant MathImage__NumSeq_dDistSq_max => 4;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
+  use constant MathImage__NumSeq_dSqDist_max => 4;
 }
 { package Math::PlanePath::KochPeaks;
   use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
 }
 { package Math::PlanePath::KochSnowflakes;
   use constant MathImage__NumSeq_dX_min => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
 }
 { package Math::PlanePath::KochSquareflakes;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 
 { package Math::PlanePath::QuadricCurve;
@@ -767,19 +782,19 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::QuadricIslands;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 
 { package Math::PlanePath::SierpinskiTriangle;
   use constant MathImage__NumSeq_dY_min => 0;
   use constant MathImage__NumSeq_dY_max => 1;
   use constant MathImage__NumSeq_Sum_min => 0;  # triangular X>=-Y
-  use constant MathImage__NumSeq_dDistSq_min => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant MathImage__NumSeq_dX_min => -2;
@@ -787,8 +802,8 @@ sub values_max {
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
   use constant MathImage__NumSeq_Sum_min => 0;  # triangular X>=-Y
-  use constant MathImage__NumSeq_dDistSq_min => 2;
-  use constant MathImage__NumSeq_dDistSq_max => 4;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
+  use constant MathImage__NumSeq_dSqDist_max => 4;
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant MathImage__NumSeq_Sum_min => 0;  # triangular X>=-Y
@@ -796,8 +811,8 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
-  use constant MathImage__NumSeq_dDistSq_max => 4;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
+  use constant MathImage__NumSeq_dSqDist_max => 4;
 }
 
 { package Math::PlanePath::DragonCurve;
@@ -805,24 +820,24 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
 }
 { package Math::PlanePath::DragonRounded;
   use constant MathImage__NumSeq_dX_min => -1;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 2;
 }
 { package Math::PlanePath::DragonMidpoint;
   use constant MathImage__NumSeq_dX_min => -1;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  use constant MathImage__NumSeq_dDistSq_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  use constant MathImage__NumSeq_dSqDist_max => 1;
 }
 { package Math::PlanePath::ComplexMinus;
 }
@@ -834,7 +849,7 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => 0;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 
   # if width==1 then always straight ahead vertical
   sub MathImage__NumSeq_Turn_min {
@@ -854,7 +869,7 @@ sub values_max {
     return - ($self->{'height'}-1);
   }
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 
   # if height==1 then always stright ahead
   sub MathImage__NumSeq_Turn_min {
@@ -869,17 +884,17 @@ sub values_max {
 { package Math::PlanePath::Diagonals;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
 }
 { package Math::PlanePath::Staircase;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::Corner;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::PyramidRows;
   sub MathImage__NumSeq_Sum_min {
@@ -896,8 +911,8 @@ sub values_max {
   }
   use constant MathImage__NumSeq_dY_min => 0;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
-  sub MathImage__NumSeq_dDistSq_max {
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+  sub MathImage__NumSeq_dSqDist_max {
     my ($self) = @_;
     return ($self->{'step'} == 0
             ? 1    # X=0 vertical
@@ -928,20 +943,20 @@ sub values_max {
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_min => -1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 2;
+  use constant MathImage__NumSeq_dSqDist_min => 2;
 }
 { package Math::PlanePath::CellularRule54;
   use constant MathImage__NumSeq_dX_max => 4;
   use constant MathImage__NumSeq_dY_min => 0;
   use constant MathImage__NumSeq_dY_max => 1;
   use constant MathImage__NumSeq_Sum_min => 0;  # triangular X>=-Y
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::CoprimeColumns;
   use constant MathImage__NumSeq_dX_min => 0;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_max => 1;
-  use constant MathImage__NumSeq_dDistSq_min => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::File;
   # File                   points from a disk file
@@ -974,13 +989,13 @@ sub values_max {
             ? 1
             : undef);
   }
-  sub MathImage__NumSeq_dDistSq_min {
+  sub MathImage__NumSeq_dSqDist_min {
     my ($self) = @_;
     return ($self->{'arms'} == 1
             ? 1
             : undef);
   }
-  sub MathImage__NumSeq_dDistSq_max {
+  sub MathImage__NumSeq_dSqDist_max {
     my ($self) = @_;
     return ($self->{'arms'} == 1
             ? 1
@@ -989,7 +1004,7 @@ sub values_max {
 }
 { package Math::PlanePath::MathImageQuintetCentres;
   # inherit QuintetCurve, except
-  sub MathImage__NumSeq_dDistSq_max {
+  sub MathImage__NumSeq_dSqDist_max {
     my ($self) = @_;
     return ($self->{'arms'} == 1
             ? 2         # goes diagonally
@@ -1033,7 +1048,7 @@ sub pred {
     } else {
       return ($value >= 0);
     }
-  } elsif ($coord_type eq 'SqDist') {
+  } elsif ($coord_type eq 'SqRadius') {
     # FIXME: only sum of two squares, and for triangular same odd/even
     return ($value >= 0);
   }

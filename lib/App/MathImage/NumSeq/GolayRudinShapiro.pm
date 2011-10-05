@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IteratePred;
@@ -28,7 +28,7 @@ use Math::NumSeq::Base::IteratePred;
         'Math::NumSeq');
 
 use vars '$VERSION';
-$VERSION = 74;
+$VERSION = 75;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

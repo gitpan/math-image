@@ -21,11 +21,11 @@ use strict;
 use Carp;
 use Math::Sequence;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 75;
 use Math::NumSeq;
-use base 'Math::NumSeq';
+@ISA = ('Math::NumSeq');
 
-use vars '$VERSION';
-$VERSION = 74;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

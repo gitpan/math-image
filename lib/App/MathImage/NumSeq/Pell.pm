@@ -20,11 +20,11 @@ use 5.004;
 use strict;
 use List::Util 'max';
 
-use Math::NumSeq;
-use base 'Math::NumSeq::Base::Sparse';
+use vars '$VERSION', '@ISA';
+$VERSION = 75;
+use Math::NumSeq::Base::Sparse;
+@ISA = ('Math::NumSeq::Base::Sparse');
 
-use vars '$VERSION';
-$VERSION = 74;
 
 # use constant name => Math::NumSeq::__('Pell Numbers');
 use constant description => Math::NumSeq::__('The Pell numbers 0, 1, 2, 5, 12, 29, 70, etc, being P(k)=2*P(k-1)+P(k-2) starting from 0.');

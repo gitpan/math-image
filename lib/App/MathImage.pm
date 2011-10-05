@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 74;
+$VERSION = 75;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -74,7 +74,9 @@ sub getopt_long_specifications {
      'squares'    => sub { _hopt($self,'gen_options','values', 'Squares');  },
      'pronic'     => sub { _hopt($self,'gen_options','values', 'Pronic');  },
      'triangular' => sub { _hopt($self,'gen_options','values', 'Triangular'); },
-     'pentagonal' => sub { _hopt($self,'gen_options','values', 'Pentagonal'); },
+     'pentagonal' => sub { _hopt($self,'gen_options','values', 'Polygonal');
+                           $self->{'gen_options'}->{'values_parameters'}->{'polygonal'} = 5;
+                           $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'first'; },
      'cubes'      => sub { _hopt($self,'gen_options','values', 'Cubes');  },
      'tetrahedral'=> sub { _hopt($self,'gen_options','values', 'Tetrahedral');},
      'perrin'     => sub { _hopt($self,'gen_options','values', 'Perrin');  },

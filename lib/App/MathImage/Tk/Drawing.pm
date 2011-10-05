@@ -29,7 +29,7 @@ use Image::Base::Tk::Photo;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 74;
+our $VERSION = 75;
 
 sub ClassInit {
   my ($class, $mw) = @_;

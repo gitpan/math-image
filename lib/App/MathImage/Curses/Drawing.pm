@@ -28,7 +28,7 @@ use Curses::UI::Widget;
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 74;
+$VERSION = 75;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

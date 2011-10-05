@@ -24,7 +24,7 @@ use POSIX ();
 use Wx;
 
 use base qw(Wx::TextCtrl);
-our $VERSION = 74;
+our $VERSION = 75;
 
 
 # uncomment this to run the ### lines

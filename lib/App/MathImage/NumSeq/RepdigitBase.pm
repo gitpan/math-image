@@ -1,3 +1,6 @@
+# progressive sieve
+
+
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -19,11 +22,11 @@ package App::MathImage::NumSeq::RepdigitBase;
 use 5.004;
 use strict;
 
-use Math::NumSeq;
-use base 'Math::NumSeq::Base::Array';
+use vars '$VERSION', '@ISA';
+$VERSION = 75;
+use Math::NumSeq::Base::Array;
+@ISA = ('Math::NumSeq::Base::Array');
 
-use vars '$VERSION';
-$VERSION = 74;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

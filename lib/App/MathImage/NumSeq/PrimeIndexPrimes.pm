@@ -1,3 +1,4 @@
+# progressive hi limit
 # FIXME: p=2 up wrong
 
 
@@ -30,17 +31,16 @@ use strict;
 use List::Util 'min', 'max';
 use POSIX ();
 
-use Math::NumSeq::Primes;
-use Math::NumSeq;
-use base 'Math::NumSeq::Base::Array';
+use vars '$VERSION', '@ISA';
+$VERSION = 75;
+use Math::NumSeq::Base::Array;
+@ISA = ('Math::NumSeq::Base::Array');
 
-use vars '$VERSION';
-$VERSION = 74;
+use Math::NumSeq::Primes;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => Math::NumSeq::__('Prime Numbers');
 use constant description => Math::NumSeq::__('The primes which are at prime number index positions, 3, 5, 11, 17, 31, etc.');
 use constant characteristic_monotonic => 2;
 use constant values_min => 3;

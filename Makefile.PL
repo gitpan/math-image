@@ -107,6 +107,7 @@ my %maximum_planepath
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
+     'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
 
      'Math::PlanePath::Flowsnake'            => 38, # new in v.38
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
@@ -141,7 +142,7 @@ my %maximum_numseq
      'Math::NumSeq::Squares'    => 1,
      'Math::NumSeq::Pronic'     => 1,
      'Math::NumSeq::Triangular' => 1,
-     'Math::NumSeq::Polygonal'  => 1,
+     'Math::NumSeq::Polygonal'  => 8,  # v.8 for pairs=>average
      'Math::NumSeq::Cubes'      => 1,
      'Math::NumSeq::Tetrahedral'  => 1,
      'Math::NumSeq::StarNumbers'  => 1,
@@ -159,6 +160,8 @@ my %maximum_numseq
      'Math::NumSeq::Primorials'   => 1,
      'Math::NumSeq::Fibonacci'    => 1,
      'Math::NumSeq::LucasNumbers' => 1,
+     'Math::NumSeq::Fibbinary'    => 8,  # new in v.8
+     'Math::NumSeq::Tribonacci'   => 8,  # new in v.8
 
      'Math::NumSeq::FractionDigits' => 1,
      'Math::NumSeq::SqrtDigits'     => 1,
@@ -183,6 +186,7 @@ my %maximum_numseq
 
      'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4
+     'Math::NumSeq::NumAronson' => 8, # new in v.8
 
      'Math::NumSeq::File'       => 1,
      'Math::NumSeq::Expression' => 6,  # new in v.6
@@ -307,8 +311,7 @@ sub add_prereq {
 }
 add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
-add_prereq ('Math::PlanePath::SacksSpiral', 1); # for CrossSide
-add_prereq ('Math::NumSeq::DigitCount',4);
+add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
 #
 add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
 add_prereq ('Math::NumSeq::Base::Array',1);
@@ -317,7 +320,8 @@ add_prereq ('Math::NumSeq::Base::IterateIth',1);
 add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
-add_prereq ('Math::NumSeq::Polygonal',1);  # for Pentagonal
+add_prereq ('Math::NumSeq::DigitCount',4); # for DigitCountHigh/Low
+add_prereq ('Math::NumSeq::Emirps',4); # for ReverseAdd, new in v.4
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',
