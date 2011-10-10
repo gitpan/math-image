@@ -1,7 +1,6 @@
-# count of 1 always ?
 # hard limit on steps ?
 # -1 if infinite ...
-
+# notice binary infinite
 
 
 
@@ -28,7 +27,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION','@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -44,18 +43,24 @@ use constant description => Math::NumSeq::__('How many steps of reverse and add 
 use constant characteristic_count => 1;
 use constant characteristic_monotonic => 0;
 use constant values_min => -1;
+use constant i_start => 1;
 
 use Math::NumSeq::Base::Digits;
 *parameter_info_array = \&Math::NumSeq::Base::Digits::parameter_info_array;
 
 #------------------------------------------------------------------------------
 
-# cf A030547 - num steps starting at 196 trajectory elements ? A006960
-#    A015976 - numbers needing 1 iteration to reach palindrome
+# cf A015976 - numbers needing 1 iteration to reach palindrome
 #    A065206 - 1 iteration to reach palindrome, excluding palindromes
 #    A015977 - 2 iterations to reach palindrome
 #    A015979 - 3 iterations to reach palindrome
+#
 #    A023109 - first number requiring n iterations to palindrome
+#                suggesting where to make the hard limit ...
+#
+#    A030547 - num steps to a palindrome in the 196 trajectory A006960
+#              ie. how far away each elem is from a palindrome, ongoing
+#    
 # ~/OEIS/a058042.txt  on reaching binary palindromes
 #
 my @oeis_anum;
@@ -67,14 +72,24 @@ sub oeis_anum {
 }
 #------------------------------------------------------------------------------
 
-use constant _LIMIT => 50;
+use constant _LIMIT => 100;
 
 sub rewind {
   my ($self) = @_;
-  # _bigint();
   # $self->{'i'} = max(0,$self->{'lo'});
-  $self->{'i'} = 0;
+
+  $self->{'i'} = 1;
+
+  my $radix = $self->{'radix'};
+  my $limit = ~0;
+  my $digits = -1;
+  while ($limit) {
+    $digits++;
+    $limit = int($limit/$radix);
+  }
+  $self->{'uv_limit'} = $radix ** $digits;
 }
+
 sub next {
   my ($self) = @_;
   ### ReverseAddSteps next(): $self->{'i'}
@@ -87,17 +102,23 @@ use constant::defer _bigint => sub {
   eval { Math::BigInt->import (try => 'GMP') };
   return 'Math::BigInt';
 };
+
 sub ith {
   my ($self, $k) = @_;
   ### ReverseAddSteps ith(): $k
   my $radix = $self->{'radix'};
+  my $uv_limit = $self->{'uv_limit'};
 
   # $k = _bigint()->new($k);
-  my $count = 1;
+  my $count = 0;
  OUTER: for ( ; $count < _LIMIT; $count++) {
     my @digits;
     ### $count
     ### k: "$k"
+
+    if ($k >= $uv_limit) {
+      $k = _bigint()->new($k);
+    }
 
     if (ref $k) {
       my $d = $k->copy;
@@ -105,10 +126,11 @@ sub ith {
         push @digits, $d % $radix;
         $d->bdiv($radix);
       }
+      @digits = (0) unless @digits;
       ### big digits: join(',',@digits)
 
-      for my $i (0 .. int(@digits/2)-1) {
-        if ($digits[$i] != $digits[-1-$i]) {
+      for my $i (0 .. int(@digits/2)) {
+        if ($count == 0 || $digits[$i] != $digits[-1-$i]) {
           ### not a palindrome ...
 
           foreach my $i (0 .. $#digits) {
@@ -128,15 +150,13 @@ sub ith {
         push @digits, $d % $radix;
         $d = int($d/$radix);
       }
+      @digits = (0) unless @digits;
       ### small digits: join(',',@digits)
 
-      for my $i (0 .. int(@digits/2)-1) {
-        if ($digits[$i] != $digits[-1-$i]) {
+      for my $i (0 .. int(@digits/2)) {
+        if ($count == 0 || $digits[$i] != $digits[-1-$i]) {
           ### not a palindrome ...
 
-          if (@digits >= 10) {
-            $d = _bigint()->bzero;
-          }
           foreach my $i (0 .. $#digits) {
             $d *= $radix;
             $d += $digits[$i];
@@ -192,7 +212,7 @@ select another base.
 The number of steps can be infinite.  In binary for example 3 = 11 binary
 never reaches a palindrome, and in decimal it's conjectured that 196 doesn't
 (and from which this is sometimes called the 196-algorithm).  In the current
-code a limit of 50 is imposed on the search.
+code a limit of 100 is imposed on the search.
 
 
 =head1 FUNCTIONS

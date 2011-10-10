@@ -53,7 +53,6 @@ devel/x11-protocol.pl
 devel/x11-splash.pl
 inc/my_pod2html
 inc/MyMakeMakerExtras.pm
-inc/MyModuleUtils_without.pm
 lib/App/MathImage.pm
 lib/App/MathImage/Curses/Drawing.pm
 lib/App/MathImage/Curses/Main.pm
@@ -113,9 +112,9 @@ lib/App/MathImage/Image/Base/X/Pixmap.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/math-image.desktop
 lib/App/MathImage/NumSeq/Abundant.pm
+lib/App/MathImage/NumSeq/AsciiSelf.pm
 lib/App/MathImage/NumSeq/Base/File.pm
 lib/App/MathImage/NumSeq/Base/FileWriter.pm
-lib/App/MathImage/NumSeq/BaumSweet.pm
 lib/App/MathImage/NumSeq/ChampernowneBinary.pm
 lib/App/MathImage/NumSeq/ChampernowneBinaryLsb.pm
 lib/App/MathImage/NumSeq/CunninghamChain.pm
@@ -126,7 +125,10 @@ lib/App/MathImage/NumSeq/DigitCountLow.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/GoldenSequence.pm
 lib/App/MathImage/NumSeq/HappySteps.pm
+lib/App/MathImage/NumSeq/HofstadterDiff.pm
 lib/App/MathImage/NumSeq/HypotCount.pm
+lib/App/MathImage/NumSeq/JugglerSteps.pm
+lib/App/MathImage/NumSeq/Kolakoski.pm
 lib/App/MathImage/NumSeq/Lines.pm
 lib/App/MathImage/NumSeq/LinesLevel.pm
 lib/App/MathImage/NumSeq/LinesTree.pm
@@ -136,7 +138,6 @@ lib/App/MathImage/NumSeq/Modulo.pm
 lib/App/MathImage/NumSeq/Multiples.pm
 lib/App/MathImage/NumSeq/Obstinate.pm
 lib/App/MathImage/NumSeq/Padovan.pm
-lib/App/MathImage/NumSeq/Pell.pm
 lib/App/MathImage/NumSeq/Perrin.pm
 lib/App/MathImage/NumSeq/PiBits.pm
 lib/App/MathImage/NumSeq/PlanePath.pm
@@ -230,4 +231,5 @@ xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t
 xt/MyOEIS.pm
+xt/numseq-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

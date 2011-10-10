@@ -22,7 +22,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -31,6 +31,7 @@ use Math::NumSeq::Base::IterateIth;
 
 use constant description => Math::NumSeq::__('...');
 use constant values_min => 0;
+use constant i_start => 1;
 use constant oeis_anum => 'A002491';
 
 sub ith {

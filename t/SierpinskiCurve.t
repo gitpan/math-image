@@ -36,7 +36,7 @@ require Math::PlanePath::MathImageSierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 75;
+  my $want_version = 76;
   ok ($Math::PlanePath::MathImageSierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageSierpinskiCurve->VERSION,  $want_version,

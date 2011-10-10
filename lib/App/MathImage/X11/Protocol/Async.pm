@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION';
-$VERSION = 75;
+$VERSION = 76;
 
 # X11::Protocol
 

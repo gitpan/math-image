@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            75
+version:            76
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -99,6 +99,8 @@ no_index:
         - inc
         - xt
         - devel
+    package:
+        - Math::PlanePath
 generated_by:       ExtUtils::MakeMaker version 6.56
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -163,6 +165,7 @@ optional_features:
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
             Math::NumSeq::Aronson:  6
+            Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
@@ -188,6 +191,7 @@ optional_features:
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
             Math::NumSeq::Palindromes:  1
+            Math::NumSeq::Pell:   10
             Math::NumSeq::Polygonal:  8
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
@@ -286,6 +290,7 @@ optional_features:
         requires:
             Math::Aronson:        4
             Math::NumSeq::Aronson:  6
+            Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
@@ -311,6 +316,7 @@ optional_features:
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
             Math::NumSeq::Palindromes:  1
+            Math::NumSeq::Pell:   10
             Math::NumSeq::Polygonal:  8
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
@@ -397,12 +403,13 @@ optional_features:
             Math::PlanePath::ZOrderCurve:  34
     maximum_tests:
         description:  Have "make test" do as much as possible.
-        requires:
-            Image::Base::GD:      4
-            Image::Base::PNGwriter:  2
-            Image::Xpm:           0
-            Test::Weaken:         3
-            Test::Weaken::ExtraBits:  1
+        prereqs:
+            test:
+                Image::Base::GD:      4
+                Image::Base::PNGwriter:  2
+                Image::Xpm:           0
+                Test::Weaken:         3
+                Test::Weaken::ExtraBits:  1
     tk_interface:
         description:  Tk GUI modules.
         requires:
@@ -427,6 +434,7 @@ recommends:
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
     Math::NumSeq::Aronson:  6
+    Math::NumSeq::BaumSweet:  10
     Math::NumSeq::Beastly:  1
     Math::NumSeq::CollatzSteps:  1
     Math::NumSeq::Cubes:  1
@@ -452,6 +460,7 @@ recommends:
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
     Math::NumSeq::Palindromes:  1
+    Math::NumSeq::Pell:   10
     Math::NumSeq::Polygonal:  8
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4

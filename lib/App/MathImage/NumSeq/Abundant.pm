@@ -22,10 +22,9 @@
 package App::MathImage::NumSeq::Abundant;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -50,8 +49,8 @@ sub new {
   my ($class, %options) = @_;
   my $lo = $options{'lo'} || 0;
   my $hi = $options{'hi'};
-  $lo = max (0, $lo);
-  $hi = max (0, $hi);
+  if ($lo < 0) { $lo = 0; }
+  if ($hi < 0) { $hi = 0; }
 
   my $i = 1;
   my @prods;

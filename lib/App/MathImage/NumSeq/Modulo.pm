@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -32,6 +32,7 @@ use Math::NumSeq::Base::IterateIth;
 
 use constant name => Math::NumSeq::__('Modulo');
 use constant description => Math::NumSeq::__('Remainder to a given modulus.');
+use constant characteristic_smaller => 1;
 sub characteristic_modulus {
   my ($self) = @_;
   return $self->{'modulus'};
@@ -53,38 +54,33 @@ sub values_max {
   return $self->{'modulus'} - 1;
 }
 
-# cf A008687 - count 1s in twos-complement -n
-#
-my @oeis = (undef,  # 0
-            undef,  # 1
-            undef,  # 2
-            'A010872',  # 3
-            # OEIS-Catalogue: A010872 modulus=3
-            'A010873',  # 4
-            # OEIS-Catalogue: A010873 modulus=4
-            'A010874',  # 5
-            # OEIS-Catalogue: A010874 modulus=5
-            'A010875',  # 6
-            # OEIS-Catalogue: A010875 modulus=6
-            'A010876',  # 7
-            # OEIS-Catalogue: A010876 modulus=7
-            'A010877',  # 8
-            # OEIS-Catalogue: A010877 modulus=8
-            'A010878',  # 9
-            # OEIS-Catalogue: A010878 modulus=9
-            'A010879',  # 10
-            # OEIS-Catalogue: A010879 modulus=10
-            'A010880',  # 11
-            # OEIS-Catalogue: A010880 modulus=11
-            'A010881',  # 12
-            # OEIS-Catalogue: A010881 modulus=12
-           );
+my @oeis_anum = (undef,  # 0
+                 undef,  # 1
+                 undef,  # 2
+                 'A010872',  # 3
+                 # OEIS-Catalogue: A010872 modulus=3
+                 'A010873',  # 4
+                 # OEIS-Catalogue: A010873 modulus=4
+                 'A010874',  # 5
+                 # OEIS-Catalogue: A010874 modulus=5
+                 'A010875',  # 6
+                 # OEIS-Catalogue: A010875 modulus=6
+                 'A010876',  # 7
+                 # OEIS-Catalogue: A010876 modulus=7
+                 'A010877',  # 8
+                 # OEIS-Catalogue: A010877 modulus=8
+                 'A010878',  # 9
+                 # OEIS-Catalogue: A010878 modulus=9
+                 'A010879',  # 10
+                 # OEIS-Catalogue: A010879 modulus=10
+                 'A010880',  # 11
+                 # OEIS-Catalogue: A010880 modulus=11
+                 'A010881',  # 12
+                 # OEIS-Catalogue: A010881 modulus=12
+                );
 sub oeis_anum {
-  my ($class_or_self) = @_;
-  my $modulus = (ref $class_or_self
-                 ? $class_or_self->{'modulus'}
-                 : $class_or_self->parameter_default('modulus'));
-  return $oeis[$modulus];
+  my ($self) = @_;
+  return $oeis_anum[$self->{'modulus'}];
 }
 
 sub ith {

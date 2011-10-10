@@ -161,6 +161,7 @@ my %maximum_numseq
      'Math::NumSeq::Fibonacci'    => 1,
      'Math::NumSeq::LucasNumbers' => 1,
      'Math::NumSeq::Fibbinary'    => 8,  # new in v.8
+     'Math::NumSeq::Pell'         => 10, # new in v.10
      'Math::NumSeq::Tribonacci'   => 8,  # new in v.8
 
      'Math::NumSeq::FractionDigits' => 1,
@@ -183,6 +184,7 @@ my %maximum_numseq
      'Math::NumSeq::CullenNumbers'  => 1,
      'Math::NumSeq::ProthNumbers'   => 1,
      'Math::NumSeq::WoodallNumbers' => 1,
+     'Math::NumSeq::BaumSweet'      => 10, # new in v.10
 
      'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4
@@ -412,13 +414,19 @@ MyMakeMakerExtras::WriteMakefile
       },
       maximum_tests =>
       { description => 'Have "make test" do as much as possible.',
-        requires => { 'Test::Weaken'            => 3,
-                      'Test::Weaken::ExtraBits' => 1,
-                      'Image::Xpm'              => 0,
-                      'Image::Base::GD'         => 4, # bug fixes
-                      'Image::Base::PNGwriter'  => 2, # bug fixes
-                    },
+        prereqs =>
+        { test => { 'Test::Weaken'            => 3,
+                    'Test::Weaken::ExtraBits' => 1,
+                    'Image::Xpm'              => 0,
+                    'Image::Base::GD'         => 4, # bug fixes
+                    'Image::Base::PNGwriter'  => 2, # bug fixes
+                  },
+        }
       },
      },
+
+     # devel additions to the package
+     no_index => { package => [ 'Math::PlanePath' ],
+                 }
    },
   );

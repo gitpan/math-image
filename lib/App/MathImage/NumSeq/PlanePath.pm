@@ -23,13 +23,10 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 75;
+$VERSION = 76;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 use constant characteristic_smaller => 1;
 use constant characteristic_monotonic => 0;
@@ -80,11 +77,12 @@ my %oeis_anum
        X => 'A059253',
        # OEIS-Catalogue: A059253 planepath=HilbertCurve coord_type=X
 
-       dX => 'A059252',
-       # OEIS-Catalogue: A163538 planepath=HilbertCurve coord_type=dX
-
-       dY => 'A059252',
-       # OEIS-Catalogue: A163539 planepath=HilbertCurve coord_type=dY
+       # initial dx=0 at i=0 ...
+       # dX => 'A059252',
+       # # OEIS-Catalogue: A163538 planepath=HilbertCurve coord_type=dX
+       # 
+       # dY => 'A059252',
+       # # OEIS-Catalogue: A163539 planepath=HilbertCurve coord_type=dY
      },
 
      'Math::PlanePath::PeanoCurve,radix=3' =>
@@ -94,13 +92,13 @@ my %oeis_anum
        Y => 'A163529',
        # OEIS-Catalogue: A163529 planepath=PeanoCurve coord_type=Y
 
-       dX => 'A163532',
-       # OEIS-Catalogue: A163532 planepath=PeanoCurve coord_type=X
+       # initial dx=0 at i=0 ...
+       # dX => 'A163532',
+       # # OEIS-Catalogue: A163532 planepath=PeanoCurve coord_type=dX
+       # dY => 'A163533',
+       # # OEIS-Catalogue: A163533 planepath=PeanoCurve coord_type=dY
 
-       dY => 'A163533',
-       # OEIS-Catalogue: A163533 planepath=PeanoCurve coord_type=Y
-
-       Sum => 'A16353',
+       Sum => 'A163530',
        # OEIS-Catalogue: A163530 planepath=PeanoCurve coord_type=Sum
 
        SqRadius => 'A163531',
@@ -114,26 +112,45 @@ my %oeis_anum
        # OEIS-Catalogue: A162910 planepath=RationalsTree,tree_type=Bird coord_type=Y
      },
      'Math::PlanePath::RationalsTree,tree_type=Drib' =>
-     { X => 'A068611', # Drib tree numerators
-       Y => 'A068612', # Drib tree denominators
-       # OEIS-Catalogue: A068611 planepath=RationalsTree,tree_type=Drib coord_type=X
-       # OEIS-Catalogue: A068612 planepath=RationalsTree,tree_type=Drib coord_type=Y
+     { X => 'A162911', # Drib tree numerators
+       Y => 'A162912', # Drib tree denominators
+       # OEIS-Catalogue: A162911 planepath=RationalsTree,tree_type=Drib coord_type=X
+       # OEIS-Catalogue: A162912 planepath=RationalsTree,tree_type=Drib coord_type=Y
      },
 
     );
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 sub oeis_anum {
   my ($self) = @_;
   ### oeis_anum() ...
   my $planepath_object = $self->{'planepath_object'};
-  return $oeis_anum{ref($planepath_object)
-                    . join(',',
-                           map {
-                             my $value = $planepath_object->{$_->{'name'}};
-                             (defined $value ? "$_->{'name'}=$value"
-                              : ())
-                           }
-                           $planepath_object->parameter_info_list)
+  my $x = join(',',
+               ref($planepath_object),
+               map {
+                 my $value = $planepath_object->{$_->{'name'}};
+                 ### $_
+                 ### $value
+                 ### gives: "$_->{'name'}=$value"
+                 (defined $value ? "$_->{'name'}=$value"
+                  : ())
+               }
+               $planepath_object->parameter_info_list)
+    ;
+  ### $x
+  return $oeis_anum{join(',',
+                         ref($planepath_object),
+                         map {
+                           my $value = $planepath_object->{$_->{'name'}};
+                           ### $_
+                           ### $value
+                           ### gives: "$_->{'name'}=$value"
+                           (defined $value ? "$_->{'name'}=$value"
+                            : ())
+                         }
+                         $planepath_object->parameter_info_list)
                    }->{$self->{'coord_type'}};
 }
 
@@ -256,14 +273,14 @@ sub coord_func_Y {
 }
 sub coord_func_Sum {
   my ($self, $x,$y, $prev_x,$prev_y) = @_;
-  return $prev_x+$prev_y;
+  return $x+$y;
 }
 sub coord_func_Radius {
   return sqrt(coord_func_SqRadius(@_));
 }
 sub coord_func_SqRadius {
   my ($self, $x,$y, $prev_x,$prev_y) = @_;
-  return $prev_x*$prev_x + $prev_y*$prev_y;
+  return $x*$x + $y*$y;
 }
 
 sub coord_func_dX {

@@ -16,6 +16,9 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+Version 76, October 2011
+    - use BigInt if necessary for big paths like RationalsTree
+
 Version 75, October 2011
     - more sequences and path stuff
 

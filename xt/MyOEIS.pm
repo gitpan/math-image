@@ -82,11 +82,13 @@ sub read_values {
 sub _read_values {
   my ($anum) = @_;
 
+  require File::Spec;
   require POSIX;
   my $max_value = POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
 
-  require File::Spec;
-  foreach my $basefile (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
+ ABFILE: foreach my $basefile
+    (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
+
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
@@ -98,6 +100,12 @@ sub _read_values {
         $line =~ s/^\s+//;     # leading white space
         next if $line eq '';   # ignore blank lines
         next if $line =~ /^#/; # ignore comment lines, eg. b006450.txt
+
+        # eg. a005228.txt source code not numbers, skip file
+        if ($line =~ /^From [A-Za-z]/) {
+          next ABFILE;
+        }
+
         my ($i, $n) = split /\s+/, $line;
         if (! defined $lo) {
           $lo = $i;

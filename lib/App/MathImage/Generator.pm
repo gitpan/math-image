@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 75;
+$VERSION = 76;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -82,10 +82,12 @@ sub new {
 }
 
 # columns_of_pythagoras
-use constant values_choices => do {
+use constant::defer values_choices => sub {
   my %choices;
+  ### @INC
   foreach my $module (Module::Util::find_in_namespace('App::MathImage::NumSeq'),
                       Module::Util::find_in_namespace('Math::NumSeq')) {
+    ### $module
     my $choice = $module;
     $choice =~ s/^Math::NumSeq:://;
     $choice =~ s/^App::MathImage::NumSeq:://;
@@ -93,6 +95,7 @@ use constant values_choices => do {
     $choice =~ s/::/-/g;
     $choices{$choice} = 1;
   }
+  ### %choices
   my @choices;
   foreach my $prefer (qw(Primes
                          PrimeFactorCount
@@ -118,8 +121,9 @@ use constant values_choices => do {
                          All
 
                          Fibonacci
-                         Lucas
+                         LucasNumbers
                          Fibbinary
+                         Pell
                          Perrin
                          Padovan
                          Tribonacci
@@ -167,6 +171,7 @@ use constant values_choices => do {
                          CullenNumbers
                          WoodallNumbers
                          ProthNumbers
+                         BaumSweet
 
                          Multiples
                          Expression
@@ -294,11 +299,8 @@ my %pathname_square_grid
 
                      MathImageComplexPlus
                      MathImageCornerReplicate
-                     MathImageGosperTiling
-                     MathImageKochSquareflakes
                      MathImageQuintetSide
                      MathImageSierpinskiCurve
-                     MathImageSquareReplicate
                      MathImageWunderlichCurve
                   )
     );
@@ -447,7 +449,7 @@ sub y_negative {
     my ($class) = @_;
     return @{$class->path_choices_array};
   }
-  use constant path_choices_array => do {
+  use constant::defer path_choices_array => sub {
     my %choices;
     my $base = 'Math::PlanePath';
     foreach my $module (Module::Util::find_in_namespace($base)) {
@@ -487,6 +489,7 @@ sub y_negative {
                            PyramidRows
                            PyramidSides
                            PyramidSpiral
+                           CellularRule54
                            Corner
                            Diagonals
                            Staircase
@@ -497,6 +500,7 @@ sub y_negative {
                            HilbertCurve
                            ZOrderCurve
                            ImaginaryBase
+                           SquareReplicate
 
                            Flowsnake
                            FlowsnakeCentres
@@ -513,9 +517,13 @@ sub y_negative {
                            KochPeaks
                            KochCurve
 
+                           QuadricCurve
+                           QuadricIslands
+
                            SierpinskiTriangle
                            SierpinskiArrowhead
                            SierpinskiArrowheadCentres
+
                            DragonCurve
                            DragonRounded
                            DragonMidpoint
@@ -523,6 +531,7 @@ sub y_negative {
 
                            PythagoreanTree
                            RationalsTree
+                           CoprimeColumns
                            File
                          )) {
       if (delete $choices{$prefer}) {
@@ -1006,6 +1015,14 @@ sub colours_grey_exp {
     } elsif ($self->values_object->{'step_type'} eq 'both') {
       $shrink = 1 - 1/50;
     }
+  } elsif ($self->{'values'} eq 'JugglerSteps') {
+    if ($self->values_object->{'step_type'} eq 'up') {
+      $shrink = 1 - 1/10;
+    } elsif ($self->values_object->{'step_type'} eq 'down') {
+      $shrink = 1 - 1/13;
+    } elsif ($self->values_object->{'step_type'} eq 'both') {
+      $shrink = 1 - 1/20;
+    }
   } elsif ($self->{'values'} eq 'HappySteps') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'DigitProduct') {
@@ -1126,14 +1143,14 @@ sub draw_Image_start {
   my ($self, $image) = @_;
   ### draw_Image_start()...
   ### values: $self->{'values'}
-
+  
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
   my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
   ### $width
   ### $height
-
+  
   my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
@@ -1141,7 +1158,7 @@ sub draw_Image_start {
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my @colours = ($foreground);
-
+  
   # clear undrawn quadrants
   {
     my @undrawn_rects;
@@ -1174,7 +1191,7 @@ sub draw_Image_start {
     App::MathImage::Image::Base::Other::rectangles
         ($image, $background, 1, @background_rects);
   }
-
+  
   my ($n_lo, $n_hi);
   my $rectangle_area = 1;
   if ($self->{'values'} eq 'LinesLevel') {
@@ -1231,16 +1248,16 @@ sub draw_Image_start {
       $n_hi = $level*$level;
     }
     $n_angle ||= $n_hi;
-
+    
     ### $level
     ### $n_lo
     ### $n_hi
     ### $n_angle
     ### $yfactor
-
+    
     $affine = Geometry::AffineTransform->new;
     $affine->scale (1, $yfactor);
-
+    
     my ($xlo, $ylo) = $path_object->n_to_xy ($n_lo);
     my ($xang, $yang) = $path_object->n_to_xy ($n_angle);
     my $theta = - atan2 ($yang*$yfactor, $xang);
@@ -1250,7 +1267,7 @@ sub draw_Image_start {
     ### hi raw: $path_object->n_to_xy($n_hi)
     ### $theta
     ### $r
-
+    
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
@@ -1258,12 +1275,12 @@ sub draw_Image_start {
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * $xmargin,
                         $self->{'height'} * .5);
-
+    
     ### width: $self->{'width'}
     ### scale x: $self->{'width'} * (1-2*$xmargin) / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
-
+    
     # FIXME: wrong when rotated ... ??
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
@@ -1275,20 +1292,20 @@ sub draw_Image_start {
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-
+    
     my ($x,$y) = $path_object->n_to_xy ($n_lo++);
     ### start raw: "$x, $y"
     ($x,$y) = $affine->transform ($x, $y);
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-
+    
     $self->{'xprev'} = $x;
     $self->{'yprev'} = $y;
     $self->{'affine_object'} = $affine;
     ### prev: "$x,$y"
     ### theta degrees: $theta*180/3.14159
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
-
+    
   } else {
     my $affine_inv = $affine->clone->invert;
     my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
@@ -1300,30 +1317,30 @@ sub draw_Image_start {
     ### $x2
     ### $y1
     ### $y2
-
+    
     ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
     # if ($n_hi > _SV_N_LIMIT) {
     #   ### n_hi: "$n_hi"
     #   ### bigint n range ...
     #   ($n_lo, $n_hi) = $path_object->rect_to_n_range (_bigint()->new(floor($x1)),$y1, $x2,$y2);
     # }
-
+    
     if ($self->{'values'} eq 'Lines') {
       $n_hi += 1;
     } elsif ($self->{'values'} eq 'LinesTree') {
       $n_hi += ($self->{'values_parameters'}->{'branches'} ||= 3);
     }
   }
-
+  
   ### n_lo: "$n_lo"
   ### n_hi: "$n_hi"
-
+  
   $self->{'n_prev'} = $n_lo - 1;
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'}   = $n_hi;
   $self->{'count_total'} = 0;
   $self->{'count_outside'} = 0;
-
+  
   # origin point
   if ($scale >= 3 && $self->figure ne 'point') {
     my ($x,$y) = $affine->transform(0,0);
@@ -1333,15 +1350,15 @@ sub draw_Image_start {
       $image->xy ($x, $y, $foreground);
     }
   }
-
+  
   if ($self->{'values'} eq 'Lines') {
-
+    
   } elsif ($self->{'values'} eq 'LinesTree') {
     my $branches = ($self->{'values_parameters'}->{'branches'} ||= 3);
     $self->{'branch_i'} = $branches;
     $self->{'upto_n'} = $path_object->n_start - 1;
     $self->{'upto_n_dest'} = $path_object->n_start + 1;
-
+    
   } else {
     my $values_class = $self->values_class($self->{'values'});
     ### values_parameters: $self->{'values_parameters'}
@@ -1349,7 +1366,8 @@ sub draw_Image_start {
       = $values_class->new (%{$self->{'values_parameters'} || {}},
                             lo => $n_lo,
                             hi => $n_hi);
-
+    my $values_min = $values_obj->values_min;
+    
     if ($values_obj->characteristic('pn1')) {
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ '-',' ','+' ];
@@ -1366,7 +1384,25 @@ sub draw_Image_start {
       ### pn1...
       ### colours: $self->{'colours'}
       ### colours_offset: $self->{'colours_offset'}
-
+      
+    } elsif (my $num = ($values_obj->characteristic('digits')
+                        || $values_obj->characteristic('modulus')
+                        || do {
+                          my $values_max = $values_obj->values_max;
+                          (defined $values_min
+                           && defined $values_max
+                           && $values_max - $values_min + 1)
+                        })) {
+      ### fixed set of colours ...
+      $self->{'colours_offset'} = -$values_min || 0;
+      if ($image->isa('Image::Base::Text')) {
+        $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
+      } else {
+        $self->colours_grey_linear ($num);
+      }
+      $self->{'use_colours'} = 1;
+      push @colours, @{$self->{'colours'}};
+      
     } elsif ($values_obj->characteristic('count')
              || $values_obj->characteristic('smaller')) {
       $self->{'colours_offset'} = 0;
@@ -1382,17 +1418,6 @@ sub draw_Image_start {
       ### colours_offset: $self->{'colours_offset'}
       ### per values_min: $values_obj->values_min
       ### colours: $self->{'colours'}
-
-    } elsif (my $num = ($values_obj->characteristic('digits')
-                        || $values_obj->characteristic('modulus'))) {
-      $self->{'colours_offset'} = 0;
-      if ($image->isa('Image::Base::Text')) {
-        $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
-      } else {
-        $self->colours_grey_linear ($num);
-      }
-      $self->{'use_colours'} = 1;
-      push @colours, @{$self->{'colours'}};
     }
     ### values_obj: $self->{'values_obj'}
 
@@ -1912,14 +1937,16 @@ sub draw_Image_steps {
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
-    my $y    = $self->{'y'};
+    my $y        = $self->{'y'};
+    my $bignum_y = $self->{'bignum_y'};
     #### draw by xy from: "$x,$y"
 
     for (;;) {
-      ### use_xy: "$x,$y"
+      ### xy: "$x,$y"
       &$cont() or last;
 
       if (++$x > $x_hi) {
+        ++$bignum_y;
         if (++$y > $self->{'y_hi'}) {
           # $values_obj->finish;
           last;
@@ -1928,10 +1955,10 @@ sub draw_Image_steps {
         #### next row: "$x,$y"
       }
 
-      if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
+      if (! defined ($n = $path_object->xy_to_n ($x, $bignum_y))) {
         next; # no N for this x,y
       }
-      #### path: "$x,$y  $n"
+      #### xy path: "$x,$y  $n"
 
       my $count = ($use_colours
                    ? $values_obj->ith($n)
@@ -1941,10 +1968,10 @@ sub draw_Image_steps {
         if (! $covers) {
           ##### background fill...
 
-          my ($wx, $wy) = $affine->transform($x, $y);
+          my ($wx, $wy) = $affine->transform($x,$y);
           $wx = floor ($wx - $offset + 0.5);
           $wy = floor ($wy - $offset + 0.5);
-          ### win: "$wx,$wy"
+          ### background win: "$wx,$wy"
 
           if ($figure eq 'point') {
             $count_figures++;
@@ -1972,10 +1999,10 @@ sub draw_Image_steps {
         next;
       }
 
-      my ($wx, $wy) = $affine->transform($x, $y);
+      my ($wx, $wy) = $affine->transform($x,$y);
       $wx = floor ($wx - $offset + 0.5);
       $wy = floor ($wy - $offset + 0.5);
-      ### win: "$wx,$wy"
+      ### xy win: "$wx,$wy"
 
       if ($use_colours) {
         $colour = $colours->[min ($#$colours,
@@ -2007,6 +2034,7 @@ sub draw_Image_steps {
     }
     $self->{'x'} = $x;
     $self->{'y'} = $y;
+    $self->{'bignum_y'} = $bignum_y;
 
   } else {
     ### draw by N...
@@ -2218,16 +2246,15 @@ sub use_xy {
   $self->{'y_hi'} = $y_hi;
 
   $self->{'x'} = $x_lo - 1;
-  $self->{'y'} = $y_lo;
+  $self->{'bignum_y'} = $self->{'y'} = $y_lo;
   #### x: "$x_lo to $x_hi start $self->{'x'}"
   #### y: "$y_lo to $y_hi start $self->{'y'}"
 
-  # ENHANCE-ME: use bigints when all the planepath xy_to_n()'s are bigint capable
-  # if ($self->{'n_hi'} > _SV_N_LIMIT) {
-  #   ### bigint XY: "$self->{'y'}"
-  #   $self->{'y'} = _bigint()->new($self->{'y'});
-  #   ### y: $self->{'y'}
-  # }
+  if ($self->{'n_hi'} > _SV_N_LIMIT) {
+    ### bigint XY: "$self->{'y'}"
+    $self->{'bignum_y'} = _bigint()->new($y_lo);
+    ### y: $self->{'y'}
+  }
 
   my $x_width = $self->{'x_width'} = $x_hi - $x_lo + 1;
   $self->{'xy_total'} = ($y_hi - $y_lo + 1) * $x_width;

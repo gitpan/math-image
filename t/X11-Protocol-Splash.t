@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings() }
 
-my $test_count = 4;
+my $test_count = (tests => 4)[1];
 plan tests => $test_count;
 
 {
@@ -78,7 +78,7 @@ require App::MathImage::X11::Protocol::Splash;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 75;
+my $want_version = 76;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION,
     $want_version,
     'VERSION variable');

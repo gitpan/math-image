@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IteratePred;
@@ -28,35 +28,27 @@ use Math::NumSeq::Base::IteratePred;
         'Math::NumSeq');
 
 use vars '$VERSION';
-$VERSION = 75;
+$VERSION = 76;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-# http://oeis.org/A020985
-#     1 and -1
-# http://oeis.org/A022155
-#     Positions where negative.
-#
-# http://oeis.org/A020986
-#     Nth partial sums of 1 and -1, variously up and down
-# http://oeis.org/A020991
-#     Highest occurrance of N in the partial sums.
-#
-#
+# cf A020985 - 1 and -1
+#    A020986 - Nth partial sums of 1 and -1, variously up and down
+#    A020991 - highest occurrance of N in the partial sums.
 #
 use constant name => Math::NumSeq::__('Golay Rudin Shapiro');
 use constant description => Math::NumSeq::__('Numbers which have an odd number of "11" bit pairs in binary.');
 use constant values_min => 3;
 use constant oeis_anum => 'A022155';  # positions of -1s
 
-use constant PHI => (1 + sqrt(5)) / 2;
-
 sub pred {
-  my ($self, $n) = @_;
-  if ($n < 0) { return 0; }
-  $n &= ($n >> 1);
-  return (1 & unpack('%32b*', pack('I', $n)));
+  my ($self, $value) = @_;
+  if ($value < 0) { return 0; }
+
+  # N & Nshift leaves bits with a 1 below them, then parity of bit count
+  $value &= ($value >> 1);
+  return (1 & unpack('%32b*', pack('I', $value)));
 }
 
 1;

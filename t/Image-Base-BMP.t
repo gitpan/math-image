@@ -28,7 +28,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-my $test_count = 5;
+my $test_count = (tests => 5)[1];
 plan tests => $test_count;
 
 if (! eval { require Image::BMP; 1 }) {
@@ -46,7 +46,7 @@ require App::MathImage::Image::Base::BMP;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 75;
+my $want_version = 76;
 ok ($App::MathImage::Image::Base::BMP::VERSION,
     $want_version,
     'VERSION variable');
