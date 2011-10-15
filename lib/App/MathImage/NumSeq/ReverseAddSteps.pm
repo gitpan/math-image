@@ -27,7 +27,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION','@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -83,11 +83,13 @@ sub rewind {
   my $radix = $self->{'radix'};
   my $limit = ~0;
   my $digits = -1;
+  my $uv_limit = 1;
   while ($limit) {
-    $digits++;
     $limit = int($limit/$radix);
+    $uv_limit *= $radix;
   }
-  $self->{'uv_limit'} = $radix ** $digits;
+  $self->{'uv_limit'} = $uv_limit;
+  ### $uv_limit
 }
 
 sub next {
@@ -116,13 +118,15 @@ sub ith {
     ### $count
     ### k: "$k"
 
-    if ($k >= $uv_limit) {
-      $k = _bigint()->new($k);
+    if ($k >= $uv_limit && ! ref $k) {
+      $k = _bigint()->new("$k");  # stringize against Math::BigInt::GMP uv conversion
     }
 
     if (ref $k) {
+      ### big ...
       my $d = $k->copy;
       while ($d) {
+        ### d: "$d"
         push @digits, $d % $radix;
         $d->bdiv($radix);
       }

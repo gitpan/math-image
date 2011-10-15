@@ -16,13 +16,16 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 # math-image --values=Kolakoski
+#
+# http://dimacs.rutgers.edu/TechnicalReports/abstracts/1993/93-84.html
+
 
 package App::MathImage::NumSeq::Kolakoski;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
@@ -45,8 +48,26 @@ use constant i_start => 1;
 #    A074286 - partial sums minus n (variously repeating values)
 #    A054349 - successive generations as big decimals
 #    A042942 - something substitutional
+#    A013949 substitute
+#    A156077 digits ...
+#    A078929 A(n+k) = A(n)
+#
+# A156253 kol supp
+# A064353 kol 1/3
+# A001083 A00002 lengths after iterating 1,2,3,5,7,10,15
+# A006928 lengths ...
+# A042942 1,2,1,1 lengths after iterating 1,2,4,6,9,14,22
+# A079729 1,2,3 starting 1,2,2
+# A079730 1,2,3,4 starting 1,2,2
 #
 #    A025142,A025143 - invert 1,2 so opposite run length
+#
+#    A074293 most populous digit,
+#    A074295 most populous digit in groups of 7
+#
+#    A171899 van eck transform of 
+# A001462 golomb
+# A001463 golomb partial sums
 #
 use constant oeis_anum => 'A006928';
 

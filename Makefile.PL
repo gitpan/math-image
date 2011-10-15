@@ -185,6 +185,7 @@ my %maximum_numseq
      'Math::NumSeq::ProthNumbers'   => 1,
      'Math::NumSeq::WoodallNumbers' => 1,
      'Math::NumSeq::BaumSweet'      => 10, # new in v.10
+     'Math::NumSeq::KlarnerRado'    => 11, # new in v.11
 
      'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4

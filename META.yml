@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            76
+version:            77
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -186,6 +186,7 @@ optional_features:
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::LucasNumbers:  1
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
@@ -311,6 +312,7 @@ optional_features:
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::LucasNumbers:  1
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
@@ -455,6 +457,7 @@ recommends:
     Math::NumSeq::FractionDigits:  1
     Math::NumSeq::HappyNumbers:  7
     Math::NumSeq::HarshadNumbers:  1
+    Math::NumSeq::KlarnerRado:  11
     Math::NumSeq::LucasNumbers:  1
     Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::NumAronson:  8

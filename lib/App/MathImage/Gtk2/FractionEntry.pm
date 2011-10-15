@@ -24,12 +24,13 @@ use Gtk2 1.220;  # for Gtk2::EVENT_PROPAGATE()
 use POSIX ();
 use Locale::TextDomain 1.19 ('App-MathImage');
 
+use Glib::Ex::ObjectBits;
 use App::MathImage::Gtk2::Ex::ArrowButton;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 76;
+our $VERSION = 77;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__FractionEntry_style" {
@@ -70,6 +71,7 @@ sub INIT_INSTANCE {
   my $entry = $self->{'entry'} = Gtk2::Entry->new;
   $entry->set_text ('1/2');     # initial
   $entry->set_width_chars (6);  # initial
+  $entry->set_alignment (0.5);
   $entry->signal_connect (activate => \&_do_entry_activate);
   $entry->show;
 
@@ -86,6 +88,14 @@ sub INIT_INSTANCE {
       $button->{'direction'} = $dir;
       $button->signal_connect (clicked => \&_do_arrow_clicked);
       $button->signal_connect (scroll_event => \&_do_scroll_event);
+      Glib::Ex::ObjectBits::set_property_maybe # tooltip-text new in 2.12
+          ($button, tooltip_text => ($side == 0
+                                     ? ($dir eq 'up'
+                                        ? __('Increment the numerator.')
+                                        : __('Decrement the numerator.'))
+                                     : ($dir eq 'up'
+                                        ? __('Increment the denominator.')
+                                        : __('Decrement the denominator.'))));
       ### xt: $button->get_style->xthickness
       $vbox->pack_start ($button, 1,1,0);
     }

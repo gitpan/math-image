@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
@@ -88,7 +88,8 @@ sub _radix_ascii {
   my ($radix, $n) = @_;
   my @digits;
   while ($n) {
-    push @digits, ($n % $radix) + 48;
+    my $digit = ($n % $radix);
+    push @digits, $digit + ($digit < 10 ? 48 : 65-10);  # '0' or 'A'
     $n = int($n/$radix);
   }
   return reverse @digits;

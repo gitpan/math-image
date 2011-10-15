@@ -23,19 +23,20 @@ use Math::NumSeq;
 use base 'Math::NumSeq::All';
 
 use vars '$VERSION';
-$VERSION = 76;
+$VERSION = 77;
 
 # use constant name => Math::NumSeq::__('Lines');
 use constant description => Math::NumSeq::__('No numbers, instead lines showing the path taken.');
-use constant parameter_info_array => [ { name    => 'increment',
-                                         display => Math::NumSeq::__('Increment'),
-                                         type    => 'integer',
-                                         default => 0,
-                                         minimum => 0,
-                                         width   => 3,
-                                         description => Math::NumSeq::__('An N increment between line segments.  0 means the default for the path.'),
-                                       },
-                                     ];
+use constant parameter_info_array =>
+  [ { name    => 'increment',
+      display => Math::NumSeq::__('Increment'),
+      type    => 'integer',
+      default => 0,
+      minimum => 0,
+      width   => 3,
+      description => Math::NumSeq::__('An N increment between line segments.  0 means the default for the path.'),
+    },
+  ];
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

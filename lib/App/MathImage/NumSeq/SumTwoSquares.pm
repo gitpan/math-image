@@ -23,7 +23,7 @@ use List::Util 'max';
 use List::MoreUtils;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

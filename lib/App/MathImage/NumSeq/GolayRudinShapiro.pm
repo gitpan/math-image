@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IteratePred;
@@ -28,17 +28,20 @@ use Math::NumSeq::Base::IteratePred;
         'Math::NumSeq');
 
 use vars '$VERSION';
-$VERSION = 76;
+$VERSION = 77;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 # cf A020985 - 1 and -1
 #    A020986 - Nth partial sums of 1 and -1, variously up and down
+#    A020987 - 0 and 1
+#    A020990 - sum grs*k something ...
 #    A020991 - highest occurrance of N in the partial sums.
+#    A014081 - count of 11 bit pairs
 #
-use constant name => Math::NumSeq::__('Golay Rudin Shapiro');
-use constant description => Math::NumSeq::__('Numbers which have an odd number of "11" bit pairs in binary.');
+use constant name => Math::NumSeq::__('');
+use constant description => Math::NumSeq::__('Golay/Rudin/Shapiro sequence -1 positions, being 3,6,11,12,13,15,etc numbers which have an odd number of "11" bit pairs in binary.');
 use constant values_min => 3;
 use constant oeis_anum => 'A022155';  # positions of -1s
 

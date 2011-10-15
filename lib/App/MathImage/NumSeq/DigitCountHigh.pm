@@ -20,19 +20,22 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
+use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
         'Math::NumSeq');
+*_is_infinite = \&Math::NumSeq::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
+
 
 use constant name => Math::NumSeq::__('Digit Count High');
 use constant description => Math::NumSeq::__('How many of a given digit at the high end of a number, in a given radix.');
-use constant values_min => 1;
+use constant values_min => 0;
 use constant characteristic_monotonic => 0;
 use constant characteristic_count => 1;
 
@@ -57,11 +60,14 @@ sub oeis_anum {
 sub ith {
   my ($self, $i) = @_;
   $i = abs($i);
-  if ($i == $i-1) {
+  if (_is_infinite($i)) {
     return $i;  # don't loop forever if $i is +infinity
   }
-  my $digit = $self->{'digit'};
+
   my $radix = $self->{'radix'};
+  my $digit = $self->{'digit'};
+  if ($digit == -1) { $digit = $radix - 1; }
+
   my $count = 0;
   if ($radix == 2) {
     while ($i) {

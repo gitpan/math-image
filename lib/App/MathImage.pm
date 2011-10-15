@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 76;
+$VERSION = 77;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -82,9 +82,9 @@ sub getopt_long_specifications {
      'perrin'     => sub { _hopt($self,'gen_options','values', 'Perrin');  },
      'padovan'    => sub { _hopt($self,'gen_options','values', 'Padovan');  },
      'fibonacci'  => sub { _hopt($self,'gen_options','values', 'Fibonacci');  },
-     'fraction-bits=s' =>
+     'fraction=s' =>
      sub { my ($optname, $value) = @_;
-           _hopt($self,'gen_options','values',   'FractionDigits');
+           _hopt($self,'gen_options','values','FractionDigits');
            $self->{'gen_options'}->{'values_parameters'}->{'fraction'} = $value;
          },
      'expression=s' =>

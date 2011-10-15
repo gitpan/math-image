@@ -23,13 +23,15 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 76;
+$VERSION = 77;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
 
 use constant characteristic_smaller => 1;
-use constant characteristic_monotonic => 0;
 use constant description => Math::NumSeq::__('Coordinates from a PlanePath');
 
 use constant::defer parameter_info_array =>
@@ -63,7 +65,8 @@ use constant::defer parameter_info_array =>
               default => 'X',
               choices => ['X','Y','Sum','Radius','SqRadius',
                           'dX','dY','dDist','dSqDist',
-                          'ENSW', 'Turn'],
+                          'ENWS', 'Turn',
+                          'Nx','Ny'],
               # description => Math::NumSeq::__(''),
             },
            ];
@@ -80,9 +83,24 @@ my %oeis_anum
        # initial dx=0 at i=0 ...
        # dX => 'A059252',
        # # OEIS-Catalogue: A163538 planepath=HilbertCurve coord_type=dX
-       # 
+       #
        # dY => 'A059252',
        # # OEIS-Catalogue: A163539 planepath=HilbertCurve coord_type=dY
+
+       Nx => 'A163482',
+       Ny => 'A163483',
+       # OEIS-Catalogue: A163482 planepath=HilbertCurve coord_type=Nx
+       # OEIS-Catalogue: A163483 planepath=HilbertCurve coord_type=Ny
+
+       ENWS => 'A163540',
+       # OEIS-Catalogue: A163540 planepath=HilbertCurve coord_type=ENWS
+       # A163540    absolute direction of each step (0=right,1=down,2=left,3=up)
+       # A163541    absolute direction, transpose X,Y
+       
+       # cf -1,0,1 here
+       # A163542    relative direction (ahead=0,right=1,left=2)
+       # A163543    relative direction, transpose X,Y
+
      },
 
      'Math::PlanePath::PeanoCurve,radix=3' =>
@@ -120,26 +138,25 @@ my %oeis_anum
 
     );
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
-
 sub oeis_anum {
   my ($self) = @_;
   ### oeis_anum() ...
   my $planepath_object = $self->{'planepath_object'};
-  my $x = join(',',
-               ref($planepath_object),
-               map {
-                 my $value = $planepath_object->{$_->{'name'}};
-                 ### $_
-                 ### $value
-                 ### gives: "$_->{'name'}=$value"
-                 (defined $value ? "$_->{'name'}=$value"
-                  : ())
-               }
-               $planepath_object->parameter_info_list)
-    ;
-  ### $x
+
+  # my $x = join(',',
+  #              ref($planepath_object),
+  #              map {
+  #                my $value = $planepath_object->{$_->{'name'}};
+  #                ### $_
+  #                ### $value
+  #                ### gives: "$_->{'name'}=$value"
+  #                (defined $value ? "$_->{'name'}=$value"
+  #                 : ())
+  #              }
+  #              $planepath_object->parameter_info_list)
+  #   ;
+  # ### $x
+
   return $oeis_anum{join(',',
                          ref($planepath_object),
                          map {
@@ -194,7 +211,7 @@ sub rewind {
   my $n = $planepath_object->n_start;
   ### $n
 
-  if ($self->{'coord_type'} =~ /^[dT]/) {
+  if ($self->{'use_prev_xy'} = ($self->{'coord_type'} =~ /^([dT]|ENWS)/)) {
     my ($x, $y) = $planepath_object->n_to_xy ($n++);
     if ($self->{'coord_type'} eq 'Turn') {
       my ($next_x, $next_y) = $planepath_object->n_to_xy ($n++);
@@ -216,8 +233,22 @@ sub next {
   ### n_next: $self->{'n_next'}
 
   my $i = $self->{'i'}++;
+  my $planepath_object = $self->{'planepath_object'};
 
-  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($self->{'n_next'}++)
+  if ($self->{'coord_type'} eq 'Nx') {
+    if ($planepath_object->MathImage__NumSeq_A2) {
+      $i *= 2;
+    }
+    return ($i, $planepath_object->xy_to_n($i,0));
+  }
+  if ($self->{'coord_type'} eq 'Ny') {
+    if ($planepath_object->MathImage__NumSeq_A2) {
+      $i *= 2;
+    }
+    return ($i, $planepath_object->xy_to_n(0,$i));
+  }
+
+  my ($x, $y) = $planepath_object->n_to_xy($self->{'n_next'}++)
     or return;
   my $ret = &{$self->{'coord_func'}}($self, $x,$y,
                                      $self->{'prev_x'},$self->{'prev_y'});
@@ -236,7 +267,7 @@ sub ith {
     = $planepath_object->n_to_xy ($n)
       or return undef;
 
-  if ($self->{'coord_type'} =~ /^[dT]/) {
+  if ($self->{'use_prev_xy'}) {
     my ($next_x, $next_y)
       = $planepath_object->n_to_xy ($n += 1)
         or return undef;
@@ -257,12 +288,19 @@ sub ith {
 
       return ($next_dy * $dx <=> $next_dx * $dy);
     }
-
     return ($i, &{$self->{'coord_func'}}($self, $next_x,$next_y, $x,$y));
   }
   return ($i, &{$self->{'coord_func'}}($self, $x,$y));
 }
 
+sub coord_func_Nx {
+  my ($self, $i) = @_;
+  return ($i,0);
+}
+sub coord_func_Ny {
+  my ($self, $i) = @_;
+  return (0,$i);
+}
 sub coord_func_X {
   my ($self, $x,$y) = @_;
   return $x;
@@ -324,11 +362,7 @@ sub coord_func_Turn {
   ### next deltas: "dprev=$self->{'prev_dx'},$self->{'prev_dy'}  dxy=$dx,$dy"
   ### next ret: ($dx * $self->{'prev_dy'} <=> $dy * $self->{'prev_dx'})
 
-  my $ret = ( $dy * $self->{'prev_dx'} <=> $dx * $self->{'prev_dy'});
-
-  $self->{'prev_dx'} = $dx;
-  $self->{'prev_dy'} = $dy;
-  return $ret;
+  return ($dy * $self->{'prev_dx'} <=> $dx * $self->{'prev_dy'});
 }
 
 #      N
@@ -336,20 +370,32 @@ sub coord_func_Turn {
 #  W 2   0 E
 #      3
 #      S
-sub coord_func_ENSW {
-  my ($self, $x,$y) = @_;
-  my $dx = $x - $self->{'prev_x'};
-  my $dy = $y - $self->{'prev_y'};
-  $self->{'prev_x'} = $x;
-  $self->{'prev_y'} = $y;
+sub coord_func_ENWS {
+  my ($self, $x,$y, $prev_x,$prev_y) = @_;
+  ### coord_func_ENWS(): "$x,$y,  $prev_x,$prev_y"
 
-  if ($dx < $dy && $dy >= -$dx) {
+  my $dx = $x - $prev_x;
+  my $dy = $y - $prev_y;
+  ### dxdy: "$dx $dy"
+
+
+  #        dx<dy /
+  #             / 
+  #        \ N / dx>dy
+  #         \ /
+  #       W  X  E
+  #         / \
+  #        / S \ dx>-dy,dy>-dx
+  #             \
+  #       dx<-dy \
+  #
+  if ($dx <= $dy && $dx > -$dy) {
     return 1;  # north
   }
-  if ($dy < -$dx && $dy >= $dx) {
+  if ($dx <= -$dy && $dx < $dy) {
     return 2;  # west
   }
-  if ($dx > -$dy && $dy < -$dx) {
+  if ($dx >= $dy && $dx < -$dy) {
     return 3;  # south
   }
   return 0;  # east
@@ -374,6 +420,13 @@ sub coord_func_ENSW {
 
 
 #------------------------------------------------------------------------------
+
+sub characteristic_monotonic {
+  my ($self) = @_;
+  my $method = 'MathImage__NumSeq_' . $self->{'coord_type'} . '_monotonic';
+  my $planepath_object = $self->{'planepath_object'};
+  return $planepath_object->can($method) && $planepath_object->$method;
+}
 
 sub values_min {
   my ($self) = @_;
@@ -456,7 +509,9 @@ sub values_max {
   }
   use constant MathImage__NumSeq_Sum_max => undef;
 
-  sub MathImage__NumSeq_Radius_min { sqrt($_[0]->MathImage__NumSeq_SqRadius_min) }
+  sub MathImage__NumSeq_Radius_min { 
+    return sqrt($_[0]->MathImage__NumSeq_SqRadius_min);
+  }
   sub MathImage__NumSeq_Radius_max {
     my $max = $_[0]->MathImage__NumSeq_SqRadius_max;
     return (defined $max ? sqrt($max) : undef);
@@ -482,8 +537,19 @@ sub values_max {
   use constant MathImage__NumSeq_Turn_min => -1;
   use constant MathImage__NumSeq_Turn_max => 1;
 
-  use constant MathImage__NumSeq_ENSW_min => 0;
-  use constant MathImage__NumSeq_ENSW_max => 3;
+  use constant MathImage__NumSeq_ENWS_min => 0;
+  use constant MathImage__NumSeq_ENWS_max => 3;
+  use constant MathImage__NumSeq_ENWS_monotonic => 3;
+
+  sub MathImage__NumSeq_Nx_min {
+    my ($path) = @_;
+    return $path->xy_to_n(0,0);
+  }
+  sub MathImage__NumSeq_Ny_min {
+    my ($path) = @_;
+    return $path->xy_to_n(0,0);
+  }
+  use constant MathImage__NumSeq_A2 => 0;
 }
 
 { package Math::PlanePath::SquareSpiral;
@@ -495,6 +561,8 @@ sub values_max {
   use constant MathImage__NumSeq_dSqDist_max => 1;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
+  use constant MathImage__NumSeq_Nx_monotonic => 1;
+  use constant MathImage__NumSeq_Ny_monotonic => 1;
 }
 { package Math::PlanePath::PyramidSpiral;
   use constant MathImage__NumSeq_dX_min => -1;
@@ -505,6 +573,8 @@ sub values_max {
   use constant MathImage__NumSeq_dSqDist_max => 2;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
+  use constant MathImage__NumSeq_Nx_monotonic => 1;
+  use constant MathImage__NumSeq_Ny_monotonic => 1;
 }
 { package Math::PlanePath::TriangleSpiral;
   use constant MathImage__NumSeq_dX_min => -1;
@@ -515,6 +585,9 @@ sub values_max {
   use constant MathImage__NumSeq_dSqDist_max => 4;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
+  use constant MathImage__NumSeq_Nx_monotonic => 1;
+  use constant MathImage__NumSeq_Ny_monotonic => 1;
+  use constant MathImage__NumSeq_A2 => 1;
 }
 { package Math::PlanePath::TriangleSpiralSkewed;
   use constant MathImage__NumSeq_dX_min => -1;
@@ -555,6 +628,7 @@ sub values_max {
   use constant MathImage__NumSeq_dSqDist_max => 4;
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
+  use constant MathImage__NumSeq_A2 => 1;
 }
 { package Math::PlanePath::HexSpiralSkewed;
   use constant MathImage__NumSeq_dX_min => -1;
@@ -597,6 +671,7 @@ sub values_max {
 { package Math::PlanePath::DiamondArms;
 }
 { package Math::PlanePath::HexArms;
+  use constant MathImage__NumSeq_A2 => 1;
 }
 { package Math::PlanePath::GreekKeySpiral;
   use constant MathImage__NumSeq_dX_min => -1;
@@ -661,6 +736,7 @@ sub values_max {
 { package Math::PlanePath::HypotOctant;
 }
 { package Math::PlanePath::TriangularHypot;
+  use constant MathImage__NumSeq_A2 => 1;
 }
 { package Math::PlanePath::PythagoreanTree;
 }
@@ -756,6 +832,7 @@ sub values_max {
             ? 4
             : undef);
   }
+  use constant MathImage__NumSeq_A2 => 1;
 }
 { package Math::PlanePath::FlowsnakeCentres;
   # inherit from Flowsnake
@@ -947,11 +1024,11 @@ sub values_max {
   }
 
   # if step==0 then always north
-  sub MathImage__NumSeq_ENSW_min {
+  sub MathImage__NumSeq_ENWS_min {
     my ($self) = @_;
     return ($self->{'step'} > 0 ? 0 : 1);
   }
-  sub MathImage__NumSeq_ENSW_max {
+  sub MathImage__NumSeq_ENWS_max {
     my ($self) = @_;
     return ($self->{'step'} > 0 ? 3 : 1);
   }
@@ -964,6 +1041,13 @@ sub values_max {
 }
 { package Math::PlanePath::CellularRule54;
   use constant MathImage__NumSeq_dX_max => 4;
+  use constant MathImage__NumSeq_dY_min => 0;
+  use constant MathImage__NumSeq_dY_max => 1;
+  use constant MathImage__NumSeq_Sum_min => 0;  # triangular X>=-Y
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+}
+{ package Math::PlanePath::MathImageCellularRule246;
+  use constant MathImage__NumSeq_dX_max => 2;
   use constant MathImage__NumSeq_dY_min => 0;
   use constant MathImage__NumSeq_dY_max => 1;
   use constant MathImage__NumSeq_Sum_min => 0;  # triangular X>=-Y

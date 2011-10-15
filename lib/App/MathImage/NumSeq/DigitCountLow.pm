@@ -20,21 +20,23 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
-use Math::NumSeq;
+use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
         'Math::NumSeq');
+*_is_infinite = \&Math::NumSeq::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
+
 
 use constant name => Math::NumSeq::__('Digit Count Low');
 use constant description => Math::NumSeq::__('How many of a given digit at the low end of a number, in a given radix.');
-use constant values_min => 1;
-use constant characteristic_monotonic => 0;
+use constant values_min => 0;
 use constant characteristic_count => 1;
+use constant characteristic_monotonic => 0;
 
 use Math::NumSeq::DigitCount 4;
 *parameter_info_array = \&Math::NumSeq::DigitCount::parameter_info_array;
@@ -69,32 +71,33 @@ BEGIN {
   # # cf A160093 low zeros in 10 counting from the left
 }
 sub oeis_anum {
-  my ($class_or_self) = @_;
-  my $radix = (ref $class_or_self
-               ? $class_or_self->{'radix'}
-               : $class_or_self->parameter_default('radix'));
-  my $digit = (ref $class_or_self
-               ? $class_or_self->{'digit'}
-               : $class_or_self->parameter_default('digit'));
-  return $oeis[$radix]->[$digit];
+  my ($self) = @_;
+  return $oeis[$self->{'radix'}]->[$self->{'digit'}];
 }
 
 sub ith {
   my ($self, $i) = @_;
+  ### DigitCountLow ith(): $i
+
   $i = abs($i);
-  if ($i == $i-1) {
+  if (_is_infinite($i)) {
     return $i;  # don't loop forever if $i is +infinity
   }
-  my $digit = $self->{'digit'};
+
   my $radix = $self->{'radix'};
+  my $digit = $self->{'digit'};
+  if ($digit == -1) { $digit = $radix - 1; }
+
   my $count = 0;
   if ($radix == 2) {
+    ### binary ...
     while ($i) {
       last unless (($i & 1) == $digit);
       $count++;
       $i >>= 1;
     }
   } else {
+    ### general radix: $radix
     while ($i) {
       last unless (($i % $radix) == $digit);
       $count++;

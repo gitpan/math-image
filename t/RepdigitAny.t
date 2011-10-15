@@ -35,7 +35,7 @@ use App::MathImage::NumSeq::RepdigitAny;
 # VERSION
 
 {
-  my $want_version = 76;
+  my $want_version = 77;
   ok ($App::MathImage::NumSeq::RepdigitAny::VERSION, $want_version, 'VERSION variable');
   ok (App::MathImage::NumSeq::RepdigitAny->VERSION,  $want_version, 'VERSION class method');
 

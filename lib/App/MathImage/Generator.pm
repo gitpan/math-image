@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 76;
+$VERSION = 77;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -106,6 +106,7 @@ use constant::defer values_choices => sub {
                          SemiPrimes
                          SemiPrimesOdd
                          Emirps
+                         DivisorCount
                          Abundant
                          Obstinate
                          Squares
@@ -172,6 +173,7 @@ use constant::defer values_choices => sub {
                          WoodallNumbers
                          ProthNumbers
                          BaumSweet
+                         KlarnerRado
 
                          Multiples
                          Expression
@@ -296,6 +298,7 @@ my %pathname_square_grid
                      PyramidRows
                      PyramidSides
                      CellularRule54
+                     MathImageCellularRule246
 
                      MathImageComplexPlus
                      MathImageCornerReplicate
@@ -328,49 +331,52 @@ my %pathname_square_grid
 # path discontinuity
 
 { package Math::PlanePath;
-  use constant MathImage__n_fraction_discontinuity => undef;
+  use constant MathImage__n_frac_discontinuity => undef;
 }
 { package Math::PlanePath::PyramidRows;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::PyramidSides;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::CellularRule54;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
+{ package Math::PlanePath::MathImageCellularRule246;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Corner;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Staircase;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Rows;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Columns;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Diagonals;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::KochPeaks;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::CoprimeColumns;
-  use constant MathImage__n_fraction_discontinuity => .5;
+  use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::MultipleRings;
-  use constant MathImage__n_fraction_discontinuity => 0;
+  use constant MathImage__n_frac_discontinuity => 0;
 }
 { package Math::PlanePath::KochSnowflakes;
-  use constant MathImage__n_fraction_discontinuity => 0;
+  use constant MathImage__n_frac_discontinuity => 0;
 }
 { package Math::PlanePath::KochSquareflakes;
-  use constant MathImage__n_fraction_discontinuity => 0;
+  use constant MathImage__n_frac_discontinuity => 0;
 }
 { package Math::PlanePath::GosperIslands;
-  use constant MathImage__n_fraction_discontinuity => 0;
+  use constant MathImage__n_frac_discontinuity => 0;
 }
      # PixelRings  => 0,
 
@@ -379,6 +385,9 @@ my %pathname_square_grid
 
 { package Math::PlanePath;
   use constant MathImage__lattice_type => '';
+}
+{ package Math::PlanePath::TriangleSpiral;
+  use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::HexSpiral;
   use constant MathImage__lattice_type => 'triangular';
@@ -490,6 +499,7 @@ sub y_negative {
                            PyramidSides
                            PyramidSpiral
                            CellularRule54
+                           MathImageCellularRule246
                            Corner
                            Diagonals
                            Staircase
@@ -1366,9 +1376,25 @@ sub draw_Image_start {
       = $values_class->new (%{$self->{'values_parameters'} || {}},
                             lo => $n_lo,
                             hi => $n_hi);
+
     my $values_min = $values_obj->values_min;
+    my $values_max = $values_obj->values_max;
     
-    if ($values_obj->characteristic('pn1')) {
+    if (defined $values_min
+        && defined $values_max
+        && $values_max - $values_min == 1) {
+      ### two value colours ...
+      $self->{'colours_offset'} = -$values_min || 0;
+      $self->{'use_colours'} = 1;
+      if ($values_max > 0) {
+        $self->{'colours'} = [ $background, $foreground ];
+      } else {
+        $self->{'colours'} = [ $foreground, $background ];
+      }
+
+    } elsif (defined $values_min && $values_min == -1
+        && defined $values_max && $values_max == 1) {
+      ### +/-1 colours ...
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ '-',' ','+' ];
       } else {
@@ -1381,14 +1407,12 @@ sub draw_Image_start {
       }
       $self->{'colours_offset'} = 1;
       $self->{'use_colours'} = 1;
-      ### pn1...
       ### colours: $self->{'colours'}
       ### colours_offset: $self->{'colours_offset'}
       
     } elsif (my $num = ($values_obj->characteristic('digits')
                         || $values_obj->characteristic('modulus')
                         || do {
-                          my $values_max = $values_obj->values_max;
                           (defined $values_min
                            && defined $values_max
                            && $values_max - $values_min + 1)
@@ -1648,7 +1672,7 @@ sub draw_Image_steps {
     my $n_offset_to = $increment;
 
     if ($increment == 1
-        && defined (my $disc = $path_object->MathImage__n_fraction_discontinuity)) {
+        && defined (my $disc = $path_object->MathImage__n_frac_discontinuity)) {
       $n_offset_from = -$disc;
       $n_offset_to = $n_offset_from + .9999;
     }
@@ -1930,6 +1954,7 @@ sub draw_Image_steps {
   my $colours_offset = $self->{'colours_offset'};
   my $colour = $foreground;
   my $use_colours = $self->{'use_colours'};
+  my $values_monotonic = $values_obj->characteristic('monotonic');
   my $n;
   ### $use_colours
   ### $colours_offset
@@ -2041,16 +2066,17 @@ sub draw_Image_steps {
 
     for (;;) {
       &$cont() or last;
+      ### n_prev: "$n_prev"
 
       my ($i, $value) = $values_obj->next;
-      ### n_prev: "$n_prev"
       ### $i
-      ### value: "$value"
+      ### value: $value
+
       my $n;
       if ($use_colours) {
         $n = $i;
         if (! defined $n || $n > $n_hi) {
-          ### n under or past n_hi, stop ...
+          ### n undef or past n_hi, stop ...
           last;
         }
       } else {
@@ -2062,10 +2088,18 @@ sub draw_Image_steps {
           }
           next;
         }
-        if (($n <= $n_prev || $n > $n_hi)
-            && ++$self->{'n_outside'} > 10) {
-          ### n_outside >= 10 on n<prev n>hi, stop ...
-          last;
+        if ($n <= $n_prev) {
+          if (++$self->{'n_outside'} > 10) {
+            ### stop n_outside on n<n_prev ...
+            last;
+          }
+        } elsif ($n > $n_hi) {
+          if ($values_monotonic || ++$self->{'n_outside'} > 10) {
+            ### stop for n>n_hi ...
+            last;
+          }
+          ### skip n>n_hi ...
+          next;
         }
       }
       $n_prev = $n;

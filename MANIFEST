@@ -122,6 +122,7 @@ lib/App/MathImage/NumSeq/CunninghamPrimes.pm
 lib/App/MathImage/NumSeq/Derived/Cumulative.pm
 lib/App/MathImage/NumSeq/DigitCountHigh.pm
 lib/App/MathImage/NumSeq/DigitCountLow.pm
+lib/App/MathImage/NumSeq/DivisorCount.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/GoldenSequence.pm
 lib/App/MathImage/NumSeq/HappySteps.pm
@@ -185,19 +186,24 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
+lib/Math/PlanePath/MathImageCellularRule246.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageCornerReplicate.pm
 lib/Math/PlanePath/MathImageDigitGroups.pm
+lib/Math/PlanePath/MathImageDivisibleColumns.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageSierpinskiCurve.pm
+lib/Math/PlanePath/MathImageUlamWarburton.pm
 lib/Math/PlanePath/MathImageWunderlichCurve.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 math-image
 SIGNATURE
+t/CellularRule246.t
 t/ChampernowneBinary.t
 t/CornerReplicate.t
+t/DivisibleColumns.t
 t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
@@ -218,6 +224,7 @@ t/RepdigitAny.t
 t/SierpinskiCurve.t
 t/Totient.t
 t/TotientSum.t
+t/UlamWarburton.t
 t/UndulatingNumbers.t
 t/ValuesFile.t
 t/X11-Protocol-Splash.t

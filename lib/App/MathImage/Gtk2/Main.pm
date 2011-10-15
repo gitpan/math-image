@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 76;
+our $VERSION = 77;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
