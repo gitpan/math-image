@@ -28,7 +28,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -137,7 +137,7 @@ sub xy_to_n {
 
   # my $radix = $self->{'radix'};
   # my $power = 1;
-  # my $xn = my $yn = ($x & 0); # inherit
+  # my $xn = my $yn = ($x * 0); # inherit
   # while ($x || $y) {
   #   {
   #     my $digit = $x % $radix;
@@ -158,7 +158,7 @@ sub xy_to_n {
   #   }
   # }
   #
-  # my $n = ($x & 0); # inherit
+  # my $n = ($x * 0); # inherit
   # $power = 1;
   # while ($xn || $yn) {
   #   $n += ($xn % $radix) * $power;

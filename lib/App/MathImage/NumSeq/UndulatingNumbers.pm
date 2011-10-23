@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -47,12 +47,12 @@ use constant values_min => 1;
 # cf A046076 "binary undulants", 2^N in decimal has 010 or 101 somewhere
 #
 sub oeis_anum {
-  # my ($class_or_self) = @_;
-  # if (! ref $class_or_self ||
-  #     $class_or_self->{'radix'} == 10) {
+  # my ($self) = @_;
+  # if (! ref $self ||
+  #     $self->{'radix'} == 10) {
   #   return 'A033619'; # base 10 including a==b
   # }
-  # if (ref $class_or_self && $class_or_self->{'radix'} == 2) {
+  # if (ref $self && $self->{'radix'} == 2) {
   #   return '';
   # }
   return undef;

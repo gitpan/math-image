@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq;
@@ -44,17 +44,16 @@ use Math::NumSeq::DigitCount 4;
 
 # cf
 # 
-my @oeis;
+my @oeis_anum;
 
 sub oeis_anum {
-  my ($class_or_self) = @_;
-  my $radix = (ref $class_or_self
-               ? $class_or_self->{'radix'}
-               : $class_or_self->parameter_default('radix'));
-  my $digit = (ref $class_or_self
-               ? $class_or_self->{'digit'}
-               : $class_or_self->parameter_default('digit'));
-  return $oeis[$radix]->[$digit];
+  my ($self) = @_;
+  my $radix = $self->{'radix'};
+  my $digit = $self->{'digit'};
+  if ($digit == -1) {
+    $digit = $radix-1;
+  }
+  return $oeis_anum[$radix]->[$digit];
 }
 
 sub ith {

@@ -41,40 +41,9 @@ eval "use Test::Weaken 3; 1"
 eval { require Test::Weaken::ExtraBits; 1 }
   or plan skip_all => "due to Test::Weaken::ExtraBits not available -- $@";
 
-plan tests => 3;
+plan tests => 2;
 
-{
-  require App::MathImage::Gtk2::Drawing;
-  my $toplevel = Gtk2::Window->new;
-  $toplevel->set_size_request (10,10);
-  my $drawing = App::MathImage::Gtk2::Drawing->new (values => 'All',
-                                                    scale => 5);
-  $toplevel->add ($drawing);
-  $toplevel->show_all;
-  my $values_parameters = $drawing->get('values_parameters') || {};
-
-  my $leaks = Test::Weaken::leaks
-    ({ constructor => sub {
-         $drawing->start_drawing_window ($drawing->window);
-         my $prev = $drawing->{'generator'};
-         $drawing->start_drawing_window ($drawing->window);
-         return $prev;
-       },
-       contents => \&Test::Weaken::Gtk2::contents_container,
-       ignore => sub {
-         my ($ref) = @_;
-         return ($ref == $drawing
-                 || $ref == $drawing->{'widgetcursor'}
-                 || $ref == ($drawing->{'path_parameters'}||0)
-                 || $ref == ($drawing->{'values_parameters'}||0)
-                 || $ref == App::MathImage::Generator::default_options->{'path_parameters'}
-                 || $ref == $drawing->window
-                 || $ref == $toplevel);
-       },
-     });
-  is ($leaks, undef, 'Test::Weaken deep garbage collection');
-  MyTestHelpers::test_weaken_show_leaks($leaks);
-}
+#------------------------------------------------------------------------------
 
 {
   my $leaks = Test::Weaken::leaks
@@ -89,9 +58,11 @@ plan tests => 3;
                  || $ref == App::MathImage::Generator::default_options->{'path_parameters'});
        },
      });
-  is ($leaks, undef, 'Test::Weaken deep garbage collection');
+  is ($leaks, undef, 'deep garbage collection - gen on root window');
   MyTestHelpers::test_weaken_show_leaks($leaks);
 }
+
+#------------------------------------------------------------------------------
 
 {
   require App::MathImage::Gtk2::Drawing;
@@ -109,8 +80,56 @@ plan tests => 3;
                  || $ref == App::MathImage::Generator::default_options->{'path_parameters'});
        },
      });
-  is ($leaks, undef, 'Test::Weaken deep garbage collection');
+  is ($leaks, undef,
+      'deep garbage collection - gen on Drawing and root window');
   MyTestHelpers::test_weaken_show_leaks($leaks);
 }
+
+
+
+#------------------------------------------------------------------------------
+
+# {
+#   require App::MathImage::Gtk2::Drawing;
+#   my $toplevel = Gtk2::Window->new;
+#   $toplevel->set_size_request (10,10);
+#   my $drawing = App::MathImage::Gtk2::Drawing->new (values => 'All',
+#                                                     scale => 5);
+#   $toplevel->add ($drawing);
+#   $toplevel->show_all;
+#   my $values_parameters = $drawing->get('values_parameters') || {};
+# 
+#   my $leaks = Test::Weaken::leaks
+#     ({ constructor => sub {
+#          $drawing->start_drawing_window ($drawing->window);
+#          my $prev = $drawing->{'generator'};
+#          $drawing->start_drawing_window ($drawing->window);
+#          return $prev;
+#        },
+#        destructor => sub {
+#          my ($ref) = @_;
+#          MyTestHelpers::diag ('gen gtkmain isweak ',
+#                               Scalar::Util::isweak($drawing->{'gen_object'}->{'gtkmain'}));
+#          MyTestHelpers::diag ('gen widget isweak ',
+#                               Scalar::Util::isweak($drawing->{'gen_object'}->{'widget'}));
+#          delete $drawing->{'gen_object'};
+#        },
+#        contents => \&Test::Weaken::Gtk2::contents_container,
+#        ignore => sub {
+#          my ($ref) = @_;
+#          return ($ref == $drawing
+#                  || $ref == $drawing->{'widgetcursor'}
+#                  || $ref == ($drawing->{'path_parameters'}||0)
+#                  || $ref == ($drawing->{'values_parameters'}||0)
+#                  || $ref == App::MathImage::Generator::default_options->{'path_parameters'}
+#                  || $ref == $drawing->window
+#                  || $ref == $drawing->{'vadjustment'}
+#                  || $ref == $drawing->{'hadjustment'}
+#                  || $ref == $toplevel);
+#        },
+#      });
+#   is ($leaks, undef, 'Test::Weaken deep garbage collection');
+#   MyTestHelpers::test_weaken_show_leaks($leaks);
+# }
 
 exit 0;

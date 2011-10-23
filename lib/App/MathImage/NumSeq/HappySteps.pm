@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -45,10 +45,8 @@ use constant parameter_info_array =>
 # cf A001273 smallest happy which takes N steps
 #
 # sub oeis_anum {
-#   my ($class_or_self) = @_;
-#   my $radix = (ref $class_or_self
-#                ? $class_or_self->{'radix'}
-#                : $class_or_self->parameter_default('radix'));
+#   my ($self) = @_;
+#   my $radix = $self->{'radix'};
 #   return ($radix == 10
 #           ? 'A???????'
 #           : undef);

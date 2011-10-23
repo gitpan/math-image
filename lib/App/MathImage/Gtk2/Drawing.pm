@@ -40,9 +40,9 @@ use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Devel::Comments '###';
 
-our $VERSION = 77;
+our $VERSION = 78;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -69,6 +69,7 @@ use Glib::Object::Subclass
   'Gtk2::DrawingArea',
   signals => { expose_event  => \&_do_expose,
                size_allocate => \&_do_size_allocate,
+               style_set => \&_do_style_set,
                button_press_event => \&_do_button_press,
                scroll_event => \&App::MathImage::Gtk2::Ex::AdjustmentBits::scroll_widget_event_vh,
              },
@@ -173,6 +174,10 @@ sub SET_PROPERTY {
   ### Drawing SET_PROPERTY: $pname
   ### $newval
 
+  if ($pname ne 'hadjustment' && $pname ne 'vadjustment') {
+    delete $self->{'gen_object'};
+  }
+
   my $oldval = $self->get($pname);
   $self->{$pname} = $newval;
   if (defined($oldval) != defined($newval)
@@ -241,16 +246,24 @@ sub _drawable_size_equal {
   return ($w1 == $w2 && $h1 == $h2);
 }
 
+sub _do_style_set {
+  my ($self) = @_;
+  shift->signal_chain_from_overridden(@_);
+  delete $self->{'gen_object'};
+}
 sub _do_size_allocate {
   my ($self, $alloc) = @_;
   my $old_width = $self->allocation->width;
   my $old_height = $self->allocation->height;
-  ### _do_size_allocate(): $alloc->width."x".$alloc->height
+
+  ### Gtk2-Drawing _do_size_allocate(): $alloc->width."x".$alloc->height
+  ### window: $self->window
   ### $old_width
   ### $old_height
 
   shift->signal_chain_from_overridden(@_);
 
+  delete $self->{'gen_object'};
   _update_adjustment_extents($self);
   my $scale = $self->get('scale');
   _update_adjustment_values ($self,
@@ -341,6 +354,7 @@ sub pixmap {
   ### pixmap()...
   if (! _pixmap_is_good($self)) {
     ### new pixmap...
+    delete $self->{'gen_object'};
     $self->start_drawing_window ($self->window);
   }
   return $self->{'pixmap'};
@@ -354,6 +368,11 @@ sub _pixmap_is_good {
 
 sub gen_object {
   my ($self, %gen_parameters) = @_;
+  if (! %gen_parameters && (my $gen_object = $self->{'gen_object'})) {
+    return $gen_object;
+  }
+
+  ### Drawing create gen_object() ...
   my (undef, undef, $width, $height) = $self->allocation->values;
   my $background_colorobj = $self->style->bg($self->state);
   my $foreground_colorobj = $self->style->fg($self->state);
@@ -363,11 +382,11 @@ sub gen_object {
      'red', 'blue', 'green');
 
   my $generator_class = delete $gen_parameters{'generator_class'}
-    || 'App::MathImage::Generator';
+    || 'App::MathImage::Gtk2::Generator';
   ### $generator_class
 
   Module::Load::load ($generator_class);
-  return $generator_class->new
+  my $gen_object = $generator_class->new
     (widget  => $self,
      window  => $self->window,
      gtkmain => $self->get_ancestor('Gtk2::Window'),
@@ -401,6 +420,14 @@ sub gen_object {
 
      widgetcursor    => $self->widgetcursor,
      %gen_parameters);
+
+  # print 'gen "widget" isweak ',
+  #   Scalar::Util::isweak($gen_object->{'widget'}),"\n";
+
+  if (! %gen_parameters) {
+    $self->{'gen_object'} = $gen_object;
+  }
+  return $gen_object;
 }
 sub x_negative {
   my ($self) = @_;
@@ -429,8 +456,7 @@ sub start_drawing_window {
     $window->set_background ($background_colorobj);
   }
 
-  my $gen = $self->{'generator'}
-    = $self->gen_object (generator_class => 'App::MathImage::Gtk2::Generator');
+  my $gen = $self->{'generator'} = $self->gen_object;
 
   $self->{'path_object'} = $gen->path_object;
   $self->{'affine_object'} = $gen->affine_object;

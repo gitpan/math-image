@@ -24,15 +24,12 @@
 package App::MathImage::NumSeq::PythagoreanHypots;
 use 5.004;
 use strict;
-use POSIX 'floor','ceil';
-use List::Util 'max';
-use List::MoreUtils;
 
 use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 77;
+$VERSION = 78;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');

@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 77;
+our $VERSION = 78;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -152,6 +152,11 @@ sub SET_PROPERTY {
       $self->{'parameter_value_set'} = 1;
       $self->set (parameter_value => $newval->{'default'});
     }
+
+    if ($entry->isa('Gtk2::ComboBoxEntry')) {
+      $entry = $entry->get_child;
+    }
+
     $entry->set (width_chars => $newval->{'width'} || 5);
 
     my $display = ($newval->{'display'} || $newval->{'name'});

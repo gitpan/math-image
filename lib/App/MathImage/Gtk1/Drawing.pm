@@ -28,7 +28,7 @@ use App::MathImage::Generator;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 # use Locale::TextDomain ('App-MathImage');
 

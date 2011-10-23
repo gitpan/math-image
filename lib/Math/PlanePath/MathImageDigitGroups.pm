@@ -16,9 +16,6 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageDigitGroups,radix=2 --all --output=numbers
-# math-image --path=MathImageDigitGroups,radix=2 --lines
-#
 # increment N+1 changes low 1111 to 10000
 # X bits change 011 to 000, no carry, decreasing by number of low 1s
 # Y bits change 011 to 100, plain +1
@@ -31,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -72,9 +69,8 @@ sub n_to_xy {
     return ($n,$n);
   }
 
+  # what to do for fractions ?
   {
-    # ENHANCE-ME: N and N+1 are either adjacent X or on a slope Y to Y+1 for
-    # the base X, don't need the full calculation for N+1
     my $int = int($n);
     ### $int
     if ($n != $int) {
@@ -91,7 +87,7 @@ sub n_to_xy {
 
   my $radix = $self->{'radix'};
   ### $radix
-  my $x = my $y = $n & 0;          # inherit bignum 0
+  my $x = my $y = $n * 0;          # inherit bignum 0
   my $xpower = my $ypower = $x+1;  # inherit bignum 1
   my $digit;
   for (;;) {
@@ -101,7 +97,7 @@ sub n_to_xy {
       $x += $digit * $xpower;
       $n = int ($n / $radix) || return ($x, $y);
       $xpower *= $radix;
-    } until ($digit);
+    } while ($digit);
 
     do {
       $digit = ($n % $radix);
@@ -109,7 +105,7 @@ sub n_to_xy {
       $y += $digit * $ypower;
       $n = int ($n / $radix) || return ($x, $y);
       $ypower *= $radix;
-    } until ($digit);
+    } while ($digit);
   }
 }
 
@@ -129,34 +125,28 @@ sub xy_to_n {
     return 0;
   }
 
-  my $n = ($x & 0 & $x); # inherit
   my $radix = $self->{'radix'};
-
-  my $power = $n+1; # inherit
+  my $n = ($x * 0 * $y);   # inherit bignum
+  my $power = $n+1;        # inherit bignum 1
   my $digit;
-  for (;;) {
-    if ($x) {
-      do {
-        $digit = ($x % $radix);
-        $n += $digit * $power;
-        $power *= $radix;
-        $x = int ($x / $radix) || return $n + $y*$power;
-      } until ($digit);
-    } else {
-      return undef;
-    }
+  while ($x || $y) {
+    do {
+      $digit = ($x % $radix);
+      ### digit from x: $digit
+      $n += $digit * $power;
+      $power *= $radix;
+      $x = int ($x / $radix);
+    } while ($digit);
 
-    if ($y) {
-      do {
-        $digit = ($y % $radix);
-        $n += $digit * $power;
-        $power *= $radix;
-        $y = int ($y / $radix) || return $n + $x*$power;
-      } until ($digit);
-    } else {
-      return undef; # $n + $x * $power;
-    }
+    do {
+      $digit = ($y % $radix);
+      ### digit from y: $digit
+      $n += $digit * $power;
+      $power *= $radix;
+      $y = int ($y / $radix);
+    } while ($digit);
   }
+  return $n;
 }
 
 sub rect_to_n_range {
@@ -198,19 +188,64 @@ Math::PlanePath::MathImageDigitGroups -- 2x2 self-similar Z shape digits
 
 =head1 DESCRIPTION
 
-This path ...
+This is a split of N into X and Y values by groups of digits with a
+leading 0.  For example,
 
-      7  |   
-      6  |   
-      5  |   
-      4  |   
-      3  |   
-      2  |   
-      1  |   
-     Y=0 |   
-         +--------------------------------
-          X=0   1   2   3   4   5   6   7
+    N = 120345007089
 
+is grouped and split to X and Y as
+
+    12 0345 0 07 089
+     X   Y  X  Y  X
+
+    X = 12 0 089 = 120089
+    Y = 0345 07  = 34507
+
+This is a one-to-one mapping between NE<gt>=0 and pairs XE<gt>=0,YE<gt>=0.
+
+In decimal,
+
+    1000 10001 10002 10003 10004 10005 10006 10007 10008 10009 10100
+      90  901  902  903  904  905  906  907  908  909 1090
+      80  801  802  803  804  805  806  807  808  809 1080
+      70  701  702  703  704  705  706  707  708  709 1070
+      60  601  602  603  604  605  606  607  608  609 1060
+      50  501  502  503  504  505  506  507  508  509 1050
+      40  401  402  403  404  405  406  407  408  409 1040
+      30  301  302  303  304  305  306  307  308  309 1030
+      20  201  202  203  204  205  206  207  208  209 1020
+      10  101  102  103  104  105  106  107  108  109 1010
+       0    1    2    3    4    5    6    7    8    9  100
+
+In binary,
+
+    11  |   38   77   86  155  166  173  182  311  550  333  342  347
+    10  |   72  145  148  291  168  297  300  583  328  337  340  595
+     9  |   66  133  138  267  162  277  282  535  322  325  330  555
+     8  |  128  257  260  515  272  521  524 1031  320  545  548 1043
+     7  |   14   29   46   59  142   93  110  119  526  285  302  187
+     6  |   24   49   52   99   88  105  108  199  280  177  180  211
+     5  |   18   37   42   75   82   85   90  151  274  165  170  171
+     4  |   32   65   68  131   80  137  140  263  160  161  164  275
+     3  |    6   13   22   27   70   45   54   55  262  141  150   91
+     2  |    8   17   20   35   40   41   44   71  136   81   84   83
+     1  |    2    5   10   11   34   21   26   23  130   69   74   43
+    Y=0 |    0    1    4    3   16    9   12    7   64   33   36   19
+        +-------------------------------------------------------------
+           X=0    1    2    3    4    5    6    7    8    9   10   11
+
+=head2 R <-> RxR
+
+This construction is inspired by the similar digit grouping used in the
+proof that the real line is the same cardinality as the plane (by Cantor was
+it?).  In that case a bijection between interval z=(0,1) and pairs
+x=(0,1),y=(0,1) is made by groups of fraction digits stopping at a non-zero
+digit.
+
+In that proof non-terminating fractions like 0.49999... are chosen over
+terminating 0.5000... so there's infinitely many non-zero digits.  For the
+integer form here there's infinitely many zero digits at the high ends of N,
+X and Y, hence grouping by zero digits instead of non-zero.
 
 =head1 FUNCTIONS
 
@@ -239,3 +274,11 @@ L<Math::PlanePath>,
 L<Math::PlanePath::ZOrderCurve>
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=MathImageDigitGroups,radix=2 --lines"
+# End:
+#
+# math-image --path=MathImageDigitGroups --output=numbers_dash
+# math-image --path=MathImageDigitGroups,radix=2 --all --output=numbers
+#

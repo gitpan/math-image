@@ -15,6 +15,11 @@ more details.
 You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
+
+
+Version 78, October 2011
+    - fix for ComboBoxEntry width setting
+
 Version 77, October 2011
     - fixes for DigitCountLow and DigitCountHigh
 

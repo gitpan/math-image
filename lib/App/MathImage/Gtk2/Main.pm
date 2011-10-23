@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 77;
+our $VERSION = 78;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -752,11 +752,13 @@ sub _mouse_message {
           || $values_obj->characteristic('count')
           || $values_obj->characteristic('smaller')
           || $values_obj->characteristic('modulus'))) {
-    my $value = $values_obj->ith($n);
-    $vstr = " value=$value";
-    if ($value &&
-        $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
-      $radix = $value;
+    if (defined (my $value = $values_obj->ith($n))) {
+      $vstr = " value=$value";
+      ### $vstr
+      if ($value >= 2
+          && $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+        $radix = $value;
+      }
     }
   }
   my $values_parameters;

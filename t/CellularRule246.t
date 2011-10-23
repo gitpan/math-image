@@ -36,7 +36,7 @@ require Math::PlanePath::MathImageCellularRule246;
 # VERSION
 
 {
-  my $want_version = 77;
+  my $want_version = 78;
   ok ($Math::PlanePath::MathImageCellularRule246::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageCellularRule246->VERSION,  $want_version,

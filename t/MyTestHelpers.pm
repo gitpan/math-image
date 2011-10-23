@@ -98,7 +98,9 @@ sub findrefs {
   if (ref $obj && Scalar::Util::reftype($obj) eq 'HASH') {
     MyTestHelpers::diag ("Keys: ",
                          join(' ',
-                              map {"$_=$obj->{$_}"} keys %$obj));
+                              map {"$_=".(defined $obj->{$_}
+                                          ? "$obj->{$_}" : '[undef]')}
+                              keys %$obj));
   }
   if (eval { require Devel::FindRef }) {
     MyTestHelpers::diag (Devel::FindRef::track($obj, 8));

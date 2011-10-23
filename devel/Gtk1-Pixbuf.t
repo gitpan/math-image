@@ -50,7 +50,7 @@ if (! $have_File_Temp) {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 77;
+my $want_version = 78;
 is ($App::MathImage::Image::Base::Gtk::Gdk::Pixbuf::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Gtk::Gdk::Pixbuf->VERSION,

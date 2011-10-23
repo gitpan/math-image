@@ -1,3 +1,8 @@
+# first step horiz per hilbert ...
+
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -16,16 +21,12 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageCornerReplicate --lines --scale=10
-# math-image --path=MathImageCornerReplicate --all --output=numbers_dash --size=80x50
-
 package Math::PlanePath::MathImageCornerReplicate;
 use 5.004;
 use strict;
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -267,30 +268,35 @@ I<In progress.>
 
 This path is a self-similar replicating corner fill,
 
+     7  | 21-22 25-26 37-38 41-42
+        |  |  |  |  |  |  |  |  |
+     6  | 20 23-24 27 36 39-40 43
+        |
+     5  | 17-18 29-30 33-34 45-46
+        |  |  |  |  |  |  |  |  |
+     4  | 16 19 28 31-32 35 44 47
+        |
+     3  |  5--6  9-10 53-54 57-58
+        |  |  |  |  |  |  |  |  |
+     2  |  4  7--8 11 52 55-56 59
+        |
+     1  |  1--2 13-14 49-50 61-62
+        |  |  |  |  |  |  |  |  |
+    Y=0 |  0  3 12 15 48 51 60 63
+        +-------------------------
+          X=0 1  2  3  4  5  6  7
 
-    21-22 25-26 37-38 41-42       7
-     |  |  |  |  |  |  |  |
-    20 23-24 27 36 39-40 43       6
+The pattern is the initial N=0 to N=3 section,
 
-    17-18 29-30 33-34 45-46       5
-     |  |  |  |  |  |  |  |
-    16 19 28 31-32 35 44 47       4
-
-     5--6  9-10 53-54 57-58       3
-     |  |  |  |  |  |  |  |
-     4  7--8 11 52 55-56 59       2
-
-     1--2 13-14 49-50 61-62       1
-     |  |  |  |  |  |  |  |
-     0  3 12 15 48 51 60 63   <- Y=0
-
-     ^
-    X=0 1  2  3  4  5  6  7
-
-The base shape is the initial N=0 to N=3 section,
-
-   1  2
-   0  3
+    +-------+-------+
+    |       |       |
+    |   1   |   2   |
+    |       |       |
+    +-------+-------+
+    |       |       |
+    |   0   |   3   |
+    |       |       |
+    +-------+-------+
 
 It then repeats as 2x2 blocks arranged in the same pattern, then 4x4 blocks,
 etc.
@@ -327,3 +333,10 @@ L<Math::PlanePath>,
 L<Math::PlanePath::HilbertCurve>
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=MathImageCornerReplicate --lines --scale=10"
+# End:
+#
+# math-image --path=MathImageCornerReplicate --all --output=numbers_dash --size=80x50
+

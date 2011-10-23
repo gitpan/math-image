@@ -66,25 +66,26 @@ sub anum_to_html {
 }
 
 sub read_values {
-  my ($anum) = @_;
+  my ($anum, %option) = @_;
   $anum = anum_validate ($anum);
 
   if ($without) {
     return;
   }
 
-  my ($aref, $lo, $filename) = _read_values($anum)
+  my ($aref, $lo, $filename) = _read_values($anum, %option)
     or return;
   # MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
   return ($aref, $lo, $filename);
 }
 
 sub _read_values {
-  my ($anum) = @_;
+  my ($anum, %option) = @_;
 
   require File::Spec;
   require POSIX;
-  my $max_value = POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
+  my $max_value = $option{'max_value'}
+    || POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
 
  ABFILE: foreach my $basefile
     (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
@@ -113,9 +114,16 @@ sub _read_values {
         if (! (defined $n && $n =~ /^-?[0-9]+$/)) {
           die "oops, bad line in $filename: '$line'";
         }
-        if ($n > $max_value) {
-          # MyTestHelpers::diag("$filename stop at bignum value: $line");
-          last;
+        if ($max_value eq 'unlimited') {
+          if (length($n) > 9) {
+            require Math::BigInt;
+            $n = Math::BigInt->new($n);
+          }
+        } else {
+          if ($n > $max_value) {
+            # MyTestHelpers::diag("$filename stop at bignum value: $line");
+            last;
+          }
         }
         push @array, $n;
       }

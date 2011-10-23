@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 77;
+$VERSION = 78;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -43,6 +43,10 @@ sub _hopt {
 
 sub _with_parameters {
   my ($self, $str, $key) = @_;
+  ### _with_parameters() ...
+  ### $str
+  ### $key
+
   my ($value, my @options) = split /,/, $str;
   _hopt($self,'gen_options',$key, $value);
   foreach my $option (@options) {
@@ -50,6 +54,7 @@ sub _with_parameters {
       or die "Option \"$option\" should be NAME=VALUE";
     $self->{'gen_options'}->{"${key}_parameters"}->{$1} = $2;
   }
+  ### gen_options now: $self->{'gen_options'}
 }
 
 sub getopt_long_specifications {
@@ -694,16 +699,15 @@ sub output_method_list {
   my ($self) = @_;
   my $gen = $self->make_generator;
   my $path = $gen->path_object;
-  my $values_class = $gen->values_class ($gen->{'values'});
-  my $values_obj = $values_class->new (%$gen, lo => 1, hi => 1000);
+  my $values_obj = $gen->values_object;
 
   my $count = 0;
-  while (my ($n) = $values_obj->next) {
-    next if $n < 1;
+  while (my ($i, $value) = $values_obj->next) {
+    next if ! defined $value || $value < 1;
     last if $count++ > 100;
-    my ($x, $y) = $path->n_to_xy ($n)
+    my ($x, $y) = $path->n_to_xy ($value)
       or next;
-    printf "%4d  x=%g  y=%g\n", $n, $x, $y;
+    printf "i=%d value=%4s  x=%g y=%g\n", $i, $value, $x, $y;
   }
   return 0;
 }
@@ -734,8 +738,7 @@ sub output_method_numbers {
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
 
-  my $values_class = $gen->values_class ($gen->{'values'});
-  my $values_obj = $values_class->new (%$gen, lo => $n_lo, hi => $n_hi);
+  my $values_obj = $gen->values_object;
 
   my %array;
   my $x_min = 0;
@@ -805,8 +808,7 @@ sub output_method_numbers_xy {
   ### $width
   ### $height
 
-  my $values_class = $gen->values_class ($gen->{'values'});
-  my $values_obj = $values_class->new (%$gen);
+  my $values_obj = $gen->values_object;
 
   my @rows;
   my $xmin = 0;
@@ -974,8 +976,7 @@ sub output_method_numbers_dash {
   $n_hi = min($n_cell_limit,$n_hi);
   ### $n_hi
 
-  my $values_class = $gen->values_class ($gen->{'values'});
-  my $values_obj = $values_class->new (%$gen, lo => $n_lo, hi => $n_hi);
+  my $values_obj = $gen->values_object;
 
   my @rows = ((' ' x ($cell_width*$pwidth)) x ($pheight*2));
   my $blank = (' ' x $cell_width);

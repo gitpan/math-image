@@ -22,7 +22,7 @@ use Carp;
 use Scalar::Util;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

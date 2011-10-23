@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 77;
+$VERSION = 78;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

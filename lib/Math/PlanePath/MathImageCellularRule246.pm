@@ -1,3 +1,9 @@
+# or better rule 190 3s from the left, or option to mirror - not symmetric
+
+
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -29,7 +35,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -181,7 +187,7 @@ sub rect_to_n_range {
   ### assert: $x2 >= -$y2
   ### assert: $x1 <= $y2
 
-  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
 
   #     \       | /
   #      \      |/

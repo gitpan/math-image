@@ -76,6 +76,7 @@ my %maximum_planepath
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
      'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
+     'Math::PlanePath::DivisibleColumns'     => 49, # new in v.49
 
      'Math::PlanePath::DiamondSpiral'        => 1,
      'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
@@ -91,12 +92,15 @@ my %maximum_planepath
      'Math::PlanePath::SquareArms'           => 37, # new in v.37
      'Math::PlanePath::DiamondArms'          => 37, # new in v.37
      'Math::PlanePath::HexArms'              => 36, # new in v.36
+     'Math::PlanePath::AztecDiamondRings'    => 49, # new in v.49
      'Math::PlanePath::GreekKeySpiral'       => 27, # new in v.27
 
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
      'Math::PlanePath::PyramidSides'         => 1,
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
      'Math::PlanePath::CellularRule54'       => 40, # new in v.40
+     'Math::PlanePath::UlamWarburton'        => 48, # new in v.48
+     'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
      'Math::PlanePath::Corner'               => 1,
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
      'Math::PlanePath::Staircase'            => 16, # new in v.16
@@ -125,6 +129,7 @@ my %maximum_planepath
      'Math::PlanePath::KochSquareflakes'       => 30, # new in v.30
      'Math::PlanePath::QuadricCurve'         => 41, # new in v.41
      'Math::PlanePath::QuadricIslands'       => 41, # new in v.41
+     'Math::PlanePath::SierpinskiCurve'      => 49, # new in v.49
      'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
@@ -154,7 +159,13 @@ my %maximum_numseq
      'Math::NumSeq::SophieGermainPrimes' => 4, # new in v.4
      'Math::NumSeq::Emirps'              => 4, # new in v.4
      'Math::NumSeq::MobiusFunction'      => 6, # new in v.6
+     'Math::NumSeq::Liouville'           => 13, # new in v.13
      'Math::NumSeq::PrimeFactorCount'    => 6, # new in v.6
+     'Math::NumSeq::DivisorCount'        => 12, # new in v.12
+     'Math::NumSeq::Totient'             => 13, # new in v.13
+     'Math::NumSeq::TotientCumulative'   => 13, # new in v.13
+     'Math::NumSeq::TotientSteps'        => 13, # new in v.13
+     'Math::NumSeq::TotientPerfect'      => 13, # new in v.13
 
      'Math::NumSeq::Factorials'   => 1,
      'Math::NumSeq::Primorials'   => 1,
@@ -167,7 +178,7 @@ my %maximum_numseq
      'Math::NumSeq::FractionDigits' => 1,
      'Math::NumSeq::SqrtDigits'     => 1,
 
-     'Math::NumSeq::DigitCount'            => 4, # new in v.4
+     'Math::NumSeq::DigitCount'            => 13, # v.13 fix values_max()
      'Math::NumSeq::DigitLength'           => 1,
      'Math::NumSeq::DigitLengthCumulative' => 1,
      'Math::NumSeq::RadixWithoutDigit'     => 1,
@@ -186,12 +197,17 @@ my %maximum_numseq
      'Math::NumSeq::WoodallNumbers' => 1,
      'Math::NumSeq::BaumSweet'      => 10, # new in v.10
      'Math::NumSeq::KlarnerRado'    => 11, # new in v.11
+     'Math::NumSeq::AsciiSelf'      => 12, # new in v.12
+     'Math::NumSeq::Kolakoski'      => 13, # new in v.13
+     'Math::NumSeq::GolombSequence' => 13, # new in v.13
 
      'Math::NumSeq::CollatzSteps'  => 1,
+     'Math::NumSeq::JugglerSteps'  => 13, # new in v.13
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4
-     'Math::NumSeq::NumAronson' => 8, # new in v.8
+     'Math::NumSeq::NumAronson'    => 8, # new in v.8
 
      'Math::NumSeq::File'       => 1,
+     'Math::NumSeq::OEIS'       => 13, # v.13 fix .internal description parse
      'Math::NumSeq::Expression' => 6,  # new in v.6
 
      # in Math-Aronson
@@ -324,7 +340,7 @@ add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
 add_prereq ('Math::NumSeq::DigitCount',4); # for DigitCountHigh/Low
-add_prereq ('Math::NumSeq::Emirps',4); # for ReverseAdd, new in v.4
+add_prereq ('Math::NumSeq::Totient',13); # for TotientStepsSum, new in v.13
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',

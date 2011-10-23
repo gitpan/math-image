@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
@@ -43,36 +43,41 @@ use Math::NumSeq::DigitCount 4;
 
 # cf A006519 - highest k s.t. 2^k+1 divides n
 #
-my @oeis;
+my @oeis_anum;
 BEGIN {
   # starts from i=1
-  # $oeis[2]->[0] = 'A007814'; # base 2 low 0s
+  # $oeis_anum[2]->[0] = 'A007814'; # base 2 low 0s
   # # OEIS-Catalogue: A007814 radix=2 digit=0
   # # cf A001511 low 0s in 2*n, ie +1
   # # cf A070940 low 0s pos counting from the left
 
   # starts from i=1
-  # $oeis[3]->[0] = 'A007949'; # base 3 low 0s
+  # $oeis_anum[3]->[0] = 'A007949'; # base 3 low 0s
   # # OEIS-Catalogue: A007949 radix=3 digit=0
   # # cf A051064 low 0s of 3*n in ternary, ie +1
 
   # starts from i=1
-  # $oeis[5]->[0] = 'A112765'; # base 5 low 0s
+  # $oeis_anum[5]->[0] = 'A112765'; # base 5 low 0s
   # # OEIS-Catalogue: A112765 radix=5 digit=0
 
   # starts from i=1
-  # $oeis[6]->[0] = 'A122841'; # base 6 low 0s
+  # $oeis_anum[6]->[0] = 'A122841'; # base 6 low 0s
   # # OEIS-Catalogue: A122841 radix=6 digit=0
 
   # starts from i=1
-  # $oeis[10]->[0] = 'A122840'; # base 10 low 0s
+  # $oeis_anum[10]->[0] = 'A122840'; # base 10 low 0s
   # # OEIS-Catalogue: A122840 radix=10 digit=0
   # # cf A160094 low zeros in 10 counting from the right from 1
   # # cf A160093 low zeros in 10 counting from the left
 }
 sub oeis_anum {
   my ($self) = @_;
-  return $oeis[$self->{'radix'}]->[$self->{'digit'}];
+  my $radix = $self->{'radix'};
+  my $digit = $self->{'digit'};
+  if ($digit == -1) {
+    $digit = $radix-1;
+  }
+  return $oeis_anum[$radix]->[$digit];
 }
 
 sub ith {

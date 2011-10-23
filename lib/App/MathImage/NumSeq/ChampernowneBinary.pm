@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -33,13 +33,42 @@ use Math::NumSeq;
 #use Smart::Comments;
 
 # use constant name => Math::NumSeq::__('Champernowne Sequence');
-use constant description => Math::NumSeq::__('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
-use constant values_min => 0;
-use constant characteristic_monotonic => 1;
-use constant oeis_anum => 'A030303';
+use constant description => Math::NumSeq::__('Champernowne sequence 1 positions, 1,2,4,5,6,9,11,etc, being the 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
+use constant values_min => 1;
+use constant characteristic_monotonic => 2;
 
-# # http://oeis.org/A030310  # binary 1 positions
-# 
+# A030190 - Champernowne sequence in binary 1s and 0s, starting from 0
+# A030302 - binary starting from 1
+# A030303 - positions of 1 in starting from 1
+# A030308 - binary reverse starting from 1
+# A030309 - positions of 0 in reverse
+# A030310 - positions of 1 in reverse
+
+#
+# 0 1 10  11 100 101  110 111
+#   1 2  4,5 6   9,11 12,13 15,16,17,
+#    
+# cf A007376 - decimal digits concatenated Barbier infinite word
+#    A054632 -    partial sums of that series
+#    A033307
+#    A031298 - decimal reverse to LSB digit first
+#    A031035 - octal starting from 1
+#    A054634 - octal starting from 0
+#    A031045 - octal reverse
+#    A031076 - base 9
+#    A031087 - base 9 reversed
+#    A030998 - base 7
+#    A031007 - base 7 reversed
+#    A003137 - ternary starting 1
+#    A054635 - ternary starting 0
+#    A054637 -    ternary partial sums
+#
+#    A136414 - decimal 2 digits at a time
+#    A193431 - decimal 3 digits at a time
+#    A193492 - decimal 4 digits at a time
+#    A193493 - decimal 5 digits at a time
+#    A001704, A127421 - concatenate n,n+1
+#
 # sub oeis_anum {
 #   my ($class_or_self) = @_;
 #   if (! ref $class_or_self ||
@@ -48,17 +77,9 @@ use constant oeis_anum => 'A030303';
 #   }
 #   return undef;
 # }
+#
+use constant oeis_anum => 'A030303';
 
-# Champernowne sequence in binary 1s and 0s
-#   http://oeis.org/A030190
-#
-# as integer positions
-#   http://oeis.org/A030310
-#   http://oeis.org/A030303
-#
-# 0 1 10  11 100 101  110 111
-#   1 2  4,5 6   9,11 12,13 15,16,17,
-#
 
 sub rewind {
   my ($self) = @_;

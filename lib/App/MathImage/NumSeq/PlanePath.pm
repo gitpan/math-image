@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1054,6 +1054,12 @@ sub values_max {
   use constant MathImage__NumSeq_dSqDist_min => 1;
 }
 { package Math::PlanePath::CoprimeColumns;
+  use constant MathImage__NumSeq_dX_min => 0;
+  use constant MathImage__NumSeq_dX_max => 1;
+  use constant MathImage__NumSeq_dY_max => 1;
+  use constant MathImage__NumSeq_dSqDist_min => 1;
+}
+{ package Math::PlanePath::DivisibleColumns;
   use constant MathImage__NumSeq_dX_min => 0;
   use constant MathImage__NumSeq_dX_max => 1;
   use constant MathImage__NumSeq_dY_max => 1;

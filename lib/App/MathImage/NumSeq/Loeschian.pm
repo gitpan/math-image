@@ -23,12 +23,9 @@
 package App::MathImage::NumSeq::Loeschian;
 use 5.004;
 use strict;
-use POSIX 'floor','ceil';
-use List::Util 'max';
-use List::MoreUtils;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -51,7 +48,7 @@ use constant oeis_anum => 'A003136';
 sub rewind {
   my ($self) = @_;
   ### Loeschian rewind()
-  $self->{'i'} = max (1, $self->{'lo'} || 0);
+  $self->{'i'} = 0;
   $self->{'y_next_x'}     = [ 0, 1         ];
   $self->{'y_next_hypot'} = [ 0, 1*1+3*1*1 ];
   $self->{'prev_hypot'} = -1;

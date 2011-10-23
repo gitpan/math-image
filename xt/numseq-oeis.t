@@ -151,7 +151,19 @@ sub check_class {
            || $anum eq 'A023302'
            || $anum eq 'A023330') {
     # Cunningham shortened for now
-    @$want = grep {$_ < 1_00_000} @$want;
+    @$want = grep {$_ < 100_000} @$want;
+
+  } elsif ($anum eq 'A002858'
+           || $anum eq 'A002859'
+           || $anum eq 'A003666'
+           || $anum eq 'A003667'
+           || $anum eq 'A001857'
+           || $anum eq 'A048951'
+           || $anum eq 'A007300') {
+    # UlamSequence shortened for now
+    if ($#$want > 1000) {
+      $#$want = 1000;
+    }
 
   } elsif ($anum eq 'A005101' || $anum eq 'A133122'
            || $anum eq 'A001358'
@@ -360,5 +372,3 @@ MyTestHelpers::diag ("total checks $total_checks");
 $good = 1;
 ok ($good);
 exit 0;
-
-

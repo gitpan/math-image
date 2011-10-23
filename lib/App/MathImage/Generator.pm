@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 77;
+$VERSION = 78;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -100,6 +100,7 @@ use constant::defer values_choices => sub {
   foreach my $prefer (qw(Primes
                          PrimeFactorCount
                          MobiusFunction
+                         LiouvilleFunction
                          TwinPrimes
                          SophieGermainPrimes
                          SafePrimes
@@ -107,6 +108,12 @@ use constant::defer values_choices => sub {
                          SemiPrimesOdd
                          Emirps
                          DivisorCount
+
+                         Totient
+                         TotientCumulative
+                         TotientSteps
+                         TotientPerfect
+
                          Abundant
                          Obstinate
                          Squares
@@ -169,11 +176,19 @@ use constant::defer values_choices => sub {
                          HarshadNumbers
                          HappyNumbers
 
+                         ReverseAdd
+                         ReverseAddSteps
+                         CollatzSteps
+                         JugglerSteps
+
                          CullenNumbers
                          WoodallNumbers
                          ProthNumbers
                          BaumSweet
                          KlarnerRado
+                         AsciiSelf
+                         Kolakoski
+                         GolombSequence
 
                          Multiples
                          Expression
@@ -207,6 +222,11 @@ sub values_class {
 }
 sub values_object {
   my ($self) = @_;
+
+  if ($self->{'values_object'}) {
+    return $self->{'values_object'};
+  }
+
   my $values_class = $self->values_class($self->{'values'});
   ### Generator values_object()...
   ### $values_class
@@ -225,7 +245,7 @@ sub values_object {
   } else {
     ### ret: "$values_obj"
   }
-  return $values_obj;
+  return ($self->{'values_object'} = $values_obj);
 }
 
 #------------------------------------------------------------------------------
@@ -238,6 +258,7 @@ my %pathname_square_grid
                      TriangleSpiral
                      TriangleSpiralSkewed
                      DiamondSpiral
+                     AztecDiamondRings
                      PentSpiral
                      PentSpiralSkewed
                      HexSpiral
@@ -258,6 +279,7 @@ my %pathname_square_grid
                      PythagoreanTree
                      RationalsTree
                      CoprimeColumns
+                     DivisibleColumns
 
                      PeanoCurve
                      HilbertCurve
@@ -286,6 +308,8 @@ my %pathname_square_grid
                      KochSquareflakes
                      QuadricCurve
                      QuadricIslands
+
+                     SierpinskiCurve
                      SierpinskiArrowhead
                      SierpinskiArrowheadCentres
                      SierpinskiTriangle
@@ -299,11 +323,12 @@ my %pathname_square_grid
                      PyramidSides
                      CellularRule54
                      MathImageCellularRule246
+                     UlamWarburton
+                     UlamWarburtonQuarter
 
                      MathImageComplexPlus
                      MathImageCornerReplicate
                      MathImageQuintetSide
-                     MathImageSierpinskiCurve
                      MathImageWunderlichCurve
                   )
     );
@@ -366,6 +391,9 @@ my %pathname_square_grid
 { package Math::PlanePath::CoprimeColumns;
   use constant MathImage__n_frac_discontinuity => .5;
 }
+{ package Math::PlanePath::DivisibleColumns;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
 { package Math::PlanePath::MultipleRings;
   use constant MathImage__n_frac_discontinuity => 0;
 }
@@ -376,6 +404,9 @@ my %pathname_square_grid
   use constant MathImage__n_frac_discontinuity => 0;
 }
 { package Math::PlanePath::GosperIslands;
+  use constant MathImage__n_frac_discontinuity => 0;
+}
+{ package Math::PlanePath::AztecDiamondRings;
   use constant MathImage__n_frac_discontinuity => 0;
 }
      # PixelRings  => 0,
@@ -480,6 +511,7 @@ sub y_negative {
                            TriangularHypot
 
                            DiamondSpiral
+                           AztecDiamondRings
                            PentSpiral
                            PentSpiralSkewed
                            HexSpiral
@@ -500,11 +532,14 @@ sub y_negative {
                            PyramidSpiral
                            CellularRule54
                            MathImageCellularRule246
+
                            Corner
                            Diagonals
                            Staircase
                            Rows
                            Columns
+                           UlamWarburton
+                           UlamWarburtonQuarter
 
                            PeanoCurve
                            HilbertCurve
@@ -530,6 +565,7 @@ sub y_negative {
                            QuadricCurve
                            QuadricIslands
 
+                           SierpinskiCurve
                            SierpinskiTriangle
                            SierpinskiArrowhead
                            SierpinskiArrowheadCentres
@@ -542,6 +578,7 @@ sub y_negative {
                            PythagoreanTree
                            RationalsTree
                            CoprimeColumns
+                           DivisibleColumns
                            File
                          )) {
       if (delete $choices{$prefer}) {
@@ -1033,6 +1070,8 @@ sub colours_grey_exp {
     } elsif ($self->values_object->{'step_type'} eq 'both') {
       $shrink = 1 - 1/20;
     }
+  } elsif ($self->{'values'} eq 'GolombSequence') {
+    $shrink = 1 - 1/400;
   } elsif ($self->{'values'} eq 'HappySteps') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'DigitProduct') {
@@ -1055,6 +1094,7 @@ sub colours_grey_exp {
 }
 sub colours_grey_linear {
   my ($self, $n, $colour) = @_;
+  ### colours_grey_linear(): $n
   $self->{'colour_method'} = \&_colour_array;
   my $colours = $self->{'colours'} = [];
   foreach my $i (0 .. $n-1) {

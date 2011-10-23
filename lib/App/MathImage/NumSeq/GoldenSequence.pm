@@ -27,7 +27,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -55,10 +55,10 @@ use constant parameter_info_array =>
 #    A178482 Golden Patterns Phi-antipalindromic 
 #
 sub oeis_anum {
-  my ($class_or_self) = @_;
-  my $spectrum = (ref $class_or_self
-                  ? $class_or_self->{'spectrum'}
-                  : $class_or_self->parameter_default('spectrum'));
+  my ($self) = @_;
+  my $spectrum = (ref $self
+                  ? $self->{'spectrum'}
+                  : $self->parameter_default('spectrum'));
   if ($spectrum == PHI) {
     return 'A000201'; # Golden Sequence 1,3,4,6,8,9,11,12
   }

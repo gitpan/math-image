@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            77
+version:            78
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -72,8 +72,8 @@ requires:
     Math::NumSeq::Base::IteratePred:  1
     Math::NumSeq::Base::Sparse:  1
     Math::NumSeq::DigitCount:  4
-    Math::NumSeq::Emirps:  4
     Math::NumSeq::Primes:  4
+    Math::NumSeq::Totient:  13
     Math::PlanePath:      43
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
@@ -165,17 +165,19 @@ optional_features:
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
             Math::NumSeq::Aronson:  6
+            Math::NumSeq::AsciiSelf:  12
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  1
-            Math::NumSeq::DigitCount:  4
+            Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
+            Math::NumSeq::DivisorCount:  12
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  6
@@ -184,13 +186,18 @@ optional_features:
             Math::NumSeq::Fibonacci:  1
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
+            Math::NumSeq::GolombSequence:  13
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::JugglerSteps:  13
             Math::NumSeq::KlarnerRado:  11
+            Math::NumSeq::Kolakoski:  13
+            Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  1
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
+            Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   10
             Math::NumSeq::Polygonal:  8
@@ -207,11 +214,16 @@ optional_features:
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
+            Math::NumSeq::Totient:  13
+            Math::NumSeq::TotientCumulative:  13
+            Math::NumSeq::TotientPerfect:  13
+            Math::NumSeq::TotientSteps:  13
             Math::NumSeq::Triangular:  1
             Math::NumSeq::Tribonacci:  8
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
             Math::PlanePath::ArchimedeanChords:  23
+            Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
@@ -220,6 +232,7 @@ optional_features:
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::DivisibleColumns:  49
             Math::PlanePath::DragonCurve:  39
             Math::PlanePath::DragonMidpoint:  39
             Math::PlanePath::DragonRounded:  40
@@ -263,6 +276,7 @@ optional_features:
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
             Math::PlanePath::SierpinskiArrowheadCentres:  42
+            Math::PlanePath::SierpinskiCurve:  49
             Math::PlanePath::SierpinskiTriangle:  42
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareReplicate:  47
@@ -272,6 +286,8 @@ optional_features:
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  30
+            Math::PlanePath::UlamWarburton:  48
+            Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
@@ -291,17 +307,19 @@ optional_features:
         requires:
             Math::Aronson:        4
             Math::NumSeq::Aronson:  6
+            Math::NumSeq::AsciiSelf:  12
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  1
-            Math::NumSeq::DigitCount:  4
+            Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
+            Math::NumSeq::DivisorCount:  12
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  6
@@ -310,13 +328,18 @@ optional_features:
             Math::NumSeq::Fibonacci:  1
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
+            Math::NumSeq::GolombSequence:  13
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::JugglerSteps:  13
             Math::NumSeq::KlarnerRado:  11
+            Math::NumSeq::Kolakoski:  13
+            Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  1
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
+            Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   10
             Math::NumSeq::Polygonal:  8
@@ -333,6 +356,10 @@ optional_features:
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
+            Math::NumSeq::Totient:  13
+            Math::NumSeq::TotientCumulative:  13
+            Math::NumSeq::TotientPerfect:  13
+            Math::NumSeq::TotientSteps:  13
             Math::NumSeq::Triangular:  1
             Math::NumSeq::Tribonacci:  8
             Math::NumSeq::TwinPrimes:  4
@@ -341,6 +368,7 @@ optional_features:
         description:  Maximum PlanePath modules
         requires:
             Math::PlanePath::ArchimedeanChords:  23
+            Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
@@ -349,6 +377,7 @@ optional_features:
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::DivisibleColumns:  49
             Math::PlanePath::DragonCurve:  39
             Math::PlanePath::DragonMidpoint:  39
             Math::PlanePath::DragonRounded:  40
@@ -392,6 +421,7 @@ optional_features:
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  32
             Math::PlanePath::SierpinskiArrowheadCentres:  42
+            Math::PlanePath::SierpinskiCurve:  49
             Math::PlanePath::SierpinskiTriangle:  42
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareReplicate:  47
@@ -401,6 +431,8 @@ optional_features:
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  30
+            Math::PlanePath::UlamWarburton:  48
+            Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
             Math::PlanePath::ZOrderCurve:  34
     maximum_tests:
@@ -436,17 +468,19 @@ recommends:
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
     Math::NumSeq::Aronson:  6
+    Math::NumSeq::AsciiSelf:  12
     Math::NumSeq::BaumSweet:  10
     Math::NumSeq::Beastly:  1
     Math::NumSeq::CollatzSteps:  1
     Math::NumSeq::Cubes:  1
     Math::NumSeq::CullenNumbers:  1
-    Math::NumSeq::DigitCount:  4
+    Math::NumSeq::DigitCount:  13
     Math::NumSeq::DigitLength:  1
     Math::NumSeq::DigitLengthCumulative:  1
     Math::NumSeq::DigitProduct:  2
     Math::NumSeq::DigitSum:  2
     Math::NumSeq::DigitSumModulo:  5
+    Math::NumSeq::DivisorCount:  12
     Math::NumSeq::Emirps:  4
     Math::NumSeq::Even:   1
     Math::NumSeq::Expression:  6
@@ -455,13 +489,18 @@ recommends:
     Math::NumSeq::Fibonacci:  1
     Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  1
+    Math::NumSeq::GolombSequence:  13
     Math::NumSeq::HappyNumbers:  7
     Math::NumSeq::HarshadNumbers:  1
+    Math::NumSeq::JugglerSteps:  13
     Math::NumSeq::KlarnerRado:  11
+    Math::NumSeq::Kolakoski:  13
+    Math::NumSeq::Liouville:  13
     Math::NumSeq::LucasNumbers:  1
     Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
+    Math::NumSeq::OEIS:   13
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Pell:   10
     Math::NumSeq::Polygonal:  8
@@ -478,11 +517,16 @@ recommends:
     Math::NumSeq::StarNumbers:  1
     Math::NumSeq::SternDiatomic:  4
     Math::NumSeq::Tetrahedral:  1
+    Math::NumSeq::Totient:  13
+    Math::NumSeq::TotientCumulative:  13
+    Math::NumSeq::TotientPerfect:  13
+    Math::NumSeq::TotientSteps:  13
     Math::NumSeq::Triangular:  1
     Math::NumSeq::Tribonacci:  8
     Math::NumSeq::TwinPrimes:  4
     Math::NumSeq::WoodallNumbers:  1
     Math::PlanePath::ArchimedeanChords:  23
+    Math::PlanePath::AztecDiamondRings:  49
     Math::PlanePath::CellularRule54:  40
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
@@ -491,6 +535,7 @@ recommends:
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiamondArms:  37
     Math::PlanePath::DiamondSpiral:  1
+    Math::PlanePath::DivisibleColumns:  49
     Math::PlanePath::DragonCurve:  39
     Math::PlanePath::DragonMidpoint:  39
     Math::PlanePath::DragonRounded:  40
@@ -534,6 +579,7 @@ recommends:
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  32
     Math::PlanePath::SierpinskiArrowheadCentres:  42
+    Math::PlanePath::SierpinskiCurve:  49
     Math::PlanePath::SierpinskiTriangle:  42
     Math::PlanePath::SquareArms:  37
     Math::PlanePath::SquareReplicate:  47
@@ -543,6 +589,8 @@ recommends:
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::PlanePath::TriangularHypot:  30
+    Math::PlanePath::UlamWarburton:  48
+    Math::PlanePath::UlamWarburtonQuarter:  49
     Math::PlanePath::VogelFloret:  12
     Math::PlanePath::ZOrderCurve:  34
     Math::Symbolic:       0.605

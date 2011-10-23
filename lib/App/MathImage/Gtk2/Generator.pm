@@ -29,9 +29,9 @@ use Image::Base::Gtk2::Gdk::Pixmap;
 use base 'App::MathImage::Generator';
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Devel::Comments '###';
 
-our $VERSION = 77;
+our $VERSION = 78;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -46,22 +46,29 @@ sub new {
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
                                  idle_ids     => Glib::Ex::SourceIds->new,
-
                                  @_);
   if ($self->{'gtkmain'}) { Scalar::Util::weaken ($self->{'gtkmain'}); }
   if ($self->{'widget'})  { Scalar::Util::weaken ($self->{'widget'}); }
+  # if ($self->{'window'})  { Scalar::Util::weaken ($self->{'window'}); }
 
+  # print "new \"widget\" $self->{'widget'} isweak ",
+  #   Scalar::Util::isweak($self->{'widget'}),"\n";
+
+  ### widget: "$self->{'widget'}"
   # either Drawing widget window or rootwin
-  ### window: "$self->{'window'}"
   my $window = $self->{'window'}
-    || croak 'Gtk2-Generator no window specified';
+    || $self->{'widget'}->window
+      || do {
+        ### no window ...
+        return $self; # croak 'Gtk2-Generator no window specified';
+      };
+  ### window: "$window"
   my ($width, $height) = $window->get_size;
 
-  my $image
-    = Image::Base::Gtk2::Gdk::Pixmap->new
-      (-for_drawable => $window,
-       -width        => $width,
-       -height       => $height);
+  my $image = Image::Base::Gtk2::Gdk::Pixmap->new
+    (-for_drawable => $window,
+     -width        => $width,
+     -height       => $height);
   $self->{'pixmap'} = $image->get('-pixmap');
 
   if ($self->{'draw_progressive'}) {
