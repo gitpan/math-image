@@ -27,12 +27,10 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::NumSeq::OEIS::Catalogue;
-
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-
+use POSIX ();
 use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
 use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
 
@@ -172,6 +170,8 @@ sub check_class {
     return;
   }
 
+  # return unless $class =~ /Mephisto/;
+  # return unless $class =~ /Almost/;
   #  return unless $anum eq 'A163540';
 
 

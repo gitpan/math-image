@@ -90,6 +90,10 @@ sub _read_values {
  ABFILE: foreach my $basefile
     (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
 
+    # a003849.txt has replication level words rather than the individual
+    # sequence values
+    next if $basefile eq 'a003849.txt';
+
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename

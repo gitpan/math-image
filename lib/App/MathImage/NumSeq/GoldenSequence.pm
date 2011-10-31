@@ -1,7 +1,3 @@
-# Calculate in integers not float rounding.
-
-
-
 # Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -20,97 +16,71 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# vogel 1/1.6 arc
+
 package App::MathImage::NumSeq::GoldenSequence;
 use 5.004;
 use strict;
-use List::Util 'max';
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 use Math::NumSeq;
-@ISA = ('Math::NumSeq');
-
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant PHI => (1 + sqrt(5)) / 2;
 
-use constant name => Math::NumSeq::__('Golden Sequence');
-use constant values_min => 1;
-use constant characteristic_monotonic => 1;
+use constant values_min => 0;
+use constant values_max => 1;
+# use constant characteristic_boolean => 1;
 # use constant description => Math::NumSeq::__('');
 
-use constant parameter_info_array =>
-  [ { name    => 'spectrum',
-      display => Math::NumSeq::__('Spectrum'),
-      type    => 'float',
-      default => PHI,
-      description => Math::NumSeq::__('The to show the spectrum of, usually an irrational.'),
-    },
-  ];
+# cf A096270 expressed as 01 and 011
+#    A114986
+#    A003622, A076662 - positions of 1s
+#    A076662
+#    A005614 inverse, starting from 1
+#    A014675 with values 1/2 instead of 0/1
+#    A003842, A008352 values 1/2 inverse
+#    A178482 Golden Patterns Phi-antipalindromic
+#    A036299
+#    A001468
+use constant oeis_anum => 'A003849';  # 0/1 values
 
-# cf A003849  0,1,1,0,1,0,1
-#    A178482 Golden Patterns Phi-antipalindromic 
-#
-sub oeis_anum {
-  my ($self) = @_;
-  my $spectrum = (ref $self
-                  ? $self->{'spectrum'}
-                  : $self->parameter_default('spectrum'));
-  if ($spectrum == PHI) {
-    return 'A000201'; # Golden Sequence 1,3,4,6,8,9,11,12
+sub ith {
+  my ($self, $i) = @_;
+  my $f0 = ($i * 0) + 1;  # inherit bignum 1
+  my $f1 = $f0 + 1;       # inherit bignum 2
+  my $level = 0;
+  while ($i > $f1) {
+    ($f1,$f0) = ($f1+$f0,$f1);
+    $level++;
   }
-  return undef;
-}
+  ### above: "$f1,$f0  level=$level"
 
-# integer part of sqrt(5*i*i) so as not to depend on multiplying up the
-# float sqrt(5)
-#
-# i*(1+sqrt(5))/2
-# = (i+sqrt(5*i*i))/2
-# = i/2 + sqrt(5*i*i)/2
+  do {
+    ### at: "$f1,$f0  i=$i"
+    if ($i >= $f1) {
+      $i -= $f1;
+    }
+    ($f1,$f0) = ($f0,$f1-$f0);
+  } while ($level--);
 
-sub rewind {
-  my ($self) = @_;
-  ### GoldenSequence rewind()
-
-  my $lo = $self->{'lo'};
-  $lo = max (1, $lo);
-
-  my $spectrum = $self->{'spectrum'} || PHI;
-  ### $spectrum
-  $self->{'i'} = ceil ($lo / $spectrum);
-}
-
-sub next {
-  my ($self) = @_;
-  ### GoldenSequence next()
-  ### i: $self->{'i'}
-
-  my $i = $self->{'i'}++;
-  my $spectrum = $self->{'spectrum'};
-  if ($spectrum == PHI) {
-    ### i*PHI: $i*PHI
-    ### int: int( ($i + sqrt(5*$i*$i)) / 2 )
-    return ($i, int( ($i + sqrt(5*$i*$i)) / 2 ));
-  } else {
-    ### i*spectrum: $i * $spectrum
-    return ($i, int($i * $spectrum));
-  }
+  ### ret: $i
+  return $i;
 }
 
 sub pred {
-  my ($self, $n) = @_;
-  if ($n <= 0) { return 0; }
-  return (int($self->inv_floor($n) * $self->{'spectrum'}) == $n);
-}
-sub inv_floor {
-  my ($self, $n) = @_;
-  return ceil($n/$self->{'spectrum'});
+  my ($self, $value) = @_;
+  return ($value == 0 || $value == 1);
 }
 
 1;
 __END__
 
+# Local variables:
+# compile-command: "math-image --values=GoldenSequence"
+# End:

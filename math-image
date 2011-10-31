@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 78;
+$VERSION = 79;
 exit App::MathImage->command_line;
 
 __END__
@@ -299,13 +299,14 @@ draw a random image from your F<~/.xsession> file,
 Add C<--verbose> to print what was in fact chosen and displayed.  Output in
 F<~/.xsession> normally goes to the F<~/.xsession-errors> file.  Sometimes
 C<--random> may use a lot of memory, so consider a C<limit> (see L<sh(1)>)
-or timeout (see L<timeout(1)>), or both.
+or timeout (see L<timeout(1)>) or both, and perhaps low priority (see
+L<nice(1)>).
 
 Under X the root window is set with C<X11::Protocol> if available, otherwise
 C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
 C<--background> colours to be preserved in a PseudoColor visual.  C<Gtk2> is
-fine on a TrueColor, or for black and white only (as they're permanent in
-the default colormap), but otherwise colours won't be preserved.
+fine on a TrueColor or for black and white only (which are always
+permanent), but otherwise colours may not be preserved.
 
 =item --flash
 
@@ -315,6 +316,10 @@ This is good if updating the background randomly every so often, as it shows
 the image when otherwise obscured by lots of windows.
 
     math-image --root --random --flash
+
+For Gtk2 the flash is done as a "splash" screen per L<Gtk2::Ex::Splash>.
+See its POD, and in particular how it normally doesn't take keyboard focus.
+The X11 native code behaves similarly.
 
 =item --display=DPY
 

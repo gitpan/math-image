@@ -26,7 +26,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use Image::Base;
 @ISA = ('Image::Base');
@@ -59,7 +59,7 @@ sub _get {
   my ($self, $key) = @_;
 
   if (my $method = $attr_to_get_method{$key}) {
-    return $self->{'-drawable'}->$method;
+    return $self->{'-drawable'}->$method();
   }
   if ($key eq '-pixmap' || $key eq '-window') {  # aliasing
     $key = '-drawable';

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -121,7 +121,7 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### CMidpoint xy_to_n(): "$x, $y"
+  ### CCurve xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
@@ -202,11 +202,11 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde C Math-PlanePath Nlevel Heighway Harter et al vertices doublings OEIS Online
+=for stopwords eg Ryde Math-PlanePath
 
 =head1 NAME
 
-Math::PlanePath::MathImageCCurve -- dragon curve
+Math::PlanePath::MathImageCCurve -- Levy C curve
 
 =head1 SYNOPSIS
 

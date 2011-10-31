@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use Image::Base 1.12; # version 1.12 for ellipse() $fill
 @ISA = ('Image::Base');
@@ -84,7 +84,7 @@ my %attr_to_get_method = (-has_alpha  => 'get_has_alpha',
 sub _get {
   my ($self, $key) = @_;
   if (my $method = $attr_to_get_method{$key}) {
-    return $self->{'-pixbuf'}->$method;
+    return $self->{'-pixbuf'}->$method();
   }
   return $self->SUPER::_get($key);
 }

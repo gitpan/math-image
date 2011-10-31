@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 78;
+$VERSION = 79;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -442,7 +442,7 @@ sub output_method_root {
   my $module = ucfirst ($gui_options->{'module'});
   my $method = "output_method_root_\L$module";
   if ($self->can($method)) {
-    $self->$method;
+    $self->$method();
   } else {
     die "Unrecognised root window output module: $module";
   }

@@ -32,7 +32,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkSaveDialog');
 
-our $VERSION = 78;
+our $VERSION = 79;
 
 my %format_to_module = (png  => 'Tk::PNG',
                         jpeg => 'Tk::JPEG',

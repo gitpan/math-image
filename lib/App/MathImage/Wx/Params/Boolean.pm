@@ -22,7 +22,7 @@ use strict;
 use Wx;
 
 use base 'Wx::CheckBox';
-our $VERSION = 78;
+our $VERSION = 79;
 
 sub new {
   my ($class, $parent, $info) = @_;

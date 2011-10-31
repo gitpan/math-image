@@ -34,7 +34,7 @@ use App::MathImage::NumSeq::Obstinate;
 # VERSION
 
 {
-  my $want_version = 78;
+  my $want_version = 79;
   is ($App::MathImage::NumSeq::Obstinate::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage::NumSeq::Obstinate->VERSION,  $want_version, 'VERSION class method');
 

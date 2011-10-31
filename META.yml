@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            78
+version:            79
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -77,6 +77,7 @@ requires:
     Math::PlanePath:      43
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
+    Math::PlanePath::SierpinskiArrowhead:  1
     Math::PlanePath::SquareSpiral:  1
     Math::Prime::XS:      0.23
     Module::Load:         0
@@ -164,6 +165,7 @@ optional_features:
             Language::Expr:       0.14
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
+            Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
             Math::NumSeq::BaumSweet:  10
@@ -194,6 +196,7 @@ optional_features:
             Math::NumSeq::Kolakoski:  13
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  1
+            Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
@@ -224,18 +227,22 @@ optional_features:
             Math::NumSeq::WoodallNumbers:  1
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
+            Math::PlanePath::BetaOmega:  52
+            Math::PlanePath::CellularRule190:  51
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
+            Math::PlanePath::CornerReplicate:  52
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::DigitGroups:  52
             Math::PlanePath::DivisibleColumns:  49
             Math::PlanePath::DragonCurve:  39
             Math::PlanePath::DragonMidpoint:  39
-            Math::PlanePath::DragonRounded:  40
+            Math::PlanePath::DragonRounded:  50
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  38
             Math::PlanePath::FlowsnakeCentres:  38
@@ -248,6 +255,7 @@ optional_features:
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
             Math::PlanePath::HilbertCurve:  13
+            Math::PlanePath::HIndexing:  52
             Math::PlanePath::Hypot:  21
             Math::PlanePath::HypotOctant:  21
             Math::PlanePath::ImaginaryBase:  41
@@ -306,6 +314,7 @@ optional_features:
         description:  Maximum NumSeq number sequence modules
         requires:
             Math::Aronson:        4
+            Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
             Math::NumSeq::BaumSweet:  10
@@ -336,6 +345,7 @@ optional_features:
             Math::NumSeq::Kolakoski:  13
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  1
+            Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
@@ -369,18 +379,22 @@ optional_features:
         requires:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
+            Math::PlanePath::BetaOmega:  52
+            Math::PlanePath::CellularRule190:  51
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
+            Math::PlanePath::CornerReplicate:  52
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
+            Math::PlanePath::DigitGroups:  52
             Math::PlanePath::DivisibleColumns:  49
             Math::PlanePath::DragonCurve:  39
             Math::PlanePath::DragonMidpoint:  39
-            Math::PlanePath::DragonRounded:  40
+            Math::PlanePath::DragonRounded:  50
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  38
             Math::PlanePath::FlowsnakeCentres:  38
@@ -393,6 +407,7 @@ optional_features:
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
             Math::PlanePath::HilbertCurve:  13
+            Math::PlanePath::HIndexing:  52
             Math::PlanePath::Hypot:  21
             Math::PlanePath::HypotOctant:  21
             Math::PlanePath::ImaginaryBase:  41
@@ -467,6 +482,7 @@ recommends:
     Language::Expr:       0.14
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
+    Math::NumSeq::AlmostPrimes:  14
     Math::NumSeq::Aronson:  6
     Math::NumSeq::AsciiSelf:  12
     Math::NumSeq::BaumSweet:  10
@@ -497,6 +513,7 @@ recommends:
     Math::NumSeq::Kolakoski:  13
     Math::NumSeq::Liouville:  13
     Math::NumSeq::LucasNumbers:  1
+    Math::NumSeq::MephistoWaltz:  14
     Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
@@ -527,18 +544,22 @@ recommends:
     Math::NumSeq::WoodallNumbers:  1
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
+    Math::PlanePath::BetaOmega:  52
+    Math::PlanePath::CellularRule190:  51
     Math::PlanePath::CellularRule54:  40
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
+    Math::PlanePath::CornerReplicate:  52
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiamondArms:  37
     Math::PlanePath::DiamondSpiral:  1
+    Math::PlanePath::DigitGroups:  52
     Math::PlanePath::DivisibleColumns:  49
     Math::PlanePath::DragonCurve:  39
     Math::PlanePath::DragonMidpoint:  39
-    Math::PlanePath::DragonRounded:  40
+    Math::PlanePath::DragonRounded:  50
     Math::PlanePath::File:  37
     Math::PlanePath::Flowsnake:  38
     Math::PlanePath::FlowsnakeCentres:  38
@@ -551,6 +572,7 @@ recommends:
     Math::PlanePath::HexSpiral:  9
     Math::PlanePath::HexSpiralSkewed:  9
     Math::PlanePath::HilbertCurve:  13
+    Math::PlanePath::HIndexing:  52
     Math::PlanePath::Hypot:  21
     Math::PlanePath::HypotOctant:  21
     Math::PlanePath::ImaginaryBase:  41

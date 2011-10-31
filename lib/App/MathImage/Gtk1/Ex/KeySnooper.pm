@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 78;
+$VERSION = 79;
 
 sub new {
   my ($class, $func, $userdata) = @_;

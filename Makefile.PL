@@ -99,6 +99,7 @@ my %maximum_planepath
      'Math::PlanePath::PyramidSides'         => 1,
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
      'Math::PlanePath::CellularRule54'       => 40, # new in v.40
+     'Math::PlanePath::CellularRule190'      => 51, # new in v.51
      'Math::PlanePath::UlamWarburton'        => 48, # new in v.48
      'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
      'Math::PlanePath::Corner'               => 1,
@@ -110,8 +111,11 @@ my %maximum_planepath
      'Math::PlanePath::PeanoCurve'           => 36, # v.36 radix parameter
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
+     'Math::PlanePath::BetaOmega'            => 52, # new in v.52
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
+     'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
+     'Math::PlanePath::DigitGroups'          => 52, # new in v.52
 
      'Math::PlanePath::Flowsnake'            => 38, # new in v.38
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
@@ -126,15 +130,18 @@ my %maximum_planepath
      'Math::PlanePath::KochCurve'            => 30, # new in v.30
      'Math::PlanePath::KochPeaks'            => 30, # new in v.30
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
-     'Math::PlanePath::KochSquareflakes'       => 30, # new in v.30
+     'Math::PlanePath::KochSquareflakes'     => 30, # new in v.30
      'Math::PlanePath::QuadricCurve'         => 41, # new in v.41
      'Math::PlanePath::QuadricIslands'       => 41, # new in v.41
+
      'Math::PlanePath::SierpinskiCurve'      => 49, # new in v.49
+     'Math::PlanePath::HIndexing'            => 52, # new in v.52
+
      'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
      'Math::PlanePath::DragonCurve'          => 39, # new in v.39
-     'Math::PlanePath::DragonRounded'        => 40, # new in v.40
+     'Math::PlanePath::DragonRounded'        => 50, # v.50 xy_to_n() arms fix
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
 
@@ -157,6 +164,7 @@ my %maximum_numseq
      'Math::NumSeq::Primes'              => 4, # new in v.4
      'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
      'Math::NumSeq::SophieGermainPrimes' => 4, # new in v.4
+     'Math::NumSeq::AlmostPrimes'        => 14, # new in v.14
      'Math::NumSeq::Emirps'              => 4, # new in v.4
      'Math::NumSeq::MobiusFunction'      => 6, # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
@@ -200,6 +208,7 @@ my %maximum_numseq
      'Math::NumSeq::AsciiSelf'      => 12, # new in v.12
      'Math::NumSeq::Kolakoski'      => 13, # new in v.13
      'Math::NumSeq::GolombSequence' => 13, # new in v.13
+     'Math::NumSeq::MephistoWaltz'  => 14, # new in v.14
 
      'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::JugglerSteps'  => 13, # new in v.13
@@ -331,6 +340,7 @@ sub add_prereq {
 add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
+add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
 #
 add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
 add_prereq ('Math::NumSeq::Base::Array',1);

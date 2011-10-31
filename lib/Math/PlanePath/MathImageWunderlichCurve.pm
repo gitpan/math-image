@@ -16,10 +16,13 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=MathImageWunderlichCurve,radix=5 --lines --scale=10
-# math-image --path=MathImageWunderlichCurve --all --output=numbers_dash
-# math-image --path=MathImageWunderlichCurve,radix=5 --all --output=numbers_dash
+# http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/pdf/125.pdf
+# [8.5mb]
 #
+# Walter Wunderlich. Uber Peano-Kurven. Elemente der Mathematik, 28(1):1-10, 1973.
+# Coil order 111 111 111
+# switch-back vs meandering
+# 
 
 
 package Math::PlanePath::MathImageWunderlichCurve;
@@ -28,7 +31,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -492,3 +495,11 @@ L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=MathImageWunderlichCurve --lines --scale=10"
+# End:
+#
+# math-image --path=MathImageWunderlichCurve --all --output=numbers_dash
+# math-image --path=MathImageWunderlichCurve,radix=5 --all --output=numbers_dash
+#

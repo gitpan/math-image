@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use App::MathImage::Image::Base::Gtk::Gdk::Drawable;
 @ISA = ('App::MathImage::Image::Base::Gtk::Gdk::Drawable');

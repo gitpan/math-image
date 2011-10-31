@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -20,55 +20,54 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 5;
 
 use lib 't';
 use MyTestHelpers;
-BEGIN { MyTestHelpers::nowarnings(); }
+MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::RepdigitAny;
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use Math::PlanePath::MathImageFibonacciWordFractal;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
   my $want_version = 79;
-  ok ($App::MathImage::NumSeq::RepdigitAny::VERSION, $want_version, 'VERSION variable');
-  ok (App::MathImage::NumSeq::RepdigitAny->VERSION,  $want_version, 'VERSION class method');
+  ok ($Math::PlanePath::MathImageFibonacciWordFractal::VERSION, $want_version,
+      'VERSION variable');
+  ok (Math::PlanePath::MathImageFibonacciWordFractal->VERSION,  $want_version,
+      'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::RepdigitAny->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::MathImageFibonacciWordFractal->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::RepdigitAny->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::MathImageFibonacciWordFractal->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 }
 
 
 #------------------------------------------------------------------------------
-# next()
+# xy_to_n() near origin
 
-sub collect {
-  my ($seq, $count) = @_;
-  my @i;
-  my @values;
-  foreach (1 .. ($count||11)) {
-    my ($i, $value) = $seq->next
-      or last;
-    push @i, $i;
-    push @values, $value;
-  }
-  return join(',',@i) . ' -- ' . join(',',@values);
-}
-    
 {
-  my $seq = App::MathImage::NumSeq::RepdigitAny->new;
-  ok ($seq->oeis_anum, 'A167782');
-  ok (collect($seq), '1,2,3,4,5,6,7,8,9,10,11 -- 0,7,13,15,21,26,31,40,42,43,57');
+  my $bad = 0;
+  my $path = Math::PlanePath::MathImageFibonacciWordFractal->new;
+ OUTER:
+  foreach my $x (-8 .. 16) {
+    foreach my $y (-8 .. 16) {
+      my $n = $path->xy_to_n ($x,$y);
+      next unless defined $n;
+      my ($nx,$ny) = $path->n_to_xy ($n);
+
+      if ($nx != $x || $ny != $y) {
+        MyTestHelpers::diag("xy_to_n($x,$y) gives n=$n, which is $nx,$ny");
+        last OUTER if ++$bad > 10;
+      }
+    }
+  }
+  ok ($bad, 0);
 }
 
 exit 0;

@@ -27,7 +27,7 @@ use Carp;
 use Image::BMP ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use Image::Base;
 @ISA = ('Image::Base');

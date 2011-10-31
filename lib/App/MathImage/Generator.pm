@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 78;
+$VERSION = 79;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -104,8 +104,7 @@ use constant::defer values_choices => sub {
                          TwinPrimes
                          SophieGermainPrimes
                          SafePrimes
-                         SemiPrimes
-                         SemiPrimesOdd
+                         AlmostPrimes
                          Emirps
                          DivisorCount
 
@@ -189,6 +188,7 @@ use constant::defer values_choices => sub {
                          AsciiSelf
                          Kolakoski
                          GolombSequence
+                         MephistoWaltz
 
                          Multiples
                          Expression
@@ -284,8 +284,11 @@ my %pathname_square_grid
                      PeanoCurve
                      HilbertCurve
                      ZOrderCurve
+                     BetaOmega
                      ImaginaryBase
                      SquareReplicate
+                     CornerReplicate
+                     DigitGroups
 
                      Flowsnake
                      FlowsnakeCentres
@@ -310,9 +313,11 @@ my %pathname_square_grid
                      QuadricIslands
 
                      SierpinskiCurve
+                     HIndexing
+
+                     SierpinskiTriangle
                      SierpinskiArrowhead
                      SierpinskiArrowheadCentres
-                     SierpinskiTriangle
 
                      Rows
                      Columns
@@ -322,12 +327,11 @@ my %pathname_square_grid
                      PyramidRows
                      PyramidSides
                      CellularRule54
-                     MathImageCellularRule246
+                     CellularRule190
                      UlamWarburton
                      UlamWarburtonQuarter
 
                      MathImageComplexPlus
-                     MathImageCornerReplicate
                      MathImageQuintetSide
                      MathImageWunderlichCurve
                   )
@@ -367,7 +371,7 @@ my %pathname_square_grid
 { package Math::PlanePath::CellularRule54;
   use constant MathImage__n_frac_discontinuity => .5;
 }
-{ package Math::PlanePath::MathImageCellularRule246;
+{ package Math::PlanePath::CellularRule190;
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Corner;
@@ -531,7 +535,7 @@ sub y_negative {
                            PyramidSides
                            PyramidSpiral
                            CellularRule54
-                           MathImageCellularRule246
+                           CellularRule190
 
                            Corner
                            Diagonals
@@ -544,8 +548,11 @@ sub y_negative {
                            PeanoCurve
                            HilbertCurve
                            ZOrderCurve
+                           BetaOmega
                            ImaginaryBase
                            SquareReplicate
+                           CornerReplicate
+                           DigitGroups
 
                            Flowsnake
                            FlowsnakeCentres
@@ -566,6 +573,8 @@ sub y_negative {
                            QuadricIslands
 
                            SierpinskiCurve
+                           HIndexing
+
                            SierpinskiTriangle
                            SierpinskiArrowhead
                            SierpinskiArrowheadCentres
@@ -1262,6 +1271,8 @@ sub draw_Image_start {
       }
     } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')) {
       $n_hi = 9 ** $level - 1;
+    } elsif ($path_object->isa ('Math::PlanePath::BetaOmega')) {
+      $n_hi = 4 ** $level - 1;
     } elsif ($path_object->isa ('Math::PlanePath::KochCurve')) {
       $n_hi = 4 ** $level;
       $yfactor = sqrt(3)*2;
@@ -1283,9 +1294,11 @@ sub draw_Image_start {
       $n_hi = 3 ** $level;
       $n_angle = 2 * 3**($level-1);
       $yfactor = sqrt(3);
-    } elsif ($path_object->isa ('Math::PlanePath::MathImageSierpinskiCurve')) {
+    } elsif ($path_object->isa ('Math::PlanePath::SierpinskiCurve')) {
       $n_hi = 4 ** $level;
       $yfactor = 2;
+    } elsif ($path_object->isa ('Math::PlanePath::HIndexing')) {
+      $n_hi = 2 * 4 ** $level;
     } elsif ($path_object->isa ('Math::PlanePath::QuadricCurve')) {
       $n_hi = 8 ** $level;
     } elsif ($path_object->isa ('Math::PlanePath::QuadricIslands')) {
@@ -1424,7 +1437,7 @@ sub draw_Image_start {
         && defined $values_max
         && $values_max - $values_min == 1) {
       ### two value colours ...
-      $self->{'colours_offset'} = -$values_min || 0;
+      $self->{'colours_base'} = $values_min || 0;
       $self->{'use_colours'} = 1;
       if ($values_max > 0) {
         $self->{'colours'} = [ $background, $foreground ];
@@ -1445,10 +1458,10 @@ sub draw_Image_start {
                                $colours->[2],  # white
                              ];
       }
-      $self->{'colours_offset'} = 1;
+      $self->{'colours_base'} = $values_min;
       $self->{'use_colours'} = 1;
       ### colours: $self->{'colours'}
-      ### colours_offset: $self->{'colours_offset'}
+      ### colours_base: $self->{'colours_base'}
       
     } elsif (my $num = ($values_obj->characteristic('digits')
                         || $values_obj->characteristic('modulus')
@@ -1458,7 +1471,7 @@ sub draw_Image_start {
                            && $values_max - $values_min + 1)
                         })) {
       ### fixed set of colours ...
-      $self->{'colours_offset'} = -$values_min || 0;
+      $self->{'colours_base'} = $values_min || 0;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
       } else {
@@ -1469,7 +1482,7 @@ sub draw_Image_start {
       
     } elsif ($values_obj->characteristic('count')
              || $values_obj->characteristic('smaller')) {
-      $self->{'colours_offset'} = 0;
+      $self->{'colours_base'} = 0;
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours'} = [ 0 .. 9 ];
       } else {
@@ -1477,9 +1490,9 @@ sub draw_Image_start {
       }
       push @colours, @{$self->{'colours'}};
       $self->{'use_colours'} = 1;
-      $self->{'colours_offset'} = - ($values_obj->values_min || 0);
+      $self->{'colours_base'} = ($values_obj->values_min || 0);
       ### type "count" ...
-      ### colours_offset: $self->{'colours_offset'}
+      ### colours_base: $self->{'colours_base'}
       ### per values_min: $values_obj->values_min
       ### colours: $self->{'colours'}
     }
@@ -1776,6 +1789,7 @@ sub draw_Image_steps {
     } else {
       ### Lines by N...
       $n = $self->{'upto_n'};
+      # $n_hi = 32+7;
 
       for ( ; $n < $n_hi; $n++) {
         &$cont() or last;
@@ -1991,13 +2005,13 @@ sub draw_Image_steps {
   }
 
   my $colours = $self->{'colours'};
-  my $colours_offset = $self->{'colours_offset'};
+  my $colours_base = $self->{'colours_base'};
   my $colour = $foreground;
   my $use_colours = $self->{'use_colours'};
   my $values_monotonic = $values_obj->characteristic('monotonic');
   my $n;
   ### $use_colours
-  ### $colours_offset
+  ### $colours_base
 
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
@@ -2071,7 +2085,7 @@ sub draw_Image_steps {
 
       if ($use_colours) {
         $colour = $colours->[min ($#$colours,
-                                  max (0, $count + $colours_offset))];
+                                  max (0, abs($count - $colours_base)))];
         #### $colour
       }
       if ($figure eq 'point') {
@@ -2154,9 +2168,9 @@ sub draw_Image_steps {
           next; # background
         }
         $colour = $colours->[min ($#$colours,
-                                  max (0, $value + $colours_offset))];
+                                  abs($value - $colours_base))];
         #### $colour
-        #### at index: $value + $colours_offset
+        #### at index: abs($value - $colours_base)
       }
 
       # BigInt no good for $affine->transform multiplies

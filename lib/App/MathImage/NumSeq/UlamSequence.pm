@@ -20,12 +20,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA';
-$VERSION = 78;
+$VERSION = 79;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant description => Math::NumSeq::__('Ulam sequence, 1,2,3,4,6,8,11,etc starting 1,2 then each member being uniquely representable as the sum of two earlier values.');
@@ -78,7 +78,16 @@ sub rewind {
   my ($self) = @_;
   $self->{'i'} = 1;
   $self->{'upto'} = 0;
-  $self->{'string'} = "\x14";  # N=1,N=2 members
+  $self->{'string'} = '';
+
+  ### start_values: $self->{'start_values'}
+  my $max = -1;
+  foreach my $value (split /(?:\s|,)+/, $self->{'start_values'}) {
+    ### $value
+    vec($self->{'string'}, $value, 2) = 1;
+    if ($value > $max) { $max = $value; }
+  }
+  $self->{'max'} = $max;
 }
 
 # 0 => 1,
@@ -98,12 +107,19 @@ sub next {
     ### $upto
     ### $entry
     if ($entry == 1) {
+      my $max;
       foreach my $i (1 .. $upto-1) {
         if (vec($$sref, $i,2) == 1) {
           vec($$sref, $i+$upto,2) = $incr[vec($$sref, $i+$upto,2)];
+          $max = $i+$upto;
         }
       }
+      if ($max) {
+        $self->{'max'} = $max;
+      }
       return ($self->{'i'}++, ($self->{'upto'} = $upto));
+    } elsif ($upto > $self->{'max'}) {
+      return;
     }
   }
 }
