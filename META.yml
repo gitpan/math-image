@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            79
+version:            80
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -72,6 +72,7 @@ requires:
     Math::NumSeq::Base::IteratePred:  1
     Math::NumSeq::Base::Sparse:  1
     Math::NumSeq::DigitCount:  4
+    Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
     Math::NumSeq::Totient:  13
     Math::PlanePath:      43
@@ -184,8 +185,9 @@ optional_features:
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  6
             Math::NumSeq::Factorials:  1
-            Math::NumSeq::Fibbinary:  8
+            Math::NumSeq::Fibbinary:  15
             Math::NumSeq::Fibonacci:  1
+            Math::NumSeq::FibonacciWord:  15
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::GolombSequence:  13
@@ -203,6 +205,7 @@ optional_features:
             Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   10
+            Math::NumSeq::PlanePathCoord:  53
             Math::NumSeq::Polygonal:  8
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
@@ -243,6 +246,7 @@ optional_features:
             Math::PlanePath::DragonCurve:  39
             Math::PlanePath::DragonMidpoint:  39
             Math::PlanePath::DragonRounded:  50
+            Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  38
             Math::PlanePath::FlowsnakeCentres:  38
@@ -333,8 +337,9 @@ optional_features:
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  6
             Math::NumSeq::Factorials:  1
-            Math::NumSeq::Fibbinary:  8
+            Math::NumSeq::Fibbinary:  15
             Math::NumSeq::Fibonacci:  1
+            Math::NumSeq::FibonacciWord:  15
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::GolombSequence:  13
@@ -352,6 +357,7 @@ optional_features:
             Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   10
+            Math::NumSeq::PlanePathCoord:  53
             Math::NumSeq::Polygonal:  8
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
@@ -395,6 +401,7 @@ optional_features:
             Math::PlanePath::DragonCurve:  39
             Math::PlanePath::DragonMidpoint:  39
             Math::PlanePath::DragonRounded:  50
+            Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  38
             Math::PlanePath::FlowsnakeCentres:  38
@@ -501,8 +508,9 @@ recommends:
     Math::NumSeq::Even:   1
     Math::NumSeq::Expression:  6
     Math::NumSeq::Factorials:  1
-    Math::NumSeq::Fibbinary:  8
+    Math::NumSeq::Fibbinary:  15
     Math::NumSeq::Fibonacci:  1
+    Math::NumSeq::FibonacciWord:  15
     Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  1
     Math::NumSeq::GolombSequence:  13
@@ -520,6 +528,7 @@ recommends:
     Math::NumSeq::OEIS:   13
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Pell:   10
+    Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Polygonal:  8
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
@@ -560,6 +569,7 @@ recommends:
     Math::PlanePath::DragonCurve:  39
     Math::PlanePath::DragonMidpoint:  39
     Math::PlanePath::DragonRounded:  50
+    Math::PlanePath::FibonacciWordFractal:  53
     Math::PlanePath::File:  37
     Math::PlanePath::Flowsnake:  38
     Math::PlanePath::FlowsnakeCentres:  38

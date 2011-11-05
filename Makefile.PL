@@ -116,6 +116,7 @@ my %maximum_planepath
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
      'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
      'Math::PlanePath::DigitGroups'          => 52, # new in v.52
+     'Math::PlanePath::FibonacciWordFractal' => 53, # new in v.53
 
      'Math::PlanePath::Flowsnake'            => 38, # new in v.38
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
@@ -175,13 +176,14 @@ my %maximum_numseq
      'Math::NumSeq::TotientSteps'        => 13, # new in v.13
      'Math::NumSeq::TotientPerfect'      => 13, # new in v.13
 
-     'Math::NumSeq::Factorials'   => 1,
-     'Math::NumSeq::Primorials'   => 1,
-     'Math::NumSeq::Fibonacci'    => 1,
-     'Math::NumSeq::LucasNumbers' => 1,
-     'Math::NumSeq::Fibbinary'    => 8,  # new in v.8
-     'Math::NumSeq::Pell'         => 10, # new in v.10
-     'Math::NumSeq::Tribonacci'   => 8,  # new in v.8
+     'Math::NumSeq::Factorials'    => 1,
+     'Math::NumSeq::Primorials'    => 1,
+     'Math::NumSeq::Fibonacci'     => 1,
+     'Math::NumSeq::LucasNumbers'  => 1,
+     'Math::NumSeq::Fibbinary'     => 15, # v.15 faster next()
+     'Math::NumSeq::FibonacciWord' => 15, # new in v.15
+     'Math::NumSeq::Pell'          => 10, # new in v.10
+     'Math::NumSeq::Tribonacci'    => 8,  # new in v.8
 
      'Math::NumSeq::FractionDigits' => 1,
      'Math::NumSeq::SqrtDigits'     => 1,
@@ -222,6 +224,9 @@ my %maximum_numseq
      # in Math-Aronson
      'Math::Aronson'         => 4, # version 4 for lying option
      'Math::NumSeq::Aronson' => 6, # new in v.6
+
+     # in Math-PlanePath
+     'Math::NumSeq::PlanePathCoord' => 53, # new in v.53
     );
 
 my %prereq_pm
@@ -341,6 +346,7 @@ add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
 add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
+add_prereq ('Math::NumSeq::PlanePathCoord', 53); # for PlanePathN
 #
 add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
 add_prereq ('Math::NumSeq::Base::Array',1);

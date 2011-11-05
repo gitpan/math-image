@@ -20,13 +20,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant parameter_info_array =>
@@ -87,9 +87,13 @@ my %oeis_anum = (first =>
                             'A005385',  # length=2  safe primes 2p+1
                            ],
                  },
-                 second => []);
+                 # second => {},
+                );
 sub oeis_anum {
   my ($self) = @_;
+  ### kind: $self->{'kind'}
+  ### which: $self->{'which'}
+  ### length: $self->{'length'}
   return $oeis_anum{$self->{'kind'}}->{$self->{'which'}}->[$self->{'length'}];
 }
 

@@ -29,7 +29,7 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 79;
+$VERSION = 80;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,7 +49,10 @@ use constant values_min => 5;
 #    A008846 - primitive hypots, x,y no common factor
 #    A004613 - all prime factors are 4n+1
 #
-#    A009000 - A009003 hypots with repetitions
+#    A009000 hypots with repetitions
+#    A009001
+#    A009002
+#    A009003
 #    A009012 - "b" second number, ordered by "b", with repetitions
 #
 use constant oeis_anum => 'A009003'; # hypots, distinct non-zero x,y, inc multiples

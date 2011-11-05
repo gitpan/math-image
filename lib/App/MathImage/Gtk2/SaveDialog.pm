@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 79;
+our $VERSION = 80;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',

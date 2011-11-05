@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 79;
+$VERSION = 80;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -130,6 +130,7 @@ use constant::defer values_choices => sub {
                          Fibonacci
                          LucasNumbers
                          Fibbinary
+                         FibonacciWord
                          Pell
                          Perrin
                          Padovan
@@ -145,7 +146,6 @@ use constant::defer values_choices => sub {
                          Aronson
                          NumAronson
                          Pell
-                         GoldenSequence
                          ThueMorse
                          ChampernowneBinary
                          ChampernowneBinaryLsb
@@ -289,6 +289,7 @@ my %pathname_square_grid
                      SquareReplicate
                      CornerReplicate
                      DigitGroups
+                     FibonacciWordFractal
 
                      Flowsnake
                      FlowsnakeCentres
@@ -553,6 +554,7 @@ sub y_negative {
                            SquareReplicate
                            CornerReplicate
                            DigitGroups
+                           FibonacciWordFractal
 
                            Flowsnake
                            FlowsnakeCentres

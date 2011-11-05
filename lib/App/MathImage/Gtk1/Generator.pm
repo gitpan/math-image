@@ -25,7 +25,7 @@ use App::MathImage::Image::Base::Gtk::Gdk::Pixmap;
 use App::MathImage::Image::Base::Gtk::Gdk::Window;
 
 use vars '$VERSION','@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use App::MathImage::Generator;
 @ISA = ('App::MathImage::Generator');

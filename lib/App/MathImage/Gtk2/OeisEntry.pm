@@ -28,12 +28,13 @@ use POSIX ();
 use List::Util 'max';
 use Locale::TextDomain 1.19 ('App-MathImage');
 
+use Glib::Ex::ObjectBits;
 use App::MathImage::Gtk2::Ex::ArrowButton;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
-our $VERSION = 79;
+our $VERSION = 80;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -53,6 +54,10 @@ use Glib::Object::Subclass
                           flags => ['run-first','action'],
                           class_closure => \&_do_scroll_action,
                         },
+              # query-tooltip new in 2.12
+              (Gtk2::Widget->signal_query('query_tooltip')
+               ? (query_tooltip => \&_do_query_tooltip)
+               : ()),
              },
   properties => [ Glib::ParamSpec->string
                   ('text',
@@ -90,6 +95,10 @@ sub INIT_INSTANCE {
   my ($self) = @_;
   ### OeisEntry INIT_INSTANCE()...
 
+  # has-tooltip new in 2.12
+  $self->{'tooltip_anum'} = '';
+  $self->{'tooltip_str'} = '';
+  Glib::Ex::ObjectBits::set_property_maybe ($self, has_tooltip => 1);
   # $self->set_spacing (0);
 
   my $entry = $self->{'entry'} = Gtk2::Entry->new;
@@ -131,6 +140,7 @@ sub INIT_INSTANCE {
     ### xt: $button->get_style->xthickness
     $vbox->pack_start ($button, 1,1,0);
   }
+  # _do_query_tooltip ($self);
   $vbox->show_all;
 }
 
@@ -209,6 +219,12 @@ sub _do_entry_populate_popup {
   my $self = $entry->get_ancestor(__PACKAGE__) || return;
   my $weak_self = $self;
   Scalar::Util::weaken($self);
+
+  {
+    my $item = Gtk2::SeparatorMenuItem->new;
+    $menu->append ($item);
+    $item->show;
+  }
   {
     my $item = Gtk2::MenuItem->new_with_mnemonic (__('Open Web _Browser'));
     $menu->append ($item);
@@ -216,8 +232,8 @@ sub _do_entry_populate_popup {
     $item->show;
   }
   {
-    my $item = $self->{'browser_local'} 
-      = Gtk2::MenuItem->new_with_mnemonic (__('Open Web _Browser - Local Page'));
+    my $item = $self->{'browser_local'} = Gtk2::MenuItem->new_with_mnemonic
+      (__('Open Web _Browser - Local File'));
     $menu->append ($item);
     $item->signal_connect (activate => \&_do_browser_local, \$weak_self);
     _update_sensitive($self);
@@ -227,10 +243,10 @@ sub _do_entry_populate_popup {
 sub _update_sensitive {
   my ($self) = @_;
   if (my $item = $self->{'browser_local'}) {
-    if (my $anum = $self->get('text')) {
-      my $filename = _anum_to_filename($anum);
-      $item->set_sensitive (-e $filename);
-    }
+    my ($anum, $filename);
+    $item->set_sensitive (($anum = $self->get('text'))
+                          && ($filename = _anum_to_filename($anum))
+                          && -e $filename);
   }
 }
 sub _do_browser {
@@ -303,8 +319,9 @@ sub _scroll {
   my ($self, $direction, $count) = @_;
   require Math::NumSeq::OEIS::Catalogue;
   my $method = $direction eq 'up' ? 'anum_after' : 'anum_before';
-  my $entry = $self->{'entry'};
-  my $anum  = my $orig_anum = $entry->get_text;
+
+  my $anum = my $orig_anum = $self->get('text');
+
   for ( ; $count > 0; $count--) {
     my $next_anum = Math::NumSeq::OEIS::Catalogue->$method
       ($anum);
@@ -320,13 +337,47 @@ sub _scroll {
     }
   }
   if ($anum ne $orig_anum) {
-    $entry->set_text ($anum);
+    $self->set (text => $anum);
     $self->activate;
   }
 }
 
+sub _do_query_tooltip {
+  my ($self, $x, $y, $keyboard_mode, $tooltip) = @_;
+  ### _do_query_tooltip() ...
+
+  my $anum = $self->get('text');
+  if ($anum ne $self->{'tooltip_anum'}) {
+    $self->{'tooltip_anum'} = $anum;
+
+    my $str;
+    require Math::NumSeq::OEIS::Catalogue;
+    if (my $info = Math::NumSeq::OEIS::Catalogue->anum_to_info($anum)) {
+      $str = $info->{'class'};
+      if ($str eq 'Math::NumSeq::OEIS::File') {
+        $str = "File\n";
+        eval { $str .= Math::NumSeq::OEIS->new(anum=>$anum)->description };
+      } else {
+        $str =~ s/^(Math::NumSeq::|App::MathImage::NumSeq::)//;
+        if (my $parameters = $info->{'parameters'}) {
+          my @eqs;
+          for (my $i = 0; $i < @$parameters; $i+=2) {
+            push @eqs, "$parameters->[$i]=$parameters->[$i+1]";
+          }
+          $str .= "\n" . join(', ', @eqs);
+        }
+      }
+    }
+    ### $str
+    $self->{'tooltip_str'} = $str;
+  }
+  $tooltip->set_text ($self->{'tooltip_str'});
+  return 1; # show tooltip now
+}
+
 sub activate {
   my ($self) = @_;
+  # _do_query_tooltip ($self);
   $self->signal_emit ('activate');
 }
 

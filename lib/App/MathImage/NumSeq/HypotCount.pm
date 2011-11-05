@@ -21,7 +21,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -153,7 +153,7 @@ at least 1, but it may be more.
 
 =over 4
 
-=item C<$seq = App::MathImage::NumSeq::HypotCount-E<gt>new (key=E<gt>value,...)>
+=item C<$seq = App::MathImage::NumSeq::HypotCount-E<gt>new ()>
 
 Create and return a new sequence object.
 

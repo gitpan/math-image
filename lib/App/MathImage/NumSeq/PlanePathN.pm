@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,11 +23,11 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 79;
+$VERSION = 80;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
-use App::MathImage::NumSeq::PlanePathCoord;
+use Math::NumSeq::PlanePathCoord;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -38,7 +38,7 @@ use constant description => Math::NumSeq::__('N values from a PlanePath');
 use constant::defer parameter_info_array =>
   sub {
     return [
-            App::MathImage::NumSeq::PlanePathCoord::_parameter_info_planepath(),
+            Math::NumSeq::PlanePathCoord::_parameter_info_planepath(),
 
             { name    => 'line_type',
               display => Math::NumSeq::__('Line Type'),
@@ -59,11 +59,15 @@ my %oeis_anum
        # OEIS-Catalogue: A163482 planepath=HilbertCurve line_type=X_axis
        # OEIS-Catalogue: A163483 planepath=HilbertCurve line_type=Y_axis
      },
+
+     'Math::PlanePath::ZOrderCurve' =>
+     { X_axis => 'A000695',  # base 4 digits 0 and 1 only
+     },
     );
 
 sub oeis_anum {
   my ($self) = @_;
-  return $oeis_anum{App::MathImage::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'})} -> {$self->{'line_type'}};
+  return $oeis_anum{Math::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'})} -> {$self->{'line_type'}};
 }
 
 sub new {
@@ -73,7 +77,7 @@ sub new {
   my $self = $class->SUPER::new(@_);
 
   my $planepath_object = ($self->{'planepath_object'}
-                          ||= App::MathImage::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'}));
+                          ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'}));
 
   $self->{'i_func'}
     = $self->can('i_func_'.$self->{'line_type'})
@@ -322,6 +326,27 @@ sub values_max {
 # { package Math::PlanePath::MathImageQuintetCentres;
 #   # inherit QuintetCurve
 # }
+
+#------------------------------------------------------------------------------
+{ package Math::PlanePath;
+  use constant MathImage__NumSeq_A2 => 0;
+}
+{ package Math::PlanePath::TriangleSpiral;
+  use constant MathImage__NumSeq_A2 => 1;
+}
+{ package Math::PlanePath::HexSpiral;
+  use constant MathImage__NumSeq_A2 => 1;
+}
+{ package Math::PlanePath::HexArms;
+  use constant MathImage__NumSeq_A2 => 1;
+}
+{ package Math::PlanePath::TriangularHypot;
+  use constant MathImage__NumSeq_A2 => 1;
+}
+{ package Math::PlanePath::Flowsnake;
+  use constant MathImage__NumSeq_A2 => 1;
+  # and FlowsnakeCentres inherits
+}
 
 1;
 __END__

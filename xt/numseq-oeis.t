@@ -170,6 +170,7 @@ sub check_class {
     return;
   }
 
+  #return unless $class =~ /SumTwo/;
   # return unless $class =~ /Mephisto/;
   # return unless $class =~ /Almost/;
   #  return unless $anum eq 'A163540';

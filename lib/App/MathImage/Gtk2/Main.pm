@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 79;
+our $VERSION = 80;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -762,15 +762,15 @@ sub _mouse_message {
     }
   }
   my $values_parameters;
-  if ($radix
-      && ($radix != 10
-          || ($values ne 'Emirps'
-              && ($values_parameters = $draw->get('values-parameters'))
-              && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
-              && ($radix = $values_parameters->{'radix'})
-              && $radix != 10))) {
+  if (! $radix
+      && $values ne 'Emirps'
+      && ($values_parameters = $draw->get('values-parameters'))
+      && $draw->gen_object->values_class->parameter_info_hash->{'radix'}) {
+    $radix = $values_parameters->{'radix'}
+  }
+  if ($radix &&  $radix != 10) {
     my $str = _my_cnv($n,$radix);
-    $message .= " ($str in base $radix)";
+    $message .= " (N=$str in base $radix)";
   }
   return $message . $vstr;
 }

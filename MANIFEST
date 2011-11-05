@@ -122,7 +122,6 @@ lib/App/MathImage/NumSeq/Derived/Cumulative.pm
 lib/App/MathImage/NumSeq/DigitCountHigh.pm
 lib/App/MathImage/NumSeq/DigitCountLow.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
-lib/App/MathImage/NumSeq/GoldenSequence.pm
 lib/App/MathImage/NumSeq/HappySteps.pm
 lib/App/MathImage/NumSeq/HofstadterDiff.pm
 lib/App/MathImage/NumSeq/HypotCount.pm
@@ -135,9 +134,9 @@ lib/App/MathImage/NumSeq/Obstinate.pm
 lib/App/MathImage/NumSeq/Padovan.pm
 lib/App/MathImage/NumSeq/Perrin.pm
 lib/App/MathImage/NumSeq/PiBits.pm
-lib/App/MathImage/NumSeq/PlanePath.pm
-lib/App/MathImage/NumSeq/PlanePathCoord.pm
+lib/App/MathImage/NumSeq/PlanePathDelta.pm
 lib/App/MathImage/NumSeq/PlanePathN.pm
+lib/App/MathImage/NumSeq/PlanePathTurn.pm
 lib/App/MathImage/NumSeq/PrimeIndexCount.pm
 lib/App/MathImage/NumSeq/PrimeIndexPrimes.pm
 lib/App/MathImage/NumSeq/PrimeQuadraticEuler.pm
@@ -146,6 +145,7 @@ lib/App/MathImage/NumSeq/PrimeQuadraticLegendre.pm
 lib/App/MathImage/NumSeq/PythagoreanHypots.pm
 lib/App/MathImage/NumSeq/RepdigitAny.pm
 lib/App/MathImage/NumSeq/RepdigitBase.pm
+lib/App/MathImage/NumSeq/ReplicateDigits.pm
 lib/App/MathImage/NumSeq/ReRound.pm
 lib/App/MathImage/NumSeq/Spectrum.pm
 lib/App/MathImage/NumSeq/SumTwoSquares.pm
@@ -180,7 +180,7 @@ lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
 lib/Math/PlanePath/MathImageCCurve.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
-lib/Math/PlanePath/MathImageFibonacciWordFractal.pm
+lib/Math/PlanePath/MathImageGrayCurve.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageWunderlichCurve.pm
 Makefile.PL
@@ -189,7 +189,6 @@ MANIFEST.SKIP
 math-image
 SIGNATURE
 t/ChampernowneBinary.t
-t/FibonacciWordFractal.t
 t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
