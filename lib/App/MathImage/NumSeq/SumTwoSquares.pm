@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 use Math::NumSeq 7; # v.7 for _is_infinite()
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -70,7 +70,7 @@ sub values_min {
   }
 }
 
-# cf A024507 with repetitions
+# cf A024507 x,y>0, x==y
 #    A024509 x^2+y^2 with repetitions for different ways each can occur
 #    A025284 x^2+y^2 occurring in exactly one way
 #    A001844 2n(n+1)+1 is those hypots with Y=H-1 in X^2+Y^2=H^2
@@ -80,7 +80,7 @@ sub oeis_anum {
   if ($self->{'distinct'}) {
     if ($self->{'including_zero'}) {
       return undef;
-      # return 'A143575';
+      # return 'A143575';  # x,y=0, x!=y
       # # OEIS-Catalogue: A143575 distinct=1 including_zero=1
     } else {
       return 'A004431'; # x,y!=0, and x!=y
@@ -88,10 +88,10 @@ sub oeis_anum {
     }
   } else {
     if ($self->{'including_zero'}) {
-      return 'A001481'; # allow x,y=0, and x==y, so includes plain squares
+      return 'A001481'; # x,y=0, x==y, so includes plain squares
       # OEIS-Catalogue: A001481 including_zero=1
     } else {
-      return 'A000404'; # x,y!=0, allow x==y
+      return 'A000404'; # x,y!=0, x==y
       # OEIS-Catalogue: A000404
     }
   }

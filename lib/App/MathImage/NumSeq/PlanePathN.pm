@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -52,6 +52,7 @@ use constant::defer parameter_info_array =>
            ];
   };
 
+# A062728 triangle spiral X axis, second 11-gonals
 my %oeis_anum
   = ('Math::PlanePath::HilbertCurve' =>
      { X_axis => 'A163482',

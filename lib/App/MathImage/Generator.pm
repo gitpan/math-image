@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 80;
+$VERSION = 81;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -140,6 +140,7 @@ use constant::defer values_choices => sub {
 
                          FractionDigits
                          SqrtDigits
+                         SqrtEngel
                          PiBits
                          Ln2Bits
 
@@ -165,8 +166,8 @@ use constant::defer values_choices => sub {
                          PrimeQuadraticHonaker
 
                          Repdigits
-                         RepdigitAnyBase
-                         RepdigitBase
+                         RepdigitAny
+                         RepdigitRadix
                          RadixWithoutDigit
 
                          Palindromes
@@ -284,6 +285,7 @@ my %pathname_square_grid
                      PeanoCurve
                      HilbertCurve
                      ZOrderCurve
+                     WunderlichMeander
                      BetaOmega
                      ImaginaryBase
                      SquareReplicate
@@ -549,6 +551,7 @@ sub y_negative {
                            PeanoCurve
                            HilbertCurve
                            ZOrderCurve
+                           WunderlichMeander
                            BetaOmega
                            ImaginaryBase
                            SquareReplicate
@@ -1059,6 +1062,8 @@ sub colours_grey_exp {
   my $shrink = 0.6;
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
+  } elsif ($self->{'values'} eq 'RepdigitRadix') {
+    $shrink = .9;
   } elsif ($self->{'values'} eq 'CunninghamChain') {
     $shrink = .7;
   } elsif ($self->{'values'} eq 'TotientSteps') {
@@ -1093,7 +1098,9 @@ sub colours_grey_exp {
     $shrink = .98;
   } elsif ($self->{'values'} eq 'DigitCount') {
     $shrink = .8;
-  } elsif ($self->{'values'} eq 'RepdigitBase') {
+  } elsif ($self->{'values'} eq 'RepdigitRadix') {
+    $shrink = .95;
+  } elsif ($self->{'values'} eq 'Runs') {
     $shrink = .95;
   }
   for (;;) {
@@ -1271,7 +1278,8 @@ sub draw_Image_start {
       foreach (2 .. $level) {
         $n_angle = (7 * $n_angle + 0);
       }
-    } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')) {
+    } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')
+             || $path_object->isa ('Math::PlanePath::WunderlichMeander')) {
       $n_hi = 9 ** $level - 1;
     } elsif ($path_object->isa ('Math::PlanePath::BetaOmega')) {
       $n_hi = 4 ** $level - 1;

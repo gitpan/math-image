@@ -29,7 +29,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -229,7 +229,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageComplexPlus -- points in quater-imaginary base 2i
+Math::PlanePath::MathImageComplexPlus -- points in complex base i+r
 
 =head1 SYNOPSIS
 

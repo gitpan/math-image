@@ -28,7 +28,7 @@ use App::MathImage::Generator;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 # use Locale::TextDomain ('App-MathImage');
 
@@ -40,7 +40,7 @@ $VERSION = 80;
 # use App::MathImage::Gtk1::Ex::AdjustmentBits;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -78,7 +78,7 @@ sub GTK_OBJECT_INIT {
   # defaults
   my $default_options = App::MathImage::Generator->default_options;
   $self->{'draw-progressive'} = 1;
-  $self->{'scale'} = 3;
+  $self->{'scale'} = 100;
   $self->{'figure'} = 'default';
   $self->{'values'} = $default_options->{'values'};
   $self->{'path'} = $default_options->{'path'};
@@ -93,13 +93,13 @@ sub GTK_OBJECT_INIT {
     my $hadj = Gtk::Adjustment->new (0,0,0,0,0,0);
     $hadj->signal_connect (value_changed => \&_adjustment_value_changed,
                            \$weak_self);
-    # $self->{'hadjustment'}
+    $self->{'hadjustment'} = $hadj;
   }
   {
     my $vadj = Gtk::Adjustment->new (0,0,0,0,0,0);
     $vadj->signal_connect (value_changed => \&_adjustment_value_changed,
                            \$weak_self);
-    # $self->{'vadjustment'}
+    $self->{'vadjustment'} = $vadj;
   }
 
   $self->{'path_basis'} = [ _centre_basis($self) ];
@@ -371,11 +371,16 @@ sub gen_object {
   ### $generator_class
   ### draw-progressive: $self->get('draw-progressive')
 
+  # FIXME: this provokes some warnings ...
+  my $gtkmain = $self->get_ancestor('Gtk::Window');
+  ### x_left:   $self->{'hadjustment'}->value
+  ### y_bottom: $self->{'vadjustment'}->value
+
   Module::Load::load ($generator_class);
   return $generator_class->new
     (widget  => $self,
      window  => $self->window,
-     gtkmain => $self->get_ancestor('Gtk::Window'),
+     gtkmain => $gtkmain,
 
      foreground       => _colorobj_to_string($foreground_colorobj),
      background       => _colorobj_to_string($background_colorobj),
@@ -401,8 +406,8 @@ sub gen_object {
      figure          => $self->get('figure'),
      
      # filter          => $self->get('filter'),
-     # x_left          => $self->{'hadjustment'}->value,
-     # y_bottom        => $self->{'vadjustment'}->value,
+     x_left          => $self->{'hadjustment'}->value,
+     y_bottom        => $self->{'vadjustment'}->value,
 
      # widgetcursor    => $self->widgetcursor,
      %gen_parameters);
@@ -477,9 +482,13 @@ sub pointer_xy_to_image_xyn {
 sub centre {
   my ($self) = @_;
   ### Drawing centre()...
+  ### hadj: $self->{'hadjustment'}->value
+  ### vadj: $self->{'vadjustment'}->value
   my ($x, $y) = _centre_values($self);
-  $self->{'hadjustment'}->set_value ($x);
+  $self->{'hadjustment'}->set_value ($self->{'hadjustment'}->value + 100); #  ($x + 100);
   $self->{'vadjustment'}->set_value ($y);
+  ### hadj: $self->{'hadjustment'}->value
+  ### vadj: $self->{'vadjustment'}->value
 }
 sub _centre_values {
   my ($self) = @_;

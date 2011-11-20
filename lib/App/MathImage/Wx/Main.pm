@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 80;
+our $VERSION = 81;
 
 sub new {
   my ($class, $label) = @_;
@@ -309,7 +309,7 @@ sub mouse_motion {
           my $value = $values_obj->ith($n);
           $vstr = " value=$value";
           if ($value &&
-              $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+              $values_obj->isa('App::MathImage::NumSeq::RepdigitRadix')) {
             $radix = $value;
           }
         }

@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 80;
+$VERSION = 81;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;

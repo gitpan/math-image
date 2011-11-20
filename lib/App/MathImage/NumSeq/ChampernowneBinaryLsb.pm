@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -34,7 +34,7 @@ use constant values_min => 0;
 #use Smart::Comments;
 
 # Champernowne sequence in binary 1s and 0s
-#   http://oeis.org/A030190
+#   http://oeis.org/
 #
 # as integer positions
 #   http://oeis.org/A030310

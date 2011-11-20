@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -37,37 +37,45 @@ use constant description => Math::NumSeq::__('Champernowne sequence 1 positions,
 use constant values_min => 1;
 use constant characteristic_monotonic => 2;
 
-# A030190 - Champernowne sequence in binary 1s and 0s, starting from 0
-# A030302 - binary starting from 1
-# A030303 - positions of 1 in starting from 1
-# A030308 - binary reverse starting from 1
-# A030309 - positions of 0 in reverse
-# A030310 - positions of 1 in reverse
-
-#
 # 0 1 10  11 100 101  110 111
 #   1 2  4,5 6   9,11 12,13 15,16,17,
 #    
-# cf A007376 - decimal digits concatenated Barbier infinite word
-#    A054632 -    partial sums of that series
-#    A033307
-#    A031298 - decimal reverse to LSB digit first
-#    A031035 - octal starting from 1
-#    A054634 - octal starting from 0
-#    A031045 - octal reverse
-#    A031076 - base 9
-#    A031087 - base 9 reversed
-#    A030998 - base 7
-#    A031007 - base 7 reversed
-#    A003137 - ternary starting 1
-#    A054635 - ternary starting 0
-#    A054637 -    ternary partial sums
+# cf A030302 - base 2, starting i=1 value=1
+#    A030190 - base 2, start i=0 value=0
+#    A030303 - base 2 positions of 1s, start 1
+#    A030308 - binary reverse starting from 1
+#    A030309 - positions of 0 in reverse
+#    A030310 - positions of 1 in reverse
+#    A030305 - base 2 lengths of runs of 0s
+#    A030306 - base 2 lengths of runs of 1s
 #
-#    A136414 - decimal 2 digits at a time
+#    A003137 - base 3, start i=1 value=1
+#    A054635 - base 3, start i=0 value=0
+#    A054637 - base 3 partial sums, start i=0 value=0
+#
+#    A030998 - base 7, start i=0 value=0
+#    A031007 - base 7 reverse, start i=1 value=1
+#
+#    A031035 - base 8, start i=1 value=1
+#    A054634 - base 8, start i=0 value=0
+#    A031045 - base 8 reverse, start i=1 value=1
+#
+#    A031076 - base 9, start i=1 value=1
+#    A031087 - base 9 reverse, start i=1 value=1
+#
+#    A033307 - decimal, start i=1 value=1
+#    A007376 - same, decimal, Barbier infinite word, start i=1 value=1
+#    A054632 - decimal partial sums
+#    A031298 - decimal reverse to LSB digit first, start i=1 value=1
+#
+#    A136414 - decimal 2 digits at a time, start i=1 value=1
 #    A193431 - decimal 3 digits at a time
 #    A193492 - decimal 4 digits at a time
 #    A193493 - decimal 5 digits at a time
-#    A001704, A127421 - concatenate n,n+1
+#    A001704 - concatenate n,n+1
+#    A127421 - numbers concat of n,n+1, eg. 1819
+#
+#    A033308 - concatenate primes
 #
 # sub oeis_anum {
 #   my ($class_or_self) = @_;
@@ -78,7 +86,7 @@ use constant characteristic_monotonic => 2;
 #   return undef;
 # }
 #
-use constant oeis_anum => 'A030303';
+use constant oeis_anum => 'A030303'; # position of i'th 1
 
 
 sub rewind {

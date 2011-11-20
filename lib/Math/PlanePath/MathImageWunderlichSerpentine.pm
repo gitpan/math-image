@@ -21,17 +21,16 @@
 #
 # Walter Wunderlich. Uber Peano-Kurven. Elemente der Mathematik, 28(1):1-10, 1973.
 # Coil order 111 111 111
-# switch-back vs meandering
 # 
 
 
-package Math::PlanePath::MathImageWunderlichCurve;
+package Math::PlanePath::MathImageWunderlichSerpentine;
 use 5.004;
 use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -39,7 +38,24 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
+
+use constant parameter_info_array =>
+  [ { name      => 'serpentine_type',
+      type      => 'integer',
+      default   => 0b101_010_101,
+      minimum   => 0,
+      width     => 4,
+    },
+    { name      => 'radix',
+      share_key => 'radix_3',
+      type      => 'integer',
+      minimum   => 2,
+      default   => 3,
+      width     => 3,
+    },
+  ];
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -51,13 +67,15 @@ sub new {
   if (! $self->{'radix'} || $self->{'radix'} < 2) {
     $self->{'radix'} = 3;
   }
+  $self->{'serpentine_type'} ||= ~0;
   return $self;
 }
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### WunderlichCurve n_to_xy(): $n
-  if ($n < 0) {            # negative
+  ### WunderlichSerpentine n_to_xy(): $n
+
+  if ($n < 0) {
     return;
   }
   if (_is_infinite($n)) {
@@ -84,51 +102,91 @@ sub n_to_xy {
   # high to low
   my $radix = $self->{'radix'};
   my $radix_minus_1 = $radix - 1;
-  my (@n);
-  while ($n) {
-    push @n, $n % $radix; $n = int($n/$radix);
-    push @n, $n % $radix; $n = int($n/$radix);
-  }
+  # my (@digits);
+  # while ($n) {
+  #   push @digits, $n % $radix; $n = int($n/$radix);
+  #   push @digits, $n % $radix; $n = int($n/$radix);
+  # }
+
+  my $serpentine = $self->{'serpentine_type'};
   my $x = 0;
   my $y = 0;
-  my $xk = 0;
-  my $yk = 0;
-  while (@n) {
-    if (($xk ^ $yk) & 1) {
-      {
-        my $digit = pop @n;
-        $yk ^= $digit;
-        $x *= $radix;
-        $x += ($xk & 1 ? $radix_minus_1-$digit : $digit);
-      }
-      {
-        my $digit = pop @n;
-        $xk ^= $digit;
-        $y *= $radix;
-        $y += ($yk & 1 ? $radix_minus_1-$digit : $digit);
-      }
-    } else {
-      {
-        my $digit = pop @n;
-        $xk ^= $digit;
-        $y *= $radix;
-        $y += ($yk & 1 ? $radix_minus_1-$digit : $digit);
-      }
-      {
-        my $digit = pop @n;
-        $yk ^= $digit;
-        $x *= $radix;
-        $x += ($xk & 1 ? $radix_minus_1-$digit : $digit);
-      }
+  my $power = $x + 1;      # inherit bignum 1
+  my $odd = 1;
+  while ($n) {
+    $odd ^= 1;
+    ### $n
+    ### $power
+
+    my $xdigit = $n % $radix;
+    $n = int($n/$radix);
+    my $ydigit = $n % $radix;
+    $n = int($n/$radix);
+
+    ### $xdigit
+    ### $ydigit
+
+    if (($serpentine >> ($xdigit + $radix*$ydigit)) & 1) {
+      ($x,$y) = ($y,$x);
+      ### transpose to: "$x,$y"
+    }
+
+    if ($xdigit & 1) {
+      $y = $power-1 - $y;   # 99..99 - Y
+    }
+    $x += $power * $xdigit;
+
+    $y += $power * $ydigit;
+    $power *= $radix;
+    if ($ydigit & 1) {
+      $x = $power-1 - $x;
     }
   }
+
+  if ($odd && ($serpentine & 1)) {
+    ($x,$y) = ($y,$x);
+    ### transpose to: "$x,$y"
+  }
+
+  return ($x, $y);
+
+
+
+
+
+  # my $xk = 0;
+  # my $yk = 0;
+  # my $transpose = 0;
+  #
+  # while (@digits) {
+  #   my $ydigit = pop @digits;
+  #   my $xdigit = pop @digits;
+  #
+  #   if ($transpose) {
+  #     ($xdigit,$ydigit) = ($ydigit,$xdigit);
+  #   }
+  #   $transpose ^= ($serpentine >> ($xdigit + $radix*$ydigit)) & 1;
+  #   # if ($xdigit & 1) {
+  #   #   $ydigit = $radix_minus_1 - $ydigit;
+  #   # }
+  #   if ($ydigit & 1) {
+  #     $xdigit = $radix_minus_1 - $xdigit;
+  #   }
+  #
+  #   $x *= $radix;
+  #   $x += $xdigit;
+  #
+  #   $y *= $radix;
+  #   $y += $ydigit;
+  # }
+
   ### is: "$x,$y"
   return ($x, $y);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### WunderlichCurve xy_to_n(): "$x, $y"
+  ### WunderlichSerpentine xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
@@ -137,6 +195,8 @@ sub xy_to_n {
       || _is_infinite($y)) {
     return undef;
   }
+
+  return undef;
 
   # my $radix = $self->{'radix'};
   # my $power = 1;
@@ -406,26 +466,28 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Walter Wunderlich Wunderlich's there'll HilbertCurve eg Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit WunderlichCurve Math-PlanePath versa Online
+=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online PeanoCurve radix Uber Peano Kurven Elemente der Mathematik
 
 =head1 NAME
 
-Math::PlanePath::MathImageWunderlichCurve -- 3x3 self-similar quadrant traversal
+Math::PlanePath::MathImageWunderlichSerpentine -- 3x3 self-similar quadrant traversal
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageWunderlichCurve;
- my $path = Math::PlanePath::MathImageWunderlichCurve->new;
+ use Math::PlanePath::MathImageWunderlichSerpentine;
+ my $path = Math::PlanePath::MathImageWunderlichSerpentine->new (serpentine_type => 0b111000111;
  my ($x, $y) = $path->n_to_xy (123);
 
  # or another radix digits ...
- my $path5 = Math::PlanePath::MathImageWunderlichCurve->new (radix => 5);
+ my $path5 = Math::PlanePath::MathImageWunderlichSerpentine->new (radix => 5);
 
 =head1 DESCRIPTION
 
 I<In progress.>
 
-This path is an integer version of ...
+This is an integer version of Walter Wunderlich's variations on the
+PeanoCurve.  A "serpentine type" controls which combination of the nine
+sub-parts are transposed.  For example "010 101 010" gives
 
        8    60--61--62--63  68--69  78--79--80--81 
              |           |   |   |   |           | 
@@ -445,7 +507,33 @@ This path is an integer version of ...
                      |   |   |   |           | 
       Y=0    0-- 1-- 2  11--12  17--18--19--20 
 
-           X=0   1   2   3   4   5   6   7   8   9 ...
+           X=0   1   2   3   4   5   6   7   8
+
+=head2 Coil Order
+
+C<serpentine_type =E<gt> -1> transposes all parts, giving what is sometimes
+called a "coil order",
+
+     8      24--25--26--27--28--29  78--79--80--81--...
+             |                   |   |          
+     7      23--22--21  32--31--30  77--76--75  
+                     |   |                   |  
+     6      18--19--20  33--34--35  72--73--74  
+             |                   |   |          
+     5      17--16--15  38--37--36  71--70--69  
+                     |   |                   |  
+     4      12--13--14  39--40--41  66--67--68  
+             |                   |   |          
+     3      11--10-- 9  44--43--42  65--64--63  
+                     |   |                   |  
+     2       6-- 7-- 8  45--46--47  60--61--62  
+             |                   |   |          
+     1       5-- 4-- 3  50--49--48  59--58--57 
+                     |   |                   |  
+    Y=0      0-- 1-- 2  51--52--53--54--55--56 
+
+           X=0   1   2   3   4   5   6   7   8
+
 
 =head1 FUNCTIONS
 
@@ -454,9 +542,9 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageWunderlichCurve-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageWunderlichSerpentine-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::MathImageWunderlichCurve-E<gt>new (radix =E<gt> $r)>
+=item C<$path = Math::PlanePath::MathImageWunderlichSerpentine-E<gt>new (radix =E<gt> $r)>
 
 Create and return a new path object.
 
@@ -464,42 +552,26 @@ The optional C<radix> parameter gives the base for digit splitting.  The
 default is ternary, radix 3.  The radix should be an odd number, 3, 5, 7, 9
 etc.
 
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.  Points begin
-at 0 and if C<$n E<lt> 0> then the return is an empty list.
-
-Fractional positions give an X,Y position along a straight line between the
-integer positions.  Integer positions are always just 1 apart either
-horizontally or vertically, so the effect is that the fraction part appears
-either added to or subtracted from X or Y.
-
-=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
-
-Return an integer point number for coordinates C<$x,$y>.  Each integer N is
-considered the centre of a unit square and an C<$x,$y> within that square
-returns N.
-
-=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
-
-Return a range of N values which occur in a rectangle with corners at
-C<$x1>,C<$y1> and C<$x2>,C<$y2>.  If the X,Y values are not integers then
-the curve is treated as unit squares centred on each integer point and
-squares which are partly covered by the given rectangle are included.
-
 =back
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::PeanoSerpentine>
+
+Walter Wunderlich "Uber Peano-Kurven", Elemente der Mathematik, 28(1):1-10,
+1973.
+
+    http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/
+    http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/pdf/125.pdf
 
 =cut
 
 # Local variables:
-# compile-command: "math-image --path=MathImageWunderlichCurve --lines --scale=10"
+# compile-command: "math-image --path=MathImageWunderlichSerpentine --lines --scale=10"
 # End:
 #
-# math-image --path=MathImageWunderlichCurve --all --output=numbers_dash
-# math-image --path=MathImageWunderlichCurve,radix=5 --all --output=numbers_dash
+# math-image --path=MathImageWunderlichSerpentine --all --output=numbers_dash
+# math-image --path=MathImageWunderlichSerpentine,radix=5 --all --output=numbers_dash
+# math-image --path=MathImageWunderlichSerpentine,serpentine_type=170 --all --output=numbers_dash
 #

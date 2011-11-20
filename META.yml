@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            80
+version:            81
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -15,7 +15,6 @@ requires:
     Compress::Zlib:       0
     constant:             1.02
     constant::defer:      0
-    Data::Float:          0
     File::Copy:           2.14
     File::HomeDir:        0
     Geometry::AffineTransform:  1.3
@@ -72,6 +71,7 @@ requires:
     Math::NumSeq::Base::IteratePred:  1
     Math::NumSeq::Base::Sparse:  1
     Math::NumSeq::DigitCount:  4
+    Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
     Math::NumSeq::Totient:  13
@@ -86,6 +86,7 @@ requires:
     Module::Util:         0
     Number::Format:       0
     perl:                 5.008
+    Proc::SyncExec:       0
     Scalar::Util:         1.18
     Scope::Guard:         0
     Software::License::GPL_3:  0.001
@@ -123,6 +124,13 @@ optional_features:
             X11::Protocol::Other:  1
             X11::Protocol::WM:    2
             X11::Protocol::XSetRoot:  3
+    gtk1_interface:
+        description:  Gtk 1.x GUI modules.
+        requires:
+            Gtk:                  0
+            Gtk::Ex::Statusbar::MessageUntilKey:  0
+            Image::Base::Gtk::Gdk::Pixmap:  0
+            Image::Base::Gtk::Gdk::Window:  0
     gtk2_optionals:
         description:  Gtk2 things used if available.
         requires:
@@ -148,11 +156,16 @@ optional_features:
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
         requires:
+            Browser::Open:        0
+            Gtk:                  0
             Gtk2::Ex::CrossHair:  0
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
             Gtk2::Ex::QuadButton:  0
+            Gtk::Ex::Statusbar::MessageUntilKey:  0
             Image::Base::GD:      8
+            Image::Base::Gtk::Gdk::Pixmap:  0
+            Image::Base::Gtk::Gdk::Window:  0
             Image::Base::Imager:  0
             Image::Base::Magick:  0
             Image::Base::PNGwriter:  7
@@ -175,6 +188,8 @@ optional_features:
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  1
             Math::NumSeq::DigitCount:  13
+            Math::NumSeq::DigitCountHigh:  16
+            Math::NumSeq::DigitCountLow:  16
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
@@ -205,7 +220,7 @@ optional_features:
             Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   10
-            Math::NumSeq::PlanePathCoord:  53
+            Math::NumSeq::PlanePathCoord:  54
             Math::NumSeq::Polygonal:  8
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
@@ -213,9 +228,11 @@ optional_features:
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
             Math::NumSeq::RadixWithoutDigit:  1
+            Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtDigits:  1
+            Math::NumSeq::SqrtEngel:  1
             Math::NumSeq::Squares:  1
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
@@ -230,8 +247,8 @@ optional_features:
             Math::NumSeq::WoodallNumbers:  1
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
-            Math::PlanePath::BetaOmega:  52
-            Math::PlanePath::CellularRule190:  51
+            Math::PlanePath::BetaOmega:  54
+            Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
@@ -301,6 +318,7 @@ optional_features:
             Math::PlanePath::UlamWarburton:  48
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
+            Math::PlanePath::WunderlichMeander:  54
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
@@ -327,6 +345,8 @@ optional_features:
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  1
             Math::NumSeq::DigitCount:  13
+            Math::NumSeq::DigitCountHigh:  16
+            Math::NumSeq::DigitCountLow:  16
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  1
             Math::NumSeq::DigitProduct:  2
@@ -357,7 +377,7 @@ optional_features:
             Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   10
-            Math::NumSeq::PlanePathCoord:  53
+            Math::NumSeq::PlanePathCoord:  54
             Math::NumSeq::Polygonal:  8
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
@@ -365,9 +385,11 @@ optional_features:
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
             Math::NumSeq::RadixWithoutDigit:  1
+            Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtDigits:  1
+            Math::NumSeq::SqrtEngel:  1
             Math::NumSeq::Squares:  1
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
@@ -385,8 +407,8 @@ optional_features:
         requires:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
-            Math::PlanePath::BetaOmega:  52
-            Math::PlanePath::CellularRule190:  51
+            Math::PlanePath::BetaOmega:  54
+            Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
@@ -456,6 +478,7 @@ optional_features:
             Math::PlanePath::UlamWarburton:  48
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
+            Math::PlanePath::WunderlichMeander:  54
             Math::PlanePath::ZOrderCurve:  34
     maximum_tests:
         description:  Have "make test" do as much as possible.
@@ -479,6 +502,7 @@ optional_features:
             Tk::PNG:   0
             Tk::TIFF:  0
 recommends:
+    Browser::Open:        0
     Gtk2::Ex::CrossHair:  0
     Gtk2::Ex::ErrorTextDialog::Handler:  7
     Gtk2::Ex::PodViewer:  0
@@ -498,6 +522,8 @@ recommends:
     Math::NumSeq::Cubes:  1
     Math::NumSeq::CullenNumbers:  1
     Math::NumSeq::DigitCount:  13
+    Math::NumSeq::DigitCountHigh:  16
+    Math::NumSeq::DigitCountLow:  16
     Math::NumSeq::DigitLength:  1
     Math::NumSeq::DigitLengthCumulative:  1
     Math::NumSeq::DigitProduct:  2
@@ -528,7 +554,7 @@ recommends:
     Math::NumSeq::OEIS:   13
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Pell:   10
-    Math::NumSeq::PlanePathCoord:  53
+    Math::NumSeq::PlanePathCoord:  54
     Math::NumSeq::Polygonal:  8
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
@@ -536,9 +562,11 @@ recommends:
     Math::NumSeq::Pronic:  1
     Math::NumSeq::ProthNumbers:  1
     Math::NumSeq::RadixWithoutDigit:  1
+    Math::NumSeq::RepdigitAny:  16
     Math::NumSeq::Repdigits:  1
     Math::NumSeq::SophieGermainPrimes:  4
     Math::NumSeq::SqrtDigits:  1
+    Math::NumSeq::SqrtEngel:  1
     Math::NumSeq::Squares:  1
     Math::NumSeq::StarNumbers:  1
     Math::NumSeq::SternDiatomic:  4
@@ -553,8 +581,8 @@ recommends:
     Math::NumSeq::WoodallNumbers:  1
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
-    Math::PlanePath::BetaOmega:  52
-    Math::PlanePath::CellularRule190:  51
+    Math::PlanePath::BetaOmega:  54
+    Math::PlanePath::CellularRule190:  54
     Math::PlanePath::CellularRule54:  40
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
@@ -624,6 +652,7 @@ recommends:
     Math::PlanePath::UlamWarburton:  48
     Math::PlanePath::UlamWarburtonQuarter:  49
     Math::PlanePath::VogelFloret:  12
+    Math::PlanePath::WunderlichMeander:  54
     Math::PlanePath::ZOrderCurve:  34
     Math::Symbolic:       0.605
     X11::AtomConstants:   2

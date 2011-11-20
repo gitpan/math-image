@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 1504;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
-use App::MathImage::NumSeq::RepdigitAny;
+use App::MathImage::NumSeq::RepdigitRadix;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,40 +35,48 @@ use App::MathImage::NumSeq::RepdigitAny;
 # VERSION
 
 {
-  my $want_version = 80;
-  ok ($App::MathImage::NumSeq::RepdigitAny::VERSION, $want_version, 'VERSION variable');
-  ok (App::MathImage::NumSeq::RepdigitAny->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 81;
+  ok ($App::MathImage::NumSeq::RepdigitRadix::VERSION, $want_version, 'VERSION variable');
+  ok (App::MathImage::NumSeq::RepdigitRadix->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::RepdigitAny->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::NumSeq::RepdigitRadix->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::RepdigitAny->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::NumSeq::RepdigitRadix->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 }
 
 
 #------------------------------------------------------------------------------
-# next()
+# next() and ith()
 
-sub collect {
-  my ($seq, $count) = @_;
-  my @i;
-  my @values;
-  foreach (1 .. ($count||11)) {
-    my ($i, $value) = $seq->next
-      or last;
-    push @i, $i;
-    push @values, $value;
+sub is_a_repdigit {
+  my ($n, $radix) = @_;
+  my $digit = $n % $radix;
+  for (;;) {
+    $n = int($n/$radix);
+    if ($n) {
+      if (($n % $radix) != $digit) {
+        return 0;
+      }
+    } else {
+      return 1;
+    }
   }
-  return join(',',@i) . ' -- ' . join(',',@values);
 }
-    
+
 {
-  my $seq = App::MathImage::NumSeq::RepdigitAny->new;
-  ok ($seq->oeis_anum, 'A167782');
-  ok (collect($seq), '1,2,3,4,5,6,7,8,9,10,11 -- 0,7,13,15,21,26,31,40,42,43,57');
+  my $seq = App::MathImage::NumSeq::RepdigitRadix->new;
+  foreach my $i ($seq->i_start .. 500) {
+    my ($got_i, $radix) = $seq->next;
+    ok ($got_i, $i);
+    ok ($radix == 0 || is_a_repdigit($i,$radix));
+
+    my $ith_radix = $seq->ith($i);
+    ok ($radix, $ith_radix);
+  }
 }
 
 exit 0;

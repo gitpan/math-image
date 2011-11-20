@@ -16,14 +16,9 @@ devel/camel.pl
 devel/exe-misc.c
 devel/exe-perrin.c
 devel/fraction-entry.pl
-devel/gdk-drawable.pl
 devel/gen-bits.c
 devel/gen-bits.pl
-devel/Gtk1-Drawable.t
 devel/Gtk1-Main-weaken.t
-devel/Gtk1-Pixbuf.t
-devel/Gtk1-Pixmap.t
-devel/Gtk1-Window.t
 devel/gtk1.pl
 devel/heatmap.pl
 devel/inverse.pl
@@ -38,7 +33,6 @@ devel/perrin.pl
 devel/pixbuf-types.pl
 devel/prima.pl
 devel/pythagorean-columns.pl
-devel/repdigit.pl
 devel/rle.pl
 devel/run-about.pl
 devel/run-pod.pl
@@ -48,6 +42,7 @@ devel/tk-savedialog.pl
 devel/tool-combotext.pl
 devel/unused.pl
 devel/Wx-DC.t
+devel/wx-oninit.pl
 devel/wx.pl
 devel/x11-protocol.pl
 devel/x11-splash.pl
@@ -60,10 +55,8 @@ lib/App/MathImage/Generator.pm
 lib/App/MathImage/Gtk1/AboutDialog.pm
 lib/App/MathImage/Gtk1/Drawing.pm
 lib/App/MathImage/Gtk1/Ex/IdleHandler.pm
-lib/App/MathImage/Gtk1/Ex/KeySnooper.pm
 lib/App/MathImage/Gtk1/Ex/SignalIds.pm
 lib/App/MathImage/Gtk1/Ex/SpinButtonBits.pm
-lib/App/MathImage/Gtk1/Ex/Statusbar/MessageUntilKey.pm
 lib/App/MathImage/Gtk1/Ex/SyncCall.pm
 lib/App/MathImage/Gtk1/Ex/Units.pm
 lib/App/MathImage/Gtk1/Ex/WidgetBits.pm
@@ -98,11 +91,6 @@ lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
 lib/App/MathImage/Gtk2/X11.pm
 lib/App/MathImage/Image/Base/BMP.pm
-lib/App/MathImage/Image/Base/Gtk/Gdk/Drawable.pm
-lib/App/MathImage/Image/Base/Gtk/Gdk/Image.pm
-lib/App/MathImage/Image/Base/Gtk/Gdk/Pixbuf.pm
-lib/App/MathImage/Image/Base/Gtk/Gdk/Pixmap.pm
-lib/App/MathImage/Image/Base/Gtk/Gdk/Window.pm
 lib/App/MathImage/Image/Base/LifeBitmap.pm
 lib/App/MathImage/Image/Base/LifeRLE.pm
 lib/App/MathImage/Image/Base/Other.pm
@@ -119,8 +107,9 @@ lib/App/MathImage/NumSeq/ChampernowneBinaryLsb.pm
 lib/App/MathImage/NumSeq/CunninghamChain.pm
 lib/App/MathImage/NumSeq/CunninghamPrimes.pm
 lib/App/MathImage/NumSeq/Derived/Cumulative.pm
-lib/App/MathImage/NumSeq/DigitCountHigh.pm
-lib/App/MathImage/NumSeq/DigitCountLow.pm
+lib/App/MathImage/NumSeq/DigitMedian.pm
+lib/App/MathImage/NumSeq/DigitMiddle.pm
+lib/App/MathImage/NumSeq/FibbinaryBitCount.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/HappySteps.pm
 lib/App/MathImage/NumSeq/HofstadterDiff.pm
@@ -143,10 +132,10 @@ lib/App/MathImage/NumSeq/PrimeQuadraticEuler.pm
 lib/App/MathImage/NumSeq/PrimeQuadraticHonaker.pm
 lib/App/MathImage/NumSeq/PrimeQuadraticLegendre.pm
 lib/App/MathImage/NumSeq/PythagoreanHypots.pm
-lib/App/MathImage/NumSeq/RepdigitAny.pm
-lib/App/MathImage/NumSeq/RepdigitBase.pm
+lib/App/MathImage/NumSeq/RepdigitRadix.pm
 lib/App/MathImage/NumSeq/ReplicateDigits.pm
 lib/App/MathImage/NumSeq/ReRound.pm
+lib/App/MathImage/NumSeq/Runs.pm
 lib/App/MathImage/NumSeq/Spectrum.pm
 lib/App/MathImage/NumSeq/SumTwoSquares.pm
 lib/App/MathImage/NumSeq/SumXsq3Ysq.pm
@@ -178,11 +167,16 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
+lib/Math/PlanePath/MathImageAR2W2Curve.pm
 lib/Math/PlanePath/MathImageCCurve.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
+lib/Math/PlanePath/MathImageDekkingCurve.pm
+lib/Math/PlanePath/MathImageDekkingStraight.pm
 lib/Math/PlanePath/MathImageGrayCurve.pm
+lib/Math/PlanePath/MathImageKochelCurve.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
-lib/Math/PlanePath/MathImageWunderlichCurve.pm
+lib/Math/PlanePath/MathImageTerdragonCurve.pm
+lib/Math/PlanePath/MathImageWunderlichSerpentine.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
@@ -206,7 +200,7 @@ t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
-t/RepdigitAny.t
+t/RepdigitRadix.t
 t/UndulatingNumbers.t
 t/ValuesFile.t
 t/X11-Protocol-Splash.t

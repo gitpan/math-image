@@ -21,11 +21,11 @@ use 5.004;
 use strict;
 use Carp;
 use Scalar::Util;
-use App::MathImage::Image::Base::Gtk::Gdk::Pixmap;
-use App::MathImage::Image::Base::Gtk::Gdk::Window;
+use Image::Base::Gtk::Gdk::Pixmap;
+use Image::Base::Gtk::Gdk::Window;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use App::MathImage::Generator;
 @ISA = ('App::MathImage::Generator');
@@ -58,18 +58,17 @@ sub new {
     || croak 'Gtk1-Generator no window specified';
   my ($width, $height) = $window->get_size;
 
-  my $image
-    = App::MathImage::Image::Base::Gtk::Gdk::Pixmap->new
-      (-for_drawable => $window,
-       -colormap     => Gtk::Gdk::Colormap->get_system,
-       -depth        => 24,
-       -width        => $width,
-       -height       => $height);
+  my $image = Image::Base::Gtk::Gdk::Pixmap->new
+    (-for_drawable => $window,
+     -colormap     => Gtk::Gdk::Colormap->get_system,
+     -depth        => 24,
+     -width        => $width,
+     -height       => $height);
   $self->{'pixmap'} = $image->get('-pixmap');
 
   if ($self->{'draw_progressive'}) {
-    require App::MathImage::Image::Base::Gtk::Gdk::Window;
-    my $image_window = App::MathImage::Image::Base::Gtk::Gdk::Window->new
+    require Image::Base::Gtk::Gdk::Window;
+    my $image_window = Image::Base::Gtk::Gdk::Window->new
       (-drawable => $window,
        -colormap => Gtk::Gdk::Colormap->get_system);
     $window->clear;
@@ -87,9 +86,9 @@ sub new {
     if (($main = $self->{'gtkmain'})
         && ($statusbar = $main->get('statusbar'))) {
       ### $statusbar
-      require App::MathImage::Gtk1::Ex::Statusbar::MessageUntilKey;
+      require Gtk::Ex::Statusbar::MessageUntilKey;
       $err =~ s/\n+$//;  # no trailing newlines
-      App::MathImage::Gtk1::Ex::Statusbar::MessageUntilKey->message($statusbar, $err);
+      Gtk::Ex::Statusbar::MessageUntilKey->message($statusbar, $err);
     }
 
     undef $self->{'path_object'};

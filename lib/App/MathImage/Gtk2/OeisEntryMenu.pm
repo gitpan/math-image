@@ -22,7 +22,7 @@ use warnings;
 use Gtk2;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 80;
+our $VERSION = 81;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',
@@ -143,24 +143,24 @@ App::MathImage::Gtk2::OeisEntryMenu -- menu of things in an OEIS entrybox
 
 =head1 SYNOPSIS
 
- use App::MathImage::OeisEntryMenu;
- my $menu = App::MathImage::OeisEntryMenu->new;
+ use App::MathImage::Gtk2::OeisEntryMenu;
+ my $menu = App::MathImage::Gtk2::OeisEntryMenu->new;
 
- App::MathImage::OeisEntryMenu->popup_from_entry ($event, $oeis_entry);
+ App::MathImage::Gtk2::OeisEntryMenu->popup_from_entry ($event, $oeis_entry);
 
 =head1 WIDGET HIERARCHY
 
-C<App::MathImage::OeisEntryMenu> is a subclass of C<Gtk::Menu>,
+C<App::MathImage::Gtk2::OeisEntryMenu> is a subclass of C<Gtk::Menu>,
 
     Gtk2::Widget
       Gtk2::Container
         Gtk2::MenuShell
           Gtk2::Menu
-            App::MathImage::OeisEntryMenu
+            App::MathImage::Gtk2::OeisEntryMenu
 
 =head1 DESCRIPTION
 
-An C<App::MathImage::OeisEntryMenu> displays a little menu for an OeisEntry
+An C<App::MathImage::Gtk2::OeisEntryMenu> displays a little menu for an OeisEntry
 box.
 
     +----------+
@@ -173,9 +173,9 @@ box.
 
 =over 4
 
-=item C<< App::MathImage::OeisEntryMenu->new (key=>value,...) >>
+=item C<< App::MathImage::Gtk2::OeisEntryMenu->new (key=>value,...) >>
 
-Create and return a new C<App::MathImage::OeisEntryMenu> object.  Optional
+Create and return a new C<App::MathImage::Gtk2::OeisEntryMenu> object.  Optional
 key/value pairs set initial properties as per C<< Glib::Object->new >>.
 
 =back

@@ -94,6 +94,9 @@ sub _read_values {
     # sequence values
     next if $basefile eq 'a003849.txt';
 
+    # a027750.txt is unflattened divisors
+    next if $basefile eq 'a027750.txt';
+
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename

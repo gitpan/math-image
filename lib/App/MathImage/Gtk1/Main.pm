@@ -39,10 +39,10 @@ use App::MathImage::Gtk1::Ex::WidgetBits;
 # use Gtk::Ex::ToolItem::ComboEnum;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use constant::defer init => sub {
   ### Main init(): @_
@@ -280,7 +280,9 @@ sub _do_menuitem_oeis {
   my $self = $$ref_weak_self || return;
   if (my $url = _oeis_url($self)) {
     require Browser::Open;
-    Browser::Open::open_browser ($url);
+    my $cmd = Browser::Open::open_browser_cmd();
+    ### $cmd
+    system "$cmd $url &";
   }
 }
 sub _oeis_url {
@@ -329,7 +331,7 @@ sub _do_motion_notify {
             my $value = $values_obj->ith($n);
             $vstr = " value=$value";
             if ($value &&
-                $values_obj->isa('App::MathImage::NumSeq::RepdigitBase')) {
+                $values_obj->isa('App::MathImage::NumSeq::RepdigitRadix')) {
               $radix = $value;
             }
           }
@@ -942,9 +944,9 @@ sub _do_window_state_event {
 
 sub popup_save_as {
   my ($self) = @_;
-  require App::MathImage::Gtk::SaveDialog;
+  require App::MathImage::Gtk1::SaveDialog;
   my $dialog = ($self->{'save_dialog'}
-                ||= App::MathImage::Gtk::SaveDialog->new
+                ||= App::MathImage::Gtk1::SaveDialog->new
                 (draw => $self->{'draw'},
                  transient_for => $self));
   $dialog->present;
@@ -955,8 +957,8 @@ sub _do_action_setroot {
 
   # Use X11::Protocol when possible so as to preserve colormap entries
   my $rootwin = $self->get_root_window;
-  if ($rootwin->can('XID') && eval { require App::MathImage::Gtk::X11; 1 }) {
-    require App::MathImage::Gtk::X11;
+  if ($rootwin->can('XID') && eval { require App::MathImage::Gtk1::X11; 1 }) {
+    require App::MathImage::Gtk1::X11;
     $self->{'x11'} = App::MathImage::Gtk1::X11->new
       (gdk_window => $self->get_root_window,
        gen        => $self->{'draw'}->gen_object);

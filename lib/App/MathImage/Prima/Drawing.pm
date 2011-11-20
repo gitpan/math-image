@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 80;
+$VERSION = 81;
 
 sub profile_default {
   my ($class) = @_;

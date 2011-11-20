@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
@@ -62,33 +62,61 @@ use constant parameter_info_array =>
 
 use constant description => Math::NumSeq::__('Cunningham chains of primes where P, 2*P+1, 4*P+3 etc are all prime.');
 use constant characteristic_monotonic => 2;
-use constant values_min => 3;
 
-# cf A023272  p,2p+1,4p+
+# FIXME: find the first value in the sequence ... maybe save it
+my %values_min =
+  (first =>
+   { first => [undef,
+               2,  # length=1  all primes p
+               2,  # length=2  sophie germain p,2p+1
+               2,  # length=3  p,2p+1,4p+3 all primes
+               2,  # length=4
+               2,  # length=5
+               89, # length=6
+              ],
+     last => [undef,
+              2,  # length=1  all primes p
+              5,  # length=2  safe primes 2p+1
+              11, # length=3
+             ],
+   },
+   # second => {},
+  );
+sub values_min {
+  my ($self) = @_;
+  ### kind: $self->{'kind'}
+  ### which: $self->{'which'}
+  ### length: $self->{'length'}
+  return $values_min{$self->{'kind'}}->{$self->{'which'}}->[$self->{'length'}];
+}
 
+my %oeis_anum =
+  (first =>
+   { first => [undef,
+               'A000040',  # length=1  all primes p
+               'A005384',  # length=2  sophie germain p,2p+1
+               'A007700',  # length=3  p,2p+1,4p+3 all primes
+               # OEIS-Other:     A000040 length=1 kind=first which=first
+               # OEIS-Other:     A005384 length=2 kind=first which=first
+               # OEIS-Catalogue: A007700 length=3 kind=first which=first
 
-my %oeis_anum = (first =>
-                 { first => [undef,
-                             'A000040',  # length=1  all primes p
-                             'A005384',  # length=2  sophie germain p,2p+1
-                             'A007700',  # length=3  p,2p+1,4p+3 all primes
-                             # OEIS-Catalogue: A007700 length=3 kind=first which=first
-                             
-                             'A023272',
-                             # OEIS-Catalogue: A023272 length=4 kind=first which=first
+               'A023272',
+               # OEIS-Catalogue: A023272 length=4 kind=first which=first
 
-                             'A023302',
-                             # OEIS-Catalogue: A023302 length=5 kind=first which=first
-                             'A023330',
-                             # OEIS-Catalogue: A023330 length=6 kind=first which=first
-                            ],
-                   last => [undef,
-                            'A000040',  # length=1  all primes p
-                            'A005385',  # length=2  safe primes 2p+1
-                           ],
-                 },
-                 # second => {},
-                );
+               'A023302',
+               # OEIS-Catalogue: A023302 length=5 kind=first which=first
+               'A023330',
+               # OEIS-Catalogue: A023330 length=6 kind=first which=first
+              ],
+     last => [undef,
+              'A000040',  # length=1  all primes p
+              'A005385',  # length=2  safe primes 2p+1
+              # OEIS-Other: A000040 length=1 kind=first which=last
+              # OEIS-Catalogue: A005385 length=2 kind=first which=last
+             ],
+   },
+   # second => {},
+  );
 sub oeis_anum {
   my ($self) = @_;
   ### kind: $self->{'kind'}
@@ -136,6 +164,7 @@ sub next {
         next OUTER;
       }
     }
+    ### found ...
     return ($self->{'chain_i'}++, ($self->{'which'} eq 'last'
                                    ? $target : $prime));
   }
@@ -149,10 +178,20 @@ sub pred {
     return 0;
   };
   my $inc = $self->{'chain_inc'};
-  foreach (2 .. $self->{'length'}) {
-    $value = 2*$value +  $inc;
-    ### consider: $value
-    $self->SUPER::pred($value) or return 0;
+  if ($self->{'which'} eq 'last') {
+    foreach (2 .. $self->{'length'}) {
+      $value -= $inc;
+      return 0 unless $value >= 4 && ($value % 2) == 0;
+      $value /= 2;
+      ### consider: $value
+      $self->SUPER::pred($value) or return 0;
+    }
+  } else {
+    foreach (2 .. $self->{'length'}) {
+      $value = 2*$value +  $inc;
+      ### consider: $value
+      $self->SUPER::pred($value) or return 0;
+    }
   }
   return 1;
 }

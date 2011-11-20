@@ -77,6 +77,16 @@ sub _min {
   }
   return $ret;
 }
+sub _max {
+  my $ret = shift;
+  while (@_) {
+    my $next = shift;
+    if ($next > $ret) {
+      $ret = $next;
+    }
+  }
+  return $ret;
+}
 
 my %duplicate_anum = (A021015 => 'A010680',
                      );
@@ -90,6 +100,11 @@ sub check_class {
   ### check_class() ...
   ### $class
   ### $parameters
+
+  # return unless $class =~ /Repdigit/;
+  # return unless $class =~ /Engel/;
+  # return unless $class =~ /DigitCount/;
+
 
   eval "require $class" or die;
 
@@ -170,7 +185,6 @@ sub check_class {
     return;
   }
 
-  #return unless $class =~ /SumTwo/;
   # return unless $class =~ /Mephisto/;
   # return unless $class =~ /Almost/;
   #  return unless $anum eq 'A163540';
@@ -333,6 +347,23 @@ sub check_class {
       MyTestHelpers::diag ("got  ". join(',', map {defined() ? $_ : 'undef'} @$got));
       MyTestHelpers::diag ("want ". join(',', map {defined() ? $_ : 'undef'} @$want));
     }
+
+    {
+      my $data_min = _min(@$want);
+      my $values_min = $seq->values_min;
+      if (defined $values_min && $values_min != $data_min) {
+        $good = 0;
+        MyTestHelpers::diag ("bad: $name values_min $values_min but data min $data_min");
+      }
+    }
+    {
+      my $data_max = _max(@$want);
+      my $values_max = $seq->values_max;
+      if (defined $values_max && $values_max != $data_max) {
+        $good = 0;
+        MyTestHelpers::diag ("bad: $name values_max $values_max not seen in data, only $data_max");
+      }
+    }
   }
 
   $total_checks++;
@@ -352,16 +383,16 @@ sub check_class {
 
 use File::Path;
 File::Path::make_path('lib/Math/NumSeq/OEIS/Catalogue/Plugin/');
-system("perl ../ns/tools/make-oeis-catalogue.pl --module=MathImage") == 0
+system("perl ../ns/tools/make-oeis-catalogue.pl --module=TempMathImage --other=both") == 0
   or die;
-require 'lib/Math/NumSeq/OEIS/Catalogue/Plugin/MathImage.pm';
-unlink  'lib/Math/NumSeq/OEIS/Catalogue/Plugin/MathImage.pm' or die;
+require 'lib/Math/NumSeq/OEIS/Catalogue/Plugin/TempMathImage.pm';
+unlink  'lib/Math/NumSeq/OEIS/Catalogue/Plugin/TempMathImage.pm' or die;
 rmdir  'lib/Math/NumSeq/OEIS/Catalogue/Plugin' or die;
 rmdir  'lib/Math/NumSeq/OEIS/Catalogue' or die;
 rmdir  'lib/Math/NumSeq/OEIS' or die;
 rmdir  'lib/Math/NumSeq' or die;
 
-my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::MathImage::info_arrayref();
+my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::TempMathImage::info_arrayref();
 foreach my $info (@$aref) {
   ### $info
   check_class ($info->{'anum'},

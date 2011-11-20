@@ -23,7 +23,7 @@ use Glib;
 use Gtk2;
 use Locale::TextDomain ('Math-Image');
 
-our $VERSION = 80;
+our $VERSION = 81;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';

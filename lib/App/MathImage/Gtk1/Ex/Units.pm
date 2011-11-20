@@ -25,7 +25,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA', '@EXPORT_OK', '%EXPORT_TAGS';
-$VERSION = 80;
+$VERSION = 81;
 
 use Exporter;
 our @ISA = ('Exporter');
@@ -85,12 +85,12 @@ sub digit_width {
 #------------------------------------------------------------------------------
 # width
 
-use constant { _pixel => 1,
-               _MILLIMETRES_PER_INCH => 25.4 };
+use constant 1.02; # 1.02 for leading underscore on constant names
+use constant _pixel => 1;
+use constant _MILLIMETRES_PER_INCH => 25.4;
 
 sub _mm_width {
   my ($target) = @_;
-  my $screen = _to_screen($target);
   return Gtk::Gdk->screen_width / Gtk::Gdk->screen_width_mm;
 }
 sub _inch_width {

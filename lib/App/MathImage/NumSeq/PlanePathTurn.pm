@@ -15,7 +15,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-# math-image --values=PlanePath
+
+# math-image --values=PlanePathTurn
+#
+# LSR
+# Turn90
+# Turn60 0,1,2,3, -1,-2,-3
+
+
 
 package App::MathImage::NumSeq::PlanePathTurn;
 use 5.004;
@@ -23,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -444,14 +451,12 @@ App::MathImage::NumSeq::PlanePathTurn -- sequences of coordinates from PlanePath
 
  use App::MathImage::NumSeq::PlanePathTurn;
  my $seq = App::MathImage::NumSeq::PlanePathTurn->new (planepath => 'SquareSpiral',
-                                                   turn_type => 'X');
+                                                   turn_type => 'LSR');
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
 
-This module gives coordinates from a C<Math::PlanePath> as a sequence.
-There's various choices of what coordinate to take from the path, such as X,
-Y, radius, dX, dy, etc.
+The sequence of turns in a C<Math::PlanePath> path.
 
 =head1 FUNCTIONS
 
@@ -461,19 +466,25 @@ Y, radius, dX, dy, etc.
 
 Create and return a new sequence object.
 
-=item C<$bool = $seq-E<gt>pred($value)>
-
-Return true if C<$value> is a happy number, meaning repeated sum of squares
-of its digits reaches 1.
-
 =back
 
 =head1 SEE ALSO
 
-L<Math::NumSeq>
+L<Math::NumSeq>,
+L<Math::NumSeq::PlanePathCoord>
 
 =cut
 
 # Local variables:
 # compile-command: "math-image --values=PlanePathTurn"
 # End:
+
+# not implemented yet
+#
+# =item C<$bool = $seq-E<gt>pred($value)>
+# 
+# Return true if C<$value> occurs as a turn.  Often this is merely the
+# possible turn values 1,0,-1, etc, but some spiral paths for example only go
+# left or straight in which case only 1 and 0 occur and return true from
+# C<pred()>.
+

@@ -34,7 +34,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 80;
+our $VERSION = 81;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -206,9 +206,10 @@ sub _do_size_allocate {
 
 sub _do_entry_insert_text {
   my ($entry, $str, $pos, $pointer) = @_;
-  if ($str =~ /^A\d{6}/) {
+  if ($str =~ m{^(http:.*/)?(A\d{6})}) {
     ### replace for insert of whole A-number
     $entry->set_text('');
+    return ($2, 0);
   }
   return;
 }
@@ -255,7 +256,7 @@ sub _do_browser {
   my $self = $$ref_weak_self || return;
   my $anum = $self->get('text') || return;
   ### $anum
-  _browse_url ("http://oeis.org/$anum", $item);
+  _browse_url (_anum_to_url($anum), $item);
 }
 sub _do_browser_local {
   my ($item, $ref_weak_self) = @_;
@@ -276,6 +277,11 @@ sub _browse_url {
     ### show_uri() error: $@
   }
 }
+sub _anum_to_url {
+  my ($anum) = @_;
+  return "http://oeis.org/$anum";
+}
+
 sub _anum_to_filename {
   my ($anum) = @_;
   require File::Spec;

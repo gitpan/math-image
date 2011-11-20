@@ -42,6 +42,14 @@ my %for_x11 = ('X11::Protocol' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
               );
 
+my %gtk1_interface = ('Gtk' => 0,
+                      # my Gtk-Ex-WidgetBits
+                      'Gtk::Ex::Statusbar::MessageUntilKey' => 0,
+                      # my Image-Base-Gtk
+                      'Image::Base::Gtk::Gdk::Pixmap' => 0,
+                      'Image::Base::Gtk::Gdk::Window' => 0,
+                     );
+
 my %tk_interface = (# main Perl-Tk of whatever new enough version
                     'Tk::MainWindow' => 0,
                     'Tk::Balloon' => 0,
@@ -99,7 +107,7 @@ my %maximum_planepath
      'Math::PlanePath::PyramidSides'         => 1,
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
      'Math::PlanePath::CellularRule54'       => 40, # new in v.40
-     'Math::PlanePath::CellularRule190'      => 51, # new in v.51
+     'Math::PlanePath::CellularRule190'      => 54, # v.54 exact rect
      'Math::PlanePath::UlamWarburton'        => 48, # new in v.48
      'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
      'Math::PlanePath::Corner'               => 1,
@@ -111,7 +119,8 @@ my %maximum_planepath
      'Math::PlanePath::PeanoCurve'           => 36, # v.36 radix parameter
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
-     'Math::PlanePath::BetaOmega'            => 52, # new in v.52
+     'Math::PlanePath::WunderlichMeander'    => 54, # new in v.54
+     'Math::PlanePath::BetaOmega'            => 54, # v.54 exact rect
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
      'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
@@ -187,8 +196,11 @@ my %maximum_numseq
 
      'Math::NumSeq::FractionDigits' => 1,
      'Math::NumSeq::SqrtDigits'     => 1,
+     'Math::NumSeq::SqrtEngel'      => 1,
 
      'Math::NumSeq::DigitCount'            => 13, # v.13 fix values_max()
+     'Math::NumSeq::DigitCountHigh'        => 16, # new in v.16
+     'Math::NumSeq::DigitCountLow'         => 16, # new in v.16
      'Math::NumSeq::DigitLength'           => 1,
      'Math::NumSeq::DigitLengthCumulative' => 1,
      'Math::NumSeq::RadixWithoutDigit'     => 1,
@@ -196,9 +208,10 @@ my %maximum_numseq
      'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
      'Math::NumSeq::DigitProduct'          => 2, # new in v.2
 
-     'Math::NumSeq::Beastly'   => 1,
-     'Math::NumSeq::Repdigits' => 1,
-     'Math::NumSeq::Palindromes' => 1,
+     'Math::NumSeq::Beastly'      => 1,
+     'Math::NumSeq::Repdigits'    => 1,
+     'Math::NumSeq::RepdigitAny'  => 16, # new in v.16
+     'Math::NumSeq::Palindromes'  => 1,
      'Math::NumSeq::HarshadNumbers' => 1,
      'Math::NumSeq::HappyNumbers'   => 7,  # new in v.7
 
@@ -226,7 +239,7 @@ my %maximum_numseq
      'Math::NumSeq::Aronson' => 6, # new in v.6
 
      # in Math-PlanePath
-     'Math::NumSeq::PlanePathCoord' => 53, # new in v.53
+     'Math::NumSeq::PlanePathCoord' => 54, # v.54 "Diff"
     );
 
 my %prereq_pm
@@ -235,7 +248,7 @@ my %prereq_pm
      'constant::defer' => 0,
      'Bit::Vector'     => 0,
      'Compress::Zlib'  => 0,
-     'Data::Float'  => 0,
+     'Proc::SyncExec' => 0,
 
      # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
      # handles by outsmarting itself in some compares plus File::Temp having a
@@ -332,6 +345,7 @@ my %prereq_pm
      # my Math-NumSeq
      'Math::NumSeq' => 1,
      'Math::NumSeq::All' => 1,  # base for Lines classes
+     'Math::NumSeq::OEIS::Catalogue' => 1,  # OeisEntry
     );
 
 # for experimental paths in-progress
@@ -383,6 +397,7 @@ MyMakeMakerExtras::WriteMakefile
       'Math::Expression::Evaluator' => 0, # maybe any ok
       'Language::Expr' => '0.14',
       'Image::Xpm'     => 0,
+      'Browser::Open' => 0,
      },
      optional_features =>
      {
@@ -393,6 +408,11 @@ MyMakeMakerExtras::WriteMakefile
       gtk2_optionals =>
       { description => 'Gtk2 things used if available.',
         requires => \%gtk2_optionals,
+      },
+
+      gtk1_interface =>
+      { description => 'Gtk 1.x GUI modules.',
+        requires => \%gtk1_interface,
       },
 
       tk_interface =>
@@ -426,6 +446,7 @@ MyMakeMakerExtras::WriteMakefile
                      %gtk2_optionals,
                      %tk_interface,
                      %tk_optionals,
+                     %gtk1_interface,
 
                      'Image::Xpm'             => 0,
                      'Image::Base::GD'        => 8, # v.8 ellipse() $fill
@@ -440,6 +461,7 @@ MyMakeMakerExtras::WriteMakefile
                      'Math::Symbolic' => 0.605, # 0.605 fix a simplify()
                      'Math::Expression::Evaluator' => 0,
                      'Language::Expr' => '0.14',
+                     'Browser::Open' => 0,
 
                      'Prima' => 0,
                      'Image::Base::Prima' => 1,

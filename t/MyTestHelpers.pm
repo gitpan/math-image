@@ -168,9 +168,13 @@ sub warn_suppress_gtk_icon {
 }
 
 sub glib_gtk_versions {
+  my $gtk1_loaded = Gtk->can('init');
   my $gtk2_loaded = Gtk2->can('init');
   my $glib_loaded = Glib->can('get_home_dir');
 
+  if ($gtk1_loaded) {
+    MyTestHelpers::diag ("Perl-Gtk1    version ",Gtk->VERSION);
+  }
   if ($gtk2_loaded) {
     MyTestHelpers::diag ("Perl-Gtk2    version ",Gtk2->VERSION);
   }
@@ -194,6 +198,12 @@ sub glib_gtk_versions {
                          Gtk2::major_version(), ".",
                          Gtk2::minor_version(), ".",
                          Gtk2::micro_version(), ".");
+  }
+  if ($gtk1_loaded) {
+    MyTestHelpers::diag ("Running on       Gtk version ",
+                         Gtk->major_version(), ".",
+                         Gtk->minor_version(), ".",
+                         Gtk->micro_version(), ".");
   }
 }
 

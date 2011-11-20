@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -211,7 +211,7 @@ sub _from_gray {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath eg Radix radix
+=for stopwords Ryde Math-PlanePath eg Radix radix ie
 
 =head1 NAME
 

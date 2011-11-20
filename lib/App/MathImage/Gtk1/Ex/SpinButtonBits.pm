@@ -21,11 +21,11 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA', '@EXPORT_OK';
-$VERSION = 80;
+$VERSION = 81;
 
 use Exporter;
-our @ISA = ('Exporter');
-our @EXPORT_OK = qw(mouse_wheel);
+@ISA = ('Exporter');
+@EXPORT_OK = qw(mouse_wheel);
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

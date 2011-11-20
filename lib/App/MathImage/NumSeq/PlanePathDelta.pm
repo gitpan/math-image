@@ -2,6 +2,10 @@
 # path(n) to path(n+1)
 
 
+# dX
+# ENWS
+# Dir60
+
 
 # Copyright 2011 Kevin Ryde
 
@@ -26,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -818,7 +822,7 @@ sub pred {
 }
 
 
-=for stopwords Ryde MathImage
+=for stopwords Ryde 
 
 =head1 NAME
 
@@ -828,14 +832,16 @@ App::MathImage::NumSeq::PlanePathDelta -- sequences of coordinates from PlanePat
 
  use App::MathImage::NumSeq::PlanePathDelta;
  my $seq = App::MathImage::NumSeq::PlanePathDelta->new (planepath => 'SquareSpiral',
-                                                   delta_type => 'X');
+                                                   delta_type => 'dX');
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
 
-This module gives coordinates from a C<Math::PlanePath> as a sequence.
-There's various choices of what coordinate to take from the path, such as X,
-Y, radius, dX, dy, etc.
+This is a tie-in to present coordinate changes from a C<Math::PlanePath>
+module as a NumSeq sequence.  The coordinate choices are
+
+    "dX"         change in X coordinate
+    "dY"         change in Y coordinate
 
 =head1 FUNCTIONS
 
@@ -845,16 +851,12 @@ Y, radius, dX, dy, etc.
 
 Create and return a new sequence object.
 
-=item C<$bool = $seq-E<gt>pred($value)>
-
-Return true if C<$value> is a happy number, meaning repeated sum of squares
-of its digits reaches 1.
-
 =back
 
 =head1 SEE ALSO
 
-L<Math::NumSeq>
+L<Math::NumSeq>,
+L<Math::NumSeq::PlanePathCoord>
 
 =cut
 

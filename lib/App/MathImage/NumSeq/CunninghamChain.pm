@@ -20,13 +20,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant parameter_info_array =>
@@ -60,7 +60,6 @@ sub rewind {
 
 sub next {
   my ($self) = @_;
-  ### CunninghamChain next(): $self->{'chain_i'}
   my $i = $self->{'chain_i'}++;
 
   if ($self->{'chain_prime'} != $i) {

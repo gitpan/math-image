@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -35,8 +35,6 @@ use constant description => Math::NumSeq::__('How many sum of squares of digits 
 use constant values_min => 0;
 use constant characteristic_count => 1;
 use constant characteristic_monotonic => 0;
-#
-# 1,9,13,8,12,17,6,13,12,2,10 not in OEIS apparently ...
 
 use Math::NumSeq::Base::Digits;
 use constant parameter_info_array =>
@@ -44,13 +42,18 @@ use constant parameter_info_array =>
 
 # cf A001273 smallest happy which takes N steps
 #
-# sub oeis_anum {
-#   my ($self) = @_;
-#   my $radix = $self->{'radix'};
-#   return ($radix == 10
-#           ? 'A???????'
-#           : undef);
-# }
+my @oeis_anum;
+#
+# $oeis_anum[2] = 'A078627'; # but starting i=1 ...
+# # OEIS-Catalogue: A078627 radix=2
+# 
+# $oeis_anum[10] = 'A193995'; # but starting i=1 ...
+# # OEIS-Catalogue: A193995
+#
+sub oeis_anum {
+  my ($self) = @_;
+  return $oeis_anum[$self->{'radix'}];
+}
 
 sub ith {
   my ($self, $i) = @_;

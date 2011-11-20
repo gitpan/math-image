@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 6;
+use Test;
+plan tests => 6;
 
 use lib 't';
 use MyTestHelpers;
@@ -31,14 +32,16 @@ use App::MathImage::NumSeq::ChampernowneBinary;
 # VERSION
 
 {
-  my $want_version = 80;
-  is ($App::MathImage::NumSeq::ChampernowneBinary::VERSION, $want_version, 'VERSION variable');
-  is (App::MathImage::NumSeq::ChampernowneBinary->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 81;
+  ok ($App::MathImage::NumSeq::ChampernowneBinary::VERSION, $want_version, 'VERSION variable');
+  ok (App::MathImage::NumSeq::ChampernowneBinary->VERSION,  $want_version, 'VERSION class method');
 
   ok (eval { App::MathImage::NumSeq::ChampernowneBinary->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { App::MathImage::NumSeq::ChampernowneBinary->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 }
 
@@ -59,8 +62,10 @@ use App::MathImage::NumSeq::ChampernowneBinary;
       last;
     }
   }
-  is_deeply (\@got, \@want,
-             'ChampernowneBinary 1 to 17 iterator');
+  my $got = join(',',@got);
+  my $want = join(',',@want);
+  ok ($got, $want,
+      'ChampernowneBinary 1 to 17 iterator');
 }
 
 #------------------------------------------------------------------------------
@@ -75,19 +80,19 @@ use App::MathImage::NumSeq::ChampernowneBinary;
   while (my ($i, $next) = $values_obj->next) {
     foreach my $n ($prev+1 .. $next-1) {
       if ($values_obj->pred($n)) {
-        diag "ChampernowneBinary pred() vs seq: $n pred yes, seq no";
+        MyTestHelpers::diag("ChampernowneBinary pred() vs seq: $n pred yes, seq no");
         $good = 0;
       }
     }
     if (! $values_obj->pred($next)) {
-      diag "ChampernowneBinary pred() vs seq: $next pred no, seq yes";
+      MyTestHelpers::diag("ChampernowneBinary pred() vs seq: $next pred no, seq yes");
       $good = 0;
     }
     $prev = $next;
 
     last if $next > $hi;
   }
-  ok ($good, "pred() to $hi");
+  ok ($good, 1, "pred() to $hi");
 }
 
 exit 0;
