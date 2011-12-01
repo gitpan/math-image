@@ -21,12 +21,12 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 81;
+$VERSION = 82;
 exit App::MathImage->command_line;
 
 __END__
 
-=for stopwords recurrences Gtk Gtk2 Ulam's --ulam Ulam sprial Vogel pronic
+=for stopwords recurrences Gtk Gtk2 Ulam's --ulam Ulam Vogel pronic
 --pronic fibonacci --fibonacci fullscreen --fullscreen unfullscreened --png
 png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
 --padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT

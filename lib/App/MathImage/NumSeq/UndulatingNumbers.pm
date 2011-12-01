@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -59,8 +59,7 @@ sub oeis_anum {
 }
 
 use Math::NumSeq::Base::Digits;
-use constant parameter_info_array =>
-  [ Math::NumSeq::Base::Digits::parameter_common_radix() ];
+*parameter_info_array = \&Math::NumSeq::Base::Digits::parameter_info_array;
 
 sub rewind {
   my ($self) = @_;

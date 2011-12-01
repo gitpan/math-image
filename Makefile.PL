@@ -102,6 +102,7 @@ my %maximum_planepath
      'Math::PlanePath::HexArms'              => 36, # new in v.36
      'Math::PlanePath::AztecDiamondRings'    => 49, # new in v.49
      'Math::PlanePath::GreekKeySpiral'       => 27, # new in v.27
+     'Math::PlanePath::MPeaks'               => 55, # new in v.55
 
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
      'Math::PlanePath::PyramidSides'         => 1,
@@ -112,6 +113,7 @@ my %maximum_planepath
      'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
      'Math::PlanePath::Corner'               => 1,
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
+     'Math::PlanePath::DiagonalsAlternating' => 2,  # new in v.56
      'Math::PlanePath::Staircase'            => 16, # new in v.16
      'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
      'Math::PlanePath::Columns'              => 26, # v.26 against height==0
@@ -121,19 +123,22 @@ my %maximum_planepath
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::WunderlichMeander'    => 54, # new in v.54
      'Math::PlanePath::BetaOmega'            => 54, # v.54 exact rect
+     'Math::PlanePath::KochelCurve'          => 55, # new in v.55
+     'Math::PlanePath::CincoCurve'           => 56, # new in v.56
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
      'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
+     'Math::PlanePath::LTiling'              => 56, # new in v.56
      'Math::PlanePath::DigitGroups'          => 52, # new in v.52
      'Math::PlanePath::FibonacciWordFractal' => 53, # new in v.53
 
-     'Math::PlanePath::Flowsnake'            => 38, # new in v.38
+     'Math::PlanePath::Flowsnake'            => 55, # v.55 faster xy_to_n()
      'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
      'Math::PlanePath::GosperReplicate'      => 46, # new in v.46
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::GosperSide'           => 35, # new in v.35
 
-     'Math::PlanePath::QuintetCurve'         => 45, # new in v.45
+     'Math::PlanePath::QuintetCurve'         => 55, # v.55 faster xy_to_n()
      'Math::PlanePath::QuintetCentres'       => 45, # new in v.45
      'Math::PlanePath::QuintetReplicate'     => 45, # new in v.45
 
@@ -189,7 +194,8 @@ my %maximum_numseq
      'Math::NumSeq::Primorials'    => 1,
      'Math::NumSeq::Fibonacci'     => 1,
      'Math::NumSeq::LucasNumbers'  => 1,
-     'Math::NumSeq::Fibbinary'     => 15, # v.15 faster next()
+     'Math::NumSeq::Fibbinary'         => 15, # v.15 faster next()
+     'Math::NumSeq::FibbinaryBitCount' => 18, # new in v.18
      'Math::NumSeq::FibonacciWord' => 15, # new in v.15
      'Math::NumSeq::Pell'          => 10, # new in v.10
      'Math::NumSeq::Tribonacci'    => 8,  # new in v.8
@@ -208,12 +214,14 @@ my %maximum_numseq
      'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
      'Math::NumSeq::DigitProduct'          => 2, # new in v.2
 
-     'Math::NumSeq::Beastly'      => 1,
-     'Math::NumSeq::Repdigits'    => 1,
-     'Math::NumSeq::RepdigitAny'  => 16, # new in v.16
-     'Math::NumSeq::Palindromes'  => 1,
+     'Math::NumSeq::Beastly'        => 1,
+     'Math::NumSeq::Repdigits'      => 1,
+     'Math::NumSeq::RepdigitAny'    => 16, # new in v.16
+     'Math::NumSeq::RepdigitRadix'  => 19, # v.19 next() fix
+     'Math::NumSeq::Palindromes'    => 1,
      'Math::NumSeq::HarshadNumbers' => 1,
      'Math::NumSeq::HappyNumbers'   => 7,  # new in v.7
+     'Math::NumSeq::HappySteps'     => 17,  # new in v.17
 
      'Math::NumSeq::CullenNumbers'  => 1,
      'Math::NumSeq::ProthNumbers'   => 1,
@@ -360,6 +368,7 @@ add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
 add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
+add_prereq ('Math::PlanePath::BetaOmega', 54); # for HilbertSpral
 add_prereq ('Math::NumSeq::PlanePathCoord', 53); # for PlanePathN
 #
 add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
@@ -369,8 +378,10 @@ add_prereq ('Math::NumSeq::Base::IterateIth',1);
 add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
-add_prereq ('Math::NumSeq::DigitCount',4); # for DigitCountHigh/Low
+add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
 add_prereq ('Math::NumSeq::Totient',13); # for TotientStepsSum, new in v.13
+add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
+add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiMajority
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',

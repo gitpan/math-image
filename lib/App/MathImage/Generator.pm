@@ -31,10 +31,10 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 81;
+$VERSION = 82;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -130,6 +130,7 @@ use constant::defer values_choices => sub {
                          Fibonacci
                          LucasNumbers
                          Fibbinary
+                         FibbinaryBitCount
                          FibonacciWord
                          Pell
                          Perrin
@@ -175,6 +176,7 @@ use constant::defer values_choices => sub {
                          UndulatingNumbers
                          HarshadNumbers
                          HappyNumbers
+                         HappySteps
 
                          ReverseAdd
                          ReverseAddSteps
@@ -188,11 +190,14 @@ use constant::defer values_choices => sub {
                          KlarnerRado
                          AsciiSelf
                          Kolakoski
+                         KolakoskiMajority
                          GolombSequence
                          MephistoWaltz
 
                          Multiples
+                         Modulo
                          Expression
+                         PlanePathCoord
                          OEIS
                          File
                        )) {
@@ -272,6 +277,7 @@ my %pathname_square_grid
                      DiamondArms
                      HexArms
                      GreekKeySpiral
+                     MPeaks
 
                      PixelRings
                      Hypot
@@ -284,12 +290,16 @@ my %pathname_square_grid
 
                      PeanoCurve
                      HilbertCurve
+                     MathImageHilbertMidpoint
+                     MathImageHilbertSpiral
                      ZOrderCurve
                      WunderlichMeander
                      BetaOmega
+                     KochelCurve
                      ImaginaryBase
                      SquareReplicate
                      CornerReplicate
+                     LTiling
                      DigitGroups
                      FibonacciWordFractal
 
@@ -325,6 +335,7 @@ my %pathname_square_grid
                      Rows
                      Columns
                      Diagonals
+                     DiagonalsAlternating
                      Staircase
                      Corner
                      PyramidRows
@@ -369,6 +380,9 @@ my %pathname_square_grid
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::PyramidSides;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
+{ package Math::PlanePath::MPeaks;
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::CellularRule54;
@@ -533,6 +547,7 @@ sub y_negative {
                            DiamondArms
                            HexArms
                            GreekKeySpiral
+                           MPeaks
 
                            PyramidRows
                            PyramidSides
@@ -542,6 +557,7 @@ sub y_negative {
 
                            Corner
                            Diagonals
+                           DiagonalsAlternating
                            Staircase
                            Rows
                            Columns
@@ -550,12 +566,17 @@ sub y_negative {
 
                            PeanoCurve
                            HilbertCurve
+                           MathImageHilbertMidpoint
+                           MathImageHilbertSpiral
                            ZOrderCurve
                            WunderlichMeander
                            BetaOmega
+                           KochelCurve
+                           CincoCurve
                            ImaginaryBase
                            SquareReplicate
                            CornerReplicate
+                           LTiling
                            DigitGroups
                            FibonacciWordFractal
 
@@ -829,7 +850,9 @@ sub description {
   my @path_desc = ($self->{'path'},
                    map {
                      my $pname = $_->{'name'};
-                     "$pname $path_object->{$pname}"
+                     my $value = $path_object->{$pname};
+                     if (! defined $value) { $value = 'undef'; }
+                     "$pname $value"
                    } @{$path_object->parameter_info_array});
 
   my $values_object = $self->values_object;
@@ -1283,6 +1306,8 @@ sub draw_Image_start {
       $n_hi = 9 ** $level - 1;
     } elsif ($path_object->isa ('Math::PlanePath::BetaOmega')) {
       $n_hi = 4 ** $level - 1;
+    } elsif ($path_object->isa ('Math::PlanePath::KochelCurve')) {
+      $n_hi = 9 ** $level - 1;
     } elsif ($path_object->isa ('Math::PlanePath::KochCurve')) {
       $n_hi = 4 ** $level;
       $yfactor = sqrt(3)*2;
@@ -2153,17 +2178,20 @@ sub draw_Image_steps {
           next;
         }
         if ($n <= $n_prev) {
-          if (++$self->{'n_outside'} > 10) {
-            ### stop n_outside on n<n_prev ...
+          if (++$self->{'n_decrease'} > 10) {
+            ### stop for n<n_prev many times ...
             last;
           }
-        } elsif ($n > $n_hi) {
-          if ($values_monotonic || ++$self->{'n_outside'} > 10) {
-            ### stop for n>n_hi ...
-            last;
+        } else {
+          $self->{'n_decrease'} = 0;
+          if ($n > $n_hi) {
+            if ($values_monotonic || ++$self->{'n_outside'} > 10) {
+              ### stop for n>n_hi ...
+              last;
+            }
+            ### skip n>n_hi ...
+            next;
           }
-          ### skip n>n_hi ...
-          next;
         }
       }
       $n_prev = $n;

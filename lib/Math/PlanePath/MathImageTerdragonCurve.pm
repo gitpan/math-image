@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -348,24 +348,24 @@ I<In progress ...>
 This is the terdragon curve by Davis and Knuth,
 
 
-              30                28
+              30                28                                  7
            /       \         /       \
-     31/34          26/29/32            27
+     31/34          26/29/32            27                          6
           \        /         \
-           24/33/42            22/25
+           24/33/42            22/25                                5
           /        \         /       \
-  40/43/46          20/23/44          12/21           10
+  40/43/46          20/23/44          12/21           10            4
            \       /        \        /      \      /       \
-              18/45 -------- 13/16/19        8/11/14 -------- 9
+              18/45 -------- 13/16/19        8/11/14 -------- 9     3
                     \       /       \      /      \
-                        17             6/15 --------- 4/7
+                       17              6/15 --------- 4/7           2
                                             \       /     \
-                                               2/5 ---------  3
+                                               2/5 ---------  3     1
                                                    \
-                                         0 ----------- 1
+                                         0 ----------- 1        <- Y=0
 
-                  ^    ^    ^    ^    ^   ^    ^
-                 -5   -4   -3   -2   -1  X=0   1 ...
+       ^       ^        ^        ^       ^      ^      ^      ^
+      -4      -3       -2       -1      X=0     1      2      3
 
 The curve visits "inside" X,Y points three times.  The first of these is
 X=1,Y=3 which is N=8, N=11 and N=14.  The corners N=7,8,9, N=10,11,12 and
@@ -381,14 +381,14 @@ replication is N=3^level which is level*30 degrees around,
    ----    -----    -----
      1      1,0        0
      3      3,1       30
-     9                60
+     9      3,3       60
     27      0,6       90
-    81               120
-   243               150
-   ...
+    81     -9,9      120
+   243    -27,9      150
+   729    -54,0      180
 
-Here's points N=0 to N=3^6=729 with the N=729 end at the "+" mark.  It's
-gone half-circle around to 180 degrees,
+Here's points N=0 to N=3^6=729 with the N=0 origin at "o" and N=729 end at
+the "+".  It's gone half-circle around to 180 degrees,
 
                                * *               * *
                             * * * *           * * * *
@@ -400,7 +400,7 @@ gone half-circle around to 180 degrees,
                             * * * * * * * * * * * * * * * * * * *
                            * * * * * * * * * * * *   * *   * * *
                       * *   * * * * * * * * * * * *           * *
-     * +           * * * * * * * * * * * * * * * *           * *
+     * +           * * * * * * * * * * * * * * * *           o *
     * *           * * * * * * * * * * * *   * *
      * * *   * *   * * * * * * * * * * * *
     * * * * * * * * * * * * * * * * * * *

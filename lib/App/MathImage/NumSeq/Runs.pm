@@ -16,11 +16,6 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# A049581 diagonals absdiff
-
-
-
-
 package App::MathImage::NumSeq::Runs;
 use 5.004;
 use strict;
@@ -28,7 +23,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -42,7 +37,6 @@ use Math::NumSeq::Base::IterateIth;
 use constant i_start => 0;
 use constant characteristic_smaller => 1;
 use constant characteristic_monotonic => 0;
-use constant oeis_anum => 'A002262';   # 0, 0,1, 0,1,2, etc
 
 # d = -1/2 + sqrt(2 * $n + -3/4)
 #   = (sqrt(8*$n-3) - 1)/2
@@ -64,6 +58,8 @@ use constant parameter_info_array =>
    },
   ];
 
+# cf A049581 diagonals absdiff, abs(x-y) not plain runs
+#
 my %runs_type_data
   = ('0toN' => { value      => -1, # initial
                  values_min => 0,
@@ -75,8 +71,9 @@ my %runs_type_data
                  count      => 0,
                  count_inc  => 1,
                  oeis_anum  => 'A002262',
-                 # OEIS-Catalogue A002262 runs_type=0toN
+                 # OEIS-Catalogue: A002262 runs_type=0toN
                },
+
      '1toN' => { value      => 0, # initial
                  values_min => 1,
                  limit      => 1,
@@ -87,8 +84,20 @@ my %runs_type_data
                  count      => 0,
                  count_inc  => 1,
                  oeis_anum  => 'A002260',  # 1 to N, is 0toN + 1
-                 # OEIS-Catalogue A002260 runs_type=1toN
+                 # OEIS-Catalogue: A002260 runs_type=1toN
                },
+     '1to2N' => { value      => 0, # initial
+                  values_min => 1,
+                  limit      => 1,
+                  vstart     => 1,
+                  vstart_inc => 0,
+                  value_inc  => 1,
+                  c          => 2, # initial
+                  count      => 1,
+                  count_inc  => 2,
+                  oeis_anum  => 'A074294',
+                  # OEIS-Catalogue: A074294 runs_type=0toN
+                },
      'Nto0' => { value      => 1, # initial
                  values_min => 0,
                  vstart     => 0,
@@ -98,7 +107,7 @@ my %runs_type_data
                  count      => 0,
                  count_inc  => 1,
                  oeis_anum  => 'A025581',
-                 # OEIS-Catalogue A025581 runs_type=Nto0
+                 # OEIS-Catalogue: A025581 runs_type=Nto0
                },
      'Nto1' => { value      => 2, # initial
                  values_min => 1,
@@ -109,7 +118,7 @@ my %runs_type_data
                  count      => 0,
                  count_inc  => 1,
                  oeis_anum  => 'A004736',
-                 # OEIS-Catalogue A004736 runs_type=Nto1
+                 # OEIS-Catalogue: A004736 runs_type=Nto1
                },
      'Nrep' => { value      => 1,
                  values_min => 1,
@@ -121,7 +130,7 @@ my %runs_type_data
                  count      => 0,
                  count_inc  => 1,
                  oeis_anum  => 'A002024', # N appears N times
-                 # OEIS-Catalogue A002024 runs_type=Nrep
+                 # OEIS-Catalogue: A002024 runs_type=Nrep
                },
      'N+1rep' => { value      => 0,
                    values_min => 0,
@@ -133,7 +142,7 @@ my %runs_type_data
                    count      => 0,
                    count_inc  => 1,
                    oeis_anum  => 'A003056', # N appears N+1 times
-                   # OEIS-Catalogue A003056 runs_type=N+1rep
+                   # OEIS-Catalogue: A003056 runs_type=N+1rep
                  },
      'rep3' => { value      => 0,
                  values_min => 0,
@@ -145,7 +154,7 @@ my %runs_type_data
                  count      => 2,
                  count_inc  => 0,
                  oeis_anum  => 'A002264', # N appears 3 times
-                 # OEIS-Catalogue A002264 runs_type=rep3
+                 # OEIS-Catalogue: A002264 runs_type=rep3
                },
      '0toNinc' => { value      => -1,
                     values_min => 0,
@@ -157,7 +166,7 @@ my %runs_type_data
                     count      => 0,
                     count_inc  => 1,
                     oeis_anum  => 'A051162',
-                    # OEIS-Catalogue A051162 runs_type=0toNinc
+                    # OEIS-Catalogue: A051162 runs_type=0toNinc
                   },
     );
 sub rewind {
@@ -214,6 +223,22 @@ sub ith {
 
   } elsif ($self->{'runs_type'} eq 'rep3') {
     return int($i/3);
+
+  } elsif ($self->{'runs_type'} eq '1to2N') {
+    # N = (d^2 + d)
+    #   = (($d + 1)*$d)
+    # d = -1/2 + sqrt(1 * $n + 1/4)
+    #   = (-1 + 2*sqrt($n + 1/4)) / 2
+    #   = (-1 + sqrt(4*$n + 1)) / 2
+    #   = (sqrt(4*$n + 1) - 1) / 2
+
+    my $d = int((sqrt(4*int($i)+1) - 1) / 2);
+
+    ### $d
+    ### base: ($d-1)*$d/2
+    ### rem: $i - ($d-1)*$d/2
+
+    return $i - ($d+1)*$d + $self->{'vstart'};
 
   } else {
     my $d = int((sqrt(8*int($i)+1) + 1) / 2);

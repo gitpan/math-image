@@ -29,7 +29,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

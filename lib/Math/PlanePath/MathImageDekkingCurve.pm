@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -349,7 +349,10 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>
 
-=cut
+=cut 
+
+# when ready ...
+# L<Math::PlanePath::DekkingCurve>
 
 
 # Local variables:

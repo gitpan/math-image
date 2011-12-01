@@ -114,6 +114,11 @@ sub _read_values {
           next ABFILE;
         }
 
+        # a002260.txt some text not numbers, skip file
+        if ($line =~ /^Doubly/) {
+          next ABFILE;
+        }
+
         my ($i, $n) = split /\s+/, $line;
         if (! defined $lo) {
           $lo = $i;

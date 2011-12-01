@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -546,9 +546,8 @@ and Widmayer.
           
             X=0  1   2   3   4   5   6   7 
 
-It makes a 2x2 expanding pattern with a mixture of "U" parts in the style of
-HilbertCurve and "Z" parts in the style of ZOrderCurve.  The mixture is
-designed to improve some kinds of locality measures.
+It makes a 2x2 expanding pattern with a mixture of "U" and "Z" shapes.  The
+mixture is designed to improve some locality measures.
 
 There's four base patterns A to D, plus mirroring,
 
@@ -595,12 +594,15 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::ZOrderCurve>
 
 Asano, Ranjan, Roos, Welzl and Widmayer "Space-Filling Curves and Their Use
 in the Design of Geometric Data Structures", Theoretical Computer Science,
-181(1):3-15, 1997.  And LATIN'95 Theoretical Informatics on Google Books
-books.google.com.au/books?isbn=3540591753.
+181(1):3-15, 1997.  And LATIN'95 Theoretical Informatics which is at Google
+Books
+
+    http://books.google.com/books?isbn=3540591753
 
 =cut
 

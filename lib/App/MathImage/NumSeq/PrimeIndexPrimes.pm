@@ -32,7 +32,7 @@ use List::Util 'min', 'max';
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 use Math::NumSeq::Base::Array;
 @ISA = ('Math::NumSeq::Base::Array');
 

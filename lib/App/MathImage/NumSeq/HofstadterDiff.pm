@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -32,7 +32,7 @@ use Math::NumSeq::Base::IterateIth;
         'Math::NumSeq');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant description => Math::NumSeq::__('Hofstadter diff sequence.');
 use constant characteristic_monotonic => 1;
@@ -53,11 +53,65 @@ sub rewind {
   $self->{'prev'} = 0;
   $self->{'diff_upto'} = 0;
   $self->{'diff_exclude'} = {};
+
+  $self->{'upto'} = [ 1, 1 ];
+  $self->{'inc'} = [ 0 ];
 }
 
 sub next {
   my ($self) = @_;
   ### HofstadterDiff next(): "$self->{'i'}"
+  ### upto: $self->{'upto'}->[0]
+  ### inc: $self->{'inc'}->[0]
+  ### next skip inc: $self->{'upto'}->[1]
+  ### assert: $self->{'inc'}->[0] < $self->{'upto'}->[1]
+
+  # if ($self->{'i'}++ == 1) {
+  #   return (1,1);
+  # }
+  # 
+  # my $upto = $self->{'upto'};
+  # my $inc = $self->{'inc'};
+  # my $add = ++$inc->[0];
+  # if ($add == $upto->[1]) {
+  #   ### must skip: $add
+  #   $add = ++$inc->[0];
+  # 
+  #   my $pos = 1;
+  #   for (;;) {
+  #     if ($pos > $#$inc) {
+  #       $upto->[$pos] = 1;
+  #       $inc->[$pos] = 1;
+  #       $upto->[$pos+1] = 3;
+  #       ### extend ...
+  #       ### $upto
+  #       ### $inc
+  #       last;
+  #     }
+  # 
+  #     ### $pos
+  #     ### upto: $self->{'upto'}->[$pos]
+  #     ### inc: $self->{'inc'}->[$pos]
+  #     ### next skip inc: $self->{'upto'}->[$pos+1]
+  #     ### assert: $self->{'inc'}->[$pos] < $self->{'upto'}->[$pos+1]
+  # 
+  #     my $subadd = ++$inc->[$pos];
+  #     $upto->[$pos] += $subadd;
+  #     if ($subadd == $upto->[$pos+1]) {
+  #       ### must skip subadd: $subadd
+  #       $inc->[$pos]++;
+  #       $upto->[$pos]++;
+  #       $pos++;
+  #     } else {
+  #       last;
+  #     }
+  #   }
+  # }
+  # ### $add
+  # return ($self->{'i'}++, $upto->[0] += $add);
+
+
+
   ### diff_exclude size: scalar(my @x = values %{$self->{'diff_exclude'}})
 
   my $diff = $self->{'diff_upto'};
@@ -74,3 +128,36 @@ sub next {
 
 1;
 __END__
+
+=for stopwords Ryde MathImage
+
+=head1 NAME
+
+App::MathImage::NumSeq::HofstadterDiff -- sequence excludes its own first differences
+
+=head1 SYNOPSIS
+
+ use App::MathImage::NumSeq::HofstadterDiff;
+ my $seq = App::MathImage::NumSeq::HofstadterDiff->new;
+ my ($i, $value) = $seq->next;
+
+=head1 DESCRIPTION
+
+...
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<$seq = App::MathImage::NumSeq::HofstadterDiff-E<gt>new ()>
+
+Create and return a new sequence object.
+
+=back
+
+=head1 SEE ALSO
+
+L<Math::NumSeq>,
+L<Math::NumSeq::Kolakoski>
+
+=cut

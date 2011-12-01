@@ -22,7 +22,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -41,6 +41,9 @@ use constant characteristic_monotonic => 2;
 # A145649 characteristic
 # A050505 complement
 # A007952 sieve+1
+#
+# A000960  Flavius Josephus sieve twice rounding
+#
 use constant oeis_anum => 'A002491';   # Mancala stones ...
 
 sub ith {

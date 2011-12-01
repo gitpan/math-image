@@ -23,10 +23,10 @@ use List::Util 'min','max';
 use POSIX 'floor';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 81;
+$VERSION = 82;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -815,7 +815,7 @@ sub output_method_numbers_xy {
   my $xmax = 0;
   my $ymin = 0;
   my $ymax = 0;
-  my $cellwidth = 0;
+  my $cellwidth = 1;
   $rows[0][0] = $path->xy_to_n($xmin,$ymin);
 
  OUTER: for (;;) {
@@ -824,12 +824,19 @@ sub output_method_numbers_xy {
     {
       my $x = $xmax+1;
       my @new_col;
+      if ($cellwidth * ($xmax-$xmin+2) > $width) {
+        ### NO_XMAX due to X range: ($xmax-$xmin+2)
+        goto NO_XMAX;
+      }
       foreach my $y ($ymin .. $ymax) {
         my $n = $path->xy_to_n($x,$y);
         ### consider right: "$x,$y  n=".(defined $n && $n)
-        next unless defined $n && $values_obj->pred($n);
+        next unless (defined $n && $values_obj->pred($n));
         my $new_cellwidth = max ($cellwidth, length($n) + 1);
-        if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_XMAX; }
+        if ($new_cellwidth * ($xmax-$xmin+2) > $width) {
+          ### NO_XMAX due to X range: ($xmax-$xmin+2)
+          goto NO_XMAX;
+        }
         $cellwidth = $new_cellwidth;
         $new_col[$y-$ymin] = $n;
       }
@@ -854,9 +861,13 @@ sub output_method_numbers_xy {
         $new_row[$x-$xmin] = undef;
         my $n = $path->xy_to_n($x,$y);
         ### consider above: "$x,$y  n=".(defined $n && $n)
-        next unless defined $n && $values_obj->pred($n);
+        next unless (defined $n && $values_obj->pred($n));
         my $new_cellwidth = max ($cellwidth, length($n) + 1);
-        if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_YMAX; }
+        if ($new_cellwidth * ($xmax-$xmin+2) > $width) {
+          ### NO_YMAX due to X range: ($xmax-$xmin+2)
+          goto NO_YMAX;
+        }
+        $cellwidth = $new_cellwidth;
         $new_row[$x-$xmin] = $n;
       }
       push @rows, \@new_row;  # at top
