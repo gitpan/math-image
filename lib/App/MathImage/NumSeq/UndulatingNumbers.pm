@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -38,35 +38,40 @@ use Math::NumSeq;
 # use constant name => Math::NumSeq::__('Undulating Numbers');
 use constant description => Math::NumSeq::__('Numbers like 37373 which are a pattern of digits ABAB...');
 use constant characteristic_monotonic => 2;
-# use constant characteristic_growth => 'exponential';
-use constant values_min => 1;
+use constant values_min => 0;
 
-# A033619 base 10 >=0 including a==b
+use Math::NumSeq::Base::Digits;
+use constant parameter_info_array =>
+  [
+   Math::NumSeq::Base::Digits::parameter_common_radix(),
+   { name        => 'including_repdigits',
+     type        => 'boolean',
+     display     => Math::NumSeq::__('Repdigits'),
+     default     => 1,
+     description => Math::NumSeq::__('Whether to include repdigits A=B.'),
+   },
+  ];
+
 # A046075 base 10 >=101 with a!=b
 #
 # cf A046076 "binary undulants", 2^N in decimal has 010 or 101 somewhere
 #
+my @oeis_anum;
+$oeis_anum[1]->[10] = 'A033619'; # decimal incl A=B, start i=0 value=0
+# OEIS-Catalogue: A033619 including_repdigits=1
+#
 sub oeis_anum {
-  # my ($self) = @_;
-  # if (! ref $self ||
-  #     $self->{'radix'} == 10) {
-  #   return 'A033619'; # base 10 including a==b
-  # }
-  # if (ref $self && $self->{'radix'} == 2) {
-  #   return '';
-  # }
-  return undef;
+  my ($self) = @_;
+  return $oeis_anum[!!$self->{'including_repdigits'}]->[$self->{'radix'}];
 }
-
-use Math::NumSeq::Base::Digits;
-*parameter_info_array = \&Math::NumSeq::Base::Digits::parameter_info_array;
 
 sub rewind {
   my ($self) = @_;
   my $radix = $self->{'radix'};
   if ($radix < 2) { $radix = 10; }
-  $self->{'i'}     = 0;
   $self->{'radix'} = $radix;
+
+  $self->{'i'}     = 0;
   $self->{'n'}     = -1;
   $self->{'inc'}   = 1;
   $self->{'a'}     = 0;
@@ -85,7 +90,8 @@ sub next {
     ### a: $self->{'a'}
     ### b: $self->{'b'}
 
-    if ($self->{'b'} == $self->{'a'}) {
+    if (! $self->{'including_repdigits'}
+        && $self->{'b'} == $self->{'a'}) {
       $self->{'b'}++;
       $self->{'n'} = ($n += $self->{'inc'});
       ### skip a to b: $self->{'b'}
@@ -113,13 +119,53 @@ sub next {
   return ($self->{'i'}++, $n);
 }
 
+# not quite right ...
+# sub ith {
+#   my ($self, $i) = @_;
+#   ### UndulatingNumbers ith(): $i
+#   my $radix = $self->{'radix'};
+#   my $rdec = $radix - 1;
+# 
+#   my $including_repdigits = $self->{'including_repdigits'};
+# 
+#   my $pair_step = $rdec*($including_repdigits ? $rdec : $radix);
+#   my $i_pair = $i % $pair_step;
+#   my $i_len = int($i/$pair_step);
+#   ### $i_pair
+#   ### $i_len
+# 
+#   my ($a, $b);
+#   if ($including_repdigits) {
+#     $a = int($i_pair/$radix) + 1;
+#     $b = $i_pair % $radix;
+#   } else {
+#     $a = int($i_pair/$rdec) + 1;
+#     $b = $i_pair % $rdec;
+#     $b += ($b >= $a);
+#   }
+#   ### $a
+#   ### $b
+# 
+#   my $ret = ($a*$radix + $b)*$radix + $a;
+#   while ($i_len--) {
+#     $ret = ($ret * $radix) + $a;
+#     last unless $i_len--;
+#     $ret = ($ret * $radix) + $b;
+#   }
+#   ### $ret
+#   return $ret;
+# }
+
 sub pred {
   my ($self, $value) = @_;
   my $radix = $self->{'radix'};
   my $a = $value % $radix;
   if ($value = int($value/$radix)) {
     my $b = $value % $radix;
-    if ($a == $b) { return 0; }
+    if (! $self->{'including_repdigits'}
+        && $a == $b) {
+      return 0;
+    }
 
     while ($value = int($value/$radix)) {
       if (($value % $radix) != $a) { return 0; }
@@ -129,34 +175,6 @@ sub pred {
     }
   }
   return 1;
-}
-
-sub ith {
-  my ($self, $i) = @_;
-  ### UndulatingNumbers ith(): $i
-  my $radix = $self->{'radix'};
-  my $rdec = $radix - 1;
-
-  my $pair_step = $rdec*$rdec;
-  my $i_pair = $i % $pair_step;
-  my $i_len = int($i/$pair_step);
-  ### $i_pair
-  ### $i_len
-
-  my $a = int($i_pair/$rdec) + 1;
-  my $b = $i_pair % $rdec;
-  $b += ($b >= $a);
-  ### $a
-  ### $b
-
-  my $ret = ($a*$radix + $b)*$radix + $a;
-  while ($i_len--) {
-    $ret = ($ret * $radix) + $a;
-    last unless $i_len--;
-    $ret = ($ret * $radix) + $b;
-  }
-  ### $ret
-  return $ret;
 }
 
 1;

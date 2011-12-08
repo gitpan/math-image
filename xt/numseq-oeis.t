@@ -107,7 +107,7 @@ sub check_class {
   # return unless $class =~ /DigitCount/;
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
-   return unless $class =~ /Kol/;
+  # return unless $class =~ /Sqrt/;
 
 
   eval "require $class" or die;
@@ -116,11 +116,20 @@ sub check_class {
                   $class,
                   map {defined $_ ? $_ : '[undef]'} @$parameters);
 
-  my ($want, $want_i_start, $filename) = MyOEIS::read_values($anum)
-    or do {
-      MyTestHelpers::diag("skip $anum $name, no file data");
-      return;
-    };
+  my $max_value = undef;
+  if ($class->isa('Math::NumSeq::Factorials')
+      || $class->isa('Math::NumSeq::Primorials')
+      || $class eq 'Math::NumSeq::Fibonacci' # not LucasNumbers yet
+     ) {
+    $max_value = 'unlimited';
+  }
+
+  my ($want, $want_i_start, $filename) = MyOEIS::read_values
+    ($anum, max_value => $max_value)
+      or do {
+        MyTestHelpers::diag("skip $anum $name, no file data");
+        return;
+      };
   ### read_values len: scalar(@$want)
   ### $want_i_start
 
@@ -287,6 +296,60 @@ sub check_class {
       if ($#$want > 200) { $#$want = 200 }
       MyTestHelpers::diag ("got  ". join(',', map {defined() ? $_ : 'undef'} @$got));
       MyTestHelpers::diag ("want ". join(',', map {defined() ? $_ : 'undef'} @$want));
+    }
+  }
+
+  {
+    ### by ith() ...
+    $seq->can('ith')
+      or next;
+
+    my $i = $seq->i_start;
+    if (($max_value||'') eq 'unlimited') {
+      $i = Math::NumSeq::_bigint()->new($i);
+    }
+
+    my @got;
+    while (@got < @$want) {
+      my $value = $seq->ith($i++);
+      last if (! defined $value);
+      push @got, $value;
+    }
+    my $got = \@got;
+    ### $got
+
+    my $diff = diff_nums($got, $want);
+    if (defined $diff) {
+      $good = 0;
+      MyTestHelpers::diag ("bad: $name by ith()");
+      MyTestHelpers::diag ($diff);
+      MyTestHelpers::diag (ref $seq);
+      MyTestHelpers::diag ($filename);
+      MyTestHelpers::diag ("got  len ".scalar(@$got));
+      MyTestHelpers::diag ("want len ".scalar(@$want));
+      if ($#$got > 200) { $#$got = 200 }
+      if ($#$want > 200) { $#$want = 200 }
+      MyTestHelpers::diag ("got  ". join(',', map {defined() ? $_ : 'undef'} @$got));
+      MyTestHelpers::diag ("want ". join(',', map {defined() ? $_ : 'undef'} @$want));
+    }
+
+    {
+      my $data_min = _min(@$want);
+      my $values_min = $seq->values_min;
+      if (defined $values_min
+          && defined $data_min
+          && $values_min != $data_min) {
+        $good = 0;
+        MyTestHelpers::diag ("bad: $name values_min $values_min but data min $data_min");
+      }
+    }
+    {
+      my $data_max = _max(@$want);
+      my $values_max = $seq->values_max;
+      if (defined $values_max && $values_max != $data_max) {
+        $good = 0;
+        MyTestHelpers::diag ("bad: $name values_max $values_max not seen in data, only $data_max");
+      }
     }
   }
 

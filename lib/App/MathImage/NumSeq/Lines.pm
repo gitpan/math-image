@@ -23,7 +23,7 @@ use Math::NumSeq;
 use base 'Math::NumSeq::All';
 
 use vars '$VERSION';
-$VERSION = 82;
+$VERSION = 83;
 
 # use constant name => Math::NumSeq::__('Lines');
 use constant description => Math::NumSeq::__('No numbers, instead lines showing the path taken.');

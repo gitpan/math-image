@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -350,16 +350,16 @@ This is the terdragon curve by Davis and Knuth,
 
               30                28                                  7
            /       \         /       \
-     31/34          26/29/32            27                          6
+     31/34 -------- 26/29/32 ---------  27                          6
           \        /         \
-           24/33/42            22/25                                5
+           24/33/42 ---------- 22/25                                5
           /        \         /       \
-  40/43/46          20/23/44          12/21           10            4
-           \       /        \        /      \      /       \
-              18/45 -------- 13/16/19        8/11/14 -------- 9     3
-                    \       /       \      /      \
+  40/43/46 -------- 20/23/44 -------- 12/21            10           4
+           \       /        \        /      \       /       \
+             18/45 --------- 13/16/19 ------ 8/11/14 -------- 9     3
+                    \       /       \       /       \
                        17              6/15 --------- 4/7           2
-                                            \       /     \
+                                             \      /     \
                                                2/5 ---------  3     1
                                                    \
                                          0 ----------- 1        <- Y=0
@@ -367,28 +367,32 @@ This is the terdragon curve by Davis and Knuth,
        ^       ^        ^        ^       ^      ^      ^      ^
       -4      -3       -2       -1      X=0     1      2      3
 
-The curve visits "inside" X,Y points three times.  The first of these is
-X=1,Y=3 which is N=8, N=11 and N=14.  The corners N=7,8,9, N=10,11,12 and
-N=13,14,15 have touched, but the path doesn't cross itself.  The tripled
-vertices are all like this, touching but not crossing, and no edges
-repeating.
+The curve visits "inner" X,Y points three times, and outer points either
+once or twice.  The first triple point is X=1,Y=3 which is N=8, N=11 and
+N=14.  The segments N=7,8,9 make a vertex there, as does N=10,11,12 and
+N=13,14,15.  they touch, but the path doesn't cross itself.  The tripled
+vertices are all like this, touching but not crossing, and no edges repeat.
 
 The first step N=1 is to the right along the X axis and the path then slowly
 spirals counter-clockwise and progressively fatter.  The end of each
-replication is N=3^level which is level*30 degrees around,
+replication is
 
-    N       X,Y     angle
-   ----    -----    -----
-     1      1,0        0
-     3      3,1       30
-     9      3,3       60
-    27      0,6       90
-    81     -9,9      120
-   243    -27,9      150
-   729    -54,0      180
+    Nlevel = 3^level
 
-Here's points N=0 to N=3^6=729 with the N=0 origin at "o" and N=729 end at
-the "+".  It's gone half-circle around to 180 degrees,
+and that point is at level*30 degrees around,
+
+    Nlevel     X,Y     angle (degrees)
+    ------    -----    -----
+      1        1,0        0
+      3        3,1       30
+      9        3,3       60
+     27        0,6       90
+     81       -9,9      120
+    243      -27,9      150
+    729      -54,0      180
+
+The following is points N=0 to N=3^6=729 with the N=0 origin marked "o" and
+the N=729 end marked "+".  It's gone half-circle around to 180 degrees,
 
                                * *               * *
                             * * * *           * * * *
@@ -415,25 +419,13 @@ the "+".  It's gone half-circle around to 180 degrees,
 =head2 Turns
 
 At each point N the curve always turns 120 degrees either to the left or
-right, it never goes straight ahead.  The ternary digit above the lowest 1
-in N gives the turn direction.  
+right, it never goes straight ahead.  If N is written in ternary then ...
 
-...
-
-For example at N=11 shown above the curve
-has just gone downwards from N=11.  N=12 is binary 0b1100, the lowest 1 bit
-is the 0b.1.. and the bit above that is a 1, which means turn to the right.
-Whereas later at N=18 which has gone downwards from N=17 it's N=18 in binary
-0b10010, the lowest 1 is 0b...1., and the bit above that is 0, so turn left.
-
-...
-
-The bits also give turn after the next by taking the bit above the lowest 0.
-For example at N=12 the lowest 0 is the least significant bit, and above
-that is a 0 too, so after going to N=13 the next turn is then to the left to
-go to N=14.  Or for N=18 the lowest 0 is again the least significant bit,
-but above that is a 1 too, so after going to N=19 the next turn is to the
-right to go to N=20.
+    Ndigit      Turn
+    ------      ----
+      0
+      1
+      2
 
 =head2 Arms
 
@@ -470,7 +462,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
 
-The optional C<arms> parameter can trace 1 to 4 copies of the curve, each
+The optional C<arms> parameter can trace 1 to 6 copies of the curve, each
 arm successively advancing.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
@@ -478,9 +470,8 @@ arm successively advancing.
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
-The curve visits an C<$x,$y> twice for various points (all the "inside"
-points).  In the current code the smaller of the two N values is returned.
-Is that the best way?
+The curve can visits an C<$x,$y> up to three times.  In the current code the
+smaller of the these N values is returned.  Is that the best way?
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -495,7 +486,7 @@ turn at each line segment,
 
     http://oeis.org/A080846  etc
 
-    A080846 -- turn 0=left, 1=right
+    A080846 -- turn 0=left, 1=right, by 120 degrees
     A060236 -- turn 1=left, 2=right
     A026225 -- N positions of left turns
     A026179 -- N positions of right turns

@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 82;
+$VERSION = 83;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -745,8 +745,19 @@ sub output_method_numbers {
   my $y_min = 0;
   my $x_max = 0;
   my $y_max = 0;
-  while (my ($n) = $values_obj->next) {
-    last if ! defined $n || $n > $n_hi;
+  my $smaller_count = 0;
+  while (my ($i, $value) = $values_obj->next) {
+    ### $n
+    ### $value
+    my $n = $value;
+    last if ! defined $i || ! defined $n || $n > $n_hi;
+
+    if ($n < $i) {
+      if (++$smaller_count > 10) {
+        last;
+      }
+      next;
+    }
     next if $n < $n_lo;
 
     my ($x, $y) = $path->n_to_xy ($n)
@@ -949,7 +960,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 4;   # 4 chars each
+  my $cell_width = 3;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);

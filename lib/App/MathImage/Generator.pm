@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 82;
+$VERSION = 83;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -190,7 +190,7 @@ use constant::defer values_choices => sub {
                          KlarnerRado
                          AsciiSelf
                          Kolakoski
-                         KolakoskiMajority
+                         KolakoskiGroups
                          GolombSequence
                          MephistoWaltz
 
@@ -198,6 +198,7 @@ use constant::defer values_choices => sub {
                          Modulo
                          Expression
                          PlanePathCoord
+                         PlanePathDelta
                          OEIS
                          File
                        )) {
@@ -291,7 +292,7 @@ my %pathname_square_grid
                      PeanoCurve
                      HilbertCurve
                      MathImageHilbertMidpoint
-                     MathImageHilbertSpiral
+                     HilbertSpiral
                      ZOrderCurve
                      WunderlichMeander
                      BetaOmega
@@ -567,7 +568,7 @@ sub y_negative {
                            PeanoCurve
                            HilbertCurve
                            MathImageHilbertMidpoint
-                           MathImageHilbertSpiral
+                           HilbertSpiral
                            ZOrderCurve
                            WunderlichMeander
                            BetaOmega
@@ -1062,31 +1063,16 @@ sub figure {
   return $figure;
 }
 
-sub colour_to_rgb {
-  my ($colour) = @_;
-  my $scale;
-  # ENHANCE-ME: Or demand Color::Library always, or
-  # X11::Protocol::Other::hexstr_to_rgb()
-  if ($colour =~ /^#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i) {
-    $scale = 255;
-  } elsif ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i) {
-    $scale = 65535;
-  } elsif (eval { require Color::Library }
-           && (my $c = Color::Library->color($colour))) {
-    return map {$_/255} $c->rgb;
-  }
-  return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
-}
-
-sub colours_grey_exp {
+sub colours_exp_shrink {
   my ($self) = @_;
-  my $colours = $self->{'colours'} = [];
-  my $f = 1.0;
+
   my $shrink = 0.6;
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
   } elsif ($self->{'values'} eq 'RepdigitRadix') {
     $shrink = .9;
+  } elsif ($self->{'values'} eq 'SqrtContfracPeriod') {
+    $shrink = .93;
   } elsif ($self->{'values'} eq 'CunninghamChain') {
     $shrink = .7;
   } elsif ($self->{'values'} eq 'TotientSteps') {
@@ -1126,31 +1112,27 @@ sub colours_grey_exp {
   } elsif ($self->{'values'} eq 'Runs') {
     $shrink = .95;
   }
-  for (;;) {
-    push @$colours, $self->colour_scaled ($f);
-    last if ($f < 1/255);
-    $f = $shrink * $f;
-  }
-  ### grey exp colours: $self->{'colours'}
+  return $shrink;
 }
-sub colours_grey_linear {
-  my ($self, $n, $colour) = @_;
-  ### colours_grey_linear(): $n
-  $self->{'colour_method'} = \&_colour_array;
-  my $colours = $self->{'colours'} = [];
-  foreach my $i (0 .. $n-1) {
-    push @$colours, $self->colour_scaled ($i / ($n-1));
-  }
-  ### colours_grey_linear: $self->{'colours'}
-}
-sub _colour_array {
-  my ($self, $count) = @_;
-  return $self->{'colours'}->[$count];
 
+sub colour_to_rgb {
+  my ($colour) = @_;
+  my $scale;
+  # ENHANCE-ME: Or demand Color::Library always, or
+  # X11::Protocol::Other::hexstr_to_rgb()
+  if ($colour =~ /^#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i) {
+    $scale = 255;
+  } elsif ($colour =~ /^#([0-9A-F]{4})([0-9A-F]{4})([0-9A-F]{4})$/i) {
+    $scale = 65535;
+  } elsif (eval { require Color::Library }
+           && (my $c = Color::Library->color($colour))) {
+    return map {$_/255} $c->rgb;
+  }
+  return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
 }
 
 # $factor=0 background, through $factor=1 foreground
-sub colour_scaled {
+sub colour_grey {
   my ($self, $factor) = @_;
   return $self->colour_heat($factor);
 
@@ -1174,30 +1156,30 @@ sub colour_heat {
                              } .375, .125, -.125);
 }
 sub rgb1_to_rgbstr {
-  return sprintf("#%04X%04X%04X",
-                 map { max (0, min (0xFFFF, int (0.5 + 0xFFFF * $_))) }
-                 @_);
-
-  # return sprintf("#%02X%02X%02X",
-  #                map { max (0, min (0xFF, int (0.5 + 0xFF * $_))) }
+  # my ($r,$g,$b) = @_;
+  # return sprintf("#%04X%04X%04X",
+  #                map { max (0, min (0xFFFF, int (0.5 + 0xFFFF * $_))) }
   #                @_);
 
+  return sprintf("#%02X%02X%02X",
+                 map { max (0, min (0xFF, int (0.5 + 0xFF * $_))) }
+                 @_);
 }
 
-# seven colours
-sub colours_rainbow {
-  my ($self) = @_;
-  # ROYGBIV
-  $self->{'colours'} = [ 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'violet' ];
-  ### colours: $self->{'colours'}
-}
+# # seven colours
+# sub colours_rainbow {
+#   my ($self) = @_;
+#   # ROYGBIV
+#   $self->{'colours'} = [ 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'violet' ];
+#   ### colours: $self->{'colours'}
+# }
 
-# ENHANCE-ME: two shades of each to make radix==6
-sub colours_rgb {
-  my ($self) = @_;
-  $self->{'colours'} = [ 'red', 'green', 'blue' ];
-  ### colours: $self->{'colours'}
-}
+# # ENHANCE-ME: two shades of each to make radix==6
+# sub colours_rgb {
+#   my ($self) = @_;
+#   $self->{'colours'} = [ 'red', 'green', 'blue' ];
+#   ### colours: $self->{'colours'}
+# }
 
 # # ($x,$y, $x,$y, ...) = $aff->untransform($x,$y, $x,$y, ...)
 # sub untransform {
@@ -1234,14 +1216,14 @@ sub draw_Image_start {
   my ($self, $image) = @_;
   ### draw_Image_start()...
   ### values: $self->{'values'}
-  
+
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
   my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
   ### $width
   ### $height
-  
+
   my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
@@ -1249,7 +1231,7 @@ sub draw_Image_start {
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my @colours = ($foreground);
-  
+
   # clear undrawn quadrants
   {
     my @undrawn_rects;
@@ -1282,7 +1264,7 @@ sub draw_Image_start {
     App::MathImage::Image::Base::Other::rectangles
         ($image, $background, 1, @background_rects);
   }
-  
+
   my ($n_lo, $n_hi);
   my $rectangle_area = 1;
   if ($self->{'values'} eq 'LinesLevel') {
@@ -1346,16 +1328,16 @@ sub draw_Image_start {
       $n_hi = $level*$level;
     }
     $n_angle ||= $n_hi;
-    
+
     ### $level
     ### $n_lo
     ### $n_hi
     ### $n_angle
     ### $yfactor
-    
+
     $affine = Geometry::AffineTransform->new;
     $affine->scale (1, $yfactor);
-    
+
     my ($xlo, $ylo) = $path_object->n_to_xy ($n_lo);
     my ($xang, $yang) = $path_object->n_to_xy ($n_angle);
     my $theta = - atan2 ($yang*$yfactor, $xang);
@@ -1365,7 +1347,7 @@ sub draw_Image_start {
     ### hi raw: $path_object->n_to_xy($n_hi)
     ### $theta
     ### $r
-    
+
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
@@ -1373,12 +1355,12 @@ sub draw_Image_start {
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * $xmargin,
                         $self->{'height'} * .5);
-    
+
     ### width: $self->{'width'}
     ### scale x: $self->{'width'} * (1-2*$xmargin) / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
-    
+
     # FIXME: wrong when rotated ... ??
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
@@ -1390,20 +1372,20 @@ sub draw_Image_start {
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-    
+
     my ($x,$y) = $path_object->n_to_xy ($n_lo++);
     ### start raw: "$x, $y"
     ($x,$y) = $affine->transform ($x, $y);
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-    
+
     $self->{'xprev'} = $x;
     $self->{'yprev'} = $y;
     $self->{'affine_object'} = $affine;
     ### prev: "$x,$y"
     ### theta degrees: $theta*180/3.14159
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
-    
+
   } else {
     my $affine_inv = $affine->clone->invert;
     my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
@@ -1415,30 +1397,30 @@ sub draw_Image_start {
     ### $x2
     ### $y1
     ### $y2
-    
+
     ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
     # if ($n_hi > _SV_N_LIMIT) {
     #   ### n_hi: "$n_hi"
     #   ### bigint n range ...
     #   ($n_lo, $n_hi) = $path_object->rect_to_n_range (_bigint()->new(floor($x1)),$y1, $x2,$y2);
     # }
-    
+
     if ($self->{'values'} eq 'Lines') {
       $n_hi += 1;
     } elsif ($self->{'values'} eq 'LinesTree') {
       $n_hi += ($self->{'values_parameters'}->{'branches'} ||= 3);
     }
   }
-  
+
   ### n_lo: "$n_lo"
   ### n_hi: "$n_hi"
-  
+
   $self->{'n_prev'} = $n_lo - 1;
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'}   = $n_hi;
   $self->{'count_total'} = 0;
   $self->{'count_outside'} = 0;
-  
+
   # origin point
   if ($scale >= 3 && $self->figure ne 'point') {
     my ($x,$y) = $affine->transform(0,0);
@@ -1448,15 +1430,15 @@ sub draw_Image_start {
       $image->xy ($x, $y, $foreground);
     }
   }
-  
+
   if ($self->{'values'} eq 'Lines') {
-    
+
   } elsif ($self->{'values'} eq 'LinesTree') {
     my $branches = ($self->{'values_parameters'}->{'branches'} ||= 3);
     $self->{'branch_i'} = $branches;
     $self->{'upto_n'} = $path_object->n_start - 1;
     $self->{'upto_n_dest'} = $path_object->n_start + 1;
-    
+
   } else {
     my $values_class = $self->values_class($self->{'values'});
     ### values_parameters: $self->{'values_parameters'}
@@ -1467,71 +1449,28 @@ sub draw_Image_start {
 
     my $values_min = $values_obj->values_min;
     my $values_max = $values_obj->values_max;
-    
-    if (defined $values_min
-        && defined $values_max
-        && $values_max - $values_min == 1) {
-      ### two value colours ...
-      $self->{'colours_base'} = $values_min || 0;
-      $self->{'use_colours'} = 1;
-      if ($values_max > 0) {
-        $self->{'colours'} = [ $background, $foreground ];
-      } else {
-        $self->{'colours'} = [ $foreground, $background ];
-      }
 
-    } elsif (defined $values_min && $values_min == -1
-        && defined $values_max && $values_max == 1) {
-      ### +/-1 colours ...
-      if ($image->isa('Image::Base::Text')) {
-        $self->{'colours'} = [ '-',' ','+' ];
-      } else {
-        $self->colours_grey_linear (3);
-        my $colours = $self->{'colours'};
-        $self->{'colours'} = [ $colours->[1],  # grey
-                               $background,
-                               $colours->[2],  # white
-                             ];
-      }
-      $self->{'colours_base'} = $values_min;
+    $self->{'colours_base'} = $values_min || 0;
+    $self->{'colours_max'} = $values_max;
+    if (defined $values_max) {
       $self->{'use_colours'} = 1;
-      ### colours: $self->{'colours'}
-      ### colours_base: $self->{'colours_base'}
-      
-    } elsif (my $num = ($values_obj->characteristic('digits')
-                        || $values_obj->characteristic('modulus')
-                        || do {
-                          (defined $values_min
-                           && defined $values_max
-                           && $values_max - $values_min + 1)
-                        })) {
-      ### fixed set of colours ...
-      $self->{'colours_base'} = $values_min || 0;
-      if ($image->isa('Image::Base::Text')) {
-        $self->{'colours'} = [ 0 .. 9, 'A' .. 'Z' ];
-      } else {
-        $self->colours_grey_linear ($num);
-      }
-      $self->{'use_colours'} = 1;
-      push @colours, @{$self->{'colours'}};
-      
-    } elsif ($values_obj->characteristic('count')
-             || $values_obj->characteristic('smaller')) {
-      $self->{'colours_base'} = 0;
-      if ($image->isa('Image::Base::Text')) {
-        $self->{'colours'} = [ 0 .. 9 ];
-      } else {
-        $self->colours_grey_exp ($self);
-      }
-      push @colours, @{$self->{'colours'}};
-      $self->{'use_colours'} = 1;
-      $self->{'colours_base'} = ($values_obj->values_min || 0);
-      ### type "count" ...
-      ### colours_base: $self->{'colours_base'}
-      ### per values_min: $values_obj->values_min
-      ### colours: $self->{'colours'}
     }
-    ### values_obj: $self->{'values_obj'}
+    $self->{'colours_shrink'} = $self->colours_exp_shrink;
+    $self->{'colours_shrink_log'} = log($self->{'colours_shrink'});
+
+    if ($values_obj->characteristic('count')
+        || $values_obj->characteristic('smaller')) {
+      $self->{'use_colours'} = 1;
+
+      # if ($image->isa('Image::Base::Text')) {
+      #   $self->{'colours'} = [ 0 .. 9 ];
+      # } else {
+      #   $self->colours_grey_exp ($self);
+      # }
+    }
+
+    ### colours_base: $self->{'colours_base'}
+    ### per values_min: $values_obj->values_min
 
     my $filter = $self->{'filter'} || 'All';
     $self->{'filter_obj'} =
@@ -1548,9 +1487,6 @@ sub draw_Image_start {
       $self->use_xy($image);
     }
   }
-
-  $image->add_colours (@colours);
-
 
   # ### force use_xy...
   # $self->use_xy($image);
@@ -1721,7 +1657,7 @@ sub draw_Image_steps {
   my %rectangles_by_colour;
   my $flush = sub {
     ### flush points: scalar(%points_by_colour)
-    ### colours: keys %points_by_colour
+    ### colour keys: keys %points_by_colour
     foreach my $colour (keys %points_by_colour) {
       my $aref = delete $points_by_colour{$colour};
       App::MathImage::Image::Base::Other::xy_points
@@ -2119,9 +2055,7 @@ sub draw_Image_steps {
       ### xy win: "$wx,$wy"
 
       if ($use_colours) {
-        $colour = $colours->[min ($#$colours,
-                                  max (0, abs($count - $colours_base)))];
-        #### $colour
+        $colour = $self->value_to_colour($count);
       }
       if ($figure eq 'point') {
         $count_figures++;
@@ -2202,11 +2136,10 @@ sub draw_Image_steps {
       ### at: "n=$n  path xy=$x,$y"
 
       if ($use_colours) {
-        if (! defined $value || $value == 0) {
+        if (! defined $value) {   #  || $value == 0
           next; # background
         }
-        $colour = $colours->[min ($#$colours,
-                                  abs($value - $colours_base))];
+        $colour = $self->value_to_colour($value);
         #### $colour
         #### at index: abs($value - $colours_base)
       }
@@ -2333,6 +2266,31 @@ sub can_use_xy {
   # $pathname_square_grid{$self->{'path'}}
   # $values_obj->can('pred')
   #         && $values_obj->can('ith')) {
+}
+
+my @plus_or_minus = ('-',' ','+');
+my @text_colour = (0 .. 9, 'A'..'Z', 'a'..'z');
+sub value_to_colour {
+  my ($self, $value) = @_;
+  ### value_to_colour(): $value
+  my $base = $self->{'colours_base'};
+  if (defined (my $max = $self->{'colours_max'})) {
+    ### linear ...
+    $value = abs($value - $base);
+    if ($self->{'image'}->isa('Image::Base::Text')) {
+      if ($base == -1 && $max == 1) {
+        return $plus_or_minus[$value];
+      }
+    ### text: $text_colour[min($value,$#text_colour)]
+      return $text_colour[min($value,$#text_colour)];
+    }
+    return $self->colour_grey ($value / (($max - $base) || 1))
+
+  } else {
+    ### exponential ...
+    $value = exp(($value - $base) * $self->{'colours_shrink_log'});
+    return $self->colour_grey ($value)
+  }
 }
 
 use constant::defer _bigint => sub {

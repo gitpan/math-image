@@ -21,7 +21,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -33,7 +33,7 @@ use constant name => Math::NumSeq::__('Count Hypotenuses');
 use constant description => Math::NumSeq::__('Count of how many ways a given N = A^2+B^2 occurs, for integer A,B >=0 (and no swaps, so B<=A).');
 use constant characteristic_count => 1;
 use constant characteristic_monotonic => 0;
-use constant values_min => 1;
+use constant values_min => 0;
 use constant oeis_anum => 'A000161'; # num ways sum of two squares, no swaps
 
 # sub new {

@@ -46,12 +46,10 @@ require App::MathImage::Image::Base::BMP;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 82;
-ok ($App::MathImage::Image::Base::BMP::VERSION,
-    $want_version,
+my $want_version = 83;
+ok ($App::MathImage::Image::Base::BMP::VERSION, $want_version,
     'VERSION variable');
-ok (App::MathImage::Image::Base::BMP->VERSION,
-    $want_version,
+ok (App::MathImage::Image::Base::BMP->VERSION, $want_version,
     'VERSION class method');
 
 ok (eval { App::MathImage::Image::Base::BMP->VERSION($want_version); 1 },

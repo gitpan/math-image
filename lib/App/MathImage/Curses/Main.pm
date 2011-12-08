@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 82;
+$VERSION = 83;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

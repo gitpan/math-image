@@ -16,6 +16,11 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# A010751 runs incr then decr
+
+
+
 package App::MathImage::NumSeq::Runs;
 use 5.004;
 use strict;
@@ -23,9 +28,9 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 82;
+$VERSION = 83;
 
-use Math::NumSeq;
+use Math::NumSeq 21; # v.21 for oeis_anum field
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
         'Math::NumSeq');
@@ -96,7 +101,7 @@ my %runs_type_data
                   count      => 1,
                   count_inc  => 2,
                   oeis_anum  => 'A074294',
-                  # OEIS-Catalogue: A074294 runs_type=0toN
+                  # OEIS-Catalogue: A074294 runs_type=1to2N
                 },
      'Nto0' => { value      => 1, # initial
                  values_min => 0,

@@ -29,7 +29,7 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 82;
+$VERSION = 83;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -16,12 +16,12 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package App::MathImage::NumSeq::KolakoskiMajority;
+package App::MathImage::NumSeq::KolakoskiGroups;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -35,6 +35,10 @@ use Math::NumSeq::Kolakoski;
 #   Math::NumSeq::__('...');
 
 use constant characteristic_monotonic => 0;
+sub characteristic_integer {
+  my ($self) = @_;
+  return (($self->{'length'} % 2) == 1);  # odd lengths are integers
+}
 use constant values_min => 1;
 use constant values_max => 2;
 use constant i_start => 1;
@@ -72,7 +76,7 @@ sub rewind {
 
 sub next {
   my ($self, $i) = @_;
-  ### KolakoskiMajority ith(): $i
+  ### KolakoskiGroups ith(): $i
 
   my @got = (undef, 0,0);
   foreach (1 .. $self->{'length'}) {
@@ -110,12 +114,12 @@ __END__
 
 =head1 NAME
 
-Math::NumSeq::KolakoskiMajority -- majority value in groups of Kolakoski values
+Math::NumSeq::KolakoskiGroups -- majority value in groups of Kolakoski values
 
 =head1 SYNOPSIS
 
- use Math::NumSeq::KolakoskiMajority;
- my $seq = Math::NumSeq::KolakoskiMajority->new (length => 3);
+ use Math::NumSeq::KolakoskiGroups;
+ my $seq = Math::NumSeq::KolakoskiGroups->new (length => 3);
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -154,5 +158,5 @@ L<Math::NumSeq::Kolakoski>
 =cut
 
 # Local variables:
-# compile-command: "math-image --values=Kolakoski"
+# compile-command: "math-image --values=KolakoskiGroups"
 # End:

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            82
+version:            83
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -63,7 +63,7 @@ requires:
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
     Math::Libm:           0
-    Math::NumSeq:         7
+    Math::NumSeq:         21
     Math::NumSeq::All:    1
     Math::NumSeq::Base::Array:  1
     Math::NumSeq::Base::Digits:  1
@@ -76,9 +76,11 @@ requires:
     Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
-    Math::NumSeq::Totient:  13
+    Math::NumSeq::SqrtDigits:  1
+    Math::NumSeq::Squares:  1
     Math::PlanePath:      43
-    Math::PlanePath::BetaOmega:  54
+    Math::PlanePath::CellularRule54:  54
+    Math::PlanePath::HilbertCurve:  1
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  1
@@ -201,7 +203,7 @@ optional_features:
             Math::NumSeq::DivisorCount:  12
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
-            Math::NumSeq::Expression:  6
+            Math::NumSeq::Expression:  20
             Math::NumSeq::Factorials:  1
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
@@ -284,6 +286,7 @@ optional_features:
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
             Math::PlanePath::HilbertCurve:  13
+            Math::PlanePath::HilbertSpiral:  57
             Math::PlanePath::HIndexing:  52
             Math::PlanePath::Hypot:  21
             Math::PlanePath::HypotOctant:  21
@@ -294,7 +297,7 @@ optional_features:
             Math::PlanePath::KochPeaks:  30
             Math::PlanePath::KochSnowflakes:  30
             Math::PlanePath::KochSquareflakes:  30
-            Math::PlanePath::LTiling:  56
+            Math::PlanePath::LTiling:  57
             Math::PlanePath::MPeaks:  55
             Math::PlanePath::MultipleRings:  15
             Math::PlanePath::OctagramSpiral:  21
@@ -366,7 +369,7 @@ optional_features:
             Math::NumSeq::DivisorCount:  12
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
-            Math::NumSeq::Expression:  6
+            Math::NumSeq::Expression:  20
             Math::NumSeq::Factorials:  1
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
@@ -452,6 +455,7 @@ optional_features:
             Math::PlanePath::HexSpiral:  9
             Math::PlanePath::HexSpiralSkewed:  9
             Math::PlanePath::HilbertCurve:  13
+            Math::PlanePath::HilbertSpiral:  57
             Math::PlanePath::HIndexing:  52
             Math::PlanePath::Hypot:  21
             Math::PlanePath::HypotOctant:  21
@@ -462,7 +466,7 @@ optional_features:
             Math::PlanePath::KochPeaks:  30
             Math::PlanePath::KochSnowflakes:  30
             Math::PlanePath::KochSquareflakes:  30
-            Math::PlanePath::LTiling:  56
+            Math::PlanePath::LTiling:  57
             Math::PlanePath::MPeaks:  55
             Math::PlanePath::MultipleRings:  15
             Math::PlanePath::OctagramSpiral:  21
@@ -551,7 +555,7 @@ recommends:
     Math::NumSeq::DivisorCount:  12
     Math::NumSeq::Emirps:  4
     Math::NumSeq::Even:   1
-    Math::NumSeq::Expression:  6
+    Math::NumSeq::Expression:  20
     Math::NumSeq::Factorials:  1
     Math::NumSeq::Fibbinary:  15
     Math::NumSeq::FibbinaryBitCount:  18
@@ -634,6 +638,7 @@ recommends:
     Math::PlanePath::HexSpiral:  9
     Math::PlanePath::HexSpiralSkewed:  9
     Math::PlanePath::HilbertCurve:  13
+    Math::PlanePath::HilbertSpiral:  57
     Math::PlanePath::HIndexing:  52
     Math::PlanePath::Hypot:  21
     Math::PlanePath::HypotOctant:  21
@@ -644,7 +649,7 @@ recommends:
     Math::PlanePath::KochPeaks:  30
     Math::PlanePath::KochSnowflakes:  30
     Math::PlanePath::KochSquareflakes:  30
-    Math::PlanePath::LTiling:  56
+    Math::PlanePath::LTiling:  57
     Math::PlanePath::MPeaks:  55
     Math::PlanePath::MultipleRings:  15
     Math::PlanePath::OctagramSpiral:  21

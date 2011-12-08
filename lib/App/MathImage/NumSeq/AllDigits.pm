@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq::Base::Digits;
 @ISA = ('Math::NumSeq::Base::Digits');
 
@@ -67,6 +67,8 @@ use constant parameter_info_array =>
 #    A193431 - decimal 3 digits at a time
 #    A193492 - decimal 4 digits at a time
 #    A193493 - decimal 5 digits at a time
+#
+#    A033308 - concatenate primes digits
 #
 my %oeis_anum;
 

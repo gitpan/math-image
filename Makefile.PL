@@ -120,6 +120,7 @@ my %maximum_planepath
 
      'Math::PlanePath::PeanoCurve'           => 36, # v.36 radix parameter
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
+     'Math::PlanePath::HilbertSpiral'        => 57, # new in v.57
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::WunderlichMeander'    => 54, # new in v.54
      'Math::PlanePath::BetaOmega'            => 54, # v.54 exact rect
@@ -128,7 +129,7 @@ my %maximum_planepath
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
      'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
-     'Math::PlanePath::LTiling'              => 56, # new in v.56
+     'Math::PlanePath::LTiling'              => 57, # v.57 L_fill options
      'Math::PlanePath::DigitGroups'          => 52, # new in v.52
      'Math::PlanePath::FibonacciWordFractal' => 53, # new in v.53
 
@@ -240,7 +241,7 @@ my %maximum_numseq
 
      'Math::NumSeq::File'       => 1,
      'Math::NumSeq::OEIS'       => 13, # v.13 fix .internal description parse
-     'Math::NumSeq::Expression' => 6,  # new in v.6
+     'Math::NumSeq::Expression' => 20, # v.20 workaround Safe.pm
 
      # in Math-Aronson
      'Math::Aronson'         => 4, # version 4 for lying option
@@ -367,21 +368,24 @@ sub add_prereq {
 add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
+add_prereq ('Math::PlanePath::HilbertCurve', 1); # for HilbertMidpoint
 add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
-add_prereq ('Math::PlanePath::BetaOmega', 54); # for HilbertSpral
-add_prereq ('Math::NumSeq::PlanePathCoord', 53); # for PlanePathN
+add_prereq ('Math::PlanePath::CellularRule54', 54); # for CellularRule
+add_prereq ('Math::NumSeq::PlanePathCoord', 53); # PlanePathDelta,PlanePathN
 #
 add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
+add_prereq ('Math::NumSeq',21); # v.21 for Runs oeis_anum field
 add_prereq ('Math::NumSeq::Base::Array',1);
 add_prereq ('Math::NumSeq::Base::Digits',1);
 add_prereq ('Math::NumSeq::Base::IterateIth',1);
 add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
+add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContfrac
+add_prereq ('Math::NumSeq::SqrtDigits',1);  # for SqrtContfrac
 add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
-add_prereq ('Math::NumSeq::Totient',13); # for TotientStepsSum, new in v.13
 add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
-add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiMajority
+add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiGroups
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',

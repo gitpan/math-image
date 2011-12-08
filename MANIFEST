@@ -114,7 +114,7 @@ lib/App/MathImage/NumSeq/DigitMiddle.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/HofstadterDiff.pm
 lib/App/MathImage/NumSeq/HypotCount.pm
-lib/App/MathImage/NumSeq/KolakoskiMajority.pm
+lib/App/MathImage/NumSeq/KolakoskiGroups.pm
 lib/App/MathImage/NumSeq/Lines.pm
 lib/App/MathImage/NumSeq/LinesLevel.pm
 lib/App/MathImage/NumSeq/LinesTree.pm
@@ -137,6 +137,8 @@ lib/App/MathImage/NumSeq/ReplicateDigits.pm
 lib/App/MathImage/NumSeq/ReRound.pm
 lib/App/MathImage/NumSeq/Runs.pm
 lib/App/MathImage/NumSeq/Spectrum.pm
+lib/App/MathImage/NumSeq/SqrtContfrac.pm
+lib/App/MathImage/NumSeq/SqrtContfracPeriod.pm
 lib/App/MathImage/NumSeq/SumTwoSquares.pm
 lib/App/MathImage/NumSeq/SumXsq3Ysq.pm
 lib/App/MathImage/NumSeq/UlamSequence.pm
@@ -175,8 +177,9 @@ lib/Math/PlanePath/MathImageDekkingStraight.pm
 lib/Math/PlanePath/MathImageFractionsTree.pm
 lib/Math/PlanePath/MathImageGrayCurve.pm
 lib/Math/PlanePath/MathImageHilbertMidpoint.pm
-lib/Math/PlanePath/MathImageHilbertSpiral.pm
+lib/Math/PlanePath/MathImagePeanoRounded.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
+lib/Math/PlanePath/MathImageStaircaseAlternating.pm
 lib/Math/PlanePath/MathImageTerdragonCurve.pm
 lib/Math/PlanePath/MathImageTerdragonMidpoint.pm
 lib/Math/PlanePath/MathImageWunderlichSerpentine.pm
@@ -197,7 +200,6 @@ t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
 t/Gtk2-SaveDialog-weaken.t
 t/Gtk2-SaveDialog.t
-t/HilbertSpiral.t
 t/Image-Base-BMP.t
 t/Image-Base-Other.t
 t/MathImage.t
