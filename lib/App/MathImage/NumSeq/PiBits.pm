@@ -21,7 +21,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -32,7 +32,7 @@ use Math::NumSeq;
 use constant name => Math::NumSeq::__('Pi Bits');
 use constant description => Math::NumSeq::__('Pi 3.141529... written out in binary.');
 use constant values_min => 0;
-use constant characteristic_monotonic => 1;
+use constant characteristic_increasing => 1;
 
 # A004601 to A004608 - base 2 to 9
 # A000796 - base 10

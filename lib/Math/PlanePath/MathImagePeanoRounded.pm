@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -84,8 +84,6 @@ sub n_to_xy {
     }
     $n = $int; # BigFloat int() gives BigInt, use that
   }
-
-  ;
 
   # low to high
   my $x = my $y = ($n % 2);
@@ -233,7 +231,7 @@ sub rect_to_n_range {
   }
 
   my $radix = $self->{'radix'};
-  
+
   my ($power, $level) = _round_down_pow (_max($x2,$y2)*$radix/2, $radix);
   if (_is_infinite($level)) {
     return (0, $level);
@@ -251,13 +249,13 @@ sub rect_to_n_range {
   # my $max_n = 0;
   # my $max_xk = 0;
   # my $max_yk = 0;
-  # 
+  #
   # my $min_x = 0;
   # my $min_y = 0;
   # my $min_n = 0;
   # my $min_xk = 0;
   # my $min_yk = 0;
-  # 
+  #
   # # l<=c<h doesn't overlap c1<=c<=c2 if
   # #     l>c2 or h-1<c1
   # #     l>c2 or h<=c1
@@ -274,7 +272,7 @@ sub rect_to_n_range {
   #   return ($c + $digit*$power <= $c2
   #           && $c + ($digit+1)*$power > $c1);
   # };
-  # 
+  #
   # while ($level-- >= 0) {
   #   ### $power
   #   ### $n_power
@@ -306,7 +304,7 @@ sub rect_to_n_range {
   #     ### $min_y
   #     ### $min_n
   #   }
-  # 
+  #
   #   $n_power = int($n_power/$radix);
   #   {
   #     my $digit;
@@ -334,11 +332,11 @@ sub rect_to_n_range {
   #     ### $min_x
   #     ### $min_n
   #   }
-  # 
+  #
   #   $power = int($power/$radix);
   #   $n_power = int($n_power/$radix);
   # }
-  # 
+  #
   # ### is: "$min_n at $min_x,$min_y  to  $max_n at $max_x,$max_y"
   # return ($min_n, $max_n);
 }
@@ -346,7 +344,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Peano Peano's eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS ZOrderCurve ie PeanoCurve Math-PlanePath versa Online
+=for stopwords Guiseppe Peano Peano's eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS ZOrderCurve ie PeanoCurve Math-PlanePath versa Online Radix radix HilbertCurve
 
 =head1 NAME
 
@@ -397,15 +395,15 @@ This is a version of the PeanoCurve with rounded-off corners,
 The radix parameter can do the calculation in a base other than 3, using the
 same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
-      4  |  
-         |  
-      3  |  
-         |  
-      2  |  
-         |  
-      1  |  
-         |  
-     Y=0 |  
+      4  |
+         |
+      3  |
+         |
+      2  |
+         |
+      1  |
+         |
+     Y=0 |
          |
          +----------------------------------------------
            X=0   1   2   3   4   5   6   7   8   9  10
@@ -414,13 +412,13 @@ If the radix is even then the ends of each group don't join up.  For example
 in radix 4 N=15 isn't next to N=16, nor N=31 to N=32, etc.
 
          |
-      3  |  
-         |  
-      2  |  
-         |  
-      1  |  
-         |  
-     Y=0 |  
+      3  |
+         |
+      2  |
+         |
+      1  |
+         |
+     Y=0 |
          |
          +------------------------------------------
            X=0   1   2   4   5   6   7   8   9  10

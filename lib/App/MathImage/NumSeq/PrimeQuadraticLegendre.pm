@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -30,7 +30,7 @@ use Math::NumSeq::Base::IterateIth;
 use constant name => Math::NumSeq::__('Prime Generating Quadratic of Legendre');
 use constant description => Math::NumSeq::__('The quadratic numbers 2*k^2 + 29.');
 use constant values_min => 29;
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 
 # http://oeis.org/A007641  # only the prime ones
 # use constant oeis_anum => undef;

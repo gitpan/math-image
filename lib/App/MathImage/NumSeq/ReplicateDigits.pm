@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
@@ -34,7 +34,7 @@ use Math::NumSeq::Base::IterateIth;
 
 use constant description => Math::NumSeq::__('Replicate the digits of i, so i=123 gives value 112233.');
 use constant values_min => 0;
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 
 use Math::NumSeq::DigitCount 4;
 use constant parameter_info_array =>

@@ -32,7 +32,7 @@ use List::Util 'min', 'max';
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq::Base::Array;
 @ISA = ('Math::NumSeq::Base::Array');
 
@@ -42,7 +42,7 @@ use Math::NumSeq::Primes;
 #use Smart::Comments;
 
 use constant description => Math::NumSeq::__('The primes which are at prime number index positions, 3, 5, 11, 17, 31, etc.');
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 use constant values_min => 3;
 
 use constant parameter_info_array =>

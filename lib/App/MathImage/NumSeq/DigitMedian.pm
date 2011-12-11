@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq::Base::IterateIth;
 use Math::NumSeq::Base::Digits;
@@ -37,7 +37,7 @@ use Math::NumSeq 7; # v.7 for _is_infinite()
 use constant description => Math::NumSeq::__('Median digit in i.');
 use constant values_min => 0;
 use constant characteristic_count => 1;
-use constant characteristic_monotonic => 0;
+use constant characteristic_increasing => 0;
 
 use constant parameter_info_array =>
   [

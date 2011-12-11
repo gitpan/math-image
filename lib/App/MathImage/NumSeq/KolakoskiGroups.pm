@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -34,7 +34,7 @@ use Math::NumSeq::Kolakoski;
 # use constant description =>
 #   Math::NumSeq::__('...');
 
-use constant characteristic_monotonic => 0;
+use constant characteristic_increasing => 0;
 sub characteristic_integer {
   my ($self) = @_;
   return (($self->{'length'} % 2) == 1);  # odd lengths are integers

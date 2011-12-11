@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -129,9 +129,9 @@ sub i_func_Y_neg {
 
 #------------------------------------------------------------------------------
 
-sub characteristic_monotonic {
+sub characteristic_increasing {
   my ($self) = @_;
-  my $method = 'MathImage__NumSeq_' . $self->{'line_type'} . '_monotonic';
+  my $method = 'MathImage__NumSeq_' . $self->{'line_type'} . '_increasing';
   my $planepath_object = $self->{'planepath_object'};
   return $planepath_object->can($method) && $planepath_object->$method();
 }
@@ -182,8 +182,8 @@ sub values_max {
 }
 
 { package Math::PlanePath::SquareSpiral;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::PyramidSpiral;
 # }
@@ -192,8 +192,8 @@ sub values_max {
 # { package Math::PlanePath::TriangleSpiralSkewed;
 # }
 { package Math::PlanePath::DiamondSpiral;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::PentSpiralSkewed;
 # }
@@ -216,8 +216,8 @@ sub values_max {
 # { package Math::PlanePath::GreekKeySpiral;
 # }
 { package Math::PlanePath::SacksSpiral;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::VogelFloret;
 # }
@@ -228,16 +228,16 @@ sub values_max {
 # { package Math::PlanePath::MultipleRings;
 # }
 { package Math::PlanePath::PixelRings;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 { package Math::PlanePath::Hypot;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 { package Math::PlanePath::HypotOctant;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::TriangularHypot;
 # }
@@ -245,13 +245,15 @@ sub values_max {
 # }
 # { package Math::PlanePath::RationalsTree;
 # }
+# { package Math::PlanePath::DiagonalRationals;
+# }
 # { package Math::PlanePath::PeanoCurve;
 # }
 # { package Math::PlanePath::HilbertCurve;
 # }
 { package Math::PlanePath::ZOrderCurve;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::ImaginaryBase;
 # }
@@ -297,18 +299,18 @@ sub values_max {
 # { package Math::PlanePath::Diagonals;
 # }
 { package Math::PlanePath::Staircase;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 { package Math::PlanePath::Corner;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::PyramidRows;
 # }
 { package Math::PlanePath::PyramidSides;
-  use constant MathImage__NumSeq_X_axis_monotonic => 1;
-  use constant MathImage__NumSeq_Y_axis_monotonic => 1;
+  use constant MathImage__NumSeq_X_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
 }
 # { package Math::PlanePath::CellularRule54;
 # }

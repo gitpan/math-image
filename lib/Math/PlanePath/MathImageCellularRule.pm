@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -231,16 +231,16 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PyramidRows Ryde Math-PlanePath ie Xmax-Xmin
+=for stopwords PyramidRows Ryde Math-PlanePath PlanePath ie Xmax-Xmin
 
 =head1 NAME
 
-Math::PlanePath::CellularRule -- cellular automaton points for binary rule
+Math::PlanePath::MathImageCellularRule -- cellular automaton points for binary rule
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::CellularRule;
- my $path = Math::PlanePath::CellularRule->new (rule => 135);
+ use Math::PlanePath::MathImageCellularRule;
+ my $path = Math::PlanePath::MathImageCellularRule->new (rule => 135);
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -306,7 +306,7 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::CellularRule-E<gt>new (rule =E<gt> 123)>
+=item C<$path = Math::PlanePath::MathImageCellularRule-E<gt>new (rule =E<gt> 123)>
 
 Create and return a new path object.  C<rule> should be an integer between 0
 and 255 inclusive.

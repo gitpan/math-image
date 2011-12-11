@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 83;
+$VERSION = 84;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -960,7 +960,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 3;   # 4 chars each
+  my $cell_width = 4;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);
@@ -1047,18 +1047,20 @@ sub output_method_numbers_dash {
           substr($rows[$ry],$rx+$cell_width+1,1) = '-';
         }
 
-      } elsif ($x == $prev_x + 2 && $y == $prev_y) {
-        substr ($rows[$ry], $rx, 1) = '-';
-        if (substr($rows[$ry],$rx-$cell_width,length($blank)) eq $blank) {
-          substr($rows[$ry],$rx-$cell_width,length($blank))
-            = ('-' x length($blank));
-        }
-      } elsif ($x == $prev_x - 2 && $y == $prev_y) {
-        substr ($rows[$ry], $rx+$cell_width, 1) = '-';
-        if (substr($rows[$ry],$rx+$cell_width+1,length($blank)) eq $blank) {
-          substr($rows[$ry],$rx+$cell_width+1,length($blank))
-            = ('-' x length($blank));
-        }
+        # dashes across 2 horizontal for triangular
+        #
+        # } elsif ($x == $prev_x + 2 && $y == $prev_y) {
+        #   substr ($rows[$ry], $rx, 1) = '-';
+        #   if (substr($rows[$ry],$rx-$cell_width,length($blank)) eq $blank) {
+        #     substr($rows[$ry],$rx-$cell_width,length($blank))
+        #       = ('-' x length($blank));
+        #   }
+        # } elsif ($x == $prev_x - 2 && $y == $prev_y) {
+        #   substr ($rows[$ry], $rx+$cell_width, 1) = '-';
+        #   if (substr($rows[$ry],$rx+$cell_width+1,length($blank)) eq $blank) {
+        #     substr($rows[$ry],$rx+$cell_width+1,length($blank))
+        #       = ('-' x length($blank));
+        #   }
 
       } elsif ($x == $prev_x && $y == $prev_y-1) {
         substr ($rows[$ry+1], $rx+$cell_width-1, 1) = '|';

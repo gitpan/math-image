@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -30,7 +30,7 @@ use Math::NumSeq::Base::IterateIth;
 use constant name => Math::NumSeq::__('Prime Generating Quadratic of Honaker');
 use constant description => Math::NumSeq::__('The quadratic numbers 4*k^2 + 4*k + 59.');
 use constant values_min => 59;
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 2;
 
 # http://oeis.org/A048988  # only the primes ones
 # use constant oeis_anum => undef;

@@ -82,6 +82,7 @@ my %maximum_planepath
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
+     'Math::PlanePath::DiagonalRationals'    => 58, # new in v.58
      'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
      'Math::PlanePath::DivisibleColumns'     => 49, # new in v.49
@@ -115,6 +116,7 @@ my %maximum_planepath
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
      'Math::PlanePath::DiagonalsAlternating' => 2,  # new in v.56
      'Math::PlanePath::Staircase'            => 16, # new in v.16
+     'Math::PlanePath::StaircaseAlternating' => 58, # new in v.58
      'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
      'Math::PlanePath::Columns'              => 26, # v.26 against height==0
 
@@ -352,7 +354,7 @@ my %prereq_pm
      'Math::PlanePath::SquareSpiral' => 1, # at least this path
 
      # my Math-NumSeq
-     'Math::NumSeq' => 1,
+     'Math::NumSeq' => 22, # v.22 for characteristic(increasing)
      'Math::NumSeq::All' => 1,  # base for Lines classes
      'Math::NumSeq::OEIS::Catalogue' => 1,  # OeisEntry
     );
@@ -368,13 +370,11 @@ sub add_prereq {
 add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
-add_prereq ('Math::PlanePath::HilbertCurve', 1); # for HilbertMidpoint
 add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
 add_prereq ('Math::PlanePath::CellularRule54', 54); # for CellularRule
-add_prereq ('Math::NumSeq::PlanePathCoord', 53); # PlanePathDelta,PlanePathN
+add_prereq ('Math::NumSeq::PlanePathCoord', 53); # PlanePathTurn,PlanePathN
 #
-add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
-add_prereq ('Math::NumSeq',21); # v.21 for Runs oeis_anum field
+# add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
 add_prereq ('Math::NumSeq::Base::Array',1);
 add_prereq ('Math::NumSeq::Base::Digits',1);
 add_prereq ('Math::NumSeq::Base::IterateIth',1);
@@ -382,7 +382,7 @@ add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
 add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContfrac
-add_prereq ('Math::NumSeq::SqrtDigits',1);  # for SqrtContfrac
+add_prereq ('Math::NumSeq::SqrtDigits',1); # for SqrtContfrac
 add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
 add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
 add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiGroups

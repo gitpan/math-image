@@ -30,7 +30,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -466,7 +466,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online PeanoCurve radix Uber Peano Kurven Elemente der Mathematik
+=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online PeanoCurve radix Uber Peano-Kurven Elemente der Mathematik
 
 =head1 NAME
 

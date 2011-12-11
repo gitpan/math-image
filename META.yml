@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            83
+version:            84
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -63,7 +63,7 @@ requires:
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
     Math::Libm:           0
-    Math::NumSeq:         21
+    Math::NumSeq:         22
     Math::NumSeq::All:    1
     Math::NumSeq::Base::Array:  1
     Math::NumSeq::Base::Digits:  1
@@ -80,7 +80,6 @@ requires:
     Math::NumSeq::Squares:  1
     Math::PlanePath:      43
     Math::PlanePath::CellularRule54:  54
-    Math::PlanePath::HilbertCurve:  1
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  1
@@ -264,6 +263,7 @@ optional_features:
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::CornerReplicate:  52
+            Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiagonalsAlternating:  2
             Math::PlanePath::DiamondArms:  37
@@ -325,6 +325,7 @@ optional_features:
             Math::PlanePath::SquareReplicate:  47
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
+            Math::PlanePath::StaircaseAlternating:  58
             Math::PlanePath::TheodorusSpiral:  6
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -433,6 +434,7 @@ optional_features:
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::CornerReplicate:  52
+            Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiagonalsAlternating:  2
             Math::PlanePath::DiamondArms:  37
@@ -494,6 +496,7 @@ optional_features:
             Math::PlanePath::SquareReplicate:  47
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
+            Math::PlanePath::StaircaseAlternating:  58
             Math::PlanePath::TheodorusSpiral:  6
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -616,6 +619,7 @@ recommends:
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
     Math::PlanePath::CornerReplicate:  52
+    Math::PlanePath::DiagonalRationals:  58
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiagonalsAlternating:  2
     Math::PlanePath::DiamondArms:  37
@@ -677,6 +681,7 @@ recommends:
     Math::PlanePath::SquareReplicate:  47
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16
+    Math::PlanePath::StaircaseAlternating:  58
     Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3

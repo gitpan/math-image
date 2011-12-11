@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -36,7 +36,7 @@ use Math::NumSeq;
 use constant name => Math::NumSeq::__('Loeschian numbers');
 use constant description => Math::NumSeq::__('Loeschian numbers x^2+xy+y^2 norms on hexagonal A2 grid, which is also (a^2+3*b^2)/4 for all a>=0,b>=0 and a,b opposite odd/even.');
 use constant i_start => 1; # per oeis ...
-use constant characteristic_monotonic => 1;
+use constant characteristic_increasing => 1;
 
 # cf A132111 - triangle T(n,k) = n^2 + k*n + k^2, 0<=k<=n
 #              same values different order?

@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::AboutDialog;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 83;
+my $want_version = 84;
 {
   is ($App::MathImage::Gtk2::AboutDialog::VERSION, $want_version,
       'VERSION variable');

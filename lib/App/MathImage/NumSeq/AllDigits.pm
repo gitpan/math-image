@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq::Base::Digits;
 @ISA = ('Math::NumSeq::Base::Digits');
 
@@ -81,8 +81,20 @@ $oeis_anum{'little'}->[0]->[2] = 'A030308'; # base 2 LE start i=1 value=1
 
 $oeis_anum{'big'}->[0]->[3] = 'A054635'; # base 3, start i=0 value=0
 $oeis_anum{'big'}->[1]->[3] = 'A003137'; # base 3, start i=1 value=1
+$oeis_anum{'little'}->[0]->[3] = 'A030341'; # base 3, start i=0 value=0
 # OEIS-Catalogue: A054635 radix=3 i_start=0
 # OEIS-Catalogue: A003137 radix=3 i_start=1
+# OEIS-Catalogue: A030341 radix=3 endian=little i_start=0
+
+$oeis_anum{'big'}->[1]->[4] = 'A030373'; # base 4, start i=1 value=1
+$oeis_anum{'little'}->[0]->[4] = 'A030386'; # base 4, start i=0 value=0
+# OEIS-Catalogue: A030373 radix=4 i_start=1
+# OEIS-Catalogue: A030386 radix=4 endian=little i_start=0
+
+$oeis_anum{'big'}->[1]->[5] = 'A031219'; # base 5, start i=1 value=1
+$oeis_anum{'little'}->[0]->[5] = 'A031235'; # base 4, start i=0 value=0
+# OEIS-Catalogue: A031219 radix=5 i_start=1
+# OEIS-Catalogue: A031235 radix=5 endian=little i_start=0
 
 $oeis_anum{'big'}->[0]->[7] = 'A030998'; # base 7, start i=0 value=0
 $oeis_anum{'little'}->[1]->[7] = 'A031007'; # base 7 LE start i=1 value=1

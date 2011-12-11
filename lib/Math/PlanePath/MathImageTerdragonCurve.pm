@@ -27,15 +27,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::SierpinskiArrowhead;
-*_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,27 +46,32 @@ sub arms_count {
   return $self->{'arms'} || 1;
 }
 
-use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_6',
-                                         type      => 'integer',
-                                         minimum   => 1,
-                                         maximum   => 6,
-                                         default   => 1,
-                                         width     => 1,
-                                         description => 'Arms',
-                                       } ];
+use constant parameter_info_array =>
+  [ { name      => 'arms',
+      share_key => 'arms_6',
+      type      => 'integer',
+      minimum   => 1,
+      maximum   => 6,
+      default   => 1,
+      width     => 1,
+      description => 'Arms',
+    } ];
+
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
+
   my $arms = $self->{'arms'};
   if (! defined $arms || $arms <= 0) { $arms = 1; }
   elsif ($arms > 6) { $arms = 6; }
   $self->{'arms'} = $arms;
+
   return $self;
 }
 
-my @rot_to_sx = (1,0,-1,0);
-my @rot_to_sy = (0,1,0,-1);
+my @rot_to_si = (1,0,0, -1,0,0);
+my @rot_to_sj = (0,1,0, 0,-1,0);
+my @rot_to_sk = (0,0,1, 0,0,-1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -156,9 +161,10 @@ sub n_to_xy {
     }
   }
 
-  # $rot %= 6;
-  # $x = $frac * $rot_to_sx[$rot] + $x;
-  # $y = $frac * $rot_to_sy[$rot] + $y;
+  $rot %= 6;
+  $i = $frac * $rot_to_si[$rot] + $i;
+  $j = $frac * $rot_to_sj[$rot] + $j;
+  $k = $frac * $rot_to_sk[$rot] + $k;
 
   ### final: "$i,$j,$k"
   return (2*$i + $j - $k, $j+$k);
@@ -178,11 +184,9 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  return undef;
-
   # max(|x|,|y|), or maybe hypot, or ...
-  my ($pow,$exp) = _round_up_pow2(abs($x)+abs($y));
-  my $level_limit = 2*$exp + 5;
+  my ($pow,$exp) = _round_down_pow($x*$x+3*$y*$y, 3);
+  my $level_limit = $exp + 5;
   if (_is_infinite($level_limit)) {
     return $level_limit;  # infinity
   }
@@ -200,7 +204,7 @@ sub xy_to_n {
       for (;;) {
         my $n = 0;
         foreach my $digit (reverse @digits) { # high to low
-          $n = 2*$n + $digit;
+          $n = 3*$n + $digit;
         }
         $n = $arms*$n + $arm;
         ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"

@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -29,7 +29,7 @@ use Math::NumSeq;
 
 
 use constant description => Math::NumSeq::__('Ulam sequence, 1,2,3,4,6,8,11,etc starting 1,2 then each member being uniquely representable as the sum of two earlier values.');
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 use constant values_min => 1;
 
 use constant parameter_info_array =>

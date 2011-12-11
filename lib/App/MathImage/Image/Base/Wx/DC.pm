@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Image::Base;
 @ISA = ('Image::Base');

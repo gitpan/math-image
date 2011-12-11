@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -33,7 +33,7 @@ use Math::NumSeq::Primes;
 use constant name => Math::NumSeq::__('Prime Index Count');
 use constant description => Math::NumSeq::__('How many ...');
 use constant characteristic_count => 1;
-use constant characteristic_monotonic => 0;
+use constant characteristic_increasing => 0;
 use constant values_min => 0;
 
 # cf A049076 number of steps for the N'th prime

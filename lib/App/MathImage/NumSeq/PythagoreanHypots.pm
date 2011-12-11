@@ -29,14 +29,14 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::SumTwoSquares';
 
 use vars '$VERSION';
-$VERSION = 83;
+$VERSION = 84;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 use constant name => Math::NumSeq::__('Pythagorean Triangle Hypotenuses');
 use constant description => Math::NumSeq::__('The hypotenuses of Pythagorean triples, ie. integer h for which x^2+y^2=h^2, for some integers x>=1,y>=1.');
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 use constant values_min => 5;
 
 # cf A002144 - primes 4n+1, the primitive elements of hypots x!=y

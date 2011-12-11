@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -28,8 +28,8 @@ use Math::PlanePath 54; # v.54 for _max()
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::SierpinskiArrowhead;
-*_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::MathImageTerdragonCurve;
 
@@ -220,8 +220,9 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  my ($pow,$exp) = _round_up_pow2(_max(abs($x),abs($y)));
-  my $level_limit = 2*$exp + 5;
+  my ($power,$level_limit) = _round_down_pow (abs($x)+abs($y),
+                                             2);
+  $level_limit = 2*$level_limit + 6;
   if (_is_infinite($level_limit)) {
     return $level_limit;  # infinity
   }
@@ -302,7 +303,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve MathImageTerdragonMidpoint
+=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve MathImageTerdragonMidpoint terdragon
 
 =head1 NAME
 

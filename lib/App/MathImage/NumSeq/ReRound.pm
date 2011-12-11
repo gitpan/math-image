@@ -22,7 +22,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -35,7 +35,7 @@ use Math::NumSeq::Base::IterateIth;
 use constant description => Math::NumSeq::__('...');
 use constant values_min => 1; # at i=1
 use constant i_start => 1;
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 
 # A000959 lucky numbers 1, 3, 7, 9, 13, 15, 21, delete per first remaining
 # A145649 characteristic

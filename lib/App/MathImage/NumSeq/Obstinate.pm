@@ -24,7 +24,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -38,7 +38,7 @@ use App::MathImage::NumSeq::Base::FileWriter;
 use constant name => Math::NumSeq::__('Obstinate Numbers');
 use constant description => Math::NumSeq::__('Odd numbers N not representable as prime+2^k.');
 use constant values_min => 1;
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 use constant i_start => 1;
 use constant oeis_anum => 'A133122'; # obstinates
 

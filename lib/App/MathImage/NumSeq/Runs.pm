@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq 21; # v.21 for oeis_anum field
 use Math::NumSeq::Base::IterateIth;
@@ -41,7 +41,7 @@ use Math::NumSeq::Base::IterateIth;
 # use constant description => Math::NumSeq::__('...');
 use constant i_start => 0;
 use constant characteristic_smaller => 1;
-use constant characteristic_monotonic => 0;
+use constant characteristic_increasing => 0;
 
 # d = -1/2 + sqrt(2 * $n + -3/4)
 #   = (sqrt(8*$n-3) - 1)/2

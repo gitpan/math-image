@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq 7; # v.7 for _is_infinite()
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -34,7 +34,7 @@ use Math::NumSeq 7; # v.7 for _is_infinite()
 
 # use constant name => Math::NumSeq::__('Sum of Two Squares');
 use constant description => Math::NumSeq::__('Sum of two squares, ie. all numbers which occur as x^2+y^2 for x>=1 and y>=1.');
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 
 use constant parameter_info_array =>
   [ {

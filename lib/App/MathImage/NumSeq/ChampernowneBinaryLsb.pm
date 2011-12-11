@@ -20,14 +20,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
 
 use constant name => Math::NumSeq::__('Champernowne Sequence LSB First');
 use constant description => Math::NumSeq::__('The 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary, least significant bit first, 1 01 11 001 101 etc.');
-use constant characteristic_monotonic => 1;
+use constant characteristic_increasing => 1;
 use constant values_min => 0;
 
 # uncomment this to run the ### lines

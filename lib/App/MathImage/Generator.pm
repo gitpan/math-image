@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 83;
+$VERSION = 84;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -286,12 +286,13 @@ my %pathname_square_grid
                      TriangularHypot
                      PythagoreanTree
                      RationalsTree
+                     DiagonalRationals
                      CoprimeColumns
                      DivisibleColumns
 
                      PeanoCurve
                      HilbertCurve
-                     MathImageHilbertMidpoint
+                     HilbertMidpoint
                      HilbertSpiral
                      ZOrderCurve
                      WunderlichMeander
@@ -319,6 +320,10 @@ my %pathname_square_grid
                      DragonMidpoint
                      ComplexMinus
 
+                     TerdragonCurve
+                     TerdragonMidpoint
+                     TerdragonRounded
+
                      KochCurve
                      KochPeaks
                      KochSnowflakes
@@ -338,9 +343,11 @@ my %pathname_square_grid
                      Diagonals
                      DiagonalsAlternating
                      Staircase
+                     StaircaseAlternating
                      Corner
                      PyramidRows
                      PyramidSides
+                     CellularRule
                      CellularRule54
                      CellularRule190
                      UlamWarburton
@@ -386,6 +393,9 @@ my %pathname_square_grid
 { package Math::PlanePath::MPeaks;
   use constant MathImage__n_frac_discontinuity => .5;
 }
+{ package Math::PlanePath::CellularRule;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
 { package Math::PlanePath::CellularRule54;
   use constant MathImage__n_frac_discontinuity => .5;
 }
@@ -396,6 +406,9 @@ my %pathname_square_grid
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Staircase;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
+{ package Math::PlanePath::MathImageStaircaseAlternating;
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::Rows;
@@ -411,6 +424,9 @@ my %pathname_square_grid
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::CoprimeColumns;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
+{ package Math::PlanePath::DiagonalRationals;
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::DivisibleColumns;
@@ -553,6 +569,7 @@ sub y_negative {
                            PyramidRows
                            PyramidSides
                            PyramidSpiral
+                           CellularRule
                            CellularRule54
                            CellularRule190
 
@@ -560,6 +577,7 @@ sub y_negative {
                            Diagonals
                            DiagonalsAlternating
                            Staircase
+                           StaircaseAlternating
                            Rows
                            Columns
                            UlamWarburton
@@ -567,7 +585,7 @@ sub y_negative {
 
                            PeanoCurve
                            HilbertCurve
-                           MathImageHilbertMidpoint
+                           HilbertMidpoint
                            HilbertSpiral
                            ZOrderCurve
                            WunderlichMeander
@@ -613,6 +631,7 @@ sub y_negative {
 
                            PythagoreanTree
                            RationalsTree
+                           DiagonalRationals
                            CoprimeColumns
                            DivisibleColumns
                            File
@@ -1979,7 +1998,7 @@ sub draw_Image_steps {
   my $colours_base = $self->{'colours_base'};
   my $colour = $foreground;
   my $use_colours = $self->{'use_colours'};
-  my $values_monotonic = $values_obj->characteristic('monotonic');
+  my $values_non_decreasing_from_i = $values_obj->characteristic('non_decreasing_from_i');
   my $n;
   ### $use_colours
   ### $colours_base
@@ -2118,8 +2137,11 @@ sub draw_Image_steps {
           }
         } else {
           $self->{'n_decrease'} = 0;
+
           if ($n > $n_hi) {
-            if ($values_monotonic || ++$self->{'n_outside'} > 10) {
+            if ((defined $values_non_decreasing_from_i
+                 && $i >= $values_non_decreasing_from_i)
+                || ++$self->{'n_outside'} > 10) {
               ### stop for n>n_hi ...
               last;
             }

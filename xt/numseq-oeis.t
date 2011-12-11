@@ -361,8 +361,8 @@ sub check_class {
       ### no pred on characteristic(count) ..
       next;
     }
-    if (! $seq->characteristic('monotonic')) {
-      ### no pred on not characteristic(monotonic) ..
+    if (! $seq->characteristic('increasing')) {
+      ### no pred on not characteristic(increasing) ..
       next;
     }
     if ($seq->characteristic('digits')) {

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -216,6 +216,18 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### MathImageComplexPlus rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
+  $x1 = _round_nearest ($x1);
+  $x2 = _round_nearest ($x2);
+  $y1 = _round_nearest ($y1);
+  $y2 = _round_nearest ($y2);
+
+  foreach ($x1,$y1,$x2,$y2) {
+    if (_is_infinite($_)) { return (0, abs($_)); }
+  }
+
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
 
@@ -226,12 +238,58 @@ sub rect_to_n_range {
   my $level = 2*int(log(($max || 1) + $realpart) / log($realpart+1)) + 4;
   ### $level
   return (0, $self->{'arms'} * $norm**$level - 1);
+
+
+
+
+  # my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum 0
+  # my $one = $zero + 1;                     # inherit bignum 1
+  # 
+  # my $xlo = $zero;
+  # my $xhi = $zero;
+  # my $ylo = $zero;
+  # my $yhi = $zero;
+  # my $power = $one;
+  # 
+  # my $xd = 1;
+  # my $yd = 0;
+  # 
+  # for (;;) {
+  #   ### at: "X=$xlo,$xhi  Y=$ylo,$yhi   power=$power"
+  #   if ($x1 >= $xlo
+  #       && $x2 <= $xhi
+  #       && $y1 >= $ylo
+  #       && $y2 <= $yhi) {
+  #     return (0, $power-1);
+  #   }
+  #   $power *= $norm;
+  # 
+  #   if ($yd >= 0) {
+  #     $yhi += $yd * ($norm-1);
+  #   } else {
+  #     $ylo += $yd * ($norm-1);
+  #   }
+  #   if ($xd >= 0) {
+  #     $xhi += $xd * ($norm-1);
+  #   } else {
+  #     $xlo += $xd * ($norm-1);
+  #   }
+  #   $xlo += $xd;
+  #   $xhi += $xd;
+  #   $ylo += $yd;
+  #   $yhi += $yd;
+  # 
+  #   # (x+yi) * (i+r) = (x+yr)i + (xr-y)
+  #   ($xd,$yd) = ($xd*$realpart - $yd,
+  #                $xd + $yd*$realpart);
+  # }
+
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel
 
 =head1 NAME
 
@@ -247,8 +305,8 @@ Math::PlanePath::MathImageComplexPlus -- points in complex base i+r
 
 I<In progress.>
 
-This path traverses points by a complex number base i+r for integer r.  The
-default is base i+1 which gives a dragon type shape,
+This path traverses points by a complex number base i+r with integer
+rE<gt>=1.  The default is base i+1 which gives a dragon shape,
 
                          30  31          14  15                 5
                      28  29          12  13                     4
@@ -274,8 +332,8 @@ default is base i+1 which gives a dragon type shape,
 
 =head2 Real Part
 
-The C<realpart =E<gt> $r> option gives a complex base b=i+r for a given
-rE<gt>=1.  For example C<realpart =E<gt> 2> is
+C<realpart =E<gt> $r> selects another r for complex base b=i+r.  For example
+C<realpart =E<gt> 2> is
 
                                      45 46 47 48 49      8
                                40 41 42 43 44            7
@@ -290,36 +348,37 @@ rE<gt>=1.  For example C<realpart =E<gt> 2> is
      ^
     X=0 1  2  3  4  5  6  7  8  9 10
 
-N is broken into digits of base norm=r*r+1, ie. digits 0 to r*r inclusive.
+N is broken into base norm=r*r+1 digits, ie. digits 0 to r*r inclusive.
 
     norm = r*r + 1
     Nstart = 0
     Nlevel = norm^level - 1
 
 The low "digit" makes horizontal runs of r*r+1 many points, such as N=0 to
-N=4, then N=5 to N=9 etc above.  In the default r=1 these runs are 2 long,
-whereas for r=2 they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
+N=4, then N=5 to N=9 etc above.  In the default r=1 these runs are 2 long.
+For r=2 they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
 
-The offset in each run like N=5 shown is i+r, so Y=1,X=r.  Then the next
-level is (i+r)^2 = (2r*i + r^2-1) so N=25 begins at Y=2*r=4, X=r*r-1=3.
-Each level adds an angle
+The offset in each run such as the N=5 shown is i+r, so Y=1,X=r.  Then the
+offset for the next level is (i+r)^2 = (2r*i + r^2-1) so N=25 begins at
+Y=2*r=4, X=r*r-1=3.  In general each level adds an angle
 
     angle = atan(1/r)
     Nlevel_angle = level * angle
 
-So the points spiral around anti-clockwise.  For example with r=1 the angle
-is atan(1/1)=45 degrees, so at level=4 the angle is 4*45=180 degrees, thus
-N=2^4=16 is on the negative X axis above.
+So the points spiral around anti-clockwise.  For r=1 the angle is
+atan(1/1)=45 degrees, so that level=4 the angle is at 4*45=180 degrees,
+putting N=2^4=16 is on the negative X axis as shown above.
 
-As r becomes bigger the angle becomes smaller, making it spiral slowly.  The
-points never fill the plane, but a set Nstart to Nlevel are all touching.
+As r becomes bigger the angle becomes smaller, making it spiral more slowly.
+The points never fill the plane, but a set from N=0 to Nlevel are all
+touching.
 
 =head2 Arms
 
-For C<realpart =E<gt> 1>, option C<arms =E<gt> 2> adds a second copy of the
-curve rotated 180 degrees and starting from X=0,Y=1.  It meshes perfectly to
-fill the plane.  Each arm advances successively so N=0,2,4,etc is the plain
-path and N=1,3,5,7,etc is the copy
+For C<realpart =E<gt> 1>, an optional C<arms =E<gt> 2> adds a second copy of
+the curve rotated 180 degrees and starting from X=0,Y=1.  It meshes
+perfectly to fill the plane.  Each arm advances successively so N=0,2,4,etc
+is the plain path and N=1,3,5,7,etc is the copy
 
         60  62          28  30                                 5
     56  58          24  26                                     4
@@ -335,9 +394,9 @@ path and N=1,3,5,7,etc is the copy
                              ^   
     -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6
 
-There's no C<arms> parameter for other C<realpart> values, only the i+1.  Is
-there a good rotated arrangement for them?  Do norm many copies fill the
-plane in general?
+There's no C<arms> parameter for other C<realpart> values as yet, only the
+i+1.  Is there a good rotated arrangement for them?  Do norm many copies
+fill the plane in general?
 
 =head1 FUNCTIONS
 

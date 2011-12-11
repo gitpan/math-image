@@ -124,7 +124,6 @@ lib/App/MathImage/NumSeq/Obstinate.pm
 lib/App/MathImage/NumSeq/Padovan.pm
 lib/App/MathImage/NumSeq/Perrin.pm
 lib/App/MathImage/NumSeq/PiBits.pm
-lib/App/MathImage/NumSeq/PlanePathDelta.pm
 lib/App/MathImage/NumSeq/PlanePathN.pm
 lib/App/MathImage/NumSeq/PlanePathTurn.pm
 lib/App/MathImage/NumSeq/PrimeIndexCount.pm
@@ -176,10 +175,9 @@ lib/Math/PlanePath/MathImageDekkingCurve.pm
 lib/Math/PlanePath/MathImageDekkingStraight.pm
 lib/Math/PlanePath/MathImageFractionsTree.pm
 lib/Math/PlanePath/MathImageGrayCurve.pm
-lib/Math/PlanePath/MathImageHilbertMidpoint.pm
 lib/Math/PlanePath/MathImagePeanoRounded.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
-lib/Math/PlanePath/MathImageStaircaseAlternating.pm
+lib/Math/PlanePath/MathImageSagherRationals.pm
 lib/Math/PlanePath/MathImageTerdragonCurve.pm
 lib/Math/PlanePath/MathImageTerdragonMidpoint.pm
 lib/Math/PlanePath/MathImageWunderlichSerpentine.pm
@@ -221,4 +219,5 @@ xt/0-Test-YAML-Meta.t
 xt/FractionsTree-oeis.t
 xt/MyOEIS.pm
 xt/numseq-oeis.t
+xt/SagherRationals-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -35,7 +35,7 @@ use Math::NumSeq::Base::IterateIth;
 #use Smart::Comments;
 
 use constant description => Math::NumSeq::__('Hofstadter diff sequence.');
-use constant characteristic_monotonic => 1;
+use constant characteristic_increasing => 1;
 use constant values_min => 1;
 use constant i_start => 1;
 

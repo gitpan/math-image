@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -234,7 +234,7 @@ sub _bingcd_max {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree Harmonices Mundi
 
 =head1 NAME
 
@@ -243,13 +243,13 @@ Math::PlanePath::MathImageFractionsTree -- fractions by tree
 =head1 SYNOPSIS
 
  use Math::PlanePath::MathImageFractionsTree;
- my $path = Math::PlanePath::MathImageFractionsTree->new (tree_type => 'SB');
+ my $path = Math::PlanePath::MathImageFractionsTree->new (tree_type => 'Kepler');
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
 This path enumerates fractions X/Y E<lt> 1 in reduced form, ie. X and Y
-having no common factor and XE<lt>Y so value 0 E<lt> X/Y E<lt> 1..
+having no common factor and XE<lt>Y so value 0 E<lt> X/Y E<lt> 1.
 
 Fractions are traversed by rows of a binary tree which effectively
 represents a coprime pair X,Y by the steps of the binary greatest common

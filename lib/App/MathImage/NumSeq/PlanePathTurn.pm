@@ -30,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -294,6 +294,8 @@ sub values_max {
 # { package Math::PlanePath::PythagoreanTree;
 # }
 # { package Math::PlanePath::RationalsTree;
+# }
+# { package Math::PlanePath::DiagonalRationals;
 # }
 # { package Math::PlanePath::PeanoCurve;
 # }

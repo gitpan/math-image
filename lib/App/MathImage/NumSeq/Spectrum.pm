@@ -27,7 +27,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -38,7 +38,7 @@ use Math::NumSeq;
 use constant PHI => (1 + sqrt(5)) / 2;
 
 use constant values_min => 1;
-use constant characteristic_monotonic => 1;
+use constant characteristic_increasing => 1;
 # use constant description => Math::NumSeq::__('');
 
 use constant parameter_info_array =>

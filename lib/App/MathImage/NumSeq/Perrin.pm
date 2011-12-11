@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq::Base::Sparse;
 @ISA = ('Math::NumSeq::Base::Sparse');
 
@@ -30,8 +30,7 @@ use Math::NumSeq::Base::Sparse;
 
 # use constant name => Math::NumSeq::__('Perrin Numbers');
 use constant description => Math::NumSeq::__('Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc, being P(i) = P(i-2) + P(i-3) starting from 3,0,2.');
-use constant characteristic_monotonic => 2;
-use constant characteristic_monotonic_from_i => 1;
+use constant characteristic_increasing_from_i => 1;
 use constant values_min => 0;
 use constant oeis_anum => 'A001608'; # perrin
 

@@ -27,7 +27,7 @@ use Module::Load;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 83;
+our $VERSION = 84;
 
 # after_item => $item
 #

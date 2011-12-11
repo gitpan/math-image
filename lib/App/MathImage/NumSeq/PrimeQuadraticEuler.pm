@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -30,7 +30,7 @@ use Math::NumSeq::Base::IterateIth;
 use constant name => Math::NumSeq::__('Prime Generating Quadratic of Euler');
 use constant description => Math::NumSeq::__('The quadratic numbers 41, 43, 46, 51, etc, k^2 + k + 41.  The first 40 of these are primes.');
 use constant values_min => 41;
-use constant characteristic_monotonic => 2;
+use constant characteristic_increasing => 1;
 # use constant oeis_anum => 'A005846'; # the prime ones
 
 # uncomment this to run the ### lines
