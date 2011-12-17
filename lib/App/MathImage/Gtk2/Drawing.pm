@@ -40,9 +40,9 @@ use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
-our $VERSION = 84;
+our $VERSION = 85;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -373,6 +373,8 @@ sub gen_object {
   }
 
   ### Drawing create gen_object() ...
+  ### values: $self->get('values')
+
   my (undef, undef, $width, $height) = $self->allocation->values;
   my $background_colorobj = $self->style->bg($self->state);
   my $foreground_colorobj = $self->style->fg($self->state);
@@ -401,7 +403,7 @@ sub gen_object {
      step_time       => _IDLE_TIME_SLICE,
      step_figures    => _IDLE_TIME_FIGURES,
 
-     values          => $self->get('values'),
+     values            => $self->get('values'),
      values_parameters => $self->{'values_parameters'},
 
      path            => $self->get('path'),

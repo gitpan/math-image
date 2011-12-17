@@ -30,7 +30,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -234,56 +234,56 @@ sub xy_to_n {
   # return $n;
 
 
-  my $radix = $self->{'radix'};
-  my $radix_minus_1 = $radix - 1;
-  my @x;
-  my @y;
-  while ($x || $y) {
-    push @x, $x % $radix; $x = int($x/$radix);
-    push @y, $y % $radix; $y = int($y/$radix);
-  }
-
-  my $xk = 0;
-  my $yk = 0;
-  my $n = 0;
-  while (@x) {
-    if (($xk ^ $yk) & 1) {
-      {
-        my $digit = pop @x;
-        if ($xk & 1) {
-          $digit = $radix_minus_1 - $digit;
-        }
-        $n = ($n * $radix) + $digit;
-        $yk ^= $digit;
-      }
-      {
-        my $digit = pop @y;
-        if ($yk & 1) {
-          $digit = $radix_minus_1 - $digit;
-        }
-        $n = ($n * $radix) + $digit;
-        $xk ^= $digit;
-      }
-    } else {
-      {
-        my $digit = pop @y;
-        if ($yk & 1) {
-          $digit = $radix_minus_1 - $digit;
-        }
-        $n = ($n * $radix) + $digit;
-        $xk ^= $digit;
-      }
-      {
-        my $digit = pop @x;
-        if ($xk & 1) {
-          $digit = $radix_minus_1 - $digit;
-        }
-        $n = ($n * $radix) + $digit;
-        $yk ^= $digit;
-      }
-    }
-  }
-  return $n;
+  # my $radix = $self->{'radix'};
+  # my $radix_minus_1 = $radix - 1;
+  # my @x;
+  # my @y;
+  # while ($x || $y) {
+  #   push @x, $x % $radix; $x = int($x/$radix);
+  #   push @y, $y % $radix; $y = int($y/$radix);
+  # }
+  # 
+  # my $xk = 0;
+  # my $yk = 0;
+  # my $n = 0;
+  # while (@x) {
+  #   if (($xk ^ $yk) & 1) {
+  #     {
+  #       my $digit = pop @x;
+  #       if ($xk & 1) {
+  #         $digit = $radix_minus_1 - $digit;
+  #       }
+  #       $n = ($n * $radix) + $digit;
+  #       $yk ^= $digit;
+  #     }
+  #     {
+  #       my $digit = pop @y;
+  #       if ($yk & 1) {
+  #         $digit = $radix_minus_1 - $digit;
+  #       }
+  #       $n = ($n * $radix) + $digit;
+  #       $xk ^= $digit;
+  #     }
+  #   } else {
+  #     {
+  #       my $digit = pop @y;
+  #       if ($yk & 1) {
+  #         $digit = $radix_minus_1 - $digit;
+  #       }
+  #       $n = ($n * $radix) + $digit;
+  #       $xk ^= $digit;
+  #     }
+  #     {
+  #       my $digit = pop @x;
+  #       if ($xk & 1) {
+  #         $digit = $radix_minus_1 - $digit;
+  #       }
+  #       $n = ($n * $radix) + $digit;
+  #       $yk ^= $digit;
+  #     }
+  #   }
+  # }
+  # return $n;
 }
 
 sub rect_to_n_range {

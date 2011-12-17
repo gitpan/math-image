@@ -30,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -60,17 +60,23 @@ use constant::defer parameter_info_array =>
   };
 
 my %oeis_anum
-  = ('Math::PlanePath::HilbertCurve' =>
-     {
-      # cf -1,0,1 here
-      # A163542    relative direction (ahead=0,right=1,left=2)
-      # A163543    relative direction, transpose X,Y
-     },
+  = (
+     # 'Math::PlanePath::HilbertCurve' =>
+     # {
+     #  # cf -1,0,1 here
+     #  # A163542    relative direction (ahead=0,right=1,left=2)
+     #  # A163543    relative direction, transpose X,Y
+     # },
 
-     'Math::PlanePath::PeanoCurve,radix=3' =>
-     {
-      # A163536 relative direction 0=ahead,1=right,2=left
-     },
+     # 'Math::PlanePath::PeanoCurve,radix=3' =>
+     # {
+     #  # A163536 relative direction 0=ahead,1=right,2=left
+     # },
+
+     # 'Math::PlanePath::DragonCurve,radix=3' =>
+     # {
+     #  # A014577 turn, 0=left,1=right
+     # },
     );
 
 sub oeis_anum {

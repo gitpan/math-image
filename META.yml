@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            84
+version:            85
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -252,6 +252,7 @@ optional_features:
             Math::NumSeq::Tribonacci:  8
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
+            Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::BetaOmega:  54
@@ -277,6 +278,7 @@ optional_features:
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
+            Math::PlanePath::GcdRationals:  60
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
@@ -423,6 +425,7 @@ optional_features:
     maximum_planepath:
         description:  Maximum PlanePath modules
         requires:
+            Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::BetaOmega:  54
@@ -448,6 +451,7 @@ optional_features:
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
+            Math::PlanePath::GcdRationals:  60
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
@@ -608,6 +612,7 @@ recommends:
     Math::NumSeq::Tribonacci:  8
     Math::NumSeq::TwinPrimes:  4
     Math::NumSeq::WoodallNumbers:  1
+    Math::PlanePath::AR2W2Curve:  59
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
     Math::PlanePath::BetaOmega:  54
@@ -633,6 +638,7 @@ recommends:
     Math::PlanePath::File:  37
     Math::PlanePath::Flowsnake:  55
     Math::PlanePath::FlowsnakeCentres:  38
+    Math::PlanePath::GcdRationals:  60
     Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GosperReplicate:  46
     Math::PlanePath::GosperSide:  35

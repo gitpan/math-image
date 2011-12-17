@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -40,7 +40,6 @@ use Math::NumSeq::Squares;
 use constant description => Math::NumSeq::__('Continued fraction expansion of a square root.');
 use constant characteristic_smaller => 1;
 use constant characteristic_increasing => 0;
-use constant i_start => 1;
 
 use Math::NumSeq::SqrtDigits;
 use constant parameter_info_array =>

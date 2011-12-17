@@ -27,7 +27,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::MathImageSagherRationals;
+use Math::PlanePath::MathImagePowerRationals;
 use Math::PlanePath::RationalsTree;
 
 # uncomment this to run the ### lines
@@ -36,7 +36,7 @@ use Math::PlanePath::RationalsTree;
 
 MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
 
-my $path = Math::PlanePath::MathImageSagherRationals->new;
+my $path = Math::PlanePath::MathImagePowerRationals->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -55,7 +55,7 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A060837 - permutation diagonals N -> sagher N
+# A060837 - permutation diagonals N -> power N
 
 {
   my $anum = 'A060837';
@@ -82,7 +82,7 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A071970 - permutation Stern a[i]/[ai+1] which is CW N -> sagher N
+# A071970 - permutation Stern a[i]/[ai+1] which is CW N -> power N
 
 {
   my $anum = 'A071970';

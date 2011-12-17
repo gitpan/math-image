@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -34,6 +34,7 @@ use Math::NumSeq;
 
 # use constant name => Math::NumSeq::__('Champernowne Sequence');
 use constant description => Math::NumSeq::__('Champernowne sequence 1 positions, 1,2,4,5,6,9,11,etc, being the 1 bit positions when the integers 1,2,3,4,5 etc are written out concatenated in binary 1 10 11 100 101 etc.');
+use constant i_start => 1;
 use constant values_min => 1;
 use constant characteristic_increasing => 1;
 

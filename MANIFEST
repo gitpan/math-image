@@ -20,12 +20,14 @@ devel/gen-bits.c
 devel/gen-bits.pl
 devel/Gtk1-Main-weaken.t
 devel/gtk1.pl
+devel/Gtk2-Main-weaken.t
 devel/heatmap.pl
 devel/inverse.pl
 devel/Makefile
 devel/MathSequence.pm
 devel/menu-forcombo.pl
 devel/misc.pl
+devel/notify.pl
 devel/oeis-entry.pl
 devel/old/Coord.pm
 devel/OrNone.pm
@@ -124,6 +126,7 @@ lib/App/MathImage/NumSeq/Obstinate.pm
 lib/App/MathImage/NumSeq/Padovan.pm
 lib/App/MathImage/NumSeq/Perrin.pm
 lib/App/MathImage/NumSeq/PiBits.pm
+lib/App/MathImage/NumSeq/PiDigits.pm
 lib/App/MathImage/NumSeq/PlanePathN.pm
 lib/App/MathImage/NumSeq/PlanePathTurn.pm
 lib/App/MathImage/NumSeq/PrimeIndexCount.pm
@@ -167,7 +170,6 @@ lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm
 lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
-lib/Math/PlanePath/MathImageAR2W2Curve.pm
 lib/Math/PlanePath/MathImageCCurve.pm
 lib/Math/PlanePath/MathImageCellularRule.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
@@ -176,8 +178,8 @@ lib/Math/PlanePath/MathImageDekkingStraight.pm
 lib/Math/PlanePath/MathImageFractionsTree.pm
 lib/Math/PlanePath/MathImageGrayCurve.pm
 lib/Math/PlanePath/MathImagePeanoRounded.pm
+lib/Math/PlanePath/MathImagePowerRationals.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
-lib/Math/PlanePath/MathImageSagherRationals.pm
 lib/Math/PlanePath/MathImageTerdragonCurve.pm
 lib/Math/PlanePath/MathImageTerdragonMidpoint.pm
 lib/Math/PlanePath/MathImageWunderlichSerpentine.pm
@@ -193,7 +195,6 @@ t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
 t/Gtk2-Drawing-weaken.t
 t/Gtk2-Generator-weaken.t
-t/Gtk2-Main-weaken.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
 t/Gtk2-SaveDialog-weaken.t
@@ -204,6 +205,7 @@ t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
+t/PowerRationals.t
 t/UndulatingNumbers.t
 t/ValuesFile.t
 t/X11-Protocol-Splash.t
@@ -216,8 +218,10 @@ xt/0-Test-ConsistentVersion.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t
+xt/CellularRule-oeis.t
 xt/FractionsTree-oeis.t
 xt/MyOEIS.pm
 xt/numseq-oeis.t
-xt/SagherRationals-oeis.t
+xt/PowerRationals-oeis.t
+xt/Terdragon-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

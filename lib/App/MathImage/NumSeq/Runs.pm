@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 84;
+$VERSION = 85;
 
 use Math::NumSeq 21; # v.21 for oeis_anum field
 use Math::NumSeq::Base::IterateIth;
@@ -39,7 +39,7 @@ use Math::NumSeq::Base::IterateIth;
 #use Smart::Comments;
 
 # use constant description => Math::NumSeq::__('...');
-use constant i_start => 0;
+use constant i_start => 1;
 use constant characteristic_smaller => 1;
 use constant characteristic_increasing => 0;
 
@@ -66,7 +66,8 @@ use constant parameter_info_array =>
 # cf A049581 diagonals absdiff, abs(x-y) not plain runs
 #
 my %runs_type_data
-  = ('0toN' => { value      => -1, # initial
+  = ('0toN' => { i_start    => 0,
+                 value      => -1, # initial
                  values_min => 0,
                  limit      => 1,
                  vstart     => 0,
@@ -125,7 +126,8 @@ my %runs_type_data
                  oeis_anum  => 'A004736',
                  # OEIS-Catalogue: A004736 runs_type=Nto1
                },
-     'Nrep' => { value      => 1,
+     'Nrep' => { i_start    => 0,
+                 value      => 1,
                  values_min => 1,
                  value_inc  => 0,
                  vstart     => 1,
@@ -137,7 +139,8 @@ my %runs_type_data
                  oeis_anum  => 'A002024', # N appears N times
                  # OEIS-Catalogue: A002024 runs_type=Nrep
                },
-     'N+1rep' => { value      => 0,
+     'N+1rep' => { i_start    => 0,
+                   value      => 0,
                    values_min => 0,
                    value_inc  => 0,
                    vstart     => 0,
@@ -149,7 +152,8 @@ my %runs_type_data
                    oeis_anum  => 'A003056', # N appears N+1 times
                    # OEIS-Catalogue: A003056 runs_type=N+1rep
                  },
-     'rep3' => { value      => 0,
+     'rep3' => { i_start    => 0,
+                 value      => 0,
                  values_min => 0,
                  value_inc  => 0,
                  vstart     => 0,

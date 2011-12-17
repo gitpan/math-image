@@ -28,7 +28,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 84;
+our $VERSION = 85;
 
 use Gtk2::Ex::ToolItem::ComboEnum;
 use Glib::Object::Subclass
@@ -54,6 +54,8 @@ use Glib::Object::Subclass
 
 sub _do_notify {
   my ($self, $pspec) = @_;
+  ### Params-Enum _do_notify(): $pspec->get_name
+
   $self->signal_chain_from_overridden ($pspec);
 
   my $pname = $pspec->get_name;
@@ -65,9 +67,9 @@ sub _do_notify {
 
 sub GET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
-  my $pname = $pspec->get_name;
-  ### Params-Enum GET_PROPERTY: $pname
+  ### Params-Enum GET_PROPERTY: $pspec->get_name
 
+  my $pname = $pspec->get_name;
   if ($pname eq 'parameter_value') {
     return $self->get('active_nick');
   } else {
@@ -77,9 +79,9 @@ sub GET_PROPERTY {
 
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
-  my $pname = $pspec->get_name;
-  ### Params-Enum SET_PROPERTY: $pname, $newval
+  ### Params-Enum SET_PROPERTY: $pspec->get_name, $newval
 
+  my $pname = $pspec->get_name;
   if ($pname eq 'parameter_value') {
     $self->set (active_nick => $newval);
     ### Params-Enum active-nick now: $self->get('active-nick')

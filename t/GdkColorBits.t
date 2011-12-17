@@ -29,7 +29,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 require App::MathImage::Gtk2::Ex::GdkColorBits;
 
 {
-  my $want_version = 84;
+  my $want_version = 85;
   is ($App::MathImage::Gtk2::Ex::GdkColorBits::VERSION, $want_version,
       'VERSION variable');
   is (App::MathImage::Gtk2::Ex::GdkColorBits->VERSION,  $want_version,

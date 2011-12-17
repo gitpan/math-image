@@ -83,6 +83,7 @@ my %maximum_planepath
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
      'Math::PlanePath::DiagonalRationals'    => 58, # new in v.58
+     'Math::PlanePath::GcdRationals'         => 60, # new in v.60
      'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
      'Math::PlanePath::DivisibleColumns'     => 49, # new in v.49
@@ -126,6 +127,7 @@ my %maximum_planepath
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
      'Math::PlanePath::WunderlichMeander'    => 54, # new in v.54
      'Math::PlanePath::BetaOmega'            => 54, # v.54 exact rect
+     'Math::PlanePath::AR2W2Curve'           => 59, # new in v.59
      'Math::PlanePath::KochelCurve'          => 55, # new in v.55
      'Math::PlanePath::CincoCurve'           => 56, # new in v.56
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41

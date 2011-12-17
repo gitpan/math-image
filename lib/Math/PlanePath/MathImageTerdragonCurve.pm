@@ -16,29 +16,21 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# A026140 maybe
-#     A026225 -- N positions of left turns
-#     A026179 -- N positions of right turns
-# A038502(n) mod 3. is 1/2 turn
-
-
 package Math::PlanePath::MathImageTerdragonCurve;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 
-use Math::PlanePath;
+use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 use constant n_start => 0;
 sub arms_count {
@@ -89,27 +81,26 @@ sub n_to_xy {
 
   my $zero = ($n * 0);  # inherit bignum 0
 
-  # initial rotation from arm number $n mod $arms
+  # initial rotation from arm number
   my $arms = $self->{'arms'};
   my $rot = $n % $arms;
   $n = int($n/$arms);
 
   my @digits;
-  my @si;
-  my @sj;
-  my @sk;
+  my (@si, @sj, @sk);  # vectors
   {
     my $si = $zero + 1; # inherit bignum 1
     my $sj = $zero;     # inherit bignum 0
     my $sk = $zero;     # inherit bignum 0
 
-    while ($n) {
+    for (;;) {
       push @digits, ($n % 3);
-      $n = int($n/3);
       push @si, $si;
       push @sj, $sj;
       push @sk, $sk;
       ### push: "digit $digits[-1]   $si,$sj,$sk"
+
+      $n = int($n/3) || last;
 
       # straight + rot120 + straight
       ($si,$sj,$sk) = (2*$si - $sj,
@@ -123,7 +114,7 @@ sub n_to_xy {
   my $i = $zero;
   my $j = $zero;
   my $k = $zero;
-  while (defined (my $digit = pop @digits)) {
+  while (defined (my $digit = pop @digits)) {  # digits high to low
     my $si = pop @si;
     my $sj = pop @sj;
     my $sk = pop @sk;
@@ -148,15 +139,15 @@ sub n_to_xy {
     # }
 
     if ($digit) {
-      $i += $si;
+      $i += $si;  # digit=1 or digit=2
       $j += $sj;
       $k += $sk;
       if ($digit == 2) {
-        $i -= $sj;
+        $i -= $sj;  # digit=2, straight+rot120
         $j -= $sk;
         $k += $si;
       } else {
-        $rot += 2;
+        $rot += 2;  # digit=1
       }
     }
   }
@@ -170,35 +161,43 @@ sub n_to_xy {
   return (2*$i + $j - $k, $j+$k);
 }
 
-# point N=2^(2k) at XorY=+/-2^k  radius 2^k
-#       N=2^(2k-1) at X=Y=+/-2^(k-1) radius sqrt(2)*2^(k-1)
-# radius = sqrt(2^level)
-# R(l)-R(l-1) = sqrt(2^level) - sqrt(2^(level-1))
-#             = sqrt(2^level) * (1 - 1/sqrt(2))
-# about 0.29289
+
+# maximum extent -- no, not quite right
+#
+#          .----*
+#           \
+#       *----.
+#
+# Two triangle heights, so
+#     rnext = 2 * r * sqrt(3)/2
+#           = r * sqrt(3)
+#     rsquared_next = 3 * rsquared
+# Initial X=2,Y=0 is rsquared=4
+# then X=3,Y=1 is 3*3+3*1*1 = 9+3 = 12 = 4*3
+# then X=3,Y=3 is 3*3+3*3*3 = 9+3 = 36 = 4*3^2
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### DragonMidpoint xy_to_n(): "$x, $y"
+  ### TerdragonCurve xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  # max(|x|,|y|), or maybe hypot, or ...
-  my ($pow,$exp) = _round_down_pow($x*$x+3*$y*$y, 3);
-  my $level_limit = $exp + 5;
+  my ($pow,$exp) = _round_down_pow ($x*$x + 3*$y*$y,
+                                    3);
+  my $level_limit = $exp + 6;
   if (_is_infinite($level_limit)) {
     return $level_limit;  # infinity
   }
 
   my $arms = $self->{'arms'};
-  my @hypot = (5);
+  my @hypot = (4);
   for (my $top = 0; $top < $level_limit; $top++) {
-    push @hypot, ($top % 4 ? 3 : 4) * $hypot[$top];  # little faster than 2^lev
+    push @hypot, ($top % 8 ? 4 : 3) * $hypot[$top];  # little faster than 3^lev
 
-    # start from digits=1 but subtract 1 so that n=0,1,...,$arms-1 are tried
-    # too
-  ARM: foreach my $arm (-$arms .. 0) {
+    # start from digits=1 but use (n-1)*arms so that n=0,1,...,$arms-1 are
+    # tried too, done by $arm -6 to -1
+  ARM: foreach my $arm (-$arms .. -1) {
       my @digits = (((0) x $top), 1);
       my $i = $top;
       for (;;) {
@@ -210,27 +209,27 @@ sub xy_to_n {
         ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
 
         my ($nx,$ny) = $self->n_to_xy($n);
-        ### at: "n $nx,$ny  cf hypot ".$hypot[$i]
+        ### at: "n pos $nx,$ny  cf hypot ".$hypot[$i]
 
         if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found
+          ### found ...
           return $n;
         }
 
-        if ($i == 0 || ($x-$nx)**2 + ($y-$ny)**2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + ($y-$ny)**2).' vs '.$hypot[$i]
+        if ($i == 0 || ($x-$nx)**2 + 3*($y-$ny)**2 > $hypot[$i]) {
+          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + 3*($y-$ny)**2).' vs '.$hypot[$i]
 
-          while (++$digits[$i] > 1) {
+          while (++$digits[$i] > 2) {
             $digits[$i] = 0;
-            if (++$i >= $top) {
+            if (++$i > $top) {
               ### backtrack past top ...
               next ARM;
             }
-            ### backtrack up
+            ### backtrack up ...
           }
 
         } else {
-          ### descend
+          ### descend ...
           ### assert: $i > 0
           $i--;
           $digits[$i] = 0;
@@ -242,92 +241,34 @@ sub xy_to_n {
   return undef;
 }
 
-# sub xy_to_n {
-#   my ($self, $x, $y) = @_;
-#   ### MathImageTerdragonCurve xy_to_n(): "$x, $y"
+# minimum  -- no, not quite right
 #
-#   $x = _round_nearest($x);
-#   $y = _round_nearest($y);
+#                *----------*
+#                 \
+#                  \   *
+#               *   \
+#                    \
+#          *----------*
 #
-#   my ($pow,$exp) = _round_up_pow2(max(abs($x),abs($y)));
-#   my $level_limit = 2*$exp+5;
-#   if (_is_infinite($level_limit)) {
-#     return $level_limit;
-#   }
-#   ### $level_limit
+# width = side/2
+# minimum = side*sqrt(3)/2 - width
+#         = side*(sqrt(3)/2 - 1)
 #
-#   my $top = 0;
-#   my $i = 0;
-#   my @digits = (0);
-#   my @sx = (1);
-#   my @sy = (0);
-#   my @hypot = (3);
-#   for (;;) {
-#     my $n = 0;
-#     foreach my $digit (reverse @digits) { # high to low
-#       $n = 2*$n + $digit;
-#     }
-#     ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-#     my ($nx,$ny) = $self->n_to_xy($n);
-#
-#     if ($i == 0 && $x == $nx && $y == $ny) {
-#       ### found
-#       return $n;
-#     }
-#
-#     if ($i == 0
-#         || ($x-$nx)**2 + ($y-$ny)**2 > $hypot[$i]) {
-#       ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + ($y-$ny)**2).' vs '.$hypot[$i]
-#
-#       while (++$digits[$i] > 1) {
-#         $digits[$i] = 0;
-#         if (++$i <= $top) {
-#           ### backtrack up
-#
-#         } else {
-#           ### backtrack extend top
-#           if ($i > $level_limit) {
-#             ### not found below level limit, outside curve ...
-#             return undef;
-#           }
-#           $digits[$i] = 0;
-#           $sx[$i] = ($sx[$top] - $sy[$top]);
-#           $sy[$i] = ($sx[$top] + $sy[$top]);
-#           $hypot[$i] = ($i % 4 ? 2 : 3) * $hypot[$top];
-#           ### assert: $hypot[$i]**2 >= $sx[$i]**2 + $sy[$i]**2
-#           $top++;
-#         }
-#       }
-#
-#     } else {
-#       ### descend
-#       ### assert: $i > 0
-#       $i--;
-#       $digits[$i] = 0;
-#     }
-#   }
-# }
-
-# f = (1 - 1/sqrt(2) = .292
-# 1/f = 3.41
-# N = 2^level
-# Rend = sqrt(2)^level
-# Rmin = Rend / 2  maybe
-# Rmin^2 = (2^level)/4
-# N = 4 * Rmin^2
+# minimum 4/9 * 2.9^level roughly
+# h = 4/9 * 2.9^level
+# 2.9^level = h*9/4
+# level = log(h*9/4)/log(2.9)
+# 3^level = 3^(log(h*9/4)/log(2.9))
+#         = h*9/4, but big bigger for log
 #
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### MathImageTerdragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
-  $x1 = abs($x1);
-  $x2 = abs($x2);
-  $y1 = abs($y1);
-  $y2 = abs($y2);
-  my $xmax = int($x1 > $x2 ? $x1 : $x2);
-  my $ymax = int($y1 > $y2 ? $y1 : $y2);
+  my $xmax = _max(abs($x1),abs($x2));
+  my $ymax = _max(abs($y1),abs($y2));
   return (0,
-          $self->{'arms'} * ($xmax*$xmax + $ymax*$ymax + 1) * 7);
+          $self->{'arms'} * ($xmax*$xmax + 3*$ymax*$ymax) * 3);
 }
 
 1;
@@ -366,15 +307,15 @@ This is the terdragon curve by Davis and Knuth,
                                              \      /     \
                                                2/5 ---------  3     1
                                                    \
-                                         0 ----------- 1        <- Y=0
+                                         0 ----------- 1         <-Y=0
 
        ^       ^        ^        ^       ^      ^      ^      ^
       -4      -3       -2       -1      X=0     1      2      3
 
-The curve visits "inner" X,Y points three times, and outer points either
+The curve visits "inner" X,Y points three times, and outside points either
 once or twice.  The first triple point is X=1,Y=3 which is N=8, N=11 and
-N=14.  The segments N=7,8,9 make a vertex there, as does N=10,11,12 and
-N=13,14,15.  they touch, but the path doesn't cross itself.  The tripled
+N=14.  The curve N=7,8,9 make a vertex there, as does N=10,11,12 and
+N=13,14,15.  The curve touches, but doesn't cross itself.  The tripled
 vertices are all like this, touching but not crossing, and no edges repeat.
 
 The first step N=1 is to the right along the X axis and the path then slowly
@@ -383,7 +324,8 @@ replication is
 
     Nlevel = 3^level
 
-and that point is at level*30 degrees around,
+That point is at level*30 degrees around (as reckoned with the usual
+Y*sqrt(3) for a triangular grid, per L<Math::PlanePath/Triangular Lattice>).
 
     Nlevel     X,Y     angle (degrees)
     ------    -----    -----
@@ -395,8 +337,15 @@ and that point is at level*30 degrees around,
     243      -27,9      150
     729      -54,0      180
 
-The following is points N=0 to N=3^6=729 with the N=0 origin marked "o" and
-the N=729 end marked "+".  It's gone half-circle around to 180 degrees,
+The following is points N=0 to N=3^6=729 going half-circle around to 180
+degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
+
+=cut
+
+# generated by
+# math-image --path=MathImageTerdragonCurve --expression='i<=729?i:0' --text --size=132x40
+
+=pod
 
                                * *               * *
                             * * * *           * * * *
@@ -408,7 +357,7 @@ the N=729 end marked "+".  It's gone half-circle around to 180 degrees,
                             * * * * * * * * * * * * * * * * * * *
                            * * * * * * * * * * * *   * *   * * *
                       * *   * * * * * * * * * * * *           * *
-     * +           * * * * * * * * * * * * * * * *           o *
+     * e           * * * * * * * * * * * * * * * *           o *
     * *           * * * * * * * * * * * *   * *
      * * *   * *   * * * * * * * * * * * *
     * * * * * * * * * * * * * * * * * * *
@@ -420,30 +369,38 @@ the N=729 end marked "+".  It's gone half-circle around to 180 degrees,
                 * * * *           * * * *
                  * *               * *
 
-=head2 Turns
+=cut
 
-At each point N the curve always turns 120 degrees either to the left or
-right, it never goes straight ahead.  If N is written in ternary then ...
-
-    Ndigit      Turn
-    ------      ----
-      0
-      1
-      2
+# =head2 Turns
+#
+# At each point N the curve always turns 120 degrees either to the left or
+# right, it never goes straight ahead.  If N is written in ternary then ...
+#
+#     Ndigit      Turn
+#     ------      ----
+#       0
+#       1
+#       2
 
 =head2 Arms
 
-The curve fills a quarter of the plane and six copies mesh together
-perfectly when rotated by 60, 120, 180, 240 and 300 degrees.  The C<arms>
-parameter can choose 1 to 6 curve arms, successively advancing.
+The curve fills a sixth of the plane and six copies mesh together perfectly
+when rotated by 60, 120, 180, 240 and 300 degrees.  The C<arms> parameter
+can choose 1 to 6 curve arms successively advancing.
 
 For example C<arms =E<gt> 6> begins as follows, with N=0,6,12,18,etc being
 one arm, N=1,7,13,19 the second, N=2,8,14,20 the third, etc.
 
-     17 --- 13/6 --- 0/1/2/3 --- 4/15 --- 19
+                  8/13/31 -----------------  7/12/30
+                /        \                 /          \
+              /            \             /              \
+      9/14/32 ------------- 0/1/2/3/4/5 ----------------  6/17/35
+              \            /            \              /
+                \        /                \          /
+                 10/15/33 ----------------- 11/16/34
 
-With four arms every X,Y point is visited twice (except the origin 0,0 where
-all four begin) and every edge between the points is traversed once.
+With six arms every X,Y point is visited three times (except the origin 0,0
+where all six begin) and every edge between the points is traversed once.
 
 =head1 FUNCTIONS
 
@@ -454,9 +411,12 @@ classes.
 
 =item C<$path = Math::PlanePath::MathImageTerdragonCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::MathImageTerdragonCurve-E<gt>new (arms =E<gt> 2)>
+=item C<$path = Math::PlanePath::MathImageTerdragonCurve-E<gt>new (arms =E<gt> 6)>
 
 Create and return a new path object.
+
+The optional C<arms> parameter can make 1 to 6 copies of the curve, each arm
+successively advancing.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -466,15 +426,12 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
 
-The optional C<arms> parameter can trace 1 to 6 copies of the curve, each
-arm successively advancing.
-
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
-The curve can visits an C<$x,$y> up to three times.  In the current code the
+The curve can visit an C<$x,$y> up to three times.  In the current code the
 smaller of the these N values is returned.  Is that the best way?
 
 =item C<$n = $path-E<gt>n_start()>
@@ -490,10 +447,19 @@ turn at each line segment,
 
     http://oeis.org/A080846  etc
 
-    A080846 -- turn 0=left, 1=right, by 120 degrees
-    A060236 -- turn 1=left, 2=right
+    A080846 -- turn 0=left,1=right, by 120 degrees
+    A060236 -- turn 1=left,2=right, by 120 degrees
+    A038502 -- taken mod 3 is turn 1=left,2=right
     A026225 -- N positions of left turns
-    A026179 -- N positions of right turns
+    A026179 -- N positions of right turns (except initial 1)
+
+A026179 starts with a value 1 arising from its morphism definition but that
+value should be skipped to consider it as turns.  At N=1 the curve is a left
+turn (value 1 is in the A026225 left turns sequence).
+
+=head1 BUGS
+
+C<xy_to_n()> is a bit slow due to doing a crude backtracking digits search.
 
 =head1 SEE ALSO
 
@@ -507,5 +473,3 @@ L<Math::PlanePath::DragonCurve>
 # End:
 #
 # math-image --path=MathImageTerdragonCurve --all --scale=10
-#
-

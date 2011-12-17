@@ -42,9 +42,9 @@ use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Params;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
-our $VERSION = 84;
+our $VERSION = 85;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -365,6 +365,7 @@ sub INIT_INSTANCE {
   $self->add ($vbox);
 
   my $draw = $self->{'draw'} = App::MathImage::Gtk2::Drawing->new;
+  $draw->signal_connect ('notify::values' => \&_do_values_changed);
   $draw->signal_connect ('notify::values-parameters' => \&_do_values_changed);
 
   my $actiongroup = $self->init_actiongroup;
@@ -552,8 +553,6 @@ sub INIT_INSTANCE {
     set_property_maybe ($values_combobox, # tearoff-title new in 2.10
                         tearoff_title => __('Math-Image: Values'));
 
-    $values_combobox->signal_connect
-      ('notify::active-nick' => \&_do_values_changed);
     Glib::Ex::ConnectProperties->new ([$draw,'values'],
                                       [$values_combobox,'active-nick']);
     ### values combobox initial: $values_combobox->get('active-nick')
@@ -667,7 +666,7 @@ sub _do_destroy {
 
 sub _update_values_tooltip {
   my ($self) = @_;
-  ### _update_values_tooltip()...
+  ### _update_values_tooltip() ...
 
   {
     my $tooltip = __('The values to display.');
@@ -700,6 +699,7 @@ sub _update_values_tooltip {
 }
 sub _do_values_changed {
   my ($widget) = @_;
+  ### _do_values_changed(): "$widget"
   my $self = $widget->get_ancestor(__PACKAGE__) || return;
   _update_values_tooltip($self);
 }
@@ -1128,12 +1128,12 @@ sub command_line {
   $mathimage->try_gtk || die "Cannot initialize Gtk";
 
   Glib::set_application_name (__('Math Image'));
-  if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
-    Glib->install_exception_handler
-      (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
-    $SIG{'__WARN__'}
-      = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
-  }
+  # if (eval { require Gtk2::Ex::ErrorTextDialog::Handler }) {
+  #   Glib->install_exception_handler
+  #     (\&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler);
+  #   $SIG{'__WARN__'}
+  #     = \&Gtk2::Ex::ErrorTextDialog::Handler::exception_handler;
+  # }
 
   my $gen_options = $mathimage->{'gen_options'};
   my $width = delete $gen_options->{'width'};

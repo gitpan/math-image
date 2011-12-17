@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -32,9 +32,6 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::MathImageTerdragonCurve;
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 
 use constant n_start => 0;
@@ -86,14 +83,13 @@ sub n_to_xy {
   my ($x1,$y1) = $self->Math::PlanePath::MathImageTerdragonCurve::n_to_xy($n);
   my ($x2,$y2) = $self->Math::PlanePath::MathImageTerdragonCurve::n_to_xy($n+$self->{'arms'});
 
-  $x1 *= 2;
-  $y1 *= 2;
-  $x2 *= 2;
-  $y2 *= 2;
-  my $dx = $x2-$x1;
-  my $dy = $y2-$y1;
-  return ($x1 + $dx/2,
-          $y1 + ($dy)/2);
+  # dx = x2-x1
+  # X = 2 * (x1 + dx/2)
+  #   = 2 * (x1 + x2/2 - x1/2)
+  #   = 2 * (x1/2 + x2/2)
+  #   = x1+x2
+  return ($x1+$x2,
+          $y1+$y2);
 }
 
 # sub n_to_xy {
@@ -208,88 +204,46 @@ sub n_to_xy {
 #   return ($x,$y);
 # }
 
+my @x_offset = (0, 2, 1, -1, -2, -1, 1);
+my @y_offset = (0, 0, 1,  1,  0, -1, -1);
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### MathImageTerdragonMidpoint xy_to_n(): "$x, $y"
 
-  return undef;
+  foreach my $i (0 .. $#x_offset) {
+    my $tx = $x + $x_offset[$i];
+    next if $tx % 2;
+    $tx /= 2;
 
+    my $ty = $y + $y_offset[$i];
+    next if $ty % 2;
+    $ty /= 2;
 
+    ### try: "$i  $tx,$ty"
 
+    my $n = $self->Math::PlanePath::MathImageTerdragonCurve::xy_to_n($x,$y);
+    next unless defined $n;
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
-
-  my ($power,$level_limit) = _round_down_pow (abs($x)+abs($y),
-                                             2);
-  $level_limit = 2*$level_limit + 6;
-  if (_is_infinite($level_limit)) {
-    return $level_limit;  # infinity
-  }
-
-  my $arms = $self->{'arms'};
-  my @hypot = (5);
-  for (my $top = 0; $top < $level_limit; $top++) {
-    push @hypot, ($top % 4 ? 2 : 3) * $hypot[$top];  # little faster than 2^lev
-
-    # start from digits=1 but subtract 1 so that n=0,1,...,$arms-1 are tried
-    # too
-  ARM: foreach my $arm (-$arms .. 0) {
-      my @digits = (((0) x $top), 1);
-      my $i = $top;
-      for (;;) {
-        my $n = 0;
-        foreach my $digit (reverse @digits) { # high to low
-          $n = 2*$n + $digit;
-        }
-        $n = $arms*$n + $arm;
-        ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-        my ($nx,$ny) = $self->n_to_xy($n);
-        ### at: "n $nx,$ny  cf hypot ".$hypot[$i]
-
-        if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found
-          return $n;
-        }
-
-        if ($i == 0 || ($x-$nx)**2 + ($y-$ny)**2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + ($y-$ny)**2).' vs '.$hypot[$i]
-
-          while (++$digits[$i] > 1) {
-            $digits[$i] = 0;
-            if (++$i >= $top) {
-              ### backtrack past top ...
-              next ARM;
-            }
-            ### backtrack up
-          }
-
-        } else {
-          ### descend
-          ### assert: $i > 0
-          $i--;
-          $digits[$i] = 0;
-        }
-      }
+    my ($nx,$ny) = $self->n_to_xy($n) or next;
+    if ($x == $nx && $y == $ny) {
+      return $n;
     }
   }
-  ### not found below level limit
+
   return undef;
 }
 
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImageTerdragonMidpoint rect_to_n_range(): "$x1,$y1  $x2,$y2  arms=$self->{'arms'}"
-  $x1 = abs($x1);
-  $x2 = abs($x2);
-  $y1 = abs($y1);
-  $y2 = abs($y2);
-  my $xmax = int(_max($x1,$x2));
-  my $ymax = int(_max($y1,$y2));
-  return (0,
-          ($xmax*$xmax + 3*$ymax*$ymax + 1) * $self->{'arms'} * 5);
+
+  return $self->Math::PlanePath::MathImageTerdragonCurve::rect_to_n_range
+    ($x1/2, $y1/2,
+     $x2/2, $y2/2);
 }
 
 # sub rect_to_n_range {

@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 85, December 2011
+    - fix for values combobox tooltip
+
 Version 84, December 2011
     - use NumSeq characteristic(increasing) etc
 

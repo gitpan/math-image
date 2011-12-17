@@ -24,7 +24,11 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 84;
+our $VERSION = 85;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 
 # Gtk2::ToggleToolButton
 use Gtk2::Ex::ToolItem::CheckButton;
@@ -47,6 +51,8 @@ use Glib::Object::Subclass
 
 sub _do_notify {
   my ($self, $pspec) = @_;
+  ### Params-Boolean _do_notify(): $pspec->get_name
+
   my $pname = $pspec->get_name;
   if ($pname eq 'active') {
     ### Boolean notify value...
@@ -60,6 +66,8 @@ sub GET_PROPERTY {
 }
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
+  ### Params-Boolean SET_PROPERTY(): $pspec->get_name
+
   my $pname = $pspec->get_name;
   if ($pname eq 'parameter_value') {
     $self->{'parameter_value_set'} = 1;

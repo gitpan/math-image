@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 84;
+$VERSION = 85;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -297,7 +297,10 @@ my %pathname_square_grid
                      ZOrderCurve
                      WunderlichMeander
                      BetaOmega
+                     AR2W2Curve
                      KochelCurve
+                     CincoCurve
+
                      ImaginaryBase
                      SquareReplicate
                      CornerReplicate
@@ -590,8 +593,10 @@ sub y_negative {
                            ZOrderCurve
                            WunderlichMeander
                            BetaOmega
+                           AR2W2Curve
                            KochelCurve
                            CincoCurve
+
                            ImaginaryBase
                            SquareReplicate
                            CornerReplicate
@@ -630,9 +635,11 @@ sub y_negative {
                            ComplexMinus
 
                            PythagoreanTree
-                           RationalsTree
                            DiagonalRationals
                            CoprimeColumns
+                           GcdRationals
+                           RationalsTree
+
                            DivisibleColumns
                            File
                          )) {

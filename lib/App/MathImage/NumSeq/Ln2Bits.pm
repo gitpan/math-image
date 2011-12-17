@@ -23,12 +23,18 @@ use Math::NumSeq;
 use base 'App::MathImage::NumSeq::PiBits';
 
 use vars '$VERSION';
-$VERSION = 84;
+$VERSION = 85;
 
 use constant name => Math::NumSeq::__('Log(2) Bits');
 use constant description => Math::NumSeq::__('Natural log(2), being 0.693147..., written out in binary.');
 use constant values_min => 0;
 use constant characteristic_increasing => 1;
+
+# A002391 - log3 decimal
+
+# log(2) = Sum_{ k >= 1 } 1/(k*2^k) = Sum_{j >= 1} (-1)^(j+1)/j
+# 'A002162' # 10
+# A016730 continued fraction
 
 sub new {
   my $class = shift;

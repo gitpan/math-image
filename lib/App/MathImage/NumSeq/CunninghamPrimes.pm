@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
@@ -61,6 +61,7 @@ use constant parameter_info_array =>
   ];
 
 use constant description => Math::NumSeq::__('Cunningham chains of primes where P, 2*P+1, 4*P+3 etc are all prime.');
+use constant i_start => 1;
 use constant characteristic_increasing => 1;
 
 # FIXME: find the first value in the sequence ... maybe save it

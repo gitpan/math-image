@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -41,12 +41,12 @@ use Math::NumSeq::Base::Digits;
 *parameter_info_array = \&Math::NumSeq::Base::Digits::parameter_info_array;
 
 # cf A033308 - concatenate primes
+#    A127421 - decimal but starting n=1 for value 1, 12, 23 etc off by 1
 #
 my @oeis_anum;
-$oeis_anum[0]->[10] = 'A127421'; # starting i=0
 $oeis_anum[1]->[10] = 'A001704'; # starting i=1
-# OEIS-Catalogue: A127421
 # OEIS-Catalogue: A001704 i_start=1
+#
 
 sub oeis_anum {
   my ($self) = @_;

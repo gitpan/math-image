@@ -232,15 +232,18 @@ sub check_class {
     }
   }
 
-  # {
-  #   my $got_i_start = $seq->i_start;
-  #   if ($got_i_start != $want_i_start) {
-  #     diag "note: $name";
-  #     diag ref $seq;
-  #     diag "got  i_start  $got_i_start";
-  #     diag "want i_start  $want_i_start";
-  #   }
-  # }
+  {
+    my $got_i_start = $seq->i_start;
+    if ($got_i_start != $want_i_start
+        && $anum ne 'A000004' # offset=0, but allow other i_start here
+        && $anum ne 'A000012' # offset=0, but allow other i_start here
+       ) {
+      $good = 0;
+      MyTestHelpers::diag ("bad: $name");
+      MyTestHelpers::diag ("got  i_start  $got_i_start");
+      MyTestHelpers::diag ("want i_start  $want_i_start");
+    }
+  }
 
   {
     ### by next() ...

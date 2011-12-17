@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -43,7 +43,7 @@ use constant y_negative => 0;
 use constant parameter_info_array =>
   [ { name      => 'rule',
       type      => 'integer',
-      default   => 135,
+      default   => 30,
       minimum   => 0,
       maximum   => 255,
       width     => 3,
@@ -130,15 +130,19 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### MathImageCellularRule n_to_xy(): $n
 
-  if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $int = int($n);
-  $n -= $int;
+  $n -= $int;   # now fraction part
   if (2*$n >= 1) {
     $n -= 1;
     $int += 1;
   }
+  # -0.5 <= $n < 0.5 fractional part
+  ### assert: 2*$n >= -1
+  ### assert: 2*$n < 1
+
+  if ($int < 1) { return; }
 
   my $row_end_n = $self->{'row_end_n'};
   my $y = 0;
@@ -176,6 +180,8 @@ sub n_to_xy {
     }
   }
 
+  ### result: ($n + $x - $y).",$y"
+
   return ($n + $x - $y,
           $y);
 }
@@ -189,9 +195,8 @@ sub xy_to_n {
   if ($y < 0 || ! ($x <= $y && ($x+=$y) >= 0)) {
     return undef;
   }
-  if (_is_infinite($y)) {
-    return $y;
-  }
+  if (_is_infinite($x)) { return $x; }
+  if (_is_infinite($y)) { return $y; }
 
   my $row_end_n = $self->{'row_end_n'};
   while ($y > $#$row_end_n) {
