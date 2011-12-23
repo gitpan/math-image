@@ -29,18 +29,15 @@ use Prima::MsgBox;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 85;
+$VERSION = 86;
 
-# use base 'Prima::Window';
-# sub init {
-#   my $self = shift;
-#   ### About init: @_
-#   my %profile = $self-> SUPER::init(@_);
-# 
-#   $self->insert
-#     ('Label',
-#      text  => __x('Math Image version {version}', version => $VERSION),
-#     );
+sub init {
+  my ($self, %profile) = @_;
+  ### About init(): @_
+  return $self->SUPER::init (%profile,
+                             );
+}
+#   $self->set (name => );
 #   return %profile;
 # }
 
@@ -49,7 +46,9 @@ sub popup {
     (__x('Math Image version {version}', version => $VERSION)
      . "\n\n"
      . __x('Running under Prima {version}', version => Prima->VERSION),
-     mb::Information() | mb::Ok());
+     mb::Information() | mb::Ok(),
+     name => __('Math-Image: About'),
+    );
 }
 
 1;

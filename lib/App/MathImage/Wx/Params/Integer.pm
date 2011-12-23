@@ -24,7 +24,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::SpinCtrl';
-our $VERSION = 85;
+our $VERSION = 86;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -45,11 +45,16 @@ sub new {
                                  $info->{'default'}, # initial value
                                  Wx::wxDefaultPosition(),
                                  Wx::wxDefaultSize(),
-                                 # Wx::Size->new (10*($info->{'width'} || 5),
-                                 #                -1),
                                  Wx::wxSP_ARROW_KEYS(),  # style
                                  $minimum,
                                  $maximum);
+
+  if (defined (my $width = $info->{'width'})) {
+    my ($digit_width) = $self->GetTextExtent('0123456789');
+    $self->SetSize (int($digit_width/10 * ($width+2)),
+                    -1);
+  }
+
   Wx::Event::EVT_SPINCTRL ($self, $self, 'OnSpinChange');
   return $self;
 }

@@ -24,7 +24,8 @@ use FindBin;
 use List::Util 'max';
 use Locale::TextDomain 1.19 ('App-MathImage');
 
-use Prima 'Application';
+use Prima;
+use Prima::Application name => __('Math-Image');
 use Prima::Buttons;
 use Prima::ComboBox;
 use Prima::Label;
@@ -33,24 +34,30 @@ use App::MathImage::Prima::Drawing;
 use App::MathImage::Generator;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 @ISA = ('Prima::MainWindow');
 
 sub new {
   my ($class, %args) = @_;
+  ### Prima Main new() ...
 
   my $gui_options = delete $args{'gui_options'};
-  my $gen_options = delete $args{'gen_options'};
-  $gen_options = { %{App::MathImage::Generator->default_options},
-                   %{$gen_options||{}} };
-  ### Main gen_options: $gen_options
+  my $gen_options = delete $args{'gen_options'} || {};
+  {
+    my %default_gen_options = %{App::MathImage::Generator->default_options};
+    delete @default_gen_options{'width','height'}; # hash slice
+    $gen_options = { %default_gen_options,
+                     %$gen_options };
+  }
+  ### $gen_options
 
   my $self = $class->SUPER::new
     (
-     # text => 'Hello',
+     name => __('Math-Image'),
      menuItems =>
      [ [ "~File" => [
                      [ __('~Print') => sub { $_[0]->print_image } ],
@@ -187,12 +194,13 @@ Click repeatedly to see interesting things.'),
                          );
   }
 
-  $self->{'draw'} = $self->insert ('App::MathImage::Prima::Drawing',
-                                   gen_options => $gen_options,
-                                   width   => -1, # (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
-                                   height  => -1, # (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
-                                   pack => { expand => 1,
-                                             fill => 'both' });
+  $self->{'draw'} = $self->insert
+    ('App::MathImage::Prima::Drawing',
+     gen_options => $gen_options,
+     width   => (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
+     height  => (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
+     pack => { expand => 1,
+               fill => 'both' });
 
   #   my $toolbar = Prima::Widget->create (
   #                                        # growMode => gm::GrowHiX(),
@@ -205,6 +213,22 @@ Click repeatedly to see interesting things.'),
   #
 
   _update ($self);
+
+  {
+    my @size = $self->size;
+    ### @size
+    my ($screen_width, $screen_height) = $::application->size;
+    if (! defined $gen_options->{'width'}) {
+      ### $screen_width
+      $size[0] = $screen_width * .8;
+    }
+    if (! defined $gen_options->{'height'}) {
+      ### $screen_height
+      $size[1] = $screen_height * .8;
+    }
+    $self->set (size => \@size);
+  }
+
   return $self;
 }
 
@@ -818,15 +842,12 @@ sub _draw_to_printer {
 
 sub command_line {
   my ($class, $mathimage) = @_;
+  ### Prima command_line(): $mathimage
+
   my $gen_options = $mathimage->{'gen_options'};
   my $mainwin = $class->new
     (gui_options => $mathimage->{'gui_options'},
-     gen_options => $gen_options,
-     (! defined $gen_options->{'width'}
-      ? (width  => 600,
-         height => 400)
-      : ()),
-    );
+     gen_options => $gen_options);
   Prima->run;
   return 0;
 }

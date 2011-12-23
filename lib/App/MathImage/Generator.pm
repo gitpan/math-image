@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 85;
+$VERSION = 86;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -126,6 +126,7 @@ use constant::defer values_choices => sub {
                          Odd
                          Even
                          All
+                         AllDigits
 
                          Fibonacci
                          LucasNumbers
@@ -199,6 +200,9 @@ use constant::defer values_choices => sub {
                          Expression
                          PlanePathCoord
                          PlanePathDelta
+                         PlanePathTurn
+                         PlanePathN
+
                          OEIS
                          File
                        )) {
@@ -285,9 +289,11 @@ my %pathname_square_grid
                      HypotOctant
                      TriangularHypot
                      PythagoreanTree
+                     CoprimeColumns
                      RationalsTree
                      DiagonalRationals
-                     CoprimeColumns
+                     FactorRationals
+                     GcdRationals
                      DivisibleColumns
 
                      PeanoCurve
@@ -635,8 +641,9 @@ sub y_negative {
                            ComplexMinus
 
                            PythagoreanTree
-                           DiagonalRationals
                            CoprimeColumns
+                           DiagonalRationals
+                           FactorRationals
                            GcdRationals
                            RationalsTree
 
@@ -1472,18 +1479,28 @@ sub draw_Image_start {
       = $values_class->new (%{$self->{'values_parameters'} || {}},
                             lo => $n_lo,
                             hi => $n_hi);
+    ### $values_obj
 
     my $values_min = $values_obj->values_min;
     my $values_max = $values_obj->values_max;
 
-    $self->{'colours_base'} = $values_min || 0;
-    $self->{'colours_max'} = $values_max;
+    my $colours_base = $self->{'colours_base'} = $values_min || 0;
+    my $colours_max = $self->{'colours_max'} = $values_max;
+
+    if (defined $values_min
+        && defined $values_max
+        && $values_max - $values_min == 1
+        && $values_obj->characteristic('integer')) {
+      $self->{'colours_boolean'} = 1;
+    }
     if (defined $values_max) {
       $self->{'use_colours'} = 1;
     }
     $self->{'colours_shrink'} = $self->colours_exp_shrink;
     $self->{'colours_shrink_log'} = log($self->{'colours_shrink'});
 
+    ### characteristic(count): $values_obj->characteristic('count')
+    ### characteristic(smaller): $values_obj->characteristic('smaller')
     if ($values_obj->characteristic('count')
         || $values_obj->characteristic('smaller')) {
       $self->{'use_colours'} = 1;
@@ -2009,6 +2026,7 @@ sub draw_Image_steps {
   my $n;
   ### $use_colours
   ### $colours_base
+  ### $values_non_decreasing_from_i
 
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
@@ -2137,7 +2155,7 @@ sub draw_Image_steps {
           }
           next;
         }
-        if ($n <= $n_prev) {
+        if ($n < $n_prev) {
           if (++$self->{'n_decrease'} > 10) {
             ### stop for n<n_prev many times ...
             last;
@@ -2303,6 +2321,11 @@ sub value_to_colour {
   my ($self, $value) = @_;
   ### value_to_colour(): $value
   my $base = $self->{'colours_base'};
+  if ($self->{'colours_boolean'}) {
+    return ($value - $self->{'colours_base'}
+            ? $self->{'foreground'}
+            : $self->{'background'});
+  }
   if (defined (my $max = $self->{'colours_max'})) {
     ### linear ...
     $value = abs($value - $base);
@@ -2310,16 +2333,15 @@ sub value_to_colour {
       if ($base == -1 && $max == 1) {
         return $plus_or_minus[$value];
       }
-    ### text: $text_colour[min($value,$#text_colour)]
+      ### text: $text_colour[min($value,$#text_colour)]
       return $text_colour[min($value,$#text_colour)];
     }
     return $self->colour_grey ($value / (($max - $base) || 1))
 
-  } else {
-    ### exponential ...
-    $value = exp(($value - $base) * $self->{'colours_shrink_log'});
-    return $self->colour_grey ($value)
   }
+  ### exponential ...
+  $value = exp(($value - $base) * $self->{'colours_shrink_log'});
+  return $self->colour_grey ($value)
 }
 
 use constant::defer _bigint => sub {

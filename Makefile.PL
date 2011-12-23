@@ -83,6 +83,7 @@ my %maximum_planepath
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
      'Math::PlanePath::DiagonalRationals'    => 58, # new in v.58
+     'Math::PlanePath::FactorRationals'      => 61, # new in v.61
      'Math::PlanePath::GcdRationals'         => 60, # new in v.60
      'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
@@ -170,6 +171,7 @@ my %maximum_planepath
 
 my %maximum_numseq
   = (
+     'Math::NumSeq' => 23, # v.23 for characteristic(integer)
      # cf App::MathImage::Generator values_choices() preferences
      'Math::NumSeq::Squares'    => 1,
      'Math::NumSeq::Pronic'     => 1,
@@ -204,10 +206,12 @@ my %maximum_numseq
      'Math::NumSeq::FibonacciWord' => 15, # new in v.15
      'Math::NumSeq::Pell'          => 10, # new in v.10
      'Math::NumSeq::Tribonacci'    => 8,  # new in v.8
+     'Math::NumSeq::Perrin'        => 23, # new in v.23
 
      'Math::NumSeq::FractionDigits' => 1,
      'Math::NumSeq::SqrtDigits'     => 1,
      'Math::NumSeq::SqrtEngel'      => 1,
+     'Math::NumSeq::AllDigits'      => 23, # new in v.23
 
      'Math::NumSeq::DigitCount'            => 13, # v.13 fix values_max()
      'Math::NumSeq::DigitCountHigh'        => 16, # new in v.16

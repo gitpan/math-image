@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 85;
+$VERSION = 86;
 
 use Math::NumSeq 21; # v.21 for oeis_anum field
 use Math::NumSeq::Base::IterateIth;
@@ -39,7 +39,6 @@ use Math::NumSeq::Base::IterateIth;
 #use Smart::Comments;
 
 # use constant description => Math::NumSeq::__('...');
-use constant i_start => 1;
 use constant characteristic_smaller => 1;
 use constant characteristic_increasing => 0;
 
@@ -80,7 +79,8 @@ my %runs_type_data
                  # OEIS-Catalogue: A002262 runs_type=0toN
                },
 
-     '1toN' => { value      => 0, # initial
+     '1toN' => { i_start    => 1,
+                 value      => 0, # initial
                  values_min => 1,
                  limit      => 1,
                  vstart     => 1,
@@ -92,7 +92,8 @@ my %runs_type_data
                  oeis_anum  => 'A002260',  # 1 to N, is 0toN + 1
                  # OEIS-Catalogue: A002260 runs_type=1toN
                },
-     '1to2N' => { value      => 0, # initial
+     '1to2N' => { i_start    => 1,
+                  value      => 0, # initial
                   values_min => 1,
                   limit      => 1,
                   vstart     => 1,
@@ -104,7 +105,8 @@ my %runs_type_data
                   oeis_anum  => 'A074294',
                   # OEIS-Catalogue: A074294 runs_type=1to2N
                 },
-     'Nto0' => { value      => 1, # initial
+     'Nto0' => { i_start    => 0,
+                 value      => 1, # initial
                  values_min => 0,
                  vstart     => 0,
                  vstart_inc => 1,
@@ -115,7 +117,8 @@ my %runs_type_data
                  oeis_anum  => 'A025581',
                  # OEIS-Catalogue: A025581 runs_type=Nto0
                },
-     'Nto1' => { value      => 2, # initial
+     'Nto1' => { i_start    => 1,
+                 value      => 2, # initial
                  values_min => 1,
                  vstart     => 1,
                  vstart_inc => 1,
@@ -126,7 +129,7 @@ my %runs_type_data
                  oeis_anum  => 'A004736',
                  # OEIS-Catalogue: A004736 runs_type=Nto1
                },
-     'Nrep' => { i_start    => 0,
+     'Nrep' => { i_start    => 1,
                  value      => 1,
                  values_min => 1,
                  value_inc  => 0,
@@ -165,7 +168,8 @@ my %runs_type_data
                  oeis_anum  => 'A002264', # N appears 3 times
                  # OEIS-Catalogue: A002264 runs_type=rep3
                },
-     '0toNinc' => { value      => -1,
+     '0toNinc' => { i_start    => 0,
+                    value      => -1,
                     values_min => 0,
                     value_inc  => 1,
                     vstart     => 0,
@@ -213,6 +217,7 @@ sub ith {
     #   = d*((d+1)/2) - i
     #   = (d+1)d/2 - i
 
+    $i -= $self->{'i_start'};
     my $d = int((sqrt(8*int($i)+1) + 1) / 2);
     ### $d
     ### base: ($d-1)*$d/2
@@ -221,6 +226,7 @@ sub ith {
 
   } elsif ($self->{'runs_type'} eq 'Nrep'
            || $self->{'runs_type'} eq 'N+1rep') {
+    $i -= $self->{'i_start'};
     return int((sqrt(8*int($i)+1) - 1) / 2) + $self->{'values_min'};
 
   } elsif ($self->{'runs_type'} eq '0toNinc') {
@@ -241,6 +247,7 @@ sub ith {
     #   = (-1 + sqrt(4*$n + 1)) / 2
     #   = (sqrt(4*$n + 1) - 1) / 2
 
+    $i -= 1;
     my $d = int((sqrt(4*int($i)+1) - 1) / 2);
 
     ### $d
@@ -249,7 +256,8 @@ sub ith {
 
     return $i - ($d+1)*$d + $self->{'vstart'};
 
-  } else {
+  } else { # 0toN, 1toN
+    $i -= $self->{'i_start'};
     my $d = int((sqrt(8*int($i)+1) + 1) / 2);
 
     ### $d
@@ -291,7 +299,16 @@ App::MathImage::NumSeq::Runs -- runs of consecutive integers
 
 =head1 DESCRIPTION
 
-A sequence 0,0,1,0,1,2,0,1,2,3,etc of increasing runs of integers 0 to N.
+This is various kinds of runs of integers.  The C<runs_type> parameter (a
+string) can be
+
+    "0toN"      0, 0,1, 0,1,2, 0,1,2,3, etc runs 0..N
+    "1toN"      1, 1,2, 1,2,3, 1,2,3,4, etc runs 1..N
+    "Nto0"      0, 1,0, 2,1,0, 3,2,1,0, etc runs N..0
+    "Nto1"      1, 2,1, 3,2,1, 4,3,2,1, etc runs N..1
+    "0toNinc"   0, 1,2, 2,3,4, 3,4,5,6, etc runs 0..N increasing
+    "Nrep"      1, 2,2, 3,3,3, 4,4,4,4, etc N repetitions of N
+    "N+1rep"    0, 1,1, 2,2,2, 3,3,3,3, etc N+1 repetitions of N
 
 =head1 FUNCTIONS
 
@@ -300,6 +317,10 @@ A sequence 0,0,1,0,1,2,0,1,2,3,etc of increasing runs of integers 0 to N.
 =item C<$seq = App::MathImage::NumSeq::Runs-E<gt>new (key=E<gt>value,...)>
 
 Create and return a new sequence object.
+
+=item C<$value = $seq-E<gt>ith($i)>
+
+Return the C<$i>'th value from the sequence.
 
 =item C<$bool = $seq-E<gt>pred($value)>
 

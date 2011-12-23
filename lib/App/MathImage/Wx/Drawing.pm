@@ -21,7 +21,7 @@ use strict;
 use Wx;
 
 use base qw(Wx::Window);
-our $VERSION = 85;
+our $VERSION = 86;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

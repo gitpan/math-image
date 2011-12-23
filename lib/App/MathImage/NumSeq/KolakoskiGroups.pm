@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -148,7 +148,7 @@ See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
 
 =over 4
 
-=item C<$seq = Math::NumSeq::Kolakoski-E<gt>new (length =E<gt> $integer)>
+=item C<$seq = Math::NumSeq::KolakoskiGroups-E<gt>new (length =E<gt> $integer)>
 
 Create and return a new sequence object.
 

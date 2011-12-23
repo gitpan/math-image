@@ -108,6 +108,7 @@ sub check_class {
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
   # return unless $class =~ /Sqrt/;
+  # return unless $class =~ /Digit/;
 
 
   eval "require $class" or die;
@@ -119,7 +120,6 @@ sub check_class {
   my $max_value = undef;
   if ($class->isa('Math::NumSeq::Factorials')
       || $class->isa('Math::NumSeq::Primorials')
-      || $class eq 'Math::NumSeq::Fibonacci' # not LucasNumbers yet
      ) {
     $max_value = 'unlimited';
   }

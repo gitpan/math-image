@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 86, December 2011
+    - foreground/background for 2-value sequences
+
 Version 85, December 2011
     - fix for values combobox tooltip
 

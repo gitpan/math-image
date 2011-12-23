@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -49,6 +49,51 @@ use constant parameter_info_array =>
       width     => 3,
     },
   ];
+
+my %rule_to_class;
+{
+  my $column_only = [ 'Math::PlanePath::PyramidRows', step => 0 ];
+  my $sierpinski_triangle = [ 'Math::PlanePath::SierpinskiTriangle' ];
+  my $solid_pyramid = [ 'Math::PlanePath::PyramidRows' ];
+
+  # cf 60 is right half Sierpinski
+  # 
+
+  %rule_to_class =
+    (
+     4   => $column_only,
+     36  => $column_only,
+     44  => $column_only,
+     12  => $column_only,
+     76  => $column_only,
+     108 => $column_only,
+     132 => $column_only,
+     140 => $column_only,
+     164 => $column_only,
+     172 => $column_only,
+     196 => $column_only,
+     204 => $column_only,
+     228 => $column_only,
+     236 => $column_only,
+
+     151 => $solid_pyramid,
+     159 => $solid_pyramid,
+     183 => $solid_pyramid,
+     215 => $solid_pyramid,
+     222 => $solid_pyramid,
+     223 => $solid_pyramid,
+     247 => $solid_pyramid,
+     254 => $solid_pyramid,
+     255 => $solid_pyramid,
+
+     26  => $sierpinski_triangle,
+     82  => $sierpinski_triangle,
+
+     54  => [ 'Math::PlanePath::CellularRule54' ],
+     190 => [ 'Math::PlanePath::CellularRule190' ],
+     246 => [ 'Math::PlanePath::CellularRule190', mirror => 1 ],
+    );
+}
 
 sub new {
   my $class = shift;

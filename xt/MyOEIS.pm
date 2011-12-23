@@ -128,8 +128,8 @@ sub _read_values {
         }
         if ($max_value eq 'unlimited') {
           if (length($n) > 9) {
-            require Math::BigInt;
-            $n = Math::BigInt->new($n);
+            # require Math::BigInt;
+            # $n = Math::BigInt->new($n);
           }
         } else {
           if ($n > $max_value) {

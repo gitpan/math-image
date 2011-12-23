@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -364,64 +364,73 @@ Math::PlanePath::MathImagePeanoRounded -- 3x3 self-similar quadrant traversal
 This is a version of the PeanoCurve with rounded-off corners,
 
 
-    11                        76-75       72-71       68-67
-                             /     \     /     \     /     \
-    10                     77       74-73       70-69       66
-                            |                                |
-     9                     78       81-82       61-62       65
-                             \     /     \     /     \     /
-     8                        79-80       83 60       63-64
-                                           |  |
-     7                        88-87       84 59       56-55
-                             /     \     /     \     /     \
-     6                 ...-89       86-85       58-57       54
-                                                             |
-     5      13-14       17-18       21-22       49-50       53
-           /     \     /     \     /     \     /     \     /
-     4   12       15-16       19-20       23 48       51-52
-          |                                |  |
-     3   11        8--7       28-27       24 47       44-43
-           \     /     \     /     \     /     \     /     \
-     2      10--9        6 29       26-25       46-45       42
-                         |  |                                |
-     1       1--2        5 30       33-34       37-38       41
-           /     \     /     \     /     \     /     \     /
-    Y=0   0        3--4       31-32       35-36       39-40
-
-        X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17
+    11  |                      76-75       72-71       68-67
+        |                     /     \     /     \     /     \
+    10  |                   77       74-73       70-69       66
+        |                    |                                |
+     9  |                   78       81-82       61-62       65
+        |                     \     /     \     /     \     /
+     8  |                      79-80       83 60       63-64
+        |                                   |  |
+     7  |                      88-87       84 59       56-55
+        |                     /     \     /     \     /     \
+     6  |               ...-89       86-85       58-57       54
+        |                                                     |
+     5  |    13-14       17-18       21-22       49-50       53
+        |   /     \     /     \     /     \     /     \     /
+     4  | 12       15-16       19-20       23 48       51-52
+        |  |                                |  |
+     3  | 11        8--7       28-27       24 47       44-43
+        |   \     /     \     /     \     /     \     /     \
+     2  |    10--9        6 29       26-25       46-45       42
+        |                 |  |                                |
+     1  |     1--2        5 30       33-34       37-38       41
+        |   /     \     /     \     /     \     /     \     /
+    Y=0 |  0        3--4       31-32       35-36       39-40
+        +------------------------------------------------------
+         X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17
 
 =head2 Radix
 
 The radix parameter can do the calculation in a base other than 3, using the
 same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
-      4  |
+      9  |     41-42       45-46       49-...
+         |    /     \     /     \     /   
+      8  |  40       43-44       47-48    
+         |   |
+      7  |  39       36-35       32-31    
+         |    \     /     \     /     \   
+      6  |     38-37       34-33       30 
+         |                              | 
+      5  |     21-22       25-26       29 
+         |    /     \     /     \     /   
+      4  |  20       23-24       27-28    
+         |   |                            
+      3  |  19       16-15       12-11    
+         |    \     /     \     /     \   
+      2  |     18-17       14-13       10 
+         |                              | 
+      1  |      1--2        5--6        9 
+         |    /     \     /     \     /   
+     Y=0 |   0        3--4        7--8    
          |
-      3  |
-         |
-      2  |
-         |
-      1  |
-         |
-     Y=0 |
-         |
-         +----------------------------------------------
-           X=0   1   2   3   4   5   6   7   8   9  10
+         +---------------------------------
+           X=0   1   2   3   4   5   6   7 
 
 If the radix is even then the ends of each group don't join up.  For example
-in radix 4 N=15 isn't next to N=16, nor N=31 to N=32, etc.
+in radix 4 N=31 isn't next to N=32, etc.
 
-         |
-      3  |
-         |
-      2  |
-         |
-      1  |
-         |
-     Y=0 |
-         |
-         +------------------------------------------
-           X=0   1   2   4   5   6   7   8   9  10
+         |       30   29             26   25        32 
+      3  |  31             28   27             24       33
+         |       17   18             21   22       
+      2  |  16             19   20             23  
+         |       14   13             10    9       
+      1  |  15             12   11              8  
+         |        1    2              5    6       
+     Y=0 |   0              3    4              7      
+         +------------------------------------------------
+           X=0   1   2   4   5   6   7   8   9  10  11  12
 
 Even sizes can be made to join using other patterns, but this module is just
 Peano's digit construction.  For 2x2 groupings see HilbertCurve (which is
@@ -467,6 +476,10 @@ Mathematische Annalen, volume 36, number 1, 1890, p157-160
     DOI 10.1007/BF01199438
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=MathImagePeanoRounded --lines --scale=5"
+# End:
 
 # math-image --path=MathImagePeanoRounded --all --output=numbers
 # math-image --path=MathImagePeanoRounded,radix=5 --all --output=numbers

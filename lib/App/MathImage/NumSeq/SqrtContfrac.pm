@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -38,6 +38,7 @@ use Math::NumSeq::Squares;
 
 
 use constant description => Math::NumSeq::__('Continued fraction expansion of a square root.');
+use constant i_start => 0;
 use constant characteristic_smaller => 1;
 use constant characteristic_increasing => 0;
 
@@ -180,11 +181,11 @@ my @oeis_anum = (
                  undef,     # sqrt=100
                  undef,     # sqrt=101
                  undef,     # sqrt=102
-                 'A010171', # sqrt=103
+                 undef, # 'A010171', # sqrt=103  OFFSET=1 ...
                  undef,     # sqrt=104
                  undef,     # sqrt=105
-                 'A010172', # sqrt=106
-                 'A010173', # sqrt=107
+                 undef, # 'A010172', # sqrt=106  OFFSET=1 ...
+                 undef, # 'A010173', # sqrt=107  OFFSET=1 ...
                  'A010174', # sqrt=108
                  'A010175', # sqrt=109
 

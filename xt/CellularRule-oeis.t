@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 50 }
+BEGIN { plan tests => 77 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -60,7 +60,7 @@ sub streq_array {
 foreach my $elem ([ 'A001045',  28 ], # Jacobsthal
                   [ 'A110240',  30 ], # cf A074890 some strange form
                   [ 'A118108',  54 ],
-                  [ 'A001317',  60 ], # Sierpinski triangle
+                  [ 'A001317',  60 ], # Sierpinski triangle right half
                   [ 'A038183',  90 ],
                   [ 'A118101',  94 ],
                   [ 'A117998', 102 ],
@@ -69,7 +69,19 @@ foreach my $elem ([ 'A001045',  28 ], # Jacobsthal
                   [ 'A118171', 158 ],
                   [ 'A118173', 188 ],
                   [ 'A037576', 190 ],
+                  [ 'A000225', 220 ], # 2^n-1
                   [ 'A002450', 250 ],
+
+                  [ 'A083420', 151 ], # 2^(2n)-1
+                  [ 'A083420', 159 ],
+                  [ 'A083420', 183 ],
+                  [ 'A083420', 215 ],
+                  [ 'A083420', 222 ],
+                  [ 'A083420', 223 ],
+                  [ 'A083420', 247 ],
+                  [ 'A083420', 254 ],
+                  [ 'A083420', 255 ],
+
                  ) {
   my ($anum, $rule) = @$elem;
   my $path = Math::PlanePath::MathImageCellularRule->new (rule => $rule);
@@ -80,6 +92,9 @@ foreach my $elem ([ 'A001045',  28 ], # Jacobsthal
       push @got, 0,1;
     }
     if ($anum eq 'A002450') {  # (4^n-1)/3 10101 extra 0 at start
+      push @got, 0;
+    }
+    if ($anum eq 'A000225') {  # 2^n-1
       push @got, 0;
     }
     require Math::BigInt;
@@ -93,8 +108,10 @@ foreach my $elem ([ 'A001045',  28 ], # Jacobsthal
       push @got, "$b";
       $y++;
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
+    if (! streq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -107,6 +124,7 @@ foreach my $elem ([ 'A001045',  28 ], # Jacobsthal
 # bignum left half
 
 foreach my $elem ([ 'A038185', 150 ], # cut after central column
+                  [ 'A000225', 206 ], # 2^n-1
                   [ 'A006977', 230 ],
                  ) {
   my ($anum, $rule) = @$elem;
@@ -118,6 +136,9 @@ foreach my $elem ([ 'A038185', 150 ], # cut after central column
       push @got, 0,1;
     }
     if ($anum eq 'A002450') {  # (4^n-1)/3 10101 extra 0 at start
+      push @got, 0;
+    }
+    if ($anum eq 'A000225') {  # 2^n-1
       push @got, 0;
     }
     require Math::BigInt;
@@ -167,14 +188,12 @@ foreach my $elem ([ 'A092539',  30 ],
 #------------------------------------------------------------------------------
 # various 0/1 by rows
 
-foreach my $elem (# [ 'A071029',  22 ],  # starting from 0 ?
+foreach my $elem (# [ 'A071029',  22 ],  # some other starting pattern?
                   [ 'A070950',  30 ],
                   [ 'A071028',  50 ],
                   # [ 'A071030',  54 ], starting from 0 ?
                   [ 'A118109',  54 ],
                   [ 'A075438',  60 ], # including 0s in left half
-                  # [ 'A047999',  60 ], # Sierpinski triangle  in right
-                  # [ 'A047999', 102 ], # Sierpinski triangle  in left
                   # [ 'A071031',  62 ], # starting from 0?
                   # [ 'A071032',  86 ], # starting from 0?
                   [ 'A070886',  90 ],
@@ -228,11 +247,12 @@ foreach my $elem (# [ 'A071029',  22 ],  # starting from 0 ?
 #------------------------------------------------------------------------------
 # 0/1 left half
 
-foreach my $elem (# [ 'A071022',  70 ],  FIXME ???
+foreach my $elem ([ 'A047999', 102 ], # Sierpinski triangle  in left
+                  [ 'A070887', 110 ],
+                  # [ 'A071022',  70 ],  FIXME ???
                   # [ 'A071023',  78 ],  FIXME ???
                   # [ 'A071022', 198 ],  FIXME ???
                   # [ 'A071027', 230 ],  FIXME ???
-                  [ 'A070887', 110 ],
                  ) {
   my ($anum, $rule) = @$elem;
   my $path = Math::PlanePath::MathImageCellularRule->new (rule => $rule);
@@ -265,6 +285,7 @@ foreach my $elem (# [ 'A071022',  70 ],  FIXME ???
 # 0/1 right half
 
 foreach my $elem ([ 'A070909',  28 ],
+                  [ 'A047999',  60 ], # Sierpinski triangle  in right
                   # [ 'A071024',  92 ],  # FIXME some other start ?
                   [ 'A070909', 156 ],
                   # [ 'A071025', 124 ],  # FIXME some other start ?
@@ -309,6 +330,40 @@ foreach my $elem ([ 'A051023',  30 ],
   if ($bvalues) {
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, ($path->xy_to_n (0, $y) ? 1 : 0);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        streq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# N values of central vertical column
+
+foreach my $elem ([ 'A000027', 4 ], # 1,2,3,etc column only
+                  [ 'A000027', 12 ],
+                  [ 'A000027', 36 ],
+                  [ 'A000027', 44 ],
+                  [ 'A000027', 76 ],
+                  [ 'A000027', 108 ],
+                  [ 'A000027', 132 ],
+                  [ 'A000027', 140 ],
+                  [ 'A000027', 164 ],
+                  [ 'A000027', 172 ],
+                  [ 'A000027', 196 ],
+                  [ 'A000027', 204 ],
+                  [ 'A000027', 228 ],
+                  [ 'A000027', 236 ],
+                 ) {
+  my ($anum, $rule) = @$elem;
+  my $path = Math::PlanePath::MathImageCellularRule->new (rule => $rule);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n (0, $y);
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -576,7 +631,7 @@ foreach my $elem ([ 'A094603', 30 ],
 #                0, 1, 0, 1, 0, 1, 0, 1, 0,
 #             1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 #          1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-#       0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 
+#       0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 #    1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0,
 # 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
 

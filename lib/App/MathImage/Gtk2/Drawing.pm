@@ -42,7 +42,8 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 85;
+
+our $VERSION = 86;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -337,8 +338,9 @@ sub _do_expose {
   ### Drawing _do_expose(): $event->area->values
   ### _pixmap_is_good says: _pixmap_is_good($self)
   #### $self
-  my $win = $self->window;
+
   $self->pixmap;
+  my $win = $self->window;
   Gtk2::Ex::GdkBits::window_clear_region ($win, $event->region);
   if (my $pixmap = $self->{'generator'}->{'pixmap'}) {
     $win->draw_drawable ($self->style->black_gc, $pixmap,

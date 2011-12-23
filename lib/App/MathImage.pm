@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 85;
+$VERSION = 86;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -47,12 +47,24 @@ sub _with_parameters {
   ### $str
   ### $key
 
-  my ($value, my @options) = split /,/, $str;
-  _hopt($self,'gen_options',$key, $value);
-  foreach my $option (@options) {
-    $option =~ /^(.+?)=(.*)$/
-      or die "Option \"$option\" should be NAME=VALUE";
-    $self->{'gen_options'}->{"${key}_parameters"}->{$1} = $2;
+  {
+    (my $value, $str) = split /,/, $str, 2;
+    _hopt($self,'gen_options',$key, $value);
+    ### $value
+    ### $str
+  }
+
+  if (defined $str) {
+    while ($str =~ /([^,=]+)=(([^",]*)|"([^"]*)")(,|$)/g) {
+      my $name = $1;
+      my $value = (defined $3 ? $3 : $4);
+      $self->{'gen_options'}->{"${key}_parameters"}->{$name} = $value;
+      ### $name
+      ### $value
+    }
+    if (defined pos($str)) {
+      die "Option \"",substr($str,pos($str)),\" should be NAME=VALUE or NAME=\"VALUE\"";
+    }
   }
   ### gen_options now: $self->{'gen_options'}
 }
@@ -403,6 +415,7 @@ sub try_gtk {
 
 sub output_method_gui {
   my ($self) = @_;
+  ### output_method_gui(): $self
 
   my $gui_options = $self->{'gui_options'};
   my $module = $gui_options->{'module'};
@@ -747,7 +760,7 @@ sub output_method_numbers {
   my $y_max = 0;
   my $smaller_count = 0;
   while (my ($i, $value) = $values_obj->next) {
-    ### $n
+    ### $i
     ### $value
     my $n = $value;
     last if ! defined $i || ! defined $n || $n > $n_hi;
@@ -960,7 +973,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 4;   # 4 chars each
+  my $cell_width = 3;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);

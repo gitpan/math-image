@@ -41,6 +41,7 @@ devel/run-pod.pl
 devel/run-savedialog.pl
 devel/run-savetype.pl
 devel/tk-savedialog.pl
+devel/tk.pl
 devel/tool-combotext.pl
 devel/unused.pl
 devel/Wx-DC.t
@@ -102,17 +103,13 @@ lib/App/MathImage/Image/Base/Wx/DC.pm
 lib/App/MathImage/ln2.gz
 lib/App/MathImage/math-image.desktop
 lib/App/MathImage/NumSeq/Abundant.pm
-lib/App/MathImage/NumSeq/AllDigits.pm
 lib/App/MathImage/NumSeq/Base/File.pm
 lib/App/MathImage/NumSeq/Base/FileWriter.pm
-lib/App/MathImage/NumSeq/ChampernowneBinary.pm
-lib/App/MathImage/NumSeq/ChampernowneBinaryLsb.pm
 lib/App/MathImage/NumSeq/ConcatNumbers.pm
 lib/App/MathImage/NumSeq/CunninghamChain.pm
 lib/App/MathImage/NumSeq/CunninghamPrimes.pm
 lib/App/MathImage/NumSeq/Derived/Cumulative.pm
-lib/App/MathImage/NumSeq/DigitMedian.pm
-lib/App/MathImage/NumSeq/DigitMiddle.pm
+lib/App/MathImage/NumSeq/DigitExtract.pm
 lib/App/MathImage/NumSeq/GolayRudinShapiro.pm
 lib/App/MathImage/NumSeq/HofstadterDiff.pm
 lib/App/MathImage/NumSeq/HypotCount.pm
@@ -124,7 +121,6 @@ lib/App/MathImage/NumSeq/Ln2Bits.pm
 lib/App/MathImage/NumSeq/Loeschian.pm
 lib/App/MathImage/NumSeq/Obstinate.pm
 lib/App/MathImage/NumSeq/Padovan.pm
-lib/App/MathImage/NumSeq/Perrin.pm
 lib/App/MathImage/NumSeq/PiBits.pm
 lib/App/MathImage/NumSeq/PiDigits.pm
 lib/App/MathImage/NumSeq/PlanePathN.pm
@@ -141,6 +137,7 @@ lib/App/MathImage/NumSeq/Runs.pm
 lib/App/MathImage/NumSeq/Spectrum.pm
 lib/App/MathImage/NumSeq/SqrtContfrac.pm
 lib/App/MathImage/NumSeq/SqrtContfracPeriod.pm
+lib/App/MathImage/NumSeq/SquareFree.pm
 lib/App/MathImage/NumSeq/SumTwoSquares.pm
 lib/App/MathImage/NumSeq/SumXsq3Ysq.pm
 lib/App/MathImage/NumSeq/UlamSequence.pm
@@ -172,13 +169,13 @@ lib/App/MathImage/X11/Protocol/EventMaskExtra.pm
 lib/App/MathImage/X11/Protocol/Splash.pm
 lib/Math/PlanePath/MathImageCCurve.pm
 lib/Math/PlanePath/MathImageCellularRule.pm
+lib/Math/PlanePath/MathImageCellularRule57.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageDekkingCurve.pm
 lib/Math/PlanePath/MathImageDekkingStraight.pm
 lib/Math/PlanePath/MathImageFractionsTree.pm
 lib/Math/PlanePath/MathImageGrayCurve.pm
 lib/Math/PlanePath/MathImagePeanoRounded.pm
-lib/Math/PlanePath/MathImagePowerRationals.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
 lib/Math/PlanePath/MathImageTerdragonCurve.pm
 lib/Math/PlanePath/MathImageTerdragonMidpoint.pm
@@ -188,7 +185,6 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 math-image
 SIGNATURE
-t/ChampernowneBinary.t
 t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
@@ -205,7 +201,6 @@ t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm
 t/ObstinateNumbers.t
-t/PowerRationals.t
 t/UndulatingNumbers.t
 t/ValuesFile.t
 t/X11-Protocol-Splash.t
@@ -222,6 +217,5 @@ xt/CellularRule-oeis.t
 xt/FractionsTree-oeis.t
 xt/MyOEIS.pm
 xt/numseq-oeis.t
-xt/PowerRationals-oeis.t
 xt/Terdragon-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

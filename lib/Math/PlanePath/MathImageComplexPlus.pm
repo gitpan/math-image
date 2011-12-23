@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -105,6 +105,8 @@ sub n_to_xy {
 
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
+  ### $norm
+  ### $realpart
 
   my $x;
   my $y;
@@ -129,6 +131,7 @@ sub n_to_xy {
     $n = int($n/$norm);
     ### at: "$x,$y  n=$n"
     ### $digit
+    ### dxdy: "$dx,$dy"
 
     $x += $dx * $digit;
     $y += $dy * $digit;
