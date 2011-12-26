@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 86;
+our $VERSION = 87;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -756,7 +756,7 @@ sub _mouse_message {
       $vstr = " value=$value";
       ### $vstr
       if ($value >= 2
-          && $values_obj->isa('App::MathImage::NumSeq::RepdigitRadix')) {
+          && $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
         $radix = $value;
       }
     }

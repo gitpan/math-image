@@ -108,7 +108,9 @@ sub check_class {
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
   # return unless $class =~ /Sqrt/;
-  # return unless $class =~ /Digit/;
+  # return unless $class =~ /PathN/;
+  # return unless $class =~ /Kernel/;
+  return unless $class =~ /Abund/;
 
 
   eval "require $class" or die;
@@ -187,12 +189,17 @@ sub check_class {
            || $anum eq 'A048951'
            || $anum eq 'A007300') {
     # UlamSequence shortened for now
-    if ($#$want > 1000) {
-      $#$want = 1000;
-    }
+    if ($#$want > 1000) { $#$want = 1000; }
 
-  } elsif ($anum eq 'A005101' || $anum eq 'A133122'
-           || $anum eq 'A001358'
+  } elsif ($anum eq 'A005101'
+           || $anum eq 'A005100') {
+    # Abundant shortened
+    # if ($#$want > 1000) { $#$want = 1000; }
+    # if ($#$want > 1000) { $#$want = 1000; }
+  } elsif ($anum eq 'A091191') { # primitive abundants
+    #   if ($#$want > 1000) { $#$want = 1000; }
+
+  } elsif ($anum eq 'A001358'
            || $anum eq 'A006450') {
     MyTestHelpers::diag ("skip primes stuff $anum");
     return;
@@ -458,7 +465,6 @@ unlink  'lib/Math/NumSeq/OEIS/Catalogue/Plugin/TempMathImage.pm' or die;
 rmdir  'lib/Math/NumSeq/OEIS/Catalogue/Plugin' or die;
 rmdir  'lib/Math/NumSeq/OEIS/Catalogue' or die;
 rmdir  'lib/Math/NumSeq/OEIS' or die;
-rmdir  'lib/Math/NumSeq' or die;
 
 my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::TempMathImage::info_arrayref();
 foreach my $info (@$aref) {

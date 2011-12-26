@@ -34,7 +34,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 86;
+our $VERSION = 87;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -364,7 +364,7 @@ sub _do_query_tooltip {
         $str = "File\n";
         eval { $str .= Math::NumSeq::OEIS->new(anum=>$anum)->description };
       } else {
-        $str =~ s/^(Math::NumSeq::|App::MathImage::NumSeq::)//;
+        $str =~ s/^(Math::NumSeq::)//;
         if (my $parameters = $info->{'parameters'}) {
           my @eqs;
           for (my $i = 0; $i < @$parameters; $i+=2) {

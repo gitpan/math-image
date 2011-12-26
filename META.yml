@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            86
+version:            87
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -169,6 +169,7 @@ optional_features:
             Math::Aronson:        4
             Math::Expression::Evaluator:  0
             Math::NumSeq:         23
+            Math::NumSeq::Abundant:  24
             Math::NumSeq::AllDigits:  23
             Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
@@ -226,6 +227,7 @@ optional_features:
             Math::NumSeq::RepdigitRadix:  19
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::SophieGermainPrimes:  4
+            Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::SqrtEngel:  1
             Math::NumSeq::Squares:  1
@@ -343,6 +345,7 @@ optional_features:
         requires:
             Math::Aronson:        4
             Math::NumSeq:         23
+            Math::NumSeq::Abundant:  24
             Math::NumSeq::AllDigits:  23
             Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
@@ -400,6 +403,7 @@ optional_features:
             Math::NumSeq::RepdigitRadix:  19
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::SophieGermainPrimes:  4
+            Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::SqrtEngel:  1
             Math::NumSeq::Squares:  1
@@ -537,6 +541,7 @@ recommends:
     Math::Aronson:        4
     Math::Expression::Evaluator:  0
     Math::NumSeq:         23
+    Math::NumSeq::Abundant:  24
     Math::NumSeq::AllDigits:  23
     Math::NumSeq::AlmostPrimes:  14
     Math::NumSeq::Aronson:  6
@@ -594,6 +599,7 @@ recommends:
     Math::NumSeq::RepdigitRadix:  19
     Math::NumSeq::Repdigits:  1
     Math::NumSeq::SophieGermainPrimes:  4
+    Math::NumSeq::SqrtContinuedPeriod:  24
     Math::NumSeq::SqrtDigits:  1
     Math::NumSeq::SqrtEngel:  1
     Math::NumSeq::Squares:  1

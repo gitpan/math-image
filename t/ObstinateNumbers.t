@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::Obstinate;
+use Math::NumSeq::MathImageObstinate;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,16 +34,16 @@ use App::MathImage::NumSeq::Obstinate;
 # VERSION
 
 {
-  my $want_version = 86;
-  is ($App::MathImage::NumSeq::Obstinate::VERSION, $want_version,
+  my $want_version = 87;
+  is ($Math::NumSeq::MathImageObstinate::VERSION, $want_version,
       'VERSION variable');
-  is (App::MathImage::NumSeq::Obstinate->VERSION,  $want_version,
+  is (Math::NumSeq::MathImageObstinate->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::Obstinate->VERSION($want_version); 1 },
+  ok (eval { Math::NumSeq::MathImageObstinate->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::Obstinate->VERSION($check_version); 1 },
+  ok (! eval { Math::NumSeq::MathImageObstinate->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -52,21 +52,18 @@ use App::MathImage::NumSeq::Obstinate;
 # values
 
 foreach my $rep (1 .. 3) {
-  my $hi = 13000;
-  my $seq = App::MathImage::NumSeq::Obstinate->new
-    (lo => 1,
-     hi => $hi);
-  my @next = (0) x ($hi+1);
-  while (my ($i, $value) = $seq->next) {
-    last if ! defined $i;
+  my $seq = Math::NumSeq::MathImageObstinate->new;
+  my @next;
+  for (1 .. 1000) {
+    my ($i, $value) = $seq->next;
     $next[$value] = 1;
   }
-  # $seq->finish;
+  my $hi = $#next;
 
   my $good = 1;
   foreach my $value (1 .. $hi) {
     my $pred = ($seq->pred($value)?1:0);
-    my $next = $next[$value];
+    my $next = $next[$value] || 0;
     if ($pred != $next) {
       diag "rep=$rep: value=$value wrong pred=$pred next=$next";
       $good = 0;

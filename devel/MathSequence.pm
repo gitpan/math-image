@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::NumSeq::MathSequence;
+package Math::NumSeq::MathImageMathSequence;
 use 5.004;
 use strict;
 use Carp;
 use Math::Sequence;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

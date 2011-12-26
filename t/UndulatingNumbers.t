@@ -25,7 +25,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use App::MathImage::NumSeq::UndulatingNumbers;
+use Math::NumSeq::MathImageUndulatingNumbers;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -34,16 +34,16 @@ use App::MathImage::NumSeq::UndulatingNumbers;
 # VERSION
 
 {
-  my $want_version = 86;
-  is ($App::MathImage::NumSeq::UndulatingNumbers::VERSION, $want_version,
+  my $want_version = 87;
+  is ($Math::NumSeq::MathImageUndulatingNumbers::VERSION, $want_version,
       'VERSION variable');
-  is (App::MathImage::NumSeq::UndulatingNumbers->VERSION,  $want_version,
+  is (Math::NumSeq::MathImageUndulatingNumbers->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::NumSeq::UndulatingNumbers->VERSION($want_version); 1 },
+  ok (eval { Math::NumSeq::MathImageUndulatingNumbers->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::NumSeq::UndulatingNumbers->VERSION($check_version); 1 },
+  ok (! eval { Math::NumSeq::MathImageUndulatingNumbers->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 }
 
@@ -53,7 +53,7 @@ use App::MathImage::NumSeq::UndulatingNumbers;
 
 {
   my $hi = 13000;
-  my $values_obj = App::MathImage::NumSeq::UndulatingNumbers->new
+  my $values_obj = Math::NumSeq::MathImageUndulatingNumbers->new
     (lo => 1,
      hi => $hi);
   my @next = (0) x ($hi+1);

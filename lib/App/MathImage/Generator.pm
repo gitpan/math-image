@@ -31,10 +31,11 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 86;
+$VERSION = 87;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant default_options => {
                                  values       => 'Primes',
@@ -81,16 +82,14 @@ sub new {
   return $self;
 }
 
-# columns_of_pythagoras
 use constant::defer values_choices => sub {
   my %choices;
   ### @INC
-  foreach my $module (Module::Util::find_in_namespace('App::MathImage::NumSeq'),
-                      Module::Util::find_in_namespace('Math::NumSeq')) {
+  foreach my $module (Module::Util::find_in_namespace('Math::NumSeq')) {
     ### $module
     my $choice = $module;
+    # $choice =~ s/^Math::NumSeq::(MathImage)?//;
     $choice =~ s/^Math::NumSeq:://;
-    $choice =~ s/^App::MathImage::NumSeq:://;
     next if $choice =~ /::/; # not sub-modules
     $choice =~ s/::/-/g;
     $choices{$choice} = 1;
@@ -111,10 +110,11 @@ use constant::defer values_choices => sub {
                          Totient
                          TotientCumulative
                          TotientSteps
+                         TotientStepsSum
                          TotientPerfect
-
                          Abundant
                          Obstinate
+
                          Squares
                          Pronic
                          Triangular
@@ -143,6 +143,7 @@ use constant::defer values_choices => sub {
                          FractionDigits
                          SqrtDigits
                          SqrtEngel
+                         SqrtContinuedPeriod
                          PiBits
                          Ln2Bits
 
@@ -200,8 +201,8 @@ use constant::defer values_choices => sub {
                          Expression
                          PlanePathCoord
                          PlanePathDelta
-                         PlanePathTurn
-                         PlanePathN
+                         MathImagePlanePathTurn
+                         MathImagePlanePathN
 
                          OEIS
                          File
@@ -217,6 +218,11 @@ use constant::defer values_choices => sub {
   push @choices, 'Lines';
   push @choices, 'LinesLevel';
   push @choices, 'LinesTree';
+
+  my @mi = grep {/^MathImage/} @choices;
+  @choices = grep {!/^MathImage/} @choices;
+  push @choices, @mi;
+
   ### @choices
   @choices
 };
@@ -225,9 +231,17 @@ sub values_class {
   my ($class_or_self, $values) = @_;
   $values ||= $class_or_self->{'values'};
   $values =~ s/-/::/g;
-  my $values_class = (Module::Util::find_installed("App::MathImage::NumSeq::$values")
-                      ? "App::MathImage::NumSeq::$values"
-                      : "Math::NumSeq::$values");
+  # my $values_class = (Module::Util::find_installed("Math::NumSeq::MathImage$values")
+  #                     ? "Math::NumSeq::MathImage$values"
+  #                     : "Math::NumSeq::$values");
+  my $values_class = "Math::NumSeq::$values";
+
+  if ($values eq 'Lines'
+      || $values eq 'LinesLevel'
+      || $values eq 'LinesTree') {
+    $values_class = "Math::NumSeq::MathImage$values";
+  }
+
   Module::Load::load ($values_class);
   return $values_class;
 }
@@ -1245,18 +1259,21 @@ sub rgb1_to_rgbstr {
 #   # ($self->{m12} * $self->{tx} - $self->{m11} * $self->{ty}) / $det);
 # }
 
+my $colours_text_plus_or_minus = [ '-', ' ', '+' ];
+my $colours_text = [ 0 .. 9, 'A'..'Z', 'a'..'z' ];
+
 sub draw_Image_start {
   my ($self, $image) = @_;
   ### draw_Image_start()...
   ### values: $self->{'values'}
-
+  
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
   my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
   ### $width
   ### $height
-
+  
   my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
@@ -1264,7 +1281,7 @@ sub draw_Image_start {
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my @colours = ($foreground);
-
+  
   # clear undrawn quadrants
   {
     my @undrawn_rects;
@@ -1297,7 +1314,7 @@ sub draw_Image_start {
     App::MathImage::Image::Base::Other::rectangles
         ($image, $background, 1, @background_rects);
   }
-
+  
   my ($n_lo, $n_hi);
   my $rectangle_area = 1;
   if ($self->{'values'} eq 'LinesLevel') {
@@ -1361,16 +1378,16 @@ sub draw_Image_start {
       $n_hi = $level*$level;
     }
     $n_angle ||= $n_hi;
-
+    
     ### $level
     ### $n_lo
     ### $n_hi
     ### $n_angle
     ### $yfactor
-
+    
     $affine = Geometry::AffineTransform->new;
     $affine->scale (1, $yfactor);
-
+    
     my ($xlo, $ylo) = $path_object->n_to_xy ($n_lo);
     my ($xang, $yang) = $path_object->n_to_xy ($n_angle);
     my $theta = - atan2 ($yang*$yfactor, $xang);
@@ -1380,7 +1397,7 @@ sub draw_Image_start {
     ### hi raw: $path_object->n_to_xy($n_hi)
     ### $theta
     ### $r
-
+    
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
@@ -1388,12 +1405,12 @@ sub draw_Image_start {
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * $xmargin,
                         $self->{'height'} * .5);
-
+    
     ### width: $self->{'width'}
     ### scale x: $self->{'width'} * (1-2*$xmargin) / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
-
+    
     # FIXME: wrong when rotated ... ??
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
@@ -1405,20 +1422,20 @@ sub draw_Image_start {
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-
+    
     my ($x,$y) = $path_object->n_to_xy ($n_lo++);
     ### start raw: "$x, $y"
     ($x,$y) = $affine->transform ($x, $y);
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-
+    
     $self->{'xprev'} = $x;
     $self->{'yprev'} = $y;
     $self->{'affine_object'} = $affine;
     ### prev: "$x,$y"
     ### theta degrees: $theta*180/3.14159
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
-
+    
   } else {
     my $affine_inv = $affine->clone->invert;
     my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
@@ -1489,10 +1506,18 @@ sub draw_Image_start {
 
     if (defined $values_min
         && defined $values_max
-        && $values_max - $values_min == 1
-        && $values_obj->characteristic('integer')) {
-      $self->{'colours_boolean'} = 1;
+        && $values_obj->characteristic('integer')
+        && $values_max - $values_min == 1) {
+      if ($image->isa('Image::Base::Text')) {
+        $self->{'colours_array'} = $colours_text_plus_or_minus;
+      } else {
+        $self->{'colours_array'} = [ $self->{'background'},
+                                     $self->{'foreground'} ];
+      }
+    } elsif ($image->isa('Image::Base::Text')) {
+      $self->{'colours_array'} = $colours_text;
     }
+
     if (defined $values_max) {
       $self->{'use_colours'} = 1;
     }
@@ -2315,40 +2340,34 @@ sub can_use_xy {
   #         && $values_obj->can('ith')) {
 }
 
-my @plus_or_minus = ('-',' ','+');
-my @text_colour = (0 .. 9, 'A'..'Z', 'a'..'z');
 sub value_to_colour {
   my ($self, $value) = @_;
   ### value_to_colour(): $value
   my $base = $self->{'colours_base'};
-  if ($self->{'colours_boolean'}) {
-    return ($value - $self->{'colours_base'}
-            ? $self->{'foreground'}
-            : $self->{'background'});
+  if (my $aref = $self->{'colours_array'}) {
+    $value = abs($value - $base);
+    return $aref->[min ($#$aref, $value)];
   }
   if (defined (my $max = $self->{'colours_max'})) {
     ### linear ...
     $value = abs($value - $base);
-    if ($self->{'image'}->isa('Image::Base::Text')) {
-      if ($base == -1 && $max == 1) {
-        return $plus_or_minus[$value];
-      }
-      ### text: $text_colour[min($value,$#text_colour)]
-      return $text_colour[min($value,$#text_colour)];
-    }
     return $self->colour_grey ($value / (($max - $base) || 1))
-
   }
   ### exponential ...
   $value = exp(($value - $base) * $self->{'colours_shrink_log'});
   return $self->colour_grey ($value)
 }
 
+# cf Math::NumSeq::_bigint()
 use constant::defer _bigint => sub {
-  require Math::BigInt;
-  eval { Math::BigInt->import (try => 'GMP') };
+  # Crib note: don't change the back-end if already loaded
+  unless (Math::BigInt->can('new')) {
+    require Math::BigInt;
+    eval { Math::BigInt->import (try => 'GMP') };
+  }
   return 'Math::BigInt';
 };
+
 sub use_xy {
   my ($self, $image) = @_;
   # print "use_xy from now on\n";

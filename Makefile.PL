@@ -173,15 +173,16 @@ my %maximum_numseq
   = (
      'Math::NumSeq' => 23, # v.23 for characteristic(integer)
      # cf App::MathImage::Generator values_choices() preferences
-     'Math::NumSeq::Squares'    => 1,
-     'Math::NumSeq::Pronic'     => 1,
-     'Math::NumSeq::Triangular' => 1,
-     'Math::NumSeq::Polygonal'  => 8,  # v.8 for pairs=>average
-     'Math::NumSeq::Cubes'      => 1,
-     'Math::NumSeq::Tetrahedral'  => 1,
-     'Math::NumSeq::StarNumbers'  => 1,
-     'Math::NumSeq::Even'  => 1,
-     'Math::NumSeq::Odd'   => 1,
+     'Math::NumSeq::Squares'     => 1,
+     'Math::NumSeq::Pronic'      => 1,
+     'Math::NumSeq::Triangular'  => 1,
+     'Math::NumSeq::Polygonal'   => 8,  # v.8 for pairs=>average
+     'Math::NumSeq::Cubes'       => 1,
+     'Math::NumSeq::Tetrahedral' => 1,
+     'Math::NumSeq::StarNumbers' => 1,
+     'Math::NumSeq::Even'        => 1,
+     'Math::NumSeq::Odd'         => 1,
+     'Math::NumSeq::AllDigits'   => 23, # new in v.23
 
      'Math::NumSeq::Primes'              => 4, # new in v.4
      'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
@@ -196,6 +197,7 @@ my %maximum_numseq
      'Math::NumSeq::TotientCumulative'   => 13, # new in v.13
      'Math::NumSeq::TotientSteps'        => 13, # new in v.13
      'Math::NumSeq::TotientPerfect'      => 13, # new in v.13
+     'Math::NumSeq::Abundant'            => 24, # new in v.24
 
      'Math::NumSeq::Factorials'    => 1,
      'Math::NumSeq::Primorials'    => 1,
@@ -208,10 +210,10 @@ my %maximum_numseq
      'Math::NumSeq::Tribonacci'    => 8,  # new in v.8
      'Math::NumSeq::Perrin'        => 23, # new in v.23
 
-     'Math::NumSeq::FractionDigits' => 1,
-     'Math::NumSeq::SqrtDigits'     => 1,
-     'Math::NumSeq::SqrtEngel'      => 1,
-     'Math::NumSeq::AllDigits'      => 23, # new in v.23
+     'Math::NumSeq::FractionDigits'      => 1,
+     'Math::NumSeq::SqrtDigits'          => 1,
+     'Math::NumSeq::SqrtContinuedPeriod' => 24, # new in v.24
+     'Math::NumSeq::SqrtEngel'           => 1,
 
      'Math::NumSeq::DigitCount'            => 13, # v.13 fix values_max()
      'Math::NumSeq::DigitCountHigh'        => 16, # new in v.16
@@ -362,7 +364,7 @@ my %prereq_pm
      # my Math-NumSeq
      'Math::NumSeq' => 22, # v.22 for characteristic(increasing)
      'Math::NumSeq::All' => 1,  # base for Lines classes
-     'Math::NumSeq::OEIS::Catalogue' => 1,  # OeisEntry
+     'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry
     );
 
 # for experimental paths in-progress
@@ -387,8 +389,8 @@ add_prereq ('Math::NumSeq::Base::IterateIth',1);
 add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
-add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContfrac
-add_prereq ('Math::NumSeq::SqrtDigits',1); # for SqrtContfrac
+add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContinued
+add_prereq ('Math::NumSeq::SqrtDigits',1); # for SqrtContinued
 add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
 add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
 add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiGroups

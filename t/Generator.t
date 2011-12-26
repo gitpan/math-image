@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   is ($App::MathImage::Generator::VERSION, $want_version,
       'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version,

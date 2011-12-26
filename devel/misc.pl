@@ -50,8 +50,8 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
 {
-  require App::MathImage::NumSeq::Tribonacci;
-  my $values_obj = App::MathImage::NumSeq::Tribonacci->new (hi => 13);
+  require Math::NumSeq::Tribonacci;
+  my $values_obj = Math::NumSeq::Tribonacci->new (hi => 13);
   my @next = ( $values_obj->next,
                $values_obj->next,
                $values_obj->next,
@@ -114,9 +114,9 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   }
 
   require Math::PlanePath::MultipleRings;
-  require App::MathImage::NumSeq::PrimeQuadraticHonaker;
+  require Math::NumSeq::MathImagePrimeQuadraticHonaker;
   require B::Concise;
-  # B::Concise::compile('-exec',\&App::MathImage::NumSeq::PrimeQuadraticHonaker::pred)->();
+  # B::Concise::compile('-exec',\&Math::NumSeq::MathImagePrimeQuadraticHonaker::pred)->();
   B::Concise::compile('-exec',\&Math::PlanePath::MultipleRings::_xy_to_d)->();
   exit 0;
 }

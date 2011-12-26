@@ -42,7 +42,7 @@ use App::MathImage::Gtk1::Ex::WidgetBits;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 
 use constant::defer init => sub {
   ### Main init(): @_
@@ -331,7 +331,7 @@ sub _do_motion_notify {
             my $value = $values_obj->ith($n);
             $vstr = " value=$value";
             if ($value &&
-                $values_obj->isa('App::MathImage::NumSeq::RepdigitRadix')) {
+                $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
               $radix = $value;
             }
           }
