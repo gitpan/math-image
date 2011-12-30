@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 87;
+$VERSION = 88;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -998,8 +998,8 @@ sub output_method_numbers_dash {
     $rect_y1 = 0;
     $rect_y2 = $pheight-1;
   }
-  ### $rect_y1
-  ### $rect_y2
+  ### rect: "$rect_x1,$rect_y1  $rect_x2,$rect_y2"
+
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
   $n_lo = max(0,$n_lo);
@@ -1007,8 +1007,10 @@ sub output_method_numbers_dash {
   # $n_hi = 124;
 
   my $n_cell_limit = (10 ** ($cell_width-1)) - 1;
-  ### $n_cell_limit
   $n_hi = min($n_cell_limit,$n_hi);
+
+  ### $n_cell_limit
+  ### $n_lo
   ### $n_hi
 
   my $values_obj = $gen->values_object;
@@ -1027,13 +1029,16 @@ sub output_method_numbers_dash {
   };
 
   while (my ($n) = $values_obj->next) {
+    ### $n
     last if ! defined $n;
     last if $n > $n_hi;
     next if $n < $n_lo;
     my ($x, $y) = $path->n_to_xy ($n)
       or do {
+        ### no xy at this n ...
         next;
       };
+    ### xy: "$x,$y"
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
 

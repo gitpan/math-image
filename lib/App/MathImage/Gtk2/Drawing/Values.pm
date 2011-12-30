@@ -25,7 +25,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 87;
+our $VERSION = 88;
 our $TEXTDOMAIN = 'Math-Image';
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Values',
                            App::MathImage::Generator->values_choices);

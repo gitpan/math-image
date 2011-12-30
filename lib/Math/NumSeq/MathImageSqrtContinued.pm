@@ -20,11 +20,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
-use Math::NumSeq;
+$VERSION = 88;
+use Math::NumSeq 7; # v.7 for _is_infinite()
 @ISA = ('Math::NumSeq');
+*_is_infinite = \&Math::NumSeq::_is_infinite;
 
 use Math::NumSeq::Squares;
+use Math::NumSeq::SqrtContinuedPeriod;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -366,6 +368,40 @@ sub next {
   return ($self->{'i'}++, $value);
 }
 
+# initial
+# P=0 Q=1
+# value = (root+P)/Q = root
+# P=value*Q = root
+# Q = (S - P*P)/Q = S-P*P
+sub ith {
+  my ($self, $i) = @_;
+
+  my $root = $self->{'root'};
+  if ($i == 0) {
+    return $root;
+  }
+
+  if ($self->{'perfect_square'} || _is_infinite($i)) {
+    return undef;
+  }
+
+  my $period = ($self->{'period'}
+                ||= Math::NumSeq::SqrtContinuedPeriod->ith($self->{'sqrt'}));
+  $i = ($i - 1) % $period;
+
+  my $sqrt = $self->{'sqrt'};
+  my $p = $root;
+  my $q = $sqrt - $root*$root;
+  for (;;) {
+    my $value = int (($root + $p) / $q);
+    if (--$i < 0) {
+      return $value;
+    }
+    $p = $value*$q - $p;
+    $q = ($sqrt - $p*$p) / $q;
+  }
+}
+
 1;
 __END__
 
@@ -373,12 +409,12 @@ __END__
 
 =head1 NAME
 
-Math::NumSeq::SqrtContinued -- continued fraction expansion of a square root
+Math::NumSeq::MathImageSqrtContinued -- continued fraction expansion of a square root
 
 =head1 SYNOPSIS
 
- use Math::NumSeq::SqrtContinued;
- my $seq = Math::NumSeq::SqrtContinued->new (sqrt => 2);
+ use Math::NumSeq::MathImageSqrtContinued;
+ my $seq = Math::NumSeq::MathImageSqrtContinued->new (sqrt => 2);
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -408,7 +444,7 @@ See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
 
 =over 4
 
-=item C<$seq = Math::NumSeq::SqrtContinued-E<gt>new (sqrt =E<gt> $s)>
+=item C<$seq = Math::NumSeq::MathImageSqrtContinued-E<gt>new (sqrt =E<gt> $s)>
 
 Create and return a new sequence object giving the Continued expansion terms of
 C<sqrt($s)>.
@@ -425,7 +461,3 @@ L<Math::Pell>,
 L<Math::ContinuedFraction>
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --values=SqrtContinued"
-# End:

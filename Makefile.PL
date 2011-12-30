@@ -86,6 +86,7 @@ my %maximum_planepath
      'Math::PlanePath::FactorRationals'      => 61, # new in v.61
      'Math::PlanePath::GcdRationals'         => 60, # new in v.60
      'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
+     'Math::PlanePath::FractionsTree'        => 62, # new in v.62
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
      'Math::PlanePath::DivisibleColumns'     => 49, # new in v.49
 
@@ -173,16 +174,16 @@ my %maximum_numseq
   = (
      'Math::NumSeq' => 23, # v.23 for characteristic(integer)
      # cf App::MathImage::Generator values_choices() preferences
-     'Math::NumSeq::Squares'     => 1,
+     'Math::NumSeq::Squares'     => 25, # v.25 for BigInt pred()
      'Math::NumSeq::Pronic'      => 1,
-     'Math::NumSeq::Triangular'  => 1,
-     'Math::NumSeq::Polygonal'   => 8,  # v.8 for pairs=>average
+     'Math::NumSeq::Triangular'  => 25, # v.25 for BigInt pred()
+     'Math::NumSeq::Polygonal'   => 25, # v.25 for BigInt pred()
      'Math::NumSeq::Cubes'       => 1,
      'Math::NumSeq::Tetrahedral' => 1,
      'Math::NumSeq::StarNumbers' => 1,
      'Math::NumSeq::Even'        => 1,
      'Math::NumSeq::Odd'         => 1,
-     'Math::NumSeq::AllDigits'   => 23, # new in v.23
+     'Math::NumSeq::AllDigits'   => 25, # v.25 for BigInt ith()
 
      'Math::NumSeq::Primes'              => 4, # new in v.4
      'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
@@ -198,6 +199,7 @@ my %maximum_numseq
      'Math::NumSeq::TotientSteps'        => 13, # new in v.13
      'Math::NumSeq::TotientPerfect'      => 13, # new in v.13
      'Math::NumSeq::Abundant'            => 24, # new in v.24
+     'Math::NumSeq::PolignacObstinate'   => 25, # new in v.25
 
      'Math::NumSeq::Factorials'    => 1,
      'Math::NumSeq::Primorials'    => 1,
@@ -389,11 +391,12 @@ add_prereq ('Math::NumSeq::Base::IterateIth',1);
 add_prereq ('Math::NumSeq::Base::IteratePred',1);
 add_prereq ('Math::NumSeq::Base::Sparse',1);
 add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
-add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContinued
-add_prereq ('Math::NumSeq::SqrtDigits',1); # for SqrtContinued
 add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
 add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
 add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiGroups
+add_prereq ('Math::NumSeq::SqrtDigits',1); # for SqrtContinued
+add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContinued
+add_prereq ('Math::NumSeq::SqrtContinuedPeriod',1); # for SqrtContinued
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',

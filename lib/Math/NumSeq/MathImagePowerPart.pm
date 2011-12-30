@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package Math::NumSeq::MathImageInnerSquareRoot;
+package Math::NumSeq::MathImagePowerPart;
 use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq 7; # v.7 for _is_infinite()
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -29,7 +29,7 @@ use Math::NumSeq 7; # v.7 for _is_infinite()
 #use Smart::Comments;
 
 
-use constant description => Math::NumSeq::__('Inner square root ...');
+use constant description => Math::NumSeq::__('Largest square etc dividing i.');
 use constant characteristic_non_decreasing => 0;
 use constant characteristic_increasing => 0;
 use constant characteristic_integer => 1;
@@ -48,11 +48,18 @@ use constant parameter_info_array =>
    },
   ];
 
+# cf A008833 - largest square dividing n
+#    A008834 - largest cube dividing n
+#    A008835 - largest 4th power dividing n
+#
 my @oeis_anum = (undef,
                  undef,
-                 'A000188',  # 2
+                 'A000188',  # 2 sqrt of largest square dividing n
                  'A053150',  # 3 cbrt of largest cube dividing n
-                 'A053164',  # 4
+                 'A053164',  # 4th root of largest 4th power dividing n
+                 # OEIS-Catalogue: A000188
+                 # OEIS-Catalogue: A053150 power=3
+                 # OEIS-Catalogue: A053164 power=4
                 );
 sub oeis_anum {
   my ($self) = @_;
@@ -113,7 +120,7 @@ sub next {
 
 sub ith {
   my ($self, $i) = @_;
-  ### InnerSquareRoot ith(): $i
+  ### PowerPart ith(): $i
 
   if (abs($i) > 0xFFFF_FFFF) {
     return undef;
@@ -129,14 +136,16 @@ sub ith {
 
   my $ret = 1;
 
-  my $pow = 2 ** $power;
-  while (($i % $pow) == 0) {
-    ### $pow
-    $i /= $pow;
-    $ret *= 2;
-  }
-  while (($i % 2) == 0) {
-    $i /= 2;
+  {
+    my $pow = 2 ** $power;
+    while (($i % $pow) == 0) {
+      ### $pow
+      $i /= $pow;
+      $ret *= 2;
+    }
+    while (($i % 2) == 0) {
+      $i /= 2;
+    }
   }
 
   for (my $p = 3; ; $p += 2) {
@@ -156,8 +165,6 @@ sub ith {
   return $ret;
 }
 
-# use Math::NumSeq::All;
-# *pred = Math::NumSeq::Squares->can('pred');
 sub pred {
   my ($self, $value) = @_;
   return ($value == int($value) && $value >= 1);
@@ -166,27 +173,32 @@ sub pred {
 1;
 __END__
 
-=for stopwords Ryde Math-NumSeq
+=for stopwords Ryde Math-NumSeq sqrt
 
 =head1 NAME
 
-Math::NumSeq::MathImageInnerSquareRoot -- sqrt of largest square divisor
+Math::NumSeq::MathImagePowerPart -- largest square etc divisor
 
 =head1 SYNOPSIS
 
- use Math::NumSeq::MathImageInnerSquareRoot;
- my $seq = Math::NumSeq::MathImageInnerSquareRoot->new;
+ use Math::NumSeq::MathImagePowerPart;
+ my $seq = Math::NumSeq::MathImagePowerPart->new (power => 2);
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
 
-...
+The largest integer which squared (etc) is a divisor of i.
+
+    1, 1, 1, 2, 1, 1, 1, 2, 3, ...
+
+For example at i=27 the power part is 3 since 3^2=9 is the largest which,
+when squared, is a divisor of 27.
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$seq = Math::NumSeq::MathImageInnerSquareRoot-E<gt>new ()>
+=item C<$seq = Math::NumSeq::MathImagePowerPart-E<gt>new ()>
 
 Create and return a new sequence object.
 
@@ -207,7 +219,3 @@ L<Math::NumSeq>,
 L<Math::NumSeq::MobiusFunction>
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --values=InnerSquareRoot"
-# End:

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            87
+version:            88
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -76,6 +76,7 @@ requires:
     Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
+    Math::NumSeq::SqrtContinuedPeriod:  1
     Math::NumSeq::SqrtDigits:  1
     Math::NumSeq::Squares:  1
     Math::PlanePath:      43
@@ -170,7 +171,7 @@ optional_features:
             Math::Expression::Evaluator:  0
             Math::NumSeq:         23
             Math::NumSeq::Abundant:  24
-            Math::NumSeq::AllDigits:  23
+            Math::NumSeq::AllDigits:  25
             Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
@@ -216,7 +217,8 @@ optional_features:
             Math::NumSeq::Pell:   10
             Math::NumSeq::Perrin:  23
             Math::NumSeq::PlanePathCoord:  54
-            Math::NumSeq::Polygonal:  8
+            Math::NumSeq::PolignacObstinate:  25
+            Math::NumSeq::Polygonal:  25
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
@@ -230,7 +232,7 @@ optional_features:
             Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::SqrtEngel:  1
-            Math::NumSeq::Squares:  1
+            Math::NumSeq::Squares:  25
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
@@ -238,7 +240,7 @@ optional_features:
             Math::NumSeq::TotientCumulative:  13
             Math::NumSeq::TotientPerfect:  13
             Math::NumSeq::TotientSteps:  13
-            Math::NumSeq::Triangular:  1
+            Math::NumSeq::Triangular:  25
             Math::NumSeq::Tribonacci:  8
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
@@ -269,6 +271,7 @@ optional_features:
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
+            Math::PlanePath::FractionsTree:  62
             Math::PlanePath::GcdRationals:  60
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
@@ -346,7 +349,7 @@ optional_features:
             Math::Aronson:        4
             Math::NumSeq:         23
             Math::NumSeq::Abundant:  24
-            Math::NumSeq::AllDigits:  23
+            Math::NumSeq::AllDigits:  25
             Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
@@ -392,7 +395,8 @@ optional_features:
             Math::NumSeq::Pell:   10
             Math::NumSeq::Perrin:  23
             Math::NumSeq::PlanePathCoord:  54
-            Math::NumSeq::Polygonal:  8
+            Math::NumSeq::PolignacObstinate:  25
+            Math::NumSeq::Polygonal:  25
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
@@ -406,7 +410,7 @@ optional_features:
             Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::SqrtEngel:  1
-            Math::NumSeq::Squares:  1
+            Math::NumSeq::Squares:  25
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
@@ -414,7 +418,7 @@ optional_features:
             Math::NumSeq::TotientCumulative:  13
             Math::NumSeq::TotientPerfect:  13
             Math::NumSeq::TotientSteps:  13
-            Math::NumSeq::Triangular:  1
+            Math::NumSeq::Triangular:  25
             Math::NumSeq::Tribonacci:  8
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
@@ -448,6 +452,7 @@ optional_features:
             Math::PlanePath::File:  37
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
+            Math::PlanePath::FractionsTree:  62
             Math::PlanePath::GcdRationals:  60
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
@@ -542,7 +547,7 @@ recommends:
     Math::Expression::Evaluator:  0
     Math::NumSeq:         23
     Math::NumSeq::Abundant:  24
-    Math::NumSeq::AllDigits:  23
+    Math::NumSeq::AllDigits:  25
     Math::NumSeq::AlmostPrimes:  14
     Math::NumSeq::Aronson:  6
     Math::NumSeq::AsciiSelf:  12
@@ -588,7 +593,8 @@ recommends:
     Math::NumSeq::Pell:   10
     Math::NumSeq::Perrin:  23
     Math::NumSeq::PlanePathCoord:  54
-    Math::NumSeq::Polygonal:  8
+    Math::NumSeq::PolignacObstinate:  25
+    Math::NumSeq::Polygonal:  25
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
     Math::NumSeq::Primorials:  1
@@ -602,7 +608,7 @@ recommends:
     Math::NumSeq::SqrtContinuedPeriod:  24
     Math::NumSeq::SqrtDigits:  1
     Math::NumSeq::SqrtEngel:  1
-    Math::NumSeq::Squares:  1
+    Math::NumSeq::Squares:  25
     Math::NumSeq::StarNumbers:  1
     Math::NumSeq::SternDiatomic:  4
     Math::NumSeq::Tetrahedral:  1
@@ -610,7 +616,7 @@ recommends:
     Math::NumSeq::TotientCumulative:  13
     Math::NumSeq::TotientPerfect:  13
     Math::NumSeq::TotientSteps:  13
-    Math::NumSeq::Triangular:  1
+    Math::NumSeq::Triangular:  25
     Math::NumSeq::Tribonacci:  8
     Math::NumSeq::TwinPrimes:  4
     Math::NumSeq::WoodallNumbers:  1
@@ -641,6 +647,7 @@ recommends:
     Math::PlanePath::File:  37
     Math::PlanePath::Flowsnake:  55
     Math::PlanePath::FlowsnakeCentres:  38
+    Math::PlanePath::FractionsTree:  62
     Math::PlanePath::GcdRationals:  60
     Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GosperReplicate:  46

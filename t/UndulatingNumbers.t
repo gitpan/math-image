@@ -34,7 +34,7 @@ use Math::NumSeq::MathImageUndulatingNumbers;
 # VERSION
 
 {
-  my $want_version = 87;
+  my $want_version = 88;
   is ($Math::NumSeq::MathImageUndulatingNumbers::VERSION, $want_version,
       'VERSION variable');
   is (Math::NumSeq::MathImageUndulatingNumbers->VERSION,  $want_version,

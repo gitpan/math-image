@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -84,7 +84,7 @@ sub next {
 
   my @got = (undef, 0,0);
   foreach (1 .. $self->{'length'}) {
-    my (undef,$value) = $self->{'kolseq'}->next;
+    my ($ki,$value) = $self->{'kolseq'}->next;
     $got[$value]++;
   }
   ### @got
@@ -114,16 +114,16 @@ __END__
   # return ($self->{'i'}++, $ret);
 
 
-=for stopwords Ryde Math-NumSeq
+=for stopwords Ryde Math-NumSeq Kolakoski
 
 =head1 NAME
 
-Math::NumSeq::KolakoskiGroups -- majority value in groups of Kolakoski values
+Math::NumSeq::MathImageKolakoskiGroups -- majority value in groups of Kolakoski values
 
 =head1 SYNOPSIS
 
- use Math::NumSeq::KolakoskiGroups;
- my $seq = Math::NumSeq::KolakoskiGroups->new (length => 3);
+ use Math::NumSeq::MathImageKolakoskiGroups;
+ my $seq = Math::NumSeq::MathImageKolakoskiGroups->new (length => 3);
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -148,7 +148,7 @@ See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
 
 =over 4
 
-=item C<$seq = Math::NumSeq::KolakoskiGroups-E<gt>new (length =E<gt> $integer)>
+=item C<$seq = Math::NumSeq::MathImageKolakoskiGroups-E<gt>new (length =E<gt> $integer)>
 
 Create and return a new sequence object.
 

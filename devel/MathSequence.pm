@@ -22,7 +22,7 @@ use Carp;
 use Math::Sequence;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

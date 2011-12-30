@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -45,13 +45,13 @@ use constant parameter_info_array =>
    },
   ];
 
-my %oeis_anum = ('1,2'  => 'A002858',
-                 '1,3'  => 'A002859',
-                 '1,4', => 'A003666',
-                 '1,5', => 'A003667',
-                 '2,3', => 'A001857',
-                 '2,4', => 'A048951',
-                 '2,5', => 'A007300',
+my %oeis_anum = ('1,2' => 'A002858',
+                 '1,3' => 'A002859',
+                 '1,4' => 'A003666',
+                 '1,5' => 'A003667',
+                 '2,3' => 'A001857',
+                 '2,4' => 'A048951',
+                 '2,5' => 'A007300',
 
                   # OEIS-Catalogue: A002858 start_values=1,2
                   # OEIS-Catalogue: A002859 start_values=1,3
@@ -66,7 +66,7 @@ sub oeis_anum {
   (my $key = $self->{'start_values'}) =~ tr/ \t//d;
   return $oeis_anum{$key};
 }
-  
+
 # each 2-bit vec() value is
 #    0 not a sum
 #    1 sum one

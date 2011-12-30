@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
@@ -180,7 +180,7 @@ sub pred {
   unless ($self->SUPER::pred($value)) {
     ### not a prime ...
     return 0;
-  };
+  }
   my $inc = $self->{'chain_inc'};
   if ($self->{'which'} eq 'last') {
     foreach (2 .. $self->{'length'}) {

@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 87;
+$VERSION = 88;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -113,7 +113,7 @@ use constant::defer values_choices => sub {
                          TotientStepsSum
                          TotientPerfect
                          Abundant
-                         Obstinate
+                         PolignacObstinate
 
                          Squares
                          Pronic
@@ -267,9 +267,8 @@ sub values_object {
     my $err = $@;
     ### values_obj error: $@
     die $err;
-  } else {
-    ### ret: "$values_obj"
   }
+  ### values_obj created: $values_obj
   return ($self->{'values_object'} = $values_obj);
 }
 
@@ -305,6 +304,7 @@ my %pathname_square_grid
                      PythagoreanTree
                      CoprimeColumns
                      RationalsTree
+                     FractionsTree
                      DiagonalRationals
                      FactorRationals
                      GcdRationals
@@ -660,6 +660,7 @@ sub y_negative {
                            FactorRationals
                            GcdRationals
                            RationalsTree
+                           FractionsTree
 
                            DivisibleColumns
                            File
@@ -720,7 +721,7 @@ sub y_negative {
 
     my @path_choices = $self->path_choices;
     @path_choices
-      = grep {!/PythagoreanTree|RationalsTree/}  # values too big for many seqs
+      = grep {!/PythagoreanTree|RationalsTree|FractionsTree/}  # values too big for many seqs
         @path_choices;
     @path_choices = (@path_choices,
                      grep {!/KochCurve|GosperSide/} @path_choices);
@@ -971,9 +972,16 @@ sub filename_base {
 
 use constant _SV_N_LIMIT => do {
   # NV might be long double, but don't trust that to things like floor(),ceil() yet
-  my $uv_max = (~0) / 8;
-  my $dbl_max = POSIX::DBL_MAX() / 8;
-  ($uv_max > $dbl_max ? $uv_max : $dbl_max)
+  my $uv_max = (~0);
+  my $flt_radix = POSIX::FLT_RADIX();
+  my $dbl_mant_dig = POSIX::DBL_MANT_DIG();
+  my $dbl_max = POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG() - 1;
+  ### $uv_max
+  ### $dbl_max
+  ### $flt_radix
+  ### $dbl_mant_dig
+  my $limit = ($uv_max > $dbl_max ? $uv_max : $dbl_max);
+  int ($limit / 8192)
 };
 
 sub path_choice_to_class {
@@ -1195,6 +1203,7 @@ sub colour_grey {
 # x=0 blue through x=1 red
 sub colour_heat {
   my ($self, $x) = @_;
+  ### colour_heat: $x
   return rgb1_to_rgbstr (map { ($x < $_        ? 0
                                 : $x < $_+.25  ? 4*($x-$_)
                                 : $x < $_+.5   ? 1
@@ -1686,7 +1695,7 @@ sub draw_Image_steps {
 
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
-  my $values_obj = $self->{'values_obj'};
+  my $values_obj = $self->values_object;
   my $filter_obj = $self->{'filter_obj'};
 
   my $figure = $self->figure;
@@ -1758,14 +1767,30 @@ sub draw_Image_steps {
      });
 
   if ($self->{'values'} eq 'Lines') {
-    my $increment = $self->{'values_parameters'}->{'increment'} ||
-      $path_object->arms_count;
+    ### $values_obj
+    ### lines_type: $values_obj->{'lines_type'}
+    ### midpoint_offset: $values_obj->{'midpoint_offset'}
+    ### increment: $values_obj->{'increment'}
+
+    my $increment = $values_obj->{'increment'}
+      || $path_object->arms_count;
+    my $midpoint_offset = 0;
+    if (($values_obj->{'lines_type'}||'') eq 'midpoint') {
+      $midpoint_offset = $values_obj->{'midpoint_offset'};
+      if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
+    }
     my $n_offset_from = ($self->{'use_xy'} ? -$increment : 0);
     my $n_offset_to = $increment;
 
+    # draw point n+moff
+    # discont start at n-disc
+    # diff n+moff-(n-disc) = moff+disc, negative
     if ($increment == 1
         && defined (my $disc = $path_object->MathImage__n_frac_discontinuity)) {
-      $n_offset_from = -$disc;
+      $n_offset_from = -($midpoint_offset+$disc);
+      if ($n_offset_from <= -1) {
+        $n_offset_from++;
+      }
       $n_offset_to = $n_offset_from + .9999;
     }
     ### $n_offset_from
@@ -1773,7 +1798,7 @@ sub draw_Image_steps {
 
     my ($x,$y, $n);
     my $frag = sub {
-      #### lines frag: "$n  $x,$y"
+      #### lines frag: ($n+$midpoint_offset)."  $x,$y"
       my ($x, $y) = $affine->transform ($x, $y);
       $figure_at_transformed->($x,$y);
 
@@ -1782,7 +1807,7 @@ sub draw_Image_steps {
 
       foreach my $n_offset (($n_offset_from ? $n_offset_from : ()),
                             $n_offset_to) {
-        my ($x2, $y2) = $path_object->n_to_xy($n+$n_offset)
+        my ($x2, $y2) = $path_object->n_to_xy($n+$midpoint_offset+$n_offset)
           or next;
         ($x2, $y2) = $affine->transform ($x2, $y2);
         ### n offset: ($n+$n_offset)."   $x2, $y2"
@@ -1820,6 +1845,10 @@ sub draw_Image_steps {
         if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
           next; # no N for this x,y
         }
+        if ($midpoint_offset) {
+          ($x, $y) = $path_object->n_to_xy($n+$midpoint_offset)
+            or next;
+        }
         &$frag();
       }
       $self->{'x'} = $x;
@@ -1833,7 +1862,7 @@ sub draw_Image_steps {
       for ( ; $n < $n_hi; $n++) {
         &$cont() or last;
 
-        ($x, $y) = $path_object->n_to_xy($n)
+        ($x, $y) = $path_object->n_to_xy($n+$midpoint_offset)
           or next;
         &$frag();
       }
@@ -1847,7 +1876,7 @@ sub draw_Image_steps {
 
   if ($self->{'values'} eq 'LinesTree') {
     # math-image --path=PythagoreanTree --values=LinesTree --scale=100
-    my $branches = $self->{'values_parameters'}->{'branches'};
+    my $branches = $values_obj->{'branches'};
 
     if ($self->{'use_xy'}) {
       ### LinesTree use_xy...
@@ -2077,12 +2106,12 @@ sub draw_Image_steps {
       if (! defined ($n = $path_object->xy_to_n ($x, $bignum_y))) {
         next; # no N for this x,y
       }
-      #### xy path: "$x,$y  $n"
+      #### use_xy path: "$x,$y  $n"
 
       my $count = ($use_colours
                    ? $values_obj->ith($n)
                    : $values_obj->pred($n));
-      #### $count
+      ### ith or pred: $count
       if (! $count || ! $filter_obj->pred($n)) {
         if (! $covers) {
           ##### background fill...
@@ -2158,11 +2187,11 @@ sub draw_Image_steps {
 
     for (;;) {
       &$cont() or last;
-      ### n_prev: "$n_prev"
 
       my ($i, $value) = $values_obj->next;
       ### $i
       ### value: $value
+      ### n_prev: "$n_prev"
 
       my $n;
       if ($use_colours) {
@@ -2180,7 +2209,7 @@ sub draw_Image_steps {
           }
           next;
         }
-        if ($n < $n_prev) {
+        if ($n <= $n_prev) {
           if (++$self->{'n_decrease'} > 10) {
             ### stop for n<n_prev many times ...
             last;
@@ -2351,9 +2380,14 @@ sub value_to_colour {
   if (defined (my $max = $self->{'colours_max'})) {
     ### linear ...
     $value = abs($value - $base);
-    return $self->colour_grey ($value / (($max - $base) || 1))
+    $value *= 65536.0;
+    $value = int ($value / (($max - $base) || 1));
+    $value = "$value" + 0.0; # numize bigint
+    $value /= 65536.0;  # range 0 to 1
+    return $self->colour_grey ($value)
   }
   ### exponential ...
+  $value = "$value" + 0.0; # numize bigint
   $value = exp(($value - $base) * $self->{'colours_shrink_log'});
   return $self->colour_grey ($value)
 }
@@ -2401,11 +2435,12 @@ sub use_xy {
 
   $self->{'x'} = $x_lo - 1;
   $self->{'bignum_y'} = $self->{'y'} = $y_lo;
-  #### x: "$x_lo to $x_hi start $self->{'x'}"
-  #### y: "$y_lo to $y_hi start $self->{'y'}"
+  ### x: "$x_lo to $x_hi start $self->{'x'}"
+  ### y: "$y_lo to $y_hi start $self->{'y'}"
+  ### n_hi: "$self->{'n_hi'}   cf _SV_N_LIMIT "._SV_N_LIMIT()
 
   if ($self->{'n_hi'} > _SV_N_LIMIT) {
-    ### bigint XY: "$self->{'y'}"
+    ### bigint Y: "$self->{'y'}"
     $self->{'bignum_y'} = _bigint()->new($y_lo);
     ### y: $self->{'y'}
   }

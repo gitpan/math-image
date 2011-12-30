@@ -110,7 +110,7 @@ sub check_class {
   # return unless $class =~ /Sqrt/;
   # return unless $class =~ /PathN/;
   # return unless $class =~ /Kernel/;
-  return unless $class =~ /Abund/;
+  return unless $class =~ /Powerful/;
 
 
   eval "require $class" or die;

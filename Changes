@@ -17,6 +17,10 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 88, December 2011
+    - lines midpoint option
+    - fixes for bignum paths and values
+
 Version 87, December 2011
     - more stuff
 

@@ -23,7 +23,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -467,11 +467,21 @@ sub values_max {
 # }
 { package Math::PlanePath::RationalsTree;
   use constant MathImage__NumSeq_X_axis_increasing => 1;
-  use constant MathImage__NumSeq_Y_axis_increasing => 1;
   use constant MathImage__NumSeq_X_axis_use_Y => 1;
-  use constant MathImage__NumSeq_Y_axis_use_X => 1;
   use constant MathImage__NumSeq_X_axis_i_start => 1;
+
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_use_X => 1;
   use constant MathImage__NumSeq_Y_axis_i_start => 1;
+}
+{ package Math::PlanePath::FractionsTree;
+  use constant MathImage__NumSeq_Diagonal_increasing => 1;
+  use constant MathImage__NumSeq_Diagonal_X_offset => -1;
+  use constant MathImage__NumSeq_Diagonal_i_start => 2;
+
+  use constant MathImage__NumSeq_Y_axis_increasing => 1;
+  use constant MathImage__NumSeq_Y_axis_use_X => 1;
+  use constant MathImage__NumSeq_Y_axis_i_start => 2;
 }
 { package Math::PlanePath::DiagonalRationals;
   use constant MathImage__NumSeq_X_axis_increasing => 1;
@@ -687,7 +697,7 @@ Create and return a new sequence object.
 
 =head1 SEE ALSO
 
-L<Math::NumSeq>
+L<Math::NumSeq>,
 L<Math::NumSeq::PlanePathCoord>,
 L<Math::NumSeq::PlanePathDelta>
 

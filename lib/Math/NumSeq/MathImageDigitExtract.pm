@@ -1,3 +1,14 @@
+# N_low
+# N_high
+# N_middle
+# position_offset
+#
+# DigitExtract
+# DigitAverage
+
+
+
+
 # Copyright 2011 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -21,7 +32,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 
 use Math::NumSeq::Base::IterateIth;
 use Math::NumSeq::Base::Digits;
@@ -46,7 +57,7 @@ use constant parameter_info_array =>
     name    => 'extract_type',
     type    => 'enum',
     default => 'low',
-    choices => ['low','high','middle',
+    choices => ['low','high','second_low','second_high','middle',
                 'minimum','maximum',
                 'mean','median','mode',
                 'geometric_mean','quadratic_mean',
@@ -70,6 +81,28 @@ sub values_min {
   }
   return 0;
 }
+
+my %type_is_integer = (low => 1,
+                       high => 1,
+                       second_low => 1,
+                       second_high => 1,
+                       middle => 1,
+                       minimum => 1,
+                       maximum => 1,
+                       mean => 0,
+                       median => 0,
+                       mode => 0,
+                       geometric_mean => 0,
+                       quadratic_mean => 0,
+                      );
+my %round_is_integer = (down => 1,
+                        up => 1);
+sub characteristic_integer {
+  my ($self) = @_;
+  return $type_is_integer{$self->{'extract_type'}}
+    || $round_is_integer{$self->{'round'}};
+}
+
 
 #------------------------------------------------------------------------------
 my @oeis_anum;
@@ -181,6 +214,10 @@ sub ith {
     return $i % $radix;
   }
 
+  if ($extract_type eq 'second_low') {
+    return int($i/$radix) % $radix;
+  }
+
   my @digits;
   do {
     push @digits, $i % $radix;
@@ -189,6 +226,9 @@ sub ith {
 
   if ($extract_type eq 'high') {
     return $digits[-1];
+  }
+  if ($extract_type eq 'second_high') {
+    return @digits >= 2 ? $digits[-2] : 0;
   }
 
   if ($extract_type eq 'minimum') {
@@ -266,7 +306,7 @@ sub ith {
   }
   if ($self->{'round'} eq 'up') {
     my $int = int($ret);
-    return $int + ($ret != int($ret));;
+    return $int + ($ret != int($ret));
   }
   return $ret;
 }
@@ -278,12 +318,12 @@ __END__
 
 =head1 NAME
 
-Math::NumSeq::DigitExtract -- one of the digits of integers 0 upwards
+Math::NumSeq::MathImageDigitExtract -- one of the digits of integers 0 upwards
 
 =head1 SYNOPSIS
 
- use Math::NumSeq::DigitExtract;
- my $seq = Math::NumSeq::DigitExtract->new (extract_type => 'median');
+ use Math::NumSeq::MathImageDigitExtract;
+ my $seq = Math::NumSeq::MathImageDigitExtract->new (extract_type => 'median');
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -293,6 +333,8 @@ be
 
     "low"               least significant digit
     "high"              most significant digit
+    "second_low"        second least significant digit
+    "second_high"       second most significant digit
     "middle"            middle digit
     "minimum"           smallest digit
     "maximum"           largest digit
@@ -316,7 +358,7 @@ See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
 
 =over 4
 
-=item C<$seq = Math::NumSeq::DigitExtract-E<gt>new (length =E<gt> $integer)>
+=item C<$seq = Math::NumSeq::MathImageDigitExtract-E<gt>new (length =E<gt> $integer)>
 
 Create and return a new sequence object.
 
@@ -332,7 +374,3 @@ L<Math::NumSeq>,
 L<Math::NumSeq::Digit>
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --values=DigitExtract"
-# End:

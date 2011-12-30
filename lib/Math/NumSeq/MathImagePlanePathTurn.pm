@@ -30,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -130,15 +130,15 @@ sub next {
 
 
 
-  my $planepath_object = $self->{'planepath_object'};
-
-  my ($x, $y) = $planepath_object->n_to_xy($i)
-    or return;
-  my $ret = &{$self->{'turn_func'}}($self, $x,$y,
-                                     $self->{'prev_x'},$self->{'prev_y'});
-  $self->{'prev_x'} = $x;
-  $self->{'prev_y'} = $y;
-  return ($i, $ret);
+  # my $planepath_object = $self->{'planepath_object'};
+  # 
+  # my ($x, $y) = $planepath_object->n_to_xy($i)
+  #   or return;
+  # my $ret = &{$self->{'turn_func'}}($self, $x,$y,
+  #                                    $self->{'prev_x'},$self->{'prev_y'});
+  # $self->{'prev_x'} = $x;
+  # $self->{'prev_y'} = $y;
+  # return ($i, $ret);
 }
 
 sub ith {
@@ -301,6 +301,8 @@ sub values_max {
 # }
 # { package Math::PlanePath::RationalsTree;
 # }
+# { package Math::PlanePath::FractionsTree;
+# }
 # { package Math::PlanePath::DiagonalRationals;
 # }
 # { package Math::PlanePath::FactorRationals;
@@ -453,7 +455,7 @@ sub pred {
 }
 
 
-=for stopwords Ryde MathImage
+=for stopwords Ryde MathImage PlanePath Math-NumSeq
 
 =head1 NAME
 
