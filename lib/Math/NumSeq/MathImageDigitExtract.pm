@@ -32,7 +32,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 
 use Math::NumSeq::Base::IterateIth;
 use Math::NumSeq::Base::Digits;

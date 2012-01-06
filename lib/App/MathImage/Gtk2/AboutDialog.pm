@@ -27,7 +27,7 @@ use Locale::TextDomain ('Math-Image');
 #use Devel::Comments;
 
 
-our $VERSION = 88;
+our $VERSION = 89;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';

@@ -1,4 +1,4 @@
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of math-image.
 
@@ -16,6 +16,9 @@ You can get a copy of the GNU General Public License online at
 <http://www.gnu.org/licenses/>.
 
 
+
+Version 89, January 2012
+    - grey "undrawn" for undef ith()s
 
 Version 88, December 2011
     - lines midpoint option

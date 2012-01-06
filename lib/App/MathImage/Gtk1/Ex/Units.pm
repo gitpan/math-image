@@ -25,7 +25,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA', '@EXPORT_OK', '%EXPORT_TAGS';
-$VERSION = 88;
+$VERSION = 89;
 
 use Exporter;
 our @ISA = ('Exporter');

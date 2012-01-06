@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -110,7 +110,7 @@ sub check_class {
   # return unless $class =~ /Sqrt/;
   # return unless $class =~ /PathN/;
   # return unless $class =~ /Kernel/;
-  return unless $class =~ /Powerful/;
+  # return unless $class =~ /Sqrt/;
 
 
   eval "require $class" or die;

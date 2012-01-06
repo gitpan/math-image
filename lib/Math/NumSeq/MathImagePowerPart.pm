@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::NumSeq 7; # v.7 for _is_infinite()
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -187,12 +187,15 @@ Math::NumSeq::MathImagePowerPart -- largest square etc divisor
 
 =head1 DESCRIPTION
 
-The largest integer which squared (etc) is a divisor of i.
+The largest integer which square (etc) is a divisor of i.
 
     1, 1, 1, 2, 1, 1, 1, 2, 3, ...
 
 For example at i=27 the power part is 3 since 3^2=9 is the largest which,
 when squared, is a divisor of 27.
+
+The C<power> parameter selects what power divisor is sought.  For example
+C<power=E<gt>3> finds the largest cube dividing i.
 
 =head1 FUNCTIONS
 
@@ -200,11 +203,16 @@ when squared, is a divisor of 27.
 
 =item C<$seq = Math::NumSeq::MathImagePowerPart-E<gt>new ()>
 
+=item C<$seq = Math::NumSeq::MathImagePowerPart-E<gt>new (power =E<gt> $integer)>
+
 Create and return a new sequence object.
 
 =item C<$value = $seq-E<gt>ith($i)>
 
-Return the largest perfect square dividing C<$i>.
+Return the largest perfect square, cube, etc dividing C<$i>.
+
+The current code relies on factorizing C<$i> and a hard limit of 2**32 is
+placed on C<$i> in the interests of not going into a near-infinite loop.
 
 =item C<$bool = $seq-E<gt>pred($value)>
 

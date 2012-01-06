@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -39,11 +39,9 @@ use Gtk2::Ex::GdkBits 23; # v.23 for window_clear_region()
 use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
-# uncomment this to run the ### lines
-#use Smart::Comments '###';
 
 
-our $VERSION = 88;
+our $VERSION = 89;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -276,10 +274,12 @@ sub _do_size_allocate {
 
 sub _update_adjustment_values {
   my ($self, $old_hpage,$old_vpage, $new_hpage,$new_vpage) = @_;
+  ### _update_adjustment_values() ...
   {
     my $hadj = $self->{'hadjustment'};
     my $value = $hadj->value;
     my $dec = ($new_hpage - $old_hpage) / 2;
+    ### x_negative: $self->x_negative
     unless ($self->x_negative) {
       if ($dec >= 0) {
         # don't float in the air when expand
@@ -477,7 +477,7 @@ sub pointer_xy_to_image_xyn {
   my ($px,$py) = $affine_object->clone->invert->transform($x,$y);
   ### $px
   ### $py
-  my $path_object =  $self->{'path_object'}
+  my $path_object = $self->{'path_object'}
     || return ($px, $py);
   if ($path_object->figure eq 'square') {
     $px = POSIX::floor ($px + 0.5);
@@ -496,17 +496,20 @@ sub centre {
 sub _centre_values {
   my ($self) = @_;
   my ($x, $y) = _centre_basis($self);
+  ### _centre_values() to basis: "$x,$y"
   my $scale = $self->get('scale');
   my (undef, undef, $width, $height) = $self->allocation->values;
   return (($x ? -$width/$scale/2 : -1/2),
           ($y ? -$height/2/$scale : -1/2));
 }
+
 sub _centre_basis {
   my ($self) = @_;
-  return ($self->x_negative,
-          $self->y_negative);
-  # return (($self->x_negative || $path eq 'MultipleRings'),
-  #         ($self->y_negative || $path eq 'MultipleRings'));
+  my $path = $self->get('path') || '';
+  ### _centre_basis(): $path
+  my $path_object = $self->gen_object->path_object;
+  return ($path_object->class_x_negative,
+          $path_object->class_y_negative);
 }
 
 # 'button-press-event' class closure

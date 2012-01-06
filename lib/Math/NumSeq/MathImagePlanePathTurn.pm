@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -30,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -352,6 +352,8 @@ sub values_max {
 # }
 # { package Math::PlanePath::ComplexMinus;
 # }
+# { package Math::PlanePath::ComplexRevolving;
+# }
 { package Math::PlanePath::Rows;
   # if width==1 then always straight ahead vertical
   sub MathImage__NumSeq_Turn_min {
@@ -392,6 +394,8 @@ sub values_max {
   }
 }
 # { package Math::PlanePath::PyramidSides;
+# }
+# { package Math::PlanePath::CellularRule;
 # }
 # { package Math::PlanePath::CellularRule54;
 # }

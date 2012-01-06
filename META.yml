@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            88
+version:            89
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -79,7 +79,7 @@ requires:
     Math::NumSeq::SqrtContinuedPeriod:  1
     Math::NumSeq::SqrtDigits:  1
     Math::NumSeq::Squares:  1
-    Math::PlanePath:      43
+    Math::PlanePath:      63
     Math::PlanePath::CellularRule54:  54
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
@@ -219,6 +219,7 @@ optional_features:
             Math::NumSeq::PlanePathCoord:  54
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
+            Math::NumSeq::Powerful:  26
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
@@ -226,9 +227,10 @@ optional_features:
             Math::NumSeq::ProthNumbers:  1
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
-            Math::NumSeq::RepdigitRadix:  19
+            Math::NumSeq::RepdigitRadix:  27
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::SophieGermainPrimes:  4
+            Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::SqrtEngel:  1
@@ -248,11 +250,13 @@ optional_features:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::BetaOmega:  54
+            Math::PlanePath::CellularRule:  63
             Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
+            Math::PlanePath::ComplexRevolving:  63
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::CornerReplicate:  52
@@ -397,6 +401,7 @@ optional_features:
             Math::NumSeq::PlanePathCoord:  54
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
+            Math::NumSeq::Powerful:  26
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
@@ -404,9 +409,10 @@ optional_features:
             Math::NumSeq::ProthNumbers:  1
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
-            Math::NumSeq::RepdigitRadix:  19
+            Math::NumSeq::RepdigitRadix:  27
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::SophieGermainPrimes:  4
+            Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
             Math::NumSeq::SqrtEngel:  1
@@ -429,11 +435,13 @@ optional_features:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::BetaOmega:  54
+            Math::PlanePath::CellularRule:  63
             Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
+            Math::PlanePath::ComplexRevolving:  63
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
             Math::PlanePath::CornerReplicate:  52
@@ -595,6 +603,7 @@ recommends:
     Math::NumSeq::PlanePathCoord:  54
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
+    Math::NumSeq::Powerful:  26
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
     Math::NumSeq::Primorials:  1
@@ -602,9 +611,10 @@ recommends:
     Math::NumSeq::ProthNumbers:  1
     Math::NumSeq::RadixWithoutDigit:  1
     Math::NumSeq::RepdigitAny:  16
-    Math::NumSeq::RepdigitRadix:  19
+    Math::NumSeq::RepdigitRadix:  27
     Math::NumSeq::Repdigits:  1
     Math::NumSeq::SophieGermainPrimes:  4
+    Math::NumSeq::SqrtContinued:  27
     Math::NumSeq::SqrtContinuedPeriod:  24
     Math::NumSeq::SqrtDigits:  1
     Math::NumSeq::SqrtEngel:  1
@@ -624,11 +634,13 @@ recommends:
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
     Math::PlanePath::BetaOmega:  54
+    Math::PlanePath::CellularRule:  63
     Math::PlanePath::CellularRule190:  54
     Math::PlanePath::CellularRule54:  40
     Math::PlanePath::CincoCurve:  56
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
+    Math::PlanePath::ComplexRevolving:  63
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
     Math::PlanePath::CornerReplicate:  52

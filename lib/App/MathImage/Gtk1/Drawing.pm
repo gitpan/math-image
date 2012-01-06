@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use App::MathImage::Generator;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION','@ISA';
-$VERSION = 88;
+$VERSION = 89;
 
 # use Locale::TextDomain ('App-MathImage');
 
@@ -500,10 +500,9 @@ sub _centre_values {
 }
 sub _centre_basis {
   my ($self) = @_;
-  return ($self->x_negative,
-          $self->y_negative);
-  # return (($self->x_negative || $path eq 'MultipleRings'),
-  #         ($self->y_negative || $path eq 'MultipleRings'));
+  my $path_object = $self->gen_object->path_object;
+  return ($path_object->class_x_negative,
+          $path_object->class_y_negative);
 }
 
 # 'button-press-event' class closure

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -111,6 +111,7 @@ my %maximum_planepath
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
      'Math::PlanePath::PyramidSides'         => 1,
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
+     'Math::PlanePath::CellularRule'         => 63, # new in v.63
      'Math::PlanePath::CellularRule54'       => 40, # new in v.40
      'Math::PlanePath::CellularRule190'      => 54, # v.54 exact rect
      'Math::PlanePath::UlamWarburton'        => 48, # new in v.48
@@ -166,6 +167,7 @@ my %maximum_planepath
      'Math::PlanePath::DragonRounded'        => 50, # v.50 xy_to_n() arms fix
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
+     'Math::PlanePath::ComplexRevolving'     => 63, # new in v.63
 
      'Math::PlanePath::File'                 => 37, # new in v.37
     );
@@ -181,6 +183,8 @@ my %maximum_numseq
      'Math::NumSeq::Cubes'       => 1,
      'Math::NumSeq::Tetrahedral' => 1,
      'Math::NumSeq::StarNumbers' => 1,
+     'Math::NumSeq::Powerful'    => 26, # new in v.26
+
      'Math::NumSeq::Even'        => 1,
      'Math::NumSeq::Odd'         => 1,
      'Math::NumSeq::AllDigits'   => 25, # v.25 for BigInt ith()
@@ -214,6 +218,7 @@ my %maximum_numseq
 
      'Math::NumSeq::FractionDigits'      => 1,
      'Math::NumSeq::SqrtDigits'          => 1,
+     'Math::NumSeq::SqrtContinued'       => 27, # new in v.27
      'Math::NumSeq::SqrtContinuedPeriod' => 24, # new in v.24
      'Math::NumSeq::SqrtEngel'           => 1,
 
@@ -230,7 +235,7 @@ my %maximum_numseq
      'Math::NumSeq::Beastly'        => 1,
      'Math::NumSeq::Repdigits'      => 1,
      'Math::NumSeq::RepdigitAny'    => 16, # new in v.16
-     'Math::NumSeq::RepdigitRadix'  => 19, # v.19 next() fix
+     'Math::NumSeq::RepdigitRadix'  => 27, # v.27 faster ith()
      'Math::NumSeq::Palindromes'    => 1,
      'Math::NumSeq::HarshadNumbers' => 1,
      'Math::NumSeq::HappyNumbers'   => 7,  # new in v.7
@@ -360,7 +365,7 @@ my %prereq_pm
      # 'Math::Prime::TiedArray' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
-     'Math::PlanePath' => 43, # v.43 for parameter_info_array()
+     'Math::PlanePath' => 63, # v.63 for class_x_negative()
      'Math::PlanePath::SquareSpiral' => 1, # at least this path
 
      # my Math-NumSeq
@@ -377,12 +382,12 @@ sub add_prereq {
     $prereq_pm{$module} = $version;
   }
 }
-add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
+# add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
 add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
 add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
 add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
-add_prereq ('Math::PlanePath::CellularRule54', 54); # for CellularRule
-add_prereq ('Math::NumSeq::PlanePathCoord', 53); # PlanePathTurn,PlanePathN
+add_prereq ('Math::PlanePath::CellularRule54', 54); # for CellularRule57
+add_prereq ('Math::NumSeq::PlanePathCoord', 53); # PlanePathTurn
 #
 # add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
 add_prereq ('Math::NumSeq::Base::Array',1);

@@ -1,4 +1,8 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
+
+
+# mirror rule 99
+
 
 # This file is part of Math-Image.
 #
@@ -20,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -30,7 +34,7 @@ use Math::PlanePath;
 #use Smart::Comments;
 
 
-use constant y_negative => 0;
+use constant class_y_negative => 0;
 
 #            left
 # even  y=3     5

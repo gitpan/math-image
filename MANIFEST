@@ -145,9 +145,7 @@ lib/Math/NumSeq/MathImageLoeschian.pm
 lib/Math/NumSeq/MathImagePadovan.pm
 lib/Math/NumSeq/MathImagePiBits.pm
 lib/Math/NumSeq/MathImagePiDigits.pm
-lib/Math/NumSeq/MathImagePlanePathN.pm
 lib/Math/NumSeq/MathImagePlanePathTurn.pm
-lib/Math/NumSeq/MathImagePowerful.pm
 lib/Math/NumSeq/MathImagePowerPart.pm
 lib/Math/NumSeq/MathImagePrimeIndexCount.pm
 lib/Math/NumSeq/MathImagePrimeIndexPrimes.pm
@@ -159,14 +157,13 @@ lib/Math/NumSeq/MathImageReplicateDigits.pm
 lib/Math/NumSeq/MathImageReRound.pm
 lib/Math/NumSeq/MathImageRuns.pm
 lib/Math/NumSeq/MathImageSpectrum.pm
-lib/Math/NumSeq/MathImageSqrtContinued.pm
 lib/Math/NumSeq/MathImageSumTwoSquares.pm
 lib/Math/NumSeq/MathImageSumXsq3Ysq.pm
 lib/Math/NumSeq/MathImageUlamSequence.pm
 lib/Math/NumSeq/MathImageUndulatingNumbers.pm
+lib/Math/PlanePath/MathImageAlternatePaper.pm
 lib/Math/PlanePath/MathImageAnvilSpiral.pm
 lib/Math/PlanePath/MathImageCCurve.pm
-lib/Math/PlanePath/MathImageCellularRule.pm
 lib/Math/PlanePath/MathImageCellularRule57.pm
 lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageDekkingCurve.pm
@@ -209,7 +206,6 @@ xt/0-Test-ConsistentVersion.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t
-xt/CellularRule-oeis.t
 xt/MyOEIS.pm
 xt/numseq-oeis.t
 xt/Terdragon-oeis.t
