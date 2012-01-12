@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,7 +34,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {

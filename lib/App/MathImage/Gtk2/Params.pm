@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,10 +28,11 @@ use Glib::Ex::ConnectProperties;
 use Gtk2::Ex::ToolbarBits;
 use Gtk2::Ex::MenuBits;
 
+our $VERSION = 90;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 89;
 
 use Glib::Object::Subclass
   'Glib::Object',
@@ -142,7 +143,8 @@ sub SET_PROPERTY {
 
         my $class;
         if (defined (my $ptype_hint = $pinfo->{'type_hint'})) {
-          $class = "App::MathImage::Gtk2::Params::\u${ptype}::\u${ptype_hint}";
+          $class = "App::MathImage::Gtk2::Params::\u${ptype}::"
+            . _hint_to_class($ptype_hint);
           ### hint class: $class
         }
         unless ($class && Module::Util::find_installed($class)) {
@@ -169,6 +171,9 @@ sub SET_PROPERTY {
               $tooltip = $self->{'name'};
             }
           }
+          if ($toolitem->can('tooltip_extra')) {
+            $tooltip .= "\n\n" . $toolitem->tooltip_extra;
+          }
           ### $tooltip
           set_property_maybe ($toolitem, # tooltip-text new in 2.12
                               tooltip_text => $tooltip);
@@ -189,6 +194,12 @@ sub SET_PROPERTY {
     _update_visible ($self);
     $self->notify('parameter_values');
   }
+}
+
+sub _hint_to_class {
+  my ($str) = @_;
+  $str =~ s/(^|_)(.)/\u$2/g;
+  return $str;
 }
 
 sub _do_toolitem_changed {

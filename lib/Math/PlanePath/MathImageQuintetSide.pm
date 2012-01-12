@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 89;
+$VERSION = 90;
 
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
@@ -303,7 +303,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

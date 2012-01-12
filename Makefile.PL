@@ -98,6 +98,7 @@ my %maximum_planepath
      'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
      'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
      'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
+     'Math::PlanePath::AnvilSpiral'          => 64, # new in v.64
      'Math::PlanePath::OctagramSpiral'       => 21, # new in v.21
      'Math::PlanePath::KnightSpiral'         => 1,
 
@@ -166,6 +167,9 @@ my %maximum_planepath
      'Math::PlanePath::DragonCurve'          => 39, # new in v.39
      'Math::PlanePath::DragonRounded'        => 50, # v.50 xy_to_n() arms fix
      'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
+     'Math::PlanePath::TerdragonCurve'       => 64, # new in v.64
+     'Math::PlanePath::AlternatePaper'       => 64, # new in v.64
+     'Math::PlanePath::ComplexPlus'          => 64, # new in v.64
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
      'Math::PlanePath::ComplexRevolving'     => 63, # new in v.63
 
@@ -184,6 +188,7 @@ my %maximum_numseq
      'Math::NumSeq::Tetrahedral' => 1,
      'Math::NumSeq::StarNumbers' => 1,
      'Math::NumSeq::Powerful'    => 26, # new in v.26
+     'Math::NumSeq::PowerPart'   => 28, # new in v.28
 
      'Math::NumSeq::Even'        => 1,
      'Math::NumSeq::Odd'         => 1,
@@ -272,7 +277,7 @@ my %prereq_pm
   = (
      'constant' => 1.02,  # leading underscore in prima bits
      'constant::defer' => 0,
-     'Bit::Vector'     => 0,
+     # 'Bit::Vector'     => 0,
      'Compress::Zlib'  => 0,
      'Proc::SyncExec' => 0,
 
@@ -399,9 +404,6 @@ add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
 add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
 add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
 add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiGroups
-add_prereq ('Math::NumSeq::SqrtDigits',1); # for SqrtContinued
-add_prereq ('Math::NumSeq::Squares',1);  # for SqrtContinued
-add_prereq ('Math::NumSeq::SqrtContinuedPeriod',1); # for SqrtContinued
 
 MyMakeMakerExtras::WriteMakefile
   (NAME         => 'math-image',
@@ -512,7 +514,9 @@ MyMakeMakerExtras::WriteMakefile
      },
 
      # devel additions to the package
-     no_index => { package => [ 'Math::PlanePath' ],
+     no_index => { package => [ 'Math::PlanePath',
+                                'Math::PlanePath::CellularRule',
+                              ],
                  }
    },
   );

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,7 +34,7 @@ use Math::NumSeq::MathImageUndulatingNumbers;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   is ($Math::NumSeq::MathImageUndulatingNumbers::VERSION, $want_version,
       'VERSION variable');
   is (Math::NumSeq::MathImageUndulatingNumbers->VERSION,  $want_version,

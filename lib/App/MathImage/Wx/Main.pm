@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 sub new {
   my ($class, $label) = @_;

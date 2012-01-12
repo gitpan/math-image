@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 89;
+$VERSION = 90;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -123,6 +123,7 @@ use constant::defer values_choices => sub {
                          Cubes
                          Tetrahedral
                          Powerful
+                         PowerPart
 
                          Odd
                          Even
@@ -290,6 +291,7 @@ my %pathname_square_grid
                      HexSpiral
                      HexSpiralSkewed
                      HeptSpiralSkewed
+                     AnvilSpiral
                      OctagramSpiral
                      KnightSpiral
 
@@ -318,6 +320,7 @@ my %pathname_square_grid
                      HilbertSpiral
                      ZOrderCurve
                      WunderlichMeander
+                     MathImageWunderlichSerpentine
                      BetaOmega
                      AR2W2Curve
                      KochelCurve
@@ -343,6 +346,9 @@ my %pathname_square_grid
                      DragonCurve
                      DragonRounded
                      DragonMidpoint
+                     TerdragonCurve
+                     AlternatePaper
+                     ComplexPlus
                      ComplexMinus
                      ComplexRevolving
 
@@ -379,9 +385,7 @@ my %pathname_square_grid
                      UlamWarburton
                      UlamWarburtonQuarter
 
-                     MathImageComplexPlus
                      MathImageQuintetSide
-                     MathImageWunderlichCurve
                   )
     );
 # my %pathname_fractional_grid
@@ -423,6 +427,9 @@ my %pathname_square_grid
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::CellularRule54;
+  use constant MathImage__n_frac_discontinuity => .5;
+}
+{ package Math::PlanePath::MathImageCellularRule57;
   use constant MathImage__n_frac_discontinuity => .5;
 }
 { package Math::PlanePath::CellularRule190;
@@ -615,6 +622,7 @@ sub y_negative {
                            HilbertSpiral
                            ZOrderCurve
                            WunderlichMeander
+                           MathImageWunderlichSerpentine
                            BetaOmega
                            AR2W2Curve
                            KochelCurve
@@ -655,6 +663,9 @@ sub y_negative {
                            DragonCurve
                            DragonRounded
                            DragonMidpoint
+                           TerdragonCurve
+                           AlternatePaper
+                           ComplexPlus
                            ComplexMinus
                            ComplexRevolving
 
@@ -1347,7 +1358,8 @@ sub draw_Image_start {
         $n_angle = (7 * $n_angle + 0);
       }
     } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')
-             || $path_object->isa ('Math::PlanePath::WunderlichMeander')) {
+             || $path_object->isa ('Math::PlanePath::WunderlichMeander')
+             || $path_object->isa ('Math::PlanePath::MathImageWunderlichSerpentine')) {
       $n_hi = 9 ** $level - 1;
     } elsif ($path_object->isa ('Math::PlanePath::BetaOmega')) {
       $n_hi = 4 ** $level - 1;
@@ -2617,6 +2629,67 @@ sub line_clipper {
   return ($x1new,$y1new, $x2new,$y2new);
 }
 
+sub xy_message {
+  my ($self, $x,$y) = @_;
+
+  (defined $x && defined $y) or return undef;
+
+  my $message = sprintf ("x=%.*f, y=%.*f",
+                         (int($x)==$x ? 0 : 2), $x,
+                         (int($y)==$y ? 0 : 2), $y);
+
+  my $path_object = $self->path_object;
+  defined (my $n = $path_object->xy_to_n($x,$y))
+    || return $message;
+  $message .= "   N=$n";
+
+  return $message unless defined $n;
+  $message .= "   N=$n";
+
+  my $values_obj = $self->values_object || return $message;
+
+  my $vstr = '';
+  my $radix;
+  if ($values_obj->can('ith')
+      && (($radix = $values_obj->characteristic('digits'))
+          || $values_obj->characteristic('count')
+          || $values_obj->characteristic('smaller')
+          || $values_obj->characteristic('modulus'))) {
+    if (defined (my $value = $values_obj->ith($n))) {
+      $vstr = " value=$value";
+      ### $vstr
+      if ($value >= 2
+          && $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
+        $radix = $value;
+      }
+    }
+  }
+  my $values_parameters;
+  if (! $radix
+      && ! $values_obj->isa('Math::NumSeq::Emirps')
+      && ($values_parameters = $self->{'values_parameters'})
+      && $self->values_class->parameter_info_hash->{'radix'}) {
+    $radix = $values_parameters->{'radix'}
+  }
+  if ($n != 0 && $radix && $radix != 10) {
+    my $str = _my_cnv($n,$radix);
+    $message .= " (N=$str in base $radix)";
+  }
+  return $message . $vstr;
+}
+sub _my_cnv {
+  my ($n, $radix) = @_;
+  if ($radix <= 36) {
+    require Math::BaseCnv;
+    return Math::BaseCnv::cnv($n,10,$radix);
+  } else {
+    my $ret = '';
+    do {
+      $ret = sprintf('[%d]', $n % $radix) . $ret;
+    } while ($n = int($n/$radix));
+    return $ret;
+  }
+}
 
 #------------------------------------------------------------------------------
 # generic

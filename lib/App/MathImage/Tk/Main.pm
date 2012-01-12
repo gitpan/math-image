@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -35,7 +35,7 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 sub Populate {
   my ($self, $args) = @_;

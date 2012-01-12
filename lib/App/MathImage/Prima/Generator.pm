@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds

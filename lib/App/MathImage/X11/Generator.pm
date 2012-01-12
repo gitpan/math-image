@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -37,7 +37,7 @@ use App::MathImage::X11::Protocol::EventHandlerExtra;
 #use Smart::Comments '###';
 
 use vars '$VERSION';
-$VERSION = 89;
+$VERSION = 90;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests

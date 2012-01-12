@@ -1,6 +1,6 @@
 #!perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 89;
+$VERSION = 90;
 exit App::MathImage->command_line;
 
 __END__
@@ -500,14 +500,20 @@ while generating values.
 
 The paths which have big N values near the origin, such as RationalsTree or
 PythagoreanTree, are calculated with C<Math::BigInt> for accuracy.  This
-becomes very slow, and some of the values and/or path calculations might end
-up rounding off anyway.
+becomes very slow, and in some cases the values and/or path calculations
+might end up rounding off anyway.
+
+Paths such as the dragon curve which duplicate points when plotting colours
+ends up sometimes showing the colour of the highest N and sometimes the
+lowest N.
 
 =head1 SEE ALSO
 
 L<gtk-options(7)>, L<xsetroot(1)>
 
 L<Math::PlanePath>,
+L<Math::PlanePath::SquareSpiral>
+
 L<Math::NumSeq>,
 L<Math::NumSeq::Aronson>
 
@@ -523,7 +529,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Math-Image is Copyright 2010, 2011 Kevin Ryde
+Math-Image is Copyright 2010, 2011, 2012 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

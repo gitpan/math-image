@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use App::MathImage::Generator;
 use App::MathImage::Curses::Drawing;
 
 use vars '$VERSION';
-$VERSION = 89;
+$VERSION = 90;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

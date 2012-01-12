@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -30,8 +30,6 @@ use Math::PlanePath 54; # v.54 for _max()
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-use Math::PlanePath::MathImageTerdragonCurve;
 
 
 use constant n_start => 0;
@@ -80,8 +78,9 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my ($x1,$y1) = $self->Math::PlanePath::MathImageTerdragonCurve::n_to_xy($n);
-  my ($x2,$y2) = $self->Math::PlanePath::MathImageTerdragonCurve::n_to_xy($n+$self->{'arms'});
+  require Math::PlanePath::TerdragonCurve;
+  my ($x1,$y1) = $self->Math::PlanePath::TerdragonCurve::n_to_xy($n);
+  my ($x2,$y2) = $self->Math::PlanePath::TerdragonCurve::n_to_xy($n+$self->{'arms'});
 
   # dx = x2-x1
   # X = 2 * (x1 + dx/2)
@@ -213,6 +212,7 @@ my @y_offset = (0, 0, 1,  1,  0, -1, -1);
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### MathImageTerdragonMidpoint xy_to_n(): "$x, $y"
+  require Math::PlanePath::TerdragonCurve;
 
   foreach my $i (0 .. $#x_offset) {
     my $tx = $x + $x_offset[$i];
@@ -225,7 +225,7 @@ sub xy_to_n {
 
     ### try: "$i  $tx,$ty"
 
-    my $n = $self->Math::PlanePath::MathImageTerdragonCurve::xy_to_n($x,$y);
+    my $n = $self->Math::PlanePath::TerdragonCurve::xy_to_n($x,$y);
     next unless defined $n;
 
     my ($nx,$ny) = $self->n_to_xy($n) or next;
@@ -241,7 +241,8 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  return $self->Math::PlanePath::MathImageTerdragonCurve::rect_to_n_range
+  require Math::PlanePath::TerdragonCurve;
+  return $self->Math::PlanePath::TerdragonCurve::rect_to_n_range
     ($x1/2, $y1/2,
      $x2/2, $y2/2);
 }
@@ -250,7 +251,7 @@ sub rect_to_n_range {
 #   my ($self, $x1,$y1, $x2,$y2) = @_;
 #   ### MathImageTerdragonMidpoint rect_to_n_range(): "$x1,$y1  $x2,$y2"
 #
-#   return Math::PlanePath::MathImageTerdragonCurve->rect_to_n_range
+#   return Math::PlanePath::TerdragonCurve->rect_to_n_range
 #     (sqrt(2)*$x1, sqrt(2)*$y1, sqrt(2)*$x2, sqrt(2)*$y2);
 # }
 

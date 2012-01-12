@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',
@@ -186,7 +186,7 @@ __END__
 #
 # =head1 LICENSE
 #
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 #
 # Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the

@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,7 +23,7 @@ use Wx;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 use base 'Wx::Choice';
-our $VERSION = 89;
+our $VERSION = 90;
 
 
 # uncomment this to run the ### lines

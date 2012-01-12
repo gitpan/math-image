@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -46,7 +46,7 @@ require App::MathImage::Image::Base::BMP;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 89;
+my $want_version = 90;
 ok ($App::MathImage::Image::Base::BMP::VERSION, $want_version,
     'VERSION variable');
 ok (App::MathImage::Image::Base::BMP->VERSION, $want_version,

@@ -30,14 +30,14 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
 use Math::NumSeq::PlanePathCoord;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant characteristic_smaller => 1;
@@ -51,8 +51,10 @@ use constant::defer parameter_info_array =>
              name    => 'turn_type',
              display => Math::NumSeq::__('Turn Type'),
              type    => 'enum',
-             default => 'LSR',
-             choices => ['LSR',
+             default => 'LSR_pn',
+             choices => ['LSR_pn',
+                         'LR_01',
+                         'RL_01',
                         ],
              # description => Math::NumSeq::__(''),
             },
@@ -63,7 +65,7 @@ my %oeis_anum
   = (
      # 'Math::PlanePath::HilbertCurve' =>
      # {
-     #  # cf -1,0,1 here
+     #  # cf 1,0,-1 here
      #  # A163542    relative direction (ahead=0,right=1,left=2)
      #  # A163543    relative direction, transpose X,Y
      # },
@@ -73,9 +75,25 @@ my %oeis_anum
      #  # A163536 relative direction 0=ahead,1=right,2=left
      # },
 
-     # 'Math::PlanePath::DragonCurve,radix=3' =>
+     # but A014577 has OFFSET=0 cf first elem for N=1
+     # 'Math::PlanePath::DragonCurve' =>
      # {
-     #  # A014577 turn, 0=left,1=right
+     #  'LR_01' => 'A014577', # turn, 0=left,1=right
+     #  # OEIS-Catalogue: A014577 planepath=DragonCurve turn_type=LR_01
+     # },
+
+     # but A106665 has OFFSET=0 cf first elem for N=1
+     # 'Math::PlanePath::AlternatePaper' =>
+     # {
+     #  'RL_01' => 'A106665', # turn, 1=left,0=right
+     #  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=RL_01
+     # },
+
+     # but A080846 has OFFSET=0 cf first elem for N=1
+     # 'Math::PlanePath::TerdragonCurve' =>
+     # {
+     #  'LR_01' => 'A080846', # turn, 0=left,1=right
+     #  # OEIS-Catalogue: A080846 planepath=TerdragonCurve turn_type=LR_01
      # },
     );
 
@@ -93,6 +111,7 @@ sub new {
                           ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'}));
 
 
+  ### turn_func: "_turn_func_$self->{'turn_type'}", $self->{'turn_func'}
   $self->{'turn_func'}
     = $self->can("_turn_func_$self->{'turn_type'}")
       || croak "Unrecognised turn_type: ",$self->{'turn_type'};
@@ -121,7 +140,7 @@ sub rewind {
 
 sub next {
   my ($self) = @_;
-  ### NumSeq-PlanePath next(): $self->{'i'}
+  ### NumSeq-PlanePathTurn next(): $self->{'i'}
   ### n_next: $self->{'n_next'}
 
   my $i = $self->{'i'}++;
@@ -158,8 +177,7 @@ sub ith {
   my $dy = $y - $prev_y;
   my $next_dx = $next_x - $x;
   my $next_dy = $next_y - $y;
-
-  return ($next_dy * $dx <=> $next_dx * $dy);
+  return $self->{'turn_func'}->($dx,$dy, $next_dx,$next_dy);
 
   #   return ($i, &{$self->{'turn_func'}}($self, $next_x,$next_y, $x,$y));
 }
@@ -177,17 +195,21 @@ sub ith {
 #         dy2 > dx2 * dy1/dx1
 #         dy2 * dx1 > dx2 * dy1
 #
-sub _turn_func_LSR {
-  my ($self, $x,$y, $prev_x,$prev_y) = @_;
+sub _turn_func_LSR_pn {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  ### _turn_func_LSR_pn() ...
+  return ($next_dy * $dx <=> $next_dx * $dy || 0);
+}
 
-  my $dx = $x - $prev_x;
-  my $dy = $y - $prev_y;
-
-  ### next at: "prev=$prev_x,$prev_y  xy=$x,$y"
-  ### next deltas: "dprev=$self->{'prev_dx'},$self->{'prev_dy'}  dxy=$dx,$dy"
-  ### next ret: ($dx * $self->{'prev_dy'} <=> $dy * $self->{'prev_dx'})
-
-  return ($dy * $self->{'prev_dx'} <=> $dx * $self->{'prev_dy'});
+sub _turn_func_LR_01 {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  ### _turn_func_LR_01() ...
+  return ($next_dy * $dx >= $next_dx * $dy || 0);
+}
+sub _turn_func_RL_01 {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  ### _turn_func_RL_01() ...
+  return ($next_dy * $dx <= $next_dx * $dy || 0);
 }
 
 
@@ -253,6 +275,8 @@ sub values_max {
   use constant MathImage__NumSeq_Turn_min => 0; # left or straight
   use constant MathImage__NumSeq_Turn_max => 1;
 }
+# { package Math::PlanePath::AnvilSpiral;
+# }
 # { package Math::PlanePath::OctagramSpiral;
 # }
 # { package Math::PlanePath::KnightSpiral;
@@ -349,6 +373,12 @@ sub values_max {
 # { package Math::PlanePath::DragonRounded;
 # }
 # { package Math::PlanePath::DragonMidpoint;
+# }
+# { package Math::PlanePath::TerdragonCurve;
+# }
+# { package Math::PlanePath::AlternatePaper;
+# }
+# { package Math::PlanePath::ComplexPlus;
 # }
 # { package Math::PlanePath::ComplexMinus;
 # }

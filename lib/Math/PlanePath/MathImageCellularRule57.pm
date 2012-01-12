@@ -19,12 +19,22 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+# Local variables:
+# compile-command: "math-image --path=MathImageCellularRule57 --all"
+# End:
+#
+# math-image --path=MathImageCellularRule57 --all --output=numbers --size=132x50
+#
+
+
 package Math::PlanePath::MathImageCellularRule57;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -364,16 +374,34 @@ arranged as rows
 
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
+On rows with odd Y there's a solid block at either end then 1 of 3 cells to
+the left and 2 of 3 to the right of the centre.  On even Y rows there's
+similar 1 of 3 and 2 of 3 middle parts, but without the solid ends.
 
-On odd Y rows there's a solid block at either end and 1 of 3 cells to the
-left and 2 of 3 to the right of the centre.  On even Y rows there's similar
-1 of 3 and 2 of 3, without the solid ends.
-
-=head2 Row Ranges
-
-The left end of each row is
-
-    ...
+    ***********  *  *  *  * * ** ** ** ************                
+                *  *  *  *  ** ** ** **                            
+      **********  *  *  *  * ** ** ** ***********                  
+                 *  *  *  * * ** ** **                             
+        *********  *  *  *  ** ** ** **********                    
+                  *  *  *  * ** ** **                              
+          ********  *  *  * * ** ** *********                      
+                   *  *  *  ** ** **                               
+            *******  *  *  * ** ** ********                        
+                    *  *  * * ** **                                
+              ******  *  *  ** ** *******                          
+                     *  *  * ** **                                 
+                *****  *  * * ** ******                            
+                      *  *  ** **                                  
+                  ****  *  * ** *****                              
+                       *  * * **                                   
+                    ***  *  ** ****                                
+                        *  * **                                    
+                      **  * * ***                                  
+                         *  **                                     
+                        *  * **                                    
+                          * *                                      
+                            *                                      
+                           *                                       
 
 =head1 FUNCTIONS
 
@@ -402,6 +430,7 @@ cell the return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::CellularRule>,
 L<Math::PlanePath::CellularRule54>,
 L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::PyramidRows>
@@ -409,10 +438,3 @@ L<Math::PlanePath::PyramidRows>
 http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=MathImageCellularRule57 --all"
-# End:
-#
-# math-image --path=MathImageCellularRule57 --all --output=numbers --size=132x50
-#

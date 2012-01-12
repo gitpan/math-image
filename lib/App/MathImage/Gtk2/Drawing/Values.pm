@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 89;
+our $VERSION = 90;
 our $TEXTDOMAIN = 'Math-Image';
 Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Values',
                            App::MathImage::Generator->values_choices);

@@ -28,7 +28,7 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 use POSIX ();
 use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
@@ -108,9 +108,10 @@ sub check_class {
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
   # return unless $class =~ /Sqrt/;
-  # return unless $class =~ /PathN/;
+  # return unless $class =~ /PlanePathTurn/;
   # return unless $class =~ /Kernel/;
   # return unless $class =~ /Sqrt/;
+  # return unless $class =~ /ReRound/;
 
 
   eval "require $class" or die;
@@ -163,6 +164,9 @@ sub check_class {
   } elsif ($anum eq 'A005384') {
     # sophie germain shorten for now
     @$want = grep {$_ < 1_000_000} @$want;
+
+  } elsif ($anum eq 'A000960') { # ReRound 2 shorten
+    @$want = grep {$_ < 1_000} @$want;
 
   } elsif ($anum eq 'A006567') {
     # emirps shorten for now

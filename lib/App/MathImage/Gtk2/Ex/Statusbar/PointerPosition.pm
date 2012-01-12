@@ -1,4 +1,4 @@
-# Copyright 2009, 2010, 2011 Kevin Ryde
+# Copyright 2009, 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Glib::Ex::SignalIds;
 use Gtk2::Ex::WidgetEvents;
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -90,6 +90,7 @@ lib/App/MathImage/Gtk2/Params/Filename.pm
 lib/App/MathImage/Gtk2/Params/Float.pm
 lib/App/MathImage/Gtk2/Params/Float/Expression.pm
 lib/App/MathImage/Gtk2/Params/Integer.pm
+lib/App/MathImage/Gtk2/Params/Integer/CellularRule.pm
 lib/App/MathImage/Gtk2/Params/String.pm
 lib/App/MathImage/Gtk2/PodDialog.pm
 lib/App/MathImage/Gtk2/SaveDialog.pm
@@ -146,7 +147,6 @@ lib/Math/NumSeq/MathImagePadovan.pm
 lib/Math/NumSeq/MathImagePiBits.pm
 lib/Math/NumSeq/MathImagePiDigits.pm
 lib/Math/NumSeq/MathImagePlanePathTurn.pm
-lib/Math/NumSeq/MathImagePowerPart.pm
 lib/Math/NumSeq/MathImagePrimeIndexCount.pm
 lib/Math/NumSeq/MathImagePrimeIndexPrimes.pm
 lib/Math/NumSeq/MathImagePrimeQuadraticEuler.pm
@@ -161,17 +161,13 @@ lib/Math/NumSeq/MathImageSumTwoSquares.pm
 lib/Math/NumSeq/MathImageSumXsq3Ysq.pm
 lib/Math/NumSeq/MathImageUlamSequence.pm
 lib/Math/NumSeq/MathImageUndulatingNumbers.pm
-lib/Math/PlanePath/MathImageAlternatePaper.pm
-lib/Math/PlanePath/MathImageAnvilSpiral.pm
 lib/Math/PlanePath/MathImageCCurve.pm
 lib/Math/PlanePath/MathImageCellularRule57.pm
-lib/Math/PlanePath/MathImageComplexPlus.pm
 lib/Math/PlanePath/MathImageDekkingCurve.pm
 lib/Math/PlanePath/MathImageDekkingStraight.pm
 lib/Math/PlanePath/MathImageGrayCurve.pm
 lib/Math/PlanePath/MathImagePeanoRounded.pm
 lib/Math/PlanePath/MathImageQuintetSide.pm
-lib/Math/PlanePath/MathImageTerdragonCurve.pm
 lib/Math/PlanePath/MathImageTerdragonMidpoint.pm
 lib/Math/PlanePath/MathImageWunderlichSerpentine.pm
 Makefile.PL
@@ -208,5 +204,4 @@ xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t
 xt/MyOEIS.pm
 xt/numseq-oeis.t
-xt/Terdragon-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

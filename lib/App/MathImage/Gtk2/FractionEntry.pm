@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -31,7 +31,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 #use Devel::Comments;
 
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__FractionEntry_style" {

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            89
+version:            90
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -11,7 +11,6 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Bit::Vector:          0
     Compress::Zlib:       0
     constant:             1.02
     constant::defer:      0
@@ -76,9 +75,6 @@ requires:
     Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
-    Math::NumSeq::SqrtContinuedPeriod:  1
-    Math::NumSeq::SqrtDigits:  1
-    Math::NumSeq::Squares:  1
     Math::PlanePath:      63
     Math::PlanePath::CellularRule54:  54
     Math::PlanePath::KochCurve:  42
@@ -109,6 +105,7 @@ no_index:
         - devel
     package:
         - Math::PlanePath
+        - Math::PlanePath::CellularRule
 generated_by:       ExtUtils::MakeMaker version 6.57_05
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -220,6 +217,7 @@ optional_features:
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
+            Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
@@ -246,6 +244,8 @@ optional_features:
             Math::NumSeq::Tribonacci:  8
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::WoodallNumbers:  1
+            Math::PlanePath::AlternatePaper:  64
+            Math::PlanePath::AnvilSpiral:  64
             Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
@@ -256,6 +256,7 @@ optional_features:
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
+            Math::PlanePath::ComplexPlus:  64
             Math::PlanePath::ComplexRevolving:  63
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
@@ -326,6 +327,7 @@ optional_features:
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
             Math::PlanePath::StaircaseAlternating:  58
+            Math::PlanePath::TerdragonCurve:  64
             Math::PlanePath::TheodorusSpiral:  6
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -402,6 +404,7 @@ optional_features:
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
+            Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  1
@@ -431,6 +434,8 @@ optional_features:
     maximum_planepath:
         description:  Maximum PlanePath modules
         requires:
+            Math::PlanePath::AlternatePaper:  64
+            Math::PlanePath::AnvilSpiral:  64
             Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
@@ -441,6 +446,7 @@ optional_features:
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
+            Math::PlanePath::ComplexPlus:  64
             Math::PlanePath::ComplexRevolving:  63
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
@@ -511,6 +517,7 @@ optional_features:
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
             Math::PlanePath::StaircaseAlternating:  58
+            Math::PlanePath::TerdragonCurve:  64
             Math::PlanePath::TheodorusSpiral:  6
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -604,6 +611,7 @@ recommends:
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
     Math::NumSeq::Powerful:  26
+    Math::NumSeq::PowerPart:  28
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
     Math::NumSeq::Primorials:  1
@@ -630,6 +638,8 @@ recommends:
     Math::NumSeq::Tribonacci:  8
     Math::NumSeq::TwinPrimes:  4
     Math::NumSeq::WoodallNumbers:  1
+    Math::PlanePath::AlternatePaper:  64
+    Math::PlanePath::AnvilSpiral:  64
     Math::PlanePath::AR2W2Curve:  59
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
@@ -640,6 +650,7 @@ recommends:
     Math::PlanePath::CincoCurve:  56
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
+    Math::PlanePath::ComplexPlus:  64
     Math::PlanePath::ComplexRevolving:  63
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
@@ -710,6 +721,7 @@ recommends:
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16
     Math::PlanePath::StaircaseAlternating:  58
+    Math::PlanePath::TerdragonCurve:  64
     Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3

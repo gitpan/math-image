@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Image::Base::Gtk::Gdk::Pixmap;
 use Image::Base::Gtk::Gdk::Window;
 
 use vars '$VERSION','@ISA';
-$VERSION = 89;
+$VERSION = 90;
 
 use App::MathImage::Generator;
 @ISA = ('App::MathImage::Generator');

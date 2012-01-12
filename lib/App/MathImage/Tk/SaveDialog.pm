@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -32,7 +32,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkSaveDialog');
 
-our $VERSION = 89;
+our $VERSION = 90;
 
 my %format_to_module = (png  => 'Tk::PNG',
                         jpeg => 'Tk::JPEG',
