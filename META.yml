@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            90
+version:            91
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -75,7 +75,7 @@ requires:
     Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
-    Math::PlanePath:      63
+    Math::PlanePath:      65
     Math::PlanePath::CellularRule54:  54
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  1
@@ -176,7 +176,7 @@ optional_features:
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
-            Math::NumSeq::CullenNumbers:  1
+            Math::NumSeq::CullenNumbers:  29
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
             Math::NumSeq::DigitCountLow:  16
@@ -189,10 +189,10 @@ optional_features:
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  20
-            Math::NumSeq::Factorials:  1
+            Math::NumSeq::Factorials:  29
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
-            Math::NumSeq::Fibonacci:  1
+            Math::NumSeq::Fibonacci:  29
             Math::NumSeq::FibonacciWord:  15
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
@@ -204,15 +204,15 @@ optional_features:
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
             Math::NumSeq::Liouville:  13
-            Math::NumSeq::LucasNumbers:  1
+            Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
             Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
-            Math::NumSeq::Pell:   10
-            Math::NumSeq::Perrin:  23
+            Math::NumSeq::Pell:   29
+            Math::NumSeq::Perrin:  29
             Math::NumSeq::PlanePathCoord:  54
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
@@ -220,13 +220,17 @@ optional_features:
             Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
-            Math::NumSeq::Primorials:  1
+            Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
+            Math::NumSeq::PythagoreanHypots:  29
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::RepdigitRadix:  27
             Math::NumSeq::Repdigits:  1
+            Math::NumSeq::ReRound:  29
+            Math::NumSeq::ReverseAdd:  30
+            Math::NumSeq::ReverseAddSteps:  1
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
@@ -241,9 +245,10 @@ optional_features:
             Math::NumSeq::TotientPerfect:  13
             Math::NumSeq::TotientSteps:  13
             Math::NumSeq::Triangular:  25
-            Math::NumSeq::Tribonacci:  8
+            Math::NumSeq::Tribonacci:  29
             Math::NumSeq::TwinPrimes:  4
-            Math::NumSeq::WoodallNumbers:  1
+            Math::NumSeq::UlamSequence:  29
+            Math::NumSeq::WoodallNumbers:  29
             Math::PlanePath::AlternatePaper:  64
             Math::PlanePath::AnvilSpiral:  64
             Math::PlanePath::AR2W2Curve:  59
@@ -343,6 +348,7 @@ optional_features:
             Tk::JPEG:             0
             Tk::MainWindow:       0
             Tk::PNG:              0
+            Tk::Pod:              0
             Tk::TIFF:             0
             X11::AtomConstants:   2
             X11::Protocol:        0
@@ -363,7 +369,7 @@ optional_features:
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::Cubes:  1
-            Math::NumSeq::CullenNumbers:  1
+            Math::NumSeq::CullenNumbers:  29
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
             Math::NumSeq::DigitCountLow:  16
@@ -376,10 +382,10 @@ optional_features:
             Math::NumSeq::Emirps:  4
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  20
-            Math::NumSeq::Factorials:  1
+            Math::NumSeq::Factorials:  29
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
-            Math::NumSeq::Fibonacci:  1
+            Math::NumSeq::Fibonacci:  29
             Math::NumSeq::FibonacciWord:  15
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
@@ -391,15 +397,15 @@ optional_features:
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
             Math::NumSeq::Liouville:  13
-            Math::NumSeq::LucasNumbers:  1
+            Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
             Math::NumSeq::OEIS:   13
             Math::NumSeq::Palindromes:  1
-            Math::NumSeq::Pell:   10
-            Math::NumSeq::Perrin:  23
+            Math::NumSeq::Pell:   29
+            Math::NumSeq::Perrin:  29
             Math::NumSeq::PlanePathCoord:  54
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
@@ -407,13 +413,17 @@ optional_features:
             Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  6
             Math::NumSeq::Primes:  4
-            Math::NumSeq::Primorials:  1
+            Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
+            Math::NumSeq::PythagoreanHypots:  29
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::RepdigitRadix:  27
             Math::NumSeq::Repdigits:  1
+            Math::NumSeq::ReRound:  29
+            Math::NumSeq::ReverseAdd:  30
+            Math::NumSeq::ReverseAddSteps:  1
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
@@ -428,9 +438,10 @@ optional_features:
             Math::NumSeq::TotientPerfect:  13
             Math::NumSeq::TotientSteps:  13
             Math::NumSeq::Triangular:  25
-            Math::NumSeq::Tribonacci:  8
+            Math::NumSeq::Tribonacci:  29
             Math::NumSeq::TwinPrimes:  4
-            Math::NumSeq::WoodallNumbers:  1
+            Math::NumSeq::UlamSequence:  29
+            Math::NumSeq::WoodallNumbers:  29
     maximum_planepath:
         description:  Maximum PlanePath modules
         requires:
@@ -538,16 +549,15 @@ optional_features:
                 Test::Weaken::ExtraBits:  1
     tk_interface:
         description:  Tk GUI modules.
+        recommends:
+            Tk::JPEG:  0
+            Tk::PNG:   0
+            Tk::Pod:   0
+            Tk::TIFF:  0
         requires:
             Image::Base::Tk::Photo:  0
             Tk::Balloon:          0
             Tk::MainWindow:       0
-    tk_optionals:
-        description:  Tk things used if available.
-        requires:
-            Tk::JPEG:  0
-            Tk::PNG:   0
-            Tk::TIFF:  0
 recommends:
     Browser::Open:        0
     Gtk2::Ex::CrossHair:  0
@@ -570,7 +580,7 @@ recommends:
     Math::NumSeq::Beastly:  1
     Math::NumSeq::CollatzSteps:  1
     Math::NumSeq::Cubes:  1
-    Math::NumSeq::CullenNumbers:  1
+    Math::NumSeq::CullenNumbers:  29
     Math::NumSeq::DigitCount:  13
     Math::NumSeq::DigitCountHigh:  16
     Math::NumSeq::DigitCountLow:  16
@@ -583,10 +593,10 @@ recommends:
     Math::NumSeq::Emirps:  4
     Math::NumSeq::Even:   1
     Math::NumSeq::Expression:  20
-    Math::NumSeq::Factorials:  1
+    Math::NumSeq::Factorials:  29
     Math::NumSeq::Fibbinary:  15
     Math::NumSeq::FibbinaryBitCount:  18
-    Math::NumSeq::Fibonacci:  1
+    Math::NumSeq::Fibonacci:  29
     Math::NumSeq::FibonacciWord:  15
     Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  1
@@ -598,15 +608,15 @@ recommends:
     Math::NumSeq::KlarnerRado:  11
     Math::NumSeq::Kolakoski:  13
     Math::NumSeq::Liouville:  13
-    Math::NumSeq::LucasNumbers:  1
+    Math::NumSeq::LucasNumbers:  29
     Math::NumSeq::MephistoWaltz:  14
     Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
     Math::NumSeq::OEIS:   13
     Math::NumSeq::Palindromes:  1
-    Math::NumSeq::Pell:   10
-    Math::NumSeq::Perrin:  23
+    Math::NumSeq::Pell:   29
+    Math::NumSeq::Perrin:  29
     Math::NumSeq::PlanePathCoord:  54
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
@@ -614,13 +624,17 @@ recommends:
     Math::NumSeq::PowerPart:  28
     Math::NumSeq::PrimeFactorCount:  6
     Math::NumSeq::Primes:  4
-    Math::NumSeq::Primorials:  1
+    Math::NumSeq::Primorials:  29
     Math::NumSeq::Pronic:  1
     Math::NumSeq::ProthNumbers:  1
+    Math::NumSeq::PythagoreanHypots:  29
     Math::NumSeq::RadixWithoutDigit:  1
     Math::NumSeq::RepdigitAny:  16
     Math::NumSeq::RepdigitRadix:  27
     Math::NumSeq::Repdigits:  1
+    Math::NumSeq::ReRound:  29
+    Math::NumSeq::ReverseAdd:  30
+    Math::NumSeq::ReverseAddSteps:  1
     Math::NumSeq::SophieGermainPrimes:  4
     Math::NumSeq::SqrtContinued:  27
     Math::NumSeq::SqrtContinuedPeriod:  24
@@ -635,9 +649,10 @@ recommends:
     Math::NumSeq::TotientPerfect:  13
     Math::NumSeq::TotientSteps:  13
     Math::NumSeq::Triangular:  25
-    Math::NumSeq::Tribonacci:  8
+    Math::NumSeq::Tribonacci:  29
     Math::NumSeq::TwinPrimes:  4
-    Math::NumSeq::WoodallNumbers:  1
+    Math::NumSeq::UlamSequence:  29
+    Math::NumSeq::WoodallNumbers:  29
     Math::PlanePath::AlternatePaper:  64
     Math::PlanePath::AnvilSpiral:  64
     Math::PlanePath::AR2W2Curve:  59

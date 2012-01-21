@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -276,10 +276,6 @@ integer positions.
 
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
-
-The curve visits an C<$x,$y> twice for various points (all the "inside"
-points).  In the current code the smaller of the two N values is returned.
-Is that the best way?
 
 =item C<$n = $path-E<gt>n_start()>
 

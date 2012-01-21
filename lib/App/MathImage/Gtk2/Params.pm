@@ -28,7 +28,7 @@ use Glib::Ex::ConnectProperties;
 use Gtk2::Ex::ToolbarBits;
 use Gtk2::Ex::MenuBits;
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -99,16 +99,19 @@ sub GET_PROPERTY {
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
-  ### Params SET_PROPERTY: $pname, $newval
+  ### Params SET_PROPERTY: $pname
+  ### $newval
 
   if ($pname eq 'parameter_values') {
     if (defined $newval) {
       my %newval = (%{$self->{'parameter_values'}},
                     %$newval);
+      ### %newval
       foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
         my $name = $pinfo->{'name'};
         my $key = $pinfo->{'share_key'} || $name;
-        if (my $toolitem = $self->{'toolitems_hash'}->{$key}) {
+        if ((exists $newval{$name})
+            && (my $toolitem = $self->{'toolitems_hash'}->{$key})) {
           $toolitem->set (parameter_value => delete $newval{$name});
         }
       }
@@ -154,6 +157,7 @@ sub SET_PROPERTY {
             $class = 'App::MathImage::Gtk2::Params::String';
           }
         }
+
         ### decided class: $class
         Module::Load::load ($class);
         $toolitem = $class->new
@@ -183,6 +187,7 @@ sub SET_PROPERTY {
         $toolbar->insert ($toolitem, -1);
       }
 
+      ### set parameter_info: $pinfo
       $toolitem->set (parameter_info => $pinfo);
       Gtk2::Ex::ToolbarBits::move_item_after ($toolbar, $toolitem, $after);
       $after = $toolitem;
@@ -192,7 +197,8 @@ sub SET_PROPERTY {
       $toolitem->hide;
     }
     _update_visible ($self);
-    $self->notify('parameter_values');
+    ### Params notify parameter-values initially ...
+    $self->notify('parameter-values');
   }
 }
 
@@ -204,16 +210,20 @@ sub _hint_to_class {
 
 sub _do_toolitem_changed {
   my ($toolitem) = @_;
+  ### _do_toolitem_changed() ...
+
   my $ref_weak_self = $_[-1];
   my $self = $$ref_weak_self || return;
   _update_visible ($self);
-  ### Params notify values...
+  ### Params notify parameter-values for toolitem changed ...
   $self->notify ('parameter-values');
+  ### _do_toolitem_changed() done ...
 }
 
 sub _update_visible {
   my ($self) = @_;
-  ### _update_visible
+  ### Params _update_visible() ...
+
   my $toolitems_hash = $self->{'toolitems_hash'};
   foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
     ### name: $pinfo->{'name'}
@@ -232,7 +242,11 @@ sub _pinfo_when {
         my $got_value = $when_toolitem->get('parameter-value');
         ### $got_value
         return (defined $got_value
-                && $got_value eq $pinfo->{'when_value'});
+                &&
+                List::Util::first
+                {$_ eq $got_value}
+                (defined $pinfo->{'when_value'} ? $pinfo->{'when_value'} : ()),
+                @{$pinfo->{'when_values'}});
       }
     }
   }

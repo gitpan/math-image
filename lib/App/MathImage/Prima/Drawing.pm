@@ -30,7 +30,7 @@ use App::MathImage::Generator;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 90;
+$VERSION = 91;
 
 sub profile_default {
   my ($class) = @_;
@@ -55,6 +55,7 @@ sub gen_options {
   my $gen_options = $self->{'gen_options'};
   if (@_) {
     %$gen_options = (%$gen_options, @_);
+    delete $self->{'gen_object'};
     ### repaint
     $self->repaint;
   }
@@ -79,26 +80,33 @@ sub on_paint {
   $canvas->clear;
   #  $canvas->fill_ellipse(50,50, 20,20);
 
-  my $gen_options = $self->gen_options;
+  my $gen = $self->gen_object;
+
   my $path_parameters = $self->path_parameters;
   $path_parameters->{'width'}  = $canvas->width;
   $path_parameters->{'height'} = $canvas->height;
   ### width:  $canvas->width
   ### height: $canvas->height
 
-  my $gen = App::MathImage::Generator->new
-    (step_time       => 0.25,
-     step_figures    => 1000,
-     %$gen_options,
-     #      foreground => $self->style->fg($self->state)->to_string,
-     #      background => $background_colorobj->to_string,
-    );
-
   require Image::Base::Prima::Drawable;
   my $image = Image::Base::Prima::Drawable->new (-drawable => $canvas);
   ### width:  $image->get('-width')
   ### height: $image->get('-height')
   $gen->draw_Image ($image);
+}
+
+sub gen_object {
+  my ($self) = @_;
+  return ($self->{'gen_object'} ||= do {
+    my $gen_options = $self->gen_options;
+    App::MathImage::Generator->new
+        (step_time       => 0.25,
+         step_figures    => 1000,
+         %$gen_options,
+         #      foreground => $self->style->fg($self->state)->to_string,
+         #      background => $background_colorobj->to_string,
+        )
+      });
 }
 
 # sub expose {

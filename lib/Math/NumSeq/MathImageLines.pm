@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
@@ -42,7 +42,7 @@ use constant parameter_info_array =>
     { name    => 'lines_type',
       type    => 'enum',
       default => 'integer',
-      choices => ['integer','midpoint'],
+      choices => [ 'integer','midpoint','rounded' ],
     },
     { name        => 'midpoint_offset',
       type        => 'float',
@@ -51,7 +51,7 @@ use constant parameter_info_array =>
       minimum     => 0,
       maximum     => 1.00,
       when_name   => 'lines_type',
-      when_value  => 'midpoint',
+      when_values  => ['midpoint','rounded'],
     },
   ];
 

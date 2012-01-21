@@ -20,9 +20,10 @@ package App::MathImage::Wx::Params::Boolean;
 use 5.004;
 use strict;
 use Wx;
+use Wx::Event;
 
 use base 'Wx::CheckBox';
-our $VERSION = 90;
+our $VERSION = 91;
 
 sub new {
   my ($class, $parent, $info) = @_;
@@ -33,7 +34,7 @@ sub new {
                                  Wx::wxID_ANY(),
                                  defined $display ? $display : $info->{'name'});
   $self->SetValue ($info->{'default'});
-  EVT_CHECKBOX ($self, 'OnCheckBoxClicked');
+  Wx::Event::EVT_CHECKBOX ($self, $self, 'OnCheckBoxClicked');
   return $self;
 }
 

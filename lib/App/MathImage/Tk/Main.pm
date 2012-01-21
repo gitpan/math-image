@@ -35,7 +35,7 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -100,24 +100,13 @@ sub Populate {
                                     -underline => 0);
     $menu->pack(-side => 'right');
     $menu->command (-label => 'About',
-                    -command => [ \&_do_about, $self ],
+                    -command => [ \&popup_about, $self ],
                     -underline => 0);
     $menu->command (-label => 'Program POD',
                     -underline => 0,
-                    -command => sub {
-                      require Tk::Pod;
-                      $self->Pod(-file => "$FindBin::Bin/$FindBin::Script");
-                    });
-    $menu->command
-      (-label => 'This Path POD',
-       -command => sub {
-         my ($path, $module);
-         if (($path = $self->Subwidget('drawing')->{'gen_options'}->{'path'})
-             && ($module = App::MathImage::Generator->path_choice_to_class ($path))) {
-           require Tk::Pod;
-           $self->Pod(-file => $module);
-         }
-       });
+                    -command => [$self, 'popup_program_pod']);
+    $menu->command (-label => 'This Path POD',
+                    -command => [$self, 'popup_path_pod']);
     $menu->command (-label => __('Diagnostics ...'),
                     -underline => 3,
                     -command => [ $self, 'popup_diagnostics' ]);
@@ -135,7 +124,7 @@ sub Populate {
                                -activeforeground => 'white',
                                -disabledforeground => 'white',
                               );
-  $draw->bind('<Motion>', [\&_do_motion_notify, Ev('x'), Ev('y')]);
+  $draw->bind('<Motion>', [\&_do_motion, Ev('x'), Ev('y')]);
   $draw->{'gen_options'} = $gen_options;
   $draw->pack(-side => 'top',
               -fill => 'both',
@@ -145,12 +134,7 @@ sub Populate {
   {
     my $button = $toolbar->Button
       (-text  => __('Randomize'),
-       -command => sub {
-         %$gen_options = (%$gen_options,
-                          App::MathImage::Generator->random_options);
-         ### randomize to: $gen_options
-         $draw->queue_reimage;
-       });
+       -command => [ $self, 'randomize' ]);
     $button->pack (-side => 'left');
     $balloon->attach($button, -balloonmsg => __('Choose a random path, values, scale, etc.  Click repeatedly to see interesting things.'));
   }
@@ -269,30 +253,31 @@ sub fullscreen_toggle {
   ### _do_fullscreen_toggle(): "@_"
   $self->FullScreen;
 }
+sub randomize {
+  my ($self) = @_;
+  my $drawing = $self->Subwidget('drawing');
+  my $gen_options = $drawing->{'gen_options'};
+  %$gen_options = (%$gen_options,
+                   App::MathImage::Generator->random_options);
+  ### randomize to: $gen_options
+  $drawing->queue_reimage;
+}
 
-sub _do_about {
+sub popup_about {
   my ($self) = @_;
   require App::MathImage::Tk::About;
   $self->AppMathImageTkAbout->Popup;
 }
 
-sub _do_motion_notify {
+sub _do_motion {
   my ($drawing, $x, $y) = @_;
-  ### _do_motion_notify(): "@_"
+  ### _do_motion(): "@_"
+
+  my $message = $drawing->gen_object->xy_message ($x, $y);
+  ### $message
+
   my $self = $drawing->parent;
-
   my $statusbar = $self->Subwidget('statusbar');
-
-  # my ($x, $y, $n) = $drawing->pointer_xy_to_image_xyn ($x, $y);
-  my $message;
-  if (defined $x) {
-    $message = sprintf ("x=%.*f, y=%.*f",
-                        (int($x)==$x ? 0 : 2), $x,
-                        (int($y)==$y ? 0 : 2), $y);
-    # if (defined $n) {
-    #   $message .= "   N=$n";
-    # }
-  }
   $statusbar->configure(-text => $message);
 }
 
@@ -303,6 +288,33 @@ sub popup_save_as {
                 ||= $self->AppMathImageTkSaveDialog
                 (-drawing => $self->Subwidget('drawing')));
   $dialog->Popup;
+}
+
+sub popup_program_pod {
+  my ($self) = @_;
+  _tk_pod($self) or return;
+  $self->Pod(-file => "$FindBin::Bin/$FindBin::Script");
+}
+sub popup_path_pod {
+  my ($self) = @_;
+  _tk_pod($self) or return;
+  my ($path, $module);
+  if (($path = $self->Subwidget('drawing')->{'gen_options'}->{'path'})
+      && ($module = App::MathImage::Generator->path_choice_to_class ($path))) {
+    $self->Pod(-file => $module);
+  }
+}
+sub _tk_pod {
+  my ($self) = @_;
+  if (eval { require Tk::Pod; 1}) {
+    return 1;
+  } else {
+    my $err = $@;
+    $self->messageBox (-type => 'Ok',
+                       -icon => 'error',
+                       -message => "Tk::Pod not available:\n$err");
+    return 0;
+  }
 }
 
 sub popup_diagnostics {

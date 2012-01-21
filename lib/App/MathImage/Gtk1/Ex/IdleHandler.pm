@@ -23,7 +23,7 @@ use strict;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 90;
+$VERSION = 91;
 
 sub new {
   my ($class, @ids) = @_;

@@ -44,7 +44,7 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -723,73 +723,17 @@ sub _do_motion_notify {
     my $id = $statusbar->get_context_id (__PACKAGE__);
     $statusbar->pop ($id);
 
-    if (my $message = _mouse_message ($self, $draw, $event)) {
-      ### $message
+    my $message = $draw->gen_object->xy_message ($event->x, $event->y);
+    ### $message
+    if (defined $message) {
       $statusbar->push ($id, $message);
     }
   }
   return Gtk2::EVENT_PROPAGATE;
 }
-sub _mouse_message {
-  my ($self, $draw, $event) = @_;
-  my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
-  return undef unless defined $x;
-
-  my $message = sprintf ("x=%.*f, y=%.*f",
-                         (int($x)==$x ? 0 : 2), $x,
-                         (int($y)==$y ? 0 : 2), $y);
-  return $message unless defined $n;
-  $message .= "   N=$n";
-
-  ((my $values = $draw->get('values'))
-   && (my $values_obj = $draw->gen_object->values_object))
-    || return $message;
-
-  my $vstr = '';
-  my $radix;
-  if ($values_obj->can('ith')
-      && (($radix = $values_obj->characteristic('digits'))
-          || $values_obj->characteristic('count')
-          || $values_obj->characteristic('smaller')
-          || $values_obj->characteristic('modulus'))) {
-    if (defined (my $value = $values_obj->ith($n))) {
-      $vstr = " value=$value";
-      ### $vstr
-      if ($value >= 2
-          && $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
-        $radix = $value;
-      }
-    }
-  }
-  my $values_parameters;
-  if (! $radix
-      && $values ne 'Emirps'
-      && ($values_parameters = $draw->get('values-parameters'))
-      && $draw->gen_object->values_class->parameter_info_hash->{'radix'}) {
-    $radix = $values_parameters->{'radix'}
-  }
-  if ($radix &&  $radix != 10) {
-    my $str = _my_cnv($n,$radix);
-    $message .= " (N=$str in base $radix)";
-  }
-  return $message . $vstr;
-}
-sub _my_cnv {
-  my ($n, $radix) = @_;
-  if ($radix <= 36) {
-    require Math::BaseCnv;
-    return Math::BaseCnv::cnv($n,10,$radix);
-  } else {
-    my $ret = '';
-    do {
-      $ret = sprintf('[%d]', $n % $radix) . $ret;
-    } while ($n = int($n/$radix));
-    return $ret;
-  }
-}
 
 my %ui_widget = (menubar => '/MenuBar',
-                   toolbar => '/ToolBar');
+                 toolbar => '/ToolBar');
 sub GET_PROPERTY {
   my ($self, $pspec) = @_;
   my $pname = $pspec->get_name;

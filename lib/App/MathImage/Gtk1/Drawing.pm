@@ -28,7 +28,7 @@ use App::MathImage::Generator;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION','@ISA';
-$VERSION = 90;
+$VERSION = 91;
 
 # use Locale::TextDomain ('App-MathImage');
 
@@ -78,7 +78,7 @@ sub GTK_OBJECT_INIT {
   # defaults
   my $default_options = App::MathImage::Generator->default_options;
   $self->{'draw-progressive'} = 1;
-  $self->{'scale'} = 100;
+  $self->{'scale'} = 20;
   $self->{'figure'} = 'default';
   $self->{'values'} = $default_options->{'values'};
   $self->{'path'} = $default_options->{'path'};

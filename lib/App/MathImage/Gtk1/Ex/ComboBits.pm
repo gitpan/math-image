@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package App::MathImage::Gtk1::Ex::WidgetBits;
+package App::MathImage::Gtk1::Ex::ComboBits;
 use 5.004;
 use strict;
 use Carp;
@@ -24,24 +24,41 @@ use vars '$VERSION', '@ISA', '@EXPORT_OK';
 $VERSION = 91;
 
 use Exporter;
-our @ISA = ('Exporter');
-our @EXPORT_OK = qw(set_usize_until_mapped);
+@ISA = ('Exporter');
+@EXPORT_OK = qw(mouse_wheel);
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 #------------------------------------------------------------------------------
 
-sub set_usize_until_mapped {
-  my ($widget, $width, $height) = @_;
-  $widget->signal_connect (map_event => \&_reset_usize);
-  $widget->set_usize($width,$height);
+my @button_to_incr;
+$button_to_incr[4] = -1;
+$button_to_incr[5] = 1;
+sub mouse_wheel {
+  my ($combo) = @_;
+  my $entry = $combo->entry;
+  $entry->signal_connect (button_press_event => \&_do_mouse_wheel);
 }
-sub _reset_usize {
-  my ($widget) = @_;
-  ### _reset_usize: "$widget"
-  $widget->set_usize (-1,-1);
+sub _do_mouse_wheel {
+  my ($entry, $event) = @_;
+  ### Combo _do_mouse_wheel(): $event
+  my $combo = $entry->parent;
+  if ((my $incr = $button_to_incr[$event->{'button'}])
+      && (my $list = $combo->list)
+      && (my $entry = $combo->entry)) {
+    my ($item) = $list->selection;
+    if ($item) {
+      my $pos = $list->child_position($item);
+      ### $pos
+      $pos += $incr;
+      if ($pos >= 0) {
+        $list->select_item($pos);
+      }
+    }
+  }
+  return 0; # EVENT_PROPAGATE
 }
 
 1;

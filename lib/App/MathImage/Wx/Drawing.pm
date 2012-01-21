@@ -21,10 +21,10 @@ use strict;
 use Wx;
 
 use base qw(Wx::Window);
-our $VERSION = 90;
+our $VERSION = 91;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
@@ -110,7 +110,7 @@ sub _OnPaint {
     $dc->DrawBitmap ($bitmap, 0, 0, 0);
   }
 
-  # if (my $bitmap = $self->{'generator'}->{'bitmap'}) {
+  # if (my $bitmap = $self->{'gen_object'}->{'bitmap'}) {
   #   $win->draw_drawable ($self->style->black_gc, $bitmap,
   #                        $event->area->x,
   #                        $event->area->y,
@@ -150,9 +150,10 @@ sub start_drawing_window {
   #   $window->set_background ($background_colorobj);
   # }
 
-  my $gen = $self->{'generator'}
-    = $self->gen_object (generator_class => 'App::MathImage::Wx::Generator',
-                         busycursor      => Wx::BusyCursor->new);
+  delete $self->{'gen_object'};
+  my $gen = $self->gen_object
+    (generator_class => 'App::MathImage::Wx::Generator',
+     busycursor      => Wx::BusyCursor->new);
 
   $self->{'path_object'} = $gen->path_object;
   $self->{'affine_object'} = $gen->affine_object;
@@ -166,59 +167,61 @@ sub start_drawing_window {
 sub gen_object {
   my ($self, %gen_parameters) = @_;
 
-  my $size = $self->GetClientSize;
-  my $width = $size->GetWidth;
-  my $height = $size->GetHeight;
-  ### $size
-  ### $width
-  ### $height
+  return ($self->{'gen_object'} ||= do {
+    my $size = $self->GetClientSize;
+    my $width = $size->GetWidth;
+    my $height = $size->GetHeight;
+    ### $size
+    ### $width
+    ### $height
 
-  my $background_colorobj = $self->GetBackgroundColour;
-  my $foreground_colorobj = $self->GetForegroundColour;
-  my $undrawnground_colorobj = Wx::Colour->new
-    (map {0.8 * $background_colorobj->$_()
-            + 0.2 * $foreground_colorobj->$_()}
-     'Red', 'Blue', 'Green');
+    my $background_colorobj = $self->GetBackgroundColour;
+    my $foreground_colorobj = $self->GetForegroundColour;
+    my $undrawnground_colorobj = Wx::Colour->new
+      (map {0.8 * $background_colorobj->$_()
+              + 0.2 * $foreground_colorobj->$_()}
+       'Red', 'Blue', 'Green');
 
-  my $generator_class = delete $gen_parameters{'generator_class'}
-    || 'App::MathImage::Generator';
-  ### $generator_class
-  ### scale: $self->{'scale'}
+    my $generator_class = delete $gen_parameters{'generator_class'}
+      || 'App::MathImage::Generator';
+    ### $generator_class
+    ### scale: $self->{'scale'}
 
-  Module::Load::load ($generator_class);
-  return $generator_class->new
-    (widget  => $self,
-     window  => $self,
-     wxframe => $self->GetParent,
+    Module::Load::load ($generator_class);
+    $generator_class->new
+      (widget  => $self,
+       window  => $self,
+       wxframe => $self->GetParent,
 
-     # foreground       => $foreground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
-     # background       => $background_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
-     # undrawnground    => $undrawnground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
-     draw_progressive => 1, # $self->get('draw-progressive'),
+       # foreground       => $foreground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
+       # background       => $background_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
+       # undrawnground    => $undrawnground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
+       draw_progressive => 1, # $self->get('draw-progressive'),
 
-     width           => $width,
-     height          => $height,
-     step_time       => _IDLE_TIME_SLICE,
-     step_figures    => _IDLE_TIME_FIGURES,
+       width           => $width,
+       height          => $height,
+       step_time       => _IDLE_TIME_SLICE,
+       step_figures    => _IDLE_TIME_FIGURES,
 
-     values          => $self->{'values'},
-     values_parameters => $self->{'values_parameters'},
+       values          => $self->{'values'},
+       values_parameters => $self->{'values_parameters'},
 
-     path            => $self->{'path'},
-     path_parameters => {
-                         %{$self->{'path_parameters'} || {}},
-                         width           => $width,
-                         height          => $height,
-                        },
+       path            => $self->{'path'},
+       path_parameters => {
+                           %{$self->{'path_parameters'} || {}},
+                           width           => $width,
+                           height          => $height,
+                          },
 
-     scale           => $self->{'scale'},
-     figure          => $self->{'figure'},
+       scale           => $self->{'scale'},
+       figure          => $self->{'figure'},
 
-     # filter          => $self->{'filter'},
-     # x_left          => $self->{'hadjustment'}->value,
-     # y_bottom        => $self->{'vadjustment'}->value,
+       # filter          => $self->{'filter'},
+       # x_left          => $self->{'hadjustment'}->value,
+       # y_bottom        => $self->{'vadjustment'}->value,
 
-     %gen_parameters);
+       %gen_parameters)
+    });
 }
 sub x_negative {
   my ($self) = @_;
@@ -232,7 +235,7 @@ sub y_negative {
 sub _OnIdle {
   my ($self, $event) = @_;
   ### Wx-Drawing OnIdle() ...
-  if (my $gen = $self->{'generator'}) {
+  if (my $gen = $self->{'gen_object'}) {
     $gen->OnIdle ($event);
   }
 }
@@ -245,21 +248,21 @@ sub _do_motion {
   }
 }
 
-sub pointer_xy_to_image_xyn {
-  my ($self, $x, $y) = @_;
-  ### pointer_xy_to_image_xyn(): "$x,$y"
-  my $affine_object = $self->{'affine_object'} || return;
-  my ($px,$py) = $affine_object->clone->invert->transform($x,$y);
-  ### $px
-  ### $py
-  my $path_object =  $self->{'path_object'}
-    || return ($px, $py);
-  if ($path_object->figure eq 'square') {
-    $px = POSIX::floor ($px + 0.5);
-    $py = POSIX::floor ($py + 0.5);
-  }
-  return ($px, $py, $path_object->xy_to_n($px,$py));
-}
+# sub pointer_xy_to_image_xyn {
+#   my ($self, $x, $y) = @_;
+#   ### pointer_xy_to_image_xyn(): "$x,$y"
+#   my $affine_object = $self->{'affine_object'} || return;
+#   my ($px,$py) = $affine_object->clone->invert->transform($x,$y);
+#   ### $px
+#   ### $py
+#   my $path_object =  $self->{'path_object'}
+#     || return ($px, $py);
+#   if ($path_object->figure eq 'square') {
+#     $px = POSIX::floor ($px + 0.5);
+#     $py = POSIX::floor ($py + 0.5);
+#   }
+#   return ($px, $py, $path_object->xy_to_n($px,$py));
+# }
 
 1;
 __END__

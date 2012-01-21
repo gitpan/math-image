@@ -38,7 +38,7 @@ use App::MathImage::Generator;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 @ISA = ('Prima::MainWindow');
 
 sub new {
@@ -200,7 +200,19 @@ Click repeatedly to see interesting things.'),
      width   => (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
      height  => (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
      pack => { expand => 1,
-               fill => 'both' });
+               fill => 'both' },
+     onMouseMove  => \&_draw_on_mouse_move,
+    );
+
+  my $statusbar = $self->{'statusbar'} = $self->insert
+    ('Label',
+     pack => { in => $self,
+               side => 'top',
+               fill => 'x',
+               expand => 0,
+               anchor => 'n',
+             });
+
 
   #   my $toolbar = Prima::Widget->create (
   #                                        # growMode => gm::GrowHiX(),
@@ -396,6 +408,19 @@ sub about_dialog {
   App::MathImage::Prima::About->popup;
 }
 
+
+sub _draw_on_mouse_move {
+  my ($draw, $modifiers, $x, $y) = @_;
+  ### _draw_on_mouse_move() ...
+
+  my $message = $draw->gen_object->xy_message ($x, $y);
+  ### $message
+
+  my $self = $draw->get_parent;
+  my $statusbar = $self->{'statusbar'};
+  $statusbar->text ($message);
+}
+
 # sub INIT_INSTANCE {
 #   my ($self) = @_;
 # 
@@ -456,9 +481,6 @@ sub about_dialog {
 #   $draw->add_events ('pointer-motion-mask');
 #   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
 #   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-# 
-#   my $statusbar = $self->{'statusbar'} = Prima::Statusbar->new;
-#   $vbox->pack_start ($statusbar, 0,0,0);
 # 
 #   {
 #     #       my $action = $actiongroup->get_action ('Toolbar');

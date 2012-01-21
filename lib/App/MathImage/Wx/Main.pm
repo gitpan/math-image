@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 sub new {
   my ($class, $label) = @_;
@@ -290,43 +290,8 @@ sub mouse_motion {
   $statusbar->SetStatusText ('');
 
   my $draw = $self->{'draw'};
-  my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->GetX, $event->GetY);
-  my $message = '';
-  if (defined $x) {
-    $message = sprintf ("x=%.*f, y=%.*f",
-                        (int($x)==$x ? 0 : 2), $x,
-                        (int($y)==$y ? 0 : 2), $y);
-    if (defined $n) {
-      $message .= "   N=$n";
-      if ((my $values = $draw->{'values'})
-          && (my $values_obj = $draw->gen_object->values_object)) {
-        my $vstr = '';
-        my $radix;
-        if ($values_obj->can('ith')
-            && (($radix = $values_obj->characteristic('digits'))
-                || $values_obj->characteristic('count')
-                || $values_obj->characteristic('modulus'))) {
-          my $value = $values_obj->ith($n);
-          $vstr = " value=$value";
-          if ($value &&
-              $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
-            $radix = $value;
-          }
-        }
-        my $values_parameters;
-        if (($radix && $radix != 10)
-            || ($values ne 'Emirps'
-                && ($values_parameters = $draw->{'values_parameters'})
-                && $draw->gen_object->values_class->parameter_info_hash->{'radix'}
-                && ($radix = $values_parameters->{'radix'}))) {
-          my $str = _my_cnv($n,$radix);
-          $message .= " ($str in base $radix)";
-        }
-        $message .= $vstr;
-      }
-    }
-  }
-
+  my $gen = $draw->gen_object;
+  my $message = $gen->xy_message ($event->GetX, $event->GetY);
   ### $message
   $statusbar->SetStatusText ($message);
 }

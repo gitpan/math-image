@@ -27,7 +27,7 @@ use Module::Load;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 # after_item => $item
 #
@@ -184,7 +184,11 @@ sub _pinfo_when {
         my $got_value = $when_item->GetValue;
         ### $got_value
         return (defined $got_value
-                && $got_value eq $pinfo->{'when_value'});
+                &&
+                List::Util::first
+                {$_ eq $got_value}
+                (defined $pinfo->{'when_value'} ? $pinfo->{'when_value'} : ()),
+                @{$pinfo->{'when_values'}});
       }
     }
   }

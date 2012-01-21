@@ -24,7 +24,7 @@ use POSIX ();
 use Wx;
 
 use base qw(Wx::TextCtrl);
-our $VERSION = 90;
+our $VERSION = 91;
 
 
 # uncomment this to run the ### lines
@@ -34,10 +34,10 @@ sub new {
   my ($class, $parent, $info) = @_;
   ### Params-String new(): "$parent"
 
-    # my $display = ($newval->{'display'} || $newval->{'name'});
+  # my $display = ($newval->{'display'} || $newval->{'name'});
   my $self = $class->SUPER::new ($parent,
                                  Wx::wxID_ANY(),       # id
-                                 $info->{'default'}, # initial value
+                                 $info->{'default'} || 0, # initial value
                                  Wx::wxDefaultPosition(),
                                  Wx::Size->new (10*($info->{'width'} || 5),
                                                 -1),

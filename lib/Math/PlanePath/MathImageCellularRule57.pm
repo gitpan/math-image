@@ -1,8 +1,7 @@
+# working
+
+
 # Copyright 2011, 2012 Kevin Ryde
-
-
-# mirror rule 99
-
 
 # This file is part of Math-Image.
 #
@@ -34,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -45,6 +44,17 @@ use Math::PlanePath;
 
 
 use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
+
+use constant parameter_info_array =>
+  [ { name        => 'mirror',
+      type        => 'boolean',
+      display     => 'Mirror',
+      default     => 0,
+      description => 'Mirror to "rule 99" instead.',
+    },
+  ];
+
 
 #            left
 # even  y=3     5
@@ -134,44 +144,86 @@ sub n_to_xy {
   ### $d
   ### remainder: $n
 
-  if ($n < $d) {
-    ### left solid: $n
-    return ($frac + $n - 2*$d - 1,
-            2*$d+1);
-  }
-  $n -= $d;
+  if ($self->{'mirror'}) {
+    if ($n <= $d) {
+      ### right solid: $n
+      return ($frac + $n - 2*$d - 1,
+              2*$d+1);
+    }
+    $n -= $d+1;
 
-  if ($n < int(($d+2)/3)) {
-    ### left 1/3: $n
-    return ($frac + 3*$n - $d + 1,
-            2*$d+1);
-  }
-  $n -= int(($d+2)/3);
+    if ($n < int(2*$d/3)) {
+      ### right 2/3: $n
+      return ($frac + int(3*$n/2) - $d + 1,
+              2*$d+1);
+    }
+    $n -= int(2*$d/3);
 
-  if ($n < int(2*$d/3)) {
-    ### right 2/3: $n
-    return ($frac + $n + int(($n+(-$d%3))/2) + 1,
-            2*$d+1);
-  }
-  $n -= int(2*$d/3);
+    if ($n < int(($d+2)/3)) {
+      ### left 1/3: $n
+      return ($frac + 3*$n + ((2+$d)%3),
+              2*$d+1);
+    }
+    $n -= int(($d+2)/3);
 
-  if ($n <= $d) {
-    ### right solid: $n
-    return ($frac + $d + $n + 1,
-            2*$d+1);
-  }
-  $n -= $d+1;
+    if ($n < $d) {
+      ### left solid: $n
+      return ($frac + $n + $d+2,
+              2*$d+1);
+    }
+    $n -= $d;
 
-  if ($n < int(($d+4)/3)) {
+    if ($n < int((2*$d+5)/3)) {
+      ### odd 2/3: $n
+      return ($frac + int((3*$n)/2) - $d +  - 1,
+              2*$d+2);
+    }
+    $n -= int((2*$d+5)/3);
+
     ### odd 1/3: $n
-    return ($frac + 3*$n - $d - 1,
+    return ($frac + 3*$n + ($d%3) + 1,
+            2*$d+2);
+
+  } else {
+    if ($n < $d) {
+      ### left solid: $n
+      return ($frac + $n - 2*$d - 1,
+              2*$d+1);
+    }
+    $n -= $d;
+
+    if ($n < int(($d+2)/3)) {
+      ### left 1/3: $n
+      return ($frac + 3*$n - $d + 1,
+              2*$d+1);
+    }
+    $n -= int(($d+2)/3);
+
+    if ($n < int(2*$d/3)) {
+      ### right 2/3: $n
+      return ($frac + $n + int(($n+(-$d%3))/2) + 1,
+              2*$d+1);
+    }
+    $n -= int(2*$d/3);
+
+    if ($n <= $d) {
+      ### right solid: $n
+      return ($frac + $d + $n + 1,
+              2*$d+1);
+    }
+    $n -= $d+1;
+
+    if ($n < int(($d+4)/3)) {
+      ### odd 1/3: $n
+      return ($frac + 3*$n - $d - 1,
+              2*$d+2);
+    }
+    $n -= int(($d+4)/3);
+
+    ### odd 2/3: $n
+    return ($frac + $n + int(($n+((1-$d)%3))/2) + 1,
             2*$d+2);
   }
-  $n -= int(($d+4)/3);
-
-  ### odd 2/3: $n
-  return ($frac + $n + int(($n+((1-$d)%3))/2) + 1,
-          2*$d+2);
 }
 
 sub xy_to_n {
@@ -180,27 +232,89 @@ sub xy_to_n {
   $y = _round_nearest ($y);
   ### CellularRule57 xy_to_n(): "$x,$y"
 
-    return undef;
-
   if ($y < 0
       || $x < -$y
       || $x > $y) {
   }
-  $x += $y;
-  ### x centred: $x
-  if ($y % 2) {
-    ### odd row, 3 in 4 ...
-    if (($x % 4) == 3) {
-      return undef;
+
+  if ($self->{'mirror'}) {
+    if ($y % 2) {
+      ### odd row, solids ...
+      my $d = ($y-1)/2;
+      if ($x <= -$d) {
+        return ($y+1)*$y/2 + $x + 2;
+      }
+      if ($x < 0) {
+        ### 2 of 3 ...
+        $x += $d + 2;
+        if (($x % 3) < 2) {
+          return ($y+1)*$y/2 + $x-int($x/3) - $d;
+        }
+      }
+      if ($x > $d) {
+        return ($y+1)*$y/2 + $x - $d;
+      }
+      # 1 of 3
+      $x += 1-$d;
+      if (($x % 3) == 0) {
+        return ($y+1)*$y/2 + $x/3 + 1;
+      }
+
+    } else {
+      ### even row, sparse ...
+      my $d = $y/2;
+      if ($x >= 0) {
+        $x -= $d;
+        if (($x % 3) == 0) {
+          return ($y+1)*$y/2 + $x/3 + 1;
+        }
+      } else {
+        $x += $d + 3;
+        if (($x % 3) < 2) {
+          return ($y+1)*$y/2 + $x-int(($x+4)/3) - $d;
+        }
+      }
     }
-    return $x - int($x/4) + $y*($y+1)/2 + 1;
   } else {
-    ## even row, sparse ...
-    if ($x % 4) {
-      return undef;
+    if ($y % 2) {
+      ### odd row, solids ...
+      my $d = ($y-1)/2;
+      if ($x < -$d) {
+        return ($y+1)*$y/2 + $x + 2;
+      }
+      if ($x < 0) {
+        # 1 of 3
+        $x += $d + 2;
+        if (($x % 3) == 0) {
+          return ($y+1)*$y/2 + $x/3 - $d;
+        }
+      }
+      if ($x >= $d) {
+        return ($y+1)*$y/2 + $x - $d;
+      }
+      ### 2 of 3 ...
+      $x += 5-$d;
+      if (($x % 3) < 2) {
+        return ($y+1)*$y/2 + $x-int(($x+9)/3);
+      }
+
+    } else {
+      ### even row, sparse ...
+      my $d = $y/2;
+      if ($x >= 0) {
+        $x -= $d + 2;
+        if (($x % 3) < 2) {
+          return ($y+1)*$y/2 + $x-int(($x-8)/3);
+        }
+      } else {
+        $x += $d;
+        if (($x % 3) == 0) {
+          return ($y+1)*$y/2 + $x/3 - $d + 1;
+        }
+      }
     }
-    return $x/4 + $y*($y+2)/2  + 1;
   }
+  return undef;
 }
 
 # left edge ((2*$d + 1)*$d + 2)

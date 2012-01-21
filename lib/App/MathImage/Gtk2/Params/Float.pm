@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -81,6 +81,7 @@ sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
   ### Float SET_PROPERTY: $pname
+  ### $newval
 
   if ($pname eq 'parameter_value') {
     return $self->{'adjustment'}->set_value ($newval);
@@ -107,6 +108,7 @@ sub SET_PROPERTY {
       $adj->set_value (defined $newval->{'default'}
                        ? $newval->{'default'}
                        : $min);
+      ### applied default: $adj->get_value
     }
 
     if (my $spin = $self->get('child-widget')) {

@@ -29,7 +29,7 @@ use Image::Base::Tk::Photo;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 90;
+our $VERSION = 91;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -85,6 +85,7 @@ sub queue_reimage {
   ### queue_reimage() ...
   ### background: $self->cget('-background')
   $self->{'dirty'} = 1;
+  delete $self->{'gen_object'};
   $self->{'update_id'} ||= $self->afterIdle(sub {
                                               delete $self->{'update_id'};
                                               _do_expose($self);
@@ -101,29 +102,11 @@ sub _do_expose {
   if (my $id = delete $self->{'draw_id'}) { $id->cancel; }
   if (my $id = delete $self->{'update_id'}) { $id->cancel; }
 
-  my $gen_options = $self->{'gen_options'} || {};
-  ### $gen_options
+  my $gen = $self->gen_object;
 
-  my $background = $self->cget('-background');
-  my $foreground = $self->cget('-foreground');
   my $borderwidth = $self->cget('-borderwidth');
   my $width = $self->width - 2*$borderwidth;
   my $height = $self->height - 2*$borderwidth;
-  ### $width
-  ### $height
-  ### $background
-  ### $foreground
-  ### state: $self->cget('-state')
-
-  my $gen = App::MathImage::Generator->new
-    (step_time       => 0.5,
-     step_figures    => 1000,
-     %$gen_options,
-     width => $width,
-     height => $height,
-     # background => $background,
-     # foreground => $foreground,
-    );
 
   my $photo = $self->cget('-image');
   if (! $photo) {
@@ -149,6 +132,35 @@ sub _update_draw_steps {
     ### _update_draw_steps() finished
     $self->configure (-cursor => undef);
   }
+}
+
+sub gen_object {
+  my ($self) = @_;
+  return ($self->{'gen_object'} ||= do {
+    my $gen_options = $self->{'gen_options'} || {};
+    ### $gen_options
+
+    my $background = $self->cget('-background');
+    my $foreground = $self->cget('-foreground');
+    my $borderwidth = $self->cget('-borderwidth');
+    my $width = $self->width - 2*$borderwidth;
+    my $height = $self->height - 2*$borderwidth;
+    ### $width
+    ### $height
+    ### $background
+    ### $foreground
+    ### state: $self->cget('-state')
+
+    App::MathImage::Generator->new
+        (step_time       => 0.5,
+         step_figures    => 1000,
+         %$gen_options,
+         width => $width,
+         height => $height,
+         # background => $background,
+         # foreground => $foreground,
+        )
+      });
 }
 
 1;

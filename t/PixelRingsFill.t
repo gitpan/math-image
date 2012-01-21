@@ -19,13 +19,14 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 5;
+use Test;
+plan tests => 55;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use Math::NumSeq::MathImageUndulatingNumbers;
+use Math::PlanePath::MathImagePixelRingsFill;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,45 +36,42 @@ use Math::NumSeq::MathImageUndulatingNumbers;
 
 {
   my $want_version = 91;
-  is ($Math::NumSeq::MathImageUndulatingNumbers::VERSION, $want_version,
+  ok ($Math::PlanePath::MathImagePixelRingsFill::VERSION, $want_version,
       'VERSION variable');
-  is (Math::NumSeq::MathImageUndulatingNumbers->VERSION,  $want_version,
+  ok (Math::PlanePath::MathImagePixelRingsFill->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::NumSeq::MathImageUndulatingNumbers->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::MathImagePixelRingsFill->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::NumSeq::MathImageUndulatingNumbers->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::MathImagePixelRingsFill->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 }
 
 
 #------------------------------------------------------------------------------
-# values
+# _cumul_extend()
 
-{
-  my $hi = 13000;
-  my $values_obj = Math::NumSeq::MathImageUndulatingNumbers->new
-    (lo => 1,
-     hi => $hi);
-  my @next = (0) x ($hi+1);
-  while (my ($i, $value) = $values_obj->next) {
-    last if ($value > $hi);
-    $next[$value] = 1;
-  }
-  # $values_obj->finish;
-
-  my $good = 1;
-  foreach my $value (1 .. $hi) {
-    my $pred = ($values_obj->pred($value)?1:0);
-    my $next = $next[$value];
-    if ($pred != $next) {
-      diag "value=$value wrong pred=$pred next=$next";
-      $good = 0;
-      last;
+sub cumul_calc {
+  my ($r) = @_;
+  my $sq = ($r+.5)**2;
+  my $count = 0;
+  foreach my $x (-$r-1 .. $r+1) {
+    my $x2 = $x*$x;
+    foreach my $y (-$r-1 .. $r+1) {
+      $count += ($x2 + $y*$y <= $sq);
     }
   }
-  ok ($good, "good");
+  return $count + 1;
+}
+
+foreach my $r (0 .. 50) {
+  my $want = cumul_calc($r);
+  Math::PlanePath::MathImagePixelRingsFill::_cumul_extend();
+  my $got = $Math::PlanePath::MathImagePixelRingsFill::_cumul[$r];
+  ok ($got, $want, "r=$r");
 }
 
 exit 0;

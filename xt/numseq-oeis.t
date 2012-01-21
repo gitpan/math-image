@@ -111,7 +111,8 @@ sub check_class {
   # return unless $class =~ /PlanePathTurn/;
   # return unless $class =~ /Kernel/;
   # return unless $class =~ /Sqrt/;
-  # return unless $class =~ /ReRound/;
+  # return unless $class =~ /Pythag/;
+  # return unless $class =~ /Sieve/;
 
 
   eval "require $class" or die;
@@ -136,10 +137,7 @@ sub check_class {
   ### read_values len: scalar(@$want)
   ### $want_i_start
 
-  if ($anum eq 'A009003') {
-    #  PythagoreanHypots slow, only first 250 values for now ...
-    splice @$want, 250;
-  } elsif ($anum eq 'A003434') {
+if ($anum eq 'A003434') {
     #  TotientSteps slow, only first 250 values for now ...
     splice @$want, 250;
   } elsif ($anum eq 'A007770') {
@@ -165,9 +163,6 @@ sub check_class {
     # sophie germain shorten for now
     @$want = grep {$_ < 1_000_000} @$want;
 
-  } elsif ($anum eq 'A000960') { # ReRound 2 shorten
-    @$want = grep {$_ < 1_000} @$want;
-
   } elsif ($anum eq 'A006567') {
     # emirps shorten for now
     @$want = grep {$_ < 100_000} @$want;
@@ -184,16 +179,6 @@ sub check_class {
            || $anum eq 'A023330') {
     # Cunningham shortened for now
     @$want = grep {$_ < 100_000} @$want;
-
-  } elsif ($anum eq 'A002858'
-           || $anum eq 'A002859'
-           || $anum eq 'A003666'
-           || $anum eq 'A003667'
-           || $anum eq 'A001857'
-           || $anum eq 'A048951'
-           || $anum eq 'A007300') {
-    # UlamSequence shortened for now
-    if ($#$want > 1000) { $#$want = 1000; }
 
   } elsif ($anum eq 'A005101'
            || $anum eq 'A005100') {

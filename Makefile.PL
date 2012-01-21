@@ -62,6 +62,7 @@ my %tk_optionals = (# main Perl-Tk of whatever new enough version
                     'Tk::JPEG' => 0,
                     # separate Tk-TIFF dist
                     'Tk::TIFF' => 0,
+                    'Tk::Pod' => 0,
                    );
 
 my %curses_interface = ('Curses::UI' => 0,
@@ -203,6 +204,7 @@ my %maximum_numseq
      'Math::NumSeq::Liouville'           => 13, # new in v.13
      'Math::NumSeq::PrimeFactorCount'    => 6, # new in v.6
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
+     'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
      'Math::NumSeq::Totient'             => 13, # new in v.13
      'Math::NumSeq::TotientCumulative'   => 13, # new in v.13
      'Math::NumSeq::TotientSteps'        => 13, # new in v.13
@@ -210,16 +212,16 @@ my %maximum_numseq
      'Math::NumSeq::Abundant'            => 24, # new in v.24
      'Math::NumSeq::PolignacObstinate'   => 25, # new in v.25
 
-     'Math::NumSeq::Factorials'    => 1,
-     'Math::NumSeq::Primorials'    => 1,
-     'Math::NumSeq::Fibonacci'     => 1,
-     'Math::NumSeq::LucasNumbers'  => 1,
+     'Math::NumSeq::Factorials'    => 29, # v.29 i_estimate
+     'Math::NumSeq::Primorials'    => 29, # v.29 i_estimate
+     'Math::NumSeq::Fibonacci'     => 29, # v.29 i_estimate
+     'Math::NumSeq::LucasNumbers'  => 29, # v.29 BigInt fix + i_estimate
      'Math::NumSeq::Fibbinary'         => 15, # v.15 faster next()
      'Math::NumSeq::FibbinaryBitCount' => 18, # new in v.18
      'Math::NumSeq::FibonacciWord' => 15, # new in v.15
-     'Math::NumSeq::Pell'          => 10, # new in v.10
-     'Math::NumSeq::Tribonacci'    => 8,  # new in v.8
-     'Math::NumSeq::Perrin'        => 23, # new in v.23
+     'Math::NumSeq::Pell'          => 29, # v.29 i_estimate
+     'Math::NumSeq::Tribonacci'    => 29, # v.29 i_estimate
+     'Math::NumSeq::Perrin'        => 29, # v.29 i_estimate
 
      'Math::NumSeq::FractionDigits'      => 1,
      'Math::NumSeq::SqrtDigits'          => 1,
@@ -246,18 +248,23 @@ my %maximum_numseq
      'Math::NumSeq::HappyNumbers'   => 7,  # new in v.7
      'Math::NumSeq::HappySteps'     => 17,  # new in v.17
 
-     'Math::NumSeq::CullenNumbers'  => 1,
+     'Math::NumSeq::CollatzSteps'  => 1,
+     'Math::NumSeq::JugglerSteps'  => 13, # new in v.13
+     'Math::NumSeq::ReverseAdd'    => 30, # v.30 fix past bigint
+     'Math::NumSeq::ReverseAddSteps' => 1, # new in what version ?
+
+     'Math::NumSeq::CullenNumbers'  => 29, # v.29 BigInt and i_estimate
      'Math::NumSeq::ProthNumbers'   => 1,
-     'Math::NumSeq::WoodallNumbers' => 1,
+     'Math::NumSeq::WoodallNumbers' => 29, # v.29 BigInt and i_estimate
      'Math::NumSeq::BaumSweet'      => 10, # new in v.10
      'Math::NumSeq::KlarnerRado'    => 11, # new in v.11
+     'Math::NumSeq::UlamSequence'   => 29, # new in v.29
      'Math::NumSeq::AsciiSelf'      => 12, # new in v.12
      'Math::NumSeq::Kolakoski'      => 13, # new in v.13
      'Math::NumSeq::GolombSequence' => 13, # new in v.13
+     'Math::NumSeq::ReRound'        => 29, # new in v.29
      'Math::NumSeq::MephistoWaltz'  => 14, # new in v.14
 
-     'Math::NumSeq::CollatzSteps'  => 1,
-     'Math::NumSeq::JugglerSteps'  => 13, # new in v.13
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4
      'Math::NumSeq::NumAronson'    => 8, # new in v.8
 
@@ -370,7 +377,7 @@ my %prereq_pm
      # 'Math::Prime::TiedArray' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
-     'Math::PlanePath' => 63, # v.63 for class_x_negative()
+     'Math::PlanePath' => 65, # v.65 for n_frac_discontinuity()
      'Math::PlanePath::SquareSpiral' => 1, # at least this path
 
      # my Math-NumSeq
@@ -451,10 +458,7 @@ MyMakeMakerExtras::WriteMakefile
       tk_interface =>
       { description => 'Tk GUI modules.',
         requires => \%tk_interface,
-      },
-      tk_optionals =>
-      { description => 'Tk things used if available.',
-        requires => \%tk_optionals,
+        recommends => \%tk_optionals,
       },
 
       curses_interface =>
