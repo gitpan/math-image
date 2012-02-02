@@ -36,8 +36,9 @@ use App::MathImage::X11::Protocol::EventHandlerExtra;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
 use vars '$VERSION';
-$VERSION = 91;
+$VERSION = 92;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -137,7 +138,7 @@ sub draw {
 
 sub draw_steps {
   my ($self) = @_;
-  ### X11-Generator draw_steps()
+  ### X11-Generator draw_steps() ...
 
   my $more = $self->draw_Image_steps;
   if (! $more) {

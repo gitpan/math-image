@@ -44,7 +44,8 @@ use App::MathImage::Gtk2::Params;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 91;
+
+our $VERSION = 92;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -811,15 +812,18 @@ sub popup_save_as {
 
 sub _do_action_setroot {
   my ($action, $self) = @_;
+  ### _do_action_setroot() ...
 
   # Use X11::Protocol when possible so as to preserve colormap entries
   my $rootwin = $self->get_root_window;
   if ($rootwin->can('XID') && eval { require App::MathImage::Gtk2::X11; 1 }) {
+    ### use X11-Protocol drawing ...
     require App::MathImage::Gtk2::X11;
     $self->{'x11'} = App::MathImage::Gtk2::X11->new
       (gdk_window => $self->get_root_window,
        gen        => $self->{'draw'}->gen_object);
   } else {
+    ### use gtk2 drawing ...
     $self->{'draw'}->start_drawing_window ($rootwin);
   }
 }

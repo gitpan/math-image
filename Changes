@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 92, January 2012
+    - fixes for GUI set root window menu item
+
 Version 91, January 2012
     - new "rounded" line type
     - better drawing of some exponential sequences+paths

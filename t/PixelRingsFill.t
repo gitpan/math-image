@@ -35,7 +35,7 @@ use Math::PlanePath::MathImagePixelRingsFill;
 # VERSION
 
 {
-  my $want_version = 91;
+  my $want_version = 92;
   ok ($Math::PlanePath::MathImagePixelRingsFill::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImagePixelRingsFill->VERSION,  $want_version,

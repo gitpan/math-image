@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -58,8 +58,8 @@ my @oeis_anum;
 $oeis_anum[7] = 'A074295';
 # OEIS-Catalogue: A074295 length=7
 #
-# A074292 - groups 3, starts n=0
-# A074293 - groups 5, starts n=0
+# A074292 - groups 3, but starts n=0
+# A074293 - groups 5, but starts n=0
 # # $oeis_anum[3] = 'A074292';
 # # $oeis_anum[5] = 'A074293';
 # # OEIS-Catalogue: A074292

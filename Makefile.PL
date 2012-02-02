@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # Copyright 2010, 2011, 2012 Kevin Ryde
 
@@ -55,7 +55,7 @@ my %tk_interface = (# main Perl-Tk of whatever new enough version
                     'Tk::Balloon' => 0,
 
                     # my Image-Base-Tk
-                    'Image::Base::Tk::Photo' => 0,
+                    'Image::Base::Tk::Photo' => 3, # v.3 clip 0,0,width,height
                    );
 my %tk_optionals = (# main Perl-Tk of whatever new enough version
                     'Tk::PNG' => 0,
@@ -157,7 +157,7 @@ my %maximum_planepath
      'Math::PlanePath::KochSnowflakes'       => 30, # new in v.30
      'Math::PlanePath::KochSquareflakes'     => 30, # new in v.30
      'Math::PlanePath::QuadricCurve'         => 41, # new in v.41
-     'Math::PlanePath::QuadricIslands'       => 41, # new in v.41
+     'Math::PlanePath::QuadricIslands'       => 66, # v.66 n_frac_discontinuity
 
      'Math::PlanePath::SierpinskiCurve'      => 49, # new in v.49
      'Math::PlanePath::HIndexing'            => 52, # new in v.52
@@ -165,10 +165,11 @@ my %maximum_planepath
      'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
-     'Math::PlanePath::DragonCurve'          => 39, # new in v.39
+     'Math::PlanePath::DragonCurve'          => 66, # v.66 faster xy_to_n()
      'Math::PlanePath::DragonRounded'        => 50, # v.50 xy_to_n() arms fix
-     'Math::PlanePath::DragonMidpoint'       => 39, # new in v.39
+     'Math::PlanePath::DragonMidpoint'       => 66, # v.66 faster xy_to_n()
      'Math::PlanePath::TerdragonCurve'       => 64, # new in v.64
+     'Math::PlanePath::TerdragonMidpoint'    => 66, # new in v.66
      'Math::PlanePath::AlternatePaper'       => 64, # new in v.64
      'Math::PlanePath::ComplexPlus'          => 64, # new in v.64
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
@@ -202,7 +203,7 @@ my %maximum_numseq
      'Math::NumSeq::Emirps'              => 4, # new in v.4
      'Math::NumSeq::MobiusFunction'      => 6, # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
-     'Math::NumSeq::PrimeFactorCount'    => 6, # new in v.6
+     'Math::NumSeq::PrimeFactorCount'    => 32, # v.32 prime_type choices
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
      'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
      'Math::NumSeq::Totient'             => 13, # new in v.13
@@ -349,13 +350,13 @@ my %prereq_pm
      'Image::Base' => '1.16', # version 1.16 for diamond()
 
      # my Image-Base-Other
-     'Image::Base::Multiplex' => 7, # v.7 diamond()
-     'Image::Base::Text'      => 0,
+     'Image::Base::Multiplex' => 7, # v.7 for diamond()
+     'Image::Base::Text'      => 8, # v.8 for 0,0,width,height clipping
 
      # my Image-Base-Gtk2
      'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
      'Image::Base::Gtk2::Gdk::Window' => 2,
-     'Image::Base::Gtk2::Gdk::Pixbuf' => 3, # new in v.3
+     'Image::Base::Gtk2::Gdk::Pixbuf' => 11, # v.11 clip 0,0,width,height
 
      'List::MoreUtils' => '0.24', # 0.24 for stack growing, maybe
      'Locale::TextDomain' => '1.19',
@@ -426,6 +427,7 @@ MyMakeMakerExtras::WriteMakefile
    META_MERGE =>
    { resources =>
      { homepage => 'http://user42.tuxfamily.org/math-image/index.html',
+       license  => 'http://www.gnu.org/licenses/gpl.html',
      },
      recommends =>
      {

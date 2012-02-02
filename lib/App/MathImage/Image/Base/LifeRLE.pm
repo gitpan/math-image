@@ -25,10 +25,10 @@ use strict;
 use Carp;
 use vars '$VERSION', '@ISA';
 
-use Image::Base::Text;
+use Image::Base::Text 8; # v.8 for 0,0,width,height clip
 @ISA = ('Image::Base::Text');
 
-$VERSION = 91;
+$VERSION = 92;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

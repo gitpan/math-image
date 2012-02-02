@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,6 +24,35 @@ use X11::Protocol;
 use App::MathImage::X11::Protocol::Splash;
 
 use Smart::Comments;
+
+{
+  require Gtk2;
+  Gtk2->init;
+  require App::MathImage::Gtk2::Main;
+  my $main = App::MathImage::Gtk2::Main->new;
+  require App::MathImage::Gtk2::X11;
+  my $x11 = App::MathImage::Gtk2::X11->new
+    (gdk_window => $main->get_root_window,
+     gen        => $main->{'draw'}->gen_object);
+  Gtk2->main;
+  exit 0;
+}
+
+{
+  my $X = X11::Protocol->new;
+  require App::MathImage::X11::Generator;
+  x_resource_dump($X);
+
+  my $x11gen = App::MathImage::X11::Generator->new
+    (X => $X,
+     window => $X->root);
+  x_resource_dump($X);
+  $x11gen->draw;
+
+  x_resource_dump($X);
+  exit 0;
+}
+
 
 {
   my $X = X11::Protocol->new;
@@ -59,18 +88,7 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  my $X = X11::Protocol->new;
-  require App::MathImage::X11::Generator;
-  x_resource_dump($X);
-  my $x11gen = App::MathImage::X11::Generator->new
-    (X => $X,
-     window => $X->root);
-  x_resource_dump($X);
-  $x11gen->draw;
-  x_resource_dump($X);
-  exit 0;
-}
+
 
 
 use constant XA_PIXMAP => 20;  # pre-defined atom

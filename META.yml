@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            91
+version:            92
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -52,11 +52,11 @@ requires:
     Gtk2::Ex::WidgetEvents:  21
     Gtk2::Pango:          0
     Image::Base:          1.16
-    Image::Base::Gtk2::Gdk::Pixbuf:  3
+    Image::Base::Gtk2::Gdk::Pixbuf:  11
     Image::Base::Gtk2::Gdk::Pixmap:  2
     Image::Base::Gtk2::Gdk::Window:  2
     Image::Base::Multiplex:  7
-    Image::Base::Text:    0
+    Image::Base::Text:    8
     List::MoreUtils:      0.24
     Locale::Messages:     0
     Locale::TextDomain:   1.19
@@ -159,7 +159,7 @@ optional_features:
             Image::Base::Prima:   1
             Image::Base::SVG:     3
             Image::Base::SVGout:  7
-            Image::Base::Tk::Photo:  0
+            Image::Base::Tk::Photo:  3
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
@@ -218,7 +218,7 @@ optional_features:
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
             Math::NumSeq::PowerPart:  28
-            Math::NumSeq::PrimeFactorCount:  6
+            Math::NumSeq::PrimeFactorCount:  32
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
@@ -273,8 +273,8 @@ optional_features:
             Math::PlanePath::DiamondSpiral:  1
             Math::PlanePath::DigitGroups:  52
             Math::PlanePath::DivisibleColumns:  49
-            Math::PlanePath::DragonCurve:  39
-            Math::PlanePath::DragonMidpoint:  39
+            Math::PlanePath::DragonCurve:  66
+            Math::PlanePath::DragonMidpoint:  66
             Math::PlanePath::DragonRounded:  50
             Math::PlanePath::FactorRationals:  61
             Math::PlanePath::FibonacciWordFractal:  53
@@ -316,7 +316,7 @@ optional_features:
             Math::PlanePath::PyramidSpiral:  3
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::QuadricCurve:  41
-            Math::PlanePath::QuadricIslands:  41
+            Math::PlanePath::QuadricIslands:  66
             Math::PlanePath::QuintetCentres:  45
             Math::PlanePath::QuintetCurve:  55
             Math::PlanePath::QuintetReplicate:  45
@@ -333,6 +333,7 @@ optional_features:
             Math::PlanePath::Staircase:  16
             Math::PlanePath::StaircaseAlternating:  58
             Math::PlanePath::TerdragonCurve:  64
+            Math::PlanePath::TerdragonMidpoint:  66
             Math::PlanePath::TheodorusSpiral:  6
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -411,7 +412,7 @@ optional_features:
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
             Math::NumSeq::PowerPart:  28
-            Math::NumSeq::PrimeFactorCount:  6
+            Math::NumSeq::PrimeFactorCount:  32
             Math::NumSeq::Primes:  4
             Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
@@ -469,8 +470,8 @@ optional_features:
             Math::PlanePath::DiamondSpiral:  1
             Math::PlanePath::DigitGroups:  52
             Math::PlanePath::DivisibleColumns:  49
-            Math::PlanePath::DragonCurve:  39
-            Math::PlanePath::DragonMidpoint:  39
+            Math::PlanePath::DragonCurve:  66
+            Math::PlanePath::DragonMidpoint:  66
             Math::PlanePath::DragonRounded:  50
             Math::PlanePath::FactorRationals:  61
             Math::PlanePath::FibonacciWordFractal:  53
@@ -512,7 +513,7 @@ optional_features:
             Math::PlanePath::PyramidSpiral:  3
             Math::PlanePath::PythagoreanTree:  26
             Math::PlanePath::QuadricCurve:  41
-            Math::PlanePath::QuadricIslands:  41
+            Math::PlanePath::QuadricIslands:  66
             Math::PlanePath::QuintetCentres:  45
             Math::PlanePath::QuintetCurve:  55
             Math::PlanePath::QuintetReplicate:  45
@@ -529,6 +530,7 @@ optional_features:
             Math::PlanePath::Staircase:  16
             Math::PlanePath::StaircaseAlternating:  58
             Math::PlanePath::TerdragonCurve:  64
+            Math::PlanePath::TerdragonMidpoint:  66
             Math::PlanePath::TheodorusSpiral:  6
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -555,7 +557,7 @@ optional_features:
             Tk::Pod:   0
             Tk::TIFF:  0
         requires:
-            Image::Base::Tk::Photo:  0
+            Image::Base::Tk::Photo:  3
             Tk::Balloon:          0
             Tk::MainWindow:       0
 recommends:
@@ -622,7 +624,7 @@ recommends:
     Math::NumSeq::Polygonal:  25
     Math::NumSeq::Powerful:  26
     Math::NumSeq::PowerPart:  28
-    Math::NumSeq::PrimeFactorCount:  6
+    Math::NumSeq::PrimeFactorCount:  32
     Math::NumSeq::Primes:  4
     Math::NumSeq::Primorials:  29
     Math::NumSeq::Pronic:  1
@@ -677,8 +679,8 @@ recommends:
     Math::PlanePath::DiamondSpiral:  1
     Math::PlanePath::DigitGroups:  52
     Math::PlanePath::DivisibleColumns:  49
-    Math::PlanePath::DragonCurve:  39
-    Math::PlanePath::DragonMidpoint:  39
+    Math::PlanePath::DragonCurve:  66
+    Math::PlanePath::DragonMidpoint:  66
     Math::PlanePath::DragonRounded:  50
     Math::PlanePath::FactorRationals:  61
     Math::PlanePath::FibonacciWordFractal:  53
@@ -720,7 +722,7 @@ recommends:
     Math::PlanePath::PyramidSpiral:  3
     Math::PlanePath::PythagoreanTree:  26
     Math::PlanePath::QuadricCurve:  41
-    Math::PlanePath::QuadricIslands:  41
+    Math::PlanePath::QuadricIslands:  66
     Math::PlanePath::QuintetCentres:  45
     Math::PlanePath::QuintetCurve:  55
     Math::PlanePath::QuintetReplicate:  45
@@ -737,6 +739,7 @@ recommends:
     Math::PlanePath::Staircase:  16
     Math::PlanePath::StaircaseAlternating:  58
     Math::PlanePath::TerdragonCurve:  64
+    Math::PlanePath::TerdragonMidpoint:  66
     Math::PlanePath::TheodorusSpiral:  6
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3

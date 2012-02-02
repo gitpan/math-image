@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -193,7 +193,7 @@ use Smart::Comments;
 }
 
 sub fh_readable {
-  my ($fh);
+  my ($fh) = @_;
   require IO::Select;
   my $s = IO::Select->new;
   $s->add($fh);

@@ -24,6 +24,7 @@ use Carp;
 use Glib 1.220;
 use Gtk2 1.220;
 use Scalar::Util;
+use List::Util 'min', 'max';
 use X11::Protocol;
 use App::MathImage::X11::Generator;
 
@@ -32,10 +33,13 @@ use Glib::Ex::SourceIds;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 91;
+
+our $VERSION = 92;
 
 sub new {
   my ($class, %self) = @_;
+  ### Gtk2-X11 new() ...
+
   my $self = bless \%self, $class;
 
   my $gdk_window = $self{'gdk_window'};
@@ -54,12 +58,49 @@ sub new {
                           \&_do_read,
                           \$weak_self,
                           Gtk2::GTK_PRIORITY_RESIZE() + 10));
-  ### fileno: fileno($X->{'connection'}->fh)
+  ### X fileno: fileno($X->{'connection'}->fh)
 
   my ($width, $height)  = $gdk_window->get_size;
+  ### $width
+  ### $height
+
+  my $gen = $self->{'gen'};
+  my $x_left = $gen->{'x_left'};
+  my $y_bottom = $gen->{'y_bottom'};
+
+  # my $gen_width = $gen->{'width'};
+  # my $gen_height = $gen->{'height'};
+  #
+  # my %x11_geometry = $X->GetGeometry($x11_window);
+  # my $x11_width = $x11_geometry{'width'};
+  # my $x11_width = $x11_geometry{'height'};
+  #
+  # $x_left -=
+  # $y_bottom +=
+  # if (! $gen->path_object->class_x_negative) {
+  #   $x_left = max($x_left,0);
+  # }
+  # if (! $gen->path_object->class_y_negative) {
+  #   $y_bottom = max($y_bottom,0);
+  # }
 
   $self->{'x11gen'} = App::MathImage::X11::Generator->new
-    (%{$self->{'gen'}},
+    ((map { ($_ => $gen->{$_}) }
+      qw(draw_progressive
+         figure
+         scale
+         foreground
+         background
+         undrawnground
+         path
+         path_parameters
+         values
+         values_parameters
+         filter
+         widgetcursor
+       )),
+     x_left => $x_left,
+     y_bottom => $y_bottom,
      X => $X,
      window => $x11_window,
      width => $width,
@@ -72,28 +113,37 @@ sub _do_read {
   my ($fd, $conditions, $ref_weak_self) = @_;
   ### X11 _do_read()...
   my $self = $$ref_weak_self || return Glib::SOURCE_REMOVE;
-  my $X = $self->{'X'} || return Glib::SOURCE_REMOVE;
+
+  my $X = $self->{'X'} || do {
+    ### X gone, stop ...
+    return Glib::SOURCE_REMOVE;
+  };
   $X->handle_input;
 
   if (my $x11gen = $self->{'x11gen'}) {
     if (defined $x11gen->{'reply'}) {
-      undef $self->{'reply'};
+      delete $self->{'reply'};
 
       my $seq = $X->send('QueryPointer', $X->{'root'});
       $X->add_reply($seq, \$self->{'reply'});
       $X->flush;
+      ### $seq
 
-      if (! $x11gen->draw_steps) {
-        ### X11 _do_read() finished...
+      if ($x11gen->draw_steps) {
+        ### X11 _do_read() more drawing ...
+      } else {
+        ### X11 _do_read() drawing finished ...
         delete $self->{'x11gen'};
       }
     }
   } else {
+    ### x11gen gone, close X ...
     delete $self->{'X'};
     $X->close;
     return Glib::SOURCE_REMOVE;
   }
 
+  ### SOURCE_CONTINUE ...
   return Glib::SOURCE_CONTINUE;
 }
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 91;
+$VERSION = 92;
 exit App::MathImage->command_line;
 
 __END__
@@ -44,23 +44,39 @@ math-image -- display some mathematical images
 
 =head1 DESCRIPTION
 
-C<math-image> displays some mathematical images, either in a Gtk2 GUI, as an
-image file output, or setting the root window.
+C<math-image> displays some mathematical images, either
+
+=over
+
+=item *
+
+in a Gtk2 GUI,
+
+=item *
+
+as an image file output,
+
+=item * or setting the root window.
+
+=back
 
 There's lots of options for what to display, in particular it includes
-Ulam's spiral of prime numbers, and variations on the numbers in a path such
-as Sacks spiral and Vogel floret.  Try C<--random> or the Randomize button
-for interesting combinations.
+Ulam's spiral of prime numbers, and several variations on the numbers in a
+path such as Sacks spiral and Vogel floret.  Try C<--random> or the
+Randomize button for interesting combinations.
 
 Most of the code is plain Perl, so it's not blindingly fast, but the GUI or
-the root window are drawn progressively so you can see what's happening.  In
-the GUI you can change the controls while drawing to start again on
-something else.
+root window is drawn progressively so you can see what's happening.  In the
+GUI you can change the controls while drawing to start again on something
+else.
 
 Mouse button 1 in the GUI drags the image to see parts away from the origin
 and which otherwise wouldn't fit on screen.  This can become quite slow when
 displaying things like prime numbers which must be calculated all the way up
 to the desired part.
+
+The number sequences displayed come from L<Math::NumSeq>, and the paths
+they're plotted on from L<Math::PlanePath>.
 
 =head1 OPTIONS
 
@@ -89,8 +105,8 @@ the first of each like 11, or C<--twin2> is just the second like 13.
 =item --semi-primes-odd
 
 The semi-prime or bi-prime numbers, meaning integers which have two prime
-factors p*q, including p==q squares of primes.  C<--semi-primes-odd> is just
-the odd semiprimes.
+factors p*q.  This includes p==q squares of primes.  C<--semi-primes-odd> is
+just the odd semiprimes, so 2 excluded from p and q.
 
 =item --squares
 
@@ -139,16 +155,18 @@ grow too quickly to display much in the way of patterns.
 =item --fraction=1.234
 
 The digits in the decimal expansion of a fraction.  For example the default
-in the GUI is 5/29 which means 9,11,12, 17, 21,22,24, 27,28,29,30, etc.
-A decimal like 1.234 means 1234/1000.
+in the GUI is 5/29.  A decimal like 1.234 means 1234/1000.
 
 A fraction is always a repeating pattern, with length no longer than the
-denominator, but can give interesting patterns for various paths.  For
-example in the Corner path the fine structure constant 1/137 in binary is a
+denominator, but it can give interesting patterns for various paths.  For
+example
+
+    math-image --corner \
+               --values=FractionDigits,radix=2,fraction=1/137
+
+is the fine structure constant 1/137 in binary on the Corner path and is a
 repeating pattern of an angry man with a beard and a skull wearing a hat.
 No doubt this has deep cosmic significance.
-
-    math-image --corner --values=FractionDigits,radix=2,fraction=1/137
 
 =item --all
 
@@ -157,31 +175,35 @@ No doubt this has deep cosmic significance.
 =item --even
 
 All integers, or just odd or even integers.  For the paths which fill the
-plane C<--all> will just fill the screen (slowly!), but for C<--sacks> and
-C<--vogel> it shows where all the points lie.
+plane C<--all> will just fill the screen (slowly!), but for things like
+C<--sacks> and C<--vogel> it shows where all the points lie.
 
 =item --aronson
 
 Aronson's sequence 1,4,9,... of "T is the first, fourth, ninth, ...".  This
 requires the C<Math::Aronson> module.
 
-=item --expression='x^2+2*x+1'
+=item --expression='i**2 + 2*i + 1'
 
 Draw values following a formula.  It should have a single variable which
-will be evaluated at 0,1,2, etc.  This option requires C<Math::Symbolic>.
+will be evaluated at 0,1,2, etc.  The default is Perl syntax on an "i".  See
+L<Math::NumSeq::Expression> for more information.
 
 =item --lines
 
 Draw lines along the path instead of a set of selected points.  This shows
-where a path travels but you may have to increase the C<--scale> to see it
-properly.
+where a path travels though you may have to increase the C<--scale> to see
+it properly.
+
+When the scale is big enough the usual figure is drawn at each point
+(default a square or circle).  Use C<--figure=point> for just the lines.
 
 =item --values=MODULE
 
 =item --values=MODULE,NAME=VALUE,NAME=VALUE,...
 
 Draw values from the given C<Math::NumSeq> module (including experimental
-C<MathImage> ones).  For example
+C<MathImageWhatever> ones).  For example
 
     math-image --values=Emirps
 
@@ -193,10 +215,10 @@ The File module can read values from a text file
 
     math-image --values=File,filename=/my/dir/data.txt
 
-The OEIS module takes an OEIS A-number, using either a code module
-implementing it or downloaded files under F<~/OEIS/>.  See
-L<Math::NumSeq::OEIS> for details.  For example tribonnaci numbers are
-A000073,
+The OEIS module takes an A-number per Sloane's Online Encyclopedia of
+Integer Sequences and uses either a code module implementing the sequence or
+downloaded files under F<~/OEIS/>.  See L<Math::NumSeq::OEIS> for details.
+For example tribonnaci numbers are A000073,
 
     math-image --values=OEIS,anum=A000073
 
@@ -285,27 +307,27 @@ The default is to run the Gtk GUI.
 
 =item --fullscreen
 
-Start the GUI in full screen mode.  Menu entry Tools/Fullscreen can toggle
-between full screen and a normal window.  In full screen mode the menus
-still work, just press Alt-F, Alt-T, etc as normal.
+Start the GUI in full screen mode.  The Tools/Fullscreen menu entry can
+toggle between full screen and a normal window.  In full screen mode the
+menus still work, just press Alt-F, Alt-T, etc as normal to pop up.
 
 =item --root
 
 Set the root window background to the requested image and exit.  For example
-draw a random image from your F<~/.xsession> file,
+draw a random image from your F<~/.xsession> startup,
 
-    math-image --root --random
+    math-image --root --random &
 
-Add C<--verbose> to print what was in fact chosen and displayed.  Output in
-F<~/.xsession> normally goes to the F<~/.xsession-errors> file.  Sometimes
-C<--random> may use a lot of memory, so consider a C<limit> (see L<sh(1)>)
-or timeout (see L<timeout(1)>) or both, and perhaps low priority (see
-L<nice(1)>).
+Add C<--verbose> to print what was in fact chosen and displayed.  Output
+from F<~/.xsession> normally goes to the F<~/.xsession-errors> file.
+Sometimes C<--random> may use a lot of memory, so consider a C<limit> (see
+L<sh(1)>) or timeout (see L<timeout(1)>) or both, and perhaps low priority
+(see L<nice(1)>).
 
 Under X the root window is set with C<X11::Protocol> if available, otherwise
 C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
-C<--background> colours to be preserved in a PseudoColor visual.  C<Gtk2> is
-fine on a TrueColor or for black and white only (which are always
+C<--background> colours to be preserved on a PseudoColor visual.  C<Gtk2> is
+fine on a TrueColor, or for black and white only (which are always
 permanent), but otherwise colours may not be preserved.
 
 =item --flash
@@ -313,13 +335,13 @@ permanent), but otherwise colours may not be preserved.
 Flash the requested image on the screen instead of starting the GUI.
 Together with C<--root> the image is drawn to the root then flashed as well.
 This is good if updating the background randomly every so often, as it shows
-the image when otherwise obscured by lots of windows.
+the image when otherwise perhaps obscured by lots of windows.
 
     math-image --root --random --flash
 
-For Gtk2 the flash is done as a "splash" screen per L<Gtk2::Ex::Splash>.
-See its POD, and in particular how it normally doesn't take keyboard focus.
-The X11 native code behaves similarly.
+The flash is done with a temporary full-screen window, either some X11
+native or a Gtk2 per L<Gtk2::Ex::Splash>.  In both cases the keyboard focus
+is unchanged, so you don't lose any typing, though it does eat mouse clicks.
 
 =item --display=DPY
 
@@ -333,14 +355,15 @@ C<DISPLAY> environment variable (normally set at X startup).
 =item --xpm
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
-possible with GdkPixbuf but can also use GD, PNGwriter, Imager, ImageMagick,
-Prima or Tk with the right libraries and C<Image::Base> supporting module.
+possible with GdkPixbuf but it can also use GD, PNGwriter, Imager,
+ImageMagick, Prima or Tk with the right libraries and C<Image::Base>
+supporting module.
 
     math-image --png >/tmp/my-file.png
 
 XPM output requires either C<Image::Xpm>, ImageMagick, Prima, or Tk.  Note
-that Prima and Tk for X11 require an X server even for file output (expect
-obscure errors if no display).
+that Prima and Tk for X11 require an X server even for file output (and will
+give obscure errors if no display).
 
 =item --text
 
@@ -353,7 +376,7 @@ line printer or similar.
 
 =item --prima
 
-Run the Prima GUI.  This requires the C<Prima> and the
+Run the Prima GUI.  This requires Prima and the separate
 C<Image::Base::Prima::Drawable> modules.  It doesn't yet have the full set
 of options the Gtk GUI does, but works as far as it goes.
 
@@ -368,18 +391,19 @@ options the Gtk GUI does, but works as far as it goes.
 
 A combination C<--tk --png> or C<--tk --xpm> means write a PNG or XPM image
 to standard output using C<Tk::Photo>.  This requires a graphics screen
-though (which other output modules don't).
+(which other output modules don't).
 
 =item --curses
 
 Run the Curses interactive text interface.  This requires the C<Curses::UI>
-modules.  It's very experimental and the control options are minimal.
+modules.  This is very experimental and the control options are minimal.
 
 =back
 
 The Gtk and Prima GUIs have printer output through their usual printing
 mechanisms.  In the current code the Gtk one is a screen dump but the Prima
-one is a PostScript re-run of the image drawing which might be a bit slow.
+one is a PostScript re-run of the image drawing which might be a bit slow,
+but might be higher resolution for circle figures.
 
 There's some very rudimentary support for other GUIs with C<--module=Wx> for
 wxWidgets and C<--module=Gtk1> for the older Gtk 1.2 and corresponding

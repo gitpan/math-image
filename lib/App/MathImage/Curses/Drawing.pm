@@ -28,7 +28,7 @@ use Curses::UI::Widget;
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 91;
+$VERSION = 92;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -98,6 +98,7 @@ sub draw {
   ### $gen_options
 
   require Image::Base::Text;
+  Image::Base::Text->VERSION(8);
   my $image = Image::Base::Text->new
     (-width  => $width,
      -height => $height);
