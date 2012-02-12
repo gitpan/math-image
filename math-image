@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 92;
+$VERSION = 93;
 exit App::MathImage->command_line;
 
 __END__
@@ -524,12 +524,18 @@ while generating values.
 
 The paths which have big N values near the origin, such as RationalsTree or
 PythagoreanTree, are calculated with C<Math::BigInt> for accuracy.  This
-becomes very slow, and in some cases the values and/or path calculations
-might end up rounding off anyway.
+becomes very slow.  In some cases the values and/or path calculations might
+end up rounding off anyway.
 
-Paths such as the dragon curve which duplicate points when plotting colours
-ends up sometimes showing the colour of the highest N and sometimes the
-lowest N.
+When plotting colours on paths such as the dragon curve which duplicate
+points the colour shown is sometimes the biggest N and sometimes the
+smallest N.
+
+Colours for unbounded counts of things (etc) have some hard-coded scaling to
+try to show a range of colours for range of values.  There ought to be
+something for user control, and perhaps relevant NumSeq modules could
+indicate their approximate growth rate somehow, to make a sensible initial
+scale.
 
 =head1 SEE ALSO
 

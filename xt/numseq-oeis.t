@@ -108,11 +108,15 @@ sub check_class {
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
   # return unless $class =~ /Sqrt/;
-  # return unless $class =~ /PlanePathTurn/;
+  return unless $class =~ /PlanePathTurn/;
   # return unless $class =~ /Kernel/;
   # return unless $class =~ /Sqrt/;
   # return unless $class =~ /Pythag/;
   # return unless $class =~ /Sieve/;
+  # return unless $class =~ /HypotC/;
+  # return unless $class =~ /Loe/;
+  # return unless $class =~ /Lemo/;
+  # return unless $class =~ /Gold/;
 
 
   eval "require $class" or die;
@@ -137,43 +141,8 @@ sub check_class {
   ### read_values len: scalar(@$want)
   ### $want_i_start
 
-if ($anum eq 'A003434') {
-    #  TotientSteps slow, only first 250 values for now ...
-    splice @$want, 250;
-  } elsif ($anum eq 'A007770') {
-    #  Happy bit slow, only first few values for now, not B-file 140,000 ...
-    splice @$want, 20000;
-  } elsif ($anum eq 'A030547') {
-    # sample values start from i=1 but OFFSET=0
-    if ($want->[9] == 2) {
-      unshift @$want, 1;
-    }
-  } elsif ($anum eq 'A082897') {
-    # full B-file goes to 2^32 which is too much to sieve
-    @$want = grep {$_ < 200_000} @$want;
 
-  } elsif ($anum eq 'A001359'
-           || $anum eq 'A006512'
-           || $anum eq 'A014574'
-           || $anum eq 'A001097') {
-    # twin primes shorten for now
-    @$want = grep {$_ < 1_000_000} @$want;
-
-  } elsif ($anum eq 'A005384') {
-    # sophie germain shorten for now
-    @$want = grep {$_ < 1_000_000} @$want;
-
-  } elsif ($anum eq 'A006567') {
-    # emirps shorten for now
-    @$want = grep {$_ < 100_000} @$want;
-
-  } elsif ($anum eq 'A004542') {  # sqrt(2) in base 5
-    MyTestHelpers::diag ("skip doubtful $anum $name");
-    return;
-  } elsif ($anum eq 'A022000') {  # FIXME: not 1/996 ???
-    MyTestHelpers::diag ("skip doubtful $anum $name");
-    return;
-  } elsif ($anum eq 'A007700'
+  if ($anum eq 'A007700'
            || $anum eq 'A023272'
            || $anum eq 'A023302'
            || $anum eq 'A023330') {

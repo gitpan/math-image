@@ -23,7 +23,7 @@ use List::Util 'max';
 use List::MoreUtils;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -36,9 +36,15 @@ use constant description => Math::NumSeq::__('Loeschian numbers x^2+3*y^2 for al
 use constant characteristic_increasing => 2;
 use constant i_start => 1;
 
-# cf A158937 - all x^2+3*y^2 with repetitions x>=0,y>=0
+# cf A003136 - Loeschian x^2+3*y^2 with x>=0,y>=0 and opposite odd/even
+#    A158937 - all x^2+3*y^2 with repetitions x>=0,y>=0
+#    A092573 - number of solutions to x^2+3*y^2==n
+#    A092575 - number of solutions to x^2+3*y^2==n with gcd(x,y)=1
 #
 use constant oeis_anum => 'A092572'; # all x^2+3*y^2 x>=1,y>=1
+
+#          4, 7,    12, 13, 16, 19, 21, 28,         31, 36, 37, 39, 43, 48, 49, 52, 57, 61,     
+# 0, 1, 3, 4, 7, 9, 12, 13, 16, 19, 21, 25, 27, 28, 31, 36, 37, 39, 43,     
 
 sub rewind {
   my ($self) = @_;

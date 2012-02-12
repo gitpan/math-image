@@ -16,7 +16,7 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package Math::PlanePath::MathImagePixelRingsFill;
+package Math::PlanePath::MathImageFilledRings;
 use 5.004;
 use strict;
 use List::Util qw(min max);
@@ -24,7 +24,7 @@ use Math::Libm 'hypot';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -39,6 +39,7 @@ use Math::PlanePath;
 # cf A000328 number of points on circle radius n
 #    A051132 num points <= circle radius n
 #    A046109 num points < circle radius n
+#    A057655
 #
 # N(r) = 1 + 4*sum  floor(r^2/(4i+1)) - floor(r^2/(4i+3))
 #
@@ -101,7 +102,7 @@ sub _cumul_extend {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MathImagePixelRingsFill n_to_xy(): $n
+  ### MathImageFilledRings n_to_xy(): $n
 
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -211,7 +212,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MathImagePixelRingsFill xy_to_n(): "$x, $y"
+  ### MathImageFilledRings xy_to_n(): "$x, $y"
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
@@ -301,7 +302,7 @@ use constant 1.02 _PI => 4*atan2(1,1);  # similar to Math::Complex
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImagePixelRingsFill rect_to_n_range(): "$x1,$y1 $x2,$y2"
+  ### MathImageFilledRings rect_to_n_range(): "$x1,$y1 $x2,$y2"
 
   my ($r_min, $r_max) = _rect_to_radius_range ($x1,$y1, $x2,$y2);
   $r_min = _max($r_min-1.5,0);
@@ -339,12 +340,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImagePixelRingsFill -- pixellated concentric filled rings
+Math::PlanePath::MathImageFilledRings -- concentric filled lattice rings
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImagePixelRingsFill;
- my $path = Math::PlanePath::MathImagePixelRingsFill->new;
+ use Math::PlanePath::MathImageFilledRings;
+ my $path = Math::PlanePath::MathImageFilledRings->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -383,7 +384,7 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImagePixelRingsFill-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageFilledRings-E<gt>new ()>
 
 Create and return a new path object.
 

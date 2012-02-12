@@ -32,7 +32,7 @@ use base 'App::MathImage::Generator';
 #use Devel::Comments '###';
 
 
-our $VERSION = 92;
+our $VERSION = 93;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests

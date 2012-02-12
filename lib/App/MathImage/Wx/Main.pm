@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 92;
+our $VERSION = 93;
 
 sub new {
   my ($class, $label) = @_;

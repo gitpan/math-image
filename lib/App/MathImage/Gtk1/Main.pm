@@ -43,7 +43,7 @@ use App::MathImage::Gtk1::Ex::WidgetBits;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 
 use constant::defer init => sub {
   ### Main init(): @_

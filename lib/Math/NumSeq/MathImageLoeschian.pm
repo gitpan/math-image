@@ -25,13 +25,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
+*_is_infinite = \&Math::NumSeq::_is_infinite;
 
+use Math::Factor::XS 'prime_factors';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant name => Math::NumSeq::__('Loeschian numbers');
 use constant description => Math::NumSeq::__('Loeschian numbers x^2+xy+y^2 norms on hexagonal A2 grid, which is also (a^2+3*b^2)/4 for all a>=0,b>=0 and a,b opposite odd/even.');
@@ -48,7 +51,7 @@ use constant oeis_anum => 'A003136';
 sub rewind {
   my ($self) = @_;
   ### Loeschian rewind()
-  $self->{'i'} = 0;
+  $self->{'i'} = $self->i_start;
   $self->{'y_next_x'}     = [ 0, 1         ];
   $self->{'y_next_hypot'} = [ 0, 1*1+3*1*1 ];
   $self->{'prev_hypot'} = -1;
@@ -101,24 +104,39 @@ sub next {
 
 # ENHANCE-ME: check the factorization
 # primes 3k+2 must have even exponent, other primes can be anything
-# divide out primes for progressively smaller sqrt limit of remaining
 sub pred {
   my ($self, $value) = @_;
-  if ($value == $value-1) {
+  ### pred(): $value
+
+  if ($value < 0
+      || _is_infinite($value)
+      || $value != int($value)) {
+    ### no ...
     return 0;
   }
-  $value *= 4;
-  my $limit = int(sqrt($value/3));
-  ### $limit
-  for (my $y = 0; $y <= $limit; $y++) {
-    my $ysq = 3*$y*$y;
-    my $x = int(sqrt($value - $ysq));
-    if ((($x ^ $y) & 1) == 0
-        && $x*$x + $ysq == $value) {
-      return 1;
+
+  unless ($value <= 0xFFFF_FFFF) {
+    return undef;
+  }
+
+  my @primes = prime_factors($value);
+  while (@primes) {
+    my $p = shift @primes;
+    next if ($p % 3) != 2;
+
+    my $odd = 1;
+    while (@primes && $primes[0] == $p) {
+      shift @primes;
+      $odd ^= 1;
+    }
+    if ($odd) {
+      ### odd power of, so no: $p
+      return 0;
     }
   }
-  return 0;
+
+  ### yes ...
+  return 1;
 }
 
 1;

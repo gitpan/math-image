@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 5;
+use Test;
+plan tests => 4;
 
 use lib 't';
 use MyTestHelpers;
@@ -34,16 +35,18 @@ use Math::NumSeq::MathImageUndulatingNumbers;
 # VERSION
 
 {
-  my $want_version = 92;
-  is ($Math::NumSeq::MathImageUndulatingNumbers::VERSION, $want_version,
+  my $want_version = 93;
+  ok ($Math::NumSeq::MathImageUndulatingNumbers::VERSION, $want_version,
       'VERSION variable');
-  is (Math::NumSeq::MathImageUndulatingNumbers->VERSION,  $want_version,
+  ok (Math::NumSeq::MathImageUndulatingNumbers->VERSION,  $want_version,
       'VERSION class method');
 
   ok (eval { Math::NumSeq::MathImageUndulatingNumbers->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::NumSeq::MathImageUndulatingNumbers->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 }
 
@@ -51,30 +54,27 @@ use Math::NumSeq::MathImageUndulatingNumbers;
 #------------------------------------------------------------------------------
 # values
 
-{
-  my $hi = 13000;
-  my $values_obj = Math::NumSeq::MathImageUndulatingNumbers->new
-    (lo => 1,
-     hi => $hi);
-  my @next = (0) x ($hi+1);
-  while (my ($i, $value) = $values_obj->next) {
-    last if ($value > $hi);
-    $next[$value] = 1;
-  }
-  # $values_obj->finish;
-
-  my $good = 1;
-  foreach my $value (1 .. $hi) {
-    my $pred = ($values_obj->pred($value)?1:0);
-    my $next = $next[$value];
-    if ($pred != $next) {
-      diag "value=$value wrong pred=$pred next=$next";
-      $good = 0;
-      last;
-    }
-  }
-  ok ($good, "good");
-}
+# foreach my $radix (2 .. 16) {
+#   my $hi = 1000;
+#   my $seq = Math::NumSeq::MathImageUndulatingNumbers->new (radix => $radix);
+#   my @next = (0) x ($hi+1);
+#   while (my ($i, $value) = $seq->next) {
+#     last if ($value > $hi);
+#     $next[$value] = 1;
+#   }
+# 
+#   my $good = 1;
+#   foreach my $value (1 .. $hi) {
+#     my $pred = ($seq->pred($value)?1:0);
+#     my $next = $next[$value];
+#     if ($pred != $next) {
+#       MyTestHelpers::diag ("radix=$radix value=$value wrong pred=$pred next=$next");
+#       $good = 0;
+#       last;
+#     }
+#   }
+#   ok ($good, 1, "good");
+# }
 
 exit 0;
 

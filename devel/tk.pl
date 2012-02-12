@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,6 +25,58 @@ use Scalar::Util;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
+
+{
+  my $mw = MainWindow->new;
+  my $label = $mw->Label(-text => 'hello');
+  $label->pack;
+  { my @wrap = $mw->wrapper;
+    ### @wrap
+  }
+  { my @wrap = $label->wrapper;
+    ### @wrap
+  }
+  MainLoop;
+  exit 0;
+}
+{
+  # pTk/tkProperty.c
+  # get window Atom ?xid?
+  # set window Atom type format value ?xid?
+  #
+  # WmWrapperCmd
+  # tkWinWm.c empty
+  # tkUnixWm.c (window,menuheight)
+  #
+  require Tk::OlWm;
+  my $mw = MainWindow->new;
+  print "wrapper ",$mw->wrapper,"\n";
+  $mw->OL_DECOR(CLOSE  => 1,
+                FOOTER => 0,
+                HEADER => 0,
+                RESIZE => 0,
+                PIN    => 1,
+                # ICON_NAME => flag,
+               );
+  # $mw->property('set','MY_PROP','INTEGER', 32, 123,$mw->wrapper,$mw->wrapper,$mw->wrapper);
+
+  $mw->property('set','MY_STR', 'STRING', 8, 'hello',$mw->wrapper);
+
+  #  $mw->property('set','MY_PROP_BY_ID','INTEGER',123,$mw->wrapper);
+
+  # my @wrap = $mw->wrapper->[0];
+  # ### @wrap
+  # #my $xid = $mw->wrapper->[0];
+  # my $xid = $wrap[0];
+
+  my ($xid) = $mw->wrapper;
+  ### $xid
+  #  $xid = 0x1000003;
+  print "name ",$mw->property('get','WM_NAME',$xid),"\n";
+  #print "name ",$mw->property('get','WM_NAME'),"\n";
+  MainLoop;
+  exit 0;
+}
 
 {
   use FindBin;
@@ -57,7 +109,7 @@ use Smart::Comments;
     Scalar::Util::weaken($self->{'widget'});
     my $method = ($ms eq 'idle' ? 'afterIdle'
                   : ($repeat||'') eq 'repeat' ? 'repeat' : 'after');
-    $self->{'id'} = $widget->$method($ms,$callback,$type);
+    # $self->{'id'} = $widget->$method($ms,$callback,$type);
     return $self;
   }
   sub DESTROY {

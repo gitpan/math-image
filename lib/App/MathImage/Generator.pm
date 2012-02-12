@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 92;
+$VERSION = 93;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -106,6 +106,8 @@ use constant::defer values_choices => sub {
                          AlmostPrimes
                          Emirps
                          DivisorCount
+                         GoldbachCount
+                         LemoineCount
                          PythagoreanHypots
 
                          Totient
@@ -201,6 +203,7 @@ use constant::defer values_choices => sub {
                          KolakoskiGroups
                          GolombSequence
                          ReRound
+                         ReReplace
                          MephistoWaltz
 
                          Multiples
@@ -208,8 +211,8 @@ use constant::defer values_choices => sub {
                          Expression
                          PlanePathCoord
                          PlanePathDelta
-                         MathImagePlanePathTurn
-                         MathImagePlanePathN
+                         PlanePathTurn
+                         PlanePathN
 
                          OEIS
                          File
@@ -298,6 +301,7 @@ my %pathname_square_grid
                      AnvilSpiral
                      OctagramSpiral
                      KnightSpiral
+                     CretanLabyrinth
 
                      SquareArms
                      DiamondArms
@@ -383,6 +387,7 @@ my %pathname_square_grid
                      PyramidSides
                      CellularRule
                      CellularRule54
+                     CellularRule57
                      CellularRule190
                      UlamWarburton
                      UlamWarburtonQuarter
@@ -521,6 +526,7 @@ use constant::defer path_choices_array => sub {
                            TriangleSpiralSkewed
                            OctagramSpiral
                            KnightSpiral
+                           CretanLabyrinth
 
                            SquareArms
                            DiamondArms
@@ -533,6 +539,7 @@ use constant::defer path_choices_array => sub {
                            PyramidSpiral
                            CellularRule
                            CellularRule54
+                           CellularRule57
                            CellularRule190
 
                            Corner
@@ -1117,6 +1124,14 @@ sub colours_exp_shrink {
     $shrink = .8;
   } elsif ($self->{'values'} eq 'RepdigitRadix') {
     $shrink = .95;
+  } elsif ($self->{'values'} eq 'ReReplace') {
+    $shrink = 1 - 1/20;
+  } elsif ($self->{'values'} eq 'GoldbachCount') {
+    if ($self->values_object->{'goldbach_type'} eq 'even') {
+      $shrink = 1 - 1/100;
+    } else {
+      $shrink = 1 - 1/30;
+    }
   } elsif ($self->{'values'} eq 'Runs') {
     $shrink = .95;
   }
@@ -1144,14 +1159,14 @@ sub colour_grey {
   my ($self, $factor) = @_;
   return $self->colour_heat($factor);
 
-  my @foreground = colour_to_rgb($self->{'foreground'});
-  my @background = colour_to_rgb($self->{'background'});
-  if (! @foreground) { @foreground = (1.0, 1.0, 1.0); }
-  if (! @background) { @background = (0, 0, 0); }
-  my $bg_factor = 1 - $factor;
-  return rgb1_to_rgbstr (map {
-    ($foreground[$_]*$factor + $background[$_]*$bg_factor)
-  } 0,1,2);
+  # my @foreground = colour_to_rgb($self->{'foreground'});
+  # my @background = colour_to_rgb($self->{'background'});
+  # if (! @foreground) { @foreground = (1.0, 1.0, 1.0); }
+  # if (! @background) { @background = (0, 0, 0); }
+  # my $bg_factor = 1 - $factor;
+  # return rgb1_to_rgbstr (map {
+  #   ($foreground[$_]*$factor + $background[$_]*$bg_factor)
+  # } 0,1,2);
 }
 # x=0 blue through x=1 red
 sub colour_heat {
@@ -1749,7 +1764,9 @@ sub draw_Image_steps {
     my $arms_count = $path_object->arms_count;
     my $increment = $values_obj->{'increment'} || $arms_count;
     my $midpoint_offset = 0;
-    if ($lines_type eq 'midpoint') {
+    if ($lines_type eq 'integer') {
+      $midpoint_offset = 0;
+    } elsif ($lines_type eq 'midpoint') {
       $midpoint_offset = $values_obj->{'midpoint_offset'};
       if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
     } elsif ($lines_type eq 'rounded') {
@@ -1823,10 +1840,11 @@ sub draw_Image_steps {
       };
     } else {
       $frag = sub {
-        #### lines frag: ($n+$midpoint_offset)."  $x,$y"
+        #### lines frag: "n=".($n+$midpoint_offset)."   $x,$y"
         
         my ($x, $y) = $affine->transform ($x, $y);
         $figure_at_transformed->($x,$y);
+        ### affine to: "$x, $y"
         $x = floor ($x + 0.5);
         $y = floor ($y + 0.5);
         
@@ -1834,12 +1852,14 @@ sub draw_Image_steps {
                               $n_offset_to) {
           my ($x2, $y2) = $path_object->n_to_xy($n+$midpoint_offset+$n_offset)
             or next;
+          ### n offset: "n=".($n+$midpoint_offset+$n_offset)."   $x2, $y2"
           ($x2, $y2) = $affine->transform ($x2, $y2);
-          ### n offset: ($n+$n_offset)."   $x2, $y2"
+          ### affine to: "$x2, $y2"
           $x2 = floor ($x2 + 0.5);
           $y2 = floor ($y2 + 0.5);
           
-          my $drawn = _image_line_clipped ($image, $x,$y, $x2,$y2,
+          my $drawn = _image_line_clipped ($image,
+                                           $x,$y, $x2,$y2,
                                            $width,$height,
                                            $foreground);
           $count_total++;
@@ -1854,10 +1874,9 @@ sub draw_Image_steps {
       $x = $self->{'x'};
       $y = $self->{'y'};
       my $x_hi = $self->{'x_hi'};
-      #### draw by xy from: "$x,$y"
+      #### draw by xy range: "$self->{'x_lo'} .. $self->{'x_hi'} and y to $self->{'y_hi'}"
       
       for (;;) {
-        ### use_xy: "$x,$y"
         &$cont() or last;
         
         if (++$x > $x_hi) {
@@ -1867,13 +1886,21 @@ sub draw_Image_steps {
           $x = $self->{'x_lo'};
           #### next row: "$x,$y"
         }
-        
+
+        ### Lines use_xy at: "$x, $y"
         if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
           next; # no N for this x,y
         }
+
+        ### $n
+        ### n_to_xy: $path_object->n_to_xy ($n)
+        ### xy_to_n: $path_object->xy_to_n ($x,$y)
+        ### xy_to_n 0,4: $path_object->xy_to_n (0,4)
+
         if ($midpoint_offset) {
           ($x, $y) = $path_object->n_to_xy($n+$midpoint_offset)
             or next;
+          ### midpoint offset move to xy: "$x, $y"
         }
         &$frag();
       }
@@ -2107,7 +2134,7 @@ sub draw_Image_steps {
   ### $use_colours
   ### $colours_base
   ### $values_non_decreasing_from_i
-
+  
   if ($self->{'use_xy'}) {
     my $x    = $self->{'x'};
     my $x_hi = $self->{'x_hi'};
@@ -2436,6 +2463,7 @@ sub can_use_xy {
 sub value_to_colour {
   my ($self, $value) = @_;
   ### value_to_colour(): $value
+
   my $base = $self->{'colours_base'};
   if (my $aref = $self->{'colours_array'}) {
     $value = abs($value - $base);
@@ -2451,8 +2479,11 @@ sub value_to_colour {
     return $self->colour_grey ($value)
   }
   ### exponential ...
+  $value -= $base;
+  if ($value <= 0) { return $self->{'background'}; }
   $value = "$value" + 0.0; # numize bigint
-  $value = exp(($value - $base) * $self->{'colours_shrink_log'});
+  $value = exp($value * $self->{'colours_shrink_log'});
+  # $value = log(1 + ($value - $base)) / (1- $self->{'colours_shrink'});
   return $self->colour_grey ($value)
 }
 
@@ -2499,8 +2530,8 @@ sub use_xy {
 
   $self->{'x'} = $x_lo - 1;
   $self->{'bignum_y'} = $self->{'y'} = $y_lo;
-  ### x: "$x_lo to $x_hi start $self->{'x'}"
-  ### y: "$y_lo to $y_hi start $self->{'y'}"
+  ### x range: "$x_lo to $x_hi start $self->{'x'}"
+  ### y range: "$y_lo to $y_hi start $self->{'y'}"
   ### n_hi: "$self->{'n_hi'}   cf _SV_N_LIMIT "._SV_N_LIMIT()
 
   if ($self->{'n_hi'} > _SV_N_LIMIT) {
@@ -2551,9 +2582,9 @@ sub _image_line_clipped {
 
 sub ellipse_clipper {
   my ($x1,$y1, $x2,$y2, $width, $height) = @_;
-  ### ellipse_clipper() ...
   return ($x1,$y1, $x2,$y2);
 
+  ### ellipse_clipper() ...
   # # Image::Xpm and Xbm have trouble partially off-screen
   # return if ($x1 < 0 || $x1 >= $width
   #            || $x2 < 0 || $x2 >= $width
@@ -2564,8 +2595,9 @@ sub ellipse_clipper {
 
 sub rect_clipper {
   my ($x1,$y1, $x2,$y2, $width,$height) = @_;
-  ### rect_clipper() ...
+  ### rect_clipper(): "$x1,$y1, $x2,$y2"
 
+  # return if ($y2 < 0);
   return ($x1,$y1, $x2,$y2);
 
   # return if ($x1 < 0 && $x2 < 0)
@@ -2669,6 +2701,11 @@ sub xy_message {
   ### unaffine to: "$x,$y"
 
   my $path_object = $self->path_object;
+  my @n_list = $path_object->xy_to_n_list($x,$y);
+  ### @n_list
+
+  # FIXME: ask $path_object whether there's any fractional X,Y and round for
+  # display if not, or something
   if ($path_object->figure eq 'square') {
     $x = POSIX::floor ($x + 0.5);
     $y = POSIX::floor ($y + 0.5);
@@ -2679,48 +2716,52 @@ sub xy_message {
                          (int($x)==$x ? 0 : 2), $x,
                          (int($y)==$y ? 0 : 2), $y);
 
-  my $n = $path_object->xy_to_n($x,$y);
-  ### $n
-  if (! defined $n) {
+  if (! @n_list) {
     return $message;
   }
-  $message .= "   N=$n";
 
   my $values_obj = $self->values_object;
-  if (! $values_obj) {
-    ### no values_obj ...
-    return $message;
-  }
+  my $join = '   N=';
+  foreach my $n (@n_list) {
+    $message .= $join . $n;
+    $join = ' and N=';
 
-  ### use_colours: $self->use_colours
-  ### can ith(): $values_obj->can('ith')
-  my $vstr = '';
-  my $radix;
-  if ($self->use_colours && $values_obj->can('ith')) {
-    ### show value: $values_obj->ith($n)
-    if (defined (my $value = $values_obj->ith($n))) {
-      $vstr = " value=$value";
-      ### $vstr
-      if ($value >= 2
-          && $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
-        $radix = $value;
+    if (! $values_obj) {
+      ### no values_obj ...
+      next;
+    }
+
+    ### use_colours: $self->use_colours
+    ### can ith(): $values_obj->can('ith')
+    my $vstr = '';
+    my $radix;
+    if ($self->use_colours && $values_obj->can('ith')) {
+      ### show value: $values_obj->ith($n)
+      if (defined (my $value = $values_obj->ith($n))) {
+        $vstr = " value=$value";
+        ### $vstr
+        if ($value >= 2
+            && $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
+          $radix = $value;
+        }
       }
     }
-  }
 
-  $radix ||= $values_obj->characteristic('digits');
-  my $values_parameters;
-  if (! $radix
-      && ! $values_obj->isa('Math::NumSeq::Emirps')
-      && ($values_parameters = $self->{'values_parameters'})
-      && $self->values_class->parameter_info_hash->{'radix'}) {
-    $radix = $values_parameters->{'radix'}
+    $radix ||= $values_obj->characteristic('digits');
+    my $values_parameters;
+    if (! $radix
+        && ! $values_obj->isa('Math::NumSeq::Emirps')
+        && ($values_parameters = $self->{'values_parameters'})
+        && $self->values_class->parameter_info_hash->{'radix'}) {
+      $radix = $values_parameters->{'radix'}
+    }
+    if ($n != 0 && $radix && $radix != 10) {
+      my $str = _my_cnv($n,$radix);
+      $message .= " (N=$str in base $radix)";
+    }
+    $message .= $vstr;
   }
-  if ($n != 0 && $radix && $radix != 10) {
-    my $str = _my_cnv($n,$radix);
-    $message .= " (N=$str in base $radix)";
-  }
-  return $message . $vstr;
+  return $message;
 }
 sub _my_cnv {
   my ($n, $radix) = @_;

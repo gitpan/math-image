@@ -24,7 +24,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::SpinCtrl';
-our $VERSION = 92;
+our $VERSION = 93;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

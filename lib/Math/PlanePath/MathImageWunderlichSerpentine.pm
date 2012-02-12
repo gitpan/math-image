@@ -27,10 +27,11 @@
 package Math::PlanePath::MathImageWunderlichSerpentine;
 use 5.004;
 use strict;
+use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -41,11 +42,12 @@ use Math::PlanePath;
 #use Smart::Comments;
 
 
-my $serpentine_bits_default = '101010101';
+my $serpentine_type_default = 'alternating';
 use constant parameter_info_array =>
-  [ { name      => 'serpentine_bits',
+  [ { name      => 'serpentine_type',
       type      => 'string',
-      default   => $serpentine_bits_default,
+      default   => 'alternating',
+      choices   => ['alternating','coil','Peano'],
       width     => 11,
       type_hint => 'bit_string',
     },
@@ -71,18 +73,33 @@ sub new {
     $radix = $self->{'radix'} = 3;
   }
 
-  my $serpentine_bits = $self->{'serpentine_bits'};
-  if (! defined $serpentine_bits) {
-    $serpentine_bits = $self->{'serpentine_bits'} = $serpentine_bits_default;
-  }
-  $serpentine_bits =~ tr/ \t\r\n_.,-//d;
-  $serpentine_bits =~ /^[01]*$/
-    or die "Unrecognised serpentine_bits ",$self->{'serpentine_bits'};
+  my @serpentine_array;
 
-  my $nradix = $radix*$radix;
-  my @serpentine_array = split //, $serpentine_bits;
-  push @serpentine_array,
-    (0) x max(0, $nradix - length $serpentine_bits);
+  my $serpentine_type = $self->{'serpentine_type'};
+  if (! defined $serpentine_type) {
+    $serpentine_type = $serpentine_type_default;
+  }
+
+  if ($serpentine_type eq 'alternating') {
+    @serpentine_array = map {$_&1} 0 .. $radix*$radix - 1;
+
+  } elsif ($serpentine_type eq 'coil') {
+    @serpentine_array = (1) x $radix*$radix;
+
+  } elsif ($serpentine_type =~ /^([01_.,]|\s)*$/) {
+    # bits 010,101,010 etc
+    my @parts = split /[^01]+/, $serpentine_type;
+    @parts = grep {$_ ne ''} @parts;
+    foreach my $part (@parts) {
+      my @bits = split //, $part;
+      push @bits, (0) x max(0,scalar(@bits)-$radix);
+      $#bits = $radix-1;
+      push @serpentine_array, @bits;  # radix many row
+    }
+
+  } else {
+    croak "Unrecognised serpentine_type \"$serpentine_type\"";
+  }
   $self->{'serpentine_array'} = \@serpentine_array;
 
   return $self;
@@ -493,7 +510,7 @@ Math::PlanePath::MathImageWunderlichSerpentine -- 3x3 self-similar quadrant trav
 =head1 SYNOPSIS
 
  use Math::PlanePath::MathImageWunderlichSerpentine;
- my $path = Math::PlanePath::MathImageWunderlichSerpentine->new (serpentine_bits => 0b111000111;
+ my $path = Math::PlanePath::MathImageWunderlichSerpentine->new (serpentine_type => 0b111000111;
  my ($x, $y) = $path->n_to_xy (123);
 
  # or another radix digits ...
@@ -529,7 +546,7 @@ sub-parts are transposed.  For example "010 101 010" gives
 
 =head2 Coil Order
 
-C<serpentine_bits =E<gt> -1> transposes all parts, giving what is sometimes
+C<serpentine_type =E<gt> -1> transposes all parts, giving what is sometimes
 called a "coil order",
 
      8      24--25--26--27--28--29  78--79--80--81--...
@@ -591,5 +608,5 @@ Walter Wunderlich "Uber Peano-Kurven", Elemente der Mathematik, 28(1):1-10,
 #
 # math-image --path=MathImageWunderlichSerpentine --all --output=numbers_dash
 # math-image --path=MathImageWunderlichSerpentine,radix=5 --all --output=numbers_dash
-# math-image --path=MathImageWunderlichSerpentine,serpentine_bits=170 --all --output=numbers_dash
+# math-image --path=MathImageWunderlichSerpentine,serpentine_type=170 --all --output=numbers_dash
 #

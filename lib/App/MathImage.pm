@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 92;
+$VERSION = 93;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -553,6 +553,9 @@ sub output_method_png {
         'Tk',
        )) {
     if ($self->try_module($module)) {
+      if ($self->{'verbose'} >= 2) {
+        print STDERR "Using module=$module\n";
+      }
       $self->output_image ($module, -file_format => 'PNG');
       return 0;
     }
@@ -577,6 +580,9 @@ sub output_method_xpm {
                          'Tk',
                         )) {
     if ($self->try_module($module)) {
+      if ($self->{'verbose'} >= 2) {
+        print STDERR "Using module=$module\n";
+      }
       $self->output_image ($module, -file_format => 'XPM');
       return 0;
     }
@@ -967,6 +973,8 @@ sub output_method_numbers_xy {
 
 sub output_method_numbers_dash {
   my ($self) = @_;
+  ### output_method_numbers_dash() ...
+
   $self->term_size;
   my $gen = $self->make_generator;
 
@@ -1004,6 +1012,7 @@ sub output_method_numbers_dash {
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
   $n_lo = max(0,$n_lo);
 
+  # fake high for testing ...
   # $n_hi = 124;
 
   my $n_cell_limit = (10 ** ($cell_width-1)) - 1;

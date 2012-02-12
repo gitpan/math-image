@@ -25,6 +25,7 @@ use strict;
 use warnings;
 use Gtk2 1.220;  # for Gtk2::EVENT_PROPAGATE()
 use POSIX ();
+use Module::Load;
 use List::Util 'max';
 use Locale::TextDomain 1.19 ('App-MathImage');
 
@@ -34,7 +35,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 92;
+our $VERSION = 93;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -140,7 +141,6 @@ sub INIT_INSTANCE {
     ### xt: $button->get_style->xthickness
     $vbox->pack_start ($button, 1,1,0);
   }
-  # _do_query_tooltip ($self);
   $vbox->show_all;
 }
 
@@ -350,7 +350,7 @@ sub _scroll {
 
 sub _do_query_tooltip {
   my ($self, $x, $y, $keyboard_mode, $tooltip) = @_;
-  ### _do_query_tooltip() ...
+  ### OeisEntry _do_query_tooltip() ...
 
   my $anum = $self->get('text');
   if ($anum ne $self->{'tooltip_anum'}) {
@@ -359,20 +359,31 @@ sub _do_query_tooltip {
     my $str;
     require Math::NumSeq::OEIS::Catalogue;
     if (my $info = Math::NumSeq::OEIS::Catalogue->anum_to_info($anum)) {
-      $str = $info->{'class'};
-      if ($str eq 'Math::NumSeq::OEIS::File') {
-        $str = "File\n";
-        eval { $str .= Math::NumSeq::OEIS->new(anum=>$anum)->description };
+      my $class = $info->{'class'};
+      if ($class eq 'Math::NumSeq::Expression') {
+        $str = "Expression\n"
+          . ({@{$info->{'parameters'}}})->{'expression'};
       } else {
-        $str =~ s/^(Math::NumSeq::)//;
-        if (my $parameters = $info->{'parameters'}) {
-          my @eqs;
-          for (my $i = 0; $i < @$parameters; $i+=2) {
-            push @eqs, "$parameters->[$i]=$parameters->[$i+1]";
-          }
-          $str .= "\n" . join(', ', @eqs);
+        if ($class eq 'Math::NumSeq::OEIS::File') {
+          $str = "File";
+        } else {
+          $str = $class;
+          $str =~ s/^Math::NumSeq:://;
         }
+        eval {
+          # description() from file or module, if possible
+          $str .= ("\n"
+                   . Math::NumSeq::OEIS->new(anum=>$anum)->description);
+        };
       }
+
+      # if (my $parameters = $info->{'parameters'}) {
+      #   my @eqs;
+      #   for (my $i = 0; $i < @$parameters; $i+=2) {
+      #     push @eqs, "$parameters->[$i]=$parameters->[$i+1]";
+      #   }
+      #   $str .= "\n" . join(', ', @eqs);
+      # }
     }
     ### $str
     $self->{'tooltip_str'} = $str;

@@ -1,3 +1,10 @@
+# N as gray
+# X,Y change by one bit each time
+
+
+
+
+
 # Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -16,20 +23,30 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package Math::PlanePath::MathImageGrayCurve;
+
+# math-image --path=MathImageGrayCode --all --output=numbers
+# math-image --path=MathImageGrayCode,radix=3 --all --output=numbers
+
+
+
+package Math::PlanePath::MathImageGrayCode;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
+*_min = \&Math::PlanePath::_min;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use Math::PlanePath::ZOrderCurve;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -57,7 +74,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### GrayCurve n_to_xy(): $n
+  ### GrayCode n_to_xy(): $n
   if ($n < 0) {
     return;
   }
@@ -65,8 +82,15 @@ sub n_to_xy {
     return ($n,$n);
   }
 
+
+   $n = _to_gray($n);
+  # $n = _from_gray($n);
+  return $self->Math::PlanePath::ZOrderCurve::n_to_xy($n);
+
+
+
   {
-    # ENHANCE-ME: N and N+1 are either adjacent X or on a slope ...
+    # ENHANCE-ME: N and N+1 differ by not much ...
     my $int = int($n);
     ### $int
     if ($n != $int) {
@@ -80,7 +104,6 @@ sub n_to_xy {
     }
     $n = $int; # BigFloat int() gives BigInt, use that
   }
-
 
   my $radix = $self->{'radix'};
   my @digits;
@@ -97,7 +120,7 @@ sub n_to_xy {
 
   while (@digits) {
     {
-      my $digit = pop @digits;
+      my $digit = pop @digits;  # high to low
       if ($rev & 1) {
         $y = $y * $radix + $radix_minus_1 - $digit;
       } else {
@@ -120,7 +143,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### GrayCurve xy_to_n(): "$x, $y"
+  ### GrayCode xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
@@ -130,40 +153,42 @@ sub xy_to_n {
     return undef;
   }
 
-  my $n = ($x * 0 * $y); # inherit bignum 0
-  if ((my $radix = $self->{'radix'}) == 2) {
-    my $nbit = $n|1; # inherit
-    while ($x || $y) {
-      if ($x & 1) {
-        $n |= $nbit;
-      }
-      $x >>= 1;
-      $nbit <<= 1;
-
-      if ($y & 1) {
-        $n |= $nbit;
-      }
-      $y >>= 1;
-      $nbit <<= 1;
-    }
-  } else {
-    my $power = $n+1; # inherit bignum 1
-    while ($x || $y) {
-      $n += ($x % $radix) * $power;
-      $x = int ($x / $radix);
-      $power *= $radix;
-
-      $n += ($y % $radix) * $power;
-      $y = int ($y / $radix);
-      $power *= $radix;
-    }
-  }
+  my $n = $self->Math::PlanePath::ZOrderCurve::xy_to_n($x,$y) || 0;
+  return _from_gray($n);
   return _to_gray($n);
+
+
+
+
+  my $radix = $self->{'radix'};
+  my $n = ($x * 0 * $y); # inherit bignum 0
+  my $power = $n + 1;    # inherit bignum 1
+
+  my $d2 = ($x % $radix);  # digits low to high
+  $x = int ($x / $radix);
+
+  while ($x || $y) {
+    my $digit = ($y % $radix);
+    $n += ($digit ^ $d2) * $power;
+    $y = int ($y / $radix);
+    $power *= $radix;
+
+    $d2 = ($x % $radix);
+    $x = int ($x / $radix);
+    $n += $power * ($digit ^ $d2);
+    $power *= $radix;
+  }
+  return $n + $power * $d2;
 }
 
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+
+  $x1 = _round_nearest($x1);
+  $y1 = _round_nearest($y1);
+  $x2 = _round_nearest($x2);
+  $y2 = _round_nearest($y2);
 
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x1 smaller
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y1 smaller
@@ -173,15 +198,10 @@ sub rect_to_n_range {
   }
 
   my $radix = $self->{'radix'};
-  my $pow_min;
-  if ($x1 == 0 || $y1 == 0) {
-    $pow_min = 0;
-  } else {
-    ($pow_min) = _round_down_pow (($x1 < $y1 ? $x1 : $y1), $radix);
-  }
-  my ($pow_max) = _round_down_pow ($radix * ($x2 > $y2 ? $x2 : $y2), $radix);
-
-  return ($pow_min*$pow_min,
+  my ($pow_max) = _round_down_pow (_max($x2,$y2),
+                                   $radix);
+  $pow_max *= $radix;
+  return (0,
           $pow_max*$pow_max - 1);
 }
 
@@ -215,20 +235,20 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageGrayCurve -- 2x2 self-similar Z shape digits
+Math::PlanePath::MathImageGrayCode -- 2x2 self-similar Z shape digits
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageGrayCurve;
+ use Math::PlanePath::MathImageGrayCode;
 
- my $path = Math::PlanePath::MathImageGrayCurve->new;
+ my $path = Math::PlanePath::MathImageGrayCode->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
 I<In progress...>  Mostly works.
 
-This is a split of N into X,Y by alternate bits, but with N values in Gray
+This path gives points in a Gray code order by taking N as a is a split of N into X,Y by alternate bits, but with N values in Gray
 code order.
 
       7  |  63--62  57--56  39--38  33--32
@@ -261,7 +281,7 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageGrayCurve-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageGrayCode-E<gt>new ()>
 
 Create and return a new path object.  The optional C<radix> parameter gives
 the base for digit splitting (the default is binary, radix 2).
@@ -279,19 +299,3 @@ L<Math::PlanePath>,
 L<Math::PlanePath::ZOrderCurve>
 
 =cut
-
-
- # # or another radix digits ...
- # my $path3 = Math::PlanePath::MathImageGrayCurve->new (radix => 3);
-
-# =item C<$path = Math::PlanePath::MathImageGrayCurve-E<gt>new (radix =E<gt> $r)>
-
-
-
-
-# Local variables:
-# compile-command: "math-image --path=MathImageGrayCurve --lines --scale=10"
-# End:
-#
-# math-image --path=MathImageGrayCurve --all --output=numbers
-# math-image --path=MathImageGrayCurve,radix=3 --all --output=numbers

@@ -21,9 +21,12 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
+*_is_infinite = \&Math::NumSeq::_is_infinite;
+
+use Math::Factor::XS 'prime_factors';
 
 
 # uncomment this to run the ### lines
@@ -35,7 +38,12 @@ use constant i_start => 0;
 use constant characteristic_count => 1;
 use constant characteristic_increasing => 0;
 use constant values_min => 0;
-use constant oeis_anum => 'A000161'; # num ways sum of two squares, no swaps
+
+# cf A002654 num ways nonzero squares with ordered a,b
+#    A001481 numbers which have at least one rep
+#    A000161 num ways squares with zeros without distingishing order
+#
+use constant oeis_anum => 'A000161'; # with zeros without order
 
 # sub new {
 #   my ($class, %options) = @_;
@@ -105,24 +113,87 @@ sub next {
   my $i = $self->{'i'}++;
   return ($i, $self->ith($i));
 }
+
+# 25 = 0^2+5^2 = 3^2+4^2
+# 25 = 5^2  b1=2 B=(2+1)=3 a0=0 B-(-1)^a0=3-1=2 so 2/2=1
+# 25 = 2^1*5^2  b1=2 B=(2+1)=3 a0=1 B-(-1)^a0=3-(-1)=4 so 4/2=2
+
 sub ith {
   my ($self, $i) = @_;
-  ### HypotCount: $i
+  ### HypotCount ith(): $i
 
-  my $count = 0;
-  my $r = int(sqrt($i));
-  for (my $x = ceil(sqrt($i)/2); $x <= $r; $x++) {
-    my $y = sqrt($i - $x*$x);
-    $count += ($y <= $x && $y == int($y));
-    ### add: "$x,$y  ".($y == int($y))
+  if (_is_infinite($i)) {
+    return $i;
   }
-  return $count;
+  if ($i < 0) {
+    ### nothing for negatives ...
+    return 0;
+  }
+  unless ($i <= 0xFFFF_FFFF) {
+    return undef;
+  }
+
+  if ($i < 2) {
+    return 1;
+  }
+
+  # {
+  #   my $count = 0;
+  #   my $r = int(sqrt($i));
+  #   for (my $x = ceil(sqrt($i)/2); $x <= $r; $x++) {
+  #     my $y = sqrt($i - $x*$x);
+  #     $count += ($y <= $x && $y == int($y));
+  #     ### add: "$x,$y  ".($y == int($y))
+  #   }
+  #   return $count;
+  # }
+
+  my @primes = prime_factors($i);
+
+  my $pow2 = 1;
+  while (@primes && $primes[0] == 2) {
+    shift @primes;
+    $pow2 = -$pow2;
+  }
+  ### $pow2
+
+  my $ret = 1;
+  my $nonsquare = 0;
+  my $odd3 = 0;
+  while (@primes) {
+    my $p = shift @primes;
+    my $count = 1;
+    while (@primes && $primes[0] == $p) {
+      shift @primes;
+      $count++;
+    }
+    if ($p & 2) {  # p==4k+3
+      if ($count&1) {
+        return 0;  # odd power of 4k+3
+      }
+    } else {  # p==4k+1
+      ### of 4k+1: $count
+      $ret *= $count+1;
+      $nonsquare ||= ($count&1);
+    }
+  }
+  ### after primes: $ret
+
+  if ($ret & 1) {
+    $ret -= $pow2;
+    ### with pow2: $ret
+  }
+  unless ($nonsquare || $pow2 < 0) {
+    $ret += 2;  # $i is a perfect square
+  }
+  return $ret / 2;
+
+
 }
 
 sub pred {
   my ($self, $value) = @_;
-  ### HypotCount pred(): $value
-  return ($value >= 0);
+  return ($value >= 0 && $value == int($value));
 }
 
 1;
@@ -164,8 +235,8 @@ Return the number of ways C<$i> can be expressed as the sum of two squares.
 
 =item C<$bool = $seq-E<gt>pred($value)>
 
-Return true if C<$value> occurs as a count.  All counts occur so this is
-simply any non-negative C<$value>.
+Return true if C<$value> occurs as a count.  All counts 0 up occur so this
+is simply integer C<$value E<gt>= 0>.
 
 =back
 

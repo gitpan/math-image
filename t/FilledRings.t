@@ -26,7 +26,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-use Math::PlanePath::MathImagePixelRingsFill;
+use Math::PlanePath::MathImageFilledRings;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -35,17 +35,17 @@ use Math::PlanePath::MathImagePixelRingsFill;
 # VERSION
 
 {
-  my $want_version = 92;
-  ok ($Math::PlanePath::MathImagePixelRingsFill::VERSION, $want_version,
+  my $want_version = 93;
+  ok ($Math::PlanePath::MathImageFilledRings::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::MathImagePixelRingsFill->VERSION,  $want_version,
+  ok (Math::PlanePath::MathImageFilledRings->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::MathImagePixelRingsFill->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::MathImageFilledRings->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::MathImagePixelRingsFill->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::MathImageFilledRings->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 }
@@ -69,8 +69,8 @@ sub cumul_calc {
 
 foreach my $r (0 .. 50) {
   my $want = cumul_calc($r);
-  Math::PlanePath::MathImagePixelRingsFill::_cumul_extend();
-  my $got = $Math::PlanePath::MathImagePixelRingsFill::_cumul[$r];
+  Math::PlanePath::MathImageFilledRings::_cumul_extend();
+  my $got = $Math::PlanePath::MathImageFilledRings::_cumul[$r];
   ok ($got, $want, "r=$r");
 }
 

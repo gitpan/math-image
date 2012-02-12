@@ -21,8 +21,6 @@ use 5.008;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
-use lib 'inc';
-use MyMakeMakerExtras;
 
 my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
                       # suggest ErrorTextDialog v.7 for popup control
@@ -102,6 +100,7 @@ my %maximum_planepath
      'Math::PlanePath::AnvilSpiral'          => 64, # new in v.64
      'Math::PlanePath::OctagramSpiral'       => 21, # new in v.21
      'Math::PlanePath::KnightSpiral'         => 1,
+     'Math::PlanePath::CretanLabyrinth'      => 68, # new in v.68
 
      'Math::PlanePath::SquareArms'           => 37, # new in v.37
      'Math::PlanePath::DiamondArms'          => 37, # new in v.37
@@ -115,6 +114,7 @@ my %maximum_planepath
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
      'Math::PlanePath::CellularRule'         => 63, # new in v.63
      'Math::PlanePath::CellularRule54'       => 40, # new in v.40
+     'Math::PlanePath::CellularRule57'       => 67, # new in v.67
      'Math::PlanePath::CellularRule190'      => 54, # v.54 exact rect
      'Math::PlanePath::UlamWarburton'        => 48, # new in v.48
      'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
@@ -166,8 +166,8 @@ my %maximum_planepath
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
      'Math::PlanePath::DragonCurve'          => 66, # v.66 faster xy_to_n()
-     'Math::PlanePath::DragonRounded'        => 50, # v.50 xy_to_n() arms fix
-     'Math::PlanePath::DragonMidpoint'       => 66, # v.66 faster xy_to_n()
+     'Math::PlanePath::DragonRounded'        => 67, # v.67 xy_to_n() arms fix
+     'Math::PlanePath::DragonMidpoint'       => 67, # v.67 xy_to_n() arms fix
      'Math::PlanePath::TerdragonCurve'       => 64, # new in v.64
      'Math::PlanePath::TerdragonMidpoint'    => 66, # new in v.66
      'Math::PlanePath::AlternatePaper'       => 64, # new in v.64
@@ -204,6 +204,8 @@ my %maximum_numseq
      'Math::NumSeq::MobiusFunction'      => 6, # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
      'Math::NumSeq::PrimeFactorCount'    => 32, # v.32 prime_type choices
+     'Math::NumSeq::GoldbachCount'       => 33, # new in v.33
+     'Math::NumSeq::LemoineCount'        => 33, # new in v.33
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
      'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
      'Math::NumSeq::Totient'             => 13, # new in v.13
@@ -240,14 +242,15 @@ my %maximum_numseq
      'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
      'Math::NumSeq::DigitProduct'          => 2, # new in v.2
 
-     'Math::NumSeq::Beastly'        => 1,
-     'Math::NumSeq::Repdigits'      => 1,
-     'Math::NumSeq::RepdigitAny'    => 16, # new in v.16
-     'Math::NumSeq::RepdigitRadix'  => 27, # v.27 faster ith()
-     'Math::NumSeq::Palindromes'    => 1,
-     'Math::NumSeq::HarshadNumbers' => 1,
-     'Math::NumSeq::HappyNumbers'   => 7,  # new in v.7
-     'Math::NumSeq::HappySteps'     => 17,  # new in v.17
+     'Math::NumSeq::Beastly'           => 1,
+     'Math::NumSeq::Repdigits'         => 1,
+     'Math::NumSeq::RepdigitAny'       => 16, # new in v.16
+     'Math::NumSeq::RepdigitRadix'     => 27, # v.27 faster ith()
+     'Math::NumSeq::Palindromes'       => 1,
+     'Math::NumSeq::HarshadNumbers'    => 1,
+     'Math::NumSeq::HappyNumbers'      => 7,  # new in v.7
+     'Math::NumSeq::HappySteps'        => 17,  # new in v.17
+     # 'Math::NumSeq::UndulatingNumbers' => 33,  # new in v.33
 
      'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::JugglerSteps'  => 13, # new in v.13
@@ -264,13 +267,14 @@ my %maximum_numseq
      'Math::NumSeq::Kolakoski'      => 13, # new in v.13
      'Math::NumSeq::GolombSequence' => 13, # new in v.13
      'Math::NumSeq::ReRound'        => 29, # new in v.29
+     'Math::NumSeq::ReReplace'      => 33, # new in v.33
      'Math::NumSeq::MephistoWaltz'  => 14, # new in v.14
 
      'Math::NumSeq::SternDiatomic' => 4, # new in v.4
      'Math::NumSeq::NumAronson'    => 8, # new in v.8
 
      'Math::NumSeq::File'       => 1,
-     'Math::NumSeq::OEIS'       => 13, # v.13 fix .internal description parse
+     'Math::NumSeq::OEIS'       => 33, # v.33 utf8 and entities
      'Math::NumSeq::Expression' => 20, # v.20 workaround Safe.pm
 
      # in Math-Aronson
@@ -278,7 +282,10 @@ my %maximum_numseq
      'Math::NumSeq::Aronson' => 6, # new in v.6
 
      # in Math-PlanePath
-     'Math::NumSeq::PlanePathCoord' => 54, # v.54 "Diff"
+     'Math::NumSeq::PlanePathCoord' => 54, # v.54 "Diff" choice
+     'Math::NumSeq::PlanePathDelta' => 58, # new in v.58
+     'Math::NumSeq::PlanePathTurn'  => 69, # new in v.69
+     'Math::NumSeq::PlanePathN'     => 63, # new in v.63
     );
 
 my %prereq_pm
@@ -372,48 +379,43 @@ my %prereq_pm
      'Term::Size' => 0,
 
      'Math::Prime::XS' => '0.23', # version 0.23 for fix of 1928099
+     'Math::Factor::XS' => '0.39', # version 0.39 for prime_factors()
 
      'Math::BaseCnv' => 0,
      'Math::Libm' => 0,
      # 'Math::Prime::TiedArray' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
-     'Math::PlanePath' => 65, # v.65 for n_frac_discontinuity()
+     'Math::PlanePath' => 68, # v.68 for xy_to_n_list()
      'Math::PlanePath::SquareSpiral' => 1, # at least this path
+     'Math::PlanePath::SacksSpiral' => 0, # --sacks option
+     'Math::PlanePath::VogelFloret' => 0, # --vogel option
+     # for various in-progress
+     'Math::PlanePath::KochCurve' => 42, # v.42 _round_down_pow()
+     'Math::NumSeq::PlanePathCoord' => 53, # for PlanePathTurn
+     'Math::PlanePath::SierpinskiArrowhead' => 1, # for CCurve
 
      # my Math-NumSeq
      'Math::NumSeq' => 22, # v.22 for characteristic(increasing)
-     'Math::NumSeq::All' => 1,  # base for Lines classes
+     'Math::NumSeq::All' => 1,   # Lines base, --all option
+     'Math::NumSeq::Even' => 1,  # --even option
+     'Math::NumSeq::Odd' => 1,   # --odd option
      'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry
+     # for various in-progress
+     'Math::NumSeq::Base::Array' => 1,
+     'Math::NumSeq::Base::Digits' => 1,
+     'Math::NumSeq::Base::IterateIth',1,
+     'Math::NumSeq::Base::IteratePred',1,
+     'Math::NumSeq::Base::Sparse',1,
+     'Math::NumSeq::Primes',4,  # v.4 _prime_list()
+     'Math::NumSeq::DigitCount',4, # for ReplicateDigits
+     'Math::NumSeq::NumAronson',8, # for ConcatNumbers
+     'Math::NumSeq::Kolakoski',13, # for KolakoskiGroups
     );
 
-# for experimental paths in-progress
-sub add_prereq {
-  my ($module, $version) = @_;
-  if (! $prereq_pm{$module}
-      || $prereq_pm{$module} < $version) {
-    $prereq_pm{$module} = $version;
-  }
-}
-# add_prereq ('Math::PlanePath', 37); # _round_nearest() etc
-add_prereq ('Math::PlanePath::KochCurve', 42); # _round_down_pow()
-add_prereq ('Math::PlanePath::SacksSpiral', 1); # for QuintetSide
-add_prereq ('Math::PlanePath::SierpinskiArrowhead', 1); # for CCurve
-add_prereq ('Math::PlanePath::CellularRule54', 54); # for CellularRule57
-add_prereq ('Math::NumSeq::PlanePathCoord', 53); # PlanePathTurn
-#
-# add_prereq ('Math::NumSeq',7); # v.7 for _is_infinite()
-add_prereq ('Math::NumSeq::Base::Array',1);
-add_prereq ('Math::NumSeq::Base::Digits',1);
-add_prereq ('Math::NumSeq::Base::IterateIth',1);
-add_prereq ('Math::NumSeq::Base::IteratePred',1);
-add_prereq ('Math::NumSeq::Base::Sparse',1);
-add_prereq ('Math::NumSeq::Primes',4);  # v.4 _prime_list()
-add_prereq ('Math::NumSeq::DigitCount',4); # for ReplicateDigits
-add_prereq ('Math::NumSeq::NumAronson',8); # for ConcatNumbers
-add_prereq ('Math::NumSeq::Kolakoski',13); # for KolakoskiGroups
+#------------------------------------------------------------------------------
 
-MyMakeMakerExtras::WriteMakefile
+WriteMakefile
   (NAME         => 'math-image',
    ABSTRACT     => 'Draw some mathematical images.',
    VERSION_FROM => 'math-image',
@@ -488,7 +490,7 @@ MyMakeMakerExtras::WriteMakefile
                      %gtk1_interface,
 
                      'Image::Xpm'             => 0,
-                     'Image::Base::GD'        => 8, # v.8 ellipse() $fill
+                     'Image::Base::GD'        => 14, # v.14 0,0,width,height
                      'Image::Base::Imager'    => 0,
                      'Image::Base::Magick'    => 0,
                      # v.5 ellipse() $fill
@@ -519,7 +521,7 @@ MyMakeMakerExtras::WriteMakefile
       },
      },
 
-     # devel additions to the package
+     # devel additions to the packages
      no_index => { package => [ 'Math::PlanePath',
                                 'Math::PlanePath::CellularRule',
                               ],
