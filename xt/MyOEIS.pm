@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # MyOEIS.pm is shared by several distributions.
 #
@@ -19,7 +19,7 @@ package MyOEIS;
 use strict;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 my $without;
 

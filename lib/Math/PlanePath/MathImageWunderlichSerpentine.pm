@@ -31,7 +31,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -85,6 +85,9 @@ sub new {
 
   } elsif ($serpentine_type eq 'coil') {
     @serpentine_array = (1) x $radix*$radix;
+
+  } elsif ($serpentine_type eq 'Peano') {
+    @serpentine_array = (0) x $radix*$radix;
 
   } elsif ($serpentine_type =~ /^([01_.,]|\s)*$/) {
     # bits 010,101,010 etc

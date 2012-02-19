@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            93
+version:            94
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -76,14 +76,13 @@ requires:
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
     Math::NumSeq::OEIS::Catalogue:  1
-    Math::NumSeq::PlanePathCoord:  53
     Math::NumSeq::Primes:  4
     Math::PlanePath:      68
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  0
-    Math::PlanePath::SierpinskiArrowhead:  1
     Math::PlanePath::SquareSpiral:  1
     Math::PlanePath::VogelFloret:  0
+    Math::PlanePath::ZOrderCurve:  0
     Math::Prime::XS:      0.23
     Module::Load:         0
     Module::Pluggable:    0
@@ -202,6 +201,7 @@ optional_features:
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HappySteps:  17
             Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::HofstadterFigure:  34
             Math::NumSeq::JugglerSteps:  13
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
@@ -238,6 +238,7 @@ optional_features:
             Math::NumSeq::ReRound:  29
             Math::NumSeq::ReverseAdd:  30
             Math::NumSeq::ReverseAddSteps:  1
+            Math::NumSeq::Runs:   34
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
@@ -255,6 +256,7 @@ optional_features:
             Math::NumSeq::Tribonacci:  29
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::UlamSequence:  29
+            Math::NumSeq::UndulatingNumbers:  34
             Math::NumSeq::WoodallNumbers:  29
             Math::PlanePath::AlternatePaper:  64
             Math::PlanePath::AnvilSpiral:  64
@@ -340,10 +342,10 @@ optional_features:
             Math::PlanePath::SquareReplicate:  47
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
-            Math::PlanePath::StaircaseAlternating:  58
+            Math::PlanePath::StaircaseAlternating:  70
             Math::PlanePath::TerdragonCurve:  64
             Math::PlanePath::TerdragonMidpoint:  66
-            Math::PlanePath::TheodorusSpiral:  6
+            Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  30
@@ -404,6 +406,7 @@ optional_features:
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HappySteps:  17
             Math::NumSeq::HarshadNumbers:  1
+            Math::NumSeq::HofstadterFigure:  34
             Math::NumSeq::JugglerSteps:  13
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
@@ -440,6 +443,7 @@ optional_features:
             Math::NumSeq::ReRound:  29
             Math::NumSeq::ReverseAdd:  30
             Math::NumSeq::ReverseAddSteps:  1
+            Math::NumSeq::Runs:   34
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
@@ -457,6 +461,7 @@ optional_features:
             Math::NumSeq::Tribonacci:  29
             Math::NumSeq::TwinPrimes:  4
             Math::NumSeq::UlamSequence:  29
+            Math::NumSeq::UndulatingNumbers:  34
             Math::NumSeq::WoodallNumbers:  29
     maximum_planepath:
         description:  Maximum PlanePath modules
@@ -545,10 +550,10 @@ optional_features:
             Math::PlanePath::SquareReplicate:  47
             Math::PlanePath::SquareSpiral:  5
             Math::PlanePath::Staircase:  16
-            Math::PlanePath::StaircaseAlternating:  58
+            Math::PlanePath::StaircaseAlternating:  70
             Math::PlanePath::TerdragonCurve:  64
             Math::PlanePath::TerdragonMidpoint:  66
-            Math::PlanePath::TheodorusSpiral:  6
+            Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  30
@@ -624,6 +629,7 @@ recommends:
     Math::NumSeq::HappyNumbers:  7
     Math::NumSeq::HappySteps:  17
     Math::NumSeq::HarshadNumbers:  1
+    Math::NumSeq::HofstadterFigure:  34
     Math::NumSeq::JugglerSteps:  13
     Math::NumSeq::KlarnerRado:  11
     Math::NumSeq::Kolakoski:  13
@@ -660,6 +666,7 @@ recommends:
     Math::NumSeq::ReRound:  29
     Math::NumSeq::ReverseAdd:  30
     Math::NumSeq::ReverseAddSteps:  1
+    Math::NumSeq::Runs:   34
     Math::NumSeq::SophieGermainPrimes:  4
     Math::NumSeq::SqrtContinued:  27
     Math::NumSeq::SqrtContinuedPeriod:  24
@@ -677,6 +684,7 @@ recommends:
     Math::NumSeq::Tribonacci:  29
     Math::NumSeq::TwinPrimes:  4
     Math::NumSeq::UlamSequence:  29
+    Math::NumSeq::UndulatingNumbers:  34
     Math::NumSeq::WoodallNumbers:  29
     Math::PlanePath::AlternatePaper:  64
     Math::PlanePath::AnvilSpiral:  64
@@ -762,10 +770,10 @@ recommends:
     Math::PlanePath::SquareReplicate:  47
     Math::PlanePath::SquareSpiral:  5
     Math::PlanePath::Staircase:  16
-    Math::PlanePath::StaircaseAlternating:  58
+    Math::PlanePath::StaircaseAlternating:  70
     Math::PlanePath::TerdragonCurve:  64
     Math::PlanePath::TerdragonMidpoint:  66
-    Math::PlanePath::TheodorusSpiral:  6
+    Math::PlanePath::TheodorusSpiral:  70
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::PlanePath::TriangularHypot:  30

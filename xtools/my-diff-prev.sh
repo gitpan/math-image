@@ -35,13 +35,23 @@ if test -z "$VERSION"; then
   exit 1
 fi
 
+case $VERSION in
+  3.*) PREV_VERSION=3.008000 ;;
+  *)   PREV_VERSION="`expr $VERSION - 1`" ;;
+esac
+if test -z "$VERSION"; then
+  echo "PREV_VERSION not established"
+  exit 1
+fi
+
 rm -rf diff.tmp
 mkdir -p diff.tmp
 (cd diff.tmp;
- tar xfz ../$DISTNAME-`expr $VERSION - 1`.tar.gz
+ tar xfz ../$DISTNAME-$PREV_VERSION.tar.gz
  tar xfz ../$DISTNAME-$VERSION.tar.gz
- diff -ur $DISTNAME-`expr $VERSION - 1` \
-                       $DISTNAME-$VERSION >tree.diff || true
+ diff -ur $DISTNAME-$PREV_VERSION \
+          $DISTNAME-$VERSION \
+   >tree.diff || true
 )
 ${PAGER:-more} diff.tmp/tree.diff || true
 rm -rf diff.tmp

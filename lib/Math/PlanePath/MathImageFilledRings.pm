@@ -24,7 +24,7 @@ use Math::Libm 'hypot';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -312,7 +312,7 @@ sub rect_to_n_range {
 }
 
 #------------------------------------------------------------------------------
-# generic - cf SacksSpiral
+# generic - cf Math::PlanePath::SacksSpiral
 
 # return ($rlo,$rhi) which is the radial distance range found in the rectangle
 sub _rect_to_radius_range {

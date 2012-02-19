@@ -73,7 +73,7 @@ my %maximum_planepath
      'Math::PlanePath::SquareSpiral'   => 5,  # v.5 wider parameter
      'Math::PlanePath::SacksSpiral'    => 1,
      'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
-     'Math::PlanePath::TheodorusSpiral'      => 6,  # new in v.6
+     'Math::PlanePath::TheodorusSpiral'      => 70, # v.70 save pos fix
      'Math::PlanePath::ArchimedeanChords'    => 23, # new in v.23
      'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
      'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
@@ -122,7 +122,7 @@ my %maximum_planepath
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
      'Math::PlanePath::DiagonalsAlternating' => 2,  # new in v.56
      'Math::PlanePath::Staircase'            => 16, # new in v.16
-     'Math::PlanePath::StaircaseAlternating' => 58, # new in v.58
+     'Math::PlanePath::StaircaseAlternating' => 70, # v.70 end_type=>'square'
      'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
      'Math::PlanePath::Columns'              => 26, # v.26 against height==0
 
@@ -195,6 +195,7 @@ my %maximum_numseq
      'Math::NumSeq::Even'        => 1,
      'Math::NumSeq::Odd'         => 1,
      'Math::NumSeq::AllDigits'   => 25, # v.25 for BigInt ith()
+     'Math::NumSeq::Runs'        => 34, # new in v.34
 
      'Math::NumSeq::Primes'              => 4, # new in v.4
      'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
@@ -250,7 +251,7 @@ my %maximum_numseq
      'Math::NumSeq::HarshadNumbers'    => 1,
      'Math::NumSeq::HappyNumbers'      => 7,  # new in v.7
      'Math::NumSeq::HappySteps'        => 17,  # new in v.17
-     # 'Math::NumSeq::UndulatingNumbers' => 33,  # new in v.33
+     'Math::NumSeq::UndulatingNumbers' => 34,  # new in v.34
 
      'Math::NumSeq::CollatzSteps'  => 1,
      'Math::NumSeq::JugglerSteps'  => 13, # new in v.13
@@ -270,8 +271,9 @@ my %maximum_numseq
      'Math::NumSeq::ReReplace'      => 33, # new in v.33
      'Math::NumSeq::MephistoWaltz'  => 14, # new in v.14
 
-     'Math::NumSeq::SternDiatomic' => 4, # new in v.4
-     'Math::NumSeq::NumAronson'    => 8, # new in v.8
+     'Math::NumSeq::SternDiatomic'    => 4,  # new in v.4
+     'Math::NumSeq::NumAronson'       => 8,  # new in v.8
+     'Math::NumSeq::HofstadterFigure' => 34, # new in v.34
 
      'Math::NumSeq::File'       => 1,
      'Math::NumSeq::OEIS'       => 33, # v.33 utf8 and entities
@@ -388,19 +390,18 @@ my %prereq_pm
      # my Math-PlanePath, and should work with any set of paths
      'Math::PlanePath' => 68, # v.68 for xy_to_n_list()
      'Math::PlanePath::SquareSpiral' => 1, # at least this path
-     'Math::PlanePath::SacksSpiral' => 0, # --sacks option
-     'Math::PlanePath::VogelFloret' => 0, # --vogel option
+     'Math::PlanePath::SacksSpiral'  => 0, # for --sacks option
+     'Math::PlanePath::VogelFloret'  => 0, # for --vogel option
      # for various in-progress
-     'Math::PlanePath::KochCurve' => 42, # v.42 _round_down_pow()
-     'Math::NumSeq::PlanePathCoord' => 53, # for PlanePathTurn
-     'Math::PlanePath::SierpinskiArrowhead' => 1, # for CCurve
+     'Math::PlanePath::KochCurve'   => 42, # v.42 _round_down_pow()
+     'Math::PlanePath::ZOrderCurve' => 0,  # for GrayCode
 
      # my Math-NumSeq
      'Math::NumSeq' => 22, # v.22 for characteristic(increasing)
-     'Math::NumSeq::All' => 1,   # Lines base, --all option
-     'Math::NumSeq::Even' => 1,  # --even option
-     'Math::NumSeq::Odd' => 1,   # --odd option
-     'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry
+     'Math::NumSeq::All'  => 1,   # for Lines base, for --all option
+     'Math::NumSeq::Even' => 1,   # for --even option
+     'Math::NumSeq::Odd'  => 1,   # for --odd option
+     'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry widget
      # for various in-progress
      'Math::NumSeq::Base::Array' => 1,
      'Math::NumSeq::Base::Digits' => 1,

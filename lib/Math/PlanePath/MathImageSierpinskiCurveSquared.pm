@@ -22,18 +22,18 @@
 
 
 
-# math-image --path=MathImageSierpinskiCurveSquare --lines --scale=10
+# math-image --path=MathImageSierpinskiCurveSquared --lines --scale=10
 #
-# math-image --path=MathImageSierpinskiCurveSquare --all --output=numbers_dash
+# math-image --path=MathImageSierpinskiCurveSquared --all --output=numbers_dash
 
 
 
-package Math::PlanePath::MathImageSierpinskiCurveSquare;
+package Math::PlanePath::MathImageSierpinskiCurveSquared;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -42,9 +42,6 @@ use Math::PlanePath;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -154,7 +151,7 @@ my @lowdigit_to_y = (0,0,1,1,2,2);
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MathImageSierpinskiCurveSquare n_to_xy(): $n
+  ### MathImageSierpinskiCurveSquared n_to_xy(): $n
 
   if ($n < 0) {
     return;
@@ -256,7 +253,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MathImageSierpinskiCurveSquare xy_to_n(): "$x, $y"
+  ### MathImageSierpinskiCurveSquared xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
@@ -366,10 +363,13 @@ sub xy_to_n {
   return $n*$arms + $arm;
 }
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### MathImageSierpinskiCurveSquare rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### MathImageSierpinskiCurveSquared rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
@@ -416,28 +416,38 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  my $max = $x2;
+  my $max = $x2;   # arms 1,8 using X, starting at X=1
   if ($arms >= 2) {
-    _apply_max ($max, $y2-1);
+    # arms 2,3 upper using Y, starting at Y=1
+    _apply_max ($max, $y2);
 
     if ($arms >= 4) {
-      _apply_max ($max, 1-$x1);
+      # arms 4,5 right using X, starting at X=-2
+      _apply_max ($max, -1-$x1);
 
       if ($arms >= 6) {
-        _apply_max ($max, 1-$y1);
+        # arms 6,7 down using Y, starting at Y=-2
+        _apply_max ($max, -1-$y1);
       }
     }
   }
   ### $max
 
-  my ($len, $level) = _round_down_pow ($max,
-                                       2);
+  my ($len, $level) = _round_down_pow ($max, 2);
 
-
-  # points = (4^(level+2) - 1) / 3
-  return (0, (4*$len*$len - 4)/3 * $arms);
+  # points(level) = (4^(level+2) - 1) / 3
+  # Nlast(level) = (4^(level+2) - 1) / 3 - 1
+  #              = (4^(level+2) - 4) / 3
+  # then + arms-1 for last of arms
+  # Nhi = Nlast(level) * arms + arms-1
+  #     = (Nlast(level + 1)) * arms - 1
+  #     = ((4^(level+2) - 4) / 3 + 1) * arms - 1
+  #     = ((4^(level+2) - 1) / 3) * arms - 1
+  #
+  return (0, (4*$len*$len - 1)/3 * $arms - 1);
 }
 
+# set $_[0] to the max of $_[0] and $_[1]
 sub _apply_max {
   ### _apply_max(): "$_[0] cf $_[1]"
   unless ($_[0] > $_[1]) {
@@ -452,12 +462,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::MathImageSierpinskiCurveSquare -- Sierpinski curve
+Math::PlanePath::MathImageSierpinskiCurveSquared -- Sierpinski curve
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::MathImageSierpinskiCurveSquare;
- my $path = Math::PlanePath::MathImageSierpinskiCurveSquare->new (arms => 2);
+ use Math::PlanePath::MathImageSierpinskiCurveSquared;
+ my $path = Math::PlanePath::MathImageSierpinskiCurveSquared->new (arms => 2);
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -555,8 +565,8 @@ advancing successively.  For example C<arms =E<gt> 8>,
                         |        |
                    ..--93       94--..                     -8
 
-                                 ^
-     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+                              ^
+     -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
 The middle "." is the origin X=0,Y=0.  It would be more symmetrical to make
 the origin the middle of the eight arms, at X=-0.5,Y=-0.5 in the above, but
@@ -570,9 +580,9 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::MathImageSierpinskiCurveSquare-E<gt>new ()>
+=item C<$path = Math::PlanePath::MathImageSierpinskiCurveSquared-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::MathImageSierpinskiCurveSquare-E<gt>new (arms =E<gt> 8)>
+=item C<$path = Math::PlanePath::MathImageSierpinskiCurveSquared-E<gt>new (arms =E<gt> 8)>
 
 Create and return a new path object.
 

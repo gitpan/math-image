@@ -108,7 +108,6 @@ sub check_class {
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
   # return unless $class =~ /Sqrt/;
-  return unless $class =~ /PlanePathTurn/;
   # return unless $class =~ /Kernel/;
   # return unless $class =~ /Sqrt/;
   # return unless $class =~ /Pythag/;
@@ -161,6 +160,10 @@ sub check_class {
            || $anum eq 'A006450') {
     MyTestHelpers::diag ("skip primes stuff $anum");
     return;
+
+  } elsif ($anum eq 'A005384') {
+    # Sophie Germain / Cunningham, shorten for now
+    @$want = grep {$_ < 1_000_000} @$want;
   }
 
   #  return unless $anum eq 'A163540';

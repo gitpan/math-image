@@ -24,7 +24,7 @@ use strict;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 93;
+$VERSION = 94;
 
 sub _save_to_tempfh {
   my ($image) = @_;

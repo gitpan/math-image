@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
@@ -40,6 +40,8 @@ use constant characteristic_increasing => 1;
 use constant values_min => 1;
 use constant default_i_start => 1;
 
+# cf A102371 sloping binary
+#
 # 1,2,7,12,29,62,123,248,505,...
 use constant oeis_anum => 'A102371';
 

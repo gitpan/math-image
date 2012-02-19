@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -49,10 +49,10 @@ sub arms_count {
 }
 
 use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_4',
+                                         share_key => 'arms_2',
                                          type      => 'integer',
                                          minimum   => 1,
-                                         maximum   => 4,
+                                         maximum   => 2,
                                          default   => 1,
                                          width     => 1,
                                          description => 'Arms',
@@ -62,7 +62,7 @@ sub new {
   my $self = $class->SUPER::new(@_);
   my $arms = $self->{'arms'};
   if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
+  elsif ($arms > 2) { $arms = 2; }
   $self->{'arms'} = $arms;
   return $self;
 }

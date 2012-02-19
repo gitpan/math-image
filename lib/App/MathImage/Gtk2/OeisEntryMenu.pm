@@ -22,7 +22,7 @@ use warnings;
 use Gtk2;
 use Locale::TextDomain ('App-MathImage');
 
-our $VERSION = 93;
+our $VERSION = 94;
 
 use Glib::Object::Subclass
   'Gtk2::Menu',

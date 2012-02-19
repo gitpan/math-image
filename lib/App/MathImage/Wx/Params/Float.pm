@@ -23,7 +23,7 @@ use POSIX ();
 use Wx;
 
 use base 'Wx::SpinCtrl';
-our $VERSION = 93;
+our $VERSION = 94;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

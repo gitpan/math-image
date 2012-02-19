@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 
 use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
@@ -33,23 +33,33 @@ use Math::NumSeq::Base::IterateIth;
 
 
 use constant description => Math::NumSeq::__('Replicate the digits of i, so i=123 gives value 112233.');
+use constant default_i_start => 0;
 use constant values_min => 0;
 use constant characteristic_increasing => 1;
 
 use Math::NumSeq::DigitCount 4;
 use constant parameter_info_array =>
   [ Math::NumSeq::Base::Digits::parameter_common_radix(),
-    { name => 'replicate',
-      type => 'integer',
+    { name    => 'replicate',
+      type    => 'integer',
       minimum => 1,
       default => 2,
-      width => 1,
+      width   => 1,
     },
   ];
 
+# cf A020338 # doublets 1010,1111,1212
+#    A074842 # triplets
+#    A074843 # quadruplets
+# # # OEIS-Catalogue: A020338 i_start=1
+# # # OEIS-Catalogue: A074842 replicate=3 i_start=1
+# # # OEIS-Catalogue: A074843 replicate=4 i_start=1
+#
+# A044836 ?
+#
 my @oeis_anum;
-BEGIN {
-}
+# OEIS-Other: A001477 replicate=1 # integers 0 upwards
+# OEIS-Other: A000027 replicate=1 i_start=1 # integers 1 upwards
 sub oeis_anum {
   my ($self) = @_;
   return $oeis_anum[$self->{'radix'}]->[$self->{'replicate'}];
@@ -104,7 +114,3 @@ sub pred {
 
 1;
 __END__
-
-# Local variables:
-# compile-command: "math-image --values=ReplicateDigits"
-# End:
