@@ -38,7 +38,7 @@ use App::MathImage::Generator;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 @ISA = ('Prima::MainWindow');
 
 sub new {

@@ -1,6 +1,5 @@
-# start at 1,1,1 or like oeis 1,0,0 ?
-
-
+# start at 1,1,1
+# or oeis is 1,0,0 ?
 
 # Copyright 2010, 2011, 2012 Kevin Ryde
 
@@ -24,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq::Base::Sparse;
 @ISA = ('Math::NumSeq::Base::Sparse');
 
@@ -40,7 +39,7 @@ use constant values_min => 1;
 #    A133034 - first differences of padovans
 #    A078027 - expansion (1-x)/(1-x^2-x^3), starts 1,-1,0
 #    A096231 - triangles generation starting 1,3,5
-#    A145462,A146973 - eisentriangle row sums value at left is padovan 
+#    A145462,A146973 - eisentriangle row sums value at left is padovan
 #    A134816 - starting 1,1,1 spiral sides
 #    A000931 - starting 1,0,0
 # use constant oeis_anum => 'A000931'; # padovan, but starting 1,0,0
@@ -79,3 +78,59 @@ sub next {
 
 1;
 __END__
+
+#                     +-----------------------------------+
+#                    / \                                 /
+#                   /   \                               /
+#                  /     \                             /
+#                 /       \                           /
+#                /         \                         /
+#               /           \            9          /
+#              /             \                     /
+#             /       7       \                   /
+#            /                 \                 /
+#           /                   \               /
+#          /                     \             /
+#         /                       \           /
+#        /                         \         /
+#       +-------------------+-------+       /
+#        \                 /1\  2  / \     /
+#         \               +---+   /  2\   /
+#          \             / \1/1\ /     \ /
+#           \     5     /   +---+-------+
+#            \         /     \         /
+#             \       /       \   3   /
+#              \     /    4    \     /
+#               \   /           \   /
+#                \ /             \ /
+#                 +---------------+
+#
+#
+#
+# +-----------------------------------+
+#  \                                 / \
+#   \                               /   \
+#    \                             /     \
+#     \                           /       \
+#      \                         /         \
+#       \                       /           \
+#        \         9           /             \
+#         \                   /       7       \
+#          \                 /                 \
+#           \               /                   \
+#            \             /                     \
+#             \           /                       \
+#              \         /                         \
+#               \       +-------+-------------------+
+#                \     / \     /1\                 /
+#                 \   / 2 \ 2 +---+               /
+#                  \ /     \ /1\1/ \             /
+#                   +-------+---+   \     5     /
+#                    \         /     \         /
+#                     \   3   /       \       /
+#                      \     /    4    \     /
+#                       \   /           \   /
+#                        \ /             \ /
+#                         +---------------+
+
+

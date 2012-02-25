@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 94;
+$VERSION = 95;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -312,6 +312,7 @@ my %pathname_square_grid
                      MPeaks
 
                      PixelRings
+                     MathImageFilledRings
                      Hypot
                      HypotOctant
                      TriangularHypot
@@ -512,6 +513,7 @@ use constant::defer path_choices_array => sub {
                            ArchimedeanChords
                            MultipleRings
                            PixelRings
+                           MathImageFilledRings
                            Hypot
                            HypotOctant
                            TriangularHypot
@@ -1749,10 +1751,14 @@ sub draw_Image_steps {
      ? sub { }
      : sub {
        my ($x,$y) = @_;
+       ### figure_at_transformed(): "$x, $y   $figure_method"
        $x = floor ($x - int($xpscale/2) + .5);
        $y = floor ($y - int($ypscale/2) + .5);
        if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
                                          $width,$height)) {
+         ### coords: join(',',@coords)
+         return if (join(',',@coords) eq '-41,15,-34,22');
+
          $image->$figure_method (@coords, $foreground, $figure_fill);
          $count_figures++;
        }

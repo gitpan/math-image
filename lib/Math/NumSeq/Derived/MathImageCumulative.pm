@@ -22,7 +22,7 @@ use POSIX 'ceil';
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

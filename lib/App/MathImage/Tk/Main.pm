@@ -30,25 +30,28 @@ use App::MathImage::Generator;
 use App::MathImage::Tk::Drawing;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 94;
+our $VERSION = 95;
 
 sub Populate {
   my ($self, $args) = @_;
   $self->SUPER::Populate($args);
 
   my $gui_options = delete $args->{'-gui_options'};
-  my $gen_options = delete $args->{'-gen_options'};
-  $gen_options = { %{App::MathImage::Generator->default_options},
-                   %{$gen_options||{}} };
+  my $gen_options = delete $args->{'-gen_options'} || {};
+  {
+    my %gen_options = %{App::MathImage::Generator->default_options};
+    delete $gen_options{'width'};
+    delete $gen_options{'height'};
+    $gen_options = { %gen_options,
+                     %$gen_options };
+  }
   ### Main gen_options: $gen_options
 
-
-  $self->geometry(int($self->screenwidth * .8).'x'.int($self->screenheight * .8));
   my $balloon = $self->Balloon;
 
   my $menubar = $self->Component('Frame','menubar',
@@ -117,23 +120,28 @@ sub Populate {
   my $toolbar = $self->Component('Frame','toolbar');
   $toolbar->pack(-side => 'top', -fill => 'x');
 
-  my $draw = $self->Component ('AppMathImageTkDrawing','drawing',
-                               -background => 'black',
-                               -foreground => 'white',
-                               -activebackground => 'black',
-                               -activeforeground => 'white',
-                               -disabledforeground => 'white',
-                              );
+  my $draw = $self->Component
+    ('AppMathImageTkDrawing','drawing',
+     -background => 'black',
+     -foreground => 'white',
+     -activebackground => 'black',
+     -activeforeground => 'white',
+     -disabledforeground => 'white',
+     (defined $gen_options->{'width'}
+      ? (-width  => $gen_options->{'width'},
+         -height => $gen_options->{'height'} || $gen_options->{'width'})
+      : ()),
+    );
   $draw->bind('<Motion>', [\&_do_motion, Ev('x'), Ev('y')]);
   $draw->{'gen_options'} = $gen_options;
-  $draw->pack(-side => 'top',
-              -fill => 'both',
+  $draw->pack(-side   => 'top',
+              -fill   => 'both',
               -expand => 1,
-              -after => $toolbar);
+              -after  => $toolbar);
 
   {
     my $button = $toolbar->Button
-      (-text  => __('Randomize'),
+      (-text    => __('Randomize'),
        -command => [ $self, 'randomize' ]);
     $button->pack (-side => 'left');
     $balloon->attach($button, -balloonmsg => __('Choose a random path, values, scale, etc.  Click repeatedly to see interesting things.'));
@@ -142,21 +150,22 @@ sub Populate {
     my $frame = $toolbar->Frame;
     $frame->pack (-side => 'left');
     $frame->Label(-text => __('Scale'))->pack(-side => 'left');
-    $frame->Spinbox (-from => 1,
-                     -to => 9999,
-                     -width => 2,
-                     -text => 3,
-                     -command => sub {
-                       my ($value, $direction) = @_;
-                       $gen_options->{'scale'} = $value;
-                       $draw->queue_reimage;
-                     })->pack(-side => 'left');
+    $self->{'scale_spinbox'} = $frame->Spinbox
+      (-from  => 1,
+       -to    => 9999,
+       -width => 2,
+       -text  => 3,
+       -command => sub {
+         my ($value, $direction) = @_;
+         $gen_options->{'scale'} = $value;
+         $draw->queue_reimage;
+       })->pack(-side => 'left');
     $balloon->attach($frame, -balloonmsg => __('How many pixels per square.'));
   }
   {
     my @values = map { $_ eq 'default' ? 'figure' : $_ }
       App::MathImage::Generator->figure_choices;
-    my $spin = $toolbar->Spinbox
+    my $spinbox = $self->{'figure_spinbox'} = $toolbar->Spinbox
       (-values => \@values,
        -width => max(map{length} @values),
        -command => sub {
@@ -165,13 +174,27 @@ sub Populate {
          $gen_options->{'figure'} = $value;
          $draw->queue_reimage;
        });
-    $spin->pack(-side => 'left');
-    $balloon->attach($spin, -balloonmsg => __('The figure to draw at each position.'));
+    $spinbox->pack(-side => 'left');
+    $balloon->attach ($spinbox,
+                      -balloonmsg => __('The figure to draw at each position.'));
   }
 
   $self->Component ('Label','statusbar',
                     -justify => 'left')
     ->pack(-side => 'bottom', -fill => 'x');
+
+
+  # ### ismapped: $self->ismapped
+  # $self->update;
+  ### reqheight: $self->reqheight, $draw->reqheight
+  ### ismapped: $self->ismapped
+
+  if (! $gen_options->{'width'}) {
+    ### geometry: int($self->screenwidth * .8).'x'.int($self->screenheight * .8)
+    $self->geometry(int($self->screenwidth * .8)
+                    .'x'
+                    .int($self->screenheight * .8));
+  }
 }
 
 my %_values_to_mnemonic =
@@ -250,8 +273,20 @@ sub nick_to_display {
 
 sub fullscreen_toggle {
   my ($self, $itemname) = @_;
-  ### _do_fullscreen_toggle(): "@_"
-  $self->FullScreen;
+  ### fullscreen_toggle(): "@_"
+
+  ### wm attributes: $self->attributes
+
+  my %attributes = $self->attributes;
+  if (exists $attributes{'-fullscreen'}) {
+    # FIXME: this probably only works for netwm, though might prefer Tk not
+    # to advertise it if it doesn't work
+    $self->attributes (-fullscreen => ! $attributes{'-fullscreen'});
+  } else {
+    # FIXME: save the current size to toggle back to
+    $self->FullScreen;
+  }
+  ### wm attributes: $self->attributes
 }
 sub randomize {
   my ($self) = @_;
@@ -261,6 +296,11 @@ sub randomize {
                    App::MathImage::Generator->random_options);
   ### randomize to: $gen_options
   $drawing->queue_reimage;
+  $self->{'scale_spinbox'}->configure(-text => $gen_options->{'scale'});
+  {
+    my $figure = $gen_options->{'figure'};
+    $self->{'figure_spinbox'}->configure(-text => ($figure eq 'default' ? 'figure' : $figure));
+  }
 }
 
 sub popup_about {
@@ -325,18 +365,28 @@ sub popup_diagnostics {
 
 sub command_line {
   my ($class, $mathimage) = @_;
+  ### command_line(): $mathimage
+
+  # require Tk::ErrorDialog;
+  # {
+  #   *Tk::Error = sub {
+  #     require Devel::StackTrace;
+  #     my $trace = Devel::StackTrace->new;
+  #     my $str = $trace->as_string;
+  #     print "--------------\n$str\n---------------\n";
+  #   };
+  # }
+
   my $gui_options = $mathimage->{'gui_options'};
   my $gen_options = $mathimage->{'gen_options'};
   my $self = $class->new
     (-gui_options => $gui_options,
-     -gen_options => $gen_options,
-     # (! defined $gen_options->{'width'}
-     #  ? (width  => 600,
-     #     height => 400)
-     #  : ()),
-    );
+     -gen_options => $gen_options);
+
+  # ### ConfigSpecs: $self->ConfigSpecs
+
   if ($gui_options->{'fullscreen'}) {
-    $self->Fullscreen;
+    $self->fullscreen_toggle;
   }
   MainLoop;
   return 0;

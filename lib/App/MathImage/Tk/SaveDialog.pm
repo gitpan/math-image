@@ -27,12 +27,12 @@ use Tk::Balloon;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkSaveDialog');
 
-our $VERSION = 94;
+our $VERSION = 95;
 
 my %format_to_module = (png  => 'Tk::PNG',
                         jpeg => 'Tk::JPEG',
@@ -91,14 +91,23 @@ sub Populate {
     my $spin = $self->Spinbox
       (-values => \@values,
        -width => max(map{length} @values) + 1,
-       -command => sub {
-         my ($value, $direction) = @_;
-         $self->{'format'} = $value;
-       });
-    $spin->set('PNG');
+       -command => [ $self, '_update_format' ]);
+    my $value = $values[0];
+    $spin->set($value);
+    $self->{'format'} = $value;
     $spin->pack;
     $balloon->attach ($spin, -balloonmsg => __('The file format to save in.'));
   }
+}
+
+sub _update_format {
+  my ($self, $format, $direction) = @_;
+  ### _update_format: @_[1..$#_]
+  my $old_format = $self->{'format'};
+  $self->{'format'} = $format;
+
+  # crib: Tk::Entry magically notices textvariable changes
+  $self->{'filename'} =~ s/\.\L$old_format$/.\L$format/;
 }
 
 sub save {
@@ -107,21 +116,28 @@ sub save {
   my $filename = $self->{'filename'};
   ### $filename
   if ($filename =~ /^\s*$/) {
+    ### whitespace only ...
+    $self->Subwidget('label')->configure(-text => __('No filename given'));
     $self->bell;
     return;
   }
+
   my $result;
   if (eval {
     my $photo = $drawing->cget('-image') || die "Oops, no photo in drawing";
-    my $format = 'png';
+    my $format = $self->{'format'};
     if (my $module = $format_to_module{lc($format)}) {
       Module::Load::load($module);
     }
+    ### $format
     $photo->write ($filename, -format => $format);
     1;
   }) {
-    $result = __('Save Ok');
+    $self->withdraw;
+    return;
+    # $result = __('Save Ok');
   } else {
+    $self->bell;
     $result = __x('Error {message}', message => $@);
   }
   $self->Subwidget('label')->configure(-text => $result);

@@ -24,12 +24,12 @@ use Scalar::Util 'refaddr';
 use Image::Base::Tk::Photo;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 94;
+our $VERSION = 95;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -43,23 +43,28 @@ sub ClassInit {
 sub Populate {
   my ($self, $args) = @_;
   ### Drawing Populate(): $args
-  %$args = (-background => 'black',
-            -foreground => 'white',
-            -activebackground => 'black',
-            -activeforeground => 'white',
+  %$args = (-background         => 'black',
+            -foreground         => 'white',
+            -activebackground   => 'black',
+            -activeforeground   => 'white',
             -disabledforeground => 'white',
-            -borderwidth => 0, # default
-            -width => 1,  # desired size, any size, not from -image
-            -height => 1,
+            -borderwidth        => 0, # default
+
+            # must initial -image so that Tk::Label -width and -height are
+            # interpreted as pixels, not lines/columns
+            -image => $self->Photo (-width => 1, -height => 1),
+            -width              => 1, # desired size, any size, not from -image
+            -height             => 1,
+
             %$args,
            );
   $self->SUPER::Populate($args);
-  $self->configure(-background => 'black',
-                   -foreground => 'white',
-                   -activebackground => 'black',
-                   -activeforeground => 'white',
-                   -disabledforeground => 'white',
-                  );
+  # $self->configure(-background         => 'black',
+  #                  -foreground         => 'white',
+  #                  -activebackground   => 'black',
+  #                  -activeforeground   => 'white',
+  #                  -disabledforeground => 'white',
+  #                 );
   ### background: $self->cget('-background')
   ### borderwidth: $self->cget('-borderwidth')
   $self->{'dirty'} = 1;
@@ -109,7 +114,10 @@ sub _do_expose {
   my $height = $self->height - 2*$borderwidth;
 
   my $photo = $self->cget('-image');
-  if (! $photo) {
+  if ($photo) {
+    $photo->configure(-width => $width,
+                      -height => $height);
+  } else {
     $photo = $self->Photo (-width => $width, -height => $height);
     $self->configure (-image => $photo);
   }
@@ -127,7 +135,9 @@ sub _update_draw_steps {
   ### _update_draw_steps() some ...
   if ($gen->draw_Image_steps) {
     ### _update_draw_steps() more ...
-    $self->{'draw_id'} = $self->after(20,sub { _update_draw_steps($self,$gen,$photo) });
+    $self->{'draw_id'} = $self->after(20, sub {
+                                        _update_draw_steps($self,$gen,$photo);
+                                      });
   } else {
     ### _update_draw_steps() finished
     $self->configure (-cursor => undef);

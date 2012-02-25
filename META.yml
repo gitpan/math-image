@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            94
+version:            95
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -119,6 +119,7 @@ optional_features:
     for_x11:
         description:  Things for native X through X11::Protocol.
         requires:
+            Image::Base::X11::Protocol::Drawable:  13
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             X11::AtomConstants:   2
@@ -150,7 +151,7 @@ optional_features:
             Gtk2::Ex::PodViewer:  0
             Gtk2::Ex::QuadButton:  0
             Gtk::Ex::Statusbar::MessageUntilKey:  0
-            Image::Base::GD:      14
+            Image::Base::GD:      15
             Image::Base::Gtk::Gdk::Pixmap:  0
             Image::Base::Gtk::Gdk::Window:  0
             Image::Base::Imager:  0
@@ -159,7 +160,8 @@ optional_features:
             Image::Base::Prima:   1
             Image::Base::SVG:     3
             Image::Base::SVGout:  7
-            Image::Base::Tk::Photo:  3
+            Image::Base::Tk::Photo:  4
+            Image::Base::X11::Protocol::Drawable:  13
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
             Image::Xpm:           0
@@ -212,20 +214,20 @@ optional_features:
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
-            Math::NumSeq::OEIS:   33
+            Math::NumSeq::OEIS:   35
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   29
             Math::NumSeq::Perrin:  29
-            Math::NumSeq::PlanePathCoord:  54
+            Math::NumSeq::PlanePathCoord:  71
             Math::NumSeq::PlanePathDelta:  58
-            Math::NumSeq::PlanePathN:  63
-            Math::NumSeq::PlanePathTurn:  69
+            Math::NumSeq::PlanePathN:  71
+            Math::NumSeq::PlanePathTurn:  71
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
             Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  32
-            Math::NumSeq::Primes:  4
+            Math::NumSeq::Primes:  29
             Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
@@ -254,7 +256,7 @@ optional_features:
             Math::NumSeq::TotientSteps:  13
             Math::NumSeq::Triangular:  25
             Math::NumSeq::Tribonacci:  29
-            Math::NumSeq::TwinPrimes:  4
+            Math::NumSeq::TwinPrimes:  35
             Math::NumSeq::UlamSequence:  29
             Math::NumSeq::UndulatingNumbers:  34
             Math::NumSeq::WoodallNumbers:  29
@@ -290,6 +292,7 @@ optional_features:
             Math::PlanePath::FactorRationals:  61
             Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
+            Math::PlanePath::FilledRings:  71
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::FractionsTree:  62
@@ -417,20 +420,20 @@ optional_features:
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
-            Math::NumSeq::OEIS:   33
+            Math::NumSeq::OEIS:   35
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   29
             Math::NumSeq::Perrin:  29
-            Math::NumSeq::PlanePathCoord:  54
+            Math::NumSeq::PlanePathCoord:  71
             Math::NumSeq::PlanePathDelta:  58
-            Math::NumSeq::PlanePathN:  63
-            Math::NumSeq::PlanePathTurn:  69
+            Math::NumSeq::PlanePathN:  71
+            Math::NumSeq::PlanePathTurn:  71
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
             Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  32
-            Math::NumSeq::Primes:  4
+            Math::NumSeq::Primes:  29
             Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  1
@@ -459,7 +462,7 @@ optional_features:
             Math::NumSeq::TotientSteps:  13
             Math::NumSeq::Triangular:  25
             Math::NumSeq::Tribonacci:  29
-            Math::NumSeq::TwinPrimes:  4
+            Math::NumSeq::TwinPrimes:  35
             Math::NumSeq::UlamSequence:  29
             Math::NumSeq::UndulatingNumbers:  34
             Math::NumSeq::WoodallNumbers:  29
@@ -498,6 +501,7 @@ optional_features:
             Math::PlanePath::FactorRationals:  61
             Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
+            Math::PlanePath::FilledRings:  71
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::FractionsTree:  62
@@ -579,7 +583,7 @@ optional_features:
             Tk::Pod:   0
             Tk::TIFF:  0
         requires:
-            Image::Base::Tk::Photo:  3
+            Image::Base::Tk::Photo:  4
             Tk::Balloon:          0
             Tk::MainWindow:       0
 recommends:
@@ -588,6 +592,7 @@ recommends:
     Gtk2::Ex::ErrorTextDialog::Handler:  7
     Gtk2::Ex::PodViewer:  0
     Gtk2::Ex::QuadButton:  0
+    Image::Base::X11::Protocol::Drawable:  13
     Image::Base::X11::Protocol::Pixmap:  0
     Image::Base::X11::Protocol::Window:  0
     Image::Xpm:           0
@@ -640,20 +645,20 @@ recommends:
     Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
-    Math::NumSeq::OEIS:   33
+    Math::NumSeq::OEIS:   35
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Pell:   29
     Math::NumSeq::Perrin:  29
-    Math::NumSeq::PlanePathCoord:  54
+    Math::NumSeq::PlanePathCoord:  71
     Math::NumSeq::PlanePathDelta:  58
-    Math::NumSeq::PlanePathN:  63
-    Math::NumSeq::PlanePathTurn:  69
+    Math::NumSeq::PlanePathN:  71
+    Math::NumSeq::PlanePathTurn:  71
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
     Math::NumSeq::Powerful:  26
     Math::NumSeq::PowerPart:  28
     Math::NumSeq::PrimeFactorCount:  32
-    Math::NumSeq::Primes:  4
+    Math::NumSeq::Primes:  29
     Math::NumSeq::Primorials:  29
     Math::NumSeq::Pronic:  1
     Math::NumSeq::ProthNumbers:  1
@@ -682,7 +687,7 @@ recommends:
     Math::NumSeq::TotientSteps:  13
     Math::NumSeq::Triangular:  25
     Math::NumSeq::Tribonacci:  29
-    Math::NumSeq::TwinPrimes:  4
+    Math::NumSeq::TwinPrimes:  35
     Math::NumSeq::UlamSequence:  29
     Math::NumSeq::UndulatingNumbers:  34
     Math::NumSeq::WoodallNumbers:  29
@@ -718,6 +723,7 @@ recommends:
     Math::PlanePath::FactorRationals:  61
     Math::PlanePath::FibonacciWordFractal:  53
     Math::PlanePath::File:  37
+    Math::PlanePath::FilledRings:  71
     Math::PlanePath::Flowsnake:  55
     Math::PlanePath::FlowsnakeCentres:  38
     Math::PlanePath::FractionsTree:  62

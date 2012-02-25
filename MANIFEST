@@ -146,6 +146,7 @@ lib/Math/NumSeq/MathImageLoeschian.pm
 lib/Math/NumSeq/MathImagePadovan.pm
 lib/Math/NumSeq/MathImagePiBits.pm
 lib/Math/NumSeq/MathImagePiDigits.pm
+lib/Math/NumSeq/MathImagePierpontPrimes.pm
 lib/Math/NumSeq/MathImagePrimeIndexCount.pm
 lib/Math/NumSeq/MathImagePrimeIndexPrimes.pm
 lib/Math/NumSeq/MathImagePrimeQuadraticEuler.pm
@@ -159,7 +160,6 @@ lib/Math/NumSeq/MathImageSumXsq3Ysq.pm
 lib/Math/PlanePath/MathImageCCurve.pm
 lib/Math/PlanePath/MathImageDekkingCurve.pm
 lib/Math/PlanePath/MathImageDekkingStraight.pm
-lib/Math/PlanePath/MathImageFilledRings.pm
 lib/Math/PlanePath/MathImageGrayCode.pm
 lib/Math/PlanePath/MathImageMooreSpiral.pm
 lib/Math/PlanePath/MathImagePeanoHalf.pm
@@ -173,7 +173,6 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 math-image
 SIGNATURE
-t/FilledRings.t
 t/GdkColorBits.t
 t/Generator.t
 t/GrayCode.t
@@ -209,6 +208,7 @@ xtools/my-deb.sh
 xtools/my-diff-prev.sh
 xtools/my-kwalitee.sh
 xtools/my-manifest.sh
+xtools/my-pc.sh
 xtools/my-tags.sh
 xtools/my-wunused.sh
 META.yml                                 Module meta-data (added by MakeMaker)

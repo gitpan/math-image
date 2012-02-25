@@ -36,6 +36,7 @@ my %for_x11 = ('X11::Protocol' => 0,
                'X11::Protocol::XSetRoot' => 3,  # new in v.3
                'X11::AtomConstants'      => 2,  # new in v.2
                # my Image-Base-X11-Protocol
+               'Image::Base::X11::Protocol::Drawable' => 13, # v.13 clipping
                'Image::Base::X11::Protocol::Pixmap' => 0,
                'Image::Base::X11::Protocol::Window' => 0,
               );
@@ -53,7 +54,7 @@ my %tk_interface = (# main Perl-Tk of whatever new enough version
                     'Tk::Balloon' => 0,
 
                     # my Image-Base-Tk
-                    'Image::Base::Tk::Photo' => 3, # v.3 clip 0,0,width,height
+                    'Image::Base::Tk::Photo' => 4, # v.4 clip fixes
                    );
 my %tk_optionals = (# main Perl-Tk of whatever new enough version
                     'Tk::PNG' => 0,
@@ -77,6 +78,7 @@ my %maximum_planepath
      'Math::PlanePath::ArchimedeanChords'    => 23, # new in v.23
      'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
      'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
+     'Math::PlanePath::FilledRings'          => 71, # new in v.71
      'Math::PlanePath::Hypot'                => 21, # new in v.21
      'Math::PlanePath::HypotOctant'          => 21, # new in v.21
      'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
@@ -197,12 +199,12 @@ my %maximum_numseq
      'Math::NumSeq::AllDigits'   => 25, # v.25 for BigInt ith()
      'Math::NumSeq::Runs'        => 34, # new in v.34
 
-     'Math::NumSeq::Primes'              => 4, # new in v.4
-     'Math::NumSeq::TwinPrimes'          => 4, # new in v.4
-     'Math::NumSeq::SophieGermainPrimes' => 4, # new in v.4
+     'Math::NumSeq::Primes'              => 29, # v.29 value_to_i_estimate()
+     'Math::NumSeq::TwinPrimes'          => 35, # v.35 value_to_i_estimate()
+     'Math::NumSeq::SophieGermainPrimes' => 4,  # new in v.4
      'Math::NumSeq::AlmostPrimes'        => 14, # new in v.14
-     'Math::NumSeq::Emirps'              => 4, # new in v.4
-     'Math::NumSeq::MobiusFunction'      => 6, # new in v.6
+     'Math::NumSeq::Emirps'              => 4,  # new in v.4
+     'Math::NumSeq::MobiusFunction'      => 6,  # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
      'Math::NumSeq::PrimeFactorCount'    => 32, # v.32 prime_type choices
      'Math::NumSeq::GoldbachCount'       => 33, # new in v.33
@@ -276,7 +278,7 @@ my %maximum_numseq
      'Math::NumSeq::HofstadterFigure' => 34, # new in v.34
 
      'Math::NumSeq::File'       => 1,
-     'Math::NumSeq::OEIS'       => 33, # v.33 utf8 and entities
+     'Math::NumSeq::OEIS'       => 35, # v.35 progressive reading
      'Math::NumSeq::Expression' => 20, # v.20 workaround Safe.pm
 
      # in Math-Aronson
@@ -284,10 +286,10 @@ my %maximum_numseq
      'Math::NumSeq::Aronson' => 6, # new in v.6
 
      # in Math-PlanePath
-     'Math::NumSeq::PlanePathCoord' => 54, # v.54 "Diff" choice
+     'Math::NumSeq::PlanePathCoord' => 71, # v.71 misc range fixes
      'Math::NumSeq::PlanePathDelta' => 58, # new in v.58
-     'Math::NumSeq::PlanePathTurn'  => 69, # new in v.69
-     'Math::NumSeq::PlanePathN'     => 63, # new in v.63
+     'Math::NumSeq::PlanePathTurn'  => 71, # v.71 misc range fixes
+     'Math::NumSeq::PlanePathN'     => 71, # v.71 misc range fixes
     );
 
 my %prereq_pm
@@ -491,7 +493,7 @@ WriteMakefile
                      %gtk1_interface,
 
                      'Image::Xpm'             => 0,
-                     'Image::Base::GD'        => 14, # v.14 0,0,width,height
+                     'Image::Base::GD'        => 15, # v.15 clip fixes
                      'Image::Base::Imager'    => 0,
                      'Image::Base::Magick'    => 0,
                      # v.5 ellipse() $fill

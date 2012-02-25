@@ -1,4 +1,5 @@
 # setting -file dodgy ...
+# must start from an open file ... ?
 
 
 
@@ -27,7 +28,7 @@ use Carp;
 use Image::BMP ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 
 use Image::Base;
 @ISA = ('Image::Base');
@@ -45,7 +46,7 @@ sub new {
   }
 
   if (! defined $params{'-imagebmp'}) {
-    $params{'-imagebmp'} = Image::BMP->new (Width => ($params{'-width'}||0),
+    $params{'-imagebmp'} = Image::BMP->new (Width  => ($params{'-width'}||0),
                                             Height => ($params{'-height'}||0));
   }
   my $self = bless {}, $class;

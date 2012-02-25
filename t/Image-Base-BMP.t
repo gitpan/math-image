@@ -46,7 +46,7 @@ require App::MathImage::Image::Base::BMP;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 94;
+my $want_version = 95;
 ok ($App::MathImage::Image::Base::BMP::VERSION, $want_version,
     'VERSION variable');
 ok (App::MathImage::Image::Base::BMP->VERSION, $want_version,
@@ -84,6 +84,7 @@ ok (! eval { App::MathImage::Image::Base::BMP->VERSION($check_version); 1 },
 #------------------------------------------------------------------------------
 # xy
 
+# only to an opened file
 # {
 #   my $image = App::MathImage::Image::Base::BMP->new
 #     (-width => 20,

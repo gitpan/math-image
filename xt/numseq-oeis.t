@@ -116,6 +116,7 @@ sub check_class {
   # return unless $class =~ /Loe/;
   # return unless $class =~ /Lemo/;
   # return unless $class =~ /Gold/;
+  # return unless $class =~ /Pier/;
 
 
   eval "require $class" or die;
@@ -160,6 +161,10 @@ sub check_class {
            || $anum eq 'A006450') {
     MyTestHelpers::diag ("skip primes stuff $anum");
     return;
+
+  } elsif ($anum eq 'A005109') {
+    # Pierpont primes shorten
+    @$want = grep {$_ < 1_000_000} @$want;
 
   } elsif ($anum eq 'A005384') {
     # Sophie Germain / Cunningham, shorten for now

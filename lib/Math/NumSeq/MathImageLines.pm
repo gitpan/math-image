@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
@@ -40,6 +40,7 @@ use constant parameter_info_array =>
       description => __('An N increment between line segments.  0 means the default for the path.'),
     },
     { name    => 'lines_type',
+      display => __('Lines Type'),
       type    => 'enum',
       default => 'integer',
       choices => [ 'integer','midpoint','rounded' ],
@@ -51,7 +52,7 @@ use constant parameter_info_array =>
       minimum     => 0,
       maximum     => 1.00,
       when_name   => 'lines_type',
-      when_values  => ['midpoint','rounded'],
+      when_values => ['midpoint','rounded'],
     },
   ];
 
