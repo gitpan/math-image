@@ -194,10 +194,11 @@ my %maximum_numseq
      'Math::NumSeq::Powerful'    => 26, # new in v.26
      'Math::NumSeq::PowerPart'   => 28, # new in v.28
 
-     'Math::NumSeq::Even'        => 1,
-     'Math::NumSeq::Odd'         => 1,
-     'Math::NumSeq::AllDigits'   => 25, # v.25 for BigInt ith()
-     'Math::NumSeq::Runs'        => 34, # new in v.34
+     'Math::NumSeq::Even'          => 1,
+     'Math::NumSeq::Odd'           => 1,
+     'Math::NumSeq::AllDigits'     => 25, # v.25 for BigInt ith()
+     'Math::NumSeq::ConcatNumbers' => 36, # new in v.36
+     'Math::NumSeq::Runs'          => 34, # new in v.34
 
      'Math::NumSeq::Primes'              => 29, # v.29 value_to_i_estimate()
      'Math::NumSeq::TwinPrimes'          => 35, # v.35 value_to_i_estimate()
@@ -211,12 +212,14 @@ my %maximum_numseq
      'Math::NumSeq::LemoineCount'        => 33, # new in v.33
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
      'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
-     'Math::NumSeq::Totient'             => 13, # new in v.13
-     'Math::NumSeq::TotientCumulative'   => 13, # new in v.13
-     'Math::NumSeq::TotientSteps'        => 13, # new in v.13
-     'Math::NumSeq::TotientPerfect'      => 13, # new in v.13
-     'Math::NumSeq::Abundant'            => 24, # new in v.24
-     'Math::NumSeq::PolignacObstinate'   => 25, # new in v.25
+     'Math::NumSeq::Totient'             => 36, # v.36 bigger range 
+     'Math::NumSeq::TotientCumulative'   => 36, # v.36 bigger range 
+     'Math::NumSeq::TotientSteps'        => 36, # v.36 bigger range 
+     'Math::NumSeq::TotientPerfect'      => 36, # v.36 bigger range 
+     'Math::NumSeq::DedekindPsiCumulative' => 36, # new in v.36
+     'Math::NumSeq::DedekindPsiSteps'      => 36, # new in v.36
+     'Math::NumSeq::Abundant'              => 24, # new in v.24
+     'Math::NumSeq::PolignacObstinate'     => 25, # new in v.25
 
      'Math::NumSeq::Factorials'    => 29, # v.29 i_estimate
      'Math::NumSeq::Primorials'    => 29, # v.29 i_estimate
@@ -224,7 +227,7 @@ my %maximum_numseq
      'Math::NumSeq::LucasNumbers'  => 29, # v.29 BigInt fix + i_estimate
      'Math::NumSeq::Fibbinary'         => 15, # v.15 faster next()
      'Math::NumSeq::FibbinaryBitCount' => 18, # new in v.18
-     'Math::NumSeq::FibonacciWord' => 15, # new in v.15
+     'Math::NumSeq::FibonacciWord' => 36, # v.36 "dense" option
      'Math::NumSeq::Pell'          => 29, # v.29 i_estimate
      'Math::NumSeq::Tribonacci'    => 29, # v.29 i_estimate
      'Math::NumSeq::Perrin'        => 29, # v.29 i_estimate
@@ -288,7 +291,7 @@ my %maximum_numseq
      # in Math-PlanePath
      'Math::NumSeq::PlanePathCoord' => 71, # v.71 misc range fixes
      'Math::NumSeq::PlanePathDelta' => 58, # new in v.58
-     'Math::NumSeq::PlanePathTurn'  => 71, # v.71 misc range fixes
+     'Math::NumSeq::PlanePathTurn'  => 72, # v.72 turn_type "Right"
      'Math::NumSeq::PlanePathN'     => 71, # v.71 misc range fixes
     );
 
@@ -412,7 +415,6 @@ my %prereq_pm
      'Math::NumSeq::Base::Sparse',1,
      'Math::NumSeq::Primes',4,  # v.4 _prime_list()
      'Math::NumSeq::DigitCount',4, # for ReplicateDigits
-     'Math::NumSeq::NumAronson',8, # for ConcatNumbers
      'Math::NumSeq::Kolakoski',13, # for KolakoskiGroups
     );
 

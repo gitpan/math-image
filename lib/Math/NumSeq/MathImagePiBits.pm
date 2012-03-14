@@ -21,7 +21,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -39,20 +39,34 @@ use constant characteristic_increasing => 1;
 # A068436 to A068440 - base 11 to 15
 # A062964 - base 16
 sub new {
-  my ($class, %options) = @_;
-  my $file = $options{'file'} || 'pi';
-
-  require Compress::Zlib;
-  my $dirname = List::Util::first {-e "$_/App/MathImage/$file.gz"} @INC
-    or croak "Oops, $file.gz not found";
-  my $gz = Compress::Zlib::gzopen("$dirname/App/MathImage/$file.gz", "r");
-
-  return bless { gz => $gz,
-                 n  => 0,
-                 i  => 0,
-                 buf => '',
-               }, $class;
+  my $self = shift->SUPER::new (file => 'pi', # default
+                                @_);
+  _open_fh($self);  # check file exists
+  return $self;
 }
+
+sub _open_fh {
+  my ($self) = @_;
+  require Compress::Zlib;
+  my $basename = $self->{'file'};
+  foreach my $dir (@INC) {
+    if (my $fh = Compress::Zlib::gzopen("$dir/App/MathImage/$basename.gz", "r")) {
+      return $fh;
+    }
+  }
+  croak "Oops, $basename.gz not found";
+}
+
+sub rewind {
+  my ($self) = @_;
+  $self->{'buf'} = '';
+  $self->{'i'} = 0;
+  $self->{'n'} = 0;
+
+  # gzseek() won't go backwards ...
+  $self->{'gz'} = _open_fh($self);
+}
+
 sub next {
   my ($self) = @_;
 

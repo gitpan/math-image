@@ -117,6 +117,7 @@ sub check_class {
   # return unless $class =~ /Lemo/;
   # return unless $class =~ /Gold/;
   # return unless $class =~ /Pier/;
+  return unless $class =~ /Delet/;
 
 
   eval "require $class" or die;
@@ -441,6 +442,5 @@ foreach my $info (@$aref) {
 }
 
 MyTestHelpers::diag ("total checks $total_checks");
-$good = 1;
 ok ($good);
 exit 0;

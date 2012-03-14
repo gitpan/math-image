@@ -19,6 +19,7 @@
 # rootwin for ewmh virtual root ?
 # listen for randr root size ?
 
+
 package App::MathImage::X11::Protocol::Splash;
 use 5.004;
 use strict;
@@ -28,7 +29,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 95;
+$VERSION = 96;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

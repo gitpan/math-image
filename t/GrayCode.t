@@ -36,7 +36,7 @@ use Math::PlanePath::MathImageGrayCode;
 # VERSION
 
 {
-  my $want_version = 95;
+  my $want_version = 96;
   ok ($Math::PlanePath::MathImageGrayCode::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MathImageGrayCode->VERSION,  $want_version,

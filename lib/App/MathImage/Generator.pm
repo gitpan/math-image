@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 95;
+$VERSION = 96;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -103,6 +103,7 @@ use constant::defer values_choices => sub {
                          TwinPrimes
                          SophieGermainPrimes
                          SafePrimes
+                         MathImageDeletablePrimes
                          AlmostPrimes
                          Emirps
                          DivisorCount
@@ -115,6 +116,8 @@ use constant::defer values_choices => sub {
                          TotientSteps
                          TotientStepsSum
                          TotientPerfect
+                         DedekindPsiCumulative
+                         DedekindPsiSteps
                          Abundant
                          PolignacObstinate
 
@@ -132,6 +135,7 @@ use constant::defer values_choices => sub {
                          Even
                          All
                          AllDigits
+                         ConcatNumbers
                          Runs
 
                          Fibonacci
@@ -312,7 +316,7 @@ my %pathname_square_grid
                      MPeaks
 
                      PixelRings
-                     MathImageFilledRings
+                     FilledRings
                      Hypot
                      HypotOctant
                      TriangularHypot
@@ -330,6 +334,7 @@ my %pathname_square_grid
                      HilbertMidpoint
                      HilbertSpiral
                      ZOrderCurve
+                     MathImageGrayCode
                      WunderlichMeander
                      MathImageWunderlichSerpentine
                      BetaOmega
@@ -513,7 +518,7 @@ use constant::defer path_choices_array => sub {
                            ArchimedeanChords
                            MultipleRings
                            PixelRings
-                           MathImageFilledRings
+                           FilledRings
                            Hypot
                            HypotOctant
                            TriangularHypot
@@ -561,6 +566,7 @@ use constant::defer path_choices_array => sub {
                            HilbertMidpoint
                            HilbertSpiral
                            ZOrderCurve
+                           MathImageGrayCode
                            WunderlichMeander
                            MathImageWunderlichSerpentine
                            BetaOmega
@@ -1089,9 +1095,9 @@ sub colours_exp_shrink {
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
   } elsif ($self->{'values'} eq 'RepdigitRadix') {
-    $shrink = .9;
+    $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'SqrtContfracPeriod') {
-    $shrink = .93;
+    $shrink = 1 - 1/14;
   } elsif ($self->{'values'} eq 'CunninghamChain') {
     $shrink = .7;
   } elsif ($self->{'values'} eq 'TotientSteps') {
@@ -1116,6 +1122,8 @@ sub colours_exp_shrink {
     }
   } elsif ($self->{'values'} eq 'GolombSequence') {
     $shrink = 1 - 1/400;
+  } elsif ($self->{'values'} eq 'MathImageErdosSelfridgeClass') {
+    $shrink = .8;
   } elsif ($self->{'values'} eq 'HappySteps') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'DigitProduct') {

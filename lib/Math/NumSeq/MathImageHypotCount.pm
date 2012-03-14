@@ -21,7 +21,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -33,15 +33,15 @@ use Math::Factor::XS 'prime_factors';
 #use Smart::Comments;
 
 use constant name => Math::NumSeq::__('Count Hypotenuses');
-use constant description => Math::NumSeq::__('Count of how many ways a given N = A^2+B^2 occurs, for integer A,B >=0 (and no swaps, so B<=A).');
+use constant description => Math::NumSeq::__('Count of how many ways a given N = X^2+Y^2 occurs for integer X,Y >=0.');
 use constant i_start => 0;
 use constant characteristic_count => 1;
 use constant characteristic_increasing => 0;
 use constant values_min => 0;
 
 # cf A002654 num ways nonzero squares with ordered a,b
-#    A001481 numbers which have at least one rep
 #    A000161 num ways squares with zeros without distingishing order
+#    A001481 numbers which have at least one rep
 #
 use constant oeis_anum => 'A000161'; # with zeros without order
 

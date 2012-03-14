@@ -1,4 +1,6 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+#!/usr/bin/perl -w
+
+# Copyright 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,32 +17,28 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package Math::NumSeq::MathImageLn2Bits;
-use 5.004;
+use 5.010;
 use strict;
+use warnings;
 
-use Math::NumSeq;
-use base 'Math::NumSeq::MathImagePiBits';
+use Smart::Comments;
 
-use vars '$VERSION';
-$VERSION = 96;
 
-use constant name => Math::NumSeq::__('Log(2) Bits');
-use constant description => Math::NumSeq::__('Natural log(2), being 0.693147..., written out in binary.');
-use constant values_min => 0;
-use constant characteristic_increasing => 1;
+{
+  require Compress::Zlib;
+  my $fh = Compress::Zlib::gzopen("lib/App/MathImage/pi.gz", "r")
+    || die;
+  $fh->gzseek (0,
+               0)  # SEEK_SET
+    or die "cannot seek";
 
-# A002391 - log3 decimal
+  $fh->gzseek (2,
+               0)  # SEEK_SET
+    or die "cannot seek";
 
-# log(2) = Sum_{ k >= 1 } 1/(k*2^k) = Sum_{j >= 1} (-1)^(j+1)/j
-# 'A002162' # 10
-# A016730 continued fraction
+  $fh->gzseek (0,
+               0)  # SEEK_SET
+    or die "cannot seek";
 
-sub new {
-  my $class = shift;
-  return $class->SUPER::new (file => 'ln2', @_);
+  exit 0;
 }
-
-1;
-__END__
-

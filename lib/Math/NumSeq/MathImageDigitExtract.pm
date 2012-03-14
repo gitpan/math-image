@@ -32,7 +32,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 
 use Math::NumSeq::Base::IterateIth;
 use Math::NumSeq::Base::Digits;
@@ -327,6 +327,8 @@ Math::NumSeq::MathImageDigitExtract -- one of the digits of integers 0 upwards
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
+
+I<In progress ...>
 
 Extract one of the digits from the index i.  C<extract_type> (a string) can
 be

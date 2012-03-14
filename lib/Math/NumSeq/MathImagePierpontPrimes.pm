@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
@@ -34,10 +34,28 @@ use Math::NumSeq::Primes;
 #use Smart::Comments;
 
 
-use constant description => Math::NumSeq::__('Pierpont primes 2^x*3^y+1.');
+use constant description => Math::NumSeq::__('Pierpont primes 2^x*3^y + 1.');
 use constant i_start => 1;
 use constant characteristic_increasing => 1;
 use constant values_min => 2;
+
+use constant parameter_info_array =>
+  [
+   { name    => 'offset',
+     display => Math::NumSeq::__('Offset'),
+     type    => 'integer',
+     default => '1',
+     width   => 3,
+     description => Math::NumSeq::__('Offset from 2^x*3^y.'),
+   },
+  ];
+
+# cf A122258 - num pierpont primes to n
+#    A122257 - 0/1 according to n pierpont prime or not
+#    A122260 - products of pierpont primes, multiplicative closure
+#    A005105 - primes 2^x*3^y - 1
+#    A069353 - all    2^i*3^j - 1
+
 use constant oeis_anum => 'A005109';
 
 sub rewind {
@@ -49,21 +67,24 @@ sub rewind {
 sub next {
   my ($self) = @_;
 
+  if ($self->{'offset'} == 2) {
+    return;
+  }
+
   my $aseq = $self->{'pierpont_aseq'};
   my $ahead = 0;
   for (;;) {
     (undef, my $prime) = $self->SUPER::next
       or return;
 
-    if (_is_2x3y_plus_1($prime)) {
+    if (_is_2x3y($prime - $self->{'offset'})) {
       return (++$self->{'pierpont_i'}, $prime);
     }
   }
 }
 
-sub _is_2x3y_plus_1 {
+sub _is_2x3y {
   my ($value) = @_;
-  $value -= 1;
   until ($value % 2) {
     $value = int($value/2);
   }
@@ -76,13 +97,12 @@ sub _is_2x3y_plus_1 {
 sub pred {
   my ($self, $value) = @_;
 
-  unless ($value >= 2
-          && $value == int($value)
-          && ! _is_infinite($value)
-          && _is_2x3y_plus_1($value)) {
-    return 0;
-  }
-  return $self->SUPER::pred($value);
+  my $vr = $value - $self->{'offset'};
+  return ($vr > 0
+          && $vr == int($vr)
+          && ! _is_infinite($vr)
+          && _is_2x3y($vr)
+          && $self->SUPER::pred($value));
 }
 
 sub can {
@@ -110,7 +130,8 @@ Math::NumSeq::PierpontPrimes -- Pierpont primes
 
 =head1 DESCRIPTION
 
-The pierpont primes, being primes of the form 2^x*3^y+1 for some x,y,
+The Pierpont primes, being primes of the form 2^x*3^y+1 for some integer
+x,y,
 
     2, 3, 5, 7, 13, 17, 19, 37, 73, 97, 109, etc
 

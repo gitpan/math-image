@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            95
+version:            96
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -73,7 +73,6 @@ requires:
     Math::NumSeq::DigitCount:  4
     Math::NumSeq::Even:   1
     Math::NumSeq::Kolakoski:  13
-    Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
     Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::Primes:  4
@@ -177,8 +176,11 @@ optional_features:
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
+            Math::NumSeq::ConcatNumbers:  36
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  29
+            Math::NumSeq::DedekindPsiCumulative:  36
+            Math::NumSeq::DedekindPsiSteps:  36
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
             Math::NumSeq::DigitCountLow:  16
@@ -195,7 +197,7 @@ optional_features:
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
             Math::NumSeq::Fibonacci:  29
-            Math::NumSeq::FibonacciWord:  15
+            Math::NumSeq::FibonacciWord:  36
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::GoldbachCount:  33
@@ -221,7 +223,7 @@ optional_features:
             Math::NumSeq::PlanePathCoord:  71
             Math::NumSeq::PlanePathDelta:  58
             Math::NumSeq::PlanePathN:  71
-            Math::NumSeq::PlanePathTurn:  71
+            Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
@@ -250,10 +252,10 @@ optional_features:
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
-            Math::NumSeq::Totient:  13
-            Math::NumSeq::TotientCumulative:  13
-            Math::NumSeq::TotientPerfect:  13
-            Math::NumSeq::TotientSteps:  13
+            Math::NumSeq::Totient:  36
+            Math::NumSeq::TotientCumulative:  36
+            Math::NumSeq::TotientPerfect:  36
+            Math::NumSeq::TotientSteps:  36
             Math::NumSeq::Triangular:  25
             Math::NumSeq::Tribonacci:  29
             Math::NumSeq::TwinPrimes:  35
@@ -383,8 +385,11 @@ optional_features:
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
+            Math::NumSeq::ConcatNumbers:  36
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  29
+            Math::NumSeq::DedekindPsiCumulative:  36
+            Math::NumSeq::DedekindPsiSteps:  36
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
             Math::NumSeq::DigitCountLow:  16
@@ -401,7 +406,7 @@ optional_features:
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
             Math::NumSeq::Fibonacci:  29
-            Math::NumSeq::FibonacciWord:  15
+            Math::NumSeq::FibonacciWord:  36
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  1
             Math::NumSeq::GoldbachCount:  33
@@ -427,7 +432,7 @@ optional_features:
             Math::NumSeq::PlanePathCoord:  71
             Math::NumSeq::PlanePathDelta:  58
             Math::NumSeq::PlanePathN:  71
-            Math::NumSeq::PlanePathTurn:  71
+            Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
             Math::NumSeq::Powerful:  26
@@ -456,10 +461,10 @@ optional_features:
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
             Math::NumSeq::Tetrahedral:  1
-            Math::NumSeq::Totient:  13
-            Math::NumSeq::TotientCumulative:  13
-            Math::NumSeq::TotientPerfect:  13
-            Math::NumSeq::TotientSteps:  13
+            Math::NumSeq::Totient:  36
+            Math::NumSeq::TotientCumulative:  36
+            Math::NumSeq::TotientPerfect:  36
+            Math::NumSeq::TotientSteps:  36
             Math::NumSeq::Triangular:  25
             Math::NumSeq::Tribonacci:  29
             Math::NumSeq::TwinPrimes:  35
@@ -608,8 +613,11 @@ recommends:
     Math::NumSeq::BaumSweet:  10
     Math::NumSeq::Beastly:  1
     Math::NumSeq::CollatzSteps:  1
+    Math::NumSeq::ConcatNumbers:  36
     Math::NumSeq::Cubes:  1
     Math::NumSeq::CullenNumbers:  29
+    Math::NumSeq::DedekindPsiCumulative:  36
+    Math::NumSeq::DedekindPsiSteps:  36
     Math::NumSeq::DigitCount:  13
     Math::NumSeq::DigitCountHigh:  16
     Math::NumSeq::DigitCountLow:  16
@@ -626,7 +634,7 @@ recommends:
     Math::NumSeq::Fibbinary:  15
     Math::NumSeq::FibbinaryBitCount:  18
     Math::NumSeq::Fibonacci:  29
-    Math::NumSeq::FibonacciWord:  15
+    Math::NumSeq::FibonacciWord:  36
     Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  1
     Math::NumSeq::GoldbachCount:  33
@@ -652,7 +660,7 @@ recommends:
     Math::NumSeq::PlanePathCoord:  71
     Math::NumSeq::PlanePathDelta:  58
     Math::NumSeq::PlanePathN:  71
-    Math::NumSeq::PlanePathTurn:  71
+    Math::NumSeq::PlanePathTurn:  72
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
     Math::NumSeq::Powerful:  26
@@ -681,10 +689,10 @@ recommends:
     Math::NumSeq::StarNumbers:  1
     Math::NumSeq::SternDiatomic:  4
     Math::NumSeq::Tetrahedral:  1
-    Math::NumSeq::Totient:  13
-    Math::NumSeq::TotientCumulative:  13
-    Math::NumSeq::TotientPerfect:  13
-    Math::NumSeq::TotientSteps:  13
+    Math::NumSeq::Totient:  36
+    Math::NumSeq::TotientCumulative:  36
+    Math::NumSeq::TotientPerfect:  36
+    Math::NumSeq::TotientSteps:  36
     Math::NumSeq::Triangular:  25
     Math::NumSeq::Tribonacci:  29
     Math::NumSeq::TwinPrimes:  35

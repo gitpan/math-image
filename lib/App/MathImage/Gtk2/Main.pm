@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 #use Smart::Comments;
 
 
-our $VERSION = 95;
+our $VERSION = 96;
 
 use Glib::Object::Subclass
   'Gtk2::Window',

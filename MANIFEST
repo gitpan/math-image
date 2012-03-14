@@ -21,6 +21,7 @@ devel/gen-bits.pl
 devel/Gtk1-Main-weaken.t
 devel/gtk1.pl
 devel/Gtk2-Main-weaken.t
+devel/gzseek.pl
 devel/heatmap.pl
 devel/inverse.pl
 devel/Makefile
@@ -131,10 +132,11 @@ lib/Math/NumSeq/Base/MathImageFileWriter.pm
 lib/Math/NumSeq/Derived/MathImageCumulative.pm
 lib/Math/NumSeq/MathImageAbsCubicDiff.pm
 lib/Math/NumSeq/MathImageBinaryUndulants.pm
-lib/Math/NumSeq/MathImageConcatNumbers.pm
 lib/Math/NumSeq/MathImageCunninghamChain.pm
 lib/Math/NumSeq/MathImageCunninghamPrimes.pm
+lib/Math/NumSeq/MathImageDeletablePrimes.pm
 lib/Math/NumSeq/MathImageDigitExtract.pm
+lib/Math/NumSeq/MathImageErdosSelfridgeClass.pm
 lib/Math/NumSeq/MathImageGolayRudinShapiro.pm
 lib/Math/NumSeq/MathImageHypotCount.pm
 lib/Math/NumSeq/MathImageKolakoskiGroups.pm
@@ -173,6 +175,7 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 math-image
 SIGNATURE
+t/DeletablePrimes.t
 t/GdkColorBits.t
 t/Generator.t
 t/GrayCode.t
@@ -200,6 +203,7 @@ xt/0-Test-ConsistentVersion.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-YAML-Meta.t
+xt/DeletablePrimes-oeis.t
 xt/MyOEIS.pm
 xt/numseq-oeis.t
 xtools/my-check-copyright-years.sh

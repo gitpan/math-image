@@ -24,7 +24,7 @@ use File::Temp;
 use Math::NumSeq::Base::MathImageFile;
 
 use vars '$VERSION';
-$VERSION = 95;
+$VERSION = 96;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

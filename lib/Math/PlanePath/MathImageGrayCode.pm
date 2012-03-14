@@ -31,6 +31,7 @@
 # A006068 gray code inverse, in decimal
 # A003188 gray code, in decimal
 # A014550 gray code, in binary
+# A039963 period doubling morphism, gray N left turns (and LSR)
 
 
 package Math::PlanePath::MathImageGrayCode;
@@ -38,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

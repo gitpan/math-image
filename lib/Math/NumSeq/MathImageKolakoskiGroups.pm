@@ -1,3 +1,8 @@
+# median ?
+
+
+
+
 # Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -21,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -50,14 +55,16 @@ use constant parameter_info_array =>
      type      => 'integer',
      default   => '3',
      minimum   => 1,
-     description => Math::NumSeq::__('Group size for majority.'),
+     description => Math::NumSeq::__('Group length for majority.'),
    },
   ];
+
+#------------------------------------------------------------------------------
 
 my @oeis_anum;
 $oeis_anum[7] = 'A074295';
 # OEIS-Catalogue: A074295 length=7
-#
+
 # A074292 - groups 3, but starts n=0
 # A074293 - groups 5, but starts n=0
 # # $oeis_anum[3] = 'A074292';
@@ -65,12 +72,13 @@ $oeis_anum[7] = 'A074295';
 # # OEIS-Catalogue: A074292
 # # OEIS-Catalogue: A074293 length=5
 
-
 sub oeis_anum {
   my ($self) = @_;
   ### $self
   return $oeis_anum[$self->{'length'}];
 }
+
+#------------------------------------------------------------------------------
 
 sub rewind {
   my ($self) = @_;
