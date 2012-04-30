@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -51,16 +51,16 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 {
   require Math::NumSeq::Tribonacci;
-  my $values_obj = Math::NumSeq::Tribonacci->new (hi => 13);
-  my @next = ( $values_obj->next,
-               $values_obj->next,
-               $values_obj->next,
-               $values_obj->next,
-               $values_obj->next,
-               $values_obj->next );
+  my $seq = Math::NumSeq::Tribonacci->new (hi => 13);
+  my @next = ( $seq->next,
+               $seq->next,
+               $seq->next,
+               $seq->next,
+               $seq->next,
+               $seq->next );
   ### @next
-  print $values_obj->pred(12),"\n";
-  ### $values_obj
+  print $seq->pred(12),"\n";
+  ### $seq
   exit 0;
 }
 
@@ -658,10 +658,10 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   my $gen = App::MathImage::Generator->new;
   my $values_class;
   $values_class = $gen->values_class('SophieGermainPrimes');
-  my $values_obj = $values_class->new (lo => 1,
+  my $seq = $values_class->new (lo => 1,
                                        hi => 19391363);
   # for (my $i = 0; $i < 10000; $i++) {
-  #   my $n = $values_obj->{'array'}->[$i];
+  #   my $n = $seq->{'array'}->[$i];
   #   print "$i $n\n";
   # }
   exit 0;

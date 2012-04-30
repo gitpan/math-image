@@ -132,7 +132,9 @@ my %maximum_planepath
      'Math::PlanePath::HilbertCurve'         => 13, # new in v.13
      'Math::PlanePath::HilbertSpiral'        => 57, # new in v.57
      'Math::PlanePath::ZOrderCurve'          => 34, # v.34 radix parameter
+     'Math::PlanePath::GrayCode'             => 73, # new in v.73
      'Math::PlanePath::WunderlichMeander'    => 54, # new in v.54
+     'Math::PlanePath::WunderlichSerpentine' => 73, # new in v.73
      'Math::PlanePath::BetaOmega'            => 54, # v.54 exact rect
      'Math::PlanePath::AR2W2Curve'           => 59, # new in v.59
      'Math::PlanePath::KochelCurve'          => 55, # new in v.55
@@ -162,6 +164,7 @@ my %maximum_planepath
      'Math::PlanePath::QuadricIslands'       => 66, # v.66 n_frac_discontinuity
 
      'Math::PlanePath::SierpinskiCurve'      => 49, # new in v.49
+     'Math::PlanePath::SierpinskiCurveStair' => 73, # new in v.73
      'Math::PlanePath::HIndexing'            => 52, # new in v.52
 
      'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
@@ -189,7 +192,7 @@ my %maximum_numseq
      'Math::NumSeq::Triangular'  => 25, # v.25 for BigInt pred()
      'Math::NumSeq::Polygonal'   => 25, # v.25 for BigInt pred()
      'Math::NumSeq::Cubes'       => 1,
-     'Math::NumSeq::Tetrahedral' => 1,
+     'Math::NumSeq::Tetrahedral' => 38, # v.38 for value_to_i_estimate()
      'Math::NumSeq::StarNumbers' => 1,
      'Math::NumSeq::Powerful'    => 26, # new in v.26
      'Math::NumSeq::PowerPart'   => 28, # new in v.28
@@ -197,13 +200,14 @@ my %maximum_numseq
      'Math::NumSeq::Even'          => 1,
      'Math::NumSeq::Odd'           => 1,
      'Math::NumSeq::AllDigits'     => 25, # v.25 for BigInt ith()
-     'Math::NumSeq::ConcatNumbers' => 36, # new in v.36
+     'Math::NumSeq::ConcatNumbers' => 38, # v.38 for value_to_i_estimate()
      'Math::NumSeq::Runs'          => 34, # new in v.34
 
      'Math::NumSeq::Primes'              => 29, # v.29 value_to_i_estimate()
      'Math::NumSeq::TwinPrimes'          => 35, # v.35 value_to_i_estimate()
      'Math::NumSeq::SophieGermainPrimes' => 4,  # new in v.4
      'Math::NumSeq::AlmostPrimes'        => 14, # new in v.14
+     'Math::NumSeq::DeletablePrimes'     => 37, # new in v.37
      'Math::NumSeq::Emirps'              => 4,  # new in v.4
      'Math::NumSeq::MobiusFunction'      => 6,  # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
@@ -211,6 +215,7 @@ my %maximum_numseq
      'Math::NumSeq::GoldbachCount'       => 33, # new in v.33
      'Math::NumSeq::LemoineCount'        => 33, # new in v.33
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
+     'Math::NumSeq::ErdosSelfridgeClass' => 38, # new in v.38
      'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
      'Math::NumSeq::Totient'             => 36, # v.36 bigger range 
      'Math::NumSeq::TotientCumulative'   => 36, # v.36 bigger range 
@@ -223,16 +228,16 @@ my %maximum_numseq
 
      'Math::NumSeq::Factorials'    => 29, # v.29 i_estimate
      'Math::NumSeq::Primorials'    => 29, # v.29 i_estimate
-     'Math::NumSeq::Fibonacci'     => 29, # v.29 i_estimate
+     'Math::NumSeq::Fibonacci'     => 38, # v.38 ith() by powering
      'Math::NumSeq::LucasNumbers'  => 29, # v.29 BigInt fix + i_estimate
      'Math::NumSeq::Fibbinary'         => 15, # v.15 faster next()
      'Math::NumSeq::FibbinaryBitCount' => 18, # new in v.18
      'Math::NumSeq::FibonacciWord' => 36, # v.36 "dense" option
-     'Math::NumSeq::Pell'          => 29, # v.29 i_estimate
-     'Math::NumSeq::Tribonacci'    => 29, # v.29 i_estimate
-     'Math::NumSeq::Perrin'        => 29, # v.29 i_estimate
+     'Math::NumSeq::Pell'          => 38, # v.38 BigInt and i_estimate()
+     'Math::NumSeq::Tribonacci'    => 29, # v.29 value_to_i_estimate()
+     'Math::NumSeq::Perrin'        => 29, # v.29 value_to_i_estimate()
 
-     'Math::NumSeq::FractionDigits'      => 1,
+     'Math::NumSeq::FractionDigits'      => 38, # v.38 ith()
      'Math::NumSeq::SqrtDigits'          => 1,
      'Math::NumSeq::SqrtContinued'       => 27, # new in v.27
      'Math::NumSeq::SqrtContinuedPeriod' => 24, # new in v.24
@@ -242,7 +247,8 @@ my %maximum_numseq
      'Math::NumSeq::DigitCountHigh'        => 16, # new in v.16
      'Math::NumSeq::DigitCountLow'         => 16, # new in v.16
      'Math::NumSeq::DigitLength'           => 1,
-     'Math::NumSeq::DigitLengthCumulative' => 1,
+     'Math::NumSeq::DigitLengthCumulative' => 38, # v.38 value_to_i_estimate()
+     'Math::NumSeq::SelfLengthCumulative'  => 38, # new in v.38
      'Math::NumSeq::RadixWithoutDigit'     => 1,
      'Math::NumSeq::DigitSum'              => 2, # new in v.2
      'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
@@ -251,9 +257,10 @@ my %maximum_numseq
      'Math::NumSeq::Beastly'           => 1,
      'Math::NumSeq::Repdigits'         => 1,
      'Math::NumSeq::RepdigitAny'       => 16, # new in v.16
-     'Math::NumSeq::RepdigitRadix'     => 27, # v.27 faster ith()
+     'Math::NumSeq::RepdigitRadix'     => 37, # v.37 charact(value_is_radix)
      'Math::NumSeq::Palindromes'       => 1,
      'Math::NumSeq::HarshadNumbers'    => 1,
+     'Math::NumSeq::MoranNumbers'      => 38, # new in v.38
      'Math::NumSeq::HappyNumbers'      => 7,  # new in v.7
      'Math::NumSeq::HappySteps'        => 17,  # new in v.17
      'Math::NumSeq::UndulatingNumbers' => 34,  # new in v.34
@@ -264,15 +271,18 @@ my %maximum_numseq
      'Math::NumSeq::ReverseAddSteps' => 1, # new in what version ?
 
      'Math::NumSeq::CullenNumbers'  => 29, # v.29 BigInt and i_estimate
-     'Math::NumSeq::ProthNumbers'   => 1,
+     'Math::NumSeq::ProthNumbers'   => 38, # v.38 next() BigInt
      'Math::NumSeq::WoodallNumbers' => 29, # v.29 BigInt and i_estimate
      'Math::NumSeq::BaumSweet'      => 10, # new in v.10
+     'Math::NumSeq::GolayRudinShapiro' => 38, # new in v.38
+     'Math::NumSeq::GolayRudinShapiroCumulative' => 38, # new in v.38
      'Math::NumSeq::KlarnerRado'    => 11, # new in v.11
      'Math::NumSeq::UlamSequence'   => 29, # new in v.29
      'Math::NumSeq::AsciiSelf'      => 12, # new in v.12
      'Math::NumSeq::Kolakoski'      => 13, # new in v.13
      'Math::NumSeq::GolombSequence' => 13, # new in v.13
-     'Math::NumSeq::ReRound'        => 29, # new in v.29
+     'Math::NumSeq::ReRound'        => 38, # v.38 fix value_to_i_estimate()
+     'Math::NumSeq::LuckyNumbers'   => 38, # new in v.38
      'Math::NumSeq::ReReplace'      => 33, # new in v.33
      'Math::NumSeq::MephistoWaltz'  => 14, # new in v.14
 
@@ -394,18 +404,24 @@ my %prereq_pm
 
      # my Math-PlanePath, and should work with any set of paths
      'Math::PlanePath' => 68, # v.68 for xy_to_n_list()
-     'Math::PlanePath::SquareSpiral' => 1, # at least this path
+     'Math::PlanePath::SquareSpiral' => 1, # for default display
      'Math::PlanePath::SacksSpiral'  => 0, # for --sacks option
      'Math::PlanePath::VogelFloret'  => 0, # for --vogel option
      # for various in-progress
      'Math::PlanePath::KochCurve'   => 42, # v.42 _round_down_pow()
-     'Math::PlanePath::ZOrderCurve' => 0,  # for GrayCode
 
      # my Math-NumSeq
-     'Math::NumSeq' => 22, # v.22 for characteristic(increasing)
-     'Math::NumSeq::All'  => 1,   # for Lines base, for --all option
-     'Math::NumSeq::Even' => 1,   # for --even option
-     'Math::NumSeq::Odd'  => 1,   # for --odd option
+     'Math::NumSeq' => 38, # v.38 for tell_i()
+     'Math::NumSeq::All'      => 1,   # for Lines base, for --all option
+     'Math::NumSeq::Even'     => 1,   # for --even option
+     'Math::NumSeq::Odd'      => 1,   # for --odd option
+     'Math::NumSeq::Cubes'    => 1,   # for --cubes option
+     'Math::NumSeq::Pronic'   => 1,   # for --pronic option
+     'Math::NumSeq::Squares'  => 1,   # for --squares option
+     'Math::NumSeq::Primes'   => 4,   # v.4 _prime_list()
+     'Math::NumSeq::TwinPrimes' => 1, # for --twin
+     'Math::NumSeq::Triangular' => 1, # for --triangular
+     'Math::NumSeq::Tetrahedral' => 1, # for --tetrahedral
      'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry widget
      # for various in-progress
      'Math::NumSeq::Base::Array' => 1,
@@ -413,7 +429,6 @@ my %prereq_pm
      'Math::NumSeq::Base::IterateIth',1,
      'Math::NumSeq::Base::IteratePred',1,
      'Math::NumSeq::Base::Sparse',1,
-     'Math::NumSeq::Primes',4,  # v.4 _prime_list()
      'Math::NumSeq::DigitCount',4, # for ReplicateDigits
      'Math::NumSeq::Kolakoski',13, # for KolakoskiGroups
     );

@@ -23,7 +23,7 @@ use Wx;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 use base 'Wx::Choice';
-our $VERSION = 96;
+our $VERSION = 97;
 
 
 # uncomment this to run the ### lines
@@ -65,6 +65,13 @@ sub GetValue {
 sub SetValue {
   my ($self, $newval) = @_;
   $self->SetStringSelection($newval);
+}
+
+sub OnChoiceSelected {
+  my ($self) = @_;
+  if (my $callback = $self->{'callback'}) {
+    &$callback($self);
+  }
 }
 
 # sub _pinfo_to_enum_type {

@@ -1,3 +1,7 @@
+# must have CAP_PROJECTING to draw last pixel of lines
+
+
+
 # Copyright, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -22,17 +26,20 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 96;
+$VERSION = 97;
 
 use Image::Base;
 @ISA = ('Image::Base');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 sub new {
   my ($class, %params) = @_;
+  if (ref $class) {
+    die 'Cannot clone Image::Base::Wx::DC';
+  }
   my $self = bless { _pen_colour => '',
                      _brush_colour => '',
                    }, $class;
@@ -41,7 +48,7 @@ sub new {
   return $self;
 }
 
-my %attr_to_get_method = (-width => sub { $_[0]->GetSize->GetWidth },
+my %attr_to_get_method = (-width  => sub { $_[0]->GetSize->GetWidth },
                           -height => sub { $_[0]->GetSize->GetHeight },
                          );
 sub _get {
@@ -66,6 +73,11 @@ sub set {
   if (exists $params{'-dc'}) {
     $params{'_pen_colour'} = '';
     $params{'_brush_colour'} = '';
+
+    my $dc = $params{'-dc'};
+    my $pen = $dc->GetPen;
+    $pen->SetCap(Wx::wxCAP_PROJECTING());
+    $dc->SetPen($pen);
   }
 
   %$self = (%$self, %params);
@@ -116,7 +128,13 @@ sub xy {
 sub line {
   my ($self, $x1,$y1, $x2,$y2, $colour) = @_;
   ### Image-DC line()
-  _dc_pen($self,$colour)->DrawLine ($x1,$y1, $x2,$y2);
+  my $dc = _dc_pen($self,$colour);
+  if ($x1 == $x2 && $y1 == $y2) {
+    # when single point DrawLine() draws nothing, so use DrawPoint()
+    $dc->DrawPoint ($x1, $y1);
+  } else {
+    $dc->DrawLine ($x1,$y1, $x2,$y2);
+  }
 }
 
 # $x1==$x2 and $y1==$y2 on $fill==false may or may not draw that x,y point

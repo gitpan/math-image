@@ -23,7 +23,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::CheckBox';
-our $VERSION = 96;
+our $VERSION = 97;
 
 sub new {
   my ($class, $parent, $info) = @_;
@@ -41,6 +41,10 @@ sub new {
 sub OnCheckBoxClicked {
   my ($self) = @_;
   ### OnCheckBoxClicked() ...
+
+  if (my $callback = $self->{'callback'}) {
+    &$callback($self);
+  }
 }
 
 1;

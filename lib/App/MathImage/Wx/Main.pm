@@ -29,9 +29,9 @@ use App::MathImage::Wx::Params;
 use base qw(Wx::Frame);
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 sub new {
   my ($class, $label) = @_;
@@ -105,8 +105,10 @@ sub new {
       Wx::Event::EVT_CHOICE ($self, $choice, 'path_update');
 
       my $path_params = $self->{'path_params'}
-        = App::MathImage::Wx::Params->new (toolbar => $toolbar,
-                                           after_item => $choice);
+        = App::MathImage::Wx::Params->new
+          (toolbar => $toolbar,
+           after_item => $choice,
+           callback => sub { path_params_update($self) });
     }
 
     {
@@ -125,8 +127,10 @@ sub new {
       Wx::Event::EVT_CHOICE ($self, $choice, 'values_update');
 
       my $values_params = $self->{'values_params'}
-        = App::MathImage::Wx::Params->new (toolbar => $toolbar,
-                                           after_item => $choice);
+        = App::MathImage::Wx::Params->new
+          (toolbar => $toolbar,
+           after_item => $choice,
+           callback => sub { values_params_update($self) });
     }
     {
       my $spin = $self->{'scale_spin'}
@@ -165,7 +169,7 @@ sub new {
   my $draw = $self->{'draw'} = App::MathImage::Wx::Drawing->new ($self);
   path_update($self); # initial
   values_update($self); # initial
-  _update_controls ($self);
+  _controls_from_draw ($self);
 
   return $self;
 }
@@ -189,7 +193,7 @@ sub randomize {
   my $draw = $self->{'draw'};
   my %options = App::MathImage::Generator->random_options;
   @{$draw}{keys %options} = values %options;
-  _update_controls ($self);
+  _controls_from_draw ($self);
   delete $draw->{'bitmap'};
   $draw->Refresh;
 }
@@ -219,6 +223,15 @@ sub path_update {
   delete $draw->{'bitmap'};
   $draw->Refresh;
 }
+sub path_params_update {
+  my ($self) = @_;
+  ### Main path_parameters_update(): "$self"
+  my $draw = $self->{'draw'};
+  my $path_params = $self->{'path_params'};
+  $draw->{'path_parameters'} = $path_params->GetParameterValues;
+  delete $draw->{'bitmap'};
+  $draw->Refresh;
+}
 sub values_update {
   my ($self, $event) = @_;
   ### Main values_update() ...
@@ -229,11 +242,34 @@ sub values_update {
   delete $draw->{'bitmap'};
   $draw->Refresh;
 }
-sub _update_controls {
+sub values_params_update {
   my ($self) = @_;
+  ### Main values_parameters_update(): "$self"
   my $draw = $self->{'draw'};
-  $self->{'path_choice'}->SetStringSelection ($draw->{'path'});
-  $self->{'values_choice'}->SetStringSelection ($draw->{'values'});
+  my $values_params = $self->{'values_params'};
+  $draw->{'values_parameters'} = $values_params->GetParameterValues;
+  delete $draw->{'bitmap'};
+  $draw->Refresh;
+}
+
+sub _controls_from_draw {
+  my ($self) = @_;
+  ### _update_controls() ...
+  ### path: $self->{'draw'}->{'path'}
+
+  my $draw = $self->{'draw'};
+  my $path = $draw->{'path'};
+  $self->{'path_choice'}->SetStringSelection ($path);
+  $self->{'path_params'}->SetParameterInfoArray
+    (App::MathImage::Generator->path_class($path)->parameter_info_array);
+  $self->{'path_params'}->SetParameterValues ($draw->{'path_parameters'} || {});
+
+  my $values = $draw->{'values'};
+  $self->{'values_choice'}->SetStringSelection ($values);
+  $self->{'values_params'}->SetParameterInfoArray
+    (App::MathImage::Generator->values_class($values)->parameter_info_array);
+  $self->{'values_params'}->SetParameterValues ($draw->{'values_parameters'} || {});
+
   $self->{'scale_spin'}->SetValue ($draw->{'scale'});
   $self->{'figure_choice'}->SetStringSelection ($draw->{'figure'});
 }
@@ -321,6 +357,12 @@ sub command_line {
     $draw->SetBackgroundColour($wxc);
   }
 
+  ### draw set: $gen_options
+  %$draw = (%$draw,
+            %$gen_options);
+  _controls_from_draw ($self);
+  ### $draw
+
   if (defined $width) {
     #   require Wx::Perl::Units;
     #   Wx::Perl::Units::SetInitialSizeWithSubsizes
@@ -348,7 +390,6 @@ sub command_line {
   $app->MainLoop;
   return 0;
 
-  # ### draw set: $gen_options
   # my $path_parameters = delete $gen_options->{'path_parameters'};
   # my $values_parameters = delete $gen_options->{'values_parameters'};
   # ### draw set gen_options: keys %$gen_options

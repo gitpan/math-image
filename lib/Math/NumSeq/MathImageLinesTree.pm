@@ -25,11 +25,11 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
-use constant name => __('Lines');
+use constant name => __('Lines by Tree');
 use constant description => __('No numbers, instead lines showing the path taken.');
 use constant parameter_info_array => [ { name    => 'branches',
                                          display => __('Branches'),

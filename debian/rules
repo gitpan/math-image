@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of math-image.
 #
@@ -23,10 +23,3 @@ include /usr/share/cdbs/1/class/perlmodule.mk
 
 # instead of makemaker default "math-image.1p"
 DEB_MAKEMAKER_USER_FLAGS = MAN1EXT=1
-
-# math-image.desktop installed under /usr/share/perl5/App/MathImage for now,
-# link it to the right place.  Probably need desktop-file-utils 0.15-2 for
-# its automatic trigger on .desktop files, but no need to "Depends:" that.
-DEB_DH_LINK_math-image = \
-  usr/share/perl5/App/MathImage/math-image.desktop \
-  usr/share/applications/math-image.desktop

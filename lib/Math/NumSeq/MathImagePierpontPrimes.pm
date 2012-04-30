@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 
 use Math::NumSeq::Primes;
 @ISA = ('Math::NumSeq::Primes');
@@ -34,6 +34,7 @@ use Math::NumSeq::Primes;
 #use Smart::Comments;
 
 
+use constant name => Math::NumSeq::__('Pierpont Primes');
 use constant description => Math::NumSeq::__('Pierpont primes 2^x*3^y + 1.');
 use constant i_start => 1;
 use constant characteristic_increasing => 1;

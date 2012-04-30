@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',
@@ -226,7 +226,7 @@ sub save {
                                                      $pixmap->get_size);
   my $values = Text::Capitalize::capitalize ($draw->get('values'));
   my $values_parameters = $draw->get('values_parameters');
-  foreach my $pinfo ($draw->gen_object->values_object->parameter_info_list) {
+  foreach my $pinfo ($draw->gen_object->values_seq->parameter_info_list) {
     my $name = $pinfo->{'name'};
     $values .= " $name=$values_parameters->{$name}";
   }

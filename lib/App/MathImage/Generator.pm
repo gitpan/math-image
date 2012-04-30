@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 96;
+$VERSION = 97;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -52,22 +52,11 @@ use constant default_options => {
                                  path_parameters => { wider => 0 },
 
                                  # fraction     => '5/29',
-                                 # sqrt         => '2',
                                  # spectrum     => (sqrt(5)+1)/2,
                                  # polygonal    => 5,
-                                 # multiples    => 90,
                                  # parity       => 'odd',
                                  # multiplicity => 'repeated',
                                  # pairs        => 'first',
-                                 # radix        => 10,
-                                 # aronson_lang         => 'en',
-                                 # aronson_letter       => '',
-                                 # aronson_lying        => 0,
-                                 # path_rotation_type => 'phi',
-                                 # expression      => '3*x^2 + x + 2',
-                                 # planepath_class => 'SquareSpiral',
-                                 # delta_type      => 'X',
-                                 # coord_type      => 'X',
                                 };
 
 ### *DESTROY = sub { print "Generator DESTROY\n" }
@@ -103,12 +92,14 @@ use constant::defer values_choices => sub {
                          TwinPrimes
                          SophieGermainPrimes
                          SafePrimes
-                         MathImageDeletablePrimes
+                         MathImageCunninghamLength
+                         DeletablePrimes
                          AlmostPrimes
                          Emirps
                          DivisorCount
                          GoldbachCount
                          LemoineCount
+                         ErdosSelfridgeClass
                          PythagoreanHypots
 
                          Totient
@@ -155,6 +146,7 @@ use constant::defer values_choices => sub {
                          SqrtEngel
                          SqrtContinued
                          SqrtContinuedPeriod
+                         MathImageCbrtContinued
                          PiBits
                          Ln2Bits
 
@@ -169,6 +161,7 @@ use constant::defer values_choices => sub {
 
                          DigitLength
                          DigitLengthCumulative
+                         SelfLengthCumulative
                          DigitSum
                          DigitSumModulo
                          DigitProduct
@@ -189,6 +182,7 @@ use constant::defer values_choices => sub {
                          Beastly
                          UndulatingNumbers
                          HarshadNumbers
+                         MoranNumbers
                          HappyNumbers
                          HappySteps
 
@@ -201,15 +195,18 @@ use constant::defer values_choices => sub {
                          WoodallNumbers
                          ProthNumbers
                          BaumSweet
+                         GolayRudinShapiro
+                         GolayRudinShapiroCumulative
                          KlarnerRado
                          UlamSequence
 
                          AsciiSelf
                          Kolakoski
-                         KolakoskiGroups
+                         KolakoskiMajority
                          GolombSequence
                          ReRound
                          ReReplace
+                         LuckyNumbers
                          MephistoWaltz
 
                          Multiples
@@ -230,13 +227,12 @@ use constant::defer values_choices => sub {
   delete $choices{'Lines'};
   delete $choices{'LinesLevel'};
   delete $choices{'LinesTree'};
+  my @mi = grep {/^MathImage/} keys %choices;
+  delete @choices{@mi};
   push @choices, sort keys %choices;
   push @choices, 'Lines';
   push @choices, 'LinesLevel';
   push @choices, 'LinesTree';
-
-  my @mi = grep {/^MathImage/} @choices;
-  @choices = grep {!/^MathImage/} @choices;
   push @choices, @mi;
 
   ### @choices
@@ -261,31 +257,33 @@ sub values_class {
   Module::Load::load ($values_class);
   return $values_class;
 }
-sub values_object {
+
+# return a Math::NumSeq object
+sub values_seq {
   my ($self) = @_;
 
-  if ($self->{'values_object'}) {
-    return $self->{'values_object'};
+  if ($self->{'values_seq'}) {
+    return $self->{'values_seq'};
   }
 
   my $values_class = $self->values_class($self->{'values'});
-  ### Generator values_object()...
+  ### Generator values_seq()...
   ### $values_class
   ### values_parameters: $self->{'values_parameters'}
 
-  my $values_obj = eval {
+  my $values_seq = eval {
     $values_class->new (width => $self->{'width'},
                         height => $self->{'height'},
                         %{$self->{'values_parameters'}||{}},
                         hi => 100)
   };
-  if (! $values_obj) {
+  if (! $values_seq) {
     my $err = $@;
-    ### values_obj error: $@
+    ### values_seq error: $@
     die $err;
   }
-  ### values_obj created: $values_obj
-  return ($self->{'values_object'} = $values_obj);
+  ### values_seq created: $values_seq
+  return ($self->{'values_seq'} = $values_seq);
 }
 
 #------------------------------------------------------------------------------
@@ -334,9 +332,9 @@ my %pathname_square_grid
                      HilbertMidpoint
                      HilbertSpiral
                      ZOrderCurve
-                     MathImageGrayCode
+                     GrayCode
+                     WunderlichSerpentine
                      WunderlichMeander
-                     MathImageWunderlichSerpentine
                      BetaOmega
                      AR2W2Curve
                      KochelCurve
@@ -378,6 +376,7 @@ my %pathname_square_grid
                      QuadricIslands
 
                      SierpinskiCurve
+                     SierpinskiCurveStair
                      HIndexing
 
                      SierpinskiTriangle
@@ -566,9 +565,9 @@ use constant::defer path_choices_array => sub {
                            HilbertMidpoint
                            HilbertSpiral
                            ZOrderCurve
-                           MathImageGrayCode
+                           GrayCode
+                           WunderlichSerpentine
                            WunderlichMeander
-                           MathImageWunderlichSerpentine
                            BetaOmega
                            AR2W2Curve
                            KochelCurve
@@ -578,8 +577,8 @@ use constant::defer path_choices_array => sub {
                            SquareReplicate
                            CornerReplicate
                            LTiling
-                           DigitGroups
                            FibonacciWordFractal
+                           DigitGroups
 
                            Flowsnake
                            FlowsnakeCentres
@@ -600,6 +599,7 @@ use constant::defer path_choices_array => sub {
                            QuadricIslands
 
                            SierpinskiCurve
+                           SierpinskiCurveStair
                            HIndexing
 
                            SierpinskiTriangle
@@ -874,16 +874,16 @@ sub description {
                      "$pname $value"
                    } @{$path_object->parameter_info_array});
 
-  my $values_object = $self->values_object;
+  my $values_seq = $self->values_seq;
   my @values_desc = ($self->{'values'},
-                     # $self->values_object->name,  # NumSeq name method
+                     # $self->values_seq->name,  # NumSeq name method
                      map {
                        my $pname = $_->{'name'};
                        my $dispname = ($pname eq 'radix' ? 'base' : $pname);
-                       my $value = $values_object->{$pname};
+                       my $value = $values_seq->{$pname};
                        if (! defined $value) { $value = $_->{'default'}; }
                        "$dispname $value"
-                     } $values_object->parameter_info_list);
+                     } $values_seq->parameter_info_list);
 
   my $filtered;
   if (($self->{'filter'}||'') ne 'All') {
@@ -922,13 +922,13 @@ sub filename_base {
                  },
                $self->{'values'},
                do {
-                 my $values_object = $self->values_object;
+                 my $values_seq = $self->values_seq;
                  map {
-                   (defined $values_object->{$_->{'name'}}
-                    && $values_object->{$_->{'name'}} ne $_->{'default'})
-                     ? $values_object->{$_->{'name'}}
+                   (defined $values_seq->{$_->{'name'}}
+                    && $values_seq->{$_->{'name'}} ne $_->{'default'})
+                     ? $values_seq->{$_->{'name'}}
                        : ()
-                     } $values_object->parameter_info_list
+                     } $values_seq->parameter_info_list
                    },
                (($self->{'filter'}||'') eq 'All' ? () : $self->{'filter'}),
                $self->{'width'}.'x'.$self->{'height'},
@@ -976,6 +976,7 @@ sub path_class {
   return $path;
 }
 
+# return a Math::PlanePath object
 sub path_object {
   my ($self) = @_;
   return ($self->{'path_object'} ||= do {
@@ -1096,34 +1097,56 @@ sub colours_exp_shrink {
     $shrink = .9995;
   } elsif ($self->{'values'} eq 'RepdigitRadix') {
     $shrink = 1 - 1/10;
-  } elsif ($self->{'values'} eq 'SqrtContfracPeriod') {
-    $shrink = 1 - 1/14;
-  } elsif ($self->{'values'} eq 'CunninghamChain') {
-    $shrink = .7;
+  } elsif ($self->{'values'} eq 'MathImageRadixConversion') {
+    # FIXME: scale based on how far apart the radix conversions,
+    # maybe a log scale shrink too
+    $shrink = 1 - 1/2000;
+  } elsif ($self->{'values'} eq 'GolayRudinShapiroCumulative') {
+    $shrink = 1 - 1/100;
+  } elsif ($self->{'values'} eq 'GolayRudinShapiroCumulative') {
+    $shrink = 1 - 1/100;
+  } elsif ($self->{'values'} eq 'MathImageAlphabeticalLength') {
+    $shrink = 1 - 1/20;
+  } elsif ($self->{'values'} eq 'MathImageCunninghamChain') {
+    $shrink = 1 - 1/3;
+  } elsif ($self->{'values'} eq 'MathImageCunninghamLength') {
+    $shrink = 1 - 1/5;
   } elsif ($self->{'values'} eq 'TotientSteps') {
     $shrink = .88;
   } elsif ($self->{'values'} eq 'SternDiatomic') {
     $shrink = 1 - 1/30;
   } elsif ($self->{'values'} eq 'CollatzSteps') {
-    if ($self->values_object->{'step_type'} eq 'up') {
+    if ($self->values_seq->{'step_type'} eq 'up') {
       $shrink = 1 - 1/15;
-    } elsif ($self->values_object->{'step_type'} eq 'down') {
+    } elsif ($self->values_seq->{'step_type'} eq 'down') {
       $shrink = 1 - 1/40;
-    } elsif ($self->values_object->{'step_type'} eq 'both') {
+    } elsif ($self->values_seq->{'step_type'} eq 'both') {
       $shrink = 1 - 1/50;
     }
   } elsif ($self->{'values'} eq 'JugglerSteps') {
-    if ($self->values_object->{'step_type'} eq 'up') {
+    if ($self->values_seq->{'step_type'} eq 'up') {
       $shrink = 1 - 1/10;
-    } elsif ($self->values_object->{'step_type'} eq 'down') {
+    } elsif ($self->values_seq->{'step_type'} eq 'down') {
       $shrink = 1 - 1/13;
-    } elsif ($self->values_object->{'step_type'} eq 'both') {
+    } elsif ($self->values_seq->{'step_type'} eq 'both') {
       $shrink = 1 - 1/20;
     }
   } elsif ($self->{'values'} eq 'GolombSequence') {
     $shrink = 1 - 1/400;
-  } elsif ($self->{'values'} eq 'MathImageErdosSelfridgeClass') {
-    $shrink = .8;
+  } elsif ($self->{'values'} eq 'ErdosSelfridgeClass') {
+      $shrink = 1 - 1/3;
+    # if ($self->values_seq->{'using_values'} eq 'primes') {
+    #   $shrink = 1 - 1/2;
+    # } else {
+    # }
+  } elsif ($self->{'values'} eq 'MathImageMaxDigitCount') {
+    if ($self->values_seq->{'values_type'} eq 'radix') {
+      $shrink = 1 - 1/2;
+    } else {
+      $shrink = 1 - 1/5;
+    }
+  } elsif ($self->{'values'} eq 'MathImageLipschitzClass') {
+    $shrink = .75;
   } elsif ($self->{'values'} eq 'HappySteps') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'DigitProduct') {
@@ -1134,15 +1157,19 @@ sub colours_exp_shrink {
     $shrink = .98;
   } elsif ($self->{'values'} eq 'DigitCount') {
     $shrink = .8;
-  } elsif ($self->{'values'} eq 'RepdigitRadix') {
-    $shrink = .95;
   } elsif ($self->{'values'} eq 'ReReplace') {
     $shrink = 1 - 1/20;
   } elsif ($self->{'values'} eq 'GoldbachCount') {
-    if ($self->values_object->{'goldbach_type'} eq 'even') {
+    if (($self->values_seq->{'on_values'}||'') eq 'even') {
       $shrink = 1 - 1/100;
     } else {
       $shrink = 1 - 1/30;
+    }
+  } elsif ($self->{'values'} eq 'LemoineCount') {
+    if (($self->values_seq->{'on_values'}||'') eq 'odd') {
+      $shrink = 1 - 1/100;
+    } else {
+      $shrink = 1 - 1/50;
     }
   } elsif ($self->{'values'} eq 'Runs') {
     $shrink = .95;
@@ -1324,7 +1351,7 @@ sub draw_Image_start {
       }
     } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')
              || $path_object->isa ('Math::PlanePath::WunderlichMeander')
-             || $path_object->isa ('Math::PlanePath::MathImageWunderlichSerpentine')) {
+             || $path_object->isa ('Math::PlanePath::WunderlichSerpentine')) {
       $n_hi = 9 ** $level - 1;
     } elsif ($path_object->isa ('Math::PlanePath::BetaOmega')) {
       $n_hi = 4 ** $level - 1;
@@ -1351,7 +1378,8 @@ sub draw_Image_start {
       $n_hi = 3 ** $level;
       $n_angle = 2 * 3**($level-1);
       $yfactor = sqrt(3);
-    } elsif ($path_object->isa ('Math::PlanePath::SierpinskiCurve')) {
+    } elsif ($path_object->isa ('Math::PlanePath::SierpinskiCurve')
+             || $path_object->isa ('Math::PlanePath::SierpinskiCurveStair')) {
       $n_hi = 4 ** $level;
       $yfactor = 2;
     } elsif ($path_object->isa ('Math::PlanePath::HIndexing')) {
@@ -1484,21 +1512,35 @@ sub draw_Image_start {
     $self->{'filter_obj'} =
       $self->values_class($filter)->new (lo => $n_lo,
                                          hi => $n_hi);
-    my $values_obj = $self->values_object;
+    my $values_seq = $self->values_seq;
 
     ### $rectangle_area
     ### $n_hi
     ### $n_lo
-    ### i_estimate: $values_obj->can('value_to_i_estimate') && $values_obj->value_to_i_estimate($n_hi)
 
-    if ($values_obj->can('value_to_i_estimate')
-        && ($values_obj->value_to_i_estimate($n_hi) < $rectangle_area / 2)
-        && ! $self->use_colours) {
-      ### by N due to sparse i estimate: $values_obj->value_to_i_estimate($n_hi)
+    my $i_estimate = $n_hi;
+    if ($self->use_colours) {
+      if ($values_seq->can('seek_to_value')) {
+        $values_seq->seek_to_value($n_lo);
+        $i_estimate -= $values_seq->tell_i;
+        ### less tell_i(): $values_seq->tell_i
+      }
+    } else {
+      if ($values_seq->can('value_to_i_estimate')) {
+        $i_estimate = $values_seq->value_to_i_estimate($n_hi);
+        ### value_to_i_estimate(): "n_hi=$n_hi  i_est=$i_estimate"
+      }
+      if ($values_seq->can('seek_to_value')) {
+        $values_seq->seek_to_value($n_lo);
+        $i_estimate -= $values_seq->tell_i;
+        ### less tell_i(): $values_seq->tell_i
+      }
+    }
+    ### $i_estimate
 
-    } elsif ($n_hi - $n_lo > $rectangle_area * 100
+    if ($i_estimate > $rectangle_area * 4
         && $self->can_use_xy) {
-      ### use_xy initially due to big n_hi: $n_hi
+      ### use_xy initially due to big i steps: $i_estimate
       $self->use_xy($image);
     }
   }
@@ -1518,10 +1560,10 @@ sub use_colours {
   } elsif ($self->{'values'} eq 'LinesTree') {
 
   } else {
-    my $values_obj = $self->values_object;
+    my $values_seq = $self->values_seq;
 
-    my $values_min = $values_obj->values_min;
-    my $values_max = $values_obj->values_max;
+    my $values_min = $values_seq->values_min;
+    my $values_max = $values_seq->values_max;
 
     my $colours_base = $self->{'colours_base'} = $values_min || 0;
     my $colours_max = $self->{'colours_max'} = $values_max;
@@ -1529,7 +1571,7 @@ sub use_colours {
 
     if (defined $values_min
         && defined $values_max
-        && $values_obj->characteristic('integer')
+        && $values_seq->characteristic('integer')
         && $values_max - $values_min == 1) {
       if ($image->isa('Image::Base::Text')) {
         $self->{'colours_array'} = $colours_text_plus_or_minus;
@@ -1547,10 +1589,10 @@ sub use_colours {
     $self->{'colours_shrink'} = $self->colours_exp_shrink;
     $self->{'colours_shrink_log'} = log($self->{'colours_shrink'});
 
-    ### characteristic(count): $values_obj->characteristic('count')
-    ### characteristic(smaller): $values_obj->characteristic('smaller')
-    if ($values_obj->characteristic('count')
-        || $values_obj->characteristic('smaller')) {
+    ### characteristic(count): $values_seq->characteristic('count')
+    ### characteristic(smaller): $values_seq->characteristic('smaller')
+    if ($values_seq->characteristic('count')
+        || $values_seq->characteristic('smaller')) {
       $self->{'use_colours'} = 1;
 
       # if ($image->isa('Image::Base::Text')) {
@@ -1562,7 +1604,7 @@ sub use_colours {
 
     ### use_colours: $self->{'use_colours'}
     ### colours_base: $self->{'colours_base'}
-    ### per values_min: $values_obj->values_min
+    ### per values_min: $values_seq->values_min
   }
   return $self->{'use_colours'};
 }
@@ -1694,10 +1736,10 @@ sub draw_Image_steps {
 
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
-  my $values_obj = $self->values_object;
+  my $values_seq = $self->values_seq;
   my $filter_obj = $self->{'filter_obj'};
 
-  my $lines_type = $values_obj->{'lines_type'} || 'integer';
+  my $lines_type = $values_seq->{'lines_type'} || 'integer';
   my $figure = $self->figure;
   my $xpscale = $scale;
   my $ypscale = $scale;
@@ -1773,21 +1815,21 @@ sub draw_Image_steps {
      });
 
   if ($self->{'values'} eq 'Lines') {
-    ### $values_obj
-    ### lines_type: $values_obj->{'lines_type'}
-    ### midpoint_offset: $values_obj->{'midpoint_offset'}
-    ### increment: $values_obj->{'increment'}
+    ### $values_seq
+    ### lines_type: $values_seq->{'lines_type'}
+    ### midpoint_offset: $values_seq->{'midpoint_offset'}
+    ### increment: $values_seq->{'increment'}
 
     my $arms_count = $path_object->arms_count;
-    my $increment = $values_obj->{'increment'} || $arms_count;
+    my $increment = $values_seq->{'increment'} || $arms_count;
     my $midpoint_offset = 0;
     if ($lines_type eq 'integer') {
       $midpoint_offset = 0;
     } elsif ($lines_type eq 'midpoint') {
-      $midpoint_offset = $values_obj->{'midpoint_offset'};
+      $midpoint_offset = $values_seq->{'midpoint_offset'};
       if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
     } elsif ($lines_type eq 'rounded') {
-      $midpoint_offset = $values_obj->{'midpoint_offset'};
+      $midpoint_offset = $values_seq->{'midpoint_offset'};
       if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
       $midpoint_offset /= 2;
     }
@@ -1946,7 +1988,7 @@ sub draw_Image_steps {
 
   if ($self->{'values'} eq 'LinesTree') {
     # math-image --path=PythagoreanTree --values=LinesTree --scale=100
-    my $branches = $values_obj->{'branches'};
+    my $branches = $values_seq->{'branches'};
 
     if ($self->{'use_xy'}) {
       ### LinesTree use_xy...
@@ -2146,7 +2188,7 @@ sub draw_Image_steps {
   my $colours_base = $self->{'colours_base'};
   my $colour = $foreground;
   my $use_colours = $self->use_colours;
-  my $values_non_decreasing_from_i = $values_obj->characteristic('non_decreasing_from_i');
+  my $values_non_decreasing_from_i = $values_seq->characteristic('non_decreasing_from_i');
   my $n;
   ### $use_colours
   ### $colours_base
@@ -2166,21 +2208,25 @@ sub draw_Image_steps {
       if (++$x > $x_hi) {
         ++$bignum_y;
         if (++$y > $self->{'y_hi'}) {
-          # $values_obj->finish;
+          # $values_seq->finish;
           last;
         }
         $x = $self->{'x_lo'};
         #### next row: "$x,$y"
       }
+      ($x, $y) = $self->{'rectbyxy'}->next
+        or last;
+      $bignum_y = ($self->{'bignum_xy'} ? _bigint()->new($y) : $y);
 
-      if (! defined ($n = $path_object->xy_to_n ($x, $bignum_y))) {
+      if (! defined ($n = $path_object->xy_to_n ($x, $bignum_y))
+          || $n < $n_prev) {
         next; # no N for this x,y
       }
       #### use_xy path: "$x,$y  $n"
 
       my $count = ($use_colours
-                   ? $values_obj->ith($n)
-                   : $values_obj->pred($n));
+                   ? $values_seq->ith($n)
+                   : $values_seq->pred($n));
       if (! defined $count) {
         my ($wx, $wy) = $affine->transform($x,$y);
         $wx = floor ($wx - $offset + 0.5);
@@ -2288,7 +2334,7 @@ sub draw_Image_steps {
     for (;;) {
       &$cont() or last;
 
-      my ($i, $value) = $values_obj->next;
+      my ($i, $value) = $values_seq->next;
       ### $i
       ### value: $value
       ### n_prev: "$n_prev"
@@ -2335,8 +2381,10 @@ sub draw_Image_steps {
       }
       $n_prev = $n;
 
+      ### filter n: $n
       $filter_obj->pred($n)
         or next;
+
       my ($x, $y) = $path_object->n_to_xy($n) or next;
       ### at: "n=$n  path xy=$x,$y"
 
@@ -2456,7 +2504,7 @@ sub maybe_use_xy {
   ### count_outside: $self->{'count_outside'}
   ### square_grid: $pathname_square_grid{$self->{'path'}}
 
-  my ($count_total, $values_obj);
+  my ($count_total, $values_seq);
   if (($count_total = $self->{'count_total'}) > 1000
       && $self->{'count_outside'} > .5 * $count_total
       && $self->can_use_xy ) {
@@ -2467,14 +2515,14 @@ sub maybe_use_xy {
 
 sub can_use_xy {
   my ($self) = @_;
-  my $values_object;
+  my $values_seq;
   return ($self->path_object->figure eq 'square'
-          && (! ($values_object = $self->values_object)  # Lines can use xy
-              || $values_object->can($self->use_colours ? 'ith' : 'pred')));
+          && (! ($values_seq = $self->values_seq)  # Lines can use xy
+              || $values_seq->can($self->use_colours ? 'ith' : 'pred')));
 
   # $pathname_square_grid{$self->{'path'}}
-  # $values_obj->can('pred')
-  #         && $values_obj->can('ith')) {
+  # $values_seq->can('pred')
+  #         && $values_seq->can('ith')) {
 }
 
 sub value_to_colour {
@@ -2545,6 +2593,12 @@ sub use_xy {
   $self->{'x_hi'} = $x_hi;
   $self->{'y_hi'} = $y_hi;
 
+  require App::MathImage::RectByXY;
+  $self->{'rectbyxy'} = App::MathImage::RectByXY->new (x_min => $x_lo,
+                                                       x_max => $x_hi,
+                                                       y_min => $y_lo,
+                                                       y_max => $y_hi);
+  
   $self->{'x'} = $x_lo - 1;
   $self->{'bignum_y'} = $self->{'y'} = $y_lo;
   ### x range: "$x_lo to $x_hi start $self->{'x'}"
@@ -2556,6 +2610,7 @@ sub use_xy {
     $self->{'bignum_y'} = _bigint()->new($y_lo);
     ### y: $self->{'y'}
   }
+  $self->{'bignum_xy'} = ($self->{'n_hi'} > _SV_N_LIMIT);
 
   my $x_width = $self->{'x_width'} = $x_hi - $x_lo + 1;
   $self->{'xy_total'} = ($y_hi - $y_lo + 1) * $x_width;
@@ -2701,6 +2756,9 @@ sub line_clipper {
   return ($x1new,$y1new, $x2new,$y2new);
 }
 
+
+#------------------------------------------------------------------------------
+
 # return a message string or undef
 sub xy_message {
   my ($self, $x,$y) = @_;
@@ -2737,37 +2795,40 @@ sub xy_message {
     return $message;
   }
 
-  my $values_obj = $self->values_object;
+  my $values_seq = $self->values_seq;
   my $join = '   N=';
   foreach my $n (@n_list) {
     $message .= $join . $n;
     $join = ' and N=';
 
-    if (! $values_obj) {
-      ### no values_obj ...
+    if (! $values_seq) {
+      ### no values_seq ...
       next;
     }
 
     ### use_colours: $self->use_colours
-    ### can ith(): $values_obj->can('ith')
+    ### can ith(): $values_seq->can('ith')
     my $vstr = '';
     my $radix;
-    if ($self->use_colours && $values_obj->can('ith')) {
-      ### show value: $values_obj->ith($n)
-      if (defined (my $value = $values_obj->ith($n))) {
-        $vstr = " value=$value";
-        ### $vstr
-        if ($value >= 2
-            && $values_obj->isa('Math::NumSeq::RepdigitRadix')) {
-          $radix = $value;
+    if ($self->use_colours) {
+      if ($values_seq->can('ith')) {
+        ### show value: $values_seq->ith($n)
+        if (defined (my $value = $values_seq->ith($n))) {
+          $vstr = " value=$value";
+          ### $vstr
+          if ($value >= 2 && $values_seq->characteristic('value_is_radix')) {
+            $radix = $value;
+          }
         }
+      } else {
+        $message .= "  (no ith() for value)";
       }
     }
 
-    $radix ||= $values_obj->characteristic('digits');
+    $radix ||= $values_seq->characteristic('digits');
     my $values_parameters;
     if (! $radix
-        && ! $values_obj->isa('Math::NumSeq::Emirps')
+        && ! $values_seq->isa('Math::NumSeq::Emirps')
         && ($values_parameters = $self->{'values_parameters'})
         && $self->values_class->parameter_info_hash->{'radix'}) {
       $radix = $values_parameters->{'radix'}

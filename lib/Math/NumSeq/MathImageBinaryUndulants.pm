@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -37,10 +37,10 @@ use Math::NumSeq;
 #use Smart::Comments;
 
 
+use constant name => Math::NumSeq::__('Binary Undulants');
 use constant description => Math::NumSeq::__('Binary undulants, numbers k where 2^k written in decimal contains digits 101 or 010.');
 use constant default_i_start => 1;
 use constant characteristic_increasing => 1;
-use constant values_min => 5;
 
 use Math::NumSeq::Base::Digits;
 use constant parameter_info_array =>
@@ -48,15 +48,29 @@ use constant parameter_info_array =>
    Math::NumSeq::Base::Digits::parameter_common_radix(),
   ];
 
+sub values_min {
+  my ($self) = @_;
+  if (! $self->{'values_min'}) {
+    for (my $value = 1; ; $value++) {
+      if ($self->pred($value)) {
+        $self->{'values_min'} = $value;
+        last;
+      }
+    }
+  }
+  return $self->{'values_min'};
+}
+
+#------------------------------------------------------------------------------
 my @oeis_anum;
 $oeis_anum[10] = 'A046076';
 # OEIS-Catalogue: A046076   # radix=10
-
 sub oeis_anum {
   my ($self) = @_;
   return $oeis_anum[$self->{'radix'}];
 }
 
+#------------------------------------------------------------------------------
 my %radix_to_stringize_method = ((Math::NumSeq::_bigint()->can('as_bin')
                                   ? (2  => 'as_bin')
                                   : ()),

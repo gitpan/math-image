@@ -108,16 +108,17 @@ sub check_class {
   # return unless $class =~ /Happy/;
   # return unless $class =~ /Concat/;
   # return unless $class =~ /Sqrt/;
-  # return unless $class =~ /Kernel/;
-  # return unless $class =~ /Sqrt/;
+  # return unless $class =~ /Cbrt/;
+   return unless $class =~ /Slop/;
   # return unless $class =~ /Pythag/;
   # return unless $class =~ /Sieve/;
   # return unless $class =~ /HypotC/;
   # return unless $class =~ /Loe/;
-  # return unless $class =~ /Lemo/;
+  # return unless $class =~ /Radix/;
   # return unless $class =~ /Gold/;
   # return unless $class =~ /Pier/;
-  return unless $class =~ /Delet/;
+  # return unless $class =~ /Lucky/;
+  # return unless $class =~ /Erdos/;
 
 
   eval "require $class" or die;
@@ -127,8 +128,9 @@ sub check_class {
                   map {defined $_ ? $_ : '[undef]'} @$parameters);
 
   my $max_value = undef;
-  if ($class->isa('Math::NumSeq::Factorials')
-      || $class->isa('Math::NumSeq::Primorials')
+  if ($class eq 'Math::NumSeq::Factorials'
+      || $class eq 'Math::NumSeq::Primorials'
+      || $class eq 'Math::NumSeq::MathImageRadixConversion'
      ) {
     $max_value = 'unlimited';
   }
@@ -144,9 +146,9 @@ sub check_class {
 
 
   if ($anum eq 'A007700'
-           || $anum eq 'A023272'
-           || $anum eq 'A023302'
-           || $anum eq 'A023330') {
+      || $anum eq 'A023272'
+      || $anum eq 'A023302'
+      || $anum eq 'A023330') {
     # Cunningham shortened for now
     @$want = grep {$_ < 100_000} @$want;
 

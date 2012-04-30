@@ -20,10 +20,11 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 
+use Math::NumSeq;
 use Math::NumSeq::Primes;
-@ISA = ('Math::NumSeq::Primes');
+@ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -42,6 +43,7 @@ use constant parameter_info_array =>
    },
   ];
 
+# use constant name => Math::NumSeq::__('...');
 use constant description => Math::NumSeq::__('Cunningham chains of primes where P, 2*P+1, 4*P+3 etc are all prime.');
 use constant characteristic_count => 1;
 use constant characteristic_increasing => 0;
@@ -49,13 +51,11 @@ use constant values_min => 0;
 
 sub rewind {
   my ($self) = @_;
-  $self->SUPER::rewind;
-
   $self->{'chain_queue'} = [];
-  $self->{'chain_seq'} = Math::NumSeq::Primes->new();
+  my $primeseq = $self->{'primeseq'} = Math::NumSeq::Primes->new();
   $self->{'chain_inc'} = ($self->{'kind'} eq 'second' ? -1 : 1);
   $self->{'chain_i'} = 1;
-  (undef, $self->{'chain_prime'}) = $self->SUPER::next;
+  (undef, $self->{'chain_prime'}) = $primeseq->next;
 }
 
 sub next {
@@ -67,7 +67,7 @@ sub next {
   }
 
   ### prime: $i
-  (undef, $self->{'chain_prime'}) = $self->SUPER::next
+  (undef, $self->{'chain_prime'}) = $self->{'primeseq'}->next
     or return;
 
   my $queue = $self->{'chain_queue'};
@@ -96,11 +96,11 @@ sub next {
 sub ith {
   my ($self, $value) = @_;
   my $count = 0;
-  if ($self->SUPER::pred($value)) {
+  if (Math::NumSeq::Primes->pred($value)) {
     for (;;) {
       last unless $value % 2;
       $value = ($value - $self->{'chain_inc'}) / 2;
-      last unless $self->SUPER::pred($value);
+      last unless Math::NumSeq::Primes->pred($value);
       $count++;
     }
   }

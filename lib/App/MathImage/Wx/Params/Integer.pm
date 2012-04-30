@@ -24,7 +24,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::SpinCtrl';
-our $VERSION = 96;
+our $VERSION = 97;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -62,6 +62,10 @@ sub new {
 sub OnSpinChange {
   my ($self) = @_;
   ### Params-Integer OnSpinChange() ...
+
+  if (my $callback = $self->{'callback'}) {
+    &$callback($self);
+  }
 }
 
 1;

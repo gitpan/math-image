@@ -38,7 +38,7 @@ use App::MathImage::X11::Protocol::EventHandlerExtra;
 
 
 use vars '$VERSION';
-$VERSION = 96;
+$VERSION = 97;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -79,7 +79,7 @@ sub new {
   # blank old background while drawing
   $X->ChangeWindowAttributes ($window, background_pixmap => $self->{'pixmap'});
 
-  my $seq = $X->send('QueryPointer', $X->{'root'});
+  my $seq = $X->send('QueryPointer', $X->root);
   $X->add_reply($seq, \$self->{'reply'});
   $X->flush;
 
@@ -151,7 +151,7 @@ sub draw_steps {
 
     # destroy images to free GCs
     delete $self->{'image'};
-    delete $self->{'values_obj'};
+    delete $self->{'values_seq'};
     undef $image_pixmap;
 
     if ($self->{'flash'}) {

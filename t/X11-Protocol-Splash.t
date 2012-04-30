@@ -71,14 +71,14 @@ if (! eval { $X = X11::Protocol->new ($display); }) {
   }
   exit 0;
 }
-$X->QueryPointer($X->{'root'});  # sync
+$X->QueryPointer($X->root);  # sync
 
 require App::MathImage::X11::Protocol::Splash;
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 96;
+my $want_version = 97;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION, $want_version,
     'VERSION variable');
 ok (App::MathImage::X11::Protocol::Splash->VERSION, $want_version,
@@ -93,6 +93,6 @@ ok (! eval { App::MathImage::X11::Protocol::Splash->VERSION($check_version); 1 }
     "VERSION class check $check_version");
 
 #------------------------------------------------------------------------------
-$X->QueryPointer($X->{'root'});  # sync
+$X->QueryPointer($X->root);  # sync
 
 exit 0;

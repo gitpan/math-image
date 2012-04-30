@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 use List::Util 'min';
 @ISA = ('Math::NumSeq');
@@ -30,6 +30,7 @@ use List::Util 'min';
 #use Smart::Comments;
 
 
+# use constant name => Math::NumSeq::__('...');
 # use constant description => Math::NumSeq::__('S(i) = abs(S(i-1) - S(i-2) - S(i-3))');
 use constant i_start => 1;
 use constant characteristic_smaller => 1;

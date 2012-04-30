@@ -25,36 +25,36 @@ use POSIX ();
 use Module::Load;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 # after_item => $item
 #
 sub new {
-  my ($class, %self) = @_;
+  my $class = shift;
   ### Params new() ...
-  $self{'items_hash'} = {};
-  $self{'parameter_info_array'} = [];
-  $self{'parameter_values'} = {};
-  return bless \%self, $class;
+  return bless { items_hash => {},
+                 parameter_info_array => [],
+                 parameter_values => {},
+                 @_ }, $class;
 }
 
 sub GetParameterValues {
   my ($self) = @_;
-    my $items_hash = $self->{'items_hash'};
-    # ### $items_hash
-    ### parameter_info_array: $self->{'parameter_info_array'}
-    my %ret;
-    foreach my $pinfo (@{$self->{'parameter_info_array'} || []}) {
-      if (_pinfo_when($self,$pinfo)
-          && (my $item = _pinfo_to_item ($self, $pinfo))) {
-        ### $pinfo
-        $ret{$pinfo->{'name'}} = $item->GetValue;
-      }
+  my $items_hash = $self->{'items_hash'};
+  # ### $items_hash
+  ### parameter_info_array: $self->{'parameter_info_array'}
+  my %ret;
+  foreach my $pinfo (@{$self->{'parameter_info_array'} || []}) {
+    if (_pinfo_when($self,$pinfo)
+        && (my $item = _pinfo_to_item ($self, $pinfo))) {
+      ### $pinfo
+      $ret{$pinfo->{'name'}} = $item->GetValue;
     }
-    ### GET_PROPERTY parameter_values: \%ret
-    return \%ret;
+  }
+  ### GetParameterValues: \%ret
+  return \%ret;
 }
 
 sub SetParameterValues {
@@ -120,12 +120,10 @@ sub SetParameterInfoArray {
       Module::Load::load ($class);
       $item = $class->new ($toolbar, $pinfo);
 
-      # exists $self->{'parameter_values'}->{$key}
-      # ? (parameter_value => $self->{'parameter_values'}->{$key})
-      # : ());
+      $item->{'callback'} = sub {
+        _do_item_changed ($self, $item);
+      };
 
-      # $item->signal_connect
-      #   ('notify::parameter-value' => \&_do_item_changed, \$weak_self);
       {
         my $tooltip = $pinfo->{'description'};
         if (! defined $tooltip) {
@@ -167,12 +165,13 @@ sub _update_visible {
 }
 
 sub _do_item_changed {
-  my ($item) = @_;
-  my $ref_weak_self = $_[-1];
-  my $self = $$ref_weak_self || return;
+  my ($self, $item) = @_;
+  ### Wx-Params _do_item_changed() ...
   _update_visible ($self);
-  ### Params notify values...
-  $self->notify ('parameter-values');
+
+  if (my $callback = $self->{'callback'}) {
+    &$callback($self);
+  }
 }
 
 sub _pinfo_when {

@@ -21,12 +21,12 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package Math::NumSeq::MathImageKolakoskiGroups;
+package Math::NumSeq::MathImageKolakoskiMajority;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -50,12 +50,12 @@ use constant i_start => 1;
 use constant parameter_info_array =>
   [
    { name      => 'length',
-     display   => Math::NumSeq::__('Group Length'),
      share_key => 'length_groups',
      type      => 'integer',
      default   => '3',
      minimum   => 1,
-     description => Math::NumSeq::__('Group length for majority.'),
+     width     => 3,
+     description => Math::NumSeq::__('Group length.'),
    },
   ];
 
@@ -88,7 +88,7 @@ sub rewind {
 
 sub next {
   my ($self, $i) = @_;
-  ### KolakoskiGroups ith(): $i
+  ### KolakoskiMajority ith(): $i
 
   my @got = (undef, 0,0);
   foreach (1 .. $self->{'length'}) {
@@ -126,12 +126,12 @@ __END__
 
 =head1 NAME
 
-Math::NumSeq::MathImageKolakoskiGroups -- majority value in groups of Kolakoski values
+Math::NumSeq::MathImageKolakoskiMajority -- majority value in groups of Kolakoski sequence values
 
 =head1 SYNOPSIS
 
- use Math::NumSeq::MathImageKolakoskiGroups;
- my $seq = Math::NumSeq::MathImageKolakoskiGroups->new (length => 3);
+ use Math::NumSeq::MathImageKolakoskiMajority;
+ my $seq = Math::NumSeq::MathImageKolakoskiMajority->new (length => 3);
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -143,7 +143,7 @@ a given C<length> runs.
 
     majority:    2,     1,     2,     2,
 
-Groups of length 1 will just give the Kolakoski itself.
+Length 1 gives the Kolakoski sequence itself.
 
 In the current code groups of an even length are allowed, and if there's an
 equal number of 1s and 2s in a group then the "majority" is reckoned as 1.5,
@@ -156,7 +156,7 @@ See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
 
 =over 4
 
-=item C<$seq = Math::NumSeq::MathImageKolakoskiGroups-E<gt>new (length =E<gt> $integer)>
+=item C<$seq = Math::NumSeq::MathImageKolakoskiMajority-E<gt>new (length =E<gt> $integer)>
 
 Create and return a new sequence object.
 
@@ -168,7 +168,3 @@ L<Math::NumSeq>,
 L<Math::NumSeq::Kolakoski>
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --values=KolakoskiGroups"
-# End:

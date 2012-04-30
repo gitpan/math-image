@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -26,10 +26,11 @@ use Devel::Comments;
 
 {
   require App::MathImage::Image::Base::Wx::DC;
-  my $bitmap = Wx::Bitmap->new (21,10);
 
+  my $bitmap = Wx::Bitmap->new (21,10);
   my $dc = Wx::MemoryDC->new;
   $dc->SelectObject($bitmap);
+  $dc->IsOk or die;
 
   my $pen = $dc->GetPen;
   $pen->SetCap(Wx::wxCAP_PROJECTING());
@@ -37,7 +38,8 @@ use Devel::Comments;
 
   my $image = App::MathImage::Image::Base::Wx::DC->new
     (-dc => $dc,
-     -width => 21, -height => 10);
+     # -width => 21, -height => 10,
+    );
   my $black = 'black';
   $MyTestImageBase::white = 'white';
   $MyTestImageBase::white = 'white';
@@ -47,10 +49,13 @@ use Devel::Comments;
   ### $width
   ### $height
 
-  $image->rectangle (0,0, $width-1,$height-1, $black, 1);
-  $image->line (5,5, 7,7, 'white', 0);
+  $image->xy (-100,-100);
+  ### fetch xy(): $image->xy (-100,-100)
 
-  $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+  # $image->rectangle (0,0, $width-1,$height-1, $black, 1);
+  # $image->line (5,5, 7,7, 'white', 0);
+  # 
+  # $image->rectangle (0,0, $width-1,$height-1, $black, 1);
 
   use lib 't';
   require MyTestImageBase;
@@ -60,7 +65,7 @@ use Devel::Comments;
   ### $size
   ### width: $size->GetWidth
   ### height: $size->GetHeight
-  
+
   exit 0;
 }
 

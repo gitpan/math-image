@@ -29,7 +29,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 96;
+$VERSION = 97;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -79,10 +79,10 @@ sub create_window {
     my $x = int (max (0, $X->{'width_in_pixels'} - $width) / 2); #  + 100
     my $y = int (max (0, $X->{'height_in_pixels'} - $height) / 2);
 
-    ### sync: $X->QueryPointer($X->{'root'})
+    ### sync: $X->QueryPointer($X->root)
     my $window = $X->new_rsrc;
     $X->CreateWindow ($window,
-                      $X->{'root'},     # parent
+                      $X->root,         # parent
                       'InputOutput',    # class
                       0,                # depth, from parent
                       'CopyFromParent', # visual
@@ -104,7 +104,7 @@ sub create_window {
     #                            );
     # if ($window == 0x1600002) {
     # }
-    ### sync: $X->QueryPointer($X->{'root'})
+    ### sync: $X->QueryPointer($X->root)
     $self->{'window'} = $window;
 
     X11::Protocol::WM::set_wm_name ($X, $window, "Splash");

@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq::Base::Digits;
 @ISA = ('Math::NumSeq::Base::Digits');
 
@@ -31,7 +31,8 @@ use Math::NumSeq 7; # v.7 for _is_infinite()
 #use Smart::Comments;
 
 
-use constant description => Math::NumSeq::__('Digits of all the integers.');
+use constant name => Math::NumSeq::__('Pi Digits');
+use constant description => Math::NumSeq::__('Digits of Pi.');
 use constant i_start => 1;
 
 # use constant parameter_info_array =>

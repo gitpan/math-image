@@ -27,7 +27,7 @@ use List::MoreUtils;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 
 sub filename_to_format {

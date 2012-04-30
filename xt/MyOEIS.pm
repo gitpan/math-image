@@ -64,6 +64,11 @@ sub anum_to_html {
   $suffix ||= '.html';
   return sprintf 'A%06d%s', $num, $suffix;
 }
+sub anum_to_internal {
+  my ($num, $suffix) = @_;
+  $suffix ||= '';
+  return sprintf 'A%06d.internal%s', $num, $suffix;
+}
 
 sub read_values {
   my ($anum, %option) = @_;
@@ -109,6 +114,16 @@ sub _read_values {
         next if $line eq '';   # ignore blank lines
         next if $line =~ /^#/; # ignore comment lines, eg. b006450.txt
 
+        # eg. a005105.txt is some code, skip file
+        if ($line =~ /^Date:/) {
+          next ABFILE;
+        }
+
+        # eg. a195467.txt is a table, skip file
+        if ($line =~ /^00:/) {
+          next ABFILE;
+        }
+
         # eg. a005228.txt source code not numbers, skip file
         if ($line =~ /^From [A-Za-z]/) {
           next ABFILE;
@@ -145,7 +160,10 @@ sub _read_values {
     ### no bfile: $!
   }
 
-  foreach my $basefile (anum_to_html($anum), anum_to_html($anum,'.htm')) {
+  foreach my $basefile (anum_to_internal($anum),
+                        anum_to_internal($anum,'.html'),
+                        anum_to_html($anum),
+                        anum_to_html($anum,'.htm')) {
     my $filename = File::Spec->catfile (oeis_dir(), $basefile);
     ### $basefile
     ### $filename
@@ -156,21 +174,33 @@ sub _read_values {
     my $contents = do { local $/; <FH> }; # slurp
     close FH or die;
 
-    unless ($contents =~ /OFFSET(\s*<[^>]*>)*\s*([0-9-]+)/s) {
+    my $lo;
+    if ($contents =~ /OFFSET(\s*<[^>]*>)*\s*([0-9-]+)/s) {
+      $lo = $2;
+    } elsif ($contents =~ /%O\s+([0-9-]+)/) {
+      $lo = $1;
+    } else {
       MyTestHelpers::diag("$filename oops OFFSET not found");
       die;
     }
-    my $lo = $2;
 
     # fragile grep out of the html ...
-    $contents =~ s{>graph</a>.*}{};
-    $contents =~ m{.*<tt>([^<]+)</tt>};
-    my $list = $1;
+    my $list = '';
+    if ($contents =~ s{>graph</a>.*}{}) {
+      $contents =~ m{.*<tt>([^<]+)</tt>};
+      $list = $1;
+    } else {
+      while ($contents =~ m{%[STU]\s+([^<]+)}g) {
+        ### $1
+        $list = join(',', $list, $1);
+      }
+    }
     unless ($list =~ m{^([0-9,-]|\s)+$}) {
-      MyTestHelpers::diag("$filename oops list of values not found");
+      MyTestHelpers::diag("$filename oops list of values no good: $list");
       die;
     }
     my @array = split /[, \t\r\n]+/, $list;
+    @array = grep {$_ ne ''} @array; # no empty fields
     ### $list
     ### @array
     return (\@array, $lo, $filename);

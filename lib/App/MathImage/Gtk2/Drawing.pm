@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
 
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -51,7 +51,7 @@ BEGIN {
                              App::MathImage::Generator->path_choices);
 
   Glib::Type->register_enum ('App::MathImage::Gtk2::Drawing::Filters',
-                             'All', 'Odd', 'Even', 'Primes');
+                             'All', 'Odd', 'Even', 'Primes', 'Squares');
   %App::MathImage::Gtk2::Drawing::Filters::EnumBits_to_display =
     (All    => __('No Filter'),
      Odd    => __('Odd'),

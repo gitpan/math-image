@@ -21,7 +21,7 @@ use strict;
 use Wx;
 
 use base qw(Wx::Window);
-our $VERSION = 96;
+our $VERSION = 97;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -140,6 +140,7 @@ sub _bitmap_is_good {
 
 sub start_drawing_window {
   my ($self, $target) = @_;
+  ### Wx-Drawing start_drawing_window() ...
 
   $self->SetExtraStyle($self->GetExtraStyle
                        | Wx::wxWS_EX_PROCESS_IDLE());

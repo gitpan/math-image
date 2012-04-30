@@ -24,7 +24,7 @@ use POSIX ();
 use Wx;
 
 use base qw(Wx::TextCtrl);
-our $VERSION = 96;
+our $VERSION = 97;
 
 
 # uncomment this to run the ### lines
@@ -86,6 +86,10 @@ sub OnTextEnter {
   #   my $self = $$ref_weak_self || return;
   #   ### parameter-value now: $self->get('parameter-value')
   #   $self->notify ('parameter-value');
+
+  if (my $callback = $self->{'callback'}) {
+    &$callback($self);
+  }
 }
 
 1;

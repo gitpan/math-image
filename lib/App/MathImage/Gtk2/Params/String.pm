@@ -27,9 +27,9 @@ use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -145,7 +145,13 @@ sub SET_PROPERTY {
       }
 
       Scalar::Util::weaken (my $weak_self = $self);
-      $entry->signal_connect (activate => \&_do_entry_activate, \$weak_self);
+      $entry->signal_connect (activate => \&_do_entry_activate,
+                              \$weak_self);
+      if ($entry->isa('Gtk2::Entry')) {
+        # plain strings, not OeisEntry or FractionEntry
+        $entry->signal_connect (scroll_event =>
+                                \&_entry_scroll_number);
+      }
     }
     if (! $self->{'parameter_value_set'}) {
       # initial parameter-info
@@ -182,6 +188,68 @@ sub _do_combo_changed {
     ### parameter-value now: $self->get('parameter-value')
     $self->notify ('parameter-value');
   }
+}
+
+# Convert C<$x> in widget coordinates to a char index into the entry text.
+# If C<$x> is past the beginning of the text the return is 0.
+# If C<$x> is past the end of the text the return is length(text).
+# Any xalign or user scrolling is accounted for.
+#
+sub _entry_x_to_text_index {
+  my ($entry, $x) = @_;
+  my $layout = $entry->get_layout;
+  my $layout_line = $layout->get_line(0) || return undef;
+
+  my ($x_offset, $y_offset) = $entry->get_layout_offsets;
+  $x -= $x_offset;
+  ### $x_offset
+
+  require Gtk2::Pango;
+  my ($inside, $index, $trailing)
+    = $layout_line->x_to_index($x * Gtk2::Pango::PANGO_SCALE()
+                               + int(Gtk2::Pango::PANGO_SCALE()/2));
+  ### $inside
+  ### $index
+  ### $trailing
+
+  # $trailing is set when in the second half of a char (is that right?).
+  # Don't want to apply it unless past the end of the string, so not $inside.
+  if (! $inside) {
+    $index += $trailing;
+  }
+  return $entry->layout_index_to_text_index($index);
+}
+
+my %direction_to_offset = (up => 1, down => -1);
+sub _entry_scroll_number {
+  my ($entry, $event) = @_;
+  ### _entry_scroll_number() ...
+
+  if (my $num_increment = $direction_to_offset{$event->direction}) {
+    if ($event->state & 'control-mask') {
+      $num_increment *= 10;
+    }
+    if (defined (my $pos = _entry_x_to_text_index($entry,$event->x))) {
+      my $text = $entry->get_text;
+      my $text_at = substr($text,$pos);
+      if ($text_at =~ /^(\d+)/) {
+        my $num_len = length($1);
+        my $text_before = substr($text,0,$pos);
+        $text_before =~ /(\d*)$/;
+        $pos -= length($1);
+        $num_len += length($1);
+
+        my $num = substr($text, $pos, $num_len);
+        $text = substr($text, 0, $pos)
+          . ($num+$num_increment)
+            . substr($text, $pos+$num_len);
+        $entry->set_text ($text);
+        $entry->activate;
+        return Gtk2::EVENT_STOP;
+      }
+    }
+  }
+  return Gtk2::EVENT_PROPAGATE;
 }
 
 1;

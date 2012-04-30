@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 
 use Math::NumSeq 7; # v.7 for _is_infinite()
 use Math::NumSeq::Base::IterateIth;
@@ -32,9 +32,10 @@ use Math::NumSeq::Base::IterateIth;
 #use Devel::Comments;
 
 
+# use constant name => Math::NumSeq::__('...');
 use constant description => Math::NumSeq::__('Replicate the digits of i, so i=123 gives value 112233.');
 use constant default_i_start => 0;
-use constant values_min => 0;
+use constant characteristic_integer => 1;
 use constant characteristic_increasing => 1;
 
 use Math::NumSeq::DigitCount 4;
@@ -48,21 +49,34 @@ use constant parameter_info_array =>
     },
   ];
 
-# cf A020338 # doublets 1010,1111,1212
-#    A074842 # triplets
-#    A074843 # quadruplets
-# # # OEIS-Catalogue: A020338 i_start=1
-# # # OEIS-Catalogue: A074842 replicate=3 i_start=1
-# # # OEIS-Catalogue: A074843 replicate=4 i_start=1
-#
-# A044836 ?
+sub values_min {
+  my ($self) = @_;
+  return $self->ith($self->i_start);
+}
+
+# cf A044836 decimal odd/even runs
 #
 my @oeis_anum;
-# OEIS-Other: A001477 replicate=1 # integers 0 upwards
-# OEIS-Other: A000027 replicate=1 i_start=1 # integers 1 upwards
+$oeis_anum[0]->[10]->[1] = 'A001477';
+# OEIS-Other: A001477 replicate=1             # integers 0 upwards
+
+$oeis_anum[1]->[10]->[1] = 'A000027';
+# OEIS-Other: A000027 replicate=1 i_start=1   # integers 1 upwards
+
+# no, these repeat whole values, not individual digits
+#
+# $oeis_anum[1]->[10]->[2] = 'A020338';
+# # OEIS-Catalogue: A020338 i_start=1    # doublets 1010,1111,1212
+# 
+# $oeis_anum[1]->[10]->[3] = 'A074842';
+# # OEIS-Catalogue: A074842  replicate=3 i_start=1    # triplets
+# 
+# $oeis_anum[1]->[10]->[4] = 'A074843';
+# # OEIS-Catalogue: A074843  replicate=4 i_start=1    # quadruplets
+
 sub oeis_anum {
   my ($self) = @_;
-  return $oeis_anum[$self->{'radix'}]->[$self->{'replicate'}];
+  return $oeis_anum[$self->i_start]->[$self->{'radix'}]->[$self->{'replicate'}];
 }
 
 sub ith {

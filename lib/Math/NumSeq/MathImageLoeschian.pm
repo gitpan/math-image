@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 *_is_infinite = \&Math::NumSeq::_is_infinite;
@@ -36,7 +36,7 @@ use Math::Factor::XS 'prime_factors';
 #use Smart::Comments;
 
 
-use constant name => Math::NumSeq::__('Loeschian numbers');
+use constant name => Math::NumSeq::__('Loeschian Numbers');
 use constant description => Math::NumSeq::__('Loeschian numbers x^2+xy+y^2 norms on hexagonal A2 grid, which is also (a^2+3*b^2)/4 for all a>=0,b>=0 and a,b opposite odd/even.');
 use constant i_start => 1; # per oeis ...
 use constant characteristic_increasing => 1;

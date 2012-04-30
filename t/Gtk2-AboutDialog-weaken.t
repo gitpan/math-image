@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -60,7 +60,7 @@ sub my_ignore {
        },
        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
        contents => \&Test::Weaken::Gtk2::contents_container,
-       ignore => \&my_ignore,
+       ignore_class => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
   MyTestHelpers::test_weaken_show_leaks($leaks);

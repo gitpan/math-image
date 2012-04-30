@@ -32,7 +32,7 @@ use strict;
 use List::Util 'min','max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 
 use Math::NumSeq::Base::IterateIth;
 use Math::NumSeq::Base::Digits;
@@ -46,6 +46,7 @@ use Math::NumSeq 7; # v.7 for _is_infinite()
 #use Devel::Comments;
 
 
+# use constant name => Math::NumSeq::__('...');
 use constant description => Math::NumSeq::__('Extract digit from i.');
 use constant default_i_start => 0;
 use constant characteristic_count => 1;

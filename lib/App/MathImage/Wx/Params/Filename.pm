@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use base 'Wx::FilePickerCtrl';
-our $VERSION = 96;
+our $VERSION = 97;
 
 
 sub new {
@@ -57,6 +57,10 @@ sub OnTextEnter {
   #   my $self = $$ref_weak_self || return;
   #   ### parameter-value now: $self->get('parameter-value')
   #   $self->notify ('parameter-value');
+
+  if (my $callback = $self->{'callback'}) {
+    &$callback($self);
+  }
 }
 
 

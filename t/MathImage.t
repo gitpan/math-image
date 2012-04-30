@@ -20,7 +20,7 @@
 use 5.008;
 use strict;
 use warnings;
-use Test::More tests => 46;
+use Test::More tests => 80;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 # VERSION
 
 {
-  my $want_version = 96;
+  my $want_version = 97;
   is ($App::MathImage::VERSION, $want_version, 'VERSION variable');
   is (App::MathImage->VERSION,  $want_version, 'VERSION class method');
 
@@ -53,25 +53,43 @@ POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
 
 foreach my $elem
   (
-   [ ['--text', '--vogel'],
-     modules => ['Math::PlanePath::VogelFloret'] ],
-
    [ ['--version'] ],
    [ ['--help'] ],
    [ ['--verbose', '--version'] ],
 
+   # per math-image POD docs
+   [ ['--text', '--primes'] ],
    [ ['--text', '--twin'] ],
    [ ['--text', '--twin1'] ],
    [ ['--text', '--twin2'] ],
-   [ ['--text', '--pentagonal'] ],
+   [ ['--text', '--semi-primes'] ],
+   [ ['--text', '--semi-primes-odd'] ],
+   [ ['--text', '--squares'] ],
+   [ ['--text', '--pronic'] ],
+   [ ['--text', '--triangular'] ],
    [ ['--text', '--polygonal=7'] ],
+   [ ['--text', '--pentagonal'] ],
+   [ ['--text', '--cubes'] ],
+   [ ['--text', '--tetrahedral'] ],
+   [ ['--text', '--fibonacci'] ],
+   [ ['--text', '--perrin'] ],
+   [ ['--text', '--padovan'] ],
+   [ ['--text', '--fraction=7/23'] ],
+   [ ['--text', '--fraction=1.123'] ],
+   [ ['--text', '--all'] ],
+   [ ['--text', '--odd'] ],
+   [ ['--text', '--even'] ],
+   [ ['--text', '--expression=i**2 + 2*i + 1'] ],
+
+   [ ['--text', '--sacks'],
+     modules => ['Math::PlanePath::SacksSpiral'] ],
+   [ ['--text', '--vogel'],
+     modules => ['Math::PlanePath::VogelFloret'] ],
 
    [ ['--text'] ],
    [ ['--text', '--scale=5'] ],
    [ ['--text', '--size=10'] ],
    [ ['--text', '--size=10x20'] ],
-   [ ['--text', '--sacks'],
-     modules => ['Math::PlanePath::SacksSpiral'] ],
    # [ ['--text', '--random'] ],  # could need all modules
 
    [ ['--output=numbers'] ],

@@ -34,7 +34,7 @@ use Glib::Ex::SourceIds;
 #use Smart::Comments '###';
 
 
-our $VERSION = 96;
+our $VERSION = 97;
 
 sub new {
   my ($class, %self) = @_;
@@ -124,7 +124,7 @@ sub _do_read {
     if (defined $x11gen->{'reply'}) {
       delete $self->{'reply'};
 
-      my $seq = $X->send('QueryPointer', $X->{'root'});
+      my $seq = $X->send('QueryPointer', $X->root);
       $X->add_reply($seq, \$self->{'reply'});
       $X->flush;
       ### $seq

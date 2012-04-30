@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 96;
+$VERSION = 97;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -78,15 +78,17 @@ sub getopt_long_specifications {
      },
      'primes'   => sub {_hopt($self,'gen_options','values', 'Primes'); },
      'twin'     => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
-                         $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'both'; },
+                         $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'both';
+                       },
      'twin1'    => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
                          $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'first'; },
      'twin2'    => sub { _hopt($self,'gen_options','values', 'TwinPrimes');
                          $self->{'gen_options'}->{'values_parameters'}->{'pairs'} = 'second'; },
      'semi-primes|semiprimes' =>
-     sub { _hopt($self,'gen_options','values', 'SemiPrimes'); },
+     sub { _hopt($self,'gen_options','values', 'AlmostPrimes'); },
      'semi-primes-odd|semiprimes-odd|semip-odd' =>
-     sub { _hopt($self,'gen_options','values', 'SemiPrimesOdd'); },
+     sub { _hopt($self,'gen_options','values', 'AlmostPrimes');
+           _hopt($self,'gen_options','filter', 'Odd'); },
 
      'squares'    => sub { _hopt($self,'gen_options','values', 'Squares');  },
      'pronic'     => sub { _hopt($self,'gen_options','values', 'Pronic');  },
@@ -97,7 +99,7 @@ sub getopt_long_specifications {
      'cubes'      => sub { _hopt($self,'gen_options','values', 'Cubes');  },
      'tetrahedral'=> sub { _hopt($self,'gen_options','values', 'Tetrahedral');},
      'perrin'     => sub { _hopt($self,'gen_options','values', 'Perrin');  },
-     'padovan'    => sub { _hopt($self,'gen_options','values', 'Padovan');  },
+     'padovan'    => sub { _hopt($self,'gen_options','values', 'MathImagePadovan');  },
      'fibonacci'  => sub { _hopt($self,'gen_options','values', 'Fibonacci');  },
      'fraction=s' =>
      sub { my ($optname, $value) = @_;
@@ -168,8 +170,16 @@ sub getopt_long_specifications {
      'output=s'   => sub{ my ($optname, $value) = @_;
                           _hopt($self, 'gui_options', 'output', "$value");  },
      'root'     => sub{_hopt($self, 'gui_options', 'output', 'root');  },
+     'xscreensaver' => sub{
+       _hopt($self, 'gui_options', 'output', 'xscreensaver');
+     },
+     'window-id=s' => sub{
+       my ($optname, $value) = @_;
+       _hopt($self, 'gui_options', 'window_id', hex("$value"));
+     },
      'xpm'      => sub{_hopt($self, 'gui_options', 'output', 'XPM');  },
      'png'      => sub{_hopt($self, 'gui_options', 'output', 'PNG');  },
+
 
      'module=s' => sub{ my ($optname, $value) = @_;
                         _hopt($self, 'gui_options', 'module', "$value");  },
@@ -461,6 +471,34 @@ sub output_method_root {
   }
 }
 
+sub output_method_xscreensaver {
+  my ($self) = @_;
+  my $X = $self->x11_protocol_object;
+  my $t = 0;
+
+  require IO::Select;
+  my $s = IO::Select->new;
+  $s->add($X->{'connection'}->fh);
+  my $redraw_seconds = 2;
+
+  for (;;) {
+    if (time() < $t || time() > $t + $redraw_seconds) {
+      $t = time();
+
+      my @random = App::MathImage::Generator->random_options;
+      ### @random
+      while (my ($key, $value) = splice @random,0,2) {
+        $self->{'gen_options'} = { %{$self->{'gen_options'}},
+                                   @random };                                   
+      }
+      $self->output_method_root_x11;
+    }
+    if ($s->can_read(min (1, max ($redraw_seconds, $t+$redraw_seconds - time())))) {
+      $X->handle_input;
+    }
+  }
+}
+
 sub output_method_root_x11 {
   my ($self) = @_;
 
@@ -469,17 +507,49 @@ sub output_method_root_x11 {
   $gen_options->{'width'}  = $X->{'width_in_pixels'};
   $gen_options->{'height'} = $X->{'height_in_pixels'};
 
-  my $rootwin = $X->{'root'};
-  ### $rootwin
+  my $root = $self->{'gui_options'}->{'window_id'};
+  if (! $root) {
+    $root = $X->root;
+    $root = _root_to_virtual_root($X,$root);
+  }
+  ### $root
+
+  ### gen_options: $self->{'gen_options'}
 
   require App::MathImage::X11::Generator;
   my $x11gen = App::MathImage::X11::Generator->new
     (%$gen_options,
      X => $X,
-     window => $rootwin,
+     window => $root,
      flash  => $self->{'gui_options'}->{'flash'});
   $x11gen->draw;
   return 0;
+}
+# pending this in X11::Protocol::WM
+sub _root_to_virtual_root {
+  my ($X,$root) = @_;
+  ### root_to_virtual_root(): $root
+
+  my ($root_root, $root_parent, @toplevels) = $X->QueryTree($root);
+  foreach my $toplevel (@toplevels) {
+    ### $toplevel
+    my @ret = $X->robust_req ('GetProperty',
+                              $toplevel,
+                              $X->atom('__SWM_VROOT'),
+                              $X->atom('WINDOW'),  # type
+                              0,  # offset
+                              1,  # length x 32bits
+                              0); # delete;
+    ### @ret
+    next unless ref $ret[0]; # ignore errors from toplevels destroyed etc
+
+    my ($value, $type, $format, $bytes_after) = @{$ret[0]};
+    if (my $vroot = unpack 'L', $value) {
+      ### found: $vroot
+      return $vroot;
+    }
+  }
+  return $root;
 }
 
 *output_method_root_gtk = \&output_method_root_gtk2;
@@ -718,10 +788,10 @@ sub output_method_list {
   my ($self) = @_;
   my $gen = $self->make_generator;
   my $path = $gen->path_object;
-  my $values_obj = $gen->values_object;
+  my $values_seq = $gen->values_seq;
 
   my $count = 0;
-  while (my ($i, $value) = $values_obj->next) {
+  while (my ($i, $value) = $values_seq->next) {
     next if ! defined $value || $value < 1;
     last if $count++ > 100;
     my ($x, $y) = $path->n_to_xy ($value)
@@ -757,7 +827,7 @@ sub output_method_numbers {
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
 
-  my $values_obj = $gen->values_object;
+  my $values_seq = $gen->values_seq;
 
   my %array;
   my $x_min = 0;
@@ -765,7 +835,7 @@ sub output_method_numbers {
   my $x_max = 0;
   my $y_max = 0;
   my $smaller_count = 0;
-  while (my ($i, $value) = $values_obj->next) {
+  while (my ($i, $value) = $values_seq->next) {
     ### $i
     ### $value
     my $n = $value;
@@ -838,7 +908,7 @@ sub output_method_numbers_xy {
   ### $width
   ### $height
 
-  my $values_obj = $gen->values_object;
+  my $values_seq = $gen->values_seq;
 
   my @rows;
   my $xmin = 0;
@@ -861,7 +931,7 @@ sub output_method_numbers_xy {
       foreach my $y ($ymin .. $ymax) {
         my $n = $path->xy_to_n($x,$y);
         ### consider right: "$x,$y  n=".(defined $n && $n)
-        next unless (defined $n && $values_obj->pred($n));
+        next unless (defined $n && $values_seq->pred($n));
         my $new_cellwidth = max ($cellwidth, length($n) + 1);
         if ($new_cellwidth * ($xmax-$xmin+2) > $width) {
           ### NO_XMAX due to X range: ($xmax-$xmin+2)
@@ -891,7 +961,7 @@ sub output_method_numbers_xy {
         $new_row[$x-$xmin] = undef;
         my $n = $path->xy_to_n($x,$y);
         ### consider above: "$x,$y  n=".(defined $n && $n)
-        next unless (defined $n && $values_obj->pred($n));
+        next unless (defined $n && $values_seq->pred($n));
         my $new_cellwidth = max ($cellwidth, length($n) + 1);
         if ($new_cellwidth * ($xmax-$xmin+2) > $width) {
           ### NO_YMAX due to X range: ($xmax-$xmin+2)
@@ -917,7 +987,7 @@ sub output_method_numbers_xy {
       foreach my $y ($ymin .. $ymax) {
         my $n = $path->xy_to_n($x,$y);
         ### consider left: "$x,$y  n=".(defined $n && $n)
-        next unless defined $n && $values_obj->pred($n);
+        next unless defined $n && $values_seq->pred($n);
         my $new_cellwidth = max ($cellwidth, length($n) + 1);
         if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_XMIN; }
         $cellwidth = $new_cellwidth;
@@ -942,7 +1012,7 @@ sub output_method_numbers_xy {
         $new_row[$x-$xmin] = undef;
         my $n = $path->xy_to_n($x,$y);
         ### consider bottom: "$x,$y  n=".(defined $n && $n)
-        next unless defined $n && $values_obj->pred($n);
+        next unless defined $n && $values_seq->pred($n);
         my $new_cellwidth = max ($cellwidth, length($n) + 1);
         if ($new_cellwidth * ($xmax-$xmin+2) > $width) { goto NO_YMIN; }
         $new_row[$x-$xmin] = $n;
@@ -974,6 +1044,7 @@ sub output_method_numbers_xy {
 sub output_method_numbers_dash {
   my ($self) = @_;
   ### output_method_numbers_dash() ...
+  ### $self
 
   $self->term_size;
   my $gen = $self->make_generator;
@@ -981,7 +1052,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 4;   # 4 chars each
+  my $cell_width = 3;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);
@@ -1006,6 +1077,11 @@ sub output_method_numbers_dash {
     $rect_y1 = 0;
     $rect_y2 = $pheight-1;
   }
+  $rect_x1 -= $self->{'gen_options'}->{'x_offset'} || 0;
+  $rect_x2 -= $self->{'gen_options'}->{'x_offset'} || 0;
+  $rect_y1 -= $self->{'gen_options'}->{'y_offset'} || 0;
+  $rect_y2 -= $self->{'gen_options'}->{'y_offset'} || 0;
+  
   ### rect: "$rect_x1,$rect_y1  $rect_x2,$rect_y2"
 
   my ($n_lo, $n_hi) = $path->rect_to_n_range
@@ -1022,7 +1098,7 @@ sub output_method_numbers_dash {
   ### $n_lo
   ### $n_hi
 
-  my $values_obj = $gen->values_object;
+  my $values_seq = $gen->values_seq;
 
   my @rows = ((' ' x ($cell_width*$pwidth)) x ($pheight*2));
   my $blank = (' ' x $cell_width);
@@ -1037,7 +1113,7 @@ sub output_method_numbers_dash {
     substr ($rows[$ry], $rx, 1) = $slash;
   };
 
-  while (my ($n) = $values_obj->next) {
+  while (my ($n) = $values_seq->next) {
     ### $n
     last if ! defined $n;
     last if $n > $n_hi;

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            96
+version:            97
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -63,25 +63,30 @@ requires:
     Math::BaseCnv:        0
     Math::Factor::XS:     0.39
     Math::Libm:           0
-    Math::NumSeq:         22
+    Math::NumSeq:         38
     Math::NumSeq::All:    1
     Math::NumSeq::Base::Array:  1
     Math::NumSeq::Base::Digits:  1
     Math::NumSeq::Base::IterateIth:  1
     Math::NumSeq::Base::IteratePred:  1
     Math::NumSeq::Base::Sparse:  1
+    Math::NumSeq::Cubes:  1
     Math::NumSeq::DigitCount:  4
     Math::NumSeq::Even:   1
     Math::NumSeq::Kolakoski:  13
     Math::NumSeq::Odd:    1
     Math::NumSeq::OEIS::Catalogue:  1
     Math::NumSeq::Primes:  4
+    Math::NumSeq::Pronic:  1
+    Math::NumSeq::Squares:  1
+    Math::NumSeq::Tetrahedral:  1
+    Math::NumSeq::Triangular:  1
+    Math::NumSeq::TwinPrimes:  1
     Math::PlanePath:      68
     Math::PlanePath::KochCurve:  42
     Math::PlanePath::SacksSpiral:  0
     Math::PlanePath::SquareSpiral:  1
     Math::PlanePath::VogelFloret:  0
-    Math::PlanePath::ZOrderCurve:  0
     Math::Prime::XS:      0.23
     Module::Load:         0
     Module::Pluggable:    0
@@ -176,30 +181,34 @@ optional_features:
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
-            Math::NumSeq::ConcatNumbers:  36
+            Math::NumSeq::ConcatNumbers:  38
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  29
             Math::NumSeq::DedekindPsiCumulative:  36
             Math::NumSeq::DedekindPsiSteps:  36
+            Math::NumSeq::DeletablePrimes:  37
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
             Math::NumSeq::DigitCountLow:  16
             Math::NumSeq::DigitLength:  1
-            Math::NumSeq::DigitLengthCumulative:  1
+            Math::NumSeq::DigitLengthCumulative:  38
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::DivisorCount:  12
             Math::NumSeq::Emirps:  4
+            Math::NumSeq::ErdosSelfridgeClass:  38
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  20
             Math::NumSeq::Factorials:  29
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
-            Math::NumSeq::Fibonacci:  29
+            Math::NumSeq::Fibonacci:  38
             Math::NumSeq::FibonacciWord:  36
             Math::NumSeq::File:   1
-            Math::NumSeq::FractionDigits:  1
+            Math::NumSeq::FractionDigits:  38
+            Math::NumSeq::GolayRudinShapiro:  38
+            Math::NumSeq::GolayRudinShapiroCumulative:  38
             Math::NumSeq::GoldbachCount:  33
             Math::NumSeq::GolombSequence:  13
             Math::NumSeq::HappyNumbers:  7
@@ -212,13 +221,15 @@ optional_features:
             Math::NumSeq::LemoineCount:  33
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  29
+            Math::NumSeq::LuckyNumbers:  38
             Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
+            Math::NumSeq::MoranNumbers:  38
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
             Math::NumSeq::OEIS:   35
             Math::NumSeq::Palindromes:  1
-            Math::NumSeq::Pell:   29
+            Math::NumSeq::Pell:   38
             Math::NumSeq::Perrin:  29
             Math::NumSeq::PlanePathCoord:  71
             Math::NumSeq::PlanePathDelta:  58
@@ -232,17 +243,18 @@ optional_features:
             Math::NumSeq::Primes:  29
             Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
-            Math::NumSeq::ProthNumbers:  1
+            Math::NumSeq::ProthNumbers:  38
             Math::NumSeq::PythagoreanHypots:  29
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
-            Math::NumSeq::RepdigitRadix:  27
+            Math::NumSeq::RepdigitRadix:  37
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::ReReplace:  33
-            Math::NumSeq::ReRound:  29
+            Math::NumSeq::ReRound:  38
             Math::NumSeq::ReverseAdd:  30
             Math::NumSeq::ReverseAddSteps:  1
             Math::NumSeq::Runs:   34
+            Math::NumSeq::SelfLengthCumulative:  38
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
@@ -251,7 +263,7 @@ optional_features:
             Math::NumSeq::Squares:  25
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
-            Math::NumSeq::Tetrahedral:  1
+            Math::NumSeq::Tetrahedral:  38
             Math::NumSeq::Totient:  36
             Math::NumSeq::TotientCumulative:  36
             Math::NumSeq::TotientPerfect:  36
@@ -302,6 +314,7 @@ optional_features:
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
+            Math::PlanePath::GrayCode:  73
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexArms:  36
@@ -342,6 +355,7 @@ optional_features:
             Math::PlanePath::SierpinskiArrowhead:  32
             Math::PlanePath::SierpinskiArrowheadCentres:  42
             Math::PlanePath::SierpinskiCurve:  49
+            Math::PlanePath::SierpinskiCurveStair:  73
             Math::PlanePath::SierpinskiTriangle:  42
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareReplicate:  47
@@ -358,6 +372,7 @@ optional_features:
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
             Math::PlanePath::WunderlichMeander:  54
+            Math::PlanePath::WunderlichSerpentine:  73
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
@@ -385,30 +400,34 @@ optional_features:
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
             Math::NumSeq::CollatzSteps:  1
-            Math::NumSeq::ConcatNumbers:  36
+            Math::NumSeq::ConcatNumbers:  38
             Math::NumSeq::Cubes:  1
             Math::NumSeq::CullenNumbers:  29
             Math::NumSeq::DedekindPsiCumulative:  36
             Math::NumSeq::DedekindPsiSteps:  36
+            Math::NumSeq::DeletablePrimes:  37
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
             Math::NumSeq::DigitCountLow:  16
             Math::NumSeq::DigitLength:  1
-            Math::NumSeq::DigitLengthCumulative:  1
+            Math::NumSeq::DigitLengthCumulative:  38
             Math::NumSeq::DigitProduct:  2
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::DivisorCount:  12
             Math::NumSeq::Emirps:  4
+            Math::NumSeq::ErdosSelfridgeClass:  38
             Math::NumSeq::Even:   1
             Math::NumSeq::Expression:  20
             Math::NumSeq::Factorials:  29
             Math::NumSeq::Fibbinary:  15
             Math::NumSeq::FibbinaryBitCount:  18
-            Math::NumSeq::Fibonacci:  29
+            Math::NumSeq::Fibonacci:  38
             Math::NumSeq::FibonacciWord:  36
             Math::NumSeq::File:   1
-            Math::NumSeq::FractionDigits:  1
+            Math::NumSeq::FractionDigits:  38
+            Math::NumSeq::GolayRudinShapiro:  38
+            Math::NumSeq::GolayRudinShapiroCumulative:  38
             Math::NumSeq::GoldbachCount:  33
             Math::NumSeq::GolombSequence:  13
             Math::NumSeq::HappyNumbers:  7
@@ -421,13 +440,15 @@ optional_features:
             Math::NumSeq::LemoineCount:  33
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  29
+            Math::NumSeq::LuckyNumbers:  38
             Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
+            Math::NumSeq::MoranNumbers:  38
             Math::NumSeq::NumAronson:  8
             Math::NumSeq::Odd:    1
             Math::NumSeq::OEIS:   35
             Math::NumSeq::Palindromes:  1
-            Math::NumSeq::Pell:   29
+            Math::NumSeq::Pell:   38
             Math::NumSeq::Perrin:  29
             Math::NumSeq::PlanePathCoord:  71
             Math::NumSeq::PlanePathDelta:  58
@@ -441,17 +462,18 @@ optional_features:
             Math::NumSeq::Primes:  29
             Math::NumSeq::Primorials:  29
             Math::NumSeq::Pronic:  1
-            Math::NumSeq::ProthNumbers:  1
+            Math::NumSeq::ProthNumbers:  38
             Math::NumSeq::PythagoreanHypots:  29
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
-            Math::NumSeq::RepdigitRadix:  27
+            Math::NumSeq::RepdigitRadix:  37
             Math::NumSeq::Repdigits:  1
             Math::NumSeq::ReReplace:  33
-            Math::NumSeq::ReRound:  29
+            Math::NumSeq::ReRound:  38
             Math::NumSeq::ReverseAdd:  30
             Math::NumSeq::ReverseAddSteps:  1
             Math::NumSeq::Runs:   34
+            Math::NumSeq::SelfLengthCumulative:  38
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
@@ -460,7 +482,7 @@ optional_features:
             Math::NumSeq::Squares:  25
             Math::NumSeq::StarNumbers:  1
             Math::NumSeq::SternDiatomic:  4
-            Math::NumSeq::Tetrahedral:  1
+            Math::NumSeq::Tetrahedral:  38
             Math::NumSeq::Totient:  36
             Math::NumSeq::TotientCumulative:  36
             Math::NumSeq::TotientPerfect:  36
@@ -514,6 +536,7 @@ optional_features:
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
+            Math::PlanePath::GrayCode:  73
             Math::PlanePath::GreekKeySpiral:  27
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexArms:  36
@@ -554,6 +577,7 @@ optional_features:
             Math::PlanePath::SierpinskiArrowhead:  32
             Math::PlanePath::SierpinskiArrowheadCentres:  42
             Math::PlanePath::SierpinskiCurve:  49
+            Math::PlanePath::SierpinskiCurveStair:  73
             Math::PlanePath::SierpinskiTriangle:  42
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareReplicate:  47
@@ -570,6 +594,7 @@ optional_features:
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
             Math::PlanePath::WunderlichMeander:  54
+            Math::PlanePath::WunderlichSerpentine:  73
             Math::PlanePath::ZOrderCurve:  34
     maximum_tests:
         description:  Have "make test" do as much as possible.
@@ -613,30 +638,34 @@ recommends:
     Math::NumSeq::BaumSweet:  10
     Math::NumSeq::Beastly:  1
     Math::NumSeq::CollatzSteps:  1
-    Math::NumSeq::ConcatNumbers:  36
+    Math::NumSeq::ConcatNumbers:  38
     Math::NumSeq::Cubes:  1
     Math::NumSeq::CullenNumbers:  29
     Math::NumSeq::DedekindPsiCumulative:  36
     Math::NumSeq::DedekindPsiSteps:  36
+    Math::NumSeq::DeletablePrimes:  37
     Math::NumSeq::DigitCount:  13
     Math::NumSeq::DigitCountHigh:  16
     Math::NumSeq::DigitCountLow:  16
     Math::NumSeq::DigitLength:  1
-    Math::NumSeq::DigitLengthCumulative:  1
+    Math::NumSeq::DigitLengthCumulative:  38
     Math::NumSeq::DigitProduct:  2
     Math::NumSeq::DigitSum:  2
     Math::NumSeq::DigitSumModulo:  5
     Math::NumSeq::DivisorCount:  12
     Math::NumSeq::Emirps:  4
+    Math::NumSeq::ErdosSelfridgeClass:  38
     Math::NumSeq::Even:   1
     Math::NumSeq::Expression:  20
     Math::NumSeq::Factorials:  29
     Math::NumSeq::Fibbinary:  15
     Math::NumSeq::FibbinaryBitCount:  18
-    Math::NumSeq::Fibonacci:  29
+    Math::NumSeq::Fibonacci:  38
     Math::NumSeq::FibonacciWord:  36
     Math::NumSeq::File:   1
-    Math::NumSeq::FractionDigits:  1
+    Math::NumSeq::FractionDigits:  38
+    Math::NumSeq::GolayRudinShapiro:  38
+    Math::NumSeq::GolayRudinShapiroCumulative:  38
     Math::NumSeq::GoldbachCount:  33
     Math::NumSeq::GolombSequence:  13
     Math::NumSeq::HappyNumbers:  7
@@ -649,13 +678,15 @@ recommends:
     Math::NumSeq::LemoineCount:  33
     Math::NumSeq::Liouville:  13
     Math::NumSeq::LucasNumbers:  29
+    Math::NumSeq::LuckyNumbers:  38
     Math::NumSeq::MephistoWaltz:  14
     Math::NumSeq::MobiusFunction:  6
+    Math::NumSeq::MoranNumbers:  38
     Math::NumSeq::NumAronson:  8
     Math::NumSeq::Odd:    1
     Math::NumSeq::OEIS:   35
     Math::NumSeq::Palindromes:  1
-    Math::NumSeq::Pell:   29
+    Math::NumSeq::Pell:   38
     Math::NumSeq::Perrin:  29
     Math::NumSeq::PlanePathCoord:  71
     Math::NumSeq::PlanePathDelta:  58
@@ -669,17 +700,18 @@ recommends:
     Math::NumSeq::Primes:  29
     Math::NumSeq::Primorials:  29
     Math::NumSeq::Pronic:  1
-    Math::NumSeq::ProthNumbers:  1
+    Math::NumSeq::ProthNumbers:  38
     Math::NumSeq::PythagoreanHypots:  29
     Math::NumSeq::RadixWithoutDigit:  1
     Math::NumSeq::RepdigitAny:  16
-    Math::NumSeq::RepdigitRadix:  27
+    Math::NumSeq::RepdigitRadix:  37
     Math::NumSeq::Repdigits:  1
     Math::NumSeq::ReReplace:  33
-    Math::NumSeq::ReRound:  29
+    Math::NumSeq::ReRound:  38
     Math::NumSeq::ReverseAdd:  30
     Math::NumSeq::ReverseAddSteps:  1
     Math::NumSeq::Runs:   34
+    Math::NumSeq::SelfLengthCumulative:  38
     Math::NumSeq::SophieGermainPrimes:  4
     Math::NumSeq::SqrtContinued:  27
     Math::NumSeq::SqrtContinuedPeriod:  24
@@ -688,7 +720,7 @@ recommends:
     Math::NumSeq::Squares:  25
     Math::NumSeq::StarNumbers:  1
     Math::NumSeq::SternDiatomic:  4
-    Math::NumSeq::Tetrahedral:  1
+    Math::NumSeq::Tetrahedral:  38
     Math::NumSeq::Totient:  36
     Math::NumSeq::TotientCumulative:  36
     Math::NumSeq::TotientPerfect:  36
@@ -739,6 +771,7 @@ recommends:
     Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GosperReplicate:  46
     Math::PlanePath::GosperSide:  35
+    Math::PlanePath::GrayCode:  73
     Math::PlanePath::GreekKeySpiral:  27
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexArms:  36
@@ -779,6 +812,7 @@ recommends:
     Math::PlanePath::SierpinskiArrowhead:  32
     Math::PlanePath::SierpinskiArrowheadCentres:  42
     Math::PlanePath::SierpinskiCurve:  49
+    Math::PlanePath::SierpinskiCurveStair:  73
     Math::PlanePath::SierpinskiTriangle:  42
     Math::PlanePath::SquareArms:  37
     Math::PlanePath::SquareReplicate:  47
@@ -795,6 +829,7 @@ recommends:
     Math::PlanePath::UlamWarburtonQuarter:  49
     Math::PlanePath::VogelFloret:  12
     Math::PlanePath::WunderlichMeander:  54
+    Math::PlanePath::WunderlichSerpentine:  73
     Math::PlanePath::ZOrderCurve:  34
     Math::Symbolic:       0.605
     X11::AtomConstants:   2

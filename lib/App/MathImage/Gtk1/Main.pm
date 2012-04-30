@@ -43,7 +43,7 @@ use App::MathImage::Gtk1::Ex::WidgetBits;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 
 use constant::defer init => sub {
   ### Main init(): @_
@@ -289,9 +289,9 @@ sub _do_menuitem_oeis {
 }
 sub _oeis_url {
   my ($self) = @_;
-  my ($values_obj, $anum);
-  return (($values_obj = $self->{'draw'}->gen_object->values_object)
-          && ($anum = $values_obj->oeis_anum)
+  my ($values_seq, $anum);
+  return (($values_seq = $self->{'draw'}->gen_object->values_seq)
+          && ($anum = $values_seq->oeis_anum)
           && "http://oeis.org/$anum");
 }
 sub _update_oeis {
@@ -833,16 +833,16 @@ sub _update_values_tooltip {
     my $values = $values_combobox->get('active-nick');
 
     # my $desc = Glib::Ex::EnumBits::to_description($enum_type, $values)
-    my $values_obj;
-    if (($values_obj = $self->{'draw'}->gen_object->values_object)
-        && (my $desc = $values_obj->description)) {
+    my $values_seq;
+    if (($values_seq = $self->{'draw'}->gen_object->values_seq)
+        && (my $desc = $values_seq->description)) {
       my $name = Glib::Ex::EnumBits::to_display ($enum_type, $values);
       $tooltip .= "\n\n"
         . __x('Current setting: {name}', name => $name)
           . "\n"
             . $desc;
     }
-    ### values_obj: "$values_obj"
+    ### values_seq: "$values_seq"
     ### $tooltip
     set_property_maybe ($toolitem, tooltip_text => $tooltip);
   }

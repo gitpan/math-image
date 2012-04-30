@@ -23,7 +23,7 @@ use List::Util 'max';
 use List::MoreUtils;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -31,7 +31,7 @@ use Math::NumSeq;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant name => Math::NumSeq::__('Loeschian numbers');
+# use constant name => Math::NumSeq::__('...');
 use constant description => Math::NumSeq::__('Loeschian numbers x^2+3*y^2 for all x>=0 and y>=0.');
 use constant characteristic_increasing => 2;
 use constant i_start => 1;
