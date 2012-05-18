@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 97;
+$VERSION = 98;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -99,7 +99,7 @@ sub getopt_long_specifications {
      'cubes'      => sub { _hopt($self,'gen_options','values', 'Cubes');  },
      'tetrahedral'=> sub { _hopt($self,'gen_options','values', 'Tetrahedral');},
      'perrin'     => sub { _hopt($self,'gen_options','values', 'Perrin');  },
-     'padovan'    => sub { _hopt($self,'gen_options','values', 'MathImagePadovan');  },
+     'padovan'    => sub { _hopt($self,'gen_options','values', 'Padovan');  },
      'fibonacci'  => sub { _hopt($self,'gen_options','values', 'Fibonacci');  },
      'fraction=s' =>
      sub { my ($optname, $value) = @_;
@@ -117,8 +117,8 @@ sub getopt_long_specifications {
      sub { my ($optname, $value) = @_;
            _hopt($self,'gen_options','values', 'Polygonal');
            $self->{'gen_options'}->{'values_parameters'}->{'polygonal'} = "$value"; },
-     'pi'      => sub { _hopt($self,'gen_options','values', 'PiBits');  },
-     'ln2'     => sub { _hopt($self,'gen_options','values', 'Ln2Bits');  },
+     # 'pi'      => sub { _hopt($self,'gen_options','values', 'PiBits');  },
+     # 'ln2'     => sub { _hopt($self,'gen_options','values', 'Ln2Bits');  },
      'odd'     => sub { _hopt($self,'gen_options','values', 'Odd');  },
      'even'    => sub { _hopt($self,'gen_options','values', 'Even');  },
      'all'     => sub { _hopt($self,'gen_options','values', 'All');  },
@@ -148,8 +148,8 @@ sub getopt_long_specifications {
                            'rows'                  => 'Rows',
                            'columns'               => 'Columns',
 
-                           # never documented, don't much want individual
-                           # options
+                           # these never documented, don't much want
+                           # individual options
                            # hex                     => 'HexSpiral',
                            # 'hex-skewed'            => 'HexSpiralSkewed',
                            # 'knight-spiral'         => 'KnightSpiral',
@@ -869,15 +869,15 @@ sub output_method_numbers {
   }
   if ($x_min < 0) {
     $x_min = -$pwidth_half;
-    $x_max = $pwidth_half;
+    $x_max = $x_min + $pwidth-1;
   } else {
     $x_max = min ($x_max, $pwidth);
   }
   if ($y_min < 0) {
     $y_min = -$height_half;
-    $y_max = $height_half;
+    $y_max = $y_min + $height-1;
   } else {
-    $y_max = min ($y_max, $height);
+    $y_max = min ($y_max, $height-1);
   }
   my $cell_width = 0;
   foreach my $y (reverse $y_min .. $y_max) {

@@ -27,7 +27,7 @@ use Module::Load;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 97;
+our $VERSION = 98;
 
 # after_item => $item
 #
@@ -59,13 +59,15 @@ sub GetParameterValues {
 
 sub SetParameterValues {
   my ($self, $hashref) = @_;
+  ### Wx-Params SetParameterValues(): $hashref
 
   my %newval = (%{$self->{'parameter_values'}},
                 %$hashref);
   foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
     my $name = $pinfo->{'name'};
     my $key = $pinfo->{'share_key'} || $name;
-    if (my $item = $self->{'items_hash'}->{$key}) {
+    if (exists $newval{$name}
+        && (my $item = $self->{'items_hash'}->{$key})) {
       $item->SetValue (delete $newval{$name});
     }
   }
@@ -138,9 +140,10 @@ sub SetParameterInfoArray {
         }
       }
       $items_hash->{$key} = $item;
-      $toolbar->InsertControl ($pos++, $item);
     }
 
+    ### InsertControl at pos: $pos
+    $toolbar->RemoveTool ($item->GetId);
     $toolbar->InsertControl ($pos++, $item);
   }
 
@@ -154,7 +157,8 @@ sub SetParameterInfoArray {
 
 sub _update_visible {
   my ($self) = @_;
-  ### _update_visible
+  ### Wx-Params _update_visible() ...
+
   my $items_hash = $self->{'items_hash'};
   foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
     ### name: $pinfo->{'name'}
@@ -162,8 +166,8 @@ sub _update_visible {
       $item->Show (_pinfo_when($self,$pinfo));
     }
   }
+  ### Wx-Params _update_visible() done ...
 }
-
 sub _do_item_changed {
   my ($self, $item) = @_;
   ### Wx-Params _do_item_changed() ...

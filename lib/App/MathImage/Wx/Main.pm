@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 97;
+our $VERSION = 98;
 
 sub new {
   my ($class, $label) = @_;
@@ -48,30 +48,48 @@ sub new {
   my $id = 0;
   {
     my $menu = Wx::Menu->new;
-    $menubar->Append ($menu, "&File");
+    $menubar->Append ($menu, __('&File'));
 
-    $menu->Append(Wx::wxID_EXIT(), '', ''); # "Exit this program");
+    $menu->Append(Wx::wxID_EXIT(),
+                  '',
+                  __('Exit the program'));
     EVT_MENU ($self, Wx::wxID_EXIT(), 'quit');
   }
   {
     my $menu = Wx::Menu->new;
-    $menubar->Append ($menu, "&Tools");
+    $menubar->Append ($menu, __('&Tools'));
     {
       my $item = $self->{'menuitem_fullscreen'} =
-        $menu->AppendCheckItem (++$id, "&Fullscreen\tCtrl-F", "");
+        $menu->Append (++$id,
+                       __("&Fullscreen\tCtrl-F"),
+                       __('Toggle between full screen and normal window.'));
       EVT_MENU ($self, $item, '_menu_fullscreen');
+    }
+    {
+      $menu->Append(++$id,
+                    __("&Centre\tC"),
+                    __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'));
+      EVT_MENU ($self, $id, '_menu_centre');
     }
   }
   {
-    my $menu = Wx::Menu->new;
-    $menubar->Append ($menu, "&Help");
+    my $menu = $self->{'help_menu'} = Wx::Menu->new;
+    $menubar->Append ($menu, __('&Help'));
 
-    $menu->Append (Wx::wxID_ABOUT(), '', ''); # "Show about dialog");
+    $menu->Append (Wx::wxID_ABOUT(),
+                   '',
+                   __('Show about dialog'));
     EVT_MENU ($self, Wx::wxID_ABOUT(), 'popup_about');
+
+    if (Module::Util::find_installed('Browser::Open')) {
+      $menu->Append (++$id, __('&OEIS Web Page'), '');
+      EVT_MENU ($self, $id, 'oeis_browse');
+      $self->{'oeis_browse_id'} = $id;
+    }
   }
 
   {
-    my $toolbar = $self->CreateToolBar;
+    my $toolbar = $self->{'toolbar'} = $self->CreateToolBar;
 
     # my $bitmap = Wx::Bitmap->new (10,10);
     # $toolbar->AddTool(++$id,
@@ -123,7 +141,7 @@ sub new {
       $toolbar->AddControl($choice);
       $toolbar->SetToolShortHelp
         ($choice->GetId,
-         __('The values for where to place values in the plane.'));
+         __('The values to show.'));
       Wx::Event::EVT_CHOICE ($self, $choice, 'values_update');
 
       my $values_params = $self->{'values_params'}
@@ -131,6 +149,22 @@ sub new {
           (toolbar => $toolbar,
            after_item => $choice,
            callback => sub { values_params_update($self) });
+    }
+
+    $toolbar->AddSeparator;
+
+    {
+      my $choice = $self->{'filter_choice'}
+        = Wx::Choice->new ($toolbar,
+                           Wx::wxID_ANY(),
+                           Wx::wxDefaultPosition(),
+                           Wx::wxDefaultSize(),
+                           [ App::MathImage::Generator->filter_choices_display ]);
+      $toolbar->AddControl($choice);
+      $toolbar->SetToolShortHelp
+        ($choice->GetId,
+         __('Filter the values to only odd, or even, or primes, etc.'));
+      Wx::Event::EVT_CHOICE ($self, $choice, 'filter_update');
     }
     {
       my $spin = $self->{'scale_spin'}
@@ -148,14 +182,16 @@ sub new {
                                   __('How many pixels per square.'));
       Wx::Event::EVT_SPINCTRL ($self, $spin, 'scale_update');
     }
-
     {
+      my @figure_display = map {ucfirst}
+        App::MathImage::Generator->figure_choices;
+      $figure_display[0] = __('Figure');
       my $choice = $self->{'figure_choice'}
         = Wx::Choice->new ($toolbar,
                            Wx::wxID_ANY(),
                            Wx::wxDefaultPosition(),
                            Wx::wxDefaultSize(),
-                           [App::MathImage::Generator->figure_choices]);
+                           \@figure_display);
       $toolbar->AddControl($choice);
       $toolbar->SetToolShortHelp
         ($choice->GetId,
@@ -167,9 +203,9 @@ sub new {
   $self->CreateStatusBar;
 
   my $draw = $self->{'draw'} = App::MathImage::Wx::Drawing->new ($self);
-  path_update($self); # initial
-  values_update($self); # initial
   _controls_from_draw ($self);
+  # $self->values_update_tooltip;
+  # $self->oeis_browse_update;
 
   return $self;
 }
@@ -185,6 +221,29 @@ sub _menu_fullscreen {
   #   $self->Show;
   # }
 }
+sub _menu_centre {
+  my ($self, $event) = @_;
+  ### Main _menu_fullscreen() ...
+
+  my $draw = $self->{'draw'};
+  $draw->{'x_offset'} = 0;
+  $draw->{'y_offset'} = 0;
+  $draw->redraw;
+}
+sub oeis_browse {
+  my ($self, $event) = @_;
+  if (my $url = _oeis_url($self)) {
+    require Browser::Open;
+    Browser::Open::open_browser ($url);
+  }
+}
+sub _oeis_url {
+  my ($self) = @_;
+  my ($values_seq, $anum);
+  return (($values_seq = $self->{'draw'}->gen_object->values_seq)
+          && ($anum = $values_seq->oeis_anum)
+          && "http://oeis.org/$anum");
+}
 
 sub randomize {
   my ($self, $event) = @_;
@@ -194,34 +253,41 @@ sub randomize {
   my %options = App::MathImage::Generator->random_options;
   @{$draw}{keys %options} = values %options;
   _controls_from_draw ($self);
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  $draw->redraw;
+  $draw->values_update_tooltip;
+  $draw->oeis_browse_update;
 }
 sub scale_update {
   my ($self, $event) = @_;
   ### Main scale_update() ...
   my $draw = $self->{'draw'};
   $draw->{'scale'} = $self->{'scale_spin'}->GetValue;
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  $draw->redraw;
+}
+sub filter_update {
+  my ($self, $event) = @_;
+  ### Main filter_update() ...
+  my $draw = $self->{'draw'};
+  my @filter_choices = App::MathImage::Generator->filter_choices;
+  $draw->{'filter'} = $filter_choices[$self->{'filter_choice'}->GetSelection];
+  $draw->redraw;
 }
 sub figure_update {
   my ($self, $event) = @_;
   ### Main figure_update() ...
   my $draw = $self->{'draw'};
-  $draw->{'figure'} = $self->{'figure_choice'}->GetStringSelection;
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  my @figure_choices = App::MathImage::Generator->figure_choices;
+  $draw->{'figure'} = $figure_choices[$self->{'figure_choice'}->GetSelection];
+  $draw->redraw;
 }
 sub path_update {
   my ($self) = @_;  # ($self, $event)
-  ### Main path_update(): "$self"
+  ### Wx-Main path_update(): "$self"
   my $draw = $self->{'draw'};
   my $path = $draw->{'path'} = $self->{'path_choice'}->GetStringSelection;
   $self->{'path_params'}->SetParameterInfoArray
     (App::MathImage::Generator->path_class($path)->parameter_info_array);
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  $draw->redraw;
 }
 sub path_params_update {
   my ($self) = @_;
@@ -229,33 +295,69 @@ sub path_params_update {
   my $draw = $self->{'draw'};
   my $path_params = $self->{'path_params'};
   $draw->{'path_parameters'} = $path_params->GetParameterValues;
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  $draw->redraw;
 }
 sub values_update {
   my ($self, $event) = @_;
-  ### Main values_update() ...
+  ### Wx-Main values_update() ...
   my $draw = $self->{'draw'};
   my $values = $draw->{'values'} = $self->{'values_choice'}->GetStringSelection;
   $self->{'values_params'}->SetParameterInfoArray
     (App::MathImage::Generator->values_class($values)->parameter_info_array);
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  $draw->redraw;
+  $self->values_update_tooltip;
+  $self->oeis_browse_update;
 }
 sub values_params_update {
   my ($self) = @_;
-  ### Main values_parameters_update(): "$self"
+  ### Wx-Main values_parameters_update(): "$self"
   my $draw = $self->{'draw'};
   my $values_params = $self->{'values_params'};
   $draw->{'values_parameters'} = $values_params->GetParameterValues;
-  delete $draw->{'bitmap'};
-  $draw->Refresh;
+  $draw->redraw;
+  $self->values_update_tooltip;
+  $self->oeis_browse_update;
 }
+sub values_update_tooltip {
+  my ($self) = @_;
+  ### Wx-Main values_update_tooltip() ...
+
+  my $tooltip = __('The values to display.');
+  my $values_choice = $self->{'values_choice'};
+
+  my $values_seq;
+  if (($values_seq = $self->{'draw'}->gen_object->values_seq)
+      && (my $desc = $values_seq->description)) {
+    my $name = $values_choice->GetStringSelection;
+    ### values_seq name: "$values_seq"
+    ### values_choice name: $name
+    $tooltip .= "\n\n"
+      . __x('Current setting: {name}', name => $name)
+        . "\n$desc";
+  }
+
+  my $toolbar = $self->{'toolbar'};
+  $toolbar->SetToolShortHelp ($values_choice->GetId, $tooltip);
+}
+sub oeis_browse_update {
+  my ($self) = @_;
+  my $url = _oeis_url($self);
+  my $id = $self->{'oeis_browse_id'};
+  my $menu = $self->{'help_menu'};
+  $menu->Enable ($id, defined($url));
+  $menu->SetHelpString ($id,
+                        __x("Open browser at Online Encyclopedia of Integer Sequences (OEIS) web page for the current values\n{url}",
+                            url => ($url||'')));
+}
+
+
 
 sub _controls_from_draw {
   my ($self) = @_;
-  ### _update_controls() ...
+  ### _controls_from_draw() ...
   ### path: $self->{'draw'}->{'path'}
+  ### values: $self->{'draw'}->{'values'}
+  ### draw seq: ($self->{'draw'}->gen_object->values_seq || '').''
 
   my $draw = $self->{'draw'};
   my $path = $draw->{'path'};
@@ -272,6 +374,9 @@ sub _controls_from_draw {
 
   $self->{'scale_spin'}->SetValue ($draw->{'scale'});
   $self->{'figure_choice'}->SetStringSelection ($draw->{'figure'});
+
+  $self->values_update_tooltip;
+  $self->oeis_browse_update;
 }
 
 sub quit {
@@ -320,16 +425,19 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the license for more.
 
 sub mouse_motion {
   my ($self, $event) = @_;
-  ### Main _do_motion() ...
+  ### Wx-Main mouse_motion() ...
 
   my $statusbar = $self->GetStatusBar;
   $statusbar->SetStatusText ('');
 
   my $draw = $self->{'draw'};
   my $gen = $draw->gen_object;
+  ### xy: $event->GetX.','.$event->GetY
   my $message = $gen->xy_message ($event->GetX, $event->GetY);
   ### $message
   $statusbar->SetStatusText ($message);
+
+  ### Wx-Main mouse_motion() finished ...
 }
 
 #------------------------------------------------------------------------------
@@ -357,29 +465,31 @@ sub command_line {
     $draw->SetBackgroundColour($wxc);
   }
 
-  ### draw set: $gen_options
+  ### command_line draw: $gen_options
   %$draw = (%$draw,
             %$gen_options);
+  $draw->redraw;
   _controls_from_draw ($self);
-  ### $draw
 
   if (defined $width) {
     #   require Wx::Perl::Units;
     #   Wx::Perl::Units::SetInitialSizeWithSubsizes
     #       ($self, [ $draw, $width, $height ]);
 
-    $draw->SetSize (Wx::Size->new ($width, $height));
+    $draw->SetSize ($width, $height);
     my $size = $self->GetBestSize;
+    $draw->SetSize (-1,-1);
+
     ### $width
     ### $height
     ### best width: $size->GetWidth
     ### best height: $size->GetHeight
-    $self->SetInitialSize ($size);
-    $draw->SetSize (-1,-1);
+    $self->SetSize ($size);
+
   } else {
     my $screen_size = Wx::GetDisplaySize();
-    $self->SetInitialSize (Wx::Size->new ($screen_size->GetWidth * 0.8,
-                                          $screen_size->GetHeight * 0.8));
+    $self->SetSize (Wx::Size->new ($screen_size->GetWidth * 0.8,
+                                   $screen_size->GetHeight * 0.8));
   }
 
   if (delete $mathimage->{'gui_options'}->{'fullscreen'}) {

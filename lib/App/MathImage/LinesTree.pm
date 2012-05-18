@@ -15,27 +15,31 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package Math::NumSeq::MathImageLinesLevel;
+package App::MathImage::LinesTree;
 use 5.004;
 use strict;
 use Locale::TextDomain 'App-MathImage';
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
+
 use vars '$VERSION','@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
-use constant name => __('Line by Level');
+use constant name => __('Lines by Tree');
 use constant description => __('No numbers, instead lines showing the path taken.');
-use constant parameter_info_array =>
-  [ { name    => 'level',
-      display => __('Level'),
-      type    => 'integer',
-      minimum => 1,
-      maximum => 999,
-      default => 3,
-      # description => __('.'),
-    } ];
+use constant parameter_info_array => [ { name    => 'branches',
+                                         display => __('Branches'),
+                                         type    => 'integer',
+                                         default => 3,
+                                         minimum => 2,
+                                         width   => 3,
+                                         # description => __('...'),
+                                       },
+                                     ];
 
 1;
 __END__

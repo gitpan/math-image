@@ -16,12 +16,18 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# wxMouseEvent move offset
+
+
+
+
 package App::MathImage::Wx::Drawing;
 use strict;
 use Wx;
 
-use base qw(Wx::Window);
-our $VERSION = 97;
+use base 'Wx::Window';
+our $VERSION = 98;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,15 +43,27 @@ sub new {
   my $self = $class->SUPER::new ($parent);
   $self->SetWindowStyle (Wx::wxFULL_REPAINT_ON_RESIZE());
 
+  $self->{'x_offset'} = 0;
+  $self->{'y_offset'} = 0;
   my $options = App::MathImage::Generator->default_options;
-  @{$self}{keys %$options} = values %$options;
+  %$self = (%$self,
+            %$options);
   $self->{'scale'} = 3;
 
   Wx::Event::EVT_PAINT ($self, '_OnPaint');
   Wx::Event::EVT_SIZE ($self, '_OnSize');
   Wx::Event::EVT_IDLE ($self, '_OnIdle');
-  Wx::Event::EVT_MOTION ($self, '_do_motion');
+  Wx::Event::EVT_LEFT_DOWN ($self, 'do_left_down');
+  Wx::Event::EVT_LEFT_UP ($self, 'do_left_down');
+  Wx::Event::EVT_MOTION ($self, 'do_motion');
   return $self;
+}
+
+sub redraw {
+  my ($self) = @_;
+  delete $self->{'bitmap'};
+  delete $self->{'gen_object'};
+  $self->SUPER::Refresh;
 }
 
 sub _OnSize {
@@ -217,9 +235,9 @@ sub gen_object {
        scale           => $self->{'scale'},
        figure          => $self->{'figure'},
 
-       # filter          => $self->{'filter'},
-       # x_left          => $self->{'hadjustment'}->value,
-       # y_bottom        => $self->{'vadjustment'}->value,
+       filter          => $self->{'filter'},
+       x_offset          => $self->{'x_offset'},
+       y_offset        => $self->{'y_offset'},
 
        %gen_parameters)
     });
@@ -235,18 +253,50 @@ sub y_negative {
 
 sub _OnIdle {
   my ($self, $event) = @_;
-  ### Wx-Drawing OnIdle() ...
+  # ### Wx-Drawing OnIdle() ...
   if (my $gen = $self->{'gen_object'}) {
     $gen->OnIdle ($event);
   }
 }
 
-sub _do_motion {
+# wxMouseEvent
+sub do_left_down {
   my ($self, $event) = @_;
-  ### Draw _do_motion() ...
-  if (my $main = $self->GetParent) {
-    $main->mouse_motion ($event);
+  ### Draw do_left_down() ...
+  $self->{'drag_x'} = $event->GetX;
+  $self->{'drag_y'} = $event->GetY;
+  $event->Skip(1); # propagate to other processing
+}
+sub do_left_up {
+  my ($self, $event) = @_;
+  ### Draw do_left_up() ...
+  undef $self->{'drag_x'};
+  $event->Skip(1); # propagate to other processing
+}
+sub do_motion {
+  my ($self, $event) = @_;
+  ### Draw do_motion() ...
+
+  if ($event->Dragging) {
+    if (defined $self->{'drag_x'}) {
+      ### drag ...
+      my $x = $event->GetX;
+      my $y = $event->GetY;
+      $self->{'x_offset'} += $x - $self->{'drag_x'};
+      $self->{'y_offset'} -= $y - $self->{'drag_y'};
+      $self->{'drag_x'} = $x;
+      $self->{'drag_y'} = $y;
+      delete $self->{'bitmap'};
+      $self->Refresh;
+    }
+  } else {
+    ### mouse motion ...
+    if (my $main = $self->GetParent) {
+      $main->mouse_motion ($event);
+    }
   }
+  ### do_motion() propagate to other processing ...
+  $event->Skip(1);
 }
 
 # sub pointer_xy_to_image_xyn {

@@ -29,7 +29,7 @@ use Prima::MsgBox;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 97;
+$VERSION = 98;
 
 sub init {
   my ($self, %profile) = @_;

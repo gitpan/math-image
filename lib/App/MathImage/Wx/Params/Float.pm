@@ -16,60 +16,80 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Wx::SpinCtrl and Wx::SpinButton are integer-only
+
+
 package App::MathImage::Wx::Params::Float;
 use 5.004;
 use strict;
 use POSIX ();
 use Wx;
+use List::Util 'min', 'max';
 
-use base 'Wx::SpinCtrl';
-our $VERSION = 97;
+use base 'Wx::TextCtrl';
+our $VERSION = 98;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 sub new {
   my ($class, $parent, $info) = @_;
   ### Params-Float new(): "$parent", $info
 
-  my $minimum = $info->{'minimum'};
-  if (! defined $minimum) { $minimum = POSIX::INT_MIN(); }
-  my $maximum = $info->{'maximum'};
-  if (! defined $maximum) { $maximum = POSIX::INT_MAX(); }
-
-    # my $min = $newval->{'minimum'};
-    # if (! defined $min) { $min = POSIX::DBL_MIN; }
-    # my $max = $newval->{'maximum'};
-    # if (! defined $max) { $max = POSIX::DBL_MAX; }
+    my $min = $info->{'minimum'};
+    if (! defined $min) { $min = POSIX::DBL_MIN; }
+    my $max = $info->{'maximum'};
+    if (! defined $max) { $max = POSIX::DBL_MAX; }
 
     # my $page_increment = $newval->{'page_increment'};
     # if (! defined $page_increment) { $page_increment = 1; }
     # my $step_increment = $newval->{'step_increment'};
     # if (! defined $step_increment) { $step_increment = $page_increment / 10; }
 
-  # digits => ($newval->{'decimals'} || 8));
-
   # my $display = ($info->{'display'} || $info->{'name'});
   my $self = $class->SUPER::new ($parent,
                                  Wx::wxID_ANY(),
-                                 $info->{'default'}, # initial value
+                                 $info->{'default'} || '0', # initial value
                                  Wx::wxDefaultPosition(),
                                  Wx::Size->new (10*($info->{'width'} || 5),
                                                 -1),
-                                 Wx::wxSP_ARROW_KEYS(),  # style
-                                 $minimum,
-                                 $maximum);
-  Wx::Event::EVT_SPINCTRL ($self, $self, 'OnSpinChange');
+                                 Wx::wxTE_PROCESS_ENTER());  # style
+  Wx::Event::EVT_TEXT_ENTER ($self, $self, 'OnTextChange');
+  Wx::Event::EVT_MOUSEWHEEL ($self, 'OnMouseWheel');
+
+  $self->{'info'} = $info;
+
   return $self;
 }
 
-sub OnSpinChange {
+sub OnTextChange {
   my ($self) = @_;
 
   if (my $callback = $self->{'callback'}) {
     &$callback($self);
   }
+}
+
+sub OnMouseWheel {
+  my ($self, $event) = @_;
+  ### IsPageScroll: $event->IsPageScroll
+
+  my $value = $self->GetValue;
+  $value += ($event->ControlDown ? 1 : 0.1)
+    * $event->GetWheelRotation / $event->GetWheelDelta;
+  my $info = $self->{'info'};
+  if (defined (my $maximum = $info->{'maximum'})) {
+    $value = min ($value, $maximum);
+  }
+  if (defined (my $minimum = $info->{'minimum'})) {
+    $value = max ($value, $minimum);
+  }
+  if (defined (my $decimals = $info->{'decimals'})) {
+    $value = sprintf '%.*f', $decimals, $value;
+  }
+  $self->SetValue ($value);
+  $self->OnTextChange;
 }
 
 1;

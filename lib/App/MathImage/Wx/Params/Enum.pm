@@ -23,52 +23,76 @@ use Wx;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 use base 'Wx::Choice';
-our $VERSION = 97;
-
+our $VERSION = 98;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
 sub new {
   my ($class, $parent, $info) = @_;
-  ### Params-Enum new(): "$parent"
+  ### Wx-Params-Enum new() ...
+  ### parent: "$parent"
+  ### $info
 
-  my $display = $info->{'display'};
+  my $choices = $info->{'choices'};
+  my %choice_display_to_value;
+  my %value_to_choice_display;
+  my $choices_display = $info->{'choices_display'};
+  if ($choices_display) {
+    foreach my $i (0 .. $#$choices) {
+      $choice_display_to_value{$choices_display->[$i]} = $choices->[$i];
+      $value_to_choice_display{$choices->[$i]} = $choices_display->[$i];
+    }
+  } else {
+    $choices_display = $choices;
+  }
+  ### $choices_display
+
   my $self = $class->SUPER::new ($parent,
                                  Wx::wxID_ANY(),
                                  Wx::wxDefaultPosition(),
                                  Wx::wxDefaultSize(),
-                                 $info->{'choices'});
+                                 $choices_display);
+  $self->{'choice_display_to_value'} = \%choice_display_to_value;
+  $self->{'value_to_choice_display'} = \%value_to_choice_display;
+
+  my $name = $info->{'name'};
+  my $display = $info->{'display'};
+  if (! defined $display) {
+    $display = $name;
+  }
+  # $self->SetLabelText($display);
+  $display =~ s/&/&&/g;
+  $self->SetLabel($display);
+
   $self->SetValue ($info->{'default'});
 
-    # my $name = $newval->{'name'};
-    # my $display = ($newval->{'display'} || $name);
-    # $self->set (enum_type => _pinfo_to_enum_type($newval),
-    #             overflow_mnemonic =>
-    #             Wx::Ex::MenuBits::mnemonic_escape($display));
-    # if (! defined ($self->get('parameter-value'))) {
-    #   $self->set (parameter_value => $newval->{'default'});
-    # }
-    # 
-    # my $combobox = $self->get_child;
-    # set_property_maybe ($combobox, # tearoff-title new in 2.10
-    #                     tearoff_title => __('Math-Image:').' '.$display);
-
-  # EVT_CHOICE ($self, 'OnChoiceSelected');
+  Wx::Event::EVT_CHOICE ($self, $self, 'OnChoiceSelected');
   return $self;
 }
 
 sub GetValue {
   my ($self) = @_;
-  $self->GetStringSelection;
+  ### Wx-Params-Enum GetValue() ...
+  ### is: ($self->{'choice_display_to_value'}->{$self->GetStringSelection} || $self->GetStringSelection)
+
+  my $choice_display = $self->GetStringSelection;
+  return ($self->{'choice_display_to_value'}->{$choice_display}
+          || $choice_display);
 }
 sub SetValue {
   my ($self, $newval) = @_;
-  $self->SetStringSelection($newval);
+  ### Wx-Params-Enum SetValue(): $newval
+  ### label: $self->GetLabelText
+
+  $self->SetStringSelection ($self->{'value_to_choice_display'}->{$newval}
+                             || $newval);
 }
 
 sub OnChoiceSelected {
   my ($self) = @_;
+  ### Wx-Params-Enum OnChoiceSelected() ...
   if (my $callback = $self->{'callback'}) {
     &$callback($self);
   }

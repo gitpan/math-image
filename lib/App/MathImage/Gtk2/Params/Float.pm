@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 97;
+our $VERSION = 98;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass
@@ -89,15 +89,17 @@ sub SET_PROPERTY {
     my $oldval = $self->{$pname};
     $self->{$pname} = $newval;
 
+    my $decimals = $newval->{'decimals'};
+
     my $min = $newval->{'minimum'};
     if (! defined $min) { $min = POSIX::DBL_MIN; }
     my $max = $newval->{'maximum'};
     if (! defined $max) { $max = POSIX::DBL_MAX; }
 
-    my $page_increment = $newval->{'page_increment'};
-    if (! defined $page_increment) { $page_increment = 1; }
-    my $step_increment = $newval->{'step_increment'};
-    if (! defined $step_increment) { $step_increment = $page_increment / 10; }
+    my $step_increment = $newval->{'step_increment'}
+      || 10**-($decimals//1);  # default last decimal, or 0.1
+    my $page_increment = $newval->{'page_increment'}
+      || 10*$step_increment;
 
     my $adj = $self->{'adjustment'};
     $adj->set (lower => $min,
@@ -112,8 +114,9 @@ sub SET_PROPERTY {
     }
 
     if (my $spin = $self->get('child-widget')) {
+      my $digits = (defined $decimals ? $decimals : 4);
       $spin->set (width_chars => ($newval->{'width'} || -1),
-                  digits => ($newval->{'decimals'} || 8));
+                  digits => $digits);
     }
 
     my $display = ($newval->{'display'} || $newval->{'name'});

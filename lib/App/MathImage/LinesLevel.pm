@@ -1,6 +1,4 @@
-#!/usr/bin/perl -w
-
-# Copyright 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -17,24 +15,27 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.010;
+package App::MathImage::LinesLevel;
+use 5.004;
 use strict;
-use warnings;
-use POSIX;
+use Locale::TextDomain 'App-MathImage';
 
-#use Devel::Comments;
+use vars '$VERSION','@ISA';
+$VERSION = 98;
+use Math::NumSeq::All;
+@ISA = ('Math::NumSeq::All');
 
-{
-  require Math::BigFloat;
-  Math::BigFloat->import (try => 'GMP');
-  Math::BigFloat->round_mode('-inf');
-  for (my $digits = 2; $digits < 10000000; $digits *= 2) {
-    print "$digits\n";
-    # my $f = Math::BigFloat->new(0);
-    # $f->precision($digits);
-    my $f = Math::BigFloat->bpi($digits);
-    # print $f, "\n";
-  }
-  exit 0;
-}
+use constant name => __('Line by Level');
+use constant description => __('No numbers, instead lines showing the path taken.');
+use constant parameter_info_array =>
+  [ { name    => 'level',
+      display => __('Level'),
+      type    => 'integer',
+      minimum => 1,
+      maximum => 999,
+      default => 3,
+      # description => __('.'),
+    } ];
 
+1;
+__END__

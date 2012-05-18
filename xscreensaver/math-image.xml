@@ -24,9 +24,9 @@
 
 <screensaver name="math-image" _label="Math-Image">
 
-<command arg="--xscreensaver --random" />
+<command arg="--xscreensaver" />
 <_description> 
-Display a random mathematical image.
+Display random mathematical images.
 See "man math-image" for details.
 
 Sometimes a random image is blank, or just a line across the bottom of

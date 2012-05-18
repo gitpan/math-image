@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
-package Math::NumSeq::MathImageLines;
+package App::MathImage::Lines;
 use 5.004;
 use strict;
 use Locale::TextDomain 'App-MathImage';
@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
@@ -46,14 +46,16 @@ use constant parameter_info_array =>
       default => 'integer',
       choices => [ 'integer','midpoint','rounded' ],
     },
-    { name        => 'midpoint_offset',
-      type        => 'float',
-      default     => 0.5,
-      decimals    => 1,
-      minimum     => 0,
-      maximum     => 1.00,
-      when_name   => 'lines_type',
-      when_values => ['midpoint','rounded'],
+    { name           => 'midpoint_offset',
+      type           => 'float',
+      default        => 0.50,
+      decimals       => 2,
+      minimum        => 0,
+      maximum        => 1.00,
+      step_increment => 0.05,
+      page_increment => 0.2,
+      when_name      => 'lines_type',
+      when_values    => ['midpoint','rounded'],
     },
   ];
 

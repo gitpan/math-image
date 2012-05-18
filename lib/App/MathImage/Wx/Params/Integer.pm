@@ -24,7 +24,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::SpinCtrl';
-our $VERSION = 97;
+our $VERSION = 98;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -51,7 +51,7 @@ sub new {
 
   if (defined (my $width = $info->{'width'})) {
     my ($digit_width) = $self->GetTextExtent('0123456789');
-    $self->SetSize (int($digit_width/10 * ($width+2)),
+    $self->SetSize (int($digit_width/9 * ($width+2)),
                     -1);
   }
 

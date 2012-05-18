@@ -140,6 +140,7 @@ my %maximum_planepath
      'Math::PlanePath::KochelCurve'          => 55, # new in v.55
      'Math::PlanePath::CincoCurve'           => 56, # new in v.56
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
+     'Math::PlanePath::ImaginaryHalf'        => 74, # new in v.74
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
      'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
      'Math::PlanePath::LTiling'              => 57, # v.57 L_fill options
@@ -216,6 +217,8 @@ my %maximum_numseq
      'Math::NumSeq::LemoineCount'        => 33, # new in v.33
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
      'Math::NumSeq::ErdosSelfridgeClass' => 38, # new in v.38
+     'Math::NumSeq::PrimeIndexOrder'     => 39, # new in v.39
+     'Math::NumSeq::PrimeIndexPrimes'    => 39, # new in v.39
      'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
      'Math::NumSeq::Totient'             => 36, # v.36 bigger range 
      'Math::NumSeq::TotientCumulative'   => 36, # v.36 bigger range 
@@ -360,7 +363,7 @@ my %prereq_pm
 
      # my Gtk2-Ex-ComboBoxBits
      # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
-     'Gtk2::Ex::ComboBox::Enum' => 5, # for set_active_nick()
+     'Gtk2::Ex::ComboBox::Enum' => 5, # v.5 for set_active_nick()
      'Gtk2::Ex::ComboBox::Text' => 2,
      'Gtk2::Ex::ComboBox::PixbufType' => 31, # v.31 fix initial for_width
      'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
@@ -389,7 +392,7 @@ my %prereq_pm
      'Module::Pluggable' => 0,
      'Module::Util' => 0,
      'Number::Format' => 0,
-     'Scalar::Util' => '1.18', # for pure-perl refaddr() fix
+     'Scalar::Util' => '1.18', # v1.18 for pure-perl refaddr() fix
      'Scope::Guard' => 0,
      'Software::License::GPL_3' => '0.001', # gpl3 in 0.001
      'Text::Capitalize' => 0,
@@ -407,8 +410,6 @@ my %prereq_pm
      'Math::PlanePath::SquareSpiral' => 1, # for default display
      'Math::PlanePath::SacksSpiral'  => 0, # for --sacks option
      'Math::PlanePath::VogelFloret'  => 0, # for --vogel option
-     # for various in-progress
-     'Math::PlanePath::KochCurve'   => 42, # v.42 _round_down_pow()
 
      # my Math-NumSeq
      'Math::NumSeq' => 38, # v.38 for tell_i()
@@ -423,14 +424,6 @@ my %prereq_pm
      'Math::NumSeq::Triangular' => 1, # for --triangular
      'Math::NumSeq::Tetrahedral' => 1, # for --tetrahedral
      'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry widget
-     # for various in-progress
-     'Math::NumSeq::Base::Array' => 1,
-     'Math::NumSeq::Base::Digits' => 1,
-     'Math::NumSeq::Base::IterateIth',1,
-     'Math::NumSeq::Base::IteratePred',1,
-     'Math::NumSeq::Base::Sparse',1,
-     'Math::NumSeq::DigitCount',4, # for ReplicateDigits
-     'Math::NumSeq::Kolakoski',13, # for KolakoskiGroups
     );
 
 #------------------------------------------------------------------------------

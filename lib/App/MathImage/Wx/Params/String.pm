@@ -16,6 +16,10 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# ENHANCE-ME:
+# want ComboBox when choices or TextCtrl when not, maybe
+
+
 package App::MathImage::Wx::Params::String;
 use 5.004;
 use strict;
@@ -23,27 +27,32 @@ use Carp;
 use POSIX ();
 use Wx;
 
-use base qw(Wx::TextCtrl);
-our $VERSION = 97;
-
+use base qw(Wx::ComboBox);
+our $VERSION = 98;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 sub new {
   my ($class, $parent, $info) = @_;
-  ### Params-String new(): "$parent"
+  ### Wx-Params-String new(): "$parent"
 
   # my $display = ($newval->{'display'} || $newval->{'name'});
+  my $choices = $info->{'choices'};
   my $self = $class->SUPER::new ($parent,
-                                 Wx::wxID_ANY(),       # id
-                                 $info->{'default'} || 0, # initial value
+                                 Wx::wxID_ANY(),   # id
+                                 '',               # initial value
                                  Wx::wxDefaultPosition(),
-                                 Wx::Size->new (10*($info->{'width'} || 5),
+                                 Wx::Size->new (10*($info->{'width'} || 5) + 15,
                                                 -1),
+                                 $choices || [],
                                  Wx::wxTE_PROCESS_ENTER());  # style
 
+  $self->SetValue($info->{'default'} || '');
+
   Wx::Event::EVT_TEXT_ENTER ($self, $self, 'OnTextEnter');
+  Wx::Event::EVT_COMBOBOX ($self, $self, 'OnTextEnter');
   return $self;
 }
 
@@ -77,15 +86,17 @@ sub SetParameterInfo {
 sub SetValue {
   my ($self, $value) = @_;
   if (! defined $value) { $value = ''; }
-  $self->SUPER::SetValue ($value);
+  my $n = $self->FindString ($value);
+  if ($n == Wx::wxNOT_FOUND()) {
+    $self->SUPER::SetValue ($value);
+  } else {
+    $self->SUPER::SetSelection ($n);
+  }
 }
 
 sub OnTextEnter {
   my ($self, $event) = @_;
-  #   ### Params-String OnActivate()...
-  #   my $self = $$ref_weak_self || return;
-  #   ### parameter-value now: $self->get('parameter-value')
-  #   $self->notify ('parameter-value');
+  ### Wx-Params-String OnTextEnter()...
 
   if (my $callback = $self->{'callback'}) {
     &$callback($self);
@@ -94,3 +105,93 @@ sub OnTextEnter {
 
 1;
 __END__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# package App::MathImage::Wx::Params::String;
+# use 5.004;
+# use strict;
+# use Carp;
+# use POSIX ();
+# use Wx;
+# 
+# use base qw(Wx::TextCtrl);
+# our $VERSION = 98;
+# 
+# # uncomment this to run the ### lines
+# use Smart::Comments;
+# 
+# 
+# sub new {
+#   my ($class, $parent, $info) = @_;
+#   ### Wx-Params-String new(): "$parent"
+# 
+#   # my $display = ($newval->{'display'} || $newval->{'name'});
+#   my $self = $class->SUPER::new ($parent,
+#                                  Wx::wxID_ANY(),       # id
+#                                  $info->{'default'} || '', # initial value
+#                                  Wx::wxDefaultPosition(),
+#                                  Wx::Size->new (10*($info->{'width'} || 5),
+#                                                 -1),
+#                                  Wx::wxTE_PROCESS_ENTER());  # style
+# 
+#   Wx::Event::EVT_TEXT_ENTER ($self, $self, 'OnTextEnter');
+#   return $self;
+# }
+# 
+# sub SetParameterInfo {
+#   my ($self, $info) = @_;
+#   $self->{'parameter_info'} = $info;
+# 
+#     # unless ($entry) {
+#     #   my $entry_class = 'Wx::Entry';
+#     #   my $type_hint = ($newval->{'type_hint'} || '');
+#     #   if ($type_hint eq 'oeis_anum') {
+#     #     require App::MathImage::Wx::OeisEntry;
+#     #     $entry_class = 'App::MathImage::Wx::OeisEntry';
+#     #   }
+#     #   if ($type_hint eq 'fraction') {
+#     #     require App::MathImage::Wx::FractionEntry;
+#     #     $entry_class = 'App::MathImage::Wx::FractionEntry';
+#     #   }
+#     #   $entry = $entry_class->new;
+#     #   if (exists $self->{'parameter_value_set'}) {
+#     #     $entry->set (text => $self->{'parameter_value_set'});
+#     #     $self->{'parameter_value_set'} = 1;
+#     #   }
+#     #   Scalar::Util::weaken (my $weak_self = $self);
+#     #   $entry->signal_connect (activate => \&_do_entry_activate, \$weak_self);
+#     #   $entry->show;
+#     #   $self->add ($entry);
+#     # }
+# }
+# 
+# sub SetValue {
+#   my ($self, $value) = @_;
+#   if (! defined $value) { $value = ''; }
+#   $self->SUPER::SetValue ($value);
+# }
+# 
+# sub OnTextEnter {
+#   my ($self, $event) = @_;
+#   #   ### Params-String OnActivate()...
+#   #   my $self = $$ref_weak_self || return;
+#   #   ### parameter-value now: $self->get('parameter-value')
+#   #   $self->notify ('parameter-value');
+# 
+#   if (my $callback = $self->{'callback'}) {
+#     &$callback($self);
+#   }
+# }
+

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use App::MathImage;
 use vars '$VERSION';
-$VERSION = 97;
+$VERSION = 98;
 exit App::MathImage->command_line;
 
 __END__
@@ -144,11 +144,17 @@ to grow too quickly to show much.
 
 =item --perrin
 
-=item --padovan
+The Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc.  These are a cubic
+recurrence and tend to grow too quickly to display much of a pattern.
 
-The Perrin numbers 3, 0, 2, 3, 2, 5, 5, 7, 10, etc.  Or Padovan numbers 1,
-1, 1, 2, 2, 3, 4, 5, 7, 9, etc.  These are cubic recurrences and tend to
-grow too quickly to display much in the way of patterns.
+=cut
+
+# Math::NumSeq::Padovan not ready yet
+#
+# =item --padovan
+# 
+#   Or Padovan numbers 1,
+# 1, 1, 2, 2, 3, 4, 5, 7, 9, etc.
 
 =item --fraction=5/29
 
@@ -181,7 +187,7 @@ C<--sacks> and C<--vogel> it shows where all the points lie.
 =item --aronson
 
 Aronson's sequence 1,4,9,... of "T is the first, fourth, ninth, ...".  This
-requires the C<Math::Aronson> module.
+requires the C<Math::NumSeq::Aronson> module.
 
 =item --expression='i**2 + 2*i + 1'
 
@@ -299,116 +305,6 @@ For example,
 
 =back
 
-=head2 Output Options
-
-The default is to run the Gtk GUI.
-
-=over
-
-=item --fullscreen
-
-Start the GUI in full screen mode.  The Tools/Fullscreen menu entry can
-toggle between full screen and a normal window.  In full screen mode the
-menus still work, just press Alt-F, Alt-T, etc as normal to pop up.
-
-=item --root
-
-Set the root window background to the requested image and exit.  For example
-draw a random image from your F<~/.xsession> startup,
-
-    math-image --root --random &
-
-Add C<--verbose> to print what was in fact chosen and displayed.  Output
-from F<~/.xsession> normally goes to the F<~/.xsession-errors> file.
-Sometimes C<--random> may use a lot of memory, so consider a C<limit> (see
-L<sh(1)>) or timeout (see L<timeout(1)>) or both, and perhaps low priority
-(see L<nice(1)>).
-
-Under X the root window is set with C<X11::Protocol> if available, otherwise
-C<Gtk2>.  C<X11::Protocol> is preferred as it allows C<--foreground> and
-C<--background> colours to be preserved on a PseudoColor visual.  C<Gtk2> is
-fine on a TrueColor, or for black and white only (which are always
-permanent), but otherwise colours may not be preserved.
-
-=item --flash
-
-Flash the requested image on the screen instead of starting the GUI.
-Together with C<--root> the image is drawn to the root then flashed as well.
-This is good if updating the background randomly every so often, as it shows
-the image when otherwise perhaps obscured by lots of windows.
-
-    math-image --root --random --flash
-
-The flash is done with a temporary full-screen window, either some X11
-native or a Gtk2 per L<Gtk2::Ex::Splash>.  In both cases the keyboard focus
-is unchanged, so you don't lose any typing, though it does eat mouse clicks.
-
-=item --display=DPY
-
-Select the X server for X11 or Gtk output.  The default is from the
-C<DISPLAY> environment variable (normally set at X startup).
-
-    math-image --display=:3
-
-=item --png
-
-=item --xpm
-
-Write a PNG or XPM image file to standard output and exit.  PNG is always
-possible with GdkPixbuf but it can also use GD, PNGwriter, Imager,
-ImageMagick, Prima or Tk with the right libraries and C<Image::Base>
-supporting module.
-
-    math-image --png >/tmp/my-file.png
-
-XPM output requires either C<Image::Xpm>, ImageMagick, Prima, or Tk.  Note
-that Prima and Tk for X11 require an X server even for file output (and will
-give obscure errors if no display).
-
-=item --text
-
-Write a text-only image to standard output and exit.  The default size
-follows the terminal with C<Term::Size>.  A typical tty size like 80x25 is
-usually too small to see much, but a bigger image might be cute to send to a
-line printer or similar.
-
-    math-image --text --size=130x49 | lpr
-
-=item --prima
-
-Run the Prima GUI.  This requires Prima and the separate
-C<Image::Base::Prima::Drawable> modules.  It doesn't yet have the full set
-of options the Gtk GUI does, but works as far as it goes.
-
-A combination C<--prima --png> means write a PNG image to standard output
-using Prima.  This requires a graphics screen (which other PNG output
-modules don't).
-
-=item --tk
-
-Run the Tk GUI.  This requires Perl-Tk.  It doesn't yet have the full set of
-options the Gtk GUI does, but works as far as it goes.
-
-A combination C<--tk --png> or C<--tk --xpm> means write a PNG or XPM image
-to standard output using C<Tk::Photo>.  This requires a graphics screen
-(which other output modules don't).
-
-=item --curses
-
-Run the Curses interactive text interface.  This requires the C<Curses::UI>
-modules.  This is very experimental and the control options are minimal.
-
-=back
-
-The Gtk and Prima GUIs have printer output through their usual printing
-mechanisms.  In the current code the Gtk one is a screen dump but the Prima
-one is a PostScript re-run of the image drawing which might be a bit slow,
-but might be higher resolution for circle figures.
-
-There's some very rudimentary support for other GUIs with C<--module=Wx> for
-wxWidgets and C<--module=Gtk1> for the older Gtk 1.2 and corresponding
-Gtk-Perl.  They're only meant to see how well those GUIs work as yet.
-
 =head2 Other Options
 
 =over
@@ -434,7 +330,7 @@ points shown.  Try a shade of grey instead
 
     math-image --root --foreground=lightgrey
 
-Available names depend on the output type.  Gtk uses a hard-coded copy of
+Available names depend on the output module.  Gtk2 uses a hard-coded copy of
 the X F</etc/X11/rgb.txt>.  The C<X11::Protocol> C<--root> uses the server's
 database.  C<--png> output with GD has the C<GD::Simple> names.  C<--xpm>
 passes anything at all through to the file.  For C<--text> currently the
@@ -448,8 +344,8 @@ Set the size of the image in pixels.  A single value means that size square,
 otherwise WIDTHxHEIGHT.  For C<--root> this size is currently ignored and
 the full screen used.
 
-For the GUI this is an initial size, though it might be widened to
-accommodate the menubar.  Under C<--fullscreen> the size is the
+For the GUI this is an initial size, though the menu bar might make the
+window wider than requested.  Under C<--fullscreen> the size is the
 unfullscreened window if you switch back to that (menu entry
 Tools/Fullscreen).
 
@@ -460,7 +356,8 @@ of the terminal from C<Term::Size>.
 =item --scale=PIXELS
 
 How many pixels for each value shown.  The current default is 3 to show 3x3
-pixel squares, or for C<--text> output just 1 for a pixel per character
+pixel squares, or for C<--text> output just 1 for a single character per
+point.
 
 =item --help, -?
 
@@ -470,6 +367,44 @@ Print a summary of the options.
 
 Print the program version number.
 
+=back
+
+=head2 GUI Options
+
+The default is to run the Gtk GUI.
+
+=over
+
+=item --display=DPY
+
+Select the X server for X11 or Gtk output.  The default is from the
+C<DISPLAY> environment variable (normally set at X startup).
+
+    math-image --display=:3
+
+=item --fullscreen
+
+Start the GUI in full screen mode.  The Tools/Fullscreen menu entry can
+toggle between full screen and a normal window.  In full screen mode the
+menus still work, just press Alt-F, Alt-T, etc as normal to pop up.
+
+=item --wx
+
+Run the wxWidgets GUI.  This requires wxPerl (see L<Wx>), probably for
+wxWidgets 2.8 or higher.  It might have a few less features than the Gtk2
+GUI.
+
+=item --prima
+
+Run the Prima GUI.  This requires the Prima module (see L<Prima>) and the
+separate C<Image::Base::Prima::Drawable> module.  It doesn't yet have the
+full set of options the Gtk2 GUI does, but works as far as it goes.
+
+=item --tk
+
+Run the Tk GUI.  This requires Perl-Tk (see L<Tk>).  It doesn't yet have the
+full set of options the Gtk GUI does, but works as far as it goes.
+
 =item --<gtk-options>
 
 Standard Gtk options.  See L<gtk-options(7)> for the full list.  The only
@@ -478,10 +413,123 @@ one which does much for C<math-image> is C<--display> to set the X display
 
 =back
 
+The Gtk and Prima GUIs have printer output through their usual printing
+mechanisms.  In the current code the Gtk one is a screen dump but the Prima
+one is a PostScript re-run of the image drawing which might be a bit slow,
+but might be higher resolution for circle figures.
+
+There's some very rudimentary support for other GUIs with C<--module=Curses>
+for C<Curses::UI> and C<--module=Gtk1> for the older Gtk 1.2 and
+corresponding Gtk-Perl.  They're only meant to see how well those GUIs work
+as yet.
+
+=head2 Output Types
+
+=over
+
+=item --root
+
+Set the root window background to the requested image and exit.  For example
+to draw a random image from your F<~/.xsession> startup,
+
+    math-image --root --random &
+
+Add C<--verbose> to print what was in fact chosen and displayed.  Output
+from F<~/.xsession> normally goes to the F<~/.xsession-errors> file.
+Sometimes C<--random> may use a lot of memory, so consider C<limit> (see
+L<sh(1)>) or C<timeout> (see L<timeout(1)>) or both, and perhaps low
+priority (see L<nice(1)>).
+
+The root window is set with C<Gtk2>, or under X with C<X11::Protocol> is
+preferred if available because it allows C<--foreground> and C<--background>
+colours to be preserved on a PseudoColor visual.  C<Gtk2> is fine on a
+TrueColor and for black and white (being permanent pixels), but on a
+PseudoColor allocated colours may not be preserved.
+
+=item --flash
+
+Flash the requested image on the screen instead of starting the GUI.
+A combination C<--root --flash> means draw to the root and then flash.  This
+is good if updating the background randomly every so often, as it shows the
+completed image briefly when it might be hidden by lots of windows.
+
+    math-image --root --random --flash
+
+The flash is done with a temporary full-screen window, either some X11
+native or a Gtk2 (see L<Gtk2::Ex::Splash>).  In both cases the keyboard
+focus is unchanged so you don't lose any typing, but it does eat mouse
+clicks.
+
+=item --png
+
+=item --xpm
+
+Write a PNG or XPM image file to standard output and exit.  PNG is always
+possible with C<Gtk2::Gdk::Pixbuf> but can also use GD, PNGwriter, Imager,
+ImageMagick, Prima or Tk with the right libraries and C<Image::Base>
+supporting module.
+
+    math-image --png >/tmp/my-file.png
+
+XPM output requires either C<Image::Xpm>, ImageMagick, Prima, or Tk.  Note
+that Prima and Tk for X11 require an X server even for file output (and will
+give obscure errors if no display).
+
+Combinations C<--prima --png>, or C<--tk --xpm>, etc, force the respective
+output module rather than an automatic choice among available possibilities.
+
+=item --text
+
+Write a text-only image to standard output and exit.  A typical tty size
+like 80x25 is usually too small to see much, but a bigger image might be
+cute to send to a line printer or similar.  The default size follows the
+terminal with C<Term::Size> or can be set with C<--size=WIDTH,HEIGHT>,
+
+    math-image --text --size=130x49 | lpr
+
+For images which would be colours in the GUI the text output is a digit
+which is the sequence value at that point.  This is slightly experimental,
+especially for big sequence values, but currently for example
+
+    math-image --values=PrimeFactorCount --text --size=5x5
+
+    14221
+    31213
+    12011
+    31322
+    22142
+
+=item --xscreensaver
+
+Run under the L<xscreensaver(1)> program.  This requires the
+C<X11::Protocol::XSetRoot> module and is slightly experimental, but works as
+far as it goes.
+
+To make C<math-image> available as a screensaver add it to the "programs:"
+section of your F<~/.xscreensaver> file,
+
+    math-image --xscreensaver \n\
+
+F<xscreensaver/math-image.xml> can be used give a description in the
+C<xscreensaver-demo> program, but currently the package "make install"
+doesn't try to install this.
+
+There's no options for screensaver mode yet.  The intention would be a
+control for the redraw rate, unless there's a common xscreensaver option for
+that, and to limit each image drawing to the redraw time so slow things
+aren't continued indefinitely.
+
+For reference under C<xscreensaver> the target X window is either a
+C<-window-id> command line option from C<xscreensaver-demo>, or
+C<__SWM_VROOT> from the daemon when it activates.  The latter is recognised
+automatically by C<X11::Protocol::XSetRoot> version 18 and up.
+
+=back
+
 =head1 MODULES
 
 In addition to the various modules noted above, the following are used in
-the Gtk GUI if available,
+the Gtk2 GUI if available,
 
 =over
 
@@ -527,25 +575,21 @@ PythagoreanTree, are calculated with C<Math::BigInt> for accuracy.  This
 becomes very slow.  In some cases the values and/or path calculations might
 end up rounding off anyway.
 
-When plotting colours on paths such as the dragon curve which duplicate
-points the colour shown is sometimes the biggest N and sometimes the
+When plotting colours on paths which duplicate points, such as the dragon
+curve, the colour shown is sometimes the biggest N and sometimes the
 smallest N.
 
-Colours for unbounded counts of things (etc) have some hard-coded scaling to
-try to show a range of colours for range of values.  There ought to be
-something for user control, and perhaps relevant NumSeq modules could
-indicate their approximate growth rate somehow, to make a sensible initial
-scale.
+Colours for counts etc have some hard-coded scaling to try to show a range
+of colours for the typical range of values.  There ought to be a user
+control for this, and/or perhaps relevant NumSeq modules could indicate
+their approximate growth rate to make a sensible initial scale.
 
 =head1 SEE ALSO
 
 L<gtk-options(7)>, L<xsetroot(1)>
 
 L<Math::PlanePath>,
-L<Math::PlanePath::SquareSpiral>
-
-L<Math::NumSeq>,
-L<Math::NumSeq::Aronson>
+L<Math::NumSeq>
 
 L<Gtk2>,
 L<X11::Protocol>,
