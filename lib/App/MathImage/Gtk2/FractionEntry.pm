@@ -31,7 +31,7 @@ use App::MathImage::Gtk2::Ex::ArrowButton;
 #use Devel::Comments;
 
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__FractionEntry_style" {

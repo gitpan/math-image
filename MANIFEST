@@ -39,6 +39,7 @@ devel/run-about.pl
 devel/run-pod.pl
 devel/run-savedialog.pl
 devel/run-savetype.pl
+devel/tk-axis.pl
 devel/tk-savedialog.pl
 devel/tk.pl
 devel/tool-combotext.pl
@@ -113,6 +114,9 @@ lib/App/MathImage/Tk/About.pm
 lib/App/MathImage/Tk/Diagnostics.pm
 lib/App/MathImage/Tk/Drawing.pm
 lib/App/MathImage/Tk/Main.pm
+lib/App/MathImage/Tk/Perl/AfterObject.pm
+lib/App/MathImage/Tk/Perl/AfterObject.t
+lib/App/MathImage/Tk/Perl/NumAxis.pm
 lib/App/MathImage/Tk/SaveDialog.pm
 lib/App/MathImage/Wx/Drawing.pm
 lib/App/MathImage/Wx/Generator.pm

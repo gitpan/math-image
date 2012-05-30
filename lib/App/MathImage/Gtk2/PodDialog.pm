@@ -33,7 +33,7 @@ use App::MathImage::Generator;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 use Glib::Object::Subclass 'Gtk2::Dialog',
   properties => [
@@ -66,6 +66,9 @@ sub INIT_INSTANCE {
   my $combobox = $self->{'combobox'} = Gtk2::ComboBox->new_text;
   $combobox->append_text ($FindBin::Script);
   foreach my $name (App::MathImage::Generator->path_choices) {
+    $combobox->append_text ($name);
+  }
+  foreach my $name (App::MathImage::Generator->values_choices) {
     $combobox->append_text ($name);
   }
   if (defined (Module::Util::find_installed('Math::Aronson'))) {
@@ -157,12 +160,15 @@ sub _do_combo_changed {
   my $name = $combobox->get_active_text;
   if ($combobox->get_active == 0) {
     $filename = "$FindBin::Bin/$name";
-  } else {
+  } elsif ($name) {
     $name =~ s/-/::/g;
     if ($name =~ /::/) {
       $filename = Module::Util::find_installed ($name);
     } else {
-      $filename = Module::Util::find_installed ("Math::PlanePath::$name");
+      if (my $module = App::MathImage::Generator->path_choice_to_class($name)
+          || App::MathImage::Generator->values_choice_to_class($name)) {
+        $filename = Module::Util::find_installed ($module);
+      }
     }
   }
   ### $filename
@@ -214,7 +220,8 @@ sub _empty {
   my $textbuf = $viewer->get_buffer;
   $textbuf->delete ($textbuf->get_start_iter, $textbuf->get_end_iter);
   $textbuf->insert ($textbuf->get_start_iter,
-                    __x("Nothing for {target}\n", target => $target));
+                    __x("No POD for {target}\n",
+                        target => $target||'[no target]'));
 }
 
 1;

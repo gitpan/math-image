@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            98
+version:            99
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -65,11 +65,16 @@ requires:
     Math::Libm:           0
     Math::NumSeq:         38
     Math::NumSeq::All:    1
+    Math::NumSeq::AlmostPrimes:  1
     Math::NumSeq::Cubes:  1
     Math::NumSeq::Even:   1
+    Math::NumSeq::Expression:  1
+    Math::NumSeq::FractionDigits:  1
     Math::NumSeq::Odd:    1
     Math::NumSeq::OEIS::Catalogue:  1
-    Math::NumSeq::Primes:  4
+    Math::NumSeq::Perrin:  1
+    Math::NumSeq::Polygonal:  1
+    Math::NumSeq::Primes:  1
     Math::NumSeq::Pronic:  1
     Math::NumSeq::Squares:  1
     Math::NumSeq::Tetrahedral:  1
@@ -242,7 +247,7 @@ optional_features:
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::RepdigitRadix:  37
-            Math::NumSeq::Repdigits:  1
+            Math::NumSeq::Repdigits:  41
             Math::NumSeq::ReReplace:  33
             Math::NumSeq::ReRound:  38
             Math::NumSeq::ReverseAdd:  30
@@ -250,6 +255,7 @@ optional_features:
             Math::NumSeq::Runs:   34
             Math::NumSeq::SelfLengthCumulative:  38
             Math::NumSeq::SophieGermainPrimes:  4
+            Math::NumSeq::SpiroFibonacci:  40
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
@@ -274,6 +280,7 @@ optional_features:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::BetaOmega:  54
+            Math::PlanePath::CCurve:  75
             Math::PlanePath::CellularRule:  63
             Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
@@ -287,6 +294,7 @@ optional_features:
             Math::PlanePath::Corner:  1
             Math::PlanePath::CornerReplicate:  52
             Math::PlanePath::CretanLabyrinth:  68
+            Math::PlanePath::CubicBase:  75
             Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiagonalsAlternating:  2
@@ -329,7 +337,7 @@ optional_features:
             Math::PlanePath::KochSquareflakes:  30
             Math::PlanePath::LTiling:  57
             Math::PlanePath::MPeaks:  55
-            Math::PlanePath::MultipleRings:  15
+            Math::PlanePath::MultipleRings:  74
             Math::PlanePath::OctagramSpiral:  21
             Math::PlanePath::PeanoCurve:  36
             Math::PlanePath::PentSpiral:  4
@@ -344,6 +352,8 @@ optional_features:
             Math::PlanePath::QuintetCentres:  45
             Math::PlanePath::QuintetCurve:  55
             Math::PlanePath::QuintetReplicate:  45
+            Math::PlanePath::R5DragonCurve:  75
+            Math::PlanePath::R5DragonMidpoint:  75
             Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
@@ -359,6 +369,7 @@ optional_features:
             Math::PlanePath::StaircaseAlternating:  70
             Math::PlanePath::TerdragonCurve:  64
             Math::PlanePath::TerdragonMidpoint:  66
+            Math::PlanePath::TerdragonRounded:  75
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -464,7 +475,7 @@ optional_features:
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::RepdigitRadix:  37
-            Math::NumSeq::Repdigits:  1
+            Math::NumSeq::Repdigits:  41
             Math::NumSeq::ReReplace:  33
             Math::NumSeq::ReRound:  38
             Math::NumSeq::ReverseAdd:  30
@@ -472,6 +483,7 @@ optional_features:
             Math::NumSeq::Runs:   34
             Math::NumSeq::SelfLengthCumulative:  38
             Math::NumSeq::SophieGermainPrimes:  4
+            Math::NumSeq::SpiroFibonacci:  40
             Math::NumSeq::SqrtContinued:  27
             Math::NumSeq::SqrtContinuedPeriod:  24
             Math::NumSeq::SqrtDigits:  1
@@ -499,6 +511,7 @@ optional_features:
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
             Math::PlanePath::BetaOmega:  54
+            Math::PlanePath::CCurve:  75
             Math::PlanePath::CellularRule:  63
             Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
@@ -512,6 +525,7 @@ optional_features:
             Math::PlanePath::Corner:  1
             Math::PlanePath::CornerReplicate:  52
             Math::PlanePath::CretanLabyrinth:  68
+            Math::PlanePath::CubicBase:  75
             Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiagonalsAlternating:  2
@@ -554,7 +568,7 @@ optional_features:
             Math::PlanePath::KochSquareflakes:  30
             Math::PlanePath::LTiling:  57
             Math::PlanePath::MPeaks:  55
-            Math::PlanePath::MultipleRings:  15
+            Math::PlanePath::MultipleRings:  74
             Math::PlanePath::OctagramSpiral:  21
             Math::PlanePath::PeanoCurve:  36
             Math::PlanePath::PentSpiral:  4
@@ -569,6 +583,8 @@ optional_features:
             Math::PlanePath::QuintetCentres:  45
             Math::PlanePath::QuintetCurve:  55
             Math::PlanePath::QuintetReplicate:  45
+            Math::PlanePath::R5DragonCurve:  75
+            Math::PlanePath::R5DragonMidpoint:  75
             Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
@@ -584,6 +600,7 @@ optional_features:
             Math::PlanePath::StaircaseAlternating:  70
             Math::PlanePath::TerdragonCurve:  64
             Math::PlanePath::TerdragonMidpoint:  66
+            Math::PlanePath::TerdragonRounded:  75
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -705,7 +722,7 @@ recommends:
     Math::NumSeq::RadixWithoutDigit:  1
     Math::NumSeq::RepdigitAny:  16
     Math::NumSeq::RepdigitRadix:  37
-    Math::NumSeq::Repdigits:  1
+    Math::NumSeq::Repdigits:  41
     Math::NumSeq::ReReplace:  33
     Math::NumSeq::ReRound:  38
     Math::NumSeq::ReverseAdd:  30
@@ -713,6 +730,7 @@ recommends:
     Math::NumSeq::Runs:   34
     Math::NumSeq::SelfLengthCumulative:  38
     Math::NumSeq::SophieGermainPrimes:  4
+    Math::NumSeq::SpiroFibonacci:  40
     Math::NumSeq::SqrtContinued:  27
     Math::NumSeq::SqrtContinuedPeriod:  24
     Math::NumSeq::SqrtDigits:  1
@@ -737,6 +755,7 @@ recommends:
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
     Math::PlanePath::BetaOmega:  54
+    Math::PlanePath::CCurve:  75
     Math::PlanePath::CellularRule:  63
     Math::PlanePath::CellularRule190:  54
     Math::PlanePath::CellularRule54:  40
@@ -750,6 +769,7 @@ recommends:
     Math::PlanePath::Corner:  1
     Math::PlanePath::CornerReplicate:  52
     Math::PlanePath::CretanLabyrinth:  68
+    Math::PlanePath::CubicBase:  75
     Math::PlanePath::DiagonalRationals:  58
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiagonalsAlternating:  2
@@ -792,7 +812,7 @@ recommends:
     Math::PlanePath::KochSquareflakes:  30
     Math::PlanePath::LTiling:  57
     Math::PlanePath::MPeaks:  55
-    Math::PlanePath::MultipleRings:  15
+    Math::PlanePath::MultipleRings:  74
     Math::PlanePath::OctagramSpiral:  21
     Math::PlanePath::PeanoCurve:  36
     Math::PlanePath::PentSpiral:  4
@@ -807,6 +827,8 @@ recommends:
     Math::PlanePath::QuintetCentres:  45
     Math::PlanePath::QuintetCurve:  55
     Math::PlanePath::QuintetReplicate:  45
+    Math::PlanePath::R5DragonCurve:  75
+    Math::PlanePath::R5DragonMidpoint:  75
     Math::PlanePath::RationalsTree:  45
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
@@ -822,6 +844,7 @@ recommends:
     Math::PlanePath::StaircaseAlternating:  70
     Math::PlanePath::TerdragonCurve:  64
     Math::PlanePath::TerdragonMidpoint:  66
+    Math::PlanePath::TerdragonRounded:  75
     Math::PlanePath::TheodorusSpiral:  70
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3

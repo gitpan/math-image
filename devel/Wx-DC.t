@@ -44,7 +44,7 @@ $dc->SetPen($pen);
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 98;
+my $want_version = 99;
 is ($App::MathImage::Image::Base::Wx::DC::VERSION,
     $want_version, 'VERSION variable');
 is (App::MathImage::Image::Base::Wx::DC->VERSION,

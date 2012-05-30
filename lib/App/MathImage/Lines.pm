@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
@@ -61,3 +61,42 @@ use constant parameter_info_array =>
 
 1;
 __END__
+
+=for stopwords Ryde MathImage
+
+=head1 NAME
+
+App::MathImage::Lines -- line drawing
+
+=head1 DESCRIPTION
+
+This is a special kind of "values" which draws lines between the points of
+the path.
+
+=head1 SEE ALSO
+
+L<App::MathImage::LinesLevel>,
+L<App::MathImage::LinesTree>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-image/index.html
+
+=head1 LICENSE
+
+Copyright 2010, 2011, 2012 Kevin Ryde
+
+Math-Image is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut

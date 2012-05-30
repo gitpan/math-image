@@ -35,7 +35,7 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -58,60 +58,58 @@ sub Populate {
                                  -relief => 'raised', -bd => 2);
   $menubar->pack(-side => 'top', -fill => 'x');
   {
-    my $menu = $menubar->Menubutton(-text => 'File',
-                                    -underline => 0,
+    my $menu = $menubar->Menubutton(-text => with_underline(__('_File')),
                                     -tearoff => 0);
     $menu->pack(-side => 'left');
 
-    $menu->cascade (-label => 'Path',
-                    -underline => 0,
-                    -tearoff => 1,
+    $menu->cascade (-label     => with_underline(__('_Path')),
+                    -tearoff   => 1,
                     -menuitems => [ map {
                       ['Button', _path_to_mnemonic($_),
-                       -command => [ \&_path_menu_action, $self, $_ ]]
+                       -command => [ \&_path_menu_action, $self, $_ ]],
                     } App::MathImage::Generator->path_choices ]);
 
-    $menu->cascade (-label => 'Values',
-                    -underline => 0,
-                    -tearoff => 1,
+    $menu->cascade (-label     => with_underline(__('_Values')),
+                    -tearoff   => 1,
                     -menuitems => [ map {
                       ['Button', _values_to_mnemonic($_),
                        -command => [ \&_values_menu_action, $self, $_ ]]
                     } App::MathImage::Generator->values_choices ]);
 
-    $menu->command (-label => __('Save As ...'),
-                    -underline => 5,
+    $menu->command (-label   => with_underline(__('Save _As ...')),
                     -command => [ $self, 'popup_save_as' ]);
 
-    $menu->command (-label => 'Quit',
-                    -command => [ $self, 'destroy' ],
-                    -underline => 0);
+    $menu->command (-label   => with_underline(__('_Quit')),
+                    -command => [ $self, 'destroy' ]);
   }
 
   {
-    my $menu = $menubar->Menubutton(-text => "Tools",
-                                    -underline => 0);
+    my $menu = $menubar->Menubutton(-text => with_underline(__('_Tools')));
     $menu->pack(-side => 'left');
 
-    $menu->command (-label => 'Fullscreen',
-                    -command => [$self, 'fullscreen_toggle'],
-                    -underline => 0);
+    $menu->command (-label     => with_underline(__('_Fullscreen')),
+                    -command   => [$self, 'fullscreen_toggle']);
     # $item->uncheck('fullscreen'); # initially unchecked
+
+    $menu->command (-label       => with_underline(__('_Centre')),
+                    -accelerator => __p('Main-accelerator-key','C'),
+                    -command => [$self, 'centre']);
+    # upper and lower case
+    $self->bind('<'.__p('Main-accelerator-key','C').'>', ['centre']);
+    $self->bind('<'.lc(__p('Main-accelerator-key','C')).'>', ['centre']);
   }
   {
-    my $menu = $menubar->Menubutton(-text => "Help",
-                                    -underline => 0);
+    my $menu = $menubar->Menubutton(-text => with_underline(__('_Help')));
     $menu->pack(-side => 'right');
-    $menu->command (-label => 'About',
-                    -command => [ \&popup_about, $self ],
-                    -underline => 0);
-    $menu->command (-label => 'Program POD',
-                    -underline => 0,
+    $menu->command (-label => with_underline(__('_About')),
+                    -command => [ \&popup_about, $self ]);
+    $menu->command (-label => with_underline(__('_Program POD')),
                     -command => [$self, 'popup_program_pod']);
-    $menu->command (-label => 'This Path POD',
+    $menu->command (-label => with_underline(__('Pa_th POD')),
                     -command => [$self, 'popup_path_pod']);
-    $menu->command (-label => __('Diagnostics ...'),
-                    -underline => 3,
+    $menu->command (-label => with_underline(__('_Values POD')),
+                    -command => [$self, 'popup_values_pod']);
+    $menu->command (-label => with_underline(__('Dia_gnostics ...')),
                     -command => [ $self, 'popup_diagnostics' ]);
 
   }
@@ -133,6 +131,7 @@ sub Populate {
       : ()),
     );
   $draw->bind('<Motion>', [\&_do_motion, Ev('x'), Ev('y')]);
+
   $draw->{'gen_options'} = $gen_options;
   $draw->pack(-side   => 'top',
               -fill   => 'both',
@@ -195,6 +194,37 @@ sub Populate {
                     .'x'
                     .int($self->screenheight * .8));
   }
+}
+
+# If $str has an underscore like "Save _As" then return
+#     "Save As", -underline => 5
+# with the underscore becoming a -underline position.
+#
+# If $str doesn't have an underscore then return $str unchanged.
+# A literal underscore can be included by doubling it, for example
+#     "Literal__Underscore"
+#
+# This is designed for use on a -label or -text argument such as
+#     $menu->comman (-label => with_underline("_File"),
+#                    -command => ...)
+# Parsing the underline position from the string has the advantage of
+# guarding against wrongly counting character number for -underline, and
+# allowing labels translated into other languages to have a different
+# underline position, or no underline at all.
+#
+sub with_underline {
+  my ($str) = @_;
+  my @underline;
+  $str =~ s{_(.)}{
+    ### $1
+    if ($1 ne '_') {
+      @underline = (-underline => pos($str)||0);
+    }
+    $1
+  }ge;
+  ### $str
+  ### @underline
+  return ($str, @underline);
 }
 
 my %_values_to_mnemonic =
@@ -271,6 +301,13 @@ sub nick_to_display {
                      $nick));
 }
 
+# centre the display
+sub centre {
+  my ($self) = @_;  # also $itemname when called from menu
+  ### Main centre() ...
+  $self->Subwidget('drawing')->centre;
+}
+
 sub fullscreen_toggle {
   my ($self, $itemname) = @_;
   ### fullscreen_toggle(): "@_"
@@ -338,10 +375,19 @@ sub popup_program_pod {
 sub popup_path_pod {
   my ($self) = @_;
   _tk_pod($self) or return;
-  my ($path, $module);
-  if (($path = $self->Subwidget('drawing')->{'gen_options'}->{'path'})
-      && ($module = App::MathImage::Generator->path_choice_to_class ($path))) {
-    $self->Pod(-file => $module);
+  if (my $path = $self->Subwidget('drawing')->{'gen_options'}->{'path'}) {
+    if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
+      $self->Pod(-file => $module);
+    }
+  }
+}
+sub popup_values_pod {
+  my ($self) = @_;
+  _tk_pod($self) or return;
+  if (my $values = $self->Subwidget('drawing')->{'gen_options'}->{'values'}) {
+    if ((my $module = App::MathImage::Generator->values_choice_to_class($values))) {
+      $self->Pod(-file => $module);
+    }
   }
 }
 sub _tk_pod {

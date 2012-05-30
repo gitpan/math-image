@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 # Priority level ":gtk" treating these as widget level defaults.  An
 # "application" or user RC file can override.

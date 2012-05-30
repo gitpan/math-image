@@ -31,7 +31,7 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 sub new {
   my ($class, $label) = @_;
@@ -254,8 +254,8 @@ sub randomize {
   @{$draw}{keys %options} = values %options;
   _controls_from_draw ($self);
   $draw->redraw;
-  $draw->values_update_tooltip;
-  $draw->oeis_browse_update;
+  $self->values_update_tooltip;
+  $self->oeis_browse_update;
 }
 sub scale_update {
   my ($self, $event) = @_;

@@ -23,7 +23,7 @@ use Carp;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION';
-$VERSION = 98;
+$VERSION = 99;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

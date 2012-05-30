@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'min', 'max';
 
 use vars '$VERSION';
-$VERSION = 98;
+$VERSION = 99;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -145,6 +145,7 @@ sub next {
 
       $quad = $self->{'quad'} = 1;
       if (++$self->{'d'} > $self->{'d_max'}) {
+        ### d past d_max, end ...
         return;
       }
       ### d now: $self->{'d'}
@@ -158,6 +159,7 @@ sub next {
     }
   }
 
+  ### return: "$x,$y"
   return ($self->{'x'} = $x,
           $self->{'y'} = $y);
 }

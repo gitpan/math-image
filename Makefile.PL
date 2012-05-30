@@ -76,7 +76,7 @@ my %maximum_planepath
      'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
      'Math::PlanePath::TheodorusSpiral'      => 70, # v.70 save pos fix
      'Math::PlanePath::ArchimedeanChords'    => 23, # new in v.23
-     'Math::PlanePath::MultipleRings'        => 15, # v.15 fix 0,0
+     'Math::PlanePath::MultipleRings'        => 74, # v.74 polygon option
      'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
      'Math::PlanePath::FilledRings'          => 71, # new in v.71
      'Math::PlanePath::Hypot'                => 21, # new in v.21
@@ -141,6 +141,7 @@ my %maximum_planepath
      'Math::PlanePath::CincoCurve'           => 56, # new in v.56
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
      'Math::PlanePath::ImaginaryHalf'        => 74, # new in v.74
+     'Math::PlanePath::CubicBase'            => 75, # new in v.75
      'Math::PlanePath::SquareReplicate'      => 47, # new in v.47
      'Math::PlanePath::CornerReplicate'      => 52, # new in v.52
      'Math::PlanePath::LTiling'              => 57, # v.57 L_fill options
@@ -174,9 +175,13 @@ my %maximum_planepath
      'Math::PlanePath::DragonCurve'          => 66, # v.66 faster xy_to_n()
      'Math::PlanePath::DragonRounded'        => 67, # v.67 xy_to_n() arms fix
      'Math::PlanePath::DragonMidpoint'       => 67, # v.67 xy_to_n() arms fix
-     'Math::PlanePath::TerdragonCurve'       => 64, # new in v.64
-     'Math::PlanePath::TerdragonMidpoint'    => 66, # new in v.66
      'Math::PlanePath::AlternatePaper'       => 64, # new in v.64
+     'Math::PlanePath::CCurve'               => 75, # new in v.75
+     'Math::PlanePath::TerdragonCurve'       => 64, # new in v.64
+     'Math::PlanePath::TerdragonRounded'     => 75, # new in v.75
+     'Math::PlanePath::TerdragonMidpoint'    => 66, # new in v.66
+     'Math::PlanePath::R5DragonCurve'        => 75, # new in v.75
+     'Math::PlanePath::R5DragonMidpoint'     => 75, # new in v.75
      'Math::PlanePath::ComplexPlus'          => 64, # new in v.64
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
      'Math::PlanePath::ComplexRevolving'     => 63, # new in v.63
@@ -229,16 +234,18 @@ my %maximum_numseq
      'Math::NumSeq::Abundant'              => 24, # new in v.24
      'Math::NumSeq::PolignacObstinate'     => 25, # new in v.25
 
-     'Math::NumSeq::Factorials'    => 29, # v.29 i_estimate
-     'Math::NumSeq::Primorials'    => 29, # v.29 i_estimate
-     'Math::NumSeq::Fibonacci'     => 38, # v.38 ith() by powering
-     'Math::NumSeq::LucasNumbers'  => 29, # v.29 BigInt fix + i_estimate
+     'Math::NumSeq::Factorials'        => 29, # v.29 i_estimate
+     'Math::NumSeq::Primorials'        => 29, # v.29 i_estimate
+     'Math::NumSeq::Fibonacci'         => 38, # v.38 ith() by powering
+     'Math::NumSeq::LucasNumbers'      => 29, # v.29 BigInt fix + i_estimate
      'Math::NumSeq::Fibbinary'         => 15, # v.15 faster next()
      'Math::NumSeq::FibbinaryBitCount' => 18, # new in v.18
-     'Math::NumSeq::FibonacciWord' => 36, # v.36 "dense" option
-     'Math::NumSeq::Pell'          => 38, # v.38 BigInt and i_estimate()
-     'Math::NumSeq::Tribonacci'    => 29, # v.29 value_to_i_estimate()
-     'Math::NumSeq::Perrin'        => 29, # v.29 value_to_i_estimate()
+     'Math::NumSeq::FibonacciWord'  => 36, # v.36 "dense" option
+     'Math::NumSeq::Pell'           => 38, # v.38 BigInt and i_estimate()
+     'Math::NumSeq::Tribonacci'     => 29, # v.29 value_to_i_estimate()
+     'Math::NumSeq::Perrin'         => 29, # v.29 value_to_i_estimate()
+     'Math::NumSeq::SpiroFibonacci' => 40, # new in v.40
+
 
      'Math::NumSeq::FractionDigits'      => 38, # v.38 ith()
      'Math::NumSeq::SqrtDigits'          => 1,
@@ -258,7 +265,7 @@ my %maximum_numseq
      'Math::NumSeq::DigitProduct'          => 2, # new in v.2
 
      'Math::NumSeq::Beastly'           => 1,
-     'Math::NumSeq::Repdigits'         => 1,
+     'Math::NumSeq::Repdigits'         => 41, # v.41 radix=2 fix, i_estimate
      'Math::NumSeq::RepdigitAny'       => 16, # new in v.16
      'Math::NumSeq::RepdigitRadix'     => 37, # v.37 charact(value_is_radix)
      'Math::NumSeq::Palindromes'       => 1,
@@ -413,16 +420,21 @@ my %prereq_pm
 
      # my Math-NumSeq
      'Math::NumSeq' => 38, # v.38 for tell_i()
-     'Math::NumSeq::All'      => 1,   # for Lines base, for --all option
-     'Math::NumSeq::Even'     => 1,   # for --even option
-     'Math::NumSeq::Odd'      => 1,   # for --odd option
-     'Math::NumSeq::Cubes'    => 1,   # for --cubes option
-     'Math::NumSeq::Pronic'   => 1,   # for --pronic option
-     'Math::NumSeq::Squares'  => 1,   # for --squares option
-     'Math::NumSeq::Primes'   => 4,   # v.4 _prime_list()
-     'Math::NumSeq::TwinPrimes' => 1, # for --twin
-     'Math::NumSeq::Triangular' => 1, # for --triangular
-     'Math::NumSeq::Tetrahedral' => 1, # for --tetrahedral
+     'Math::NumSeq::All'             => 1, # for Lines base, for --all option
+     'Math::NumSeq::Even'            => 1, # for --even option
+     'Math::NumSeq::Odd'             => 1, # for --odd option
+     'Math::NumSeq::Cubes'           => 1, # for --cubes option
+     'Math::NumSeq::Pronic'          => 1, # for --pronic option
+     'Math::NumSeq::Squares'         => 1, # for --squares option
+     'Math::NumSeq::Primes'          => 1, # for default
+     'Math::NumSeq::TwinPrimes'      => 1, # for --twin
+     'Math::NumSeq::AlmostPrimes'    => 1, # for --semi-primes option
+     'Math::NumSeq::Polygonal'       => 1, # for --polygonal option
+     'Math::NumSeq::Triangular'      => 1, # for --triangular
+     'Math::NumSeq::Perrin'          => 1, # for --perrin
+     'Math::NumSeq::FractionDigits'  => 1, # for --fraction
+     'Math::NumSeq::Tetrahedral'     => 1, # for --tetrahedral
+     'Math::NumSeq::Expression'      => 1, # for --expression
      'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry widget
     );
 

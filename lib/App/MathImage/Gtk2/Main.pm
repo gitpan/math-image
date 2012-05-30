@@ -45,7 +45,7 @@ use App::MathImage::Gtk2::Params;
 #use Smart::Comments;
 
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -175,7 +175,7 @@ my $actions_array
        label => dgettext('gtk20-properties','_Values'),
      },
      { name     => 'Centre',
-       accelerator => __p('Gtk2Main-accelerator-key','C'),
+       accelerator => __p('Main-accelerator-key','C'),
        label    => __('_Centre'),
        tooltip  => __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'),
        callback => sub {
@@ -210,9 +210,14 @@ my $actions_array
            callback => \&_do_action_pod_dialog,
          },
          { name     => 'PodDialogPath',
-           label    => __('_Path POD'),
+           label    => __('Pa_th POD'),
            tooltip  => __('Display the Math::PlanePath module documentation for the current path (using Gtk2::Ex::PodViewer).'),
            callback => \&_do_action_pod_dialog_path,
+         },
+         { name     => 'PodDialogValues',
+           label    => __('_Values POD'),
+           tooltip  => __('Display the Math::NumSeq module documentation for the current path (using Gtk2::Ex::PodViewer).'),
+           callback => \&_do_action_pod_dialog_values,
          })
       : ()),
      (defined (Module::Util::find_installed('Browser::Open'))
@@ -310,7 +315,8 @@ HERE
     <menu action='HelpMenu'>
       <menuitem action='About'/>
 HERE
-  foreach my $name ('PodDialog', 'PodDialogPath','OeisBrowse') {
+  foreach my $name ('PodDialog', 'PodDialogPath', 'PodDialogValues',
+                    'OeisBrowse') {
     if ($self->{'actiongroup'}->get_action($name)) {
       $ui_str .= "<menuitem action='$name'/>\n";
     }
@@ -892,6 +898,11 @@ sub _do_action_pod_dialog_path {
   my ($action, $self) = @_;
   _do_action_pod_dialog ($action, $self,
                          $self->{'draw'}->get('path'));
+}
+sub _do_action_pod_dialog_values {
+  my ($action, $self) = @_;
+  _do_action_pod_dialog ($action, $self,
+                         $self->{'draw'}->get('values'));
 }
 
 sub _do_action_random {

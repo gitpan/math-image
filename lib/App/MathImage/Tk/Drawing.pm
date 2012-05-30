@@ -20,16 +20,13 @@ use 5.008;
 use strict;
 use warnings;
 use Tk;
-use Scalar::Util 'refaddr';
 use Image::Base::Tk::Photo;
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use App::MathImage::Tk::Perl::AfterObject;
 
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 98;
+our $VERSION = 99;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -38,36 +35,37 @@ sub ClassInit {
   # event handlers for all instances
   $mw->bind($class,'<Expose>',\&_do_expose);
   $mw->bind($class,'<Configure>',\&queue_reimage);
+  $mw->bind($class,'<Button-1>', ['DragStart', Ev('x'), Ev('y')]);
+  $mw->bind($class,'<B1-Motion>', ['DragMotion', Ev('x'), Ev('y')]);
+  $mw->bind($class,'<MouseWheel>', ['MouseWheel', Ev('delta'), Ev('s')]);
+  $mw->bind($class,'<Button-4>', ['MouseWheel', 120, Ev('s')]);
+  $mw->bind($class,'<Button-5>', ['MouseWheel', -120, Ev('s')]);
 }
 
 sub Populate {
   my ($self, $args) = @_;
   ### Drawing Populate(): $args
-  %$args = (-background         => 'black',
-            -foreground         => 'white',
-            -activebackground   => 'black',
-            -activeforeground   => 'white',
-            -disabledforeground => 'white',
-            -borderwidth        => 0, # default
+  my %args = (-background         => 'black',
+              -foreground         => 'white',
+              -activebackground   => 'black',
+              -activeforeground   => 'white',
+              -disabledforeground => 'white',
+              -borderwidth        => 0, # default
 
-            # must initial -image so that Tk::Label -width and -height are
-            # interpreted as pixels, not lines/columns
-            -image => $self->Photo (-width => 1, -height => 1),
-            -width              => 1, # desired size, any size, not from -image
-            -height             => 1,
+              # must initial -image so that Tk::Label -width and -height are
+              # interpreted as pixels, not lines/columns
+              -image  => $self->Photo (-width => 1, -height => 1),
+              -width  => 1, # desired size any size, not from -image
+              -height => 1,
 
-            %$args,
-           );
-  $self->SUPER::Populate($args);
-  # $self->configure(-background         => 'black',
-  #                  -foreground         => 'white',
-  #                  -activebackground   => 'black',
-  #                  -activeforeground   => 'white',
-  #                  -disabledforeground => 'white',
-  #                 );
+              %$args,
+             );
+  $self->SUPER::Populate(\%args);
+
   ### background: $self->cget('-background')
   ### borderwidth: $self->cget('-borderwidth')
   $self->{'dirty'} = 1;
+  $self->{'aft'} = App::MathImage::Tk::Perl::AfterObject->new;
 }
 
 sub destroy {
@@ -91,10 +89,7 @@ sub queue_reimage {
   ### background: $self->cget('-background')
   $self->{'dirty'} = 1;
   delete $self->{'gen_object'};
-  $self->{'update_id'} ||= $self->afterIdle(sub {
-                                              delete $self->{'update_id'};
-                                              _do_expose($self);
-                                            });
+  $self->{'aft'}->idle($self, \&_do_expose);
 }
 sub _do_expose {
   my ($self) = @_;
@@ -103,9 +98,7 @@ sub _do_expose {
     return;
   }
   $self->{'dirty'} = 0;
-
   if (my $id = delete $self->{'draw_id'}) { $id->cancel; }
-  if (my $id = delete $self->{'update_id'}) { $id->cancel; }
 
   my $gen = $self->gen_object;
 
@@ -124,20 +117,18 @@ sub _do_expose {
   my $image = Image::Base::Tk::Photo->new (-tkphoto => $photo);
   $gen->draw_Image_start ($image);
 
-  # Tk::After
   # FIXME: want some sort of low-priority after()
   #
-  $self->{'draw_id'} = $self->after(20,sub { _update_draw_steps($self,$gen,$photo) });
+  $self->{'aft'}->after($self, 20, \&_update_draw_steps);
   $self->configure(-cursor => 'watch');
 }
 sub _update_draw_steps {
-  my ($self,$gen,$photo) = @_;
+  my ($self) = @_;
   ### _update_draw_steps() some ...
+  my $gen = $self->gen_object;
   if ($gen->draw_Image_steps) {
     ### _update_draw_steps() more ...
-    $self->{'draw_id'} = $self->after(20, sub {
-                                        _update_draw_steps($self,$gen,$photo);
-                                      });
+    $self->{'aft'}->after($self, 20, \&_update_draw_steps);
   } else {
     ### _update_draw_steps() finished
     $self->configure (-cursor => undef);
@@ -173,4 +164,60 @@ sub gen_object {
       });
 }
 
+sub centre {
+  my ($self) = @_;
+  my $gen_options = $self->{'gen_options'};
+  if ($gen_options->{'x_offset'} || $gen_options->{'y_offset'}) {
+    $gen_options->{'x_offset'} = 0;
+    $gen_options->{'y_offset'} = 0;
+    $self->queue_reimage;
+  }
+}
+
+#------------------------------------------------------------------------------
+# mouse wheel
+
+sub MouseWheel {
+  my ($self, $delta, $state) = @_;
+  ### MouseWheel() ...
+  ### $delta
+  ### $state
+
+  # "Control" by page, otherwise by step
+  my $frac = ($state =~ /control/i ? 0.9 : 0.1) * $delta/120;
+
+  # "Shift" horizontally, otherwise vertically
+  if ($state =~ /shift/i) {
+    $self->{'gen_options'}->{'x_offset'} += int($self->width * $frac);
+  } else {
+    $self->{'gen_options'}->{'y_offset'} -= int($self->height * $frac);
+  }
+  $self->queue_reimage;
+}
+
+#------------------------------------------------------------------------------
+# mouse drag
+
+# $event is a wxMouseEvent
+sub DragStart {
+  my ($self, $x, $y) = @_;
+  ### Drawing DragStart() ...
+  $self->{'drag_x'} = $x;
+  $self->{'drag_y'} = $y;
+}
+sub DragMotion {
+  my ($self, $x, $y) = @_;
+  ### Drawing DragMotion() ...
+
+  if (defined $self->{'drag_x'}) {
+    ### drag ...
+    $self->{'gen_options'}->{'x_offset'} += $x - $self->{'drag_x'};
+    $self->{'gen_options'}->{'y_offset'} -= $y - $self->{'drag_y'};
+    $self->{'drag_x'} = $x;
+    $self->{'drag_y'} = $y;
+    $self->queue_reimage;
+  }
+}
+
 1;
+__END__

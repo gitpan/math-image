@@ -26,15 +26,13 @@ use vars qw(@ISA);
 
 use App::MathImage::Generator;
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
 use vars '$VERSION';
-$VERSION = 98;
+$VERSION = 99;
 
 sub profile_default {
   my ($class) = @_;
   return { %{$class->SUPER::profile_default},
+           onMouseWheel => \&onMouseWheel,
            gen_options => App::MathImage::Generator->default_options,
          };
 }
@@ -48,6 +46,13 @@ sub init {
   return $self->SUPER::init (%profile);
 }
 
+sub redraw {
+  my ($self) = @_;
+  delete $self->{'gen_object'};
+  ### repaint
+  $self->repaint;
+}
+
 sub gen_options {
   my $self = shift;
   ### Prima Drawing gen_options(): @_
@@ -55,9 +60,7 @@ sub gen_options {
   my $gen_options = $self->{'gen_options'};
   if (@_) {
     %$gen_options = (%$gen_options, @_);
-    delete $self->{'gen_object'};
-    ### repaint
-    $self->repaint;
+    $self->redraw;
   }
   return $gen_options;
 }
@@ -68,15 +71,14 @@ sub path_parameters {
   my $path_parameters = ($self->gen_options->{'path_parameters'} ||= {});
   if (@_) {
     %$path_parameters = (%$path_parameters, @_);
-    ### repaint
-    $self->repaint;
+    $self->redraw;
   }
   return $path_parameters;
 }
 
 sub on_paint {
   my ($self, $canvas) = @_;
-  ### Prima Drawing on_paint()
+  ### Prima Drawing on_paint() ...
   $canvas->clear;
   #  $canvas->fill_ellipse(50,50, 20,20);
 
@@ -119,6 +121,27 @@ sub gen_object {
 #           } else {
 #              die "can't draw on image:$@";
 #           }
+
+#------------------------------------------------------------------------------
+# mouse wheel scroll
+
+sub onMouseWheel {
+  my ($self, $modifiers, $x,$y, $delta_wheel) = @_;
+  ### onMouseWheel(): "$modifiers, $x,$y, $delta_wheel"
+
+  # "Control" by page, otherwise by step
+  my $frac = ($modifiers & km::Ctrl() ? 0.9 : 0.1) * $delta_wheel/120;
+  ### $frac
+
+  # "Shift" horizontally, otherwise vertically
+  if ($modifiers & km::Shift()) {
+    $self->{'gen_options'}->{'x_offset'} += int ($self->width * $frac);
+  } else {
+    $self->{'gen_options'}->{'y_offset'} -= int ($self->height * $frac);
+  }
+  $self->redraw;
+}
+
 
 1;
 __END__

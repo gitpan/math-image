@@ -27,7 +27,7 @@ use strict;
 use Wx;
 
 use base 'Wx::Window';
-our $VERSION = 98;
+our $VERSION = 99;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -53,9 +53,9 @@ sub new {
   Wx::Event::EVT_PAINT ($self, '_OnPaint');
   Wx::Event::EVT_SIZE ($self, '_OnSize');
   Wx::Event::EVT_IDLE ($self, '_OnIdle');
-  Wx::Event::EVT_LEFT_DOWN ($self, 'do_left_down');
-  Wx::Event::EVT_LEFT_UP ($self, 'do_left_down');
-  Wx::Event::EVT_MOTION ($self, 'do_motion');
+  Wx::Event::EVT_MOUSEWHEEL ($self, 'OnMouseWheel');
+  Wx::Event::EVT_LEFT_DOWN ($self, 'OnLeftDown');
+  Wx::Event::EVT_MOTION ($self, 'OnMotion');
   return $self;
 }
 
@@ -63,7 +63,7 @@ sub redraw {
   my ($self) = @_;
   delete $self->{'bitmap'};
   delete $self->{'gen_object'};
-  $self->SUPER::Refresh;
+  $self->Refresh;
 }
 
 sub _OnSize {
@@ -259,23 +259,42 @@ sub _OnIdle {
   }
 }
 
-# wxMouseEvent
-sub do_left_down {
+#------------------------------------------------------------------------------
+# mouse wheel scroll
+
+sub OnMouseWheel {
   my ($self, $event) = @_;
-  ### Draw do_left_down() ...
+  ### OnMouseWheel() ..
+
+  # "Control" by page, otherwise by step
+  my $frac = ($event->ControlDown ? 0.9 : 0.1)
+    * $event->GetWheelRotation / $event->GetWheelDelta;
+
+  # "Shift" horizontally, otherwise vertically
+  my $size = $self->GetClientSize;
+  if ($event->ShiftDown) {
+    $self->{'x_offset'} += int($size->GetWidth * $frac);
+  } else {
+    $self->{'y_offset'} -= int($size->GetHeight * $frac);
+  }
+  $self->redraw;
+}
+
+
+#------------------------------------------------------------------------------
+# mouse drag
+
+# $event is a wxMouseEvent
+sub OnLeftDown {
+  my ($self, $event) = @_;
+  ### Draw OnLeftDown() ...
   $self->{'drag_x'} = $event->GetX;
   $self->{'drag_y'} = $event->GetY;
   $event->Skip(1); # propagate to other processing
 }
-sub do_left_up {
+sub OnMotion {
   my ($self, $event) = @_;
-  ### Draw do_left_up() ...
-  undef $self->{'drag_x'};
-  $event->Skip(1); # propagate to other processing
-}
-sub do_motion {
-  my ($self, $event) = @_;
-  ### Draw do_motion() ...
+  ### Draw OnMotion() ...
 
   if ($event->Dragging) {
     if (defined $self->{'drag_x'}) {
@@ -286,8 +305,7 @@ sub do_motion {
       $self->{'y_offset'} -= $y - $self->{'drag_y'};
       $self->{'drag_x'} = $x;
       $self->{'drag_y'} = $y;
-      delete $self->{'bitmap'};
-      $self->Refresh;
+      $self->redraw;
     }
   } else {
     ### mouse motion ...
@@ -295,8 +313,6 @@ sub do_motion {
       $main->mouse_motion ($event);
     }
   }
-  ### do_motion() propagate to other processing ...
-  $event->Skip(1);
 }
 
 # sub pointer_xy_to_image_xyn {

@@ -21,12 +21,76 @@ use 5.010;
 use strict;
 use warnings;
 use POSIX;
+use Math::BigInt;
+use List::Util 'min','max','sum';
 
-#use Devel::Comments;
+use Smart::Comments;
 
 use lib 'devel/lib';
+# use lib "$ENV{HOME}/perl/scalar-list-utils/Scalar-List-Utils-1.23_03/blib/arch";
+# use lib "$ENV{HOME}/perl/scalar-list-utils/Scalar-List-Utils-1.23_03/blib/lib";
+# use lib "$ENV{HOME}/perl/scalar-list-utils/Scalar-List-Utils-1.23_03/lib";
 
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
+
+
+{
+  my $x = ~0;
+  my $y = $x / 3;
+  print "$y\n";
+  exit 0;
+}
+{
+  my $x = ~0;
+  my $y = ~0 ^ 1;
+  my $i = ~0;
+  my $j = ~0 ^ 1;
+  my $m = min($x,$y);
+  ### $m
+  say 0+($m == $i);
+  say 0+($m == $j);
+
+   $m = min($y,$x);
+  ### $m
+  say 0+($m == $i);
+  say 0+($m == $j);
+  exit 0;
+}
+{
+  { package Foo;
+
+    use overload
+      '""' => sub { ${$_[0]} },
+        '+0' => sub { ${$_[0]} },
+          '>'  => sub {
+            ### overload > ...
+            ${$_[0]} > ${$_[1]}
+          },
+            fallback => 1;
+    sub new {
+      my $class = shift;
+      my $value = shift;
+      bless \$value, $class;
+    }
+  }
+
+  # ~/perl/scalar-list-utils/Scalar-List-Utils-1.23_03/ListUtil.xs
+  # my $big  = Math::BigInt->from_hex('FFFFFFFFFFFFFFFFFFFF7');
+  # my $huge = Math::BigInt->from_hex('FFFFFFFFFFFFFFFFFFFFF');
+  # my $big = Math::BigInt->new(2) ** 32768;
+  # my $huge = Math::BigInt->new(2) ** 33000;
+  my $big = Foo->new(3);
+  my $huge = Foo->new(5);
+  ### $big
+  ### $huge
+  my $m = min($huge,$big);
+  ### $m
+  ### h: $huge->numify
+  say $big == $m;
+  say $huge == max($big,$huge);
+  say $huge == max($huge,$big);
+  exit 0;
+}
 
 {
   require App::MathImage::Generator;

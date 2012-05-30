@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 98;
+$VERSION = 99;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -103,6 +103,7 @@ use constant::defer values_choices => sub {
                          ErdosSelfridgeClass
                          PrimeIndexOrder
                          PrimeIndexPrimes
+                         LongFractionPrimes
 
                          AlmostPrimes
                          Emirps
@@ -135,6 +136,7 @@ use constant::defer values_choices => sub {
                          Even
                          All
                          AllDigits
+                         AllPrimeFactors
                          ConcatNumbers
                          Runs
 
@@ -147,6 +149,7 @@ use constant::defer values_choices => sub {
                          Perrin
                          Padovan
                          Tribonacci
+                         SpiroFibonacci
                          Factorials
                          Primorials
 
@@ -252,13 +255,20 @@ my %special_values_class = (Lines      => 'App::MathImage::Lines',
                             LinesTree  => 'App::MathImage::LinesTree');
 sub values_class {
   my ($class_or_self, $values) = @_;
-  $values ||= $class_or_self->{'values'};
-  $values =~ s/-/::/g;
-
-  my $values_class = ($special_values_class{$values}
-                      || "Math::NumSeq::$values");
+  my $values_class = $class_or_self->values_choice_to_class($values);
   Module::Load::load ($values_class);
   return $values_class;
+}
+sub values_choice_to_class {
+  my ($class_or_self, $values) = @_;
+  $values ||= $class_or_self->{'values'};
+  $values =~ s/-/::/g;
+  my $class = ($special_values_class{$values}
+               || "Math::NumSeq::$values");
+  if (Module::Util::find_installed ($class)) {
+    return $class;
+  }
+  return undef;
 }
 
 # return a Math::NumSeq object
@@ -273,6 +283,10 @@ sub values_seq {
   ### Generator values_seq()...
   ### $values_class
   ### values_parameters: $self->{'values_parameters'}
+
+  if (! $values_class) {
+    die "Unknown values: ",$self->{'values'};
+  }
 
   my $values_seq = eval {
     $values_class->new (width => $self->{'width'},
@@ -345,6 +359,7 @@ my %pathname_square_grid
 
                      ImaginaryBase
                      ImaginaryHalf
+                     CubicBase
                      SquareReplicate
                      CornerReplicate
                      LTiling
@@ -365,9 +380,12 @@ my %pathname_square_grid
                      DragonRounded
                      DragonMidpoint
                      TerdragonCurve
-                     TerdragonMidpoint
                      TerdragonRounded
+                     TerdragonMidpoint
+                     R5DragonCurve
+                     R5DragonMidpoint
                      AlternatePaper
+                     CCurve
                      ComplexPlus
                      ComplexMinus
                      ComplexRevolving
@@ -391,6 +409,7 @@ my %pathname_square_grid
                      Columns
                      Diagonals
                      DiagonalsAlternating
+                     DiagonalsOctant
                      Staircase
                      StaircaseAlternating
                      Corner
@@ -480,7 +499,7 @@ my %pathname_square_grid
 { package Math::PlanePath::GosperIslands;
   use constant MathImage__lattice_type => 'triangular';
 }
-{ package Math::PlanePath::MathImageCubicBase;
+{ package Math::PlanePath::CubicBase;
   use constant MathImage__lattice_type => 'triangular';
 }
 
@@ -503,17 +522,17 @@ sub y_negative {
 
 #------------------------------------------------------------------------------
 
-sub path_choices {
-  my ($class) = @_;
-  return @{$class->path_choices_array};
-}
-use constant::defer path_choices_array => sub {
-  my %choices;
-  my $base = 'Math::PlanePath';
-  foreach my $module (Module::Util::find_in_namespace($base)) {
-    my $choice = $module;
-    $choice =~ s/^\Q$base\E:://;
-    next if $choice =~ /::/; # not sub-parts ?
+  sub path_choices {
+    my ($class) = @_;
+    return @{$class->path_choices_array};
+  }
+  use constant::defer path_choices_array => sub {
+    my %choices;
+    my $base = 'Math::PlanePath';
+    foreach my $module (Module::Util::find_in_namespace($base)) {
+      my $choice = $module;
+      $choice =~ s/^\Q$base\E:://;
+      next if $choice =~ /::/; # not sub-parts ?
       $choices{$choice} = 1;
     }
     my @choices;
@@ -560,6 +579,7 @@ use constant::defer path_choices_array => sub {
                            Corner
                            Diagonals
                            DiagonalsAlternating
+                           DiagonalsOctant
                            Staircase
                            StaircaseAlternating
                            Rows
@@ -582,6 +602,7 @@ use constant::defer path_choices_array => sub {
 
                            ImaginaryBase
                            ImaginaryHalf
+                           CubicBase
                            SquareReplicate
                            CornerReplicate
                            LTiling
@@ -618,8 +639,12 @@ use constant::defer path_choices_array => sub {
                            DragonRounded
                            DragonMidpoint
                            TerdragonCurve
+                           TerdragonRounded
                            TerdragonMidpoint
+                           R5DragonCurve
+                           R5DragonMidpoint
                            AlternatePaper
+                           CCurve
                            ComplexPlus
                            ComplexMinus
                            ComplexRevolving
@@ -644,219 +669,219 @@ use constant::defer path_choices_array => sub {
     \@choices
   };
 
-use constant figure_choices => qw(default
-                                  point
-                                  square
-                                  box
-                                  circle
-                                  ring
-                                  diamond
-                                  diamunf
-                                  plus
-                                  X
-                                  L
-                                  V
-                                  triangle
-                                  hexagon
-                                  undiamond
-                                  unellipse
-                                  unellipunf);
+  use constant figure_choices => qw(default
+                                    point
+                                    square
+                                    box
+                                    circle
+                                    ring
+                                    diamond
+                                    diamunf
+                                    plus
+                                    X
+                                    L
+                                    V
+                                    triangle
+                                    hexagon
+                                    undiamond
+                                    unellipse
+                                    unellipunf);
 
-#------------------------------------------------------------------------------
-# random
+  #------------------------------------------------------------------------------
+  # random
 
-# cf Data::Random
+  # cf Data::Random
 
-sub random_options {
-  my ($self) = @_;
-  my $values_parameters =
+  sub random_options {
+    my ($self) = @_;
+    my $values_parameters =
+      {
+       polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
+       pairs     => _rand_of_array(['first','second','both']),
+       parity    => _rand_of_array(['odd','even']),
+       # aronson
+       lang         => _rand_of_array(['en','fr']),
+       conjunctions => int(rand(2)),
+       lying        => (rand() < .25), # less likely
+      };
+    my $path_parameters =
+      {
+      };
+    my @ret = (values_parameters => $values_parameters,
+               path_parameters => $path_parameters);
+
+    my @path_choices = $self->path_choices;
+    @path_choices
+      = grep {!/PythagoreanTree|RationalsTree|FractionsTree/}  # values too big for many seqs
+        @path_choices;
+    @path_choices = (@path_choices,
+                     grep {!/KochCurve|GosperSide/} @path_choices);
+
+    my @values_choices = $self->values_choices;
+    @values_choices = grep {!/LinesLevel     # experimental
+                             /x}
+      @values_choices;
+    #   # coord values are only permutation of integers, or coord repetitions ?
+    # |PlanePath
+
+    my @path_and_values;
+    foreach my $path (@path_choices) {
+      next if $path eq 'File';
+
+      foreach my $values (@values_choices) {
+        next if $values eq 'File';
+
+        if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
+          next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
+        }
+
+        # too sparse?
+        # next if ($values eq 'Factorials');
+
+        # bit sparse?
+        # next if $values eq 'Perrin' || $values eq 'Padovan';
+
+        if ($values eq 'Squares') {
+          next if $path eq 'Corner'; # just a line across the bottom
+        }
+        if ($values eq 'Pronic') {
+          next if $path eq 'PyramidSides' # just a vertical
+            || $path eq 'PyramidRows';    # just a vertical
+        }
+        if ($values eq 'Triangular') {
+          next if ($path eq 'Diagonals' # just a line across the bottom
+                   || $path eq 'DiamondSpiral');  # just a centre horizontal line
+        }
+        if ($values eq 'Lines' || $values eq 'LinesTree'
+            || $values eq 'LinesLevel') {
+          next if $path eq 'VogelFloret'; # too much crossover
+        }
+
+        push @path_and_values, [ $path, $values ];
+      }
+    }
+    my ($path, $values) = @{_rand_of_array(\@path_and_values)};
+    push @ret, path => $path, values => $values;
+
+    my $path_class = $self->path_class($path);
+
     {
-     polygonal => (int(rand(20)) + 5), # skip 3=triangular, 4=squares
-     pairs     => _rand_of_array(['first','second','both']),
-     parity    => _rand_of_array(['odd','even']),
-     # aronson
-     lang         => _rand_of_array(['en','fr']),
-     conjunctions => int(rand(2)),
-     lying        => (rand() < .25), # less likely
-    };
-  my $path_parameters =
+      my $radix;
+      if ($values eq 'Repdigits' || $values eq 'Beastly') {
+        $radix = _rand_of_array([2 .. 128,
+                                 (10) x 50]); # bias mostly 10
+      } elsif ($values eq 'Emirps') {
+        # for Emirps not too big or round up to 2^base becomes slow
+        $radix = _rand_of_array([2,3,4,8,16,
+                                 10,10,10,10]); # bias mostly 10
+      } else {
+        $radix = _rand_of_array([2 .. 36]);
+      }
+      $values_parameters->{'radix'} = $radix;
+    }
+
+
     {
-    };
-  my @ret = (values_parameters => $values_parameters,
-             path_parameters => $path_parameters);
-
-  my @path_choices = $self->path_choices;
-  @path_choices
-    = grep {!/PythagoreanTree|RationalsTree|FractionsTree/}  # values too big for many seqs
-      @path_choices;
-  @path_choices = (@path_choices,
-                   grep {!/KochCurve|GosperSide/} @path_choices);
-
-  my @values_choices = $self->values_choices;
-  @values_choices = grep {!/LinesLevel     # experimental
-                           /x}
-    @values_choices;
-  #   # coord values are only permutation of integers, or coord repetitions ?
-  # |PlanePath
-
-  my @path_and_values;
-  foreach my $path (@path_choices) {
-    next if $path eq 'File';
-
-    foreach my $values (@values_choices) {
-      next if $values eq 'File';
-
-      if ($values eq 'All' || $values eq 'Odd' || $values eq 'Even') {
-        next unless $path eq 'SacksSpiral' || $path eq 'VogelFloret';
+      my $scale = _rand_of_array([1, 3, 5, 10, 15, 20]);
+      if ($values eq 'Lines') {
+        # not too small for lines to show up sensibly
+        $scale = max ($scale, 5);
       }
-
-      # too sparse?
-      # next if ($values eq 'Factorials');
-
-      # bit sparse?
-      # next if $values eq 'Perrin' || $values eq 'Padovan';
-
-      if ($values eq 'Squares') {
-        next if $path eq 'Corner'; # just a line across the bottom
+      if ($values eq 'LinesLevel') {
+        # not too small for lines to show up sensibly
+        $scale = max ($scale, 2);
       }
-      if ($values eq 'Pronic') {
-        next if $path eq 'PyramidSides' # just a vertical
-          || $path eq 'PyramidRows';    # just a vertical
+      if ($values eq 'LinesTree') {
+        # not too small for lines to show up sensibly
+        $scale = max ($scale, 50);
       }
-      if ($values eq 'Triangular') {
-        next if ($path eq 'Diagonals' # just a line across the bottom
-                 || $path eq 'DiamondSpiral');  # just a centre horizontal line
+      push @ret, scale => $scale;
+    }
+    {
+      require Math::Prime::XS;
+      my @primes = Math::Prime::XS::sieve_primes(10,100);
+      my $num = _rand_of_array(\@primes);
+      @primes = grep {$_ != $num} @primes;
+      my $den = _rand_of_array(\@primes);
+      $values_parameters->{'fraction'} = "$num/$den";
+    }
+    {
+      my @primes = Math::Prime::XS::sieve_primes(2,500);
+      my $sqrt = _rand_of_array(\@primes);
+      $values_parameters->{'sqrt'} = $sqrt;
+    }
+
+    {
+      my $pyramid_step = 1 + int(rand(20));
+      if ($pyramid_step > 12) {
+        $pyramid_step = 2;  # most of the time
       }
-      if ($values eq 'Lines' || $values eq 'LinesTree'
-          || $values eq 'LinesLevel') {
-        next if $path eq 'VogelFloret'; # too much crossover
+      $path_parameters->{'step'} = $pyramid_step;
+    }
+    if ($path eq 'MultipleRings') {  # FIXME: go from parameter_info_array
+      my $rings_step = int(rand(20));
+      if ($rings_step > 15) {
+        $rings_step = 6;  # more often
       }
+      $path_parameters->{'step'} = $rings_step;
+    }
+    {
+      my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
+                                       1 .. 20]);
+      $path_parameters->{'wider'} = $path_wider;
+    }
+    {
+      if (my $info = $path_class->parameter_info_hash->{'radix'}) {
+        $path_parameters->{'radix'} = _rand_of_array([ ($info->{'default'}) x 3,
+                                                       2 .. 7 ]);
+      }
+    }
+    {
+      if (my $info = $path_class->parameter_info_hash->{'arms'}) {
+        $path_parameters->{'arms'}
+          = _rand_of_array([ ($info->{'default'}) x 3,
+                             $info->{'minimum'} .. $info->{'maximum'} ]);
+      }
+    }
+    {
+      $path_parameters->{'rotation_type'}
+        = _rand_of_array(['phi','phi','phi','phi',
+                          'sqrt2','sqrt2',
+                          'sqrt3',
+                          'sqrt5',
+                         ]);
+      # path_rotation_factor => $rotation_factor,
+    }
+    {
+      my @figure_choices = $self->figure_choices;
+      push @figure_choices, ('default') x scalar(@figure_choices);
+      push @ret, figure => _rand_of_array(\@figure_choices);
+    }
+    {
+      push @ret, foreground => _rand_of_array(['#FFFFFF',  # white
+                                               '#FFFFFF',  # white
+                                               '#FFFFFF',  # white
+                                               '#FF0000',  # red
+                                               '#00FF00',  # green
+                                               '#0000FF',  # blue
+                                               '#FFAA00',  # orange
+                                               '#FFFF00',  # yellow
+                                               '#FFB0B0',  # pink
+                                               '#FF00FF',  # magenta
+                                              ]);
+    }
 
-      push @path_and_values, [ $path, $values ];
-    }
-  }
-  my ($path, $values) = @{_rand_of_array(\@path_and_values)};
-  push @ret, path => $path, values => $values;
+    return (@ret,
+            # spectrum  => $spectrum,
 
-  my $path_class = $self->path_class($path);
-
-  {
-    my $radix;
-    if ($values eq 'Repdigits' || $values eq 'Beastly') {
-      $radix = _rand_of_array([2 .. 128,
-                               (10) x 50]); # bias mostly 10
-    } elsif ($values eq 'Emirps') {
-      # for Emirps not too big or round up to 2^base becomes slow
-      $radix = _rand_of_array([2,3,4,8,16,
-                               10,10,10,10]); # bias mostly 10
-    } else {
-      $radix = _rand_of_array([2 .. 36]);
-    }
-    $values_parameters->{'radix'} = $radix;
+            #
+            # FIXME: don't want to filter out everything ... have values
+            # classes declare their compositeness, parity, etc
+            # filter           => _rand_of_array(['All','All','All',
+            #                                     'All','All','All',
+            #                                     'Odd','Even','Primes']),
+           );
   }
-
-
-  {
-    my $scale = _rand_of_array([1, 3, 5, 10, 15, 20]);
-    if ($values eq 'Lines') {
-      # not too small for lines to show up sensibly
-      $scale = max ($scale, 5);
-    }
-    if ($values eq 'LinesLevel') {
-      # not too small for lines to show up sensibly
-      $scale = max ($scale, 2);
-    }
-    if ($values eq 'LinesTree') {
-      # not too small for lines to show up sensibly
-      $scale = max ($scale, 50);
-    }
-    push @ret, scale => $scale;
-  }
-  {
-    require Math::Prime::XS;
-    my @primes = Math::Prime::XS::sieve_primes(10,100);
-    my $num = _rand_of_array(\@primes);
-    @primes = grep {$_ != $num} @primes;
-    my $den = _rand_of_array(\@primes);
-    $values_parameters->{'fraction'} = "$num/$den";
-  }
-  {
-    my @primes = Math::Prime::XS::sieve_primes(2,500);
-    my $sqrt = _rand_of_array(\@primes);
-    $values_parameters->{'sqrt'} = $sqrt;
-  }
-
-  {
-    my $pyramid_step = 1 + int(rand(20));
-    if ($pyramid_step > 12) {
-      $pyramid_step = 2;  # most of the time
-    }
-    $path_parameters->{'step'} = $pyramid_step;
-  }
-  if ($path eq 'MultipleRings') {  # FIXME: go from parameter_info_array
-    my $rings_step = int(rand(20));
-    if ($rings_step > 15) {
-      $rings_step = 6;  # more often
-    }
-    $path_parameters->{'step'} = $rings_step;
-  }
-  {
-    my $path_wider = _rand_of_array([(0) x 10,   # 0 most of the time
-                                     1 .. 20]);
-    $path_parameters->{'wider'} = $path_wider;
-  }
-  {
-    if (my $info = $path_class->parameter_info_hash->{'radix'}) {
-      $path_parameters->{'radix'} = _rand_of_array([ ($info->{'default'}) x 3,
-                                                     2 .. 7 ]);
-    }
-  }
-  {
-    if (my $info = $path_class->parameter_info_hash->{'arms'}) {
-      $path_parameters->{'arms'}
-        = _rand_of_array([ ($info->{'default'}) x 3,
-                           $info->{'minimum'} .. $info->{'maximum'} ]);
-    }
-  }
-  {
-    $path_parameters->{'rotation_type'}
-      = _rand_of_array(['phi','phi','phi','phi',
-                        'sqrt2','sqrt2',
-                        'sqrt3',
-                        'sqrt5',
-                       ]);
-    # path_rotation_factor => $rotation_factor,
-  }
-  {
-    my @figure_choices = $self->figure_choices;
-    push @figure_choices, ('default') x scalar(@figure_choices);
-    push @ret, figure => _rand_of_array(\@figure_choices);
-  }
-  {
-    push @ret, foreground => _rand_of_array(['#FFFFFF',  # white
-                                             '#FFFFFF',  # white
-                                             '#FFFFFF',  # white
-                                             '#FF0000',  # red
-                                             '#00FF00',  # green
-                                             '#0000FF',  # blue
-                                             '#FFAA00',  # orange
-                                             '#FFFF00',  # yellow
-                                             '#FFB0B0',  # pink
-                                             '#FF00FF',  # magenta
-                                            ]);
-  }
-
-  return (@ret,
-          # spectrum  => $spectrum,
-
-          #
-          # FIXME: don't want to filter out everything ... have values
-          # classes declare their compositeness, parity, etc
-          # filter           => _rand_of_array(['All','All','All',
-          #                                     'All','All','All',
-          #                                     'Odd','Even','Primes']),
-         );
-}
 
 sub _rand_of_array {
   my ($aref) = @_;
@@ -1099,12 +1124,20 @@ sub colours_exp_shrink {
   my $shrink = 0.6;
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
+  } elsif ($self->{'values'} eq 'SqrtContinuedPeriod') {
+    $shrink = 1 - 1/5;
+  } elsif ($self->{'values'} eq 'AllPrimeFactors') {
+    $shrink = 1 - 1/6;
+  } elsif ($self->{'values'} eq 'PrimitiveRoot') {
+    $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'RepdigitRadix') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'RadixConversion') {
     # FIXME: scale based on how far apart the radix conversions,
     # maybe a log scale shrink too
     $shrink = 1 - 1/2000;
+  } elsif ($self->{'values'} eq 'PrimeFactorExtract') {
+    $shrink = 1 - 1/15;
   } elsif ($self->{'values'} eq 'GolayRudinShapiroCumulative') {
     $shrink = 1 - 1/100;
   } elsif ($self->{'values'} eq 'GolayRudinShapiroCumulative') {
@@ -2216,25 +2249,30 @@ sub draw_Image_steps {
     #### draw by xy from: "$x,$y"
 
     for (;;) {
-      ### xy: "$x,$y"
       &$cont() or last;
 
-      if (++$x > $x_hi) {
-        ++$bignum_y;
-        if (++$y > $self->{'y_hi'}) {
-          # $values_seq->finish;
-          last;
-        }
-        $x = $self->{'x_lo'};
-        #### next row: "$x,$y"
-      }
+      # if (++$x > $x_hi) {
+      #   ++$bignum_y;
+      #   if (++$y > $self->{'y_hi'}) {
+      #     # $values_seq->finish;
+      #     last;
+      #   }
+      #   $x = $self->{'x_lo'};
+      #   #### next row: "$x,$y"
+      # }
       ($x, $y) = $self->{'rectbyxy'}->next
         or last;
-      $bignum_y = ($self->{'bignum_xy'} ? _bigint()->new($y) : $y);
+      ### rect xy: "$x,$y"
 
-      if (! defined ($n = $path_object->xy_to_n ($x, $bignum_y))
-          || $n < $n_prev) {
-        next; # no N for this x,y
+      my $n;
+      if ($self->{'bignum_xy'}) {
+        $n = $path_object->xy_to_n (_bigint()->new($x),
+                                    _bigint()->new($y));
+      } else {
+        $n = $path_object->xy_to_n ($x, $y);
+      }
+      if (! defined $n || $n < $n_prev) {
+        next; # no N for this x,y, or below already seen
       }
       #### use_xy path: "$x,$y  $n"
 
