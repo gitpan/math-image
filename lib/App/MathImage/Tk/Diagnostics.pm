@@ -31,7 +31,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkDiagonostics');
 
-our $VERSION = 99;
+our $VERSION = 100;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -163,7 +163,7 @@ sub str {
          : "false, good")
         . " (Devel::SawAmpersand)\n";
   } else {
-    $str .= "(Devel::SawAmpersand not available.)\n";
+    $str .= "(Devel::SawAmpersand -- module not available.)\n";
   }
   $str .= "\n";
 
@@ -210,9 +210,16 @@ sub str {
     my @images = $self->imageNames;
     $str .= "imageNames: count ".scalar(@images)."\n";
     @images = grep {! $_->image('inuse') } @images;
-    $str .= "not in use: count ".scalar(@images)."\n";
-    $str .= "  " . join(', ',@images) . "\n";
-    $str .= "  " . join(', ',map{$_->type}@images) . "\n";
+    $str .= "not in use: count ".scalar(@images);
+    if (@images) {
+      my %by_type;
+      foreach my $image (@images) {
+        $by_type{$image->type}++;
+      }
+      $str .= "  ("
+        . join (', ', map {"$by_type{$_} $_"} sort keys %by_type)
+          . ")";
+    }
     $str .= "\n";
   }
 
@@ -229,7 +236,7 @@ sub str {
 
 sub objects_report {
   if (! eval { require Devel::FindBlessedRefs; 1 }) {
-    return "(Devel::FindBlessedRefs not available)\n";
+    return "(Devel::FindBlessedRefs -- module not available)\n";
   }
   my $str = "Tk widgets (Devel::FindBlessedRefs)\n";
   my %seen = ('Tk::Widget' => {},

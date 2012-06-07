@@ -46,6 +46,7 @@ devel/tool-combotext.pl
 devel/unused.pl
 devel/Wx-DC.t
 devel/wx-oninit.pl
+devel/wx-pod.pl
 devel/wx.pl
 devel/x11-protocol.pl
 devel/x11-splash.pl
@@ -128,6 +129,13 @@ lib/App/MathImage/Wx/Params/Filename.pm
 lib/App/MathImage/Wx/Params/Float.pm
 lib/App/MathImage/Wx/Params/Integer.pm
 lib/App/MathImage/Wx/Params/String.pm
+lib/App/MathImage/Wx/Perl/PodBrowser.pm
+lib/App/MathImage/Wx/Perl/PodBrowser.t
+lib/App/MathImage/Wx/Perl/PodRichText.pm
+lib/App/MathImage/Wx/Perl/PodRichText.t
+lib/App/MathImage/Wx/Perl/PodRichText/PodParser.pm
+lib/App/MathImage/Wx/Perl/PodRichText/SimpleParser.pm
+lib/App/MathImage/Wx/Perl/wx-pod-browser.pl
 lib/App/MathImage/X11/Generator.pm
 lib/App/MathImage/X11/Protocol/Async.pm
 lib/App/MathImage/X11/Protocol/EventHandlerExtra.pm

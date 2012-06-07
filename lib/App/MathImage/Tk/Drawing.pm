@@ -26,7 +26,7 @@ use App::MathImage::Tk::Perl::AfterObject;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 99;
+our $VERSION = 100;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -45,6 +45,7 @@ sub ClassInit {
 sub Populate {
   my ($self, $args) = @_;
   ### Drawing Populate(): $args
+
   my %args = (-background         => 'black',
               -foreground         => 'white',
               -activebackground   => 'black',

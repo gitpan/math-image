@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            99
+version:            100
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -172,6 +172,7 @@ optional_features:
             Math::NumSeq:         23
             Math::NumSeq::Abundant:  24
             Math::NumSeq::AllDigits:  25
+            Math::NumSeq::AllPrimeFactors:  42
             Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
@@ -190,6 +191,7 @@ optional_features:
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  38
             Math::NumSeq::DigitProduct:  2
+            Math::NumSeq::DigitProductSteps:  42
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::DivisorCount:  12
@@ -219,6 +221,7 @@ optional_features:
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::LuckyNumbers:  38
+            Math::NumSeq::MaxDigitCount:  42
             Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::MoranNumbers:  38
@@ -297,7 +300,8 @@ optional_features:
             Math::PlanePath::CubicBase:  75
             Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
-            Math::PlanePath::DiagonalsAlternating:  2
+            Math::PlanePath::DiagonalsAlternating:  56
+            Math::PlanePath::DiagonalsOctant:  77
             Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
             Math::PlanePath::DigitGroups:  52
@@ -400,6 +404,7 @@ optional_features:
             Math::NumSeq:         23
             Math::NumSeq::Abundant:  24
             Math::NumSeq::AllDigits:  25
+            Math::NumSeq::AllPrimeFactors:  42
             Math::NumSeq::AlmostPrimes:  14
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
@@ -418,6 +423,7 @@ optional_features:
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  38
             Math::NumSeq::DigitProduct:  2
+            Math::NumSeq::DigitProductSteps:  42
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::DivisorCount:  12
@@ -447,6 +453,7 @@ optional_features:
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::LuckyNumbers:  38
+            Math::NumSeq::MaxDigitCount:  42
             Math::NumSeq::MephistoWaltz:  14
             Math::NumSeq::MobiusFunction:  6
             Math::NumSeq::MoranNumbers:  38
@@ -528,7 +535,8 @@ optional_features:
             Math::PlanePath::CubicBase:  75
             Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
-            Math::PlanePath::DiagonalsAlternating:  2
+            Math::PlanePath::DiagonalsAlternating:  56
+            Math::PlanePath::DiagonalsOctant:  77
             Math::PlanePath::DiamondArms:  37
             Math::PlanePath::DiamondSpiral:  1
             Math::PlanePath::DigitGroups:  52
@@ -647,6 +655,7 @@ recommends:
     Math::NumSeq:         23
     Math::NumSeq::Abundant:  24
     Math::NumSeq::AllDigits:  25
+    Math::NumSeq::AllPrimeFactors:  42
     Math::NumSeq::AlmostPrimes:  14
     Math::NumSeq::Aronson:  6
     Math::NumSeq::AsciiSelf:  12
@@ -665,6 +674,7 @@ recommends:
     Math::NumSeq::DigitLength:  1
     Math::NumSeq::DigitLengthCumulative:  38
     Math::NumSeq::DigitProduct:  2
+    Math::NumSeq::DigitProductSteps:  42
     Math::NumSeq::DigitSum:  2
     Math::NumSeq::DigitSumModulo:  5
     Math::NumSeq::DivisorCount:  12
@@ -694,6 +704,7 @@ recommends:
     Math::NumSeq::Liouville:  13
     Math::NumSeq::LucasNumbers:  29
     Math::NumSeq::LuckyNumbers:  38
+    Math::NumSeq::MaxDigitCount:  42
     Math::NumSeq::MephistoWaltz:  14
     Math::NumSeq::MobiusFunction:  6
     Math::NumSeq::MoranNumbers:  38
@@ -772,7 +783,8 @@ recommends:
     Math::PlanePath::CubicBase:  75
     Math::PlanePath::DiagonalRationals:  58
     Math::PlanePath::Diagonals:  2
-    Math::PlanePath::DiagonalsAlternating:  2
+    Math::PlanePath::DiagonalsAlternating:  56
+    Math::PlanePath::DiagonalsOctant:  77
     Math::PlanePath::DiamondArms:  37
     Math::PlanePath::DiamondSpiral:  1
     Math::PlanePath::DigitGroups:  52

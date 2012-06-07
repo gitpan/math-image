@@ -27,7 +27,7 @@ use strict;
 use Wx;
 
 use base 'Wx::Window';
-our $VERSION = 99;
+our $VERSION = 100;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -56,6 +56,8 @@ sub new {
   Wx::Event::EVT_MOUSEWHEEL ($self, 'OnMouseWheel');
   Wx::Event::EVT_LEFT_DOWN ($self, 'OnLeftDown');
   Wx::Event::EVT_MOTION ($self, 'OnMotion');
+  Wx::Event::EVT_ENTER_WINDOW ($self, 'OnMotion');
+  Wx::Event::EVT_LEAVE_WINDOW ($self, 'OnLeaveWindow');
   return $self;
 }
 
@@ -183,9 +185,12 @@ sub start_drawing_window {
   }
 }
 
+sub gen_object_maybe {
+  my ($self, %gen_parameters) = @_;
+  return eval { $self->gen_object };
+}
 sub gen_object {
   my ($self, %gen_parameters) = @_;
-
   return ($self->{'gen_object'} ||= do {
     my $size = $self->GetClientSize;
     my $width = $size->GetWidth;
@@ -312,6 +317,12 @@ sub OnMotion {
     if (my $main = $self->GetParent) {
       $main->mouse_motion ($event);
     }
+  }
+}
+sub OnLeaveWindow {
+  my ($self, $event) = @_;
+  if (my $main = $self->GetParent) {
+    $main->mouse_motion (undef);
   }
 }
 

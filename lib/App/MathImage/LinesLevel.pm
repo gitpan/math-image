@@ -21,12 +21,14 @@ use strict;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION','@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
 use constant name => __('Line by Level');
 use constant description => __('No numbers, instead lines showing the path taken.');
+use constant oeis_anum => undef;
+
 use constant parameter_info_array =>
   [ { name    => 'level',
       display => __('Level'),

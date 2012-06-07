@@ -51,7 +51,7 @@ $dc->SelectObject($bitmap);
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 99;
+my $want_version = 100;
 ok ($App::MathImage::Image::Base::Wx::DC::VERSION, $want_version,
     'VERSION variable');
 ok (App::MathImage::Image::Base::Wx::DC->VERSION, $want_version,

@@ -122,7 +122,8 @@ my %maximum_planepath
      'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
      'Math::PlanePath::Corner'               => 1,
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
-     'Math::PlanePath::DiagonalsAlternating' => 2,  # new in v.56
+     'Math::PlanePath::DiagonalsAlternating' => 56, # new in v.56
+     'Math::PlanePath::DiagonalsOctant'      => 77, # new in v.77
      'Math::PlanePath::Staircase'            => 16, # new in v.16
      'Math::PlanePath::StaircaseAlternating' => 70, # v.70 end_type=>'square'
      'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
@@ -217,7 +218,6 @@ my %maximum_numseq
      'Math::NumSeq::Emirps'              => 4,  # new in v.4
      'Math::NumSeq::MobiusFunction'      => 6,  # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
-     'Math::NumSeq::PrimeFactorCount'    => 32, # v.32 prime_type choices
      'Math::NumSeq::GoldbachCount'       => 33, # new in v.33
      'Math::NumSeq::LemoineCount'        => 33, # new in v.33
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
@@ -233,6 +233,9 @@ my %maximum_numseq
      'Math::NumSeq::DedekindPsiSteps'      => 36, # new in v.36
      'Math::NumSeq::Abundant'              => 24, # new in v.24
      'Math::NumSeq::PolignacObstinate'     => 25, # new in v.25
+
+     'Math::NumSeq::PrimeFactorCount'    => 32, # v.32 prime_type choices
+     'Math::NumSeq::AllPrimeFactors'     => 42, # new in v.42
 
      'Math::NumSeq::Factorials'        => 29, # v.29 i_estimate
      'Math::NumSeq::Primorials'        => 29, # v.29 i_estimate
@@ -260,9 +263,12 @@ my %maximum_numseq
      'Math::NumSeq::DigitLengthCumulative' => 38, # v.38 value_to_i_estimate()
      'Math::NumSeq::SelfLengthCumulative'  => 38, # new in v.38
      'Math::NumSeq::RadixWithoutDigit'     => 1,
+     'Math::NumSeq::MaxDigitCount'         => 42, # new in v.42
+
      'Math::NumSeq::DigitSum'              => 2, # new in v.2
      'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
      'Math::NumSeq::DigitProduct'          => 2, # new in v.2
+     'Math::NumSeq::DigitProductSteps'     => 42, # new in v.42
 
      'Math::NumSeq::Beastly'           => 1,
      'Math::NumSeq::Repdigits'         => 41, # v.41 radix=2 fix, i_estimate

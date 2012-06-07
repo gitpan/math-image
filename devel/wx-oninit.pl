@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -48,7 +48,7 @@ use Devel::Comments;
 use Wx;
 my $myApp = myApp->new;
 
-# my $win = Wx::Frame->new($myApp,-1, 'my frame', [0,0], [400,300]);
+# my $win = Wx::Frame->new($myApp, Wx::wxID_ANY(), 'my frame', [0,0], [400,300]);
 my $win = myFrame->new;
 $win->Show(1) ;
 

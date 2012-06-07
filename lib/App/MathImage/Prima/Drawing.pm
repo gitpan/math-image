@@ -27,7 +27,7 @@ use vars qw(@ISA);
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 99;
+$VERSION = 100;
 
 sub profile_default {
   my ($class) = @_;

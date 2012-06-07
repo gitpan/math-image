@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 100, June 2012
+    - bit more Wx
+
 Version 99, May 2012
     - PodViewer on NumSeq values modules too
     - Wx,Tk mouse drag and scroll wheel

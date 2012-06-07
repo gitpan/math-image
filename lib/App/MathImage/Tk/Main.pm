@@ -35,11 +35,34 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 99;
+our $VERSION = 100;
 
 sub Populate {
   my ($self, $args) = @_;
-  $self->SUPER::Populate($args);
+
+  # read-only
+  $self->ConfigSpecs(-menubar => [ 'PASSIVE',
+                                   'AppMathImageTkMain',
+                                   'AppMathImageTkMain',
+                                   undef ]);
+  $self->ConfigSpecs(-toolbar => [ 'PASSIVE',
+                                   'AppMathImageTkMain',
+                                   'AppMathImageTkMain',
+                                   undef ]);
+  $self->ConfigSpecs(-drawing => [ 'PASSIVE',
+                                   'AppMathImageTkMain',
+                                   'AppMathImageTkMain',
+                                   undef ]);
+
+  # cf add-on Tk::ToolBar
+  my $toolbar
+    = $self->{'Configure'}->{'-toolbar'}
+      = $self->Component('Frame','toolbar');
+
+  my $menubar
+    = $self->{'Configure'}->{'-menubar'}
+      = $self->Component('Frame','menubar',
+                         -relief => 'raised', -bd => 2);
 
   my $gui_options = delete $args->{'-gui_options'};
   my $gen_options = delete $args->{'-gen_options'} || {};
@@ -52,11 +75,30 @@ sub Populate {
   }
   ### Main gen_options: $gen_options
 
-  my $balloon = $self->Balloon;
+  my $drawing
+    = $self->{'Configure'}->{'-drawing'}
+      = $self->Component
+        ('AppMathImageTkDrawing','drawing',
+         -background => 'black',
+         -foreground => 'white',
+         -activebackground => 'black',
+         -activeforeground => 'white',
+         -disabledforeground => 'white',
+         (defined $gen_options->{'width'}
+          ? (-width  => $gen_options->{'width'},
+             -height => $gen_options->{'height'} || $gen_options->{'width'})
+          : ()),
+        );
+  $drawing->bind('<Enter>',  [\&_do_drawing_motion, Ev('x'), Ev('y')]);
+  $drawing->bind('<Motion>', [\&_do_drawing_motion, Ev('x'), Ev('y')]);
+  $drawing->bind('<Leave>',  [\&_do_drawing_leave]);
 
-  my $menubar = $self->Component('Frame','menubar',
-                                 -relief => 'raised', -bd => 2);
+  $self->SUPER::Populate($args);
+
+  my $balloon = $self->Balloon;
   $menubar->pack(-side => 'top', -fill => 'x');
+  $toolbar->pack(-side => 'top', -fill => 'x');
+
   {
     my $menu = $menubar->Menubutton(-text => with_underline(__('_File')),
                                     -tearoff => 0);
@@ -67,7 +109,7 @@ sub Populate {
                     -menuitems => [ map {
                       ['Button', _path_to_mnemonic($_),
                        -command => [ \&_path_menu_action, $self, $_ ]],
-                    } App::MathImage::Generator->path_choices ]);
+                     } App::MathImage::Generator->path_choices ]);
 
     $menu->cascade (-label     => with_underline(__('_Values')),
                     -tearoff   => 1,
@@ -91,12 +133,25 @@ sub Populate {
                     -command   => [$self, 'fullscreen_toggle']);
     # $item->uncheck('fullscreen'); # initially unchecked
 
-    $menu->command (-label       => with_underline(__('_Centre')),
-                    -accelerator => __p('Main-accelerator-key','C'),
-                    -command => [$self, 'centre']);
-    # upper and lower case
-    $self->bind('<'.__p('Main-accelerator-key','C').'>', ['centre']);
-    $self->bind('<'.lc(__p('Main-accelerator-key','C')).'>', ['centre']);
+    {
+      my $accelerator = __p('Main-accelerator-key','C');
+      $menu->command (-label       => with_underline(__('_Centre')),
+                      -accelerator => $accelerator,
+                      -command => [$self, 'centre']);
+      # upper and lower case
+      $self->bind("<$accelerator>", ['centre']);
+      $self->bind("<\L$accelerator>", ['centre']);
+    }
+    {
+      my $item = $menu->cascade (-label => with_underline(__('_Toolbar')));
+      my $submenu = $item->cget('-menu');
+      $submenu->command (-label     => with_underline(__('_Horizontal')),
+                         -command   => [$self, 'toolbar_state', 'horizontal']);
+      $submenu->command (-label     => with_underline(__('_Vertical')),
+                         -command   => [$self, 'toolbar_state', 'vertical']);
+      $submenu->command (-label     => with_underline(__('Hi_de')),
+                         -command   => [$self, 'toolbar_state', 'hide']);
+    }
   }
   {
     my $menu = $menubar->Menubutton(-text => with_underline(__('_Help')));
@@ -114,29 +169,11 @@ sub Populate {
 
   }
 
-  # cf Tk::ToolBar
-  my $toolbar = $self->Component('Frame','toolbar');
-  $toolbar->pack(-side => 'top', -fill => 'x');
-
-  my $draw = $self->Component
-    ('AppMathImageTkDrawing','drawing',
-     -background => 'black',
-     -foreground => 'white',
-     -activebackground => 'black',
-     -activeforeground => 'white',
-     -disabledforeground => 'white',
-     (defined $gen_options->{'width'}
-      ? (-width  => $gen_options->{'width'},
-         -height => $gen_options->{'height'} || $gen_options->{'width'})
-      : ()),
-    );
-  $draw->bind('<Motion>', [\&_do_motion, Ev('x'), Ev('y')]);
-
-  $draw->{'gen_options'} = $gen_options;
-  $draw->pack(-side   => 'top',
-              -fill   => 'both',
-              -expand => 1,
-              -after  => $toolbar);
+  $drawing->{'gen_options'} = $gen_options;
+  $drawing->pack(-side   => 'top',
+                 -fill   => 'both',
+                 -expand => 1,
+                 -after  => $toolbar);
 
   {
     my $button = $toolbar->Button
@@ -144,6 +181,39 @@ sub Populate {
        -command => [ $self, 'randomize' ]);
     $button->pack (-side => 'left');
     $balloon->attach($button, -balloonmsg => __('Choose a random path, values, scale, etc.  Click repeatedly to see interesting things.'));
+  }
+  {
+    my @values = App::MathImage::Generator->path_choices;
+    my $spinbox = $self->{'path_spinbox'} = $toolbar->Spinbox
+      (-values       => \@values,
+       -width        => max(map{length} @values),
+       -state        => 'readonly',
+       -textvariable => \$gen_options->{'path'},
+       -command => sub {
+         my ($value, $direction) = @_;
+         if ($gen_options->{'path'} ne $value) {
+           $gen_options->{'path'} = $value;
+         }
+         $drawing->queue_reimage;
+       })->pack(-side => 'left');
+    $balloon->attach($spinbox, -balloonmsg => __('The path for where to place values in the plane.'));
+  }
+  {
+    my @values = App::MathImage::Generator->values_choices;
+    my $spinbox = $toolbar->Component
+      ('Spinbox','values_spinbox',
+       -values       => \@values,
+       -width        => max(map{length} @values),
+       -state        => 'readonly',
+       -textvariable => \$gen_options->{'values'},
+       -command => sub {
+         my ($value, $direction) = @_;
+         # if ($gen_options->{'values'} ne $value) {
+         #   $gen_options->{'values'} = $value;
+         # }
+         $drawing->queue_reimage;
+       })->pack(-side => 'left');
+    $balloon->attach($spinbox, -balloonmsg => __('The values to show.'));
   }
   {
     my $frame = $toolbar->Frame;
@@ -154,10 +224,13 @@ sub Populate {
        -to    => 9999,
        -width => 2,
        -text  => 3,
+       -textvariable => \$gen_options->{'scale'},
        -command => sub {
          my ($value, $direction) = @_;
-         $gen_options->{'scale'} = $value;
-         $draw->queue_reimage;
+         # if ($gen_options->{'scale'} != $value) {
+         #   $gen_options->{'scale'} = $value;
+         # }
+         $drawing->queue_reimage;
        })->pack(-side => 'left');
     $balloon->attach($frame, -balloonmsg => __('How many pixels per square.'));
   }
@@ -165,15 +238,18 @@ sub Populate {
     my @values = map { $_ eq 'default' ? 'figure' : $_ }
       App::MathImage::Generator->figure_choices;
     my $spinbox = $self->{'figure_spinbox'} = $toolbar->Spinbox
-      (-values => \@values,
-       -width => max(map{length} @values),
+      (-values  => \@values,
+       -width   => max(map{length} @values),
+       -state   => 'readonly',
+       -textvariable => \$self->{'figure'},
        -command => sub {
          my ($value, $direction) = @_;
          if ($value eq 'figure') { $value = 'default' }
-         $gen_options->{'figure'} = $value;
-         $draw->queue_reimage;
-       });
-    $spinbox->pack(-side => 'left');
+         if ($gen_options->{'figure'} ne $value) {
+           $gen_options->{'figure'} = $value;
+           $drawing->queue_reimage;
+         }
+       })->pack(-side => 'left');
     $balloon->attach ($spinbox,
                       -balloonmsg => __('The figure to draw at each position.'));
   }
@@ -185,7 +261,7 @@ sub Populate {
 
   # ### ismapped: $self->ismapped
   # $self->update;
-  ### reqheight: $self->reqheight, $draw->reqheight
+  ### reqheight: $self->reqheight, $drawing->reqheight
   ### ismapped: $self->ismapped
 
   if (! $gen_options->{'width'}) {
@@ -241,9 +317,6 @@ my %_values_to_mnemonic =
    FractionDigits  => __('F_raction Digits'),
    Polygonal       => __('Pol_ygonal Numbers'),
    PiBits          => __('_Pi Bits'),
-   Ln2Bits         => __x('_Log Natural {logarg} Bits', logarg => 2),
-   Ln3Bits         => __x('_Log Natural {logarg} Bits', logarg => 3),
-   Ln10Bits        => __x('_Log Natural {logarg} Bits', logarg => 10),
    odd             => __('_Odd Integers'),
    even            => __('_Even Integers'),
    all             => __('_All Integers'),
@@ -282,10 +355,10 @@ sub _path_to_mnemonic {
   return ($_values_to_mnemonic{$str} || nick_to_display($str));
 }
 sub _path_menu_action {
-  my ($self, $itemname) = @_;
-  ### _path_menu_action(): $itemname
+  my ($self, $path) = @_;
+  ### _path_menu_action(): $path
   my $drawing = $self->Subwidget('drawing');
-  $drawing->{'gen_options'}->{'path'} = $itemname;
+  $drawing->{'gen_options'}->{'path'} = $path;
   $drawing->queue_reimage;
 }
 
@@ -308,6 +381,35 @@ sub centre {
   $self->Subwidget('drawing')->centre;
 }
 
+sub toolbar_state {
+  my ($self, $state) = @_;
+  my $toolbar = $self->cget('-toolbar');
+  ### toolbar_state(): $toolbar
+
+  $toolbar->packForget;
+  if ($state eq 'hide') {
+    return;
+  }
+  if ($state eq 'vertical') {
+    $toolbar->pack(-side => 'left',
+                   -before => $self->Subwidget('drawing'),
+                   -fill => 'y');
+    foreach my $child ($toolbar->children) {
+      $child->packForget;
+      $child->pack (-side => 'top',
+                   -anchor => 'w');
+    }
+  } else { # Horizontal
+    $toolbar->pack(-side => 'top',
+                   -after => $self->cget('-menubar'),
+                   -fill => 'x');
+    foreach my $child ($toolbar->children) {
+      $child->packForget;
+      $child->pack (-side => 'left');
+    }
+  }
+}
+
 sub fullscreen_toggle {
   my ($self, $itemname) = @_;
   ### fullscreen_toggle(): "@_"
@@ -328,15 +430,23 @@ sub fullscreen_toggle {
 sub randomize {
   my ($self) = @_;
   my $drawing = $self->Subwidget('drawing');
+  my %new_options = App::MathImage::Generator->random_options;
   my $gen_options = $drawing->{'gen_options'};
-  %$gen_options = (%$gen_options,
-                   App::MathImage::Generator->random_options);
+  @{$gen_options}{keys %new_options} = values %new_options; # hash slice
   ### randomize to: $gen_options
   $drawing->queue_reimage;
-  $self->{'scale_spinbox'}->configure(-text => $gen_options->{'scale'});
+  _controls_from_draw ($self);
+}
+sub _controls_from_draw {
+  my ($self) = @_;
+  my $drawing = $self->Subwidget('drawing');
+  my $gen_options = $drawing->{'gen_options'};
+
+  # $self->{'scale_spinbox'}->configure(-text => $gen_options->{'scale'});
   {
-    my $figure = $gen_options->{'figure'};
-    $self->{'figure_spinbox'}->configure(-text => ($figure eq 'default' ? 'figure' : $figure));
+    $self->{'figure'} = my $figure = $gen_options->{'figure'};
+    if ($figure eq 'default') { $figure = 'figure' }
+    $self->{'figure_spinbox'}->configure(-text => $figure);
   }
 }
 
@@ -346,7 +456,7 @@ sub popup_about {
   $self->AppMathImageTkAbout->Popup;
 }
 
-sub _do_motion {
+sub _do_drawing_motion {
   my ($drawing, $x, $y) = @_;
   ### _do_motion(): "@_"
 
@@ -356,6 +466,12 @@ sub _do_motion {
   my $self = $drawing->parent;
   my $statusbar = $self->Subwidget('statusbar');
   $statusbar->configure(-text => $message);
+}
+sub _do_drawing_leave {
+  my ($drawing, $x, $y) = @_;
+  my $self = $drawing->parent;
+  my $statusbar = $self->Subwidget('statusbar');
+  $statusbar->configure(-text => '');
 }
 
 sub popup_save_as {

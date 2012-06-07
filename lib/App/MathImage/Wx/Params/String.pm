@@ -28,7 +28,7 @@ use POSIX ();
 use Wx;
 
 use base qw(Wx::ComboBox);
-our $VERSION = 99;
+our $VERSION = 100;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

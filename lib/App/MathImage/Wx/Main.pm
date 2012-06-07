@@ -31,13 +31,15 @@ use base qw(Wx::Frame);
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 99;
+
+our $VERSION = 100;
 
 sub new {
   my ($class, $label) = @_;
   my $self = $class->SUPER::new (undef,
-                                 -1,
+                                 Wx::wxID_ANY(),
                                  $label);
+  $self->{'position_status'} = '';
 
   # load an icon and set it as frame icon
   $self->SetIcon (Wx::GetWxPerlIcon());
@@ -45,9 +47,8 @@ sub new {
   my $menubar = Wx::MenuBar->new;
   $self->SetMenuBar ($menubar);
 
-  my $id = 0;
   {
-    my $menu = Wx::Menu->new;
+    my $menu = Wx::Menu->new (__('File'));
     $menubar->Append ($menu, __('&File'));
 
     $menu->Append(Wx::wxID_EXIT(),
@@ -56,24 +57,49 @@ sub new {
     EVT_MENU ($self, Wx::wxID_EXIT(), 'quit');
   }
   {
-    my $menu = Wx::Menu->new;
+    my $menu = Wx::Menu->new (__('Tools'));
     $menubar->Append ($menu, __('&Tools'));
     {
       my $item = $self->{'menuitem_fullscreen'} =
-        $menu->Append (++$id,
+        $menu->Append (Wx::wxID_ANY(),
                        __("&Fullscreen\tCtrl-F"),
                        __('Toggle between full screen and normal window.'));
       EVT_MENU ($self, $item, '_menu_fullscreen');
     }
     {
-      $menu->Append(++$id,
-                    __("&Centre\tC"),
-                    __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'));
-      EVT_MENU ($self, $id, '_menu_centre');
+      my $item = $menu->Append(Wx::wxID_ANY(),
+                               __("&Centre\tC"),
+                               __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'));
+      EVT_MENU ($self, $item, '_menu_centre');
+    }
+    {
+      my $submenu = Wx::Menu->new (__('Toolbar'));
+      {
+        my $item = $submenu->AppendRadioItem
+          (Wx::wxID_ANY(),
+           __("&Horizontal"),
+           __('Toolbar horizontal across the top of the window.'));
+        EVT_MENU ($self, $item, '_toolbar_horizontal');
+      }
+      {
+        my $item = $submenu->AppendRadioItem
+          (Wx::wxID_ANY(),
+           __("&Vertical"),
+           __('Toolbar vertically at the left of the window.'));
+        EVT_MENU ($self, $item, '_toolbar_vertical');
+      }
+      {
+        my $item = $submenu->AppendRadioItem
+          (Wx::wxID_ANY(),
+           __("Hi&de"),
+           __('Hide the toolbar.'));
+        EVT_MENU ($self, $item, '_toolbar_hide');
+      }
+      $menu->AppendSubMenu ($submenu, __('&Toolbar'));
     }
   }
   {
-    my $menu = $self->{'help_menu'} = Wx::Menu->new;
+    my $menu = $self->{'help_menu'} = Wx::Menu->new (__('Help'));
     $menubar->Append ($menu, __('&Help'));
 
     $menu->Append (Wx::wxID_ABOUT(),
@@ -81,23 +107,46 @@ sub new {
                    __('Show about dialog'));
     EVT_MENU ($self, Wx::wxID_ABOUT(), 'popup_about');
 
-    if (Module::Util::find_installed('Browser::Open')) {
-      $menu->Append (++$id, __('&OEIS Web Page'), '');
-      EVT_MENU ($self, $id, 'oeis_browse');
-      $self->{'oeis_browse_id'} = $id;
+    {
+      my $item = $menu->Append (Wx::wxID_ANY(),
+                                __('&Program POD'),
+                                __('Show the values POD'));
+      EVT_MENU ($self, $item, 'popup_program_pod');
+    }
+    {
+      my $item = $menu->Append (Wx::wxID_ANY(),
+                                __('Pa&th POD'),
+                                __('Show the program POD'));
+      EVT_MENU ($self, $item, 'popup_path_pod');
+    }
+    {
+      my $item = $menu->Append (Wx::wxID_ANY(),
+                                __('&Values POD'),
+                                __('Show the path POD'));
+      EVT_MENU ($self, $item, 'popup_values_pod');
+    }
+
+    {
+      my $item
+        = $self->{'help_oeis_menuitem'}
+          = $menu->Append (Wx::wxID_ANY(),
+                           __('&OEIS Web Page'),
+                           ''); # tooltip set by oeis_browse_update()
+      EVT_MENU ($self, $item, 'oeis_browse');
     }
   }
 
   {
     my $toolbar = $self->{'toolbar'} = $self->CreateToolBar;
+    # (Wx::wxTB_VERTICAL());
 
     # my $bitmap = Wx::Bitmap->new (10,10);
-    # $toolbar->AddTool(++$id,
+    # $toolbar->AddTool(Wx::wxID_ANY(),
     #                   __('&Randomize'),
     #                   $bitmap, # Wx::wxNullBitmap(),
     #                   "Random path, values, etc",
     #                   Wx::wxITEM_NORMAL());
-    # EVT_MENU ($self, $id, 'randomize');
+    # EVT_MENU ($self, $item, 'randomize');
 
     {
       my $button = Wx::Button->new ($toolbar, Wx::wxID_ANY(), __('Randomize'));
@@ -151,7 +200,7 @@ sub new {
            callback => sub { values_params_update($self) });
     }
 
-    $toolbar->AddSeparator;
+    #    $toolbar->AddSeparator;
 
     {
       my $choice = $self->{'filter_choice'}
@@ -215,34 +264,72 @@ sub _menu_fullscreen {
   ### Main _menu_fullscreen() ...
   $self->ShowFullScreen ($self->{'menuitem_fullscreen'}->IsChecked,
                          Wx::wxFULLSCREEN_ALL());
-
-  # } else {
-  #   ### Show ...
-  #   $self->Show;
-  # }
 }
 sub _menu_centre {
   my ($self, $event) = @_;
   ### Main _menu_fullscreen() ...
 
   my $draw = $self->{'draw'};
-  $draw->{'x_offset'} = 0;
-  $draw->{'y_offset'} = 0;
-  $draw->redraw;
-}
-sub oeis_browse {
-  my ($self, $event) = @_;
-  if (my $url = _oeis_url($self)) {
-    require Browser::Open;
-    Browser::Open::open_browser ($url);
+  if ($draw->{'x_offset'} != 0 || $draw->{'y_offset'} != 0) {
+    $draw->{'x_offset'} = 0;
+    $draw->{'y_offset'} = 0;
+    $draw->redraw;
   }
 }
-sub _oeis_url {
+
+sub _toolbar_horizontal {
+  my ($self, $event) = @_;
+  my $toolbar = $self->{'toolbar'};
+
+  my $style = $toolbar->GetWindowStyleFlag;
+  $style &= ~ Wx::wxTB_VERTICAL();
+  $style |= Wx::wxTB_HORIZONTAL();
+  $toolbar->SetWindowStyleFlag($style);
+
+  $toolbar->Show;
+  $self->SetToolBar(undef);
+  $self->SetToolBar($toolbar);
+}
+sub _toolbar_vertical {
+  my ($self, $event) = @_;
+  my $toolbar = $self->{'toolbar'};
+
+  my $style = $toolbar->GetWindowStyleFlag;
+  $style &= ~ Wx::wxTB_HORIZONTAL();
+  $style |= Wx::wxTB_VERTICAL();
+  $toolbar->SetWindowStyleFlag($style);
+
+  $toolbar->Show;
+  $self->SetToolBar(undef);
+  $self->SetToolBar($toolbar);
+}
+sub _toolbar_hide {
+  my ($self, $event) = @_;
+  my $toolbar = $self->{'toolbar'};
+  $toolbar->Hide;
+  $self->SetToolBar(undef);
+  $self->SetToolBar($toolbar);
+}
+
+sub oeis_browse {
+  my ($self, $event) = @_;
+  if (my $url = $self->oeis_url) {
+    Wx::LaunchDefaultBrowser($url);
+  }
+}
+sub oeis_url {
   my ($self) = @_;
-  my ($values_seq, $anum);
-  return (($values_seq = $self->{'draw'}->gen_object->values_seq)
-          && ($anum = $values_seq->oeis_anum)
-          && "http://oeis.org/$anum");
+  if (my $anum = $self->oeis_anum) {
+    return "http://oeis.org/$anum";
+  }
+  return undef;
+}
+sub oeis_anum {
+  my ($self) = @_;
+  if (my $gen_object = $self->{'draw'}->gen_object_maybe) {
+    return $gen_object->oeis_anum;
+  }
+  return undef;
 }
 
 sub randomize {
@@ -325,15 +412,17 @@ sub values_update_tooltip {
   my $tooltip = __('The values to display.');
   my $values_choice = $self->{'values_choice'};
 
-  my $values_seq;
-  if (($values_seq = $self->{'draw'}->gen_object->values_seq)
-      && (my $desc = $values_seq->description)) {
-    my $name = $values_choice->GetStringSelection;
-    ### values_seq name: "$values_seq"
-    ### values_choice name: $name
-    $tooltip .= "\n\n"
-      . __x('Current setting: {name}', name => $name)
-        . "\n$desc";
+  if (my $gen_object = $self->{'draw'}->gen_object_maybe) {
+    if (my $values_seq = $gen_object->values_seq_maybe) {
+      if (my $desc = $values_seq->description) {
+        my $name = $values_choice->GetStringSelection;
+        ### values_seq name: "$values_seq"
+        ### values_choice name: $name
+        $tooltip .= "\n\n"
+          . __x('Current setting: {name}', name => $name)
+            . "\n$desc";
+      }
+    }
   }
 
   my $toolbar = $self->{'toolbar'};
@@ -341,11 +430,11 @@ sub values_update_tooltip {
 }
 sub oeis_browse_update {
   my ($self) = @_;
-  my $url = _oeis_url($self);
-  my $id = $self->{'oeis_browse_id'};
+  my $item = $self->{'help_oeis_menuitem'};
   my $menu = $self->{'help_menu'};
-  $menu->Enable ($id, defined($url));
-  $menu->SetHelpString ($id,
+  my $url = $self->oeis_url;
+  $menu->Enable ($item, defined($url));
+  $menu->SetHelpString ($item->GetId,
                         __x("Open browser at Online Encyclopedia of Integer Sequences (OEIS) web page for the current values\n{url}",
                             url => ($url||'')));
 }
@@ -381,7 +470,7 @@ sub _controls_from_draw {
 
 sub quit {
   my ($self, $event) = @_;
-  $self->Close (1);
+  $self->Close;
 }
 
 sub popup_about {
@@ -398,9 +487,9 @@ sub popup_about {
 
   $info->SetDescription(__x("Display some mathematical images.
 
-You are running under: Perl {perlver}, Gtk-Perl {wxperlver}, Gtk {wxver}",
+You are running under: Perl {perlver}, wxPerl {wxperlver}, Wx {wxver}",
                             perlver    => sprintf('%vd', $^V),
-                            wxver      => Wx::wxVERSION_STRING,
+                            wxver      => Wx::wxVERSION_STRING(),
                             wxperlver  => Wx->VERSION));
 
   $info->SetCopyright(__x("Copyright (C) 2010, 2011 Kevin Ryde
@@ -423,21 +512,57 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the license for more.
   Wx::AboutBox($info);
 }
 
+sub popup_pod {
+  my ($self, $module) = @_;
+  ### popup_pod(): $module
+  require App::MathImage::Wx::Perl::PodBrowser;
+  my $browser = App::MathImage::Wx::Perl::PodBrowser->new;
+  $browser->Show;
+  $browser->goto_pod (module => $module);
+}
+
+sub popup_program_pod {
+  my ($self) = @_;
+  $self->popup_pod('math-image');
+}
+sub popup_path_pod {
+  my ($self) = @_;
+  my $draw = $self->{'draw'};
+  if (my $path = $draw->{'path'}) {
+    if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
+      $self->popup_pod($module);
+    }
+  }
+}
+sub popup_values_pod {
+  my ($self) = @_;
+  my $draw = $self->{'draw'};
+  if (my $values = $draw->{'values'}) {
+    if ((my $module = App::MathImage::Generator->values_choice_to_class($values))) {
+      $self->popup_pod($module);
+    }
+  }
+}
+
 sub mouse_motion {
   my ($self, $event) = @_;
   ### Wx-Main mouse_motion() ...
-
-  my $statusbar = $self->GetStatusBar;
-  $statusbar->SetStatusText ('');
-
-  my $draw = $self->{'draw'};
-  my $gen = $draw->gen_object;
-  ### xy: $event->GetX.','.$event->GetY
-  my $message = $gen->xy_message ($event->GetX, $event->GetY);
-  ### $message
-  $statusbar->SetStatusText ($message);
-
-  ### Wx-Main mouse_motion() finished ...
+  my $message = '';
+  if ($event) {
+    if (my $gen_object = $self->{'draw'}->gen_object_maybe) {
+      ### xy: $event->GetX.','.$event->GetY
+      $message = $gen_object->xy_message ($event->GetX, $event->GetY);
+      ### $message
+    }
+  }
+  $self->set_position_status ($message);
+}
+sub set_position_status {
+  my ($self, $message) = @_;
+  if ($self->{'position_status'} ne $message) {
+    $self->SetStatusText ($message);
+    $self->{'position_status'} = $message;
+  }
 }
 
 #------------------------------------------------------------------------------

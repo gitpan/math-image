@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 99;
+$VERSION = 100;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -92,7 +92,6 @@ use constant::defer values_choices => sub {
   ### %choices
   my @choices;
   foreach my $prefer (qw(Primes
-                         PrimeFactorCount
                          MobiusFunction
                          LiouvilleFunction
                          TwinPrimes
@@ -111,6 +110,9 @@ use constant::defer values_choices => sub {
                          GoldbachCount
                          LemoineCount
                          PythagoreanHypots
+
+                         PrimeFactorCount
+                         AllPrimeFactors
 
                          Totient
                          TotientCumulative
@@ -136,7 +138,6 @@ use constant::defer values_choices => sub {
                          Even
                          All
                          AllDigits
-                         AllPrimeFactors
                          ConcatNumbers
                          Runs
 
@@ -177,6 +178,7 @@ use constant::defer values_choices => sub {
                          DigitSum
                          DigitSumModulo
                          DigitProduct
+                         DigitProductSteps
                          DigitCount
                          DigitCountHigh
                          DigitCountLow
@@ -189,6 +191,7 @@ use constant::defer values_choices => sub {
                          RepdigitAny
                          RepdigitRadix
                          RadixWithoutDigit
+                         MaxDigitCount
 
                          Palindromes
                          Beastly
@@ -271,11 +274,23 @@ sub values_choice_to_class {
   return undef;
 }
 
+sub oeis_anum {
+  my ($self) = @_;
+  if (my $seq = $self->values_seq_maybe) {
+    return $seq->oeis_anum;
+  }
+  return undef;
+}
+sub values_seq_maybe {
+  my ($self) = @_;
+  return eval { $self->values_seq };
+}
+
 # return a Math::NumSeq object
 sub values_seq {
   my ($self) = @_;
 
-  if ($self->{'values_seq'}) {
+  if (exists $self->{'values_seq'}) {
     return $self->{'values_seq'};
   }
 
@@ -1128,7 +1143,7 @@ sub colours_exp_shrink {
     $shrink = 1 - 1/5;
   } elsif ($self->{'values'} eq 'AllPrimeFactors') {
     $shrink = 1 - 1/6;
-  } elsif ($self->{'values'} eq 'PrimitiveRoot') {
+  } elsif ($self->{'values'} eq 'LeastPrimitiveRoot') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'RepdigitRadix') {
     $shrink = 1 - 1/10;
@@ -1178,7 +1193,7 @@ sub colours_exp_shrink {
     # }
   } elsif ($self->{'values'} eq 'MaxDigitCount') {
     if ($self->values_seq->{'values_type'} eq 'radix') {
-      $shrink = 1 - 1/2;
+      $shrink = 1 - 1/10;
     } else {
       $shrink = 1 - 1/5;
     }
@@ -1187,7 +1202,7 @@ sub colours_exp_shrink {
   } elsif ($self->{'values'} eq 'HappySteps') {
     $shrink = 1 - 1/10;
   } elsif ($self->{'values'} eq 'DigitProduct') {
-    $shrink = .99;
+    $shrink = 1 - 1/100;
   } elsif ($self->{'values'} eq 'DigitSum') {
     $shrink = .95;
   } elsif ($self->{'values'} eq 'DigitSumSquares') {
@@ -1601,6 +1616,10 @@ sub use_colours {
 
     my $values_min = $values_seq->values_min;
     my $values_max = $values_seq->values_max;
+
+    if (defined $values_max && ! defined $values_min) {
+      ($values_min,$values_max) = ($values_max,$values_min);
+    }
 
     my $colours_base = $self->{'colours_base'} = $values_min || 0;
     my $colours_max = $self->{'colours_max'} = $values_max;
