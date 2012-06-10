@@ -38,15 +38,18 @@ use App::MathImage::Generator;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 @ISA = ('Prima::MainWindow');
 
 sub new {
-  my ($class, %args) = @_;
+  my ($class, %profile) = @_;
   ### Prima Main new() ...
 
-  my $gui_options = delete $args{'gui_options'};
-  my $gen_options = delete $args{'gen_options'} || {};
+  my $visible = (exists $profile{'visible'} ? $profile{'visible'} : 1);
+  $profile{'visible'} = 0;
+
+  my $gui_options = delete $profile{'gui_options'};
+  my $gen_options = delete $profile{'gen_options'} || {};
   {
     my %default_gen_options = %{App::MathImage::Generator->default_options};
     delete @default_gen_options{'width','height'}; # hash slice
@@ -71,29 +74,40 @@ sub new {
                            ]],
 
        # [],  # separator to put Help at the right
-       [ "~Help" => [ [ __('~About'), sub { $_[0]->about_dialog } ],
-
-                      [ __('~Program POD'),
-                        sub {
-                          my ($self) = @_;
-                          ### POD: "@_"
-                          $::application->open_help ("$FindBin::Bin/$FindBin::Script");
-                          # $::application->open_help ('/tmp/foo.pod');
-                        }],
-
-                      [ __('~This Path POD'),
-                        sub {
-                          my ($self) = @_;
-                          ### POD: "@_"
-                          my $path = $self->{'draw'}->gen_options->{'path'};
-                          if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
-                            $::application->open_help ($module);
-                          }
-                        }],
-                    ] ],
+       [ "~Help" =>
+         [ [ __('~About'),
+             sub { $_[0]->about_dialog },
+           ],
+           [ __('~Program POD'),
+             sub {
+               my ($self) = @_;
+               ### POD: "@_"
+               $::application->open_help
+                 (File::Spec->catfile ($FindBin::Bin, $FindBin::Script));
+               # $::application->open_help ('/tmp/foo.pod');
+             }],
+           [ __('Pa~th POD'),
+             sub {
+               my ($self) = @_;
+               ### POD: "@_"
+               my $path = $self->{'draw'}->gen_options->{'path'};
+               if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
+                 $::application->open_help ($module);
+               }
+             }],
+           [ __('~Values POD'),
+             sub {
+               my ($self) = @_;
+               ### POD: "@_"
+               my $values = $self->{'draw'}->gen_options->{'values'};
+               if (my $module = App::MathImage::Generator->values_choice_to_class ($values)) {
+                 $::application->open_help ($module);
+               }
+             }],
+         ] ],
      ],
      # onPaint  => \&_paint,
-     %args);
+     %profile);
 
   my $menu = $self->menu;
   $menu->uncheck('fullscreen'); # initially unchecked
@@ -187,7 +201,7 @@ Click repeatedly to see interesting things.'),
                           pageStep => 10,
                           onChange  => sub {
                             my ($spin) = @_;
-                            ### Main scale onChange
+                            ### Prima-Main scale onChange: $spin->value
                             my $scale = $spin->value;
                             $self->{'draw'}->gen_options (scale => $scale);
                           },
@@ -200,12 +214,14 @@ Click repeatedly to see interesting things.'),
      width   => (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
      height  => (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
      pack => { expand => 1,
-               fill => 'both' },
+               fill => 'both',
+             },
      onMouseMove  => \&_draw_on_mouse_move,
     );
 
   my $statusbar = $self->{'statusbar'} = $self->insert
     ('Label',
+     text => '',
      pack => { in => $self,
                side => 'top',
                fill => 'x',
@@ -239,13 +255,17 @@ Click repeatedly to see interesting things.'),
       $size[1] = $screen_height * .8;
     }
     $self->set (size => \@size);
+    ### @size
   }
+  $self->packPropagate(0);
 
+  $self->visible ($visible);
   return $self;
 }
 
 sub _update {
   my ($self) = @_;
+  ### Prima-Main _update() ...
   my $gen_options = $self->{'draw'}->gen_options;
 
   my $menu = $self->menu;
@@ -261,6 +281,7 @@ sub _update {
 
   my $path = $gen_options->{'path'};
   if ($self->{'path_combo'}->text ne $path) {
+    ### path_combo set text() ...
     $self->{'path_combo'}->text ($path);
   }
 
@@ -284,16 +305,19 @@ sub _update {
     $self->{'path_wider_spin'}->value ($self->{'draw'}->path_parameters->{'wider'});
   } else {
     if (my $spin = delete $self->{'path_wider_spin'}) {
+      ### path_wider_spin destroy ...
       $spin->destroy;
     }
   }
 
   my $values = $gen_options->{'values'};
   if ($self->{'values_combo'}->text ne $values) {
+    ### values_combo set text() ...
     $self->{'values_combo'}->text ($values);
   }
 
   $self->{'scale_spin'}->value ($gen_options->{'scale'});
+  ### Prima-Main _update() done ...
 }
 
 
@@ -424,289 +448,11 @@ sub _draw_on_mouse_move {
 # sub INIT_INSTANCE {
 #   my ($self) = @_;
 # 
-#   my $draw = $self->{'draw'} = App::MathImage::Prima::Drawing->new;
-#   $draw->show;
-# 
-#       { name     => 'SaveAs',
-#         stock_id => 'gtk-save-as',
-#         callback => \&_do_action_save_as,
-#       },
-#       { name     => 'SetRoot',
-#         label    => 'Set _Root Window',
-#         callback => \&_do_action_setroot,
-#       },
-#       { name     => 'Randomize',
-#         label    => __('Randomize'),
-#         callback => \&_do_action_randomize,
-#       },
-#      ],
-#      $self);
-# 
-#   {
-#     my $n = 0;
-#     my $group;
-#     my %hash;
-#     foreach my $values (App::MathImage::Generator->values_choices) {
-#       my $action = Prima::RadioAction->new (name  => "Values-$values",
-#                                            label => _values_to_mnemonic($values),
-#                                            value => $n);
-#       $action->set_group ($group);
-#       $group ||= $action;
-#       $actiongroup->add_action ($action);
-#       $hash{$values} = $n;
-#       $hash{$n++} = $values;
-#     }
-#   {
-#     my $n = 0;
-#     my $group;
-#     my %hash;
-#     foreach my $path (App::MathImage::Generator->path_choices) {
-#       my $action = Prima::RadioAction->new (name  => "Path-$path",
-#                                            label => _values_to_mnemonic($path),
-#                                            value => $n);
-#       $action->set_group ($group);
-#       $group ||= $action;
-#       $actiongroup->add_action ($action);
-#       $hash{$path} = $n;
-#       $hash{$n++} = $path;
-#     }
-# 
 #       <menuitem action='SaveAs'/>
 #       <menuitem action='SetRoot'/>
 #   </menubar>
 # </ui>
 # HERE
-#   $ui->add_ui_from_string ($ui_str);
-# 
-#   $draw->add_events ('pointer-motion-mask');
-#   $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
-#   $table->attach ($draw, 0,1, 0,1, ['expand','fill'],['expand','fill'],0,0);
-# 
-#   {
-#     #       my $action = $actiongroup->get_action ('Toolbar');
-#     #       Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
-#     #                                         [$action,'active']);
-# 
-#     my $tpos = 0;
-#     {
-#       my $item = Prima::ToolItem->new;
-#       $toolbar->insert ($item, $tpos++);
-# 
-#       my $hbox = Prima::HBox->new;
-#       $item->add ($hbox);
-#       $hbox->pack_start (Prima::Label->new(__('Path')), 0,0,0);
-#       my $combobox = Prima::ComboBox->new
-#         (App::MathImage::Prima::Drawing::Path->model);
-#       $combobox->set (tearoff_title => __('Path'));
-# 
-#       my $renderer = Prima::CellRendererText->new;
-#       $renderer->set (ypad => 0);
-#       $combobox->pack_start ($renderer, 1);
-#       $combobox->set_attributes ($renderer, text => 1);
-# 
-#       my $hash = App::MathImage::Prima::Drawing::Path->model_rows_hash;
-#       ### $hash
-#       Glib::Ex::ConnectProperties->new ([$draw,'path'],
-#                                         [$combobox,'active',
-#                                          hash_in => $hash,
-#                                          hash_out => $hash ]);
-#       $hbox->pack_start ($combobox, 0,0,0);
-#     }
-#     {
-#       my $item = Prima::ToolItem->new;
-#       $toolbar->insert ($item, $tpos++);
-# 
-#       my $hbox = Prima::HBox->new;
-#       $item->add ($hbox);
-# 
-#       $hbox->pack_start (Prima::Label->new(__('Values')), 0,0,0);
-#       my $combobox = $self->{'values_combobox'} = Prima::ComboBox->new
-#         (App::MathImage::Prima::Drawing::Values->model);
-#       $combobox->set (tearoff_title => __('Values'));
-# 
-#       my $renderer = Prima::CellRendererText->new;
-#       $renderer->set (ypad => 0);
-#       $combobox->pack_start ($renderer, 1);
-#       $combobox->set_attributes ($renderer, text => 1);
-# 
-#       my $hash = App::MathImage::Prima::Drawing::Values->model_rows_hash;
-#       ### $hash
-#       Glib::Ex::ConnectProperties->new ([$draw,'values'],
-#                                         [$combobox,'active',
-#                                          hash_in => $hash,
-#                                          hash_out => $hash ]);
-#       $hbox->pack_start ($combobox, 0,0,0);
-#     }
-#     {
-#       my $item = Prima::ToolItem->new;
-#       $toolbar->insert ($item, $tpos++);
-# 
-#       my $entry = $self->{'fraction_entry'} = Prima::Entry->new;
-#       $entry->set_width_chars (8);
-#       $item->add ($entry);
-#       $entry->signal_connect (activate => sub {
-#                                 my ($entry) = @_;
-#                                 my $self = $entry->get_ancestor(__PACKAGE__);
-#                                 my $draw = $self->{'draw'};
-#                                 $draw->set(fraction => $entry->get_text);
-#                               });
-#       $draw->signal_connect ('notify::fraction' => \&_do_notify_fraction);
-#       _do_notify_fraction ($draw);  # initial value
-#       $self->{'values_combobox'}->signal_connect
-#         ('notify::active' => sub {
-#            my ($combobox) = @_;
-#            my $active = $combobox->get_active;
-#            my $hash = App::MathImage::Prima::Drawing::Values->model_rows_hash;
-#            my $values = $hash->{$active};
-#            $entry->set (visible => ($values && $values eq 'FractionDigits'));
-#          });
-#     }
-#     {
-#       my $item = Prima::ToolItem->new;
-#       $toolbar->insert ($item, $tpos++);
-# 
-#       my $adj = Prima::Adjustment->new (1,        # initial
-#                                        2, 999,   # min,max
-#                                        1,10,     # steps
-#                                        0);       # page_size
-#       Glib::Ex::ConnectProperties->new ([$draw,'polygonal'],
-#                                         [$adj,'value']);
-#       my $spin = Prima::SpinButton->new ($adj, 10, 0);
-#       $item->add ($spin);
-#       $self->{'values_combobox'}->signal_connect
-#         ('notify::active' => sub {
-#            my ($combobox) = @_;
-#            my $active = $combobox->get_active;
-#            my $hash = App::MathImage::Prima::Drawing::Values->model_rows_hash;
-#            my $values = $hash->{$active};
-#            $spin->set (visible => ($values && $values eq 'polygonal'));
-#          });
-#     }
-# 
-#     {
-#       my $item = Prima::ToolItem->new;
-#       $toolbar->insert ($item, $tpos++);
-# 
-#       my $hbox = Prima::HBox->new;
-#       $item->add ($hbox);
-#       $hbox->pack_start (Prima::Label->new(__('Scale')), 0,0,0);
-#       my $adj = Prima::Adjustment->new (1,        # initial
-#                                        1, 999,   # min,max
-#                                        1,10,     # steps
-#                                        0);       # page_size
-#       Glib::Ex::ConnectProperties->new ([$draw,'scale'],
-#                                         [$adj,'value']);
-#       my $spin = Prima::SpinButton->new ($adj, 10, 0);
-#       $hbox->pack_start ($spin, 0,0,0);
-#     }
-#   }
-# 
-#   $vbox->show_all;
-#   $self->{'values_combobox'}->notify('active');
-# }
-# 
-# sub _do_notify_fraction {
-#   my ($draw) = @_;
-#   ### Entry draw notify-fraction: $draw->get('fraction')
-#   my $self = $draw->get_ancestor(__PACKAGE__);
-#   ### $self
-#   my $entry = $self->{'fraction_entry'};
-#   ### $entry
-#   $entry->set_text ($draw->get('fraction'));
-# }
-# 
-# sub _do_motion_notify {
-#   my ($draw, $event) = @_;
-#   my $self = $draw->get_ancestor (__PACKAGE__);
-# 
-#   my $statusbar = $self->{'statusbar'};
-#   my $id = $statusbar->get_context_id (__PACKAGE__);
-#   $statusbar->pop ($id);
-# 
-#   my ($x, $y, $n) = $draw->pointer_xy_to_image_xyn ($event->x, $event->y);
-#   if (defined $x) {
-#     my $message = sprintf ("x=%.*f, y=%.*f",
-#                            (int($x)==$x ? 0 : 2), $x,
-#                            (int($y)==$y ? 0 : 2), $y);
-#     if (defined $n) {
-#       $message .= "   N=$n";
-#     }
-#     $statusbar->push ($id, $message);
-#   }
-#   return 0;
-# }
-# 
-# sub SET_PROPERTY {
-#   my ($self, $pspec, $newval) = @_;
-#   my $pname = $pspec->get_name;
-#   $self->{$pname} = $newval;
-#   ### SET_PROPERTY: $pname, $newval
-# 
-#   if ($pname eq 'fullscreen') {
-#     # hide the draw widget until fullscreen change takes effect, so as not
-#     # to do the slow drawing stuff until the new size set by the window
-#     # manager
-#     if ($self->mapped) {
-#       $self->{'draw'}->hide;
-#     }
-#     if ($newval) {
-#       ### fullscreen
-#       $self->fullscreen;
-#     } else {
-#       ### unfullscreen
-#       $self->unfullscreen;
-#     }
-#   }
-#   ### SET_PROPERTY done
-# }
-# sub _do_window_state_event {
-#   my ($self, $event) = @_;
-#   ### _do_window_state_event: "@{[$event->new_window_state]}"
-# 
-#   my $visible = ! ($event->new_window_state & 'fullscreen');
-#   $self->toolbar->set (visible => $visible);
-#   $self->{'statusbar'}->set (visible => $visible);
-#   $self->{'draw'}->show;
-# 
-#   # reparent the menubar
-#   my $menubar = $self->menubar;
-#   my $vbox = ($visible ? $self->{'vbox'} : $self->{'vbox2'});
-#   if ($menubar->parent != $vbox) {
-#     $menubar->parent->remove ($menubar);
-#     $vbox->pack_start ($menubar, 0,0,0);
-#     $vbox->reorder_child ($menubar, 0); # at the start
-#     if ($self->{'draw'}->window) {
-#       $self->{'draw'}->window->raise;
-#     }
-#   }
-# }
-# 
-# # sub _do_map {
-# #   my ($self) = @_;
-# #   ### _do_map()
-# #   shift->signal_chain_from_overridden (@_);
-# #   ### mapped now: $self->mapped
-# # 
-# # #   $self->{'draw'}->realize;
-# # #   _fullscreen_windows ($self);
-# # }
-# # sub _fullscreen_windows {
-# #   my ($self) = @_;
-# #   ### _fullscreen_windows()
-# #   my $fullscreen = $self->{'fullscreen'};
-# #   if (my $win = $self->{'draw'}->window) { # $self->window) {
-# #     if ($fullscreen) {
-# #       ### win fullscreen
-# #       $win->fullscreen;
-# #     } else {
-# #       ### win unfullscreen
-# #       $win->unfullscreen;
-# #     }
-# #   }
-# # #   if ($self->{'draw'}->window) {
-# # #     $self->{'draw'}->window->raise;
-# # #   }
-# # }
 # 
 # sub _do_action_save_as {
 #   my ($action, $self) = @_;
@@ -746,33 +492,6 @@ sub _draw_on_mouse_move {
 #   $rootwin->set_back_pixmap ($image->get('-pixmap'));
 #   $rootwin->clear;
 # }
-
-# sub _do_action_randomize {
-#   my ($action, $self) = @_;
-#   $self->{'draw'}->set (App::MathImage::Generator->random_options);
-# }
-
-#       my $toplevel = App::MathImage::Prima::Main->new
-#         (fullscreen => $gui_options{'fullscreen'});
-# 
-#       my $fg_color = Prima::Gdk::Color->parse (delete $gen_options{'foreground'});
-#       my $bg_color = Prima::Gdk::Color->parse (delete $gen_options{'background'});
-# 
-#       my $draw = $toplevel->{'draw'};
-#       if (defined $gen_options{'width'}) {
-#         require Prima::Ex::Units;
-#         Prima::Ex::Units::set_default_size_with_subsizes
-#             ($toplevel,
-#              [ $draw,
-#                delete $gen_options{'width'}, delete $gen_options{'height'} ]);
-#       } else {
-#         $toplevel->set_default_size
-#           (map {$_*0.8} $toplevel->get_root_window->get_size);
-#       }
-#       ### draw set: %gen_options
-#       $draw->set (%gen_options);
-#       $draw->modify_fg ('normal', $fg_color);
-#       $draw->modify_bg ('normal', $bg_color);
 
 
 #------------------------------------------------------------------------------

@@ -27,7 +27,7 @@ use Module::Load;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 100;
+our $VERSION = 101;
 
 # after_item => $item
 #

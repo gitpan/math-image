@@ -519,6 +519,7 @@ WriteMakefile
                      %tk_interface,
                      %tk_optionals,
                      %gtk1_interface,
+                     'Software::License::GPL_3' => 0,
 
                      'Image::Xpm'             => 0,
                      'Image::Base::GD'        => 15, # v.15 clip fixes

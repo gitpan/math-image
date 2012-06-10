@@ -38,7 +38,7 @@ use App::MathImage::X11::Protocol::EventHandlerExtra;
 
 
 use vars '$VERSION';
-$VERSION = 100;
+$VERSION = 101;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests

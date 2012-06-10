@@ -25,9 +25,10 @@
 package App::MathImage::Wx::Drawing;
 use strict;
 use Wx;
+use Module::Load;
 
 use base 'Wx::Window';
-our $VERSION = 100;
+our $VERSION = 101;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -103,26 +104,27 @@ sub _OnPaint {
   # $dc->SetBrush ($brush);
   $dc->Clear;
 
-  $dc->DrawRectangle (0,0,200,200);
+  # $dc->DrawRectangle (0,0,200,200);
+  # 
+  # $dc->SetFont($self->GetFont);
+  # $dc->DrawText('Hello', 10, 10);
 
-  $dc->SetFont($self->GetFont);
-  $dc->DrawText('Hello', 10, 10);
+  # require App::MathImage::Image::Base::Wx::DC;
+  # my $image = App::MathImage::Image::Base::Wx::DC->new (-dc => $dc);
 
-  require App::MathImage::Image::Base::Wx::DC;
-  my $image = App::MathImage::Image::Base::Wx::DC->new (-dc => $dc);
-  $image->rectangle (5,30,15,40, 'blue', 1);
-  $image->rectangle (25,30,35,40, 'green', 0);
-
-  $image->ellipse (5,50,35,70, 'black', 1);
-  $image->ellipse (45,50,75,70, 'magenta', 0);
-
-  $image->rectangle (5,80,15,100, 'orange', 1);
-  $image->rectangle (25,80,35,100, 'pink', 0);
-
-  $image->diamond (5,110,35,130, 'black', 1);
-  $image->diamond (45,110,75,130, 'magenta', 0);
-
-  $image->xy (2,3, 'orange');
+  # $image->rectangle (5,30,15,40, 'blue', 1);
+  # $image->rectangle (25,30,35,40, 'green', 0);
+  # 
+  # $image->ellipse (5,50,35,70, 'black', 1);
+  # $image->ellipse (45,50,75,70, 'magenta', 0);
+  # 
+  # $image->rectangle (5,80,15,100, 'orange', 1);
+  # $image->rectangle (25,80,35,100, 'pink', 0);
+  # 
+  # $image->diamond (5,110,35,130, 'black', 1);
+  # $image->diamond (45,110,75,130, 'magenta', 0);
+  # 
+  # $image->xy (2,3, 'orange');
 
 
   ### _bitmap_is_good says: _bitmap_is_good($self)
@@ -152,10 +154,10 @@ sub _bitmap_is_good {
   ### _bitmap_is_good() ...
   ### bitmap: $self->{'bitmap'}
   my $bitmap = $self->{'bitmap'} || return 0;
-  my $size = $self->GetClientSize;
-  ### sizes: $size->GetWidth, $bitmap->GetWidth, $size->GetHeight, $bitmap->GetHeight
-  return ($size->GetWidth == $bitmap->GetWidth
-          && $size->GetHeight == $bitmap->GetHeight);
+  my ($window_width, $window_height) = $self->GetClientSizeWH;
+  ### sizes: $window_width, $bitmap->GetWidth, $window_height, $bitmap->GetHeight
+  return ($window_width == $bitmap->GetWidth
+          && $window_height == $bitmap->GetHeight);
 }
 
 sub start_drawing_window {

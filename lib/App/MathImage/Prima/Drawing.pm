@@ -20,6 +20,7 @@ package App::MathImage::Prima::Drawing;
 use 5.004;
 use strict;
 use warnings;
+use Module::Load;
 
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
@@ -27,36 +28,52 @@ use vars qw(@ISA);
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 100;
+$VERSION = 101;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 sub profile_default {
   my ($class) = @_;
+  ### Prima-Drawing profile_default() ...
   return { %{$class->SUPER::profile_default},
-           onMouseWheel => \&onMouseWheel,
-           gen_options => App::MathImage::Generator->default_options,
+           onMouseWheel     => \&onMouseWheel,
+           gen_options      => App::MathImage::Generator->default_options,
+           draw_progressive => 1,
+           transparent      => 1, # no clear background for paint
+
+           # default colours
+           color            => cl::White(),
+           backColor        => cl::Black(),
+
+           # onSize => sub {
+           #   ### Prima-Drawing onSize: @_[1..$#_]
+           # },
          };
 }
 
 sub init {
   my ($self, %profile) = @_;
-  ### Drawing init(): @_
+  ### Drawing init() ...
+  # ### %profile
   $profile{'gen_options'} = { %{App::MathImage::Generator->default_options},
                               %{$profile{'gen_options'} || {}} }; # copy
-  $self->{'gen_options'} = $profile{'gen_options'};
+  $self->{'gen_options'} = delete $profile{'gen_options'};
+  $self->{'draw_progressive'} = 1;
   return $self->SUPER::init (%profile);
 }
 
 sub redraw {
   my ($self) = @_;
   delete $self->{'gen_object'};
-  ### repaint
+  delete $self->{'bitmap'};
+  ### Prima-Drawing repaint() ...
   $self->repaint;
 }
 
 sub gen_options {
   my $self = shift;
-  ### Prima Drawing gen_options(): @_
-  ### $self
+  ### Prima-Drawing gen_options(): @_
   my $gen_options = $self->{'gen_options'};
   if (@_) {
     %$gen_options = (%$gen_options, @_);
@@ -66,8 +83,7 @@ sub gen_options {
 }
 sub path_parameters {
   my $self = shift;
-  ### Prima Drawing path_options(): @_
-  ### $self
+  ### Prima-Drawing path_options(): @_
   my $path_parameters = ($self->gen_options->{'path_parameters'} ||= {});
   if (@_) {
     %$path_parameters = (%$path_parameters, @_);
@@ -75,52 +91,115 @@ sub path_parameters {
   }
   return $path_parameters;
 }
+sub draw_progressive {
+  my $self = shift;
+  ### Prima-Drawing draw_progressive(): @_
+  if (@_) { $self->{'draw_progressive'} = shift; }
+  return $self->{'draw_progressive'};
+}
 
 sub on_paint {
   my ($self, $canvas) = @_;
-  ### Prima Drawing on_paint() ...
+  ### Prima-Drawing on_paint() ...
   $canvas->clear;
-  #  $canvas->fill_ellipse(50,50, 20,20);
+  #   $canvas->fill_ellipse(50,50, 20,20);
 
-  my $gen = $self->gen_object;
+  # my $gen = $self->gen_object;
+  # my $scale = $gen->{'scale'} || 1;
+  # my $path_parameters = $self->path_parameters;
+  # $path_parameters->{'width'}  = int ($canvas->width / $scale);
+  # $path_parameters->{'height'} = int ($canvas->height / $scale);
+  # ### canvas width:  $canvas->width
+  # ### canvas height: $canvas->height
+  #
+  # require Image::Base::Prima::Drawable;
+  # my $image = Image::Base::Prima::Drawable->new (-drawable => $canvas);
+  # ### width:  $image->get('-width')
+  # ### height: $image->get('-height')
+  # $gen->draw_Image ($image);
 
-  my $path_parameters = $self->path_parameters;
-  $path_parameters->{'width'}  = $canvas->width;
-  $path_parameters->{'height'} = $canvas->height;
-  ### width:  $canvas->width
-  ### height: $canvas->height
+  if (my $bitmap = $self->bitmap) {
+    $canvas->put_image (0,0, $bitmap);
+  }
+}
 
-  require Image::Base::Prima::Drawable;
-  my $image = Image::Base::Prima::Drawable->new (-drawable => $canvas);
-  ### width:  $image->get('-width')
-  ### height: $image->get('-height')
-  $gen->draw_Image ($image);
+sub bitmap {
+  my ($self) = @_;
+  ### bitmap()...
+  if (! _bitmap_is_good($self)) {
+    ### new bitmap ...
+    $self->start_drawing_window ($self);
+  }
+  return $self->{'bitmap'};
+}
+sub _bitmap_is_good {
+  my ($self) = @_;
+  ### _bitmap_is_good() ...
+  ### bitmap: $self->{'bitmap'}
+  my $bitmap = $self->{'bitmap'} || return 0;
+  return ($self->width == $bitmap->width
+          && $self->height == $bitmap->height);
+}
+
+sub start_drawing_window {
+  my ($self, $target) = @_;
+  ### Prima-Drawing start_drawing_window() ...
+
+  delete $self->{'gen_object'};
+  my $gen = $self->gen_object
+    (generator_class => 'App::MathImage::Prima::Generator',
+     # busycursor      => Prima::Ex::BusyCursor->new,
+    );
+
+  $self->{'path_object'} = $gen->path_object;
+  $self->{'affine_object'} = $gen->affine_object;
+
+  # if drawing to self, not if drawing to root window
+  if ($target == $self) {
+    $self->{'bitmap'} = $gen->{'bitmap'};
+    ### bitmap: $self->{'bitmap'}
+  }
 }
 
 sub gen_object {
-  my ($self) = @_;
+  my ($self, %gen_parameters) = @_;
   return ($self->{'gen_object'} ||= do {
     my $gen_options = $self->gen_options;
-    App::MathImage::Generator->new
-        (step_time       => 0.25,
-         step_figures    => 1000,
-         %$gen_options,
-         #      foreground => $self->style->fg($self->state)->to_string,
-         #      background => $background_colorobj->to_string,
-        )
-      });
-}
+    my $generator_class = delete $gen_parameters{'generator_class'}
+      || 'App::MathImage::Generator';
 
-# sub expose {
-#           if ( $d-> begin_paint) {
-#              $d-> color( cl::Black);
-#              $d-> bar( 0, 0, $d-> size);
-#              $d-> color( cl::White);
-#              $d-> fill_ellipse( $d-> width / 2, $d-> height / 2, 30, 30);
-#              $d-> end_paint;
-#           } else {
-#              die "can't draw on image:$@";
-#           }
+    ### self: keys %$self
+    ### transparent: $self->transparent
+
+    my $foreground = $self->map_color($self->color);
+    my $foreground_str = sprintf '#%06X', $foreground;
+    my $background = $self->map_color($self->backColor);
+    my $background_str = sprintf '#%06X', $background;
+    my $undrawnground
+      = int (($background & 0xFF0000) * .8 + ($foreground & 0xFF0000) * .2
+             + ($background & 0xFF00) * .8 + ($foreground & 0xFF00) * .2
+             + ($background & 0xFF) * .8 + ($foreground & 0xFF) * .2);
+    my $undrawnground_str = sprintf '#%06X', $undrawnground;
+
+    Module::Load::load ($generator_class);
+    $generator_class->new
+      (step_time        => 0.25,
+       step_figures     => 1000,
+
+       draw_progressive => $self->draw_progressive,
+       foreground       => $foreground_str,
+       background       => $background_str,
+       undrawnground    => $undrawnground_str,
+
+       widget           => $self,
+       drawable         => $self,
+       width            => $self->width,
+       height           => $self->height,
+
+       %$gen_options,
+      )
+    });
+}
 
 #------------------------------------------------------------------------------
 # mouse wheel scroll
@@ -142,6 +221,7 @@ sub onMouseWheel {
   $self->redraw;
 }
 
+#------------------------------------------------------------------------------
 
 1;
 __END__

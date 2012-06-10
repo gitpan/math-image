@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -19,9 +19,21 @@
 
 use strict;
 use Prima;
+use Prima 'Application';
 
 # uncomment this to run the ### lines
-use Devel::Comments;
+use Smart::Comments;
+
+{
+  # mouse wheel args
+  my $main = Prima::MainWindow->new
+    (onMouseWheel => sub {
+       shift;
+       ### onMouseWheel: @_
+     });
+  Prima->run;
+  exit 0;
+}
 
 {
   require Prima::PS::Drawable;
@@ -81,9 +93,22 @@ use Devel::Comments;
 
   require App::MathImage::Prima::About;
   my $about = App::MathImage::Prima::About->popup;
-#  $about->execute;
+  #  $about->execute;
 
   Prima->run;
   exit 0;
 }
 
+{
+  # sub expose {
+    #           if ( $d-> begin_paint) {
+    #              $d-> color( cl::Black);
+    #              $d-> bar( 0, 0, $d-> size);
+    #              $d-> color( cl::White);
+    #              $d-> fill_ellipse( $d-> width / 2, $d-> height / 2, 30, 30);
+    #              $d-> end_paint;
+    #           } else {
+    #              die "can't draw on image:$@";
+    #           }
+
+}

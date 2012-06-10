@@ -29,7 +29,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 100;
+our $VERSION = 101;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
@@ -42,22 +42,32 @@ sub new {
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
                                  @_);
+  if ($self->{'widget'}) {
+    Scalar::Util::weaken ($self->{'widget'});
+  }
   my $drawable = $self->{'drawable'};
-  my ($width, $height) = $drawable->size;
 
-  my $image = $self->{'image'}
-    = Image::Base::Prima::Drawable->new (-drawable => $drawable);
+  ### width: $drawable->width
+  ### height: $drawable->height
+  ### draw_progressive: $self->{'draw_progressive'}
 
-  # my $progressive = $self->{'draw_progressive'};
-  # if ($progressive) {
-  #   require Image::Base::Prima::Gdk::Drawable;
-  #   my $image_drawable = Image::Base::Prima::Gdk::Drawable->new
-  #     (-drawable => $drawable);
-  # 
-  #   require Image::Base::Multiplex;
-  #   $image = $self->{'image'} = Image::Base::Multiplex->new
-  #     (-images => [ $image, $image_drawable ]);
-  # }
+  my $bitmap
+    =  $self->{'bitmap'}
+      = Prima::DeviceBitmap->new (width  => $drawable->width,
+                                  height => $drawable->height);
+  my $image
+    = $self->{'image'}
+      = $self->{'bitmap_image'}
+        = Image::Base::Prima::Drawable->new (-drawable => $bitmap);
+
+  if ($self->{'draw_progressive'}) {
+    my $widget_image
+      = Image::Base::Prima::Drawable->new (-drawable => $self->{'drawable'});
+    require Image::Base::Multiplex;
+    $image
+      = $self->{'image'}
+        = Image::Base::Multiplex->new (-images => [ $image, $widget_image ]);
+  }
 
   if (! eval { $self->draw_Image_start ($image); 1 }) {
     my $err = $@;
@@ -69,7 +79,7 @@ sub new {
     #   $err =~ s/\n+$//;
     #   Prima::Ex::Statusbar::MessageUntilKey->message($statusbar, $err);
     # }
-    # 
+    #
     # undef $self->{'path_object'};
     # App::MathImage::Prima::Drawing::draw_text_centred
     #     ($self->{'widget'}, $self->{'pixmap'}, $err);
@@ -87,7 +97,30 @@ sub post_handler {
   ### _post_handler()
   $self->{'post_pending'} = 0;
 
-  if ($self->draw_Image_steps ()) {
+  ### bitmap paint state: $self->{'bitmap'}->get_paint_state
+  ### drawable paint state: $self->{'drawable'}->get_paint_state
+
+  # Prima::DeviceBitmap always in paint-enabled state, so no begin/end for it
+
+  my $more;
+  if ($self->{'draw_progressive'}) {
+    # or maybe better a single $widget_image and tell it when a cached
+    # $drawable->color() setting must be re-applied
+    #    $widget_image->set(-current_colour => '');
+    #
+    my $widget_image
+      = Image::Base::Prima::Drawable->new (-drawable => $self->{'drawable'});
+    $self->{'image'}->set (-images => [ $self->{'bitmap_image'},
+                                        $widget_image ]);
+    $self->{'drawable'}->begin_paint
+      or die "Oops, cannot begin_paint on drawable: ",$@;
+    $more = $self->draw_Image_steps;
+    $self->{'drawable'}->end_paint;
+  } else {
+    $more = $self->draw_Image_steps;
+  }
+
+  if ($more) {
     ### keep drawing
     unless ($self->{'post_pending'}) {
       ### further post()
@@ -101,28 +134,27 @@ sub post_handler {
 }
 
 # _post_method_weakly($object,$method,$arg...)
-# calls $object->$method ($arg,...)
+# Install a post() which calls $object->$method ($arg,...).
+# Only a weak reference is held to $object, so the fact a post exists
+# doesn't keep it alive.  calls
 sub _post_method_weakly {
   my $weak_object = shift;
   Scalar::Util::weaken ($weak_object);
   Prima::Utils::post (\&_post_method_weakly_handler, \$weak_object, @_);
 }
 sub _post_method_weakly_handler {
-  # ($ref_weak_object,$method,$arg...)
+  # called ($ref_weak_object,$method,$arg...)
   my $object = ${(shift)} || return;
   my $method = shift;
-  $object->$method (@_);
+  $object->$method(@_);
 }
 
 sub _drawing_finished {
   my ($self) = @_;
   ### _drawing_finished()
 
-  # my $pixmap = $self->{'pixmap'};
-  # my $drawable = $self->{'drawable'};
-  # ### set_back_pixmap: "$pixmap"
-  # $drawable->set_back_pixmap ($pixmap);
-  # _drawable_invalidate_all ($drawable);
+  # ENHANCE-ME: background image ?
+  $self->{'drawable'}->repaint;
 }
 
 # sub draw {
@@ -130,7 +162,7 @@ sub _drawing_finished {
 #   my $self = $class->new (@_,
 #                        draw_progressive => 0);
 #   while ($self->draw_steps) {
-#     ### Generator-X11 more
+#     ### Prima-Generator more ...
 #   }
 #   _drawing_finished ($self);
 # }

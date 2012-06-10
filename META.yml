@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            100
+version:            101
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -386,6 +386,7 @@ optional_features:
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
+            Software::License::GPL_3:  0
             Tk::Balloon:          0
             Tk::JPEG:             0
             Tk::MainWindow:       0

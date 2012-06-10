@@ -32,7 +32,7 @@ use base qw(Wx::Frame);
 #use Smart::Comments;
 
 
-our $VERSION = 100;
+our $VERSION = 101;
 
 sub new {
   my ($class, $label) = @_;
@@ -473,6 +473,9 @@ sub quit {
   $self->Close;
 }
 
+#------------------------------------------------------------------------------
+# help
+
 sub popup_about {
   my ($self, $event) = @_;
   ### Main popup_about() ...
@@ -512,15 +515,6 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the license for more.
   Wx::AboutBox($info);
 }
 
-sub popup_pod {
-  my ($self, $module) = @_;
-  ### popup_pod(): $module
-  require App::MathImage::Wx::Perl::PodBrowser;
-  my $browser = App::MathImage::Wx::Perl::PodBrowser->new;
-  $browser->Show;
-  $browser->goto_pod (module => $module);
-}
-
 sub popup_program_pod {
   my ($self) = @_;
   $self->popup_pod('math-image');
@@ -543,6 +537,24 @@ sub popup_values_pod {
     }
   }
 }
+sub popup_pod {
+  my ($self, $module) = @_;
+  ### popup_pod(): $module
+  if (eval { require Wx::Perl::PodBrowser }) {
+    my $browser = Wx::Perl::PodBrowser->new;
+    $browser->Show;
+    $browser->goto_pod (module => $module);
+  } else {
+    Wx::MessageBox (__('Wx::Perl::PodBrowser not available')."\n\n$@",
+                    __('Math-Image: Error'),
+                    Wx::wxICON_ERROR(),
+                    $self);
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# status
 
 sub mouse_motion {
   my ($self, $event) = @_;

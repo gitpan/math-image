@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 100;
+$VERSION = 101;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -1528,7 +1528,13 @@ sub draw_Image_start {
     if ($self->{'values'} eq 'Lines') {
       $n_hi += 1;
     } elsif ($self->{'values'} eq 'LinesTree') {
-      $n_hi += ($self->{'values_parameters'}->{'branches'} ||= 3);
+      if (my $branches = $self->{'values_parameters'}->{'branches'}) {
+        $n_hi += $branches;
+      } else {
+        if (my @n_children = $path_object->MathImage__tree_n_children($n_hi)) {
+          $n_hi = $n_children[-1];
+        }
+      }
     }
   }
 
@@ -1554,7 +1560,11 @@ sub draw_Image_start {
   if ($self->{'values'} eq 'Lines') {
 
   } elsif ($self->{'values'} eq 'LinesTree') {
-    my $branches = ($self->{'values_parameters'}->{'branches'} ||= 3);
+    my $branches = $self->{'values_parameters'}->{'branches'} || 0;
+    if ($branches && ! $path_object->MathImage__tree_n_children($path_object->n_start)) {
+      $branches = 1;
+    }
+    $self->{'branches'} = $branches;
     $self->{'branch_i'} = $branches;
     $self->{'upto_n'} = $path_object->n_start - 1;
     $self->{'upto_n_dest'} = $path_object->n_start + 1;
@@ -2054,7 +2064,7 @@ sub draw_Image_steps {
   
   if ($self->{'values'} eq 'LinesTree') {
     # math-image --path=PythagoreanTree --values=LinesTree --scale=100
-    my $branches = $values_seq->{'branches'};
+    my $branches = $self->{'branches'};
     
     if ($self->{'use_xy'}) {
       ### LinesTree use_xy...
@@ -2086,7 +2096,9 @@ sub draw_Image_steps {
         $wx = floor ($wx + 0.5);
         $wy = floor ($wy + 0.5);
         
-        foreach my $n_dest (_n_to_tree_children($n, $branches, $n_start)) {
+        foreach my $n_dest ($branches == 0
+                            ? $path_object->MathImage__tree_n_children($n)
+                            : _n_to_tree_children($n, $branches, $n_start)) {
           my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
             or next;
           ($x_dest, $y_dest) = $affine->transform ($x_dest, $y_dest);
@@ -2106,10 +2118,10 @@ sub draw_Image_steps {
       my $branch_i = $self->{'branch_i'};
       my $x    = $self->{'x'};
       my $y    = $self->{'y'};
-
+      
       for (;;) {
         &$cont() or last;
-
+        
         if (++$branch_i >= $branches) {
           if (++$n > $n_hi) {
             $more = 0;
@@ -2124,7 +2136,14 @@ sub draw_Image_steps {
           $x = floor ($x + 0.5);
           $y = floor ($y + 0.5);
         }
-
+        
+        if ($branches == 0) {
+          $n_dest = $path_object->MathImage__tree_n_parent($n);
+          if (! defined $n_dest) {
+            ### no parent at: "n=$n"
+            next;
+          }
+        }
         my ($x_dest, $y_dest) = $path_object->n_to_xy($n_dest);
         ### $n
         ### $n_dest
@@ -2132,16 +2151,16 @@ sub draw_Image_steps {
         ($x_dest, $y_dest) = $affine->transform ($x_dest, $y_dest);
         $x_dest = floor ($x_dest + 0.5);
         $y_dest = floor ($y_dest + 0.5);
-
+        
         my $drawn = _image_line_clipped ($image, $x,$y, $x_dest,$y_dest,
                                          $width,$height, $foreground);
         $count_figures++;
         $count_total++;
         $count_outside += !$drawn;
-
+        
         $n_dest++;
       }
-
+      
       $self->{'count_total'} = $count_total;
       $self->{'count_outside'} = $count_outside;
       $self->{'upto_n'} = $n;
@@ -2153,36 +2172,36 @@ sub draw_Image_steps {
     }
     return $more;
   }
-
+  
   if ($self->{'values'} eq 'LinesLevel') {
     ### LinesLevel step...
-
+    
     my $n = $self->{'upto_n'};
     my $xprev = $self->{'xprev'};
     my $yprev = $self->{'yprev'};
-
+    
     ### upto_n: $n
     ### $xprev
     ### $yprev
-
+    
     for ( ; $n <= $n_hi; $n++) {
       &$cont() or last;
-
+      
       my ($x,$y) = $path_object->n_to_xy($n)
         or last; # no more
       ### n: "$n"
       ### xy raw: "$x,$y"
-
+      
       ($x,$y) = $affine->transform ($x, $y);
       ### xy affine: "$x,$y"
       $figure_at_transformed->($x,$y);
       $x = floor ($x + 0.5);
       $y = floor ($y + 0.5);
-
+      
       _image_line_clipped ($image, $xprev,$yprev, $x,$y,
                            $width,$height, $foreground);
       $count_figures++;
-
+      
       $xprev = $x;
       $yprev = $y;
     }
@@ -2191,10 +2210,10 @@ sub draw_Image_steps {
     $self->{'yprev'} = $yprev;
     return $more;
   }
-
+  
   my $n_prev = $self->{'n_prev'};
   my $offset = ($figure eq 'point' ? 0 : int(($xpscale+1)/2));
-
+  
   my $background_fill_proc;
   if (! $covers && $figure eq 'point') {
     $background_fill_proc = sub {
@@ -2214,7 +2233,7 @@ sub draw_Image_steps {
         ### $x
         ### $y
         next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
-
+        
         push @{$points_by_colour{$background}}, $x, $y;
         if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
           $flush->();
@@ -2526,6 +2545,8 @@ sub _n_to_tree_children {
   my ($n, $branches, $n_start) = @_;
   ### _n_to_tree_children() ...
   if ($n < $n_start) { return }
+  if ($branches == 0) { return }
+  if ($branches < 2) { return $n+1 }
   $n_start ||= 0;
   $n -= ($n_start-1);
   my $h = ($branches-1)*($n-1)+1;

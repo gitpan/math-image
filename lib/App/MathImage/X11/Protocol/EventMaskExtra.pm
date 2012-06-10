@@ -31,7 +31,7 @@ HERE
 }
 
 use vars '$VERSION';
-$VERSION = 100;
+$VERSION = 101;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
