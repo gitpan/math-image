@@ -22,7 +22,7 @@ use strict;
 use App::MathImage;
 
 use vars '$VERSION';
-$VERSION = 101;
+$VERSION = 102;
 
 exit App::MathImage->command_line;
 
@@ -333,10 +333,11 @@ points shown.  Try a shade of grey instead
     math-image --root --foreground=lightgrey
 
 Available names depend on the output module.  Gtk2 uses a hard-coded copy of
-the X F</etc/X11/rgb.txt>.  The C<X11::Protocol> C<--root> uses the server's
-database.  C<--png> output with GD has the C<GD::Simple> names.  C<--xpm>
-passes anything at all through to the file.  For C<--text> currently the
-colours can be single characters to show, though perhaps that will change.
+the X F</etc/X11/rgb.txt>.  C<X11::Protocol> C<--root> uses the server's
+database.  C<--png> with GD has the C<GD::Simple> names.  C<--xpm> with
+C<Image::Xpm> passes anything at all through to the file.  For C<--text>
+currently the colours can be single characters to show, though perhaps that
+will change.
 
 =item --size=PIXELS
 
@@ -468,30 +469,31 @@ clicks.
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
 possible with C<Gtk2::Gdk::Pixbuf> but can also use GD, PNGwriter, Imager,
-ImageMagick, Prima or Tk with the right libraries and C<Image::Base>
+ImageMagick, Prima, Tk or Wx with the right libraries and C<Image::Base>
 supporting module.
 
     math-image --png >/tmp/my-file.png
 
-XPM output requires either C<Image::Xpm>, ImageMagick, Prima, or Tk.  Note
-that Prima and Tk for X11 require an X server even for file output (and will
-give obscure errors if no display).
+XPM output requires either C<Image::Xpm>, ImageMagick, Prima, Tk or Wx.
+Prima, Tk and Wx for X11 require an X server even for file output and may
+give obscure error messages if no display.
 
 Combinations C<--prima --png>, or C<--tk --xpm>, etc, force the respective
 output module rather than an automatic choice among available possibilities.
 
 =item --text
 
-Write a text-only image to standard output and exit.  A typical tty size
-like 80x25 is usually too small to see much, but a bigger image might be
-cute to send to a line printer or similar.  The default size follows the
-terminal with C<Term::Size> or can be set with C<--size=WIDTH,HEIGHT>,
+Write a text-only image to standard output and exit.  The default size
+follows the terminal with C<Term::Size> or can be set with
+C<--size=WIDTH,HEIGHT>, A typical tty size like 80x25 is usually too small
+to see much, but a bigger image might be cute to send to a line printer or
+similar.
 
     math-image --text --size=130x49 | lpr
 
 For images which would be colours in the GUI the text output is a digit
-which is the sequence value at that point.  This is slightly experimental,
-especially for big sequence values, but currently for example
+which is the value at that point.  This is slightly experimental, especially
+for big sequence values, but currently for example
 
     math-image --values=PrimeFactorCount --text --size=5x5
 
@@ -507,24 +509,25 @@ Run under the L<xscreensaver(1)> program.  This requires the
 C<X11::Protocol::XSetRoot> module and is slightly experimental, but works as
 far as it goes.
 
-To make C<math-image> available as a screensaver add it to the "programs:"
+To make C<math-image> available in C<xscreensaver> add to the "programs:"
 section of your F<~/.xscreensaver> file,
 
     math-image --xscreensaver \n\
 
-F<xscreensaver/math-image.xml> can be used give a description in the
-C<xscreensaver-demo> program, but currently the package "make install"
-doesn't try to install this.
+F<xscreensaver/math-image.xml> in the Math-Image sources can be used give a
+description in the C<xscreensaver-demo> program.  Currently the Math-Image
+"make install" doesn't try to install this so it must be copied manually.
 
-There's no options for screensaver mode yet.  The intention would be a
-control for the redraw rate, unless there's a common xscreensaver option for
-that, and to limit each image drawing to the redraw time so slow things
-aren't continued indefinitely.
+There's no options for the screensaver yet.  The intention would be a
+control for the redraw rate, unless there's a global xscreensaver option for
+that, and to limit each image drawing to the redraw time so slow or very
+slow things aren't continued indefinitely.
 
-For reference under C<xscreensaver> the target X window is either a
-C<-window-id> command line option from C<xscreensaver-demo>, or
-C<__SWM_VROOT> from the daemon when it activates.  The latter is recognised
-automatically by C<X11::Protocol::XSetRoot> version 18 and up.
+For reference under C<xscreensaver> a saver program draws to a target X
+window given either by a C<-window-id> command line option from
+C<xscreensaver-demo>, or by C<__SWM_VROOT> root window property from the
+C<xscreensaver> daemon.  The latter is recognised automatically by
+C<X11::Protocol::XSetRoot> version 18 and up.
 
 =back
 
@@ -537,8 +540,12 @@ the Gtk2 GUI if available,
 
 =item C<Gtk2::Ex::PodViewer>
 
-A "Help/POD Documentation" menu item to display this documentation and the
-C<Math::PlanePath> classes.
+=item C<Tk::Pod>
+
+=item C<Wx::Perl::PodBrowser>
+
+The "Help/POD Documentation" menu items to display this documentation and
+the various path and values classes, under Gtk, Tk or Wx respectively.
 
 =item C<Gtk2::Ex::CrossHair>
 

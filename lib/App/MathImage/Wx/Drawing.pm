@@ -28,7 +28,7 @@ use Wx;
 use Module::Load;
 
 use base 'Wx::Window';
-our $VERSION = 101;
+our $VERSION = 102;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -109,8 +109,8 @@ sub _OnPaint {
   # $dc->SetFont($self->GetFont);
   # $dc->DrawText('Hello', 10, 10);
 
-  # require App::MathImage::Image::Base::Wx::DC;
-  # my $image = App::MathImage::Image::Base::Wx::DC->new (-dc => $dc);
+  # require Image::Base::Wx::DC;
+  # my $image = Image::Base::Wx::DC->new (-dc => $dc);
 
   # $image->rectangle (5,30,15,40, 'blue', 1);
   # $image->rectangle (25,30,35,40, 'green', 0);

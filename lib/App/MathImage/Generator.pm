@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 101;
+$VERSION = 102;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -107,6 +107,7 @@ use constant::defer values_choices => sub {
                          AlmostPrimes
                          Emirps
                          DivisorCount
+                         AllDivisors
                          GoldbachCount
                          LemoineCount
                          PythagoreanHypots
@@ -133,11 +134,13 @@ use constant::defer values_choices => sub {
                          Tetrahedral
                          Powerful
                          PowerPart
+                         PowerFlip
 
                          Odd
                          Even
                          All
                          AllDigits
+                         PrimesDigits
                          ConcatNumbers
                          Runs
 
@@ -194,6 +197,7 @@ use constant::defer values_choices => sub {
                          MaxDigitCount
 
                          Palindromes
+                         Xenodromes
                          Beastly
                          UndulatingNumbers
                          HarshadNumbers
@@ -437,6 +441,8 @@ my %pathname_square_grid
                      UlamWarburton
                      UlamWarburtonQuarter
 
+                     WythoffArray
+                     PowerArray
                      QuintetSide
                   )
     );
@@ -673,6 +679,8 @@ sub y_negative {
                            FractionsTree
 
                            DivisibleColumns
+                           WythoffArray
+                           PowerArray
                            File
                          )) {
       if (delete $choices{$prefer}) {
@@ -1139,6 +1147,8 @@ sub colours_exp_shrink {
   my $shrink = 0.6;
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
+  } elsif ($self->{'values'} eq 'PowerFlip') {
+    $shrink = 1 - 1/15;
   } elsif ($self->{'values'} eq 'SqrtContinuedPeriod') {
     $shrink = 1 - 1/5;
   } elsif ($self->{'values'} eq 'AllPrimeFactors') {
@@ -1159,6 +1169,8 @@ sub colours_exp_shrink {
     $shrink = 1 - 1/100;
   } elsif ($self->{'values'} eq 'AlphabeticalLength') {
     $shrink = 1 - 1/20;
+  } elsif ($self->{'values'} eq 'SevenSegments') {
+    $shrink = 1 - 1/17;
   } elsif ($self->{'values'} eq 'CunninghamChain') {
     $shrink = 1 - 1/3;
   } elsif ($self->{'values'} eq 'CunninghamLength') {
@@ -1531,6 +1543,7 @@ sub draw_Image_start {
       if (my $branches = $self->{'values_parameters'}->{'branches'}) {
         $n_hi += $branches;
       } else {
+        require App::MathImage::LinesTree;
         if (my @n_children = $path_object->MathImage__tree_n_children($n_hi)) {
           $n_hi = $n_children[-1];
         }
@@ -1560,6 +1573,7 @@ sub draw_Image_start {
   if ($self->{'values'} eq 'Lines') {
 
   } elsif ($self->{'values'} eq 'LinesTree') {
+    require App::MathImage::LinesTree;
     my $branches = $self->{'values_parameters'}->{'branches'} || 0;
     if ($branches && ! $path_object->MathImage__tree_n_children($path_object->n_start)) {
       $branches = 1;
@@ -1617,6 +1631,8 @@ sub use_colours {
     return $self->{'use_colours'};
   }
 
+  ### use_colours() ...
+
   if ($self->{'values'} eq 'Lines') {
 
   } elsif ($self->{'values'} eq 'LinesTree') {
@@ -1626,6 +1642,11 @@ sub use_colours {
 
     my $values_min = $values_seq->values_min;
     my $values_max = $values_seq->values_max;
+    my $is_count = $values_seq->characteristic('count');
+    my $is_smaller = $values_seq->characteristic('smaller');
+
+    ### characteristic(count): $is_count
+    ### characteristic(smaller): $is_smaller
 
     if (defined $values_max && ! defined $values_min) {
       ($values_min,$values_max) = ($values_max,$values_min);
@@ -1660,15 +1681,15 @@ sub use_colours {
     }
 
     if (defined $values_max) {
-      $self->{'use_colours'} = 1;
+      unless (defined $is_smaller && ! $is_smaller) {
+        $self->{'use_colours'} = 1;
+      }
     }
     $self->{'colours_shrink'} = $self->colours_exp_shrink;
     $self->{'colours_shrink_log'} = log($self->{'colours_shrink'});
 
-    ### characteristic(count): $values_seq->characteristic('count')
-    ### characteristic(smaller): $values_seq->characteristic('smaller')
-    if ($values_seq->characteristic('count')
-        || $values_seq->characteristic('smaller')) {
+    # "count" doesn't really meant it's small ...
+    if ($is_smaller || ($is_count && ! defined $is_smaller)) {
       $self->{'use_colours'} = 1;
 
       # if ($image->isa('Image::Base::Text')) {

@@ -26,7 +26,7 @@ use App::MathImage::Tk::Perl::AfterObject;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 101;
+our $VERSION = 102;
 
 sub ClassInit {
   my ($class, $mw) = @_;

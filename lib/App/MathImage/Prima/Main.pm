@@ -38,15 +38,56 @@ use App::MathImage::Generator;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 @ISA = ('Prima::MainWindow');
 
-sub new {
-  my ($class, %profile) = @_;
-  ### Prima Main new() ...
+sub profile_default {
+  my ($class) = @_;
+  ### Prima-Drawing profile_default() ...
+  return { %{$class->SUPER::profile_default},
+           name        => __('Math-Image'),
+           transparent => 1, # no clear background
+
+           # color            => cl::White(),
+           # backColor        => cl::Black(),
+
+           menuItems =>
+           [ [ "~File" =>
+               [
+                #       <menuitem action='SaveAs'/>
+                #       <menuitem action='SetRoot'/>
+                [ __('~Print') => 'print_image' ],
+                [ __('E~xit')  => 'destroy' ],
+               ] ],
+             [ ef => "~View" =>
+               [ [ ef => "~Path"   => [ _menu_for_path() ]],
+                 [ ef => "~Values" => [ _menu_for_values() ]],
+                 [ 'centre', __('~Centre'), 'draw_centre' ],
+                 [ 'fullscreen', __('~Fullscreen'), 'fullscreen_toggle' ],
+               ]],
+             # [],  # separator to put Help at the right
+             [ "~Help" =>
+               [ [ __('~About'), 'help_about' ],
+                 [ __('~Program POD'), 'help_program' ],
+                 [ __('Pa~th POD'), 'help_path' ],
+                 [ __('~Values POD'), 'help_values' ],
+               ] ],
+           ],
+         };
+}
+
+# together with transparent=>1 for no clear background underneath draw widget
+sub on_paint {
+}
+
+
+sub init {
+  my ($self, %profile) = @_;
+  ### Prima Main init() ...
 
   my $visible = (exists $profile{'visible'} ? $profile{'visible'} : 1);
   $profile{'visible'} = 0;
+  %profile = $self-> SUPER::init(%profile);
 
   my $gui_options = delete $profile{'gui_options'};
   my $gen_options = delete $profile{'gen_options'} || {};
@@ -57,60 +98,6 @@ sub new {
                      %$gen_options };
   }
   ### $gen_options
-
-  my $self = $class->SUPER::new
-    (
-     name => __('Math-Image'),
-     menuItems =>
-     [ [ "~File" => [
-                     [ __('~Print') => sub { $_[0]->print_image } ],
-                     [ __('E~xit')  => sub { $_[0]->destroy } ],
-                    ] ],
-       [ ef => "~Path" => [ _menu_for_path() ]],
-       [ ef => "~Values" => [ _menu_for_values() ]],
-
-       [ ef => "~Tools" => [ [ '*fullscreen', __('~Fullscreen'),
-                               sub { $_[0]->fullscreen_toggle } ],
-                           ]],
-
-       # [],  # separator to put Help at the right
-       [ "~Help" =>
-         [ [ __('~About'),
-             sub { $_[0]->about_dialog },
-           ],
-           [ __('~Program POD'),
-             sub {
-               my ($self) = @_;
-               ### POD: "@_"
-               $::application->open_help
-                 (File::Spec->catfile ($FindBin::Bin, $FindBin::Script));
-               # $::application->open_help ('/tmp/foo.pod');
-             }],
-           [ __('Pa~th POD'),
-             sub {
-               my ($self) = @_;
-               ### POD: "@_"
-               my $path = $self->{'draw'}->gen_options->{'path'};
-               if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
-                 $::application->open_help ($module);
-               }
-             }],
-           [ __('~Values POD'),
-             sub {
-               my ($self) = @_;
-               ### POD: "@_"
-               my $values = $self->{'draw'}->gen_options->{'values'};
-               if (my $module = App::MathImage::Generator->values_choice_to_class ($values)) {
-                 $::application->open_help ($module);
-               }
-             }],
-         ] ],
-     ],
-     # onPaint  => \&_paint,
-     %profile);
-
-  my $menu = $self->menu;
-  $menu->uncheck('fullscreen'); # initially unchecked
 
   my $toolbar = $self->{'toolbar'}
     = $self->insert ('Widget',
@@ -135,9 +122,9 @@ Click repeatedly to see interesting things.'),
                    );
 
   my $combobox_height = do {
-    my $dummy = Prima::ComboBox->create;
-    my $height = $dummy->editHeight;
-    $dummy->destroy;
+    my $combo = Prima::ComboBox->create;
+    my $height = $combo->editHeight;
+    $combo->destroy;
     $height
   };
 
@@ -145,7 +132,7 @@ Click repeatedly to see interesting things.'),
     = $toolbar->insert ('ComboBox',
                         pack   => { side => 'left',
                                     fill => 'none',
-                                    expand => 0},
+                                    expand => 0 },
                         hint  => __('The path for where to place values in the plane.'),
                         style => cs::DropDown,
                         # override dodgy height when style set
@@ -210,13 +197,13 @@ Click repeatedly to see interesting things.'),
 
   $self->{'draw'} = $self->insert
     ('App::MathImage::Prima::Drawing',
-     gen_options => $gen_options,
+     onMouseMove  => \&_draw_on_mousemove,
+     gen_options  => $gen_options,
      width   => (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
      height  => (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
      pack => { expand => 1,
                fill => 'both',
              },
-     onMouseMove  => \&_draw_on_mouse_move,
     );
 
   my $statusbar = $self->{'statusbar'} = $self->insert
@@ -228,17 +215,6 @@ Click repeatedly to see interesting things.'),
                expand => 0,
                anchor => 'n',
              });
-
-
-  #   my $toolbar = Prima::Widget->create (
-  #                                        # growMode => gm::GrowHiX(),
-  #                                        # left => 0,
-  #                                        # right => -1,
-  #                                        # top => 0,
-  #                                        # origin => [0,0],
-  #                                        owner => $self,
-  #                                       );
-  #
 
   _update ($self);
 
@@ -257,6 +233,8 @@ Click repeatedly to see interesting things.'),
     $self->set (size => \@size);
     ### @size
   }
+
+  # don't resize toplevel window for changes in children
   $self->packPropagate(0);
 
   $self->visible ($visible);
@@ -297,7 +275,7 @@ sub _update {
                                       hint => __('Wider path.'),
                                       onChange  => sub {
                                         my ($spin) = @_;
-                                        ### Main wider onChange
+                                        ### Main wider onChange ...
                                         my $wider = $spin->value;
                                         $self->{'draw'}->path_parameters (wider => $wider);
                                       },
@@ -426,18 +404,49 @@ sub fullscreen_toggle {
   ### windowState now: $self->windowState
 }
 
-sub about_dialog {
+sub help_about {
   my ($self) = @_;
   require App::MathImage::Prima::About;
   App::MathImage::Prima::About->popup;
 }
+sub help_program {
+  my ($self) = @_;
+  $::application->open_help (File::Spec->catfile ($FindBin::Bin,
+                                                  $FindBin::Script));
+}
+sub help_path {
+  my ($self) = @_;
+  my $path = $self->{'draw'}->gen_options->{'path'};
+  if (my $module = App::MathImage::Generator->path_choice_to_class ($path)) {
+    $::application->open_help ($module);
+  }
+}
+sub help_values {
+  my ($self) = @_;
+  my $values = $self->{'draw'}->gen_options->{'values'};
+  if (my $module = App::MathImage::Generator->values_choice_to_class($values)){
+    $::application->open_help ($module);
+  }
+}
 
+sub draw_centre {
+  my ($self) = @_;
+  my $draw = $self->{'draw'};
+  my $gen_options = $draw->gen_options;
+  if ($gen_options->{'x_offset'} || $gen_options->{'y_offset'}) {
+    $draw->gen_options->{'x_offset'} = 0;
+    $draw->gen_options->{'y_offset'} = 0;
+    $draw->redraw;
+  }
+}
 
-sub _draw_on_mouse_move {
+sub _draw_on_mousemove {
   my ($draw, $modifiers, $x, $y) = @_;
-  ### _draw_on_mouse_move() ...
+  ### _draw_on_mousemove() ...
 
-  my $message = $draw->gen_object->xy_message ($x, $y);
+  # Generator based on 0 at top, so reverse $y
+  my $message = $draw->gen_object->xy_message ($x,
+                                               $draw->height-1 - $y);
   ### $message
 
   my $self = $draw->get_parent;
@@ -445,16 +454,7 @@ sub _draw_on_mouse_move {
   $statusbar->text ($message);
 }
 
-# sub INIT_INSTANCE {
-#   my ($self) = @_;
-# 
-#       <menuitem action='SaveAs'/>
-#       <menuitem action='SetRoot'/>
-#   </menubar>
-# </ui>
-# HERE
-# 
-# sub _do_action_save_as {
+# sub save_as {
 #   my ($action, $self) = @_;
 #   require App::MathImage::Prima::SaveDialog;
 #   my $dialog = ($self->{'save_dialog'}
@@ -463,7 +463,7 @@ sub _draw_on_mouse_move {
 #                  transient_for => $self));
 #   $dialog->present;
 # }
-# sub _do_action_setroot {
+# sub setroot {
 #   my ($action, $self) = @_;
 #   Prima::Ex::WidgetCursor->busy;
 # 

@@ -25,51 +25,6 @@ use Wx;
 use Devel::Comments;
 
 {
-  require App::MathImage::Image::Base::Wx::DC;
-
-  my $bitmap = Wx::Bitmap->new (21,10);
-  my $dc = Wx::MemoryDC->new;
-  $dc->SelectObject($bitmap);
-  $dc->IsOk or die;
-
-  my $pen = $dc->GetPen;
-  $pen->SetCap(Wx::wxCAP_PROJECTING());
-  $dc->SetPen($pen);
-
-  my $image = App::MathImage::Image::Base::Wx::DC->new
-    (-dc => $dc,
-     # -width => 21, -height => 10,
-    );
-  my $black = 'black';
-  $MyTestImageBase::white = 'white';
-  $MyTestImageBase::white = 'white';
-  $MyTestImageBase::black = $black;
-  $MyTestImageBase::black = $black;
-  my ($width, $height) = $image->get('-width','-height');
-  ### $width
-  ### $height
-
-  $image->xy (-100,-100);
-  ### fetch xy(): $image->xy (-100,-100)
-
-  # $image->rectangle (0,0, $width-1,$height-1, $black, 1);
-  # $image->line (5,5, 7,7, 'white', 0);
-  # 
-  # $image->rectangle (0,0, $width-1,$height-1, $black, 1);
-
-  use lib 't';
-  require MyTestImageBase;
-  MyTestImageBase::dump_image($image);
-
-  my ($size) = $dc->GetSize;
-  ### $size
-  ### width: $size->GetWidth
-  ### height: $size->GetHeight
-
-  exit 0;
-}
-
-{
   require Package::Stash;
   my $stash = Package::Stash->new('Wx::Window');
   ### syms: $stash->list_all_symbols('CODE')

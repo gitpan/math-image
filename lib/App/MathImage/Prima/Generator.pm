@@ -29,7 +29,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 101;
+our $VERSION = 102;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
@@ -42,7 +42,8 @@ sub new {
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
                                  @_);
-  if ($self->{'widget'}) {
+  my $widget = $self->{'widget'};
+  if ($widget) {
     Scalar::Util::weaken ($self->{'widget'});
   }
   my $drawable = $self->{'drawable'};
@@ -87,66 +88,53 @@ sub new {
     return $self;
   }
 
-  _post_method_weakly ($self, 'post_handler');
-  $self->{'post_pending'} = 1;
+  $self->{'more'} = 1;
+  Scalar::Util::weaken (my $weak_self = $self);
+  my $id
+    = $self->{'id'}
+      = $widget->add_notification ('PostMessage',\&on_widget_postmessage);
+  $widget->post_message (\$weak_self, $id);
+
   return $self;
 }
 
-sub post_handler {
-  my ($self) = @_;
-  ### _post_handler()
-  $self->{'post_pending'} = 0;
-
-  ### bitmap paint state: $self->{'bitmap'}->get_paint_state
-  ### drawable paint state: $self->{'drawable'}->get_paint_state
-
-  # Prima::DeviceBitmap always in paint-enabled state, so no begin/end for it
-
+# Or maybe a private Prima::Object to receive post_message()
+sub on_widget_postmessage {
+  my ($widget, $ref_weak_self, $id) = @_;
+  ### on_widget_postmessage() ...
   my $more;
-  if ($self->{'draw_progressive'}) {
-    # or maybe better a single $widget_image and tell it when a cached
-    # $drawable->color() setting must be re-applied
-    #    $widget_image->set(-current_colour => '');
-    #
-    my $widget_image
-      = Image::Base::Prima::Drawable->new (-drawable => $self->{'drawable'});
-    $self->{'image'}->set (-images => [ $self->{'bitmap_image'},
-                                        $widget_image ]);
-    $self->{'drawable'}->begin_paint
-      or die "Oops, cannot begin_paint on drawable: ",$@;
-    $more = $self->draw_Image_steps;
-    $self->{'drawable'}->end_paint;
-  } else {
-    $more = $self->draw_Image_steps;
-  }
+  if (my $self = $$ref_weak_self) {
+    if ($self->{'more'}) {
+      $self->{'more'} = 0;
 
-  if ($more) {
-    ### keep drawing
-    unless ($self->{'post_pending'}) {
-      ### further post()
-      _post_method_weakly ($self, 'post_handler');
-      $self->{'post_pending'} = 1;
+      if ($self->{'draw_progressive'}) {
+        # or maybe better a single $widget_image and tell it when a cached
+        # $drawable->color() setting must be re-applied
+        #    $widget_image->set(-current_colour => '');
+        my $widget_image
+          = Image::Base::Prima::Drawable->new (-drawable =>
+                                               $self->{'drawable'});
+        $self->{'image'}->set (-images => [ $self->{'bitmap_image'},
+                                            $widget_image ]);
+        $self->{'drawable'}->begin_paint
+          or die "Oops, cannot begin_paint on drawable: ",$@;
+        $more = $self->draw_Image_steps;
+        $self->{'drawable'}->end_paint;
+      } else {
+        $more = $self->draw_Image_steps;
+      }
+
+      if ($more) {
+        ### keep drawing, further post ...
+        $self->{'more'} = 1;
+        $widget->post_message ($ref_weak_self, $id);
+        return;
+      }
+      ### drawing done ...
+      _drawing_finished ($self);
     }
-  } else {
-    ### done, install pixmap
-    _drawing_finished ($self);
   }
-}
-
-# _post_method_weakly($object,$method,$arg...)
-# Install a post() which calls $object->$method ($arg,...).
-# Only a weak reference is held to $object, so the fact a post exists
-# doesn't keep it alive.  calls
-sub _post_method_weakly {
-  my $weak_object = shift;
-  Scalar::Util::weaken ($weak_object);
-  Prima::Utils::post (\&_post_method_weakly_handler, \$weak_object, @_);
-}
-sub _post_method_weakly_handler {
-  # called ($ref_weak_object,$method,$arg...)
-  my $object = ${(shift)} || return;
-  my $method = shift;
-  $object->$method(@_);
+  $widget->remove_notification($id);
 }
 
 sub _drawing_finished {

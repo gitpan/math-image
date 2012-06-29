@@ -32,7 +32,7 @@ use base qw(Wx::Frame);
 #use Smart::Comments;
 
 
-our $VERSION = 101;
+our $VERSION = 102;
 
 sub new {
   my ($class, $label) = @_;
@@ -48,7 +48,7 @@ sub new {
   $self->SetMenuBar ($menubar);
 
   {
-    my $menu = Wx::Menu->new (__('File'));
+    my $menu = Wx::Menu->new;
     $menubar->Append ($menu, __('&File'));
 
     $menu->Append(Wx::wxID_EXIT(),
@@ -57,14 +57,16 @@ sub new {
     EVT_MENU ($self, Wx::wxID_EXIT(), 'quit');
   }
   {
-    my $menu = Wx::Menu->new (__('Tools'));
+    my $menu = Wx::Menu->new;
     $menubar->Append ($menu, __('&Tools'));
     {
-      my $item = $self->{'menuitem_fullscreen'} =
+      my $item = $self->{'fullscreen_menuitem'} =
         $menu->Append (Wx::wxID_ANY(),
                        __("&Fullscreen\tCtrl-F"),
-                       __('Toggle between full screen and normal window.'));
-      EVT_MENU ($self, $item, '_menu_fullscreen');
+                       __("Toggle full screen or normal window (use accelerator Ctrl-F to return from fullscreen)."),
+                       Wx::wxITEM_CHECK());
+      EVT_MENU ($self, $item, 'fullscreen_toggle');
+      Wx::Event::EVT_UPDATE_UI ($self, $item, \&_update_ui_fullscreen_menuitem);
     }
     {
       my $item = $menu->Append(Wx::wxID_ANY(),
@@ -99,7 +101,7 @@ sub new {
     }
   }
   {
-    my $menu = $self->{'help_menu'} = Wx::Menu->new (__('Help'));
+    my $menu = $self->{'help_menu'} = Wx::Menu->new;
     $menubar->Append ($menu, __('&Help'));
 
     $menu->Append (Wx::wxID_ABOUT(),
@@ -259,11 +261,19 @@ sub new {
   return $self;
 }
 
-sub _menu_fullscreen {
+use constant FULLSCREEN_HIDE_BITS => Wx::wxFULLSCREEN_ALL();
+# & ~ Wx::wxFULLSCREEN_NOMENUBAR();
+sub fullscreen_toggle {
   my ($self, $event) = @_;
-  ### Main _menu_fullscreen() ...
-  $self->ShowFullScreen ($self->{'menuitem_fullscreen'}->IsChecked,
-                         Wx::wxFULLSCREEN_ALL());
+  ### Wx-Main fullscreen_toggle() ...
+  $self->ShowFullScreen (! $self->IsFullScreen, FULLSCREEN_HIDE_BITS);
+}
+sub _update_ui_fullscreen_menuitem {
+  my ($self, $event) = @_;
+  ### Wx-Main _update_ui_fullscreen_menuitem: "@_"
+  # though if FULLSCREEN_HIDE_BITS hides the menubar then the item won't be
+  # seen when checked ...
+  $self->{'fullscreen_menuitem'}->Check ($self->IsFullScreen);
 }
 sub _menu_centre {
   my ($self, $event) = @_;
@@ -630,7 +640,7 @@ sub command_line {
   }
 
   if (delete $mathimage->{'gui_options'}->{'fullscreen'}) {
-    $self->{'menuitem_fullscreen'}->Check(1);
+    $self->ShowFullScreen(1, FULLSCREEN_HIDE_BITS)
   } else {
     $self->Show;
   }

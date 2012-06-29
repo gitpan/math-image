@@ -22,13 +22,12 @@ use strict;
 use Carp;
 use Scalar::Util;
 
-use App::MathImage::Image::Base::Wx::DC;
 use base 'App::MathImage::Generator';
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 101;
+our $VERSION = 102;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -61,12 +60,13 @@ sub new {
   my $dc = Wx::MemoryDC->new;
   $dc->SelectObject($bitmap);
 
-  my $image = App::MathImage::Image::Base::Wx::DC->new
+  require Image::Base::Wx::DC;
+  my $image = Image::Base::Wx::DC->new
     (-dc => $dc);
 
   if ($self->{'draw_progressive'}) {
     my $windc = Wx::ClientDC->new ($self->{'widget'});
-    my $image_window = App::MathImage::Image::Base::Wx::DC->new
+    my $image_window = Image::Base::Wx::DC->new
       (-dc => $windc);
 
     require Image::Base::Multiplex;

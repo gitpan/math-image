@@ -26,7 +26,7 @@ use Scalar::Util;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 101;
+our $VERSION = 102;
 
 sub new {
   my ($class) = @_;

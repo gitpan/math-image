@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            101
+version:            102
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -104,6 +104,7 @@ no_index:
     directory:
         - t
         - inc
+        - devel
     package:
         - Math::PlanePath
         - Math::PlanePath::CellularRule
@@ -142,6 +143,7 @@ optional_features:
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
             Gtk2::Ex::QuadButton:  0
+            Software::License::GPL_3:  0
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
         requires:
@@ -162,6 +164,8 @@ optional_features:
             Image::Base::SVG:     3
             Image::Base::SVGout:  7
             Image::Base::Tk::Photo:  4
+            Image::Base::Wx::DC:  0
+            Image::Base::Wx::Image:  0
             Image::Base::X11::Protocol::Drawable:  13
             Image::Base::X11::Protocol::Pixmap:  0
             Image::Base::X11::Protocol::Window:  0
@@ -187,7 +191,7 @@ optional_features:
             Math::NumSeq::DeletablePrimes:  37
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
-            Math::NumSeq::DigitCountLow:  16
+            Math::NumSeq::DigitCountLow:  46
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  38
             Math::NumSeq::DigitProduct:  2
@@ -208,8 +212,8 @@ optional_features:
             Math::NumSeq::FractionDigits:  38
             Math::NumSeq::GolayRudinShapiro:  38
             Math::NumSeq::GolayRudinShapiroCumulative:  38
-            Math::NumSeq::GoldbachCount:  33
-            Math::NumSeq::GolombSequence:  13
+            Math::NumSeq::GoldbachCount:  43
+            Math::NumSeq::GolombSequence:  43
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HappySteps:  17
             Math::NumSeq::HarshadNumbers:  1
@@ -217,7 +221,7 @@ optional_features:
             Math::NumSeq::JugglerSteps:  13
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
-            Math::NumSeq::LemoineCount:  33
+            Math::NumSeq::LemoineCount:  43
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::LuckyNumbers:  38
@@ -237,6 +241,7 @@ optional_features:
             Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
+            Math::NumSeq::PowerFlip:  45
             Math::NumSeq::Powerful:  26
             Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  32
@@ -316,7 +321,7 @@ optional_features:
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::FractionsTree:  62
-            Math::PlanePath::GcdRationals:  60
+            Math::PlanePath::GcdRationals:  78
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
@@ -329,8 +334,8 @@ optional_features:
             Math::PlanePath::HilbertCurve:  13
             Math::PlanePath::HilbertSpiral:  57
             Math::PlanePath::HIndexing:  52
-            Math::PlanePath::Hypot:  21
-            Math::PlanePath::HypotOctant:  21
+            Math::PlanePath::Hypot:  78
+            Math::PlanePath::HypotOctant:  78
             Math::PlanePath::ImaginaryBase:  41
             Math::PlanePath::ImaginaryHalf:  74
             Math::PlanePath::KnightSpiral:  1
@@ -347,6 +352,7 @@ optional_features:
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
             Math::PlanePath::PixelRings:  28
+            Math::PlanePath::PowerArray:  78
             Math::PlanePath::PyramidRows:  4
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
@@ -377,12 +383,13 @@ optional_features:
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
-            Math::PlanePath::TriangularHypot:  30
+            Math::PlanePath::TriangularHypot:  79
             Math::PlanePath::UlamWarburton:  48
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
             Math::PlanePath::WunderlichMeander:  54
             Math::PlanePath::WunderlichSerpentine:  73
+            Math::PlanePath::WythoffArray:  78
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
@@ -393,6 +400,8 @@ optional_features:
             Tk::PNG:              0
             Tk::Pod:              0
             Tk::TIFF:             0
+            Wx:                   0
+            Wx::Perl::PodBrowser:  0
             X11::AtomConstants:   2
             X11::Protocol:        0
             X11::Protocol::Other:  1
@@ -420,7 +429,7 @@ optional_features:
             Math::NumSeq::DeletablePrimes:  37
             Math::NumSeq::DigitCount:  13
             Math::NumSeq::DigitCountHigh:  16
-            Math::NumSeq::DigitCountLow:  16
+            Math::NumSeq::DigitCountLow:  46
             Math::NumSeq::DigitLength:  1
             Math::NumSeq::DigitLengthCumulative:  38
             Math::NumSeq::DigitProduct:  2
@@ -441,8 +450,8 @@ optional_features:
             Math::NumSeq::FractionDigits:  38
             Math::NumSeq::GolayRudinShapiro:  38
             Math::NumSeq::GolayRudinShapiroCumulative:  38
-            Math::NumSeq::GoldbachCount:  33
-            Math::NumSeq::GolombSequence:  13
+            Math::NumSeq::GoldbachCount:  43
+            Math::NumSeq::GolombSequence:  43
             Math::NumSeq::HappyNumbers:  7
             Math::NumSeq::HappySteps:  17
             Math::NumSeq::HarshadNumbers:  1
@@ -450,7 +459,7 @@ optional_features:
             Math::NumSeq::JugglerSteps:  13
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
-            Math::NumSeq::LemoineCount:  33
+            Math::NumSeq::LemoineCount:  43
             Math::NumSeq::Liouville:  13
             Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::LuckyNumbers:  38
@@ -470,6 +479,7 @@ optional_features:
             Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
+            Math::NumSeq::PowerFlip:  45
             Math::NumSeq::Powerful:  26
             Math::NumSeq::PowerPart:  28
             Math::NumSeq::PrimeFactorCount:  32
@@ -552,7 +562,7 @@ optional_features:
             Math::PlanePath::Flowsnake:  55
             Math::PlanePath::FlowsnakeCentres:  38
             Math::PlanePath::FractionsTree:  62
-            Math::PlanePath::GcdRationals:  60
+            Math::PlanePath::GcdRationals:  78
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
@@ -565,8 +575,8 @@ optional_features:
             Math::PlanePath::HilbertCurve:  13
             Math::PlanePath::HilbertSpiral:  57
             Math::PlanePath::HIndexing:  52
-            Math::PlanePath::Hypot:  21
-            Math::PlanePath::HypotOctant:  21
+            Math::PlanePath::Hypot:  78
+            Math::PlanePath::HypotOctant:  78
             Math::PlanePath::ImaginaryBase:  41
             Math::PlanePath::ImaginaryHalf:  74
             Math::PlanePath::KnightSpiral:  1
@@ -583,6 +593,7 @@ optional_features:
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
             Math::PlanePath::PixelRings:  28
+            Math::PlanePath::PowerArray:  78
             Math::PlanePath::PyramidRows:  4
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
@@ -613,12 +624,13 @@ optional_features:
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
-            Math::PlanePath::TriangularHypot:  30
+            Math::PlanePath::TriangularHypot:  79
             Math::PlanePath::UlamWarburton:  48
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
             Math::PlanePath::WunderlichMeander:  54
             Math::PlanePath::WunderlichSerpentine:  73
+            Math::PlanePath::WythoffArray:  78
             Math::PlanePath::ZOrderCurve:  34
     maximum_tests:
         description:  Have "make test" do as much as possible.
@@ -640,6 +652,16 @@ optional_features:
             Image::Base::Tk::Photo:  4
             Tk::Balloon:          0
             Tk::MainWindow:       0
+    wx_interface:
+        description:  Wx GUI modules.
+        recommends:
+            Image::Base::Wx::Image:  0
+            Software::License::GPL_3:  0
+            Wx::Perl::PodBrowser:  0
+        requires:
+            Image::Base::Wx::DC:  0
+            Tk::Balloon:          0
+            Wx:                   0
 recommends:
     Browser::Open:        0
     Gtk2::Ex::CrossHair:  0
@@ -671,7 +693,7 @@ recommends:
     Math::NumSeq::DeletablePrimes:  37
     Math::NumSeq::DigitCount:  13
     Math::NumSeq::DigitCountHigh:  16
-    Math::NumSeq::DigitCountLow:  16
+    Math::NumSeq::DigitCountLow:  46
     Math::NumSeq::DigitLength:  1
     Math::NumSeq::DigitLengthCumulative:  38
     Math::NumSeq::DigitProduct:  2
@@ -692,8 +714,8 @@ recommends:
     Math::NumSeq::FractionDigits:  38
     Math::NumSeq::GolayRudinShapiro:  38
     Math::NumSeq::GolayRudinShapiroCumulative:  38
-    Math::NumSeq::GoldbachCount:  33
-    Math::NumSeq::GolombSequence:  13
+    Math::NumSeq::GoldbachCount:  43
+    Math::NumSeq::GolombSequence:  43
     Math::NumSeq::HappyNumbers:  7
     Math::NumSeq::HappySteps:  17
     Math::NumSeq::HarshadNumbers:  1
@@ -701,7 +723,7 @@ recommends:
     Math::NumSeq::JugglerSteps:  13
     Math::NumSeq::KlarnerRado:  11
     Math::NumSeq::Kolakoski:  13
-    Math::NumSeq::LemoineCount:  33
+    Math::NumSeq::LemoineCount:  43
     Math::NumSeq::Liouville:  13
     Math::NumSeq::LucasNumbers:  29
     Math::NumSeq::LuckyNumbers:  38
@@ -721,6 +743,7 @@ recommends:
     Math::NumSeq::PlanePathTurn:  72
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
+    Math::NumSeq::PowerFlip:  45
     Math::NumSeq::Powerful:  26
     Math::NumSeq::PowerPart:  28
     Math::NumSeq::PrimeFactorCount:  32
@@ -800,7 +823,7 @@ recommends:
     Math::PlanePath::Flowsnake:  55
     Math::PlanePath::FlowsnakeCentres:  38
     Math::PlanePath::FractionsTree:  62
-    Math::PlanePath::GcdRationals:  60
+    Math::PlanePath::GcdRationals:  78
     Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GosperReplicate:  46
     Math::PlanePath::GosperSide:  35
@@ -813,8 +836,8 @@ recommends:
     Math::PlanePath::HilbertCurve:  13
     Math::PlanePath::HilbertSpiral:  57
     Math::PlanePath::HIndexing:  52
-    Math::PlanePath::Hypot:  21
-    Math::PlanePath::HypotOctant:  21
+    Math::PlanePath::Hypot:  78
+    Math::PlanePath::HypotOctant:  78
     Math::PlanePath::ImaginaryBase:  41
     Math::PlanePath::ImaginaryHalf:  74
     Math::PlanePath::KnightSpiral:  1
@@ -831,6 +854,7 @@ recommends:
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
     Math::PlanePath::PixelRings:  28
+    Math::PlanePath::PowerArray:  78
     Math::PlanePath::PyramidRows:  4
     Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
@@ -861,14 +885,16 @@ recommends:
     Math::PlanePath::TheodorusSpiral:  70
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
-    Math::PlanePath::TriangularHypot:  30
+    Math::PlanePath::TriangularHypot:  79
     Math::PlanePath::UlamWarburton:  48
     Math::PlanePath::UlamWarburtonQuarter:  49
     Math::PlanePath::VogelFloret:  12
     Math::PlanePath::WunderlichMeander:  54
     Math::PlanePath::WunderlichSerpentine:  73
+    Math::PlanePath::WythoffArray:  78
     Math::PlanePath::ZOrderCurve:  34
     Math::Symbolic:       0.605
+    Software::License::GPL_3:  0
     X11::AtomConstants:   2
     X11::Protocol:        0
     X11::Protocol::Other:  1

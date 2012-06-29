@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
@@ -360,8 +360,33 @@ use constant parameter_info_array => [ { name    => 'branches',
     return ($n-3,$n-2,$n-1,$n,$n+1,$n+2,$n+3,$n+4);
   }
 }
-# { package Math::PlanePath::SierpinskiTriangle;
-# }
+{ package Math::PlanePath::SierpinskiTriangle;
+  # ENHANCE-ME: step by the bits, not by X,Y
+  sub MathImage__tree_n_children {
+    my ($self, $n) = @_;
+    if ($n < 1) {
+      return undef;
+    }
+    my ($x,$y) = $self->n_to_xy($n);
+    $y += 1;
+    my $n1 = $self->xy_to_n($x-1,$y);
+    my $n2 = $self->xy_to_n($x+1,$y);
+    return ((defined $n1 ? ($n1) : ()),
+            (defined $n2 ? ($n2) : ()));
+  }
+  sub MathImage__tree_n_parent {
+    my ($self, $n) = @_;
+    if ($n < 1) {
+      return undef;
+    }
+    my ($x,$y) = $self->n_to_xy($n);
+    $y -= 1;
+    if (defined (my $n = $self->xy_to_n($x-1,$y))) {
+      return $n;
+    }
+    return $self->xy_to_n($x+1,$y);
+  }
+}
 # { package Math::PlanePath::SierpinskiArrowhead;
 # }
 # { package Math::PlanePath::SierpinskiArrowheadCentres;
@@ -382,6 +407,23 @@ use constant parameter_info_array => [ { name    => 'branches',
   use constant MathImage__tree_constant_branches => 2;
 }
 { package Math::PlanePath::DragonRounded;
+  # OR: first of each seg descends to first of each replication
+  # 0 -> 2,3
+  # 1 -> 4,5
+  # 2 -> 6,7
+  # 3 -> 8,9
+  sub MathImage__tree_n_parent {
+    my ($self, $n) = @_;
+    if ($n < 2) {
+      return undef;
+    }
+    return int($n/2)-1;
+  }
+  sub MathImage__tree_n_children {
+    my ($self, $n) = @_;
+    $n *= 2;
+    return map {$n+$_} 2 .. 3;
+  }
 }
 { package Math::PlanePath::DragonMidpoint;
   use constant MathImage__tree_constant_branches => 2;
@@ -393,6 +435,23 @@ use constant parameter_info_array => [ { name    => 'branches',
   use constant MathImage__tree_constant_branches => 3;
 }
 { package Math::PlanePath::TerdragonRounded;
+  use constant MathImage__tree_constant_branches => 2;
+  # 0 -> 2,3
+  # 1 -> 4,5
+  # 2 -> 6,7
+  # 3 -> 8,9
+  # sub MathImage__tree_n_parent {
+  #   my ($self, $n) = @_;
+  #   if ($n < 2) {
+  #     return undef;
+  #   }
+  #   return int($n/2)-1;
+  # }
+  # sub MathImage__tree_n_children {
+  #   my ($self, $n) = @_;
+  #   $n *= 2;
+  #   return map {$n+$_} 2 .. 3;
+  # }
 }
 { package Math::PlanePath::TerdragonMidpoint;
   use constant MathImage__tree_constant_branches => 3;
@@ -515,6 +574,44 @@ use constant parameter_info_array => [ { name    => 'branches',
 # { package Math::PlanePath::CellularRule190;
 # }
 { package Math::PlanePath::UlamWarburton;
+  # ENHANCE-ME: step by the bits, not by X,Y
+  sub MathImage__tree_n_children {
+    my ($self, $n) = @_;
+    if ($n < 1) {
+      return undef;
+    }
+    my ($x,$y) = $self->n_to_xy($n);
+    my @ret;
+    my $dx = 1;
+    my $dy = 0;
+    foreach (1 .. 4) {
+      if (defined (my $n_child = $self->xy_to_n($x+$dx,$y+$dy))) {
+        if ($n_child > $n) {
+          push @ret, $n_child;
+        }
+      }
+      ($dx,$dy) = (-$dy,$dx); # rotate +90
+    }
+    return @ret;
+  }
+  sub MathImage__tree_n_parent {
+    my ($self, $n) = @_;
+    if ($n < 1) {
+      return undef;
+    }
+    my ($x,$y) = $self->n_to_xy($n);
+    my $dx = 1;
+    my $dy = 0;
+    foreach (1 .. 4) {
+      if (defined (my $n_parent = $self->xy_to_n($x+$dx,$y+$dy))) {
+        if ($n_parent < $n) {
+          return $n_parent;
+        }
+      }
+      ($dx,$dy) = (-$dy,$dx); # rotate +90
+    }
+    return undef;
+  }
   # sub MathImage__tree_n_children {
   #   my ($self, $n) = @_;
   #   my ($power, $exp) = _round_down_pow (3*$n-2, 4);
@@ -563,8 +660,46 @@ use constant parameter_info_array => [ { name    => 'branches',
   #   }
   # }
 }
-# { package Math::PlanePath::UlamWarburtonQuarter;
-# }
+{ package Math::PlanePath::UlamWarburtonQuarter;
+  # ENHANCE-ME: step by the bits, not by X,Y
+  sub MathImage__tree_n_children {
+    my ($self, $n) = @_;
+    if ($n < 1) {
+      return undef;
+    }
+    my ($x,$y) = $self->n_to_xy($n);
+    my @ret;
+    my $dx = 1;
+    my $dy = 1;
+    foreach (1 .. 4) {
+      if (defined (my $n_child = $self->xy_to_n($x+$dx,$y+$dy))) {
+        if ($n_child > $n) {
+          push @ret, $n_child;
+        }
+      }
+      ($dx,$dy) = (-$dy,$dx); # rotate +90
+    }
+    return @ret;
+  }
+  sub MathImage__tree_n_parent {
+    my ($self, $n) = @_;
+    if ($n < 1) {
+      return undef;
+    }
+    my ($x,$y) = $self->n_to_xy($n);
+    my $dx = 1;
+    my $dy = 1;
+    foreach (1 .. 4) {
+      if (defined (my $n_parent = $self->xy_to_n($x+$dx,$y+$dy))) {
+        if ($n_parent < $n) {
+          return $n_parent;
+        }
+      }
+      ($dx,$dy) = (-$dy,$dx); # rotate +90
+    }
+    return undef;
+  }
+}
 # { package Math::PlanePath::DiagonalRationals;
 # }
 # { package Math::PlanePath::FactorRationals;

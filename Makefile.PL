@@ -27,6 +27,7 @@ my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
                       'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
                       'Gtk2::Ex::PodViewer'   => 0,
                       'Gtk2::Ex::QuadButton'  => 0,
+                      'Software::License::GPL_3' => 0, # about dialog
                      );
 
 my %for_x11 = ('X11::Protocol' => 0,
@@ -64,6 +65,20 @@ my %tk_optionals = (# main Perl-Tk of whatever new enough version
                     'Tk::Pod' => 0,
                    );
 
+my %wx_interface = (# main wxPerl of whatever new enough version
+                    'Wx' => 0,
+                    'Tk::Balloon' => 0,
+
+                    # my Image-Base-Wx
+                    'Image::Base::Wx::DC' => 0,
+                   );
+my %wx_optionals = (# main Perl-Tk of whatever new enough version
+                    'Wx::Perl::PodBrowser' => 0,
+                    'Software::License::GPL_3' => 0, # about dialog
+                    # my Image-Base-Wx
+                    'Image::Base::Wx::Image' => 0,
+                   );
+
 my %curses_interface = ('Curses::UI' => 0,
                         'Curses::UI::Common' => 0,
                        );
@@ -79,13 +94,13 @@ my %maximum_planepath
      'Math::PlanePath::MultipleRings'        => 74, # v.74 polygon option
      'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
      'Math::PlanePath::FilledRings'          => 71, # new in v.71
-     'Math::PlanePath::Hypot'                => 21, # new in v.21
-     'Math::PlanePath::HypotOctant'          => 21, # new in v.21
-     'Math::PlanePath::TriangularHypot'      => 30, # new in v.30
+     'Math::PlanePath::Hypot'                => 78, # v.78 points odd,even
+     'Math::PlanePath::HypotOctant'          => 78, # v.78 points odd,even
+     'Math::PlanePath::TriangularHypot'      => 79, # v.79 points odd,all
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
      'Math::PlanePath::DiagonalRationals'    => 58, # new in v.58
      'Math::PlanePath::FactorRationals'      => 61, # new in v.61
-     'Math::PlanePath::GcdRationals'         => 60, # new in v.60
+     'Math::PlanePath::GcdRationals'         => 78, # v.78 pairs_order
      'Math::PlanePath::RationalsTree'        => 45, # v.45 Drib in choices list
      'Math::PlanePath::FractionsTree'        => 62, # new in v.62
      'Math::PlanePath::CoprimeColumns'       => 32, # new in v.32
@@ -187,6 +202,8 @@ my %maximum_planepath
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
      'Math::PlanePath::ComplexRevolving'     => 63, # new in v.63
 
+     'Math::PlanePath::WythoffArray'         => 78, # new in v.78
+     'Math::PlanePath::PowerArray'           => 78, # new in v.78
      'Math::PlanePath::File'                 => 37, # new in v.37
     );
 
@@ -203,10 +220,12 @@ my %maximum_numseq
      'Math::NumSeq::StarNumbers' => 1,
      'Math::NumSeq::Powerful'    => 26, # new in v.26
      'Math::NumSeq::PowerPart'   => 28, # new in v.28
+     'Math::NumSeq::PowerFlip'   => 45, # new in v.45
 
      'Math::NumSeq::Even'          => 1,
      'Math::NumSeq::Odd'           => 1,
      'Math::NumSeq::AllDigits'     => 25, # v.25 for BigInt ith()
+     # 'Math::NumSeq::PrimesDigits'  => 43, # new in v.43
      'Math::NumSeq::ConcatNumbers' => 38, # v.38 for value_to_i_estimate()
      'Math::NumSeq::Runs'          => 34, # new in v.34
 
@@ -218,17 +237,17 @@ my %maximum_numseq
      'Math::NumSeq::Emirps'              => 4,  # new in v.4
      'Math::NumSeq::MobiusFunction'      => 6,  # new in v.6
      'Math::NumSeq::Liouville'           => 13, # new in v.13
-     'Math::NumSeq::GoldbachCount'       => 33, # new in v.33
-     'Math::NumSeq::LemoineCount'        => 33, # new in v.33
+     'Math::NumSeq::GoldbachCount'       => 43, # v.43 faster on bigint
+     'Math::NumSeq::LemoineCount'        => 43, # v.43 faster on bigint
      'Math::NumSeq::DivisorCount'        => 12, # new in v.12
      'Math::NumSeq::ErdosSelfridgeClass' => 38, # new in v.38
      'Math::NumSeq::PrimeIndexOrder'     => 39, # new in v.39
      'Math::NumSeq::PrimeIndexPrimes'    => 39, # new in v.39
      'Math::NumSeq::PythagoreanHypots'   => 29, # new in v.29
-     'Math::NumSeq::Totient'             => 36, # v.36 bigger range 
-     'Math::NumSeq::TotientCumulative'   => 36, # v.36 bigger range 
-     'Math::NumSeq::TotientSteps'        => 36, # v.36 bigger range 
-     'Math::NumSeq::TotientPerfect'      => 36, # v.36 bigger range 
+     'Math::NumSeq::Totient'             => 36, # v.36 bigger range
+     'Math::NumSeq::TotientCumulative'   => 36, # v.36 bigger range
+     'Math::NumSeq::TotientSteps'        => 36, # v.36 bigger range
+     'Math::NumSeq::TotientPerfect'      => 36, # v.36 bigger range
      'Math::NumSeq::DedekindPsiCumulative' => 36, # new in v.36
      'Math::NumSeq::DedekindPsiSteps'      => 36, # new in v.36
      'Math::NumSeq::Abundant'              => 24, # new in v.24
@@ -258,7 +277,7 @@ my %maximum_numseq
 
      'Math::NumSeq::DigitCount'            => 13, # v.13 fix values_max()
      'Math::NumSeq::DigitCountHigh'        => 16, # new in v.16
-     'Math::NumSeq::DigitCountLow'         => 16, # new in v.16
+     'Math::NumSeq::DigitCountLow'         => 46, # v.46 digit parameter fix
      'Math::NumSeq::DigitLength'           => 1,
      'Math::NumSeq::DigitLengthCumulative' => 38, # v.38 value_to_i_estimate()
      'Math::NumSeq::SelfLengthCumulative'  => 38, # new in v.38
@@ -296,7 +315,7 @@ my %maximum_numseq
      'Math::NumSeq::UlamSequence'   => 29, # new in v.29
      'Math::NumSeq::AsciiSelf'      => 12, # new in v.12
      'Math::NumSeq::Kolakoski'      => 13, # new in v.13
-     'Math::NumSeq::GolombSequence' => 13, # new in v.13
+     'Math::NumSeq::GolombSequence' => 43, # v.43 squares,primes in paraminfo
      'Math::NumSeq::ReRound'        => 38, # v.38 fix value_to_i_estimate()
      'Math::NumSeq::LuckyNumbers'   => 38, # new in v.38
      'Math::NumSeq::ReReplace'      => 33, # new in v.33
@@ -496,6 +515,12 @@ WriteMakefile
         recommends => \%tk_optionals,
       },
 
+      wx_interface =>
+      { description => 'Wx GUI modules.',
+        requires => \%wx_interface,
+        recommends => \%wx_optionals,
+      },
+
       curses_interface =>
       { description => 'Experimental Curses interface.',
         requires => \%curses_interface,
@@ -518,8 +543,9 @@ WriteMakefile
                      %gtk2_optionals,
                      %tk_interface,
                      %tk_optionals,
+                     %wx_interface,
+                     %wx_optionals,
                      %gtk1_interface,
-                     'Software::License::GPL_3' => 0,
 
                      'Image::Xpm'             => 0,
                      'Image::Base::GD'        => 15, # v.15 clip fixes
@@ -557,6 +583,7 @@ WriteMakefile
      no_index => { package => [ 'Math::PlanePath',
                                 'Math::PlanePath::CellularRule',
                               ],
+                   directory=>['devel'],
                  }
    },
   );

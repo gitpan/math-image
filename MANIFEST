@@ -44,7 +44,6 @@ devel/tk-savedialog.pl
 devel/tk.pl
 devel/tool-combotext.pl
 devel/unused.pl
-devel/Wx-DC.t
 devel/wx-oninit.pl
 devel/wx.pl
 devel/x11-protocol.pl
@@ -99,7 +98,6 @@ lib/App/MathImage/Image/Base/BMP.pm
 lib/App/MathImage/Image/Base/LifeBitmap.pm
 lib/App/MathImage/Image/Base/LifeRLE.pm
 lib/App/MathImage/Image/Base/Other.pm
-lib/App/MathImage/Image/Base/Wx/DC.pm
 lib/App/MathImage/Image/Base/XpmClipped.pm
 lib/App/MathImage/Lines.pm
 lib/App/MathImage/LinesLevel.pm
@@ -150,7 +148,6 @@ t/Gtk2-SaveDialog-weaken.t
 t/Gtk2-SaveDialog.t
 t/Image-Base-BMP.t
 t/Image-Base-Other.t
-t/Image-Base-WxDC.t
 t/MathImage.t
 t/MyTestHelpers.pm
 t/MyTestImageBase.pm

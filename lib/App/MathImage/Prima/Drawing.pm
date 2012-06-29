@@ -28,7 +28,7 @@ use vars qw(@ISA);
 use App::MathImage::Generator;
 
 use vars '$VERSION';
-$VERSION = 101;
+$VERSION = 102;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,7 +37,6 @@ sub profile_default {
   my ($class) = @_;
   ### Prima-Drawing profile_default() ...
   return { %{$class->SUPER::profile_default},
-           onMouseWheel     => \&onMouseWheel,
            gen_options      => App::MathImage::Generator->default_options,
            draw_progressive => 1,
            transparent      => 1, # no clear background for paint
@@ -45,22 +44,18 @@ sub profile_default {
            # default colours
            color            => cl::White(),
            backColor        => cl::Black(),
-
-           # onSize => sub {
-           #   ### Prima-Drawing onSize: @_[1..$#_]
-           # },
          };
 }
 
 sub init {
-  my ($self, %profile) = @_;
-  ### Drawing init() ...
-  # ### %profile
+  ### Prima-Drawing init() ...
+  my $self = shift;
+  my %profile = $self-> SUPER::init(@_);
+
   $profile{'gen_options'} = { %{App::MathImage::Generator->default_options},
                               %{$profile{'gen_options'} || {}} }; # copy
-  $self->{'gen_options'} = delete $profile{'gen_options'};
-  $self->{'draw_progressive'} = 1;
-  return $self->SUPER::init (%profile);
+  $self->{'gen_options'}      = $profile{'gen_options'};
+  $self->{'draw_progressive'} = $profile{'draw_progressive'};
 }
 
 sub redraw {
@@ -101,22 +96,6 @@ sub draw_progressive {
 sub on_paint {
   my ($self, $canvas) = @_;
   ### Prima-Drawing on_paint() ...
-  $canvas->clear;
-  #   $canvas->fill_ellipse(50,50, 20,20);
-
-  # my $gen = $self->gen_object;
-  # my $scale = $gen->{'scale'} || 1;
-  # my $path_parameters = $self->path_parameters;
-  # $path_parameters->{'width'}  = int ($canvas->width / $scale);
-  # $path_parameters->{'height'} = int ($canvas->height / $scale);
-  # ### canvas width:  $canvas->width
-  # ### canvas height: $canvas->height
-  #
-  # require Image::Base::Prima::Drawable;
-  # my $image = Image::Base::Prima::Drawable->new (-drawable => $canvas);
-  # ### width:  $image->get('-width')
-  # ### height: $image->get('-height')
-  # $gen->draw_Image ($image);
 
   if (my $bitmap = $self->bitmap) {
     $canvas->put_image (0,0, $bitmap);
@@ -204,12 +183,12 @@ sub gen_object {
 #------------------------------------------------------------------------------
 # mouse wheel scroll
 
-sub onMouseWheel {
-  my ($self, $modifiers, $x,$y, $delta_wheel) = @_;
-  ### onMouseWheel(): "$modifiers, $x,$y, $delta_wheel"
+sub on_mousewheel {
+  my ($self, $modifiers, $x,$y, $wheel_delta) = @_;
+  ### on_mousewheel(): "$modifiers, $x,$y, $wheel_delta"
 
   # "Control" by page, otherwise by step
-  my $frac = ($modifiers & km::Ctrl() ? 0.9 : 0.1) * $delta_wheel/120;
+  my $frac = ($modifiers & km::Ctrl() ? 0.9 : 0.1) * $wheel_delta/120;
   ### $frac
 
   # "Shift" horizontally, otherwise vertically
@@ -219,6 +198,32 @@ sub onMouseWheel {
     $self->{'gen_options'}->{'y_offset'} -= int ($self->height * $frac);
   }
   $self->redraw;
+}
+
+#------------------------------------------------------------------------------
+# mouse drag
+
+sub on_mousedown {
+  my ($self, $button, $modifiers, $x,$y) = @_;
+  ### on_mousedown() ...
+  $self->{'drag_x'} = $x;
+  $self->{'drag_y'} = $y;
+}
+sub on_mouseup {
+  my ($self, $button, $modifiers, $x,$y) = @_;
+  ### on_mouseup() ...
+  delete $self->{'drag_x'};
+}
+sub on_mousemove {
+  my ($self, $modifiers, $x,$y, $delta_wheel) = @_;
+  ### on_mousemove() ...
+  if (defined $self->{'drag_x'}) {
+    $self->{'gen_options'}->{'x_offset'} += $x - $self->{'drag_x'};
+    $self->{'gen_options'}->{'y_offset'} += $y - $self->{'drag_y'};
+    $self->{'drag_x'} = $x;
+    $self->{'drag_y'} = $y;
+    $self->redraw;
+  }
 }
 
 #------------------------------------------------------------------------------

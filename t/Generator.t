@@ -26,7 +26,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 require POSIX;
 POSIX::setlocale(POSIX::LC_ALL(), 'C'); # no message translations
@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   is ($App::MathImage::Generator::VERSION, $want_version,
       'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version,
@@ -139,13 +139,13 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 }
 
 #------------------------------------------------------------------------------
-# values_choices
+### values_choices ...
 
 {
   require Image::Base::Text;
   my $good = 1;
   foreach my $values (App::MathImage::Generator->values_choices) {
-    # diag "exercise values $values";
+    ### exercise values: $values
     if ($values eq 'OEIS-File') {
       diag "skip $values so as not to depend on OEIS downloads";
       next;
@@ -159,11 +159,14 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
     #   next;
     # }
 
-    my $gen = App::MathImage::Generator->new (width  => 10,
-                                              height => 10,
-                                              scale  => 1,
-                                              path   => 'SquareSpiral',
-                                              values => $values);
+    my $gen = App::MathImage::Generator->new
+      (width  => 10,
+       height => 10,
+       scale  => 1,
+       path   => 'SquareSpiral',
+       values => $values,
+       # workaround for DigitCountLow missing parameter
+       values_parameters => { digit => 0 });
     $gen->description; # exercise description string
     my $image = Image::Base::Text->new
       (-width  => 10,
@@ -176,7 +179,7 @@ foreach my $elem ([ [ 0,0, 0,0, 1,1 ],
 }
 
 #------------------------------------------------------------------------------
-# path_choices
+### path_choices ...
 
 {
   my $good = 1;

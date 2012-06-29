@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 101;
+$VERSION = 102;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -224,7 +224,7 @@ sub getopt_long_specifications {
 
      'size=s' => sub {
        my ($optname, $value) = @_;
-       my ($width, $height) = split /x/, $value;
+       my ($width, $height) = split /[x,]/, $value;
        _hopt($self,'gen_options','width', $width);
        _hopt($self,'gen_options','height', $height || $width);
      },
@@ -621,6 +621,7 @@ sub output_method_png {
         'Gtk2::Gdk::Pixbuf',
         'Prima',
         'Tk',
+        'Wx',
        )) {
     if ($self->try_module($module)) {
       if ($self->{'verbose'} >= 2) {
@@ -648,6 +649,7 @@ sub output_method_xpm {
                          'Magick',
                          'Prima',
                          'Tk',
+                         'Wx',
                         )) {
     if ($self->try_module($module)) {
       if ($self->{'verbose'} >= 2) {
@@ -693,14 +695,16 @@ my %image_modules = (Prima => 'Image::Base::Prima::Image',
                      Gtk2  => 'Image::Base::Gtk2::Gdk::Pixbuf',
                      Xpm   => 'App::MathImage::Image::Base::XpmClipped',
                      Tk    => 'Image::Base::Tk::Photo',
+                     Wx    => 'Image::Base::Wx::Image',
                     );
 sub module_image_class {
   my ($self, $module) = @_;
-  ### module_image_class() ...
+  ### module_image_class(): $module
   foreach my $baseclass
-    ("Image::Base::$module",
-     ($image_modules{$module} ? $image_modules{$module} : ()),
+    (($image_modules{$module} ? $image_modules{$module} : ()),
+     "Image::Base::$module",
      ($module =~ /::/ ? ($module) : ())) {
+    ### $baseclass
     foreach my $class ($baseclass,
                        "App::MathImage::$baseclass") {
       ### $class
@@ -1063,14 +1067,14 @@ sub output_method_numbers_dash {
   ### $pheight_half
 
   my ($rect_x1, $rect_x2, $rect_y1, $rect_y2);
-  if ($gen->x_negative) {
+  if ($gen->path_object->x_negative) {
     $rect_x1 = -$pwidth_half;
     $rect_x2 = $pwidth_half;
   } else {
     $rect_x1 = 0;
     $rect_x2 = $pwidth-1;
   }
-  if ($gen->y_negative) {
+  if ($gen->path_object->y_negative) {
     $rect_y1 = -$pheight_half;
     $rect_y2 = $pheight_half;
   } else {
