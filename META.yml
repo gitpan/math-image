@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            102
+version:            103
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -199,6 +199,7 @@ optional_features:
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::DivisorCount:  12
+            Math::NumSeq::DuffinianNumbers:  47
             Math::NumSeq::Emirps:  4
             Math::NumSeq::ErdosSelfridgeClass:  38
             Math::NumSeq::Even:   1
@@ -283,6 +284,7 @@ optional_features:
             Math::NumSeq::UndulatingNumbers:  34
             Math::NumSeq::WoodallNumbers:  29
             Math::PlanePath::AlternatePaper:  64
+            Math::PlanePath::AlternatePaperMidpoint:  80
             Math::PlanePath::AnvilSpiral:  64
             Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
@@ -296,7 +298,7 @@ optional_features:
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
-            Math::PlanePath::ComplexPlus:  64
+            Math::PlanePath::ComplexPlus:  80
             Math::PlanePath::ComplexRevolving:  63
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
@@ -318,15 +320,15 @@ optional_features:
             Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
             Math::PlanePath::FilledRings:  71
-            Math::PlanePath::Flowsnake:  55
-            Math::PlanePath::FlowsnakeCentres:  38
+            Math::PlanePath::Flowsnake:  80
+            Math::PlanePath::FlowsnakeCentres:  80
             Math::PlanePath::FractionsTree:  62
             Math::PlanePath::GcdRationals:  78
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GrayCode:  73
-            Math::PlanePath::GreekKeySpiral:  27
+            Math::PlanePath::GreekKeySpiral:  80
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexArms:  36
             Math::PlanePath::HexSpiral:  9
@@ -363,7 +365,7 @@ optional_features:
             Math::PlanePath::QuintetCurve:  55
             Math::PlanePath::QuintetReplicate:  45
             Math::PlanePath::R5DragonCurve:  75
-            Math::PlanePath::R5DragonMidpoint:  75
+            Math::PlanePath::R5DragonMidpoint:  80
             Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
@@ -378,8 +380,8 @@ optional_features:
             Math::PlanePath::Staircase:  16
             Math::PlanePath::StaircaseAlternating:  70
             Math::PlanePath::TerdragonCurve:  64
-            Math::PlanePath::TerdragonMidpoint:  66
-            Math::PlanePath::TerdragonRounded:  75
+            Math::PlanePath::TerdragonMidpoint:  80
+            Math::PlanePath::TerdragonRounded:  80
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -437,6 +439,7 @@ optional_features:
             Math::NumSeq::DigitSum:  2
             Math::NumSeq::DigitSumModulo:  5
             Math::NumSeq::DivisorCount:  12
+            Math::NumSeq::DuffinianNumbers:  47
             Math::NumSeq::Emirps:  4
             Math::NumSeq::ErdosSelfridgeClass:  38
             Math::NumSeq::Even:   1
@@ -524,6 +527,7 @@ optional_features:
         description:  Maximum PlanePath modules
         requires:
             Math::PlanePath::AlternatePaper:  64
+            Math::PlanePath::AlternatePaperMidpoint:  80
             Math::PlanePath::AnvilSpiral:  64
             Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
@@ -537,7 +541,7 @@ optional_features:
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
-            Math::PlanePath::ComplexPlus:  64
+            Math::PlanePath::ComplexPlus:  80
             Math::PlanePath::ComplexRevolving:  63
             Math::PlanePath::CoprimeColumns:  32
             Math::PlanePath::Corner:  1
@@ -559,15 +563,15 @@ optional_features:
             Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
             Math::PlanePath::FilledRings:  71
-            Math::PlanePath::Flowsnake:  55
-            Math::PlanePath::FlowsnakeCentres:  38
+            Math::PlanePath::Flowsnake:  80
+            Math::PlanePath::FlowsnakeCentres:  80
             Math::PlanePath::FractionsTree:  62
             Math::PlanePath::GcdRationals:  78
             Math::PlanePath::GosperIslands:  33
             Math::PlanePath::GosperReplicate:  46
             Math::PlanePath::GosperSide:  35
             Math::PlanePath::GrayCode:  73
-            Math::PlanePath::GreekKeySpiral:  27
+            Math::PlanePath::GreekKeySpiral:  80
             Math::PlanePath::HeptSpiralSkewed:  4
             Math::PlanePath::HexArms:  36
             Math::PlanePath::HexSpiral:  9
@@ -604,7 +608,7 @@ optional_features:
             Math::PlanePath::QuintetCurve:  55
             Math::PlanePath::QuintetReplicate:  45
             Math::PlanePath::R5DragonCurve:  75
-            Math::PlanePath::R5DragonMidpoint:  75
+            Math::PlanePath::R5DragonMidpoint:  80
             Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
@@ -619,8 +623,8 @@ optional_features:
             Math::PlanePath::Staircase:  16
             Math::PlanePath::StaircaseAlternating:  70
             Math::PlanePath::TerdragonCurve:  64
-            Math::PlanePath::TerdragonMidpoint:  66
-            Math::PlanePath::TerdragonRounded:  75
+            Math::PlanePath::TerdragonMidpoint:  80
+            Math::PlanePath::TerdragonRounded:  80
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
@@ -701,6 +705,7 @@ recommends:
     Math::NumSeq::DigitSum:  2
     Math::NumSeq::DigitSumModulo:  5
     Math::NumSeq::DivisorCount:  12
+    Math::NumSeq::DuffinianNumbers:  47
     Math::NumSeq::Emirps:  4
     Math::NumSeq::ErdosSelfridgeClass:  38
     Math::NumSeq::Even:   1
@@ -785,6 +790,7 @@ recommends:
     Math::NumSeq::UndulatingNumbers:  34
     Math::NumSeq::WoodallNumbers:  29
     Math::PlanePath::AlternatePaper:  64
+    Math::PlanePath::AlternatePaperMidpoint:  80
     Math::PlanePath::AnvilSpiral:  64
     Math::PlanePath::AR2W2Curve:  59
     Math::PlanePath::ArchimedeanChords:  23
@@ -798,7 +804,7 @@ recommends:
     Math::PlanePath::CincoCurve:  56
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
-    Math::PlanePath::ComplexPlus:  64
+    Math::PlanePath::ComplexPlus:  80
     Math::PlanePath::ComplexRevolving:  63
     Math::PlanePath::CoprimeColumns:  32
     Math::PlanePath::Corner:  1
@@ -820,15 +826,15 @@ recommends:
     Math::PlanePath::FibonacciWordFractal:  53
     Math::PlanePath::File:  37
     Math::PlanePath::FilledRings:  71
-    Math::PlanePath::Flowsnake:  55
-    Math::PlanePath::FlowsnakeCentres:  38
+    Math::PlanePath::Flowsnake:  80
+    Math::PlanePath::FlowsnakeCentres:  80
     Math::PlanePath::FractionsTree:  62
     Math::PlanePath::GcdRationals:  78
     Math::PlanePath::GosperIslands:  33
     Math::PlanePath::GosperReplicate:  46
     Math::PlanePath::GosperSide:  35
     Math::PlanePath::GrayCode:  73
-    Math::PlanePath::GreekKeySpiral:  27
+    Math::PlanePath::GreekKeySpiral:  80
     Math::PlanePath::HeptSpiralSkewed:  4
     Math::PlanePath::HexArms:  36
     Math::PlanePath::HexSpiral:  9
@@ -865,7 +871,7 @@ recommends:
     Math::PlanePath::QuintetCurve:  55
     Math::PlanePath::QuintetReplicate:  45
     Math::PlanePath::R5DragonCurve:  75
-    Math::PlanePath::R5DragonMidpoint:  75
+    Math::PlanePath::R5DragonMidpoint:  80
     Math::PlanePath::RationalsTree:  45
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
@@ -880,8 +886,8 @@ recommends:
     Math::PlanePath::Staircase:  16
     Math::PlanePath::StaircaseAlternating:  70
     Math::PlanePath::TerdragonCurve:  64
-    Math::PlanePath::TerdragonMidpoint:  66
-    Math::PlanePath::TerdragonRounded:  75
+    Math::PlanePath::TerdragonMidpoint:  80
+    Math::PlanePath::TerdragonRounded:  80
     Math::PlanePath::TheodorusSpiral:  70
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3

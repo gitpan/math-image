@@ -17,18 +17,17 @@
 
 
 # ENHANCE-ME:
-# want ComboBox when choices or TextCtrl when not, maybe
-
+# want ComboBox when choices, or TextCtrl when not, maybe
+# or flags wxCB_DROPDOWN or wxCB_READONLY for when choices-only
 
 package App::MathImage::Wx::Params::String;
 use 5.004;
 use strict;
 use Carp;
-use POSIX ();
 use Wx;
 
-use base qw(Wx::ComboBox);
-our $VERSION = 102;
+use base 'Wx::ComboBox';
+our $VERSION = 103;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -40,19 +39,35 @@ sub new {
 
   # my $display = ($newval->{'display'} || $newval->{'name'});
   my $choices = $info->{'choices'};
+
+  my $value = $info->{'default'};
+  if (! defined $value) { $value = '' }
+
+  my $width_chars = $info->{'width'} || 5;
+  # my $font = $self->GetFont;
+  # my $font_points = $font->GetPointSize;
+  # my $font_mm = $font_points * (1/72 * 25.4);
+  my $em_pixels = 10;
+  my $width_pixels = $width_chars * $em_pixels + 15;
+
   my $self = $class->SUPER::new ($parent,
                                  Wx::wxID_ANY(),   # id
-                                 '',               # initial value
+                                 $value,           # initial value
                                  Wx::wxDefaultPosition(),
-                                 Wx::Size->new (10*($info->{'width'} || 5) + 15,
-                                                -1),
+                                 Wx::Size->new ($width_pixels, -1),
                                  $choices || [],
                                  Wx::wxTE_PROCESS_ENTER());  # style
 
-  $self->SetValue($info->{'default'} || '');
+  my $type_hint = $info->{'type_hint'} || '';
+  $self->{'oeis_anum'} = ($type_hint eq 'oeis_anum');
+  $self->{'scroll_rotation'} = 0;
+  $self->{'prev'} = $self->GetValue;
 
+  # Wx::Event::EVT_TEXT_PASTE ($self, $self, 'OnTextUpdated');
   Wx::Event::EVT_TEXT_ENTER ($self, $self, 'OnTextEnter');
   Wx::Event::EVT_COMBOBOX ($self, $self, 'OnTextEnter');
+  Wx::Event::EVT_MOUSEWHEEL ($self, 'OnMouseWheel');
+  Wx::Event::EVT_TEXT ($self, $self, 'OnTextUpdated');
   return $self;
 }
 
@@ -98,8 +113,143 @@ sub OnTextEnter {
   my ($self, $event) = @_;
   ### Wx-Params-String OnTextEnter()...
 
+  # don't want to refresh on every idleness
+  # Wx::Event::EVT_UPDATE_UI ($self, $self, \&_update_tooltip);
+  _update_tooltip($self);
+
   if (my $callback = $self->{'callback'}) {
     &$callback($self);
+  }
+}
+
+# ENHANCE-ME: how to catch paste event before text update ?
+sub OnTextUpdated {
+  my ($self, $event) = @_;
+  ### Wx-Params-String OnTextUpdated(): $event
+  ### GetString: $event->GetString
+
+  my $prev = $self->{'prev'};
+  my $str = $self->GetValue;
+  my $addlen = length($str) - length($prev);
+  my $pos = $self->GetInsertionPoint;
+
+  foreach my $anumlen (6, 7) {
+    if ($addlen == $anumlen && $pos >= $anumlen) {
+      my $anum = substr ($str, $pos-$anumlen, $anumlen);
+      if ($anum =~ /^A\d+$/) {
+        $self->SetValue($anum);
+        $self->OnTextEnter;
+        return;
+      }
+    }
+  }
+  $self->{'prev'} = $self->GetValue;
+}
+
+
+#------------------------------------------------------------------------------
+
+sub OnMouseWheel {
+  my ($self, $event) = @_;
+  ### OnMouseWheel() ...
+  ### $event
+
+  if ($self->{'oeis_anum'}) {
+    my $rotation = $self->{'scroll_rotation'};
+    $rotation += $event->GetWheelRotation;
+    my $delta = $event->GetWheelDelta;
+    ### $rotation
+    ### $delta
+
+    my $anum
+      = my $orig_anum
+        = $self->GetValue;
+    for (;;) {
+      ### $anum
+
+      my $next_anum;
+      if ($rotation >= $delta) {
+        ### after ...
+        $rotation -= $delta;
+        $next_anum = Math::NumSeq::OEIS::Catalogue->anum_after($anum);
+        if (! defined $next_anum) {
+          $anum = Math::NumSeq::OEIS::Catalogue->anum_last;
+          $rotation %= $delta;
+          last;
+        }
+
+      } elsif ($rotation <= -1) {
+        ### before ...
+        $rotation += $delta;
+        $next_anum = Math::NumSeq::OEIS::Catalogue->anum_before($anum);
+        if (! defined $next_anum) {
+          $anum = Math::NumSeq::OEIS::Catalogue->anum_first;
+          $rotation %= $delta;
+          if ($rotation > 0) { $rotation -= $delta; }
+          last;
+        }
+
+      } else {
+        last;
+      }
+      $anum = $next_anum;
+    }
+
+    if ($anum ne $orig_anum) {
+      $self->SetValue ($anum);
+      $self->OnTextEnter;
+      # $self->Command (Wx::CommandEvent->new(Wx::wxEVT_COMMAND_TEXT_ENTER()));
+    }
+    $self->{'scroll_rotation'} = $rotation;
+    ### rotation remaining: $rotation
+
+  } else {
+    $event->Skip(1); # propagate to other processing
+  }
+}
+
+sub _update_tooltip {
+  my ($self) = @_;
+  ### Wx-Main values_update_tooltip() ...
+
+  if ($self->{'oeis_anum'}) {
+    my $anum = $self->GetValue;
+    my $str;
+    require Math::NumSeq::OEIS::Catalogue;
+    if (my $info = Math::NumSeq::OEIS::Catalogue->anum_to_info($anum)) {
+      my $class = $info->{'class'};
+      if ($class eq 'Math::NumSeq::Expression') {
+        $str = "Expression\n"
+          . ({@{$info->{'parameters'}}})->{'expression'};
+      } else {
+        if ($class eq 'Math::NumSeq::OEIS::File') {
+          $str = "File";
+        } else {
+          $str = $class;
+          $str =~ s/^Math::NumSeq:://;
+        }
+        eval {
+          # description() from file or module, if possible
+          $str .= ("\n"
+                   . Math::NumSeq::OEIS->new(anum=>$anum)->description);
+        };
+      }
+
+      # if (my $parameters = $info->{'parameters'}) {
+      #   my @eqs;
+      #   for (my $i = 0; $i < @$parameters; $i+=2) {
+      #     push @eqs, "$parameters->[$i]=$parameters->[$i+1]";
+      #   }
+      #   $str .= "\n" . join(', ', @eqs);
+      # }
+    }
+    ### $str
+
+    my $toolbar = $self->GetParent;
+    ### parent: ref $toolbar
+    if ($toolbar->isa('Wx::ToolBar')) {
+      $toolbar->SetToolShortHelp ($self->GetId, $str);
+    }
   }
 }
 
@@ -123,7 +273,6 @@ __END__
 # use 5.004;
 # use strict;
 # use Carp;
-# use POSIX ();
 # use Wx;
 # 
 # use base qw(Wx::TextCtrl);

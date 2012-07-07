@@ -123,7 +123,7 @@ my %maximum_planepath
      'Math::PlanePath::DiamondArms'          => 37, # new in v.37
      'Math::PlanePath::HexArms'              => 36, # new in v.36
      'Math::PlanePath::AztecDiamondRings'    => 49, # new in v.49
-     'Math::PlanePath::GreekKeySpiral'       => 27, # new in v.27
+     'Math::PlanePath::GreekKeySpiral'       => 80, # v.80 turns
      'Math::PlanePath::MPeaks'               => 55, # new in v.55
 
      'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
@@ -164,8 +164,8 @@ my %maximum_planepath
      'Math::PlanePath::DigitGroups'          => 52, # new in v.52
      'Math::PlanePath::FibonacciWordFractal' => 53, # new in v.53
 
-     'Math::PlanePath::Flowsnake'            => 55, # v.55 faster xy_to_n()
-     'Math::PlanePath::FlowsnakeCentres'     => 38, # new in v.38
+     'Math::PlanePath::Flowsnake'            => 80, # v.80 arms frac fix
+     'Math::PlanePath::FlowsnakeCentres'     => 80, # v.80 arms frac fix
      'Math::PlanePath::GosperReplicate'      => 46, # new in v.46
      'Math::PlanePath::GosperIslands'        => 33, # new in v.33
      'Math::PlanePath::GosperSide'           => 35, # new in v.35
@@ -192,13 +192,14 @@ my %maximum_planepath
      'Math::PlanePath::DragonRounded'        => 67, # v.67 xy_to_n() arms fix
      'Math::PlanePath::DragonMidpoint'       => 67, # v.67 xy_to_n() arms fix
      'Math::PlanePath::AlternatePaper'       => 64, # new in v.64
+     'Math::PlanePath::AlternatePaperMidpoint' => 80, # new in v.80
      'Math::PlanePath::CCurve'               => 75, # new in v.75
      'Math::PlanePath::TerdragonCurve'       => 64, # new in v.64
-     'Math::PlanePath::TerdragonRounded'     => 75, # new in v.75
-     'Math::PlanePath::TerdragonMidpoint'    => 66, # new in v.66
+     'Math::PlanePath::TerdragonRounded'     => 80, # v.80 arms frac fix
+     'Math::PlanePath::TerdragonMidpoint'    => 80, # v.80 arms frac fix
      'Math::PlanePath::R5DragonCurve'        => 75, # new in v.75
-     'Math::PlanePath::R5DragonMidpoint'     => 75, # new in v.75
-     'Math::PlanePath::ComplexPlus'          => 64, # new in v.64
+     'Math::PlanePath::R5DragonMidpoint'     => 80, # v.80 arms frac fix
+     'Math::PlanePath::ComplexPlus'          => 80, # v.80 arms frac fix
      'Math::PlanePath::ComplexMinus'         => 44, # new in v.44
      'Math::PlanePath::ComplexRevolving'     => 63, # new in v.63
 
@@ -252,6 +253,7 @@ my %maximum_numseq
      'Math::NumSeq::DedekindPsiSteps'      => 36, # new in v.36
      'Math::NumSeq::Abundant'              => 24, # new in v.24
      'Math::NumSeq::PolignacObstinate'     => 25, # new in v.25
+     'Math::NumSeq::DuffinianNumbers'      => 47, # new in v.47
 
      'Math::NumSeq::PrimeFactorCount'    => 32, # v.32 prime_type choices
      'Math::NumSeq::AllPrimeFactors'     => 42, # new in v.42

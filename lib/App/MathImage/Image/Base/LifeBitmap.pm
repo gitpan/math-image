@@ -25,7 +25,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base::Text 8; # v.8 for 0,0,width,height clip
 @ISA = ('Image::Base::Text');
 
-$VERSION = 102;
+$VERSION = 103;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

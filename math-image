@@ -22,7 +22,7 @@ use strict;
 use App::MathImage;
 
 use vars '$VERSION';
-$VERSION = 102;
+$VERSION = 103;
 
 exit App::MathImage->command_line;
 
@@ -361,6 +361,32 @@ of the terminal from C<Term::Size>.
 How many pixels for each value shown.  The current default is 3 to show 3x3
 pixel squares, or for C<--text> output just 1 for a single character per
 point.
+
+=item --figure=F
+
+Draw a given shape figure at each point.  The default is either a square or
+circle depending on the path.  The choices are
+
+    point             single pixel
+    square            solid
+    box               unfilled square
+    circle            solid
+    ring              unfilled circle
+    diamond           solid
+    diamunf           unfilled diamond
+    plus              "+" shape
+    X                 "X" shape
+    L                 "L" shape
+    V                 "V" shape
+    arrow             arrow in direction of path
+
+=cut
+
+# not sure about these yet
+    # triangle
+    # hexagon
+    # undiamond
+    # unellipse
 
 =item --help, -?
 

@@ -28,7 +28,7 @@ use Wx;
 use Module::Load;
 
 use base 'Wx::Window';
-our $VERSION = 102;
+our $VERSION = 103;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
