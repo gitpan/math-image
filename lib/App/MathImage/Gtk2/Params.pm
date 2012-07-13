@@ -28,7 +28,7 @@ use Glib::Ex::ConnectProperties;
 use Gtk2::Ex::ToolbarBits;
 use Gtk2::Ex::MenuBits;
 
-our $VERSION = 103;
+our $VERSION = 104;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

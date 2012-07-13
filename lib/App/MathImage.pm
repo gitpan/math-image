@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 103;
+$VERSION = 104;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -123,6 +123,9 @@ sub getopt_long_specifications {
      'even'    => sub { _hopt($self,'gen_options','values', 'Even');  },
      'all'     => sub { _hopt($self,'gen_options','values', 'All');  },
      'lines'   => sub { _hopt($self,'gen_options','values', 'Lines');  },
+     'oeis=s'  => sub { my ($optname, $value) = @_;
+                        _hopt($self,'gen_options','values', 'OEIS'); 
+                        $self->{'gen_options'}->{'values_parameters'}->{'anum'} = "$value"; },
      'aronson' => sub { _hopt($self,'gen_options','values', 'Aronson');  },
 
      # this one undocumented yet ...

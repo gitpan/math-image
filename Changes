@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 104, July 2012
+    - new --oeis option as a shorthand for --values=OEIS,anum=A000000
+
 Version 103, July 2012
     - new figure "arrow"
 

@@ -22,7 +22,7 @@ use strict;
 use App::MathImage;
 
 use vars '$VERSION';
-$VERSION = 103;
+$VERSION = 104;
 
 exit App::MathImage->command_line;
 
@@ -197,6 +197,15 @@ Draw values following a formula.  It should have a single variable which
 will be evaluated at 0,1,2, etc.  The default is Perl syntax on an "i".  See
 L<Math::NumSeq::Expression> for more information.
 
+=item --oeis=A000217
+
+Values selected by their A-number per Sloane's Online Encyclopedia of
+Integer Sequences.  Some A-numbers are implemented by code modules, others
+can be read from files in a F<~/OEIS/> directory.  See L<Math::NumSeq::OEIS>
+for details.  For example the triangular numbers are A000217,
+
+    math-image --oeis=A000217
+
 =item --lines
 
 Draw lines along the path instead of a set of selected points.  This shows
@@ -222,13 +231,6 @@ Parameters can be passed as comma separated NAME=VALUE, for example
 The File module can read values from a text file
 
     math-image --values=File,filename=/my/dir/data.txt
-
-The OEIS module takes an A-number per Sloane's Online Encyclopedia of
-Integer Sequences and uses either a code module implementing the sequence or
-downloaded files under F<~/OEIS/>.  See L<Math::NumSeq::OEIS> for details.
-For example tribonnaci numbers are A000073,
-
-    math-image --values=OEIS,anum=A000073
 
 =back
 

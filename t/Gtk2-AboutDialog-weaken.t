@@ -60,7 +60,7 @@ sub my_ignore {
        },
        destructor => \&Test::Weaken::Gtk2::destructor_destroy,
        contents => \&Test::Weaken::Gtk2::contents_container,
-       ignore_class => \&my_ignore,
+       ignore => \&my_ignore,
      });
   is ($leaks, undef, 'Test::Weaken deep garbage collection');
   MyTestHelpers::test_weaken_show_leaks($leaks);

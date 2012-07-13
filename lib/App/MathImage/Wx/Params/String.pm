@@ -27,7 +27,7 @@ use Carp;
 use Wx;
 
 use base 'Wx::ComboBox';
-our $VERSION = 103;
+our $VERSION = 104;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

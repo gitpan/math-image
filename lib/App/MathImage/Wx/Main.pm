@@ -32,7 +32,7 @@ use base qw(Wx::Frame);
 #use Smart::Comments;
 
 
-our $VERSION = 103;
+our $VERSION = 104;
 
 sub new {
   my ($class, $label) = @_;

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            103
+version:            104
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -385,7 +385,7 @@ optional_features:
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
-            Math::PlanePath::TriangularHypot:  79
+            Math::PlanePath::TriangularHypot:  81
             Math::PlanePath::UlamWarburton:  48
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
@@ -628,7 +628,7 @@ optional_features:
             Math::PlanePath::TheodorusSpiral:  70
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
-            Math::PlanePath::TriangularHypot:  79
+            Math::PlanePath::TriangularHypot:  81
             Math::PlanePath::UlamWarburton:  48
             Math::PlanePath::UlamWarburtonQuarter:  49
             Math::PlanePath::VogelFloret:  12
@@ -891,7 +891,7 @@ recommends:
     Math::PlanePath::TheodorusSpiral:  70
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
-    Math::PlanePath::TriangularHypot:  79
+    Math::PlanePath::TriangularHypot:  81
     Math::PlanePath::UlamWarburton:  48
     Math::PlanePath::UlamWarburtonQuarter:  49
     Math::PlanePath::VogelFloret:  12

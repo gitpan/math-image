@@ -96,7 +96,7 @@ my %maximum_planepath
      'Math::PlanePath::FilledRings'          => 71, # new in v.71
      'Math::PlanePath::Hypot'                => 78, # v.78 points odd,even
      'Math::PlanePath::HypotOctant'          => 78, # v.78 points odd,even
-     'Math::PlanePath::TriangularHypot'      => 79, # v.79 points odd,all
+     'Math::PlanePath::TriangularHypot'      => 81, # v.81 points hex_rotated
      'Math::PlanePath::PythagoreanTree'      => 26, # new in v.26
      'Math::PlanePath::DiagonalRationals'    => 58, # new in v.58
      'Math::PlanePath::FactorRationals'      => 61, # new in v.61

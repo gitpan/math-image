@@ -27,7 +27,7 @@ use Wx;
 use List::Util 'min', 'max';
 
 use base 'Wx::TextCtrl';
-our $VERSION = 103;
+our $VERSION = 104;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
