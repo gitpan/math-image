@@ -27,7 +27,7 @@ use Wx;
 use List::Util 'min', 'max';
 
 use base 'Wx::TextCtrl';
-our $VERSION = 104;
+our $VERSION = 105;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -37,15 +37,10 @@ sub new {
   my ($class, $parent, $info) = @_;
   ### Params-Float new(): "$parent", $info
 
-    my $min = $info->{'minimum'};
-    if (! defined $min) { $min = POSIX::DBL_MIN; }
-    my $max = $info->{'maximum'};
-    if (! defined $max) { $max = POSIX::DBL_MAX; }
-
-    # my $page_increment = $newval->{'page_increment'};
-    # if (! defined $page_increment) { $page_increment = 1; }
-    # my $step_increment = $newval->{'step_increment'};
-    # if (! defined $step_increment) { $step_increment = $page_increment / 10; }
+  my $minimum = $info->{'minimum'};
+  if (! defined $minimum) { $minimum = POSIX::DBL_MIN; }
+  my $maximum = $info->{'maximum'};
+  if (! defined $maximum) { $maximum = POSIX::DBL_MAX; }
 
   # my $display = ($info->{'display'} || $info->{'name'});
   my $self = $class->SUPER::new ($parent,
@@ -76,9 +71,16 @@ sub OnMouseWheel {
   ### IsPageScroll: $event->IsPageScroll
 
   my $value = $self->GetValue;
-  $value += ($event->ControlDown ? 1 : 0.1)
-    * $event->GetWheelRotation / $event->GetWheelDelta;
+
   my $info = $self->{'info'};
+  my $page_increment = $info->{'page_increment'};
+  if (! defined $page_increment) { $page_increment = 1; }
+  my $step_increment = $info->{'step_increment'};
+  if (! defined $step_increment) { $step_increment = $page_increment / 10; }
+
+  $value += ($event->ControlDown ? $page_increment : $step_increment)
+    * $event->GetWheelRotation / $event->GetWheelDelta;
+
   if (defined (my $maximum = $info->{'maximum'})) {
     $value = min ($value, $maximum);
   }

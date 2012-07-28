@@ -141,6 +141,7 @@ t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
 t/Gtk2-Drawing-weaken.t
+t/Gtk2-Ex-PointerPosition.t
 t/Gtk2-Generator-weaken.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t

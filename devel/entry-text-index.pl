@@ -21,10 +21,11 @@
 use 5.010;
 use strict;
 use warnings;
+use Glib::Ex::ConnectProperties;
+
 use Gtk2 '-init';
 use Gtk2::Ex::ComboBox::Enum;
-use Glib::Ex::ConnectProperties;
-use App::MathImage::Gtk2::Params::String;
+use Gtk2::Ex::EntryBits 46; # v.46 for scroll_number_handler()
 
 use Smart::Comments;
 
@@ -39,12 +40,12 @@ my $vbox = Gtk2::VBox->new;
 $toplevel->add ($vbox);
 
 my $entry = Gtk2::Entry->new;
+$entry->set_width_chars (10);
+
 my $font_desc = Pango::FontDescription->from_string("Courier 50");
-### $font_desc
 $entry->modify_font ($font_desc);
 $entry->signal_connect
-  (scroll_event =>
-   \&App::MathImage::Gtk2::Params::String::_entry_scroll_number);
+  (scroll_event => \&Gtk2::Ex::EntryBits::scroll_number_handler);
 $vbox->pack_start ($entry, 0,0,0);
 
 {
@@ -52,7 +53,7 @@ $vbox->pack_start ($entry, 0,0,0);
   $vbox->pack_start ($label, 0,0,0);
   my $update_label = sub {
     my ($entry, $x) = @_;
-    my $index = App::MathImage::Gtk2::Params::String::_entry_x_to_text_index($entry,$x);
+    my $index = Gtk2::Ex::EntryBits::x_to_text_index($entry,$x);
     $label->set_text ("index = ". ($index // 'undef'));
   };
   $entry->signal_connect
@@ -66,7 +67,6 @@ $vbox->pack_start ($entry, 0,0,0);
        my ($x, $y) = $entry->get_pointer;
        $update_label->($entry,$x);
      });
-  $entry->set (text => '');
 }
 
 {
@@ -124,6 +124,7 @@ $vbox->pack_start ($entry, 0,0,0);
 #   $vbox->pack_start ($button, 0, 0, 0);
 # }
 
+$entry->set_text ("ab123cd");
 $toplevel->show_all;
 Gtk2->main;
 exit 0;

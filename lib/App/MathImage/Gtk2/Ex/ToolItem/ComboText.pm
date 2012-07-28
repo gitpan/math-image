@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 104;
+our $VERSION = 105;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -182,7 +182,7 @@ sub _menu_want_tearoff {
 1;
 __END__
 
-# =for stopwords Math-Image enum ParamSpec GType pspec Enum Ryde
+# =for stopwords Math-Image enum ParamSpec pspec Enum Ryde
 #
 # =head1 NAME
 #

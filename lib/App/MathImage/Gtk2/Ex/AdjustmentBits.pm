@@ -1,8 +1,3 @@
-# scroll_event() hard code the control-mask ?
-
-
-
-
 # Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -26,18 +21,12 @@ use strict;
 use warnings;
 use Carp;
 use Gtk2 1.220;
-use Gtk2::Ex::AdjustmentBits 40;  # new v.40
+use Gtk2::Ex::AdjustmentBits 46;  # v.46 for scroll_event
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 104;
-
-sub scroll_increment {
-  my ($adj, $type, $neg) = @_;
-  $type .= '_increment';
-  Gtk2::Ex::AdjustmentBits::scroll_value ($adj, $adj->$type * ($neg ? -1 : 1));
-}
+our $VERSION = 105;
 
 sub scroll_widget_ai {
   my ($widget, $event) = @_;
@@ -63,25 +52,11 @@ sub scroll_widget_event_vh {
 sub _scroll_widget_event_props {
   my ($widget, $event, $adjname, $invname) = @_;
   if (my $adj = $widget->get($adjname)) {
-    scroll_event ($adj, $event,
-                  defined $invname && $widget->get_property($invname));
+    Gtk2::Ex::AdjustmentBits::scroll_event
+        ($adj,
+         $event,
+         defined $invname && $widget->get_property($invname));
   }
-}
-my %direction_is_inverted = (up    => 1,
-                             down  => 0,
-                             left  => 1,
-                             right => 0);
-sub scroll_event {
-  my ($adj, $event, $inverted) = @_;
-  my $inctype = ($event->state & 'control-mask'
-                 ? 'page_increment'
-                 : 'step_increment');
-  my $add = $adj->$inctype;
-  unless ((!$inverted) ^ $direction_is_inverted{$event->direction}) {
-    $add = -$add;
-  }
-  Gtk2::Ex::AdjustmentBits::scroll_value ($adj, $add);
-  return Gtk2::EVENT_PROPAGATE;
 }
 
 1;

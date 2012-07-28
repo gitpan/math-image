@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 306;
+use Test::More tests => 564;
 
 use lib 't';
 use MyTestHelpers;
@@ -43,7 +43,7 @@ sub complement {
 # VERSION
 
 {
-  my $want_version = 104;
+  my $want_version = 105;
   is ($App::MathImage::Generator::VERSION, $want_version,
       'VERSION variable');
   is (App::MathImage::Generator->VERSION,  $want_version,
@@ -58,20 +58,38 @@ sub complement {
 
 
 #------------------------------------------------------------------------------
-# _n_to_tree_children()
+# tree_n_children_for_branches(), tree_n_parent_for_branches()
 
 {
-  my $n_start = 1;
-  foreach my $branches (2 .. 10) {
-    my $child = $n_start + 1;
-    foreach my $n (1 .. 30) {
-      my @want;
+  package MyTestPlanePath;
+  use vars '@ISA';
+  use Math::PlanePath;
+  @ISA = ('Math::PlanePath');
+  sub n_start {
+    my ($self) = @_;
+    return $self->{'n_start'};
+  }
+}
+{
+  my $n_start = 17;
+  my $path = MyTestPlanePath->new(n_start => $n_start);
+  foreach my $branches (2 .. 7) {
+    my $upto_child = $n_start + 1;
+    foreach my $n ($n_start .. $n_start+15) {
+      my @want_children;
       foreach (1 .. $branches) {
-        push @want, $child++;
+        push @want_children, $upto_child++;
       }
-      my $want = join(',',@want);
-      my $got = join(',', App::MathImage::Generator::_n_to_tree_children($n, $branches, $n_start));
-      is ($got,$want, "_n_to_tree_children() n=$n branches=$branches");
+      my $want_children = join(',',@want_children);
+      my $got_children = join(',', App::MathImage::Generator::tree_n_children_for_branches($path, $n, $branches));
+      is ($got_children,$want_children,
+          "tree_n_children_for_branches() n=$n branches=$branches");
+
+      foreach my $n_child (@want_children) {
+        my $got_parent = App::MathImage::Generator::tree_n_parent_for_branches($path, $n_child, $branches);
+        is ($got_parent,$n,
+            "tree_n_parent_for_branches($n_child)");
+      }
     }
   }
 }

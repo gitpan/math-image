@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -32,9 +32,9 @@ Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
 
-plan tests => 8;
+plan tests => 7;
 
-require App::MathImage::Gtk2::SaveDialog;
+require App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 
 
 #------------------------------------------------------------------------------
@@ -42,22 +42,18 @@ require App::MathImage::Gtk2::SaveDialog;
 
 my $want_version = 105;
 {
-  is ($App::MathImage::Gtk2::SaveDialog::VERSION, $want_version,
+  is ($App::MathImage::Gtk2::Ex::Statusbar::PointerPosition::VERSION, $want_version,
       'VERSION variable');
-  is (App::MathImage::Gtk2::SaveDialog->VERSION, $want_version,
+  is (App::MathImage::Gtk2::Ex::Statusbar::PointerPosition->VERSION, $want_version,
       'VERSION class method');
 
-  ok (eval { App::MathImage::Gtk2::SaveDialog->VERSION($want_version); 1 },
+  ok (eval { App::MathImage::Gtk2::Ex::Statusbar::PointerPosition->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { App::MathImage::Gtk2::SaveDialog->VERSION($check_version); 1 },
+  ok (! eval { App::MathImage::Gtk2::Ex::Statusbar::PointerPosition->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $dialog = do {
-    # avoid spam from Gtk trying to make you buy the gnome icons
-    local $SIG{'__WARN__'} = \&MyTestHelpers::warn_suppress_gtk_icon;
-    App::MathImage::Gtk2::SaveDialog->new
-    };
+  my $dialog = App::MathImage::Gtk2::Ex::Statusbar::PointerPosition->new;
   is ($dialog->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $dialog->VERSION($want_version); 1 },
@@ -68,13 +64,20 @@ my $want_version = 105;
 
 
 #-----------------------------------------------------------------------------
-# Scalar::Util::weaken
+# misc
 
 {
-  my $dialog = App::MathImage::Gtk2::SaveDialog->new;
-  $dialog->destroy;
-  require Scalar::Util;
-  Scalar::Util::weaken ($dialog);
-  is ($dialog, undef, 'garbage collect when weakened');
+  my $ppos = App::MathImage::Gtk2::Ex::Statusbar::PointerPosition->new;
+  my $widget = Gtk2::DrawingArea->new;
+  my $statusbar = Gtk2::Statusbar->new;
+  $ppos->set (statusbar => $statusbar);
+  $ppos->set (statusbar => undef);
+
+  # set and unset to exercise weaken($self->{'widget'})
+  $ppos->set (widget => $widget);
+  $ppos->set (widget => undef);
+  $ppos->set (widget => $widget);
+  $ppos->set (widget => undef);
 }
+
 exit 0;

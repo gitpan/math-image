@@ -23,7 +23,7 @@ use warnings;
 use Gtk2;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
-our $VERSION = 104;
+our $VERSION = 105;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

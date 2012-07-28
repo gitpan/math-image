@@ -40,12 +40,13 @@ use Gtk2::Ex::ToolItem::ComboEnum;
 use App::MathImage::Gtk2::Drawing;
 use App::MathImage::Gtk2::Drawing::Values;
 use App::MathImage::Gtk2::Params;
+use App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 
-our $VERSION = 104;
+our $VERSION = 105;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -441,7 +442,7 @@ sub INIT_INSTANCE {
   $table->attach ($vbox2, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
 
   $draw->add_events ('pointer-motion-mask');
-  $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
+  # $draw->signal_connect (motion_notify_event => \&_do_motion_notify);
   $table->attach ($draw, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
 
   {
@@ -496,6 +497,12 @@ sub INIT_INSTANCE {
     my $statusbar = $self->{'statusbar'} = Gtk2::Statusbar->new;
     $statusbar->show;
     $vbox->pack_start ($statusbar, 0,0,0);
+    my $pointerposition = $self->{'statusbar_pointerposition'}
+      = App::MathImage::Gtk2::Ex::Statusbar::PointerPosition->new
+        (widget => $draw,
+         statusbar => $statusbar);
+    $pointerposition->signal_connect
+      (message_string => \&_statusbar_pointerposition_message);
   }
   {
     my $action = $actiongroup->get_action ('Toolbar');
@@ -720,6 +727,13 @@ sub _oeis_url {
 }
 
 
+sub _statusbar_pointerposition_message {
+  my ($pointerposition, $draw, $x, $y) = @_;
+  if (my $self = $draw->get_ancestor (__PACKAGE__)) {
+    return $draw->gen_object->xy_message ($x, $y);
+  }
+  return undef;
+}
 sub _do_motion_notify {
   my ($draw, $event) = @_;
   ### Main _do_motion_notify()...

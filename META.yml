@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            104
+version:            105
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -27,12 +27,13 @@ requires:
     Glib::Object::Subclass:  0
     Gtk2:                 1.220
     Gtk2::Ex::ActionTooltips:  10
-    Gtk2::Ex::AdjustmentBits:  40
+    Gtk2::Ex::AdjustmentBits:  46
     Gtk2::Ex::ComboBox::Enum:  5
     Gtk2::Ex::ComboBox::PixbufType:  31
     Gtk2::Ex::ComboBox::Text:  2
     Gtk2::Ex::ContainerBits:  21
     Gtk2::Ex::Dragger:    2
+    Gtk2::Ex::EntryBits:  46
     Gtk2::Ex::GdkBits:    23
     Gtk2::Ex::Menu::EnumRadio:  6
     Gtk2::Ex::MenuBits:   35
@@ -40,6 +41,7 @@ requires:
     Gtk2::Ex::NumAxis:    2
     Gtk2::Ex::PixbufBits:  37
     Gtk2::Ex::Splash:     1
+    Gtk2::Ex::Statusbar::DynamicContext:  20
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::SyncCall:   12
     Gtk2::Ex::ToolbarBits:  36
@@ -61,7 +63,6 @@ requires:
     Locale::Messages:     0
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
-    Math::Factor::XS:     0.39
     Math::Libm:           0
     Math::NumSeq:         38
     Math::NumSeq::All:    1
@@ -80,7 +81,7 @@ requires:
     Math::NumSeq::Tetrahedral:  1
     Math::NumSeq::Triangular:  1
     Math::NumSeq::TwinPrimes:  1
-    Math::PlanePath:      68
+    Math::PlanePath:      83
     Math::PlanePath::SacksSpiral:  0
     Math::PlanePath::SquareSpiral:  1
     Math::PlanePath::VogelFloret:  0
@@ -237,8 +238,8 @@ optional_features:
             Math::NumSeq::Pell:   38
             Math::NumSeq::Perrin:  29
             Math::NumSeq::PlanePathCoord:  71
-            Math::NumSeq::PlanePathDelta:  58
-            Math::NumSeq::PlanePathN:  71
+            Math::NumSeq::PlanePathDelta:  83
+            Math::NumSeq::PlanePathN:  83
             Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
@@ -373,7 +374,7 @@ optional_features:
             Math::PlanePath::SierpinskiArrowheadCentres:  42
             Math::PlanePath::SierpinskiCurve:  49
             Math::PlanePath::SierpinskiCurveStair:  73
-            Math::PlanePath::SierpinskiTriangle:  42
+            Math::PlanePath::SierpinskiTriangle:  83
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareReplicate:  47
             Math::PlanePath::SquareSpiral:  5
@@ -477,8 +478,8 @@ optional_features:
             Math::NumSeq::Pell:   38
             Math::NumSeq::Perrin:  29
             Math::NumSeq::PlanePathCoord:  71
-            Math::NumSeq::PlanePathDelta:  58
-            Math::NumSeq::PlanePathN:  71
+            Math::NumSeq::PlanePathDelta:  83
+            Math::NumSeq::PlanePathN:  83
             Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
@@ -616,7 +617,7 @@ optional_features:
             Math::PlanePath::SierpinskiArrowheadCentres:  42
             Math::PlanePath::SierpinskiCurve:  49
             Math::PlanePath::SierpinskiCurveStair:  73
-            Math::PlanePath::SierpinskiTriangle:  42
+            Math::PlanePath::SierpinskiTriangle:  83
             Math::PlanePath::SquareArms:  37
             Math::PlanePath::SquareReplicate:  47
             Math::PlanePath::SquareSpiral:  5
@@ -743,8 +744,8 @@ recommends:
     Math::NumSeq::Pell:   38
     Math::NumSeq::Perrin:  29
     Math::NumSeq::PlanePathCoord:  71
-    Math::NumSeq::PlanePathDelta:  58
-    Math::NumSeq::PlanePathN:  71
+    Math::NumSeq::PlanePathDelta:  83
+    Math::NumSeq::PlanePathN:  83
     Math::NumSeq::PlanePathTurn:  72
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
@@ -879,7 +880,7 @@ recommends:
     Math::PlanePath::SierpinskiArrowheadCentres:  42
     Math::PlanePath::SierpinskiCurve:  49
     Math::PlanePath::SierpinskiCurveStair:  73
-    Math::PlanePath::SierpinskiTriangle:  42
+    Math::PlanePath::SierpinskiTriangle:  83
     Math::PlanePath::SquareArms:  37
     Math::PlanePath::SquareReplicate:  47
     Math::PlanePath::SquareSpiral:  5

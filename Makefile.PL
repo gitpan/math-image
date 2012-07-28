@@ -185,7 +185,7 @@ my %maximum_planepath
      'Math::PlanePath::SierpinskiCurveStair' => 73, # new in v.73
      'Math::PlanePath::HIndexing'            => 52, # new in v.52
 
-     'Math::PlanePath::SierpinskiTriangle'   => 42, # new in v.42
+     'Math::PlanePath::SierpinskiTriangle'   => 83, # v.83 align option
      'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
      'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
      'Math::PlanePath::DragonCurve'          => 66, # v.66 faster xy_to_n()
@@ -337,9 +337,9 @@ my %maximum_numseq
 
      # in Math-PlanePath
      'Math::NumSeq::PlanePathCoord' => 71, # v.71 misc range fixes
-     'Math::NumSeq::PlanePathDelta' => 58, # new in v.58
+     'Math::NumSeq::PlanePathDelta' => 83, # v.83 dDiffYX
      'Math::NumSeq::PlanePathTurn'  => 72, # v.72 turn_type "Right"
-     'Math::NumSeq::PlanePathN'     => 71, # v.71 misc range fixes
+     'Math::NumSeq::PlanePathN'     => 83, # v.83 diagonals
     );
 
 my %prereq_pm
@@ -392,8 +392,10 @@ my %prereq_pm
      'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
 
      # QuadButton / QuadScroll
-     'Gtk2::Ex::AdjustmentBits' => 40, # new in v.40
+     'Gtk2::Ex::AdjustmentBits' => 46, # v.46 for scroll_event()
+     'Gtk2::Ex::EntryBits'      => 46, # v.46 for scroll_number_handler()
      'Gtk2::Ex::WidgetBits'     => 40, # v.40 for pixel_size_mm()
+     'Gtk2::Ex::Statusbar::DynamicContext' => 20, # new in v.20
 
      # my Gtk2-Ex-ComboBoxBits
      # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
@@ -433,14 +435,13 @@ my %prereq_pm
      'Term::Size' => 0,
 
      'Math::Prime::XS' => '0.23', # version 0.23 for fix of 1928099
-     'Math::Factor::XS' => '0.39', # version 0.39 for prime_factors()
 
      'Math::BaseCnv' => 0,
      'Math::Libm' => 0,
      # 'Math::Prime::TiedArray' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
-     'Math::PlanePath' => 68, # v.68 for xy_to_n_list()
+     'Math::PlanePath' => 83, # v.83 for n_to_dxdy()
      'Math::PlanePath::SquareSpiral' => 1, # for default display
      'Math::PlanePath::SacksSpiral'  => 0, # for --sacks option
      'Math::PlanePath::VogelFloret'  => 0, # for --vogel option

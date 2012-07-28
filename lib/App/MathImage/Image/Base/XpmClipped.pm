@@ -25,7 +25,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 
 use Image::Xpm;
 @ISA = ('Image::Xpm');

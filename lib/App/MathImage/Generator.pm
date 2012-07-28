@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 104;
+$VERSION = 105;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -1349,14 +1349,14 @@ sub draw_Image_start {
   my ($self, $image) = @_;
   ### draw_Image_start()...
   ### values: $self->{'values'}
-
+  
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
   my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
   ### $width
   ### $height
-
+  
   my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
@@ -1364,7 +1364,7 @@ sub draw_Image_start {
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my @colours = ($foreground);
-
+  
   # clear undrawn quadrants
   {
     my @undrawn_rects;
@@ -1397,7 +1397,7 @@ sub draw_Image_start {
     App::MathImage::Image::Base::Other::rectangles
         ($image, $background, 1, @background_rects);
   }
-
+  
   my ($n_lo, $n_hi);
   my $rectangle_area = 1;
   if ($self->{'values'} eq 'LinesLevel') {
@@ -1463,16 +1463,16 @@ sub draw_Image_start {
       $n_hi = $level*$level;
     }
     $n_angle ||= $n_hi;
-
+    
     ### $level
     ### $n_lo
     ### $n_hi
     ### $n_angle
     ### $yfactor
-
+    
     $affine = Geometry::AffineTransform->new;
     $affine->scale (1, $yfactor);
-
+    
     my ($xlo, $ylo) = $path_object->n_to_xy ($n_lo);
     my ($xang, $yang) = $path_object->n_to_xy ($n_angle);
     my $theta = - atan2 ($yang*$yfactor, $xang);
@@ -1482,7 +1482,7 @@ sub draw_Image_start {
     ### hi raw: $path_object->n_to_xy($n_hi)
     ### $theta
     ### $r
-
+    
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
@@ -1490,12 +1490,12 @@ sub draw_Image_start {
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * $xmargin,
                         $self->{'height'} * .5);
-
+    
     ### width: $self->{'width'}
     ### scale x: $self->{'width'} * (1-2*$xmargin) / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
-
+    
     # FIXME: wrong when rotated ... ??
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
@@ -1507,20 +1507,20 @@ sub draw_Image_start {
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-
+    
     my ($x,$y) = $path_object->n_to_xy ($n_lo++);
     ### start raw: "$x, $y"
     ($x,$y) = $affine->transform ($x, $y);
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-
+    
     $self->{'xprev'} = $x;
     $self->{'yprev'} = $y;
     $self->{'affine_object'} = $affine;
     ### prev: "$x,$y"
     ### theta degrees: $theta*180/3.14159
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
-
+    
   } else {
     my $affine_inv = $affine->clone->invert;
     my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
@@ -1532,25 +1532,16 @@ sub draw_Image_start {
     ### $x2
     ### $y1
     ### $y2
-
+    
     ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
     # if ($n_hi > _SV_N_LIMIT) {
     #   ### n_hi: "$n_hi"
     #   ### bigint n range ...
     #   ($n_lo, $n_hi) = $path_object->rect_to_n_range (_bigint()->new(floor($x1)),$y1, $x2,$y2);
     # }
-
+    
     if ($self->{'values'} eq 'Lines') {
       $n_hi += 1;
-    } elsif ($self->{'values'} eq 'LinesTree') {
-      if (my $branches = $self->{'values_parameters'}->{'branches'}) {
-        $n_hi += $branches;
-      } else {
-        require App::MathImage::LinesTree;
-        if (my @n_children = $path_object->MathImage__tree_n_children($n_hi)) {
-          $n_hi = $n_children[-1];
-        }
-      }
     }
   }
 
@@ -1578,11 +1569,10 @@ sub draw_Image_start {
   } elsif ($self->{'values'} eq 'LinesTree') {
     require App::MathImage::LinesTree;
     my $branches = $self->{'values_parameters'}->{'branches'} || 0;
-    if ($branches && ! $path_object->MathImage__tree_n_children($path_object->n_start)) {
-      $branches = 1;
-    }
+    # if ($branches && ! $path_object->MathImage__tree_n_children($path_object->n_start)) {
+    #   $branches = 1;
+    # }
     $self->{'branches'} = $branches;
-    $self->{'branch_i'} = $branches;
     $self->{'upto_n'} = $path_object->n_start - 1;
     $self->{'upto_n_dest'} = $path_object->n_start + 1;
 
@@ -1625,7 +1615,7 @@ sub draw_Image_start {
   }
 
   # ### force use_xy for testing ...
-  # $self->use_xy($image);
+  #  $self->use_xy($image);
 }
 
 sub use_colours {
@@ -1906,13 +1896,12 @@ sub draw_Image_steps {
      : sub {
        my ($x,$y) = @_;
        ### figure_at_transformed(): "$x, $y   $figure_method"
+       $count_total++;
        $x = floor ($x - int($xpscale/2) + .5);
        $y = floor ($y - int($ypscale/2) + .5);
        if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
                                          $width,$height)) {
          ### coords: join(',',@coords)
-         return if (join(',',@coords) eq '-41,15,-34,22');
-
          $image->$figure_method (@coords, $foreground, $figure_fill);
          $count_figures++;
        }
@@ -2051,9 +2040,10 @@ sub draw_Image_steps {
           #### next row: "$x,$y"
         }
 
-        ### Lines use_xy at: "$x, $y"
         my @n_list = $path_object->xy_to_n_list ($x, $y)
-          or next; # no N for this x,y
+          or next;  # no N for this x,y
+        ### Lines use_xy at: "$x, $y"
+        ### @n_list
 
         foreach (@n_list) {
           $n = $_;
@@ -2094,108 +2084,88 @@ sub draw_Image_steps {
     # math-image --path=PythagoreanTree --values=LinesTree --scale=100
     my $branches = $self->{'branches'};
 
-    if ($self->{'use_xy'}) {
-      ### LinesTree use_xy...
-      my $x    = $self->{'x'};
-      my $x_hi = $self->{'x_hi'};
-      my $y    = $self->{'y'};
-      my $n_start = $path_object->n_start;
-      #### draw by xy from: "$x,$y"
+    my ($x,$y);
+    my $draw_linestree = sub {
+      my ($wx, $wy) = $affine->transform ($x, $y);
+      $figure_at_transformed->($wx,$wy);
+      $wx = floor ($wx + 0.5);
+      $wy = floor ($wy + 0.5);
 
-      for (;;) {
-        ### use_xy: "$x,$y"
-        &$cont() or last;
-
-        if (++$x > $x_hi) {
-          if (++$y > $self->{'y_hi'}) {
-            last;
-          }
-          $x = $self->{'x_lo'};
-          #### next row: "$x,$y"
-        }
-
-        my $n;
-        if (! defined ($n = $path_object->xy_to_n ($x, $y))) {
-          next; # no N for this x,y
-        }
-        #### path: "$x,$y  $n"
-        my ($wx, $wy) = $affine->transform ($x, $y);
-        $figure_at_transformed->($wx,$wy);
-        $wx = floor ($wx + 0.5);
-        $wy = floor ($wy + 0.5);
-
-        foreach my $n_dest ($branches == 0
-                            ? $path_object->MathImage__tree_n_children($n)
-                            : _n_to_tree_children($n, $branches, $n_start)) {
-          my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
-            or next;
-          ($x_dest, $y_dest) = $affine->transform ($x_dest, $y_dest);
-          $x_dest = floor ($x_dest + 0.5);
-          $y_dest = floor ($y_dest + 0.5);
-          _image_line_clipped ($image, $wx,$wy, $x_dest,$y_dest,
-                               $width,$height, $foreground);
+      my @n_children;
+      foreach my $n (@_) {
+        if ($branches) {
+          push @n_children,
+            tree_n_children_for_branches ($path_object, $n, $branches);
+        } else {
+          my @this_n_children;
+          @this_n_children = $path_object->tree_n_children($n)
+            or @this_n_children = $path_object->MathImage__tree_n_children($n);
+          push @n_children, @this_n_children;
         }
       }
-      $self->{'x'} = $x;
-      $self->{'y'} = $y;
-
-    } else {
-      ### LinesTree by N...
-      my $n = $self->{'upto_n'};
-      my $n_dest = $self->{'upto_n_dest'};
-      my $branch_i = $self->{'branch_i'};
-      my $x    = $self->{'x'};
-      my $y    = $self->{'y'};
-
-      for (;;) {
-        &$cont() or last;
-
-        if (++$branch_i >= $branches) {
-          if (++$n > $n_hi) {
-            $more = 0;
-            last;
-          }
-          $branch_i = 0;
-          ($x, $y) = $path_object->n_to_xy($n)
-            or return 0; # no more
-          ### n raw: "n=$n  $x,$y"
-          ($x, $y) = $affine->transform ($x, $y);
-          $figure_at_transformed->($x,$y);
-          $x = floor ($x + 0.5);
-          $y = floor ($y + 0.5);
-        }
-
-        if ($branches == 0) {
-          $n_dest = $path_object->MathImage__tree_n_parent($n);
-          if (! defined $n_dest) {
-            ### no parent at: "n=$n"
-            next;
-          }
-        }
-        my ($x_dest, $y_dest) = $path_object->n_to_xy($n_dest);
-        ### $n
-        ### $n_dest
-        ### dest raw: "$x_dest, $y_dest"
+      # draw line to each of @n_children
+      foreach my $n_dest (@n_children) {
+        my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
+          or next;
         ($x_dest, $y_dest) = $affine->transform ($x_dest, $y_dest);
         $x_dest = floor ($x_dest + 0.5);
         $y_dest = floor ($y_dest + 0.5);
-
-        my $drawn = _image_line_clipped ($image, $x,$y, $x_dest,$y_dest,
+        my $drawn = _image_line_clipped ($image, $wx,$wy, $x_dest,$y_dest,
                                          $width,$height, $foreground);
         $count_figures++;
         $count_total++;
         $count_outside += !$drawn;
+      }
+    };
 
-        $n_dest++;
+    if ($self->{'use_xy'}) {
+      ### LinesTree use_xy...
+
+      my $upto_n = $self->{'upto_n'};
+      for (;;) {
+        &$cont() or last;
+
+        ($x, $y) = $self->{'rectbyxy'}->next
+          or last;
+        ### use_xy rectbyxy: "$x,$y"
+
+        my @n_list;
+        if ($self->{'bignum_xy'}) {
+          @n_list = $path_object->xy_to_n_list (_bigint()->new($x),
+                                                _bigint()->new($y));
+        } else {
+          @n_list = $path_object->xy_to_n_list ($x, $y);
+        }
+        if (! @n_list || $n_list[-1] < $upto_n) {
+          next; # no N for this x,y, or below already seen
+        }
+        $draw_linestree->(@n_list);
+      }
+
+    } else {
+      ### LinesTree by N...
+      my $n = $self->{'upto_n'};
+
+      for (;;) {
+        &$cont() or last;
+
+        if (++$n > $n_hi) {
+          $more = 0;
+          last;
+        }
+        ($x, $y) = $path_object->n_to_xy($n)
+          or do {
+            # no more in path
+            $more = 0;
+            last;
+          };
+        ### n raw: "n=$n  $x,$y"
+        $draw_linestree->($n);
       }
 
       $self->{'count_total'} = $count_total;
       $self->{'count_outside'} = $count_outside;
       $self->{'upto_n'} = $n;
-      $self->{'upto_n_dest'} = $n_dest;
-      $self->{'branch_i'} = $branch_i;
-      $self->{'x'} = $x;
-      $self->{'y'} = $y;
       $self->maybe_use_xy;
     }
     return $more;
@@ -2317,15 +2287,6 @@ sub draw_Image_steps {
     for (;;) {
       &$cont() or last;
 
-      # if (++$x > $x_hi) {
-      #   ++$bignum_y;
-      #   if (++$y > $self->{'y_hi'}) {
-      #     # $values_seq->finish;
-      #     last;
-      #   }
-      #   $x = $self->{'x_lo'};
-      #   #### next row: "$x,$y"
-      # }
       ($x, $y) = $self->{'rectbyxy'}->next
         or last;
       ### rect xy: "$x,$y"
@@ -2642,48 +2603,29 @@ sub draw_Image_steps {
 # }
 sub xy_to_dxdy_list {
   my ($path, $x,$y) = @_;
-  return map {n_to_dxdy($path,$_)} $path->xy_to_n_list($x,$y);
-}
-sub n_to_dxdy {
-  my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n)
-    or return;
-  my ($x2,$y2) = $path->n_to_xy($n+$path->arms_count)
-    or return;
-  return ($x2-$x, $y2-$y);
+  return map {$path->n_to_dxdy($_)} $path->xy_to_n_list($x,$y);
 }
 
-
-sub _n_to_tree_children {
-  my ($n, $branches, $n_start) = @_;
-  ### _n_to_tree_children() ...
-  if ($n < $n_start) { return }
-  if ($branches == 0) { return }
-  if ($branches < 2) { return $n+1 }
-  $n_start ||= 0;
-  $n -= ($n_start-1);
-  my $h = ($branches-1)*($n-1)+1;
-  ### $branches
-  ### $n_start
-  ### $n
-  ### $h
-  my $level = int(log($h)/log($branches));
-  my $range = $branches ** $level;
-  my $base = ($range - 1)/($branches-1) + 1;
-  my $rem = $n - $base;
-  if ($rem < 0) {
-    $rem += $range/$branches;
-    $level--;
-    $range /= $branches;
+sub tree_n_children_for_branches {
+  my ($path, $n, $branches) = @_;
+  my $n_start = $path->n_start;
+  $n = $branches*($n-$n_start) + $n_start;
+  return map {$n+$_} 1 .. $branches;
+}
+# n_start=7
+# N=8,9,10
+# 8-(7+1)=0
+# 9-(7+1)=1
+# 10-(7+1)=2
+sub tree_n_parent_for_branches {
+  my ($path, $n, $branches) = @_;
+  my $n_start = $path->n_start;
+  $n -= $n_start + 1;
+  if ($n < 0) {
+    return undef;
+  } else {
+    return int($n/$branches) + $n_start;
   }
-  if ($rem >= $range) {
-    $rem -= $range;
-    $level++;
-    $range *= $branches;
-  }
-  my $child = $base + $range + $rem * $branches + $n_start-1;
-  # map{} addition to allow for $child outside iterator range
-  return map {$_+$child} 0 .. $branches-1;
 }
 
 sub maybe_use_xy {

@@ -1,3 +1,6 @@
+# working ?
+
+
 # Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
@@ -27,7 +30,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 104;
+our $VERSION = 105;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',
@@ -129,7 +132,7 @@ sub _update_active {
 1;
 __END__
 
-# =for stopwords Math-Image enum ParamSpec GType pspec Enum Ryde
+# =for stopwords Math-Image enum ParamSpec pspec Enum Ryde
 #
 # =head1 NAME
 #
