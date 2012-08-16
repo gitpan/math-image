@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 105;
+my $want_version = 106;
 {
   is ($App::MathImage::Gtk2::Ex::Statusbar::PointerPosition::VERSION, $want_version,
       'VERSION variable');

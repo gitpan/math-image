@@ -27,7 +27,7 @@ use Carp;
 use Wx;
 
 use base 'Wx::ComboBox';
-our $VERSION = 105;
+our $VERSION = 106;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -107,16 +107,14 @@ sub SetValue {
   } else {
     $self->SUPER::SetSelection ($n);
   }
+  _update_tooltip($self);
 }
 
 sub OnTextEnter {
   my ($self, $event) = @_;
   ### Wx-Params-String OnTextEnter()...
 
-  # don't want to refresh on every idleness
-  # Wx::Event::EVT_UPDATE_UI ($self, $self, \&_update_tooltip);
   _update_tooltip($self);
-
   if (my $callback = $self->{'callback'}) {
     &$callback($self);
   }
@@ -208,9 +206,12 @@ sub OnMouseWheel {
   }
 }
 
+# don't want to refresh on every idleness
+# Wx::Event::EVT_UPDATE_UI ($self, $self, \&_update_tooltip);
+#
 sub _update_tooltip {
   my ($self) = @_;
-  ### Wx-Main values_update_tooltip() ...
+  ### Wx-Params-String _update_tooltip() ...
 
   if ($self->{'oeis_anum'}) {
     my $anum = $self->GetValue;

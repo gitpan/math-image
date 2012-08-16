@@ -46,7 +46,7 @@ require App::MathImage::Image::Base::BMP;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 105;
+my $want_version = 106;
 ok ($App::MathImage::Image::Base::BMP::VERSION, $want_version,
     'VERSION variable');
 ok (App::MathImage::Image::Base::BMP->VERSION, $want_version,

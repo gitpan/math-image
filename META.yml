@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            105
+version:            106
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -11,7 +11,6 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Compress::Zlib:       0
     constant:             1.02
     constant::defer:      0
     File::Copy:           2.14
@@ -42,6 +41,7 @@ requires:
     Gtk2::Ex::PixbufBits:  37
     Gtk2::Ex::Splash:     1
     Gtk2::Ex::Statusbar::DynamicContext:  20
+    Gtk2::Ex::Statusbar::Message:  47
     Gtk2::Ex::Statusbar::MessageUntilKey:  11
     Gtk2::Ex::SyncCall:   12
     Gtk2::Ex::ToolbarBits:  36
@@ -356,7 +356,7 @@ optional_features:
             Math::PlanePath::PentSpiralSkewed:  3
             Math::PlanePath::PixelRings:  28
             Math::PlanePath::PowerArray:  78
-            Math::PlanePath::PyramidRows:  4
+            Math::PlanePath::PyramidRows:  84
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
             Math::PlanePath::PythagoreanTree:  26
@@ -404,7 +404,7 @@ optional_features:
             Tk::Pod:              0
             Tk::TIFF:             0
             Wx:                   0
-            Wx::Perl::PodBrowser:  0
+            Wx::Perl::PodBrowser:  2
             X11::AtomConstants:   2
             X11::Protocol:        0
             X11::Protocol::Other:  1
@@ -599,7 +599,7 @@ optional_features:
             Math::PlanePath::PentSpiralSkewed:  3
             Math::PlanePath::PixelRings:  28
             Math::PlanePath::PowerArray:  78
-            Math::PlanePath::PyramidRows:  4
+            Math::PlanePath::PyramidRows:  84
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
             Math::PlanePath::PythagoreanTree:  26
@@ -662,7 +662,7 @@ optional_features:
         recommends:
             Image::Base::Wx::Image:  0
             Software::License::GPL_3:  0
-            Wx::Perl::PodBrowser:  0
+            Wx::Perl::PodBrowser:  2
         requires:
             Image::Base::Wx::DC:  0
             Tk::Balloon:          0
@@ -862,7 +862,7 @@ recommends:
     Math::PlanePath::PentSpiralSkewed:  3
     Math::PlanePath::PixelRings:  28
     Math::PlanePath::PowerArray:  78
-    Math::PlanePath::PyramidRows:  4
+    Math::PlanePath::PyramidRows:  84
     Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
     Math::PlanePath::PythagoreanTree:  26

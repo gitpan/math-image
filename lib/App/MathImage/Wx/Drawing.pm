@@ -28,7 +28,7 @@ use Wx;
 use Module::Load;
 
 use base 'Wx::Window';
-our $VERSION = 105;
+our $VERSION = 106;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -51,7 +51,7 @@ sub new {
             %$options);
   $self->{'scale'} = 3;
 
-  Wx::Event::EVT_PAINT ($self, '_OnPaint');
+  Wx::Event::EVT_PAINT ($self, 'OnPaint');
   Wx::Event::EVT_SIZE ($self, '_OnSize');
   Wx::Event::EVT_IDLE ($self, '_OnIdle');
   Wx::Event::EVT_MOUSEWHEEL ($self, 'OnMouseWheel');
@@ -90,7 +90,7 @@ sub _OnSize {
   #                            $self->allocation->height / $scale);
 }
 
-sub _OnPaint {
+sub OnPaint {
   my ($self, $event) = @_;
   ### Drawing OnPaint(): $event
   ### foreground: $self->GetForegroundColour->GetAsString(4)

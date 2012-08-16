@@ -25,6 +25,15 @@ use Wx;
 use Devel::Comments;
 
 {
+  my $app = Wx::SimpleApp->new;
+  require App::MathImage::Wx::Diagnostics;
+  my $dialog = App::MathImage::Wx::Diagnostics->new;
+  $dialog->Show;
+  $app->MainLoop;
+  exit 0;
+}
+
+{
   require Package::Stash;
   my $stash = Package::Stash->new('Wx::Window');
   ### syms: $stash->list_all_symbols('CODE')

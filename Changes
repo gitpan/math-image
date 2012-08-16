@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 106, August 2012
+    - some wx printing
+
 Version 105, July 2012
     - use PlanePath tree_n_children()
 

@@ -38,7 +38,7 @@ use App::MathImage::Generator;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 @ISA = ('Prima::MainWindow');
 
 sub profile_default {
@@ -63,7 +63,7 @@ sub profile_default {
                [ [ ef => "~Path"   => [ _menu_for_path() ]],
                  [ ef => "~Values" => [ _menu_for_values() ]],
                  [ 'centre', __('~Centre'), 'draw_centre' ],
-                 [ 'fullscreen', __('~Fullscreen'), 'fullscreen_toggle' ],
+                 [ 'fullscreen', __('~Fullscreen'), 'toggle_fullscreen' ],
                ]],
              # [],  # separator to put Help at the right
              [ "~Help" =>
@@ -395,9 +395,9 @@ sub nick_to_display {
 
 
 
-sub fullscreen_toggle {
+sub toggle_fullscreen {
   my ($self, $itemname) = @_;
-  ### fullscreen_toggle(): "@_"
+  ### toggle_fullscreen(): "@_"
   $self->windowState ($self->menu->toggle($itemname)
                       ? ws::Maximized()
                       : ws::Normal());

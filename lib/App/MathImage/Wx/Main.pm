@@ -20,7 +20,7 @@ package App::MathImage::Wx::Main;
 use strict;
 use Wx;
 use Wx::Event 'EVT_MENU';
-use Locale::TextDomain ('Math-Image');
+use Locale::TextDomain ('App-MathImage');
 
 use App::MathImage::Generator;
 use App::MathImage::Wx::Drawing;
@@ -32,13 +32,14 @@ use base qw(Wx::Frame);
 #use Smart::Comments;
 
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 sub new {
-  my ($class, $label) = @_;
-  my $self = $class->SUPER::new (undef,
-                                 Wx::wxID_ANY(),
-                                 $label);
+  my ($class, $parent, $id, $title) = @_;
+  if (! defined $title) { $title = __('Math-Image'); }
+  my $self = $class->SUPER::new ($parent,
+                                 $id || Wx::wxID_ANY(),
+                                 $title);
   $self->{'position_status'} = '';
 
   # load an icon and set it as frame icon
@@ -50,6 +51,21 @@ sub new {
   {
     my $menu = Wx::Menu->new;
     $menubar->Append ($menu, __('&File'));
+
+    $menu->Append (Wx::wxID_PRINT(),
+                   '',
+                   Wx::GetTranslation('Print the image.'));
+    EVT_MENU ($self, Wx::wxID_PRINT(), 'print_image');
+
+    $menu->Append (Wx::wxID_PREVIEW(),
+                   '',
+                   Wx::GetTranslation('Preview image print.'));
+    EVT_MENU ($self, Wx::wxID_PREVIEW(), 'print_preview');
+
+    $menu->Append (Wx::wxID_PRINT_SETUP(),
+                   Wx::GetTranslation('Print &Setup'),
+                   Wx::GetTranslation('Setup page print.'));
+    EVT_MENU ($self, Wx::wxID_PRINT_SETUP(), 'print_setup');
 
     $menu->Append(Wx::wxID_EXIT(),
                   '',
@@ -65,7 +81,7 @@ sub new {
                        __("&Fullscreen\tCtrl-F"),
                        __("Toggle full screen or normal window (use accelerator Ctrl-F to return from fullscreen)."),
                        Wx::wxITEM_CHECK());
-      EVT_MENU ($self, $item, 'fullscreen_toggle');
+      EVT_MENU ($self, $item, 'toggle_fullscreen');
       Wx::Event::EVT_UPDATE_UI ($self, $item, \&_update_ui_fullscreen_menuitem);
     }
     {
@@ -127,7 +143,6 @@ sub new {
                                 __('Show the path POD'));
       EVT_MENU ($self, $item, 'popup_values_pod');
     }
-
     {
       my $item
         = $self->{'help_oeis_menuitem'}
@@ -135,6 +150,12 @@ sub new {
                            __('&OEIS Web Page'),
                            ''); # tooltip set by oeis_browse_update()
       EVT_MENU ($self, $item, 'oeis_browse');
+    }
+    {
+      my $item = $menu->Append (Wx::wxID_ANY(),
+                                __('Dia&gnostics'),
+                               __('Show some diagnostic sizes and statistics.'));
+      EVT_MENU ($self, $item, 'popup_diagnostics');
     }
   }
 
@@ -175,9 +196,9 @@ sub new {
 
       my $path_params = $self->{'path_params'}
         = App::MathImage::Wx::Params->new
-          (toolbar => $toolbar,
+          (toolbar    => $toolbar,
            after_item => $choice,
-           callback => sub { path_params_update($self) });
+           callback   => sub { path_params_update($self) });
     }
 
     {
@@ -187,8 +208,6 @@ sub new {
                            Wx::wxDefaultPosition(),
                            Wx::wxDefaultSize(),
                            [App::MathImage::Generator->values_choices]);
-      # 0,  # style
-      # Wx::wxDefaultValidator(),
       $toolbar->AddControl($choice);
       $toolbar->SetToolShortHelp
         ($choice->GetId,
@@ -263,9 +282,9 @@ sub new {
 
 use constant FULLSCREEN_HIDE_BITS => Wx::wxFULLSCREEN_ALL();
 # & ~ Wx::wxFULLSCREEN_NOMENUBAR();
-sub fullscreen_toggle {
+sub toggle_fullscreen {
   my ($self, $event) = @_;
-  ### Wx-Main fullscreen_toggle() ...
+  ### Wx-Main toggle_fullscreen() ...
   $self->ShowFullScreen (! $self->IsFullScreen, FULLSCREEN_HIDE_BITS);
 }
 sub _update_ui_fullscreen_menuitem {
@@ -487,10 +506,11 @@ sub quit {
 # help
 
 sub popup_about {
-  my ($self, $event) = @_;
-  ### Main popup_about() ...
-  # require App::MathImage::Wx::AboutDialog;
-  # App::MathImage::Wx::About->new;
+  my ($self) = @_;
+  Wx::AboutBox($self->about_dialog_info);
+}
+sub about_dialog_info {
+  my ($self) = @_;
 
   my $info = Wx::AboutDialogInfo->new;
   $info->SetName(__("Math-Image"));
@@ -505,7 +525,7 @@ You are running under: Perl {perlver}, wxPerl {wxperlver}, Wx {wxver}",
                             wxver      => Wx::wxVERSION_STRING(),
                             wxperlver  => Wx->VERSION));
 
-  $info->SetCopyright(__x("Copyright (C) 2010, 2011 Kevin Ryde
+  $info->SetCopyright(__x("Copyright 2010, 2011, 2012 Kevin Ryde
 
 Math-Image is Free Software, distributed under the terms of the GNU General
 Public License as published by the Free Software Foundation, either version
@@ -522,7 +542,7 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the license for more.
   my $sl = Software::License::GPL_3->new({ holder => 'Kevin Ryde' });
   $info->SetLicense ($sl->license);
 
-  Wx::AboutBox($info);
+  return $info;
 }
 
 sub popup_program_pod {
@@ -561,7 +581,12 @@ sub popup_pod {
                     $self);
   }
 }
-
+sub popup_diagnostics {
+  my ($self) = @_;
+  require App::MathImage::Wx::Diagnostics;
+  my $dialog = App::MathImage::Wx::Diagnostics->new ($self);
+  $dialog->Show;
+}
 
 #------------------------------------------------------------------------------
 # status
@@ -588,6 +613,216 @@ sub set_position_status {
 }
 
 #------------------------------------------------------------------------------
+# cf Wx::DemoModules::wxPrinting
+#    /usr/share/doc/wx2.8-examples/examples/samples/printing/printing.cpp.gz
+
+use constant::defer page_setup_dialog_data => sub {
+  require Wx::Print;
+  my $page_setup_dialog_data = Wx::PageSetupDialogData->new;
+  $page_setup_dialog_data->SetDefaultMinMargins(1);
+  $page_setup_dialog_data->SetMarginTopLeft (Wx::Point->new(25,25));
+  $page_setup_dialog_data->SetMarginBottomRight (Wx::Point->new(25,25));
+  return $page_setup_dialog_data;
+};
+
+sub print_image {
+  my ($self) = @_;
+  require Wx::Print;
+  my $printer = Wx::Printer->new;
+  $printer->Print ($self,
+                   $self->printout_object,
+                   1); # popup the print dialog
+}
+sub print_preview {
+  my ($self) = @_;
+  require Wx::Print;
+  my $previewout = $self->printout_object;
+  my $printout = $self->printout_object;
+  my $preview = Wx::PrintPreview->new ($previewout, $printout);
+  my $frame = Wx::PreviewFrame->new ($preview,
+                                       $self,  # parent
+                                       __('Math-Image: Print Preview'));
+  $frame->Initialize;
+  $frame->Show(1);
+}
+sub print_setup {
+  my ($self) = @_;
+  require Wx::Print;
+  my $dialog = Wx::PageSetupDialog->new ($self, $self->page_setup_dialog_data);
+  $dialog->ShowModal;
+}
+sub printout_object {
+  my ($self) = @_;
+  return App::MathImage::Wx::Printout->new ($self);
+}
+
+{
+  package App::MathImage::Wx::Printout;
+  use strict;
+  use Wx;
+  use List::Util 'min';
+  use Locale::TextDomain ('App-MathImage');
+
+  our @ISA = ('Wx::Printout');
+  sub new {
+    my ($class, $main) = @_;
+    ### Printout new() ...
+
+    my $self = $class->SUPER::new (__('Math-Image'));
+    $self->{'main'} = $main;
+    return $self;
+  }
+
+  sub GetPageInfo {
+    my ($self) = @_;
+    ### Printout GetPageInfo() ...
+    return (0,  # minpage
+            1,  # maxpage
+            1,  # pagefrom
+            1); # pageto
+  }
+  sub HasPage {
+    my ($self, $pagenum) = @_;
+    ### Printout HasPage(): $pagenum
+    return ($pagenum <= 1);
+  }
+  sub OnPrintPage {
+    my ($self, $pagenum) = @_;
+    ### Printout OnPrintPage(): $pagenum
+
+    my $main = $self->{'main'};
+    my $draw = $main->{'draw'};
+    my $gen = $draw->gen_object;
+
+    my $dc = $self->GetDC;
+    ### $dc
+    # something fishy in wx 2.8.12 that it needs a SetFont or there's no
+    # scale command emitted in the postscript, or some such
+    if (my $font = $dc->GetFont) { $dc->SetFont($font); }
+    #
+    # Or could force a particular font instead of the default.
+    # $dc->SetFont (Wx::Font->new (12,
+    #                              Wx::wxFONTFAMILY_ROMAN(),
+    #                              Wx::wxFONTSTYLE_NORMAL(),
+    #                              Wx::wxFONTWEIGHT_NORMAL()));
+
+    my $bitmap = $draw->bitmap
+      || return 0;  # no bitmap, cancel print
+    my $bitmap_width = $bitmap->GetWidth;
+    my $bitmap_height = $bitmap->GetHeight;
+
+    my $page_setup_dialog_data = $main->page_setup_dialog_data;
+    ### $page_setup_dialog_data
+
+    # FIXME: take into account the height of the description text
+    $self->FitThisSizeToPageMargins
+      (Wx::Size->new($bitmap_width,$bitmap_height),
+       $page_setup_dialog_data);
+
+    my $y = 0;
+    {
+      my ($dc_width, $dc_height) = $dc->GetSizeWH;
+      ### $dc_width
+      ### $dc_height
+
+      my $str = $gen->description;
+
+      # $y = _dc_draw_text_word_wrap($dc,$str,$dc_width-2*$border_width);
+      # $dc->SetDeviceOrigin ($border_width, $border_height + $y);
+      # return;
+      # $str = _dc_word_wrap_str($dc,$str,$dc_width-$border_width);
+
+      $str .= "\n\n";  # followed by blank line
+      ### $str
+      ### extents: $dc->GetTextExtent($str)
+
+      my $boundrect = $dc->DrawLabel ($str,
+                                      Wx::wxNullBitmap(),
+                                      Wx::Rect->new(0,0,$dc_width,$dc_height));
+      $y = $boundrect->GetHeight;
+    }
+    {
+      # my $xscale = $dc_width / $bitmap_width;
+      # my $yscale = ($dc_height-$y) / $bitmap_height;
+      # my $scale = min ($xscale, $yscale);
+      # $dc->SetUserScale($scale, $scale);
+      # ### $scale
+
+      my $x = 0; # ($dc_width - $bitmap_width) / 2;
+      ### $x
+      ### $y
+
+      $dc->DrawBitmap ($bitmap,
+                       $x,$y,
+                       0);     # not transparent
+    }
+    return 1; # good, don't cancel the job
+  }
+
+  sub _dc_draw_text_word_wrap {
+    my ($dc, $str, $max_width) = @_;
+    ### $max_width
+    ### scale: $dc->GetUserScale
+    my $fmt = Wx::wxC2S_HTML_SYNTAX();
+    ### text foreground: $dc->GetTextForeground->GetAsString($fmt)
+    ### text background: $dc->GetTextBackground->GetAsString($fmt)
+
+    my $line = '';
+    my $y = 0;
+    while ($str =~ /\G(\s*(\S+))/g) {
+      my $more = $1;
+      my $moreword = $2;
+      my ($width,$height,$descent,$leading) = $dc->GetTextExtent($line.$more);
+      ### $more
+      ### $width
+      ### $height
+      if ($line eq '' || $width <= $max_width) {
+        $line .= $more;
+      } else {
+        ### $line
+        ### $y
+        $dc->DrawText ($line, 0, $y);
+        $y += $height + $descent + $leading;
+        $line = $moreword;
+      }
+    }
+
+    if ($line ne '') {
+      ### final line: $line
+      my ($width,$height,$descent,$leading) = $dc->GetTextExtent($line);
+      $dc->DrawText ($line, 0, $y);
+      $y += $height + $descent + $leading;
+    }
+
+    ### final y: $y
+    return $y;
+  }
+
+  sub _dc_word_wrap_str {
+    my ($dc, $str, $max_width) = @_;
+    ### $max_width
+
+    my $ret = '';
+    my $line = '';
+    while ($str =~ /\G(\s*(\S+))/g) {
+      my $more = $1;
+      my $moreword = $2;
+      my ($width,$height,$descent,$leading) = $dc->GetTextExtent($line.$more);
+      ### $more
+      ### $width
+      ### $height
+      if ($line eq '' || $width <= $max_width) {
+        $line .= $more;
+      } else {
+        $ret .= "$line\n";
+        $line = $moreword;
+      }
+    }
+    return $ret . $line;
+  }
+}
+
+#------------------------------------------------------------------------------
 # command line
 
 sub command_line {
@@ -600,7 +835,7 @@ sub command_line {
   my $width = delete $gen_options->{'width'};
   my $height = delete $gen_options->{'height'};
 
-  my $self = $class->new ("Math-Image");
+  my $self = $class->new();
 
   my $draw = $self->{'draw'};
   {
@@ -662,3 +897,144 @@ sub command_line {
 }
 
 1;
+
+=for stopwords Ryde menubar multi Wx
+
+=head1 NAME
+
+App::MathImage::Wx::Main -- math-image wxWidgets main window
+
+=head1 SYNOPSIS
+
+ use App::MathImage::Wx::Main;
+ my $main = App::MathImage::Wx::Main->new;
+ $main->Show;
+
+=head1 CLASS HIERARCHY
+
+C<App::MathImage::Wx::Main> is a C<Wx::Frame> toplevel window.
+
+    Wx::Object
+      Wx::EvtHandler
+        Wx::Window
+          Wx::TopLevelWindow
+            Wx::Frame
+              App::MathImage::Wx::Main
+
+=head1 DESCRIPTION
+
+This is the main toplevel window for the math-image program wxWidgets
+interface.
+
+=cut
+
+# math-image --text --size 43x10
+
+=pod
+
+    +-------------------------------------------+
+    | File  Tools  Help                         |
+    +-------------------------------------------+
+    | Randomize   Square Spiral   Primes ...    |
+    +-------------------------------------------+
+    |  *   *   *   * *   *       *   * *        |
+    |                     * *   *               |
+    |*   *       *   * *     * * *     * * *    |
+    | *   * * * * * * * *   *       *         * |
+    |                    * * *           *      |
+    | *             *   *  ** * * *   * * *     |
+    |*       *       * * *                      |
+    |                 *   *                     |
+    |*     *   * *   * *   *   * *   *   * *   *|
+    |   *     *   *   *     *     * *   *       |
+    +-------------------------------------------+
+    | x=9, y=4  N=302                           |
+    +-------------------------------------------+
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<< $main = App::MathImage::Wx::Main->new () >>
+
+=item C<< $main = App::MathImage::Wx::Main->new ($parent, $id, $title) >>
+
+Create and return a new main window.
+
+The optional C<$parent>, C<$id> and C<$title> arguments are per
+C<< Wx::Frame->new() >>.  Usually they can be omitted for a standalone
+window.
+
+=back
+
+=head2 Methods
+
+=over
+
+=item C<< $main->toggle_fullscreen () >>
+
+Toggle the window between fullscreen and normal.  This is the
+Tools/Fullscreen menu entry.
+
+=back
+
+=head2 Help
+
+=over 4
+
+=item C<< $main->popup_program_pod() >>
+
+=item C<< $main->popup_path_pod() >>
+
+=item C<< $main->popup_values_pod() >>
+
+Open a C<Wx::Perl::PodBrowser> window showing the POD documentation for
+either the C<math-image> program, the currently selected path module, or
+currently selected values module.  These are the "Help/Program POD" etc menu
+entries.
+
+=back
+
+=head2 About
+
+=over 4
+
+=item C<< $main->popup_about_dialog() >>
+
+Open the "about" dialog for C<$main>.  This is the Help/About menu entry.
+It displays a C<Wx::AboutBox()> with the C<< $main->about_dialog_info() >>
+below.
+
+=item C<< $info = $main->about_dialog_info() >>
+
+Return a C<Wx::AboutDialogInfo> object with information about C<$main>.
+
+=back
+
+=head1 SEE ALSO
+
+L<Wx>,
+L<math-image>
+
+=head1 HOME PAGE
+
+L<http://user42.tuxfamily.org/math-image/index.html>
+
+=head1 LICENSE
+
+Copyright 2012 Kevin Ryde
+
+Wx-Perl-PodBrowser is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 3, or (at your option) any later
+version.
+
+Wx-Perl-PodBrowser is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Wx-Perl-PodBrowser.  If not, see L<http://www.gnu.org/licenses/>.
+
+=cut

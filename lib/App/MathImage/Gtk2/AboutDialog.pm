@@ -21,13 +21,13 @@ use strict;
 use warnings;
 use Glib;
 use Gtk2;
-use Locale::TextDomain ('Math-Image');
+use Locale::TextDomain ('App-MathImage');
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';

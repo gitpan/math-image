@@ -27,7 +27,7 @@ use POSIX qw(floor ceil);
 use base 'Tk::Derived', 'Tk::Canvas';
 Tk::Widget->Construct('AppMathImageTkPerlNumAxis');
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 
 # uncomment this to run the ### lines

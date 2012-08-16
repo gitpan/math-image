@@ -24,13 +24,14 @@ use Gtk2 1.220;
 use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use Gtk2::Ex::Statusbar::Message;
 use Glib::Object::Subclass
-  'Glib::Object',
+  'Gtk2::Ex::Statusbar::Message',
   properties => [ Glib::ParamSpec->object
                   ('widget',
                    (do {
@@ -41,13 +42,6 @@ use Glib::Object::Subclass
                             } || $str }),
                    'Blurb.',
                    'Gtk2::Widget',
-                   Glib::G_PARAM_READWRITE),
-
-                  Glib::ParamSpec->object
-                  ('statusbar',
-                   'Statusbar widget',
-                   'Blurb.',
-                   'Gtk2::Statusbar',
                    Glib::G_PARAM_READWRITE),
                 ],
   signals => { 'message-string' => { param_types => [ 'Gtk2::Widget',
@@ -62,87 +56,72 @@ use Glib::Object::Subclass
 #   my ($self) = @_;
 # }
 
-# FIXME: Might want to be careful during global destruction if the statusbar
-# has been destroyed but $self->{'statusbar'} not weakened away.
-sub FINALIZE_INSTANCE {
-  my ($self) = @_;
-  if (my $statusbar = $self->{'statusbar'}) {
-    $statusbar->pop ($self->{'dc'}->id);
-  }
-}
-
 sub SET_PROPERTY {
   my ($self, $pspec, $newval) = @_;
   my $pname = $pspec->get_name;
   ### PointerPosition SET_PROPERTY(): $pname
   ### $newval
 
-  if ($pname eq 'statusbar') {
-    if (my $statusbar = $self->{'statusbar'}) {
-      if (! defined $newval || refaddr($newval) != refaddr($statusbar)) {
-        $statusbar->pop ($self->{'dc'}->id);
-      }
+  $self->{$pname} = $newval;
+  if ($pname eq 'widget') {
+    Scalar::Util::weaken ($self->{'widget'});
+
+    # Must listen to enter-notify since that's the only event when the widget
+    # is realized underneath the mouse pointer -- there's no motion-notify in
+    # that case.
+    #
+    my $widget = $self->{'widget'};
+    $self->{'widget_ids'} = $widget && do {
+      Scalar::Util::weaken (my $weak_self = $self);
+      require Glib::Ex::SignalIds;
+      Glib::Ex::SignalIds->new
+          ($widget,
+           $widget->signal_connect ('motion_notify_event',
+                                    \&_do_enter_or_motion_notify,
+                                    \$weak_self),
+           $widget->signal_connect ('enter_notify_event',
+                                    \&_do_enter_or_motion_notify,
+                                    \$weak_self),
+           $widget->signal_connect ('leave_notify_event',
+                                    \&_do_leave_notify,
+                                    \$weak_self));
+    };
+    $self->{'wevents'} = $widget && do {
+      require Gtk2::Ex::WidgetEvents;
+      Gtk2::Ex::WidgetEvents->new
+          ($widget,
+           ['pointer-motion-mask',
+            'enter-notify-mask',
+            'leave-notify-mask']);
+    };
+
+    # initial display
+    if ($widget && $self->{'widget'}->realized) {
+      $self->{'want_query_pointer'} = 1;
+      Scalar::Util::weaken (my $weak_self = $self);
+      _queue_synccall($self, \$weak_self);
     }
   }
 
-  $self->{$pname} = $newval;
-
-  if ($pname eq 'widget') {
-    Scalar::Util::weaken ($self->{'widget'});
-  }
-
-  my $widget = $self->{'widget'};
-  $self->{'widget_ids'} = $self->{'widget'} && $self->{'statusbar'} && do {
-    Scalar::Util::weaken (my $weak_self = $self);
-    require Glib::Ex::SignalIds;
-    Glib::Ex::SignalIds->new
-        ($widget,
-         $widget->signal_connect ('motion_notify_event',
-                                  \&_do_enter_or_motion_notify,
-                                  \$weak_self),
-         $widget->signal_connect ('enter_notify_event',
-                                  \&_do_enter_or_motion_notify,
-                                  \$weak_self),
-         $widget->signal_connect ('leave_notify_event',
-                                  \&_do_leave_notify,
-                                  \$weak_self));
-  };
-  $self->{'wevents'} = $self->{'widget_ids'} && do {
-    require Gtk2::Ex::WidgetEvents;
-    Gtk2::Ex::WidgetEvents->new
-        ($widget,
-         ['pointer-motion-mask','enter-notify-mask']);
-  };
-  $self->{'dc'} = $self->{'statusbar'} && do {
-    require Gtk2::Ex::Statusbar::DynamicContext;
-    Gtk2::Ex::Statusbar::DynamicContext->new($self->{'statusbar'});
-  };
-
-  if ($self->{'wevents'} && $self->{'widget'}->realized) {
-    $self->{'want_query_pointer'} = 1;
-    Scalar::Util::weaken (my $weak_self = $self);
-    _queue_synccall($self, \$weak_self);
-  }
-
   ### widget_ids: $self->{'widget_ids'}
+}
 
-  $self->{'statusbar_ids'} = $self->{'statusbar'} && do {
-    Scalar::Util::weaken (my $weak_self = $self);
-    require Glib::Ex::SignalIds;
-    Glib::Ex::SignalIds->new
-        ($self->{'statusbar'},
-         $self->{'statusbar'}->signal_connect ('destroy',
-                                               \&_do_statusbar_destroy,
-                                               \$weak_self));
-  };
-}
-sub _do_statusbar_destroy {
-  my ($statusbar, $ref_weak_self) = @_;
-  ### PointerPosition _do_statusbar_destroy() ...
-  if (my $self = $$ref_weak_self) {
-    undef $self->{'statusbar'};
-  }
-}
+# $self->{'statusbar_ids'} = $self->{'statusbar'} && do {
+#   Scalar::Util::weaken (my $weak_self = $self);
+#   require Glib::Ex::SignalIds;
+#   Glib::Ex::SignalIds->new
+#       ($self->{'statusbar'},
+#        $self->{'statusbar'}->signal_connect ('destroy',
+#                                              \&_do_statusbar_destroy,
+#                                              \$weak_self));
+# };
+# sub _do_statusbar_destroy {
+#   my ($statusbar, $ref_weak_self) = @_;
+#   ### PointerPosition _do_statusbar_destroy() ...
+#   if (my $self = $$ref_weak_self) {
+#     undef $self->{'statusbar'};
+#   }
+# }
 
 # 'enter-notify-event' signal on the widgets
 # 'motion-notify-event' signal on the widgets
@@ -203,29 +182,26 @@ sub _do_synccall {
 
   my $self = $$ref_weak_self || return;
   $self->{'sync_call_pending'} = 0;
-  my $widget = $self->{'widget'} || return;
-  my $statusbar = $self->{'statusbar'} || return;
 
-  if ($self->{'want_query_pointer'}) {
-    my ($x,$y) = $widget->get_pointer;
-    if (! _widget_xy_in_widget($widget,$x,$y)) {
-      undef $x;
-      undef $y;
+  my $message;
+  if (my $widget = $self->{'widget'}) {
+    if ($self->{'want_query_pointer'}) {
+      my ($x,$y) = $widget->get_pointer;
+      if (! _widget_xy_in_widget($widget,$x,$y)) {
+        undef $x;
+        undef $y;
+      }
+      $self->{'x'} = $x;
+      $self->{'y'} = $x;
     }
-    $self->{'x'} = $x;
-    $self->{'y'} = $x;
-  }
 
-  my $id = $self->{'dc'}->id;
-  $statusbar->pop ($id);
-  if (defined $self->{'x'}) {
-    my $message = $self->signal_emit ('message-string',
-                                      $self->{'widget'},
-                                      $self->{'x'}, $self->{'y'});
-    if (defined $message) {
-      $statusbar->push ($id, $message);
+    if (defined $self->{'x'}) {
+      $message = $self->signal_emit ('message-string',
+                                     $self->{'widget'},
+                                     $self->{'x'}, $self->{'y'});
     }
   }
+  $self->set_message ($message);
 }
 
 1;
@@ -252,7 +228,8 @@ C<App::MathImage::Gtk2::Ex::Statusbar::PointerPosition> is a C<Glib::Object>
 subclass,
 
     Glib::Object
-      App::MathImage::Gtk2::Ex::Statusbar::PointerPosition
+      Gtk2::Ex::Statusbar::Message
+        App::MathImage::Gtk2::Ex::Statusbar::PointerPosition
 
 =head1 DESCRIPTION
 

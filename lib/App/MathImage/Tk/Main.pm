@@ -35,7 +35,7 @@ use App::MathImage::Tk::Drawing;
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -130,7 +130,7 @@ sub Populate {
     $menu->pack(-side => 'left');
 
     $menu->command (-label     => with_underline(__('_Fullscreen')),
-                    -command   => [$self, 'fullscreen_toggle']);
+                    -command   => [$self, 'toggle_fullscreen']);
     # $item->uncheck('fullscreen'); # initially unchecked
 
     {
@@ -410,9 +410,9 @@ sub toolbar_state {
   }
 }
 
-sub fullscreen_toggle {
+sub toggle_fullscreen {
   my ($self, $itemname) = @_;
-  ### fullscreen_toggle(): "@_"
+  ### toggle_fullscreen(): "@_"
 
   ### wm attributes: $self->attributes
 
@@ -522,7 +522,8 @@ sub _tk_pod {
 sub popup_diagnostics {
   my ($self) = @_;
   require App::MathImage::Tk::Diagnostics;
-  $self->AppMathImageTkDiagonostics->Popup;
+  my $diagnostics = $self->AppMathImageTkDiagonostics;
+  $diagnostics->Popup;
 }
 
 sub command_line {
@@ -548,7 +549,7 @@ sub command_line {
   # ### ConfigSpecs: $self->ConfigSpecs
 
   if ($gui_options->{'fullscreen'}) {
-    $self->fullscreen_toggle;
+    $self->toggle_fullscreen;
   }
   MainLoop;
   return 0;

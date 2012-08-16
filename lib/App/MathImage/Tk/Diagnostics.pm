@@ -19,23 +19,22 @@ package App::MathImage::Tk::Diagnostics;
 use 5.008;
 use strict;
 use warnings;
-use Cwd;
 use List::Util 'max';
 use Tk;
 use Tk::Balloon;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkDiagonostics');
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 sub Populate {
   my ($self, $args) = @_;
-  ### Diagnostics Populate()
+  ### Diagnostics Populate() ...
 
   my $balloon = $self->Balloon;
 
@@ -78,7 +77,7 @@ sub Populate {
 
 sub refresh {
   my ($self) = @_;
-  ### refresh(): "$self"
+  ### Diagnostics refresh(): "$self"
   my $text = $self->Subwidget('text');
 
   $text->configure (-cursor => 'watch');
@@ -89,6 +88,7 @@ sub refresh {
 sub str {
   my ($class_or_self) = @_;
   my $self = ref $class_or_self ? $class_or_self : undef;
+  ### Diagnostics str(): "$self"
 
   # mallinfo and mstats before loading other stuff, mallinfo first since
   # mstats is quite likely not available, and mallinfo first then avoids
@@ -106,6 +106,18 @@ sub str {
   ## use critic
 
   my $str = '';
+
+  if ($self) {
+    my $main = $self->MainWindow;
+    my $drawing = $main->Subwidget('drawing');
+    if (my $gen_object = $drawing->{'gen_object'}) {
+      $str .= $gen_object->diagnostic_str . "\n";
+    } else {
+      $str .= "No Generator object currently.\n\n";
+    }
+  } else {
+    $str .= "No Main object.\n\n";
+  }
 
   # if BSD::Resource available, only selected info bits
   if (eval { require BSD::Resource; }) {
@@ -206,7 +218,7 @@ sub str {
   #       . "\n";
   #   }
 
-  {
+  if ($self) {
     my @images = $self->imageNames;
     $str .= "imageNames: count ".scalar(@images)."\n";
     @images = grep {! $_->image('inuse') } @images;

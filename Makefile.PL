@@ -73,10 +73,10 @@ my %wx_interface = (# main wxPerl of whatever new enough version
                     'Image::Base::Wx::DC' => 0,
                    );
 my %wx_optionals = (# main Perl-Tk of whatever new enough version
-                    'Wx::Perl::PodBrowser' => 0,
+                    'Wx::Perl::PodBrowser'     => 2,  # v.2 for File/Print
                     'Software::License::GPL_3' => 0, # about dialog
                     # my Image-Base-Wx
-                    'Image::Base::Wx::Image' => 0,
+                    'Image::Base::Wx::Image' => 0, # --png etc file output
                    );
 
 my %curses_interface = ('Curses::UI' => 0,
@@ -126,7 +126,7 @@ my %maximum_planepath
      'Math::PlanePath::GreekKeySpiral'       => 80, # v.80 turns
      'Math::PlanePath::MPeaks'               => 55, # new in v.55
 
-     'Math::PlanePath::PyramidRows'          => 4,  # v.4 step parameter
+     'Math::PlanePath::PyramidRows'          => 84, # v.84 align parameter
      'Math::PlanePath::PyramidSides'         => 1,
      'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
      'Math::PlanePath::CellularRule'         => 63, # new in v.63
@@ -346,15 +346,12 @@ my %prereq_pm
   = (
      'constant' => 1.02,  # leading underscore in prima bits
      'constant::defer' => 0,
-     # 'Bit::Vector'     => 0,
-     'Compress::Zlib'  => 0,
      'Proc::SyncExec' => 0,
 
      # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
-     # handles by outsmarting itself in some compares plus File::Temp having a
-     # bogus numize.  File::Copy 2.14 looks slightly better, though enquiring
-     # into the overloadedness of handles really doesn't sound like a good
-     # idea.
+     # handles by outsmarting itself in some compares plus File::Temp having
+     # a bogus numize.  File::Copy 2.14 looks slightly better, though
+     # enquiring into the overloadedness of handles is a very bad idea.
      'File::Copy'      => '2.14',
 
      'File::HomeDir' => 0,
@@ -372,8 +369,9 @@ my %prereq_pm
      'Glib::Ex::SignalBits'   => 9,  # new in v.9
      'Glib::Ex::SignalIds'    => 0,
 
+     # Perl-Gtk2
      'Gtk2' => '1.220',
-     'Gtk2::Pango' => 0, # part of Gtk2, used explicitly
+     'Gtk2::Pango' => 0, # part of Perl-Gtk2, used explicitly
 
      # my Gtk2-Ex-WidgetBits
      'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
@@ -382,7 +380,8 @@ my %prereq_pm
      'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
      'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
      'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
-     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11,
+     'Gtk2::Ex::Statusbar::Message'         => 47, # new in v.47
+     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11, # new in v.11
      'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
      'Gtk2::Ex::ToolItem::CheckButton' => 42,  # new in v.42
      'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
@@ -438,7 +437,6 @@ my %prereq_pm
 
      'Math::BaseCnv' => 0,
      'Math::Libm' => 0,
-     # 'Math::Prime::TiedArray' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
      'Math::PlanePath' => 83, # v.83 for n_to_dxdy()

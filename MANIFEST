@@ -16,12 +16,15 @@ devel/caca.pl
 devel/Caca.pm
 devel/camel.pl
 devel/entry-text-index.pl
+devel/exactimage.pl
 devel/fraction-entry.pl
 devel/Gtk1-Main-weaken.t
 devel/gtk1.pl
 devel/Gtk2-Main-weaken.t
 devel/gzseek.pl
 devel/heatmap.pl
+devel/image-base-exactimage.pl
+devel/Image-Base-ExactImage.pm
 devel/inverse.pl
 devel/Makefile
 devel/MathSequence.pm
@@ -116,6 +119,7 @@ lib/App/MathImage/Tk/Perl/AfterObject.pm
 lib/App/MathImage/Tk/Perl/AfterObject.t
 lib/App/MathImage/Tk/Perl/NumAxis.pm
 lib/App/MathImage/Tk/SaveDialog.pm
+lib/App/MathImage/Wx/Diagnostics.pm
 lib/App/MathImage/Wx/Drawing.pm
 lib/App/MathImage/Wx/Generator.pm
 lib/App/MathImage/Wx/Main.pm

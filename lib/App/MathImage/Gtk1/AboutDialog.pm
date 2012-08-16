@@ -19,10 +19,10 @@ package App::MathImage::Gtk1::AboutDialog;
 use 5.004;
 use strict;
 use Scalar::Util;
-use Locale::TextDomain ('Math-Image');
+use Locale::TextDomain ('App-MathImage');
 
 use vars '$VERSION','@ISA';
-$VERSION = 105;
+$VERSION = 106;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

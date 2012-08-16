@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 #use Smart::Comments;
 
 
-our $VERSION = 105;
+our $VERSION = 106;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -1091,7 +1091,6 @@ sub _print_draw_page {
   $c->rectangle (0,0, $pixmap_width,$pixmap_height);
   $c->paint;
 }
-
 
 #------------------------------------------------------------------------------
 # command line

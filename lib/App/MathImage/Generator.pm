@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 105;
+$VERSION = 106;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -279,6 +279,7 @@ sub values_choice_to_class {
   return undef;
 }
 
+# return A-number string "A000000" or undef if values not in OEIS
 sub oeis_anum {
   my ($self) = @_;
   if (my $seq = $self->values_seq_maybe) {
@@ -708,7 +709,9 @@ sub y_negative {
                                     undiamond
                                     unellipse
                                     unellipunf
-                                    arrow);
+                                    arrow
+                                    eobar
+                                  );
 
   #------------------------------------------------------------------------------
   # random
@@ -1726,6 +1729,7 @@ my %figure_method = (square  => 'rectangle',
                      triangle => \&_triangle,
                      hexagon => \&_hexagon,
                      arrow => 'rectangle',
+                     eobar => sub{},
                     );
 sub undiamond {
   my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
@@ -2387,6 +2391,22 @@ sub draw_Image_steps {
         if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
           $flush->();
         }
+
+      } elsif ($figure eq 'eobar') {
+        if ($wx < -$scale || $wy < -$scale
+            || $wx > $width+$scale || $wy > $height+$scale) {
+          ### skip, outside width,height...
+          $count_outside++;
+          next;
+        }
+        if (($x+$y) % 2) {
+          # horizontal
+          $image->line ($wx-$scale,$wy, $wx+$scale,$wy, $colour);
+        } else {
+          # vertical
+          $image->line ($wx,$wy-$scale, $wx,$wy+$scale, $colour);
+        }
+
       } elsif ($figure eq 'arrow') {
         my @dxdy_list = xy_to_dxdy_list($path_object,$x,$y);
         while (my ($dx,$dy) = splice @dxdy_list, 0,2) {
@@ -2513,6 +2533,21 @@ sub draw_Image_steps {
         push @{$points_by_colour{$colour}}, $wx, $wy;
         if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
           $flush->();
+        }
+
+      } elsif ($figure eq 'eobar') {
+        if ($wx < -$scale || $wy < -$scale
+            || $wx > $width+$scale || $wy > $height+$scale) {
+          ### skip, outside width,height...
+          $count_outside++;
+          next;
+        }
+        if (($x+$y) % 2) {
+          # horizontal
+          $image->line ($wx-$scale,$wy, $wx+$scale,$wy, $colour);
+        } else {
+          # vertical
+          $image->line ($wx,$wy-$scale, $wx,$wy+$scale, $colour);
         }
 
       } elsif ($figure eq 'arrow') {
@@ -3020,6 +3055,35 @@ sub _my_cnv {
 }
 
 #------------------------------------------------------------------------------
+# diagnostics
+
+sub diagnostic_str {
+  my ($self) = @_;
+  my $str = '';
+
+  $str .= "Generator $self->{'width'}x$self->{'height'}\n";
+  {
+    my $values_seq = $self->{'values_seq'};
+    $str .= "Values " . (defined $values_seq ? ref $values_seq : '[undef]')
+      . "\n";
+  }
+  {
+    my $path_object = $self->{'path_object'};
+    $str .= "Path   " . (defined $path_object ? ref $path_object : '[undef]')
+      . "\n";
+  }
+  {
+    $str .= "Draw by " . ($self->{'use_xy'} ? "X,Y" : "N")
+      . ($self->{'bignum_xy'} ? ' bignumXY' : '')
+      . "  upto_n $self->{'upto_n'} "
+      . "  count $self->{'count_outside'} outside, $self->{'count_total'} total"
+      . "\n";
+    $str .= "N high $self->{'n_hi'}"
+      . "\n";
+  }
+}
+
+#------------------------------------------------------------------------------
 # generic
 
 use constant TRUE => 1;
@@ -3050,6 +3114,56 @@ BEGIN {
 }
 
 sub _noop {}
+
+
+sub NOTWORKING__Aztec_xy_next_in_rect {
+  my ($x, $y, $x1,$y1, $x2,$y2) = @_;
+  ($x1,$x1) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y1) = ($y2,$y1) if $y1 > $y2;
+  for (;;) {
+    if ($y >= 0) {
+      if ($x >= 0) {
+        # first quad
+        $x -= 1;
+        $y += 1;
+        if ($x >= $x1 && $y <= $y2) {
+          return ($x,$y)
+        }
+        $y = $x+$y;
+        $x = -1;
+      } else {
+        # second quad
+        $x -= 1;
+        $y -= 1;
+        if ($x >= $x1 && $y >= $y1) {
+          return ($x,$y)
+        }
+        $x = $x-$y;
+        $y = -1;
+      }
+    } else {
+      if ($x < 0) {
+        # third quad
+        $x += 1;
+        $y -= 1;
+        if ($x <= $x2 && $y >= $y1) {
+          return ($x,$y)
+        }
+        $y = $x-$y+1;
+        $x = 0;
+      } else {
+        # fourth quad
+        $x += 1;
+        $y += 1;
+        if ($x <= $x2 && $y <= $y2) {
+          return ($x,$y)
+        }
+        $x = $x-$y;
+        $y = 0;
+      }
+    }
+  }
+}
 
 1;
 __END__
