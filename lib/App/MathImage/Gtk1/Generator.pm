@@ -25,7 +25,7 @@ use Image::Base::Gtk::Gdk::Pixmap;
 use Image::Base::Gtk::Gdk::Window;
 
 use vars '$VERSION','@ISA';
-$VERSION = 106;
+$VERSION = 107;
 
 use App::MathImage::Generator;
 @ISA = ('App::MathImage::Generator');
@@ -47,7 +47,7 @@ sub new {
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
                                  # idle_ids     => App::MathImage::Gtk::Ex::IdleIds->new,
-
+                                 use_class_negative => 1,
                                  @_);
   if ($self->{'gtkmain'}) { Scalar::Util::weaken ($self->{'gtkmain'}); }
   if ($self->{'widget'})  { Scalar::Util::weaken ($self->{'widget'}); }

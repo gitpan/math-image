@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 106;
+$VERSION = 107;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -75,6 +75,8 @@ sub new {
   if (! defined $self->{'undrawnground'}) {
     $self->{'undrawnground'} = $self->{'background'};
   }
+  $self->{'path_parameters'} ||= {};
+  $self->{'values_parameters'} ||= {};
   return $self;
 }
 
@@ -150,6 +152,8 @@ use constant::defer values_choices => sub {
                          Fibbinary
                          FibbinaryBitCount
                          FibonacciWord
+                         PisanoPeriod
+                         FibonacciFrequency
                          Pell
                          Perrin
                          Padovan
@@ -195,6 +199,7 @@ use constant::defer values_choices => sub {
                          RepdigitAny
                          RepdigitRadix
                          RadixWithoutDigit
+                         RadixConversion
                          MaxDigitCount
 
                          Palindromes
@@ -309,11 +314,14 @@ sub values_seq {
     die "Unknown values: ",$self->{'values'};
   }
 
+  my $values_parameters = $self->{'values_parameters'};
   my $values_seq = eval {
     $values_class->new (width => $self->{'width'},
                         height => $self->{'height'},
-                        %{$self->{'values_parameters'}||{}},
-                        hi => 100)
+                        %$values_parameters,
+                        (($values_parameters->{'planepath'}||'') eq 'ThisPath'
+                         ? (planepath => $self->{'path'})
+                         : ()))
   };
   if (! $values_seq) {
     my $err = $@;
@@ -484,9 +492,6 @@ my %pathname_square_grid
 { package Math::PlanePath::HexArms;
   use constant MathImage__lattice_type => 'triangular';
 }
-{ package Math::PlanePath::TriangularHypot;
-  use constant MathImage__lattice_type => 'triangular';
-}
 { package Math::PlanePath::KochCurve;
   use constant MathImage__lattice_type => 'triangular';
 }
@@ -526,18 +531,272 @@ my %pathname_square_grid
 { package Math::PlanePath::CubicBase;
   use constant MathImage__lattice_type => 'triangular';
 }
+{ package Math::PlanePath::Hypot;
+  my %lattice_type = (even => 'triangular',
+                      odd => 'triangular');
+  sub MathImage__lattice_type {
+    my ($self) = @_;
+    return $lattice_type{$self->{'points'}} || '';
+  }
+}
+{ package Math::PlanePath::HypotOctant;
+  *MathImage__lattice_type = \&Math::PlanePath::Hypot::MathImage__lattice_type;
+}
+{ package Math::PlanePath::TriangularHypot;
+  my %lattice_type = (all => '');
+  sub MathImage__lattice_type {
+    my ($self) = @_;
+    return $lattice_type{$self->{'points'}} || 'triangular';
+  }
+}
+{ package Math::PlanePath::TerdragonCurve;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::TerdragonRounded;
+  use constant MathImage__lattice_type => 'triangular';
+}
+{ package Math::PlanePath::TerdragonMidpoint;
+  use constant MathImage__lattice_type => 'triangular';
+}
 
+
+#------------------------------------------------------------------------------
+# path level range
+
+{ package Math::PlanePath;
+  use constant MathImage__level_end_offset => -1;
+  sub MathImage__level_radix {
+    my ($self, $level) = @_;
+    my $radix = $self->{'radix'};
+    if (defined $radix) { $radix *= $radix; }
+    return $radix;
+  }
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    if (defined (my $radix = $self->MathImage__level_radix)) {
+      my $n_start = $self->n_start;
+      return ($n_start,
+              $n_start + $radix**$level + $self->MathImage__level_end_offset);
+    }
+    return;
+  }
+}
+{ package Math::PlanePath::FlowsnakeCentres;
+  use constant MathImage__level_radix => 7;
+}
+{ package Math::PlanePath::GosperReplicate;
+  use constant MathImage__level_radix => 7;
+}
+{ package Math::PlanePath::HilbertCurve;
+  use constant MathImage__level_radix => 4;
+}
+{ package Math::PlanePath::HilbertSpiral;
+  use constant MathImage__level_radix => 4;
+}
+{ package Math::PlanePath::CornerReplicate;
+  use constant MathImage__level_radix => 4;
+}
+{ package Math::PlanePath::SquareReplicate;
+  use constant MathImage__level_radix => 9;
+}
+{ package Math::PlanePath::AR2W2Curve;
+  use constant MathImage__level_radix => 4;
+}
+{ package Math::PlanePath::BetaOmega;
+  use constant MathImage__level_radix => 4;
+}
+{ package Math::PlanePath::CincoCurve;
+  use constant MathImage__level_radix => 25;
+}
+{ package Math::PlanePath::KochelCurve;
+  use constant MathImage__level_radix => 9;
+}
+{ package Math::PlanePath::FibonacciWordFractal;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    my $f0 = 1;
+    my $f1 = 1;
+    foreach (1 .. 3*$level) {
+      ($f0,$f1) = ($f1,$f0+$f1);
+    }
+    return (0, $f1);
+  }
+}
+{ package Math::PlanePath::KochCurve;
+  use constant MathImage__level_radix => 4;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::KochPeaks;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return ($level + (2*4**$level + 1)/3,
+            $level + (8*4**$level + 1)/3);
+  }
+}
+{ package Math::PlanePath::KochSnowflakes;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return (4 ** $level,
+            4 ** ($level+1) - 1);
+  }
+}
+{ package Math::PlanePath::KochSquareflakes;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return ((4 ** ($level+1) - 1) / 3,
+            (4 ** ($level+2) - 4) / 3);
+  }
+}
+{ package Math::PlanePath::SierpinskiArrowhead;
+  use constant MathImage__level_radix => 3;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::SierpinskiArrowheadCentres;
+  use constant MathImage__level_radix => 3;
+}
+{ package Math::PlanePath::SierpinskiTriangle;
+  use constant MathImage__level_radix => 3;
+}
+{ package Math::PlanePath::SierpinskiCurve;
+  use constant MathImage__level_radix => 4;
+}
+{ package Math::PlanePath::SierpinskiCurveStair;
+  # or 2* to triangular peak
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return (0,
+            ((6*$self->{'diagonal_length'}+4)*4**$level - 4) / 3);
+  }
+
+}
+{ package Math::PlanePath::HIndexing;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return (0,
+            2 * 4 ** $level - 1);
+  }
+}
+{ package Math::PlanePath::QuadricCurve;
+  use constant MathImage__level_radix => 8;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::QuadricIslands;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return ((4 * 8**$level + 3)/7,
+            (32 * 8**$level - 4)/7);
+  }
+}
+{ package Math::PlanePath::GosperIslands;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return (3**($level+1) - 2,
+            3**($level+2) - 2 - 1);
+  }
+}
+{ package Math::PlanePath::QuintetCurve;
+  use constant MathImage__level_radix => 5;
+}
+{ package Math::PlanePath::QuintetCentres;
+  use constant MathImage__level_radix => 5;
+}
+{ package Math::PlanePath::QuintetReplicate;
+  use constant MathImage__level_radix => 5;
+}
+{ package Math::PlanePath::DragonCurve;
+  use constant MathImage__level_radix => 2;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::DragonMidpoint;
+  use constant MathImage__level_radix => 2;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::DragonRounded;
+  use constant MathImage__level_radix => 2;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::TerdragonCurve;
+  use constant MathImage__level_radix => 3;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::TerdragonMidpoint;
+  use constant MathImage__level_radix => 3;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::TerdragonRounded;
+  sub MathImage__level_n_range {
+    my ($self, $level) = @_;
+    return (0,
+            2*3**$level);
+  }
+}
+{ package Math::PlanePath::R5DragonCurve;
+  use constant MathImage__level_radix => 5;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::R5DragonMidpoint;
+  use constant MathImage__level_radix => 5;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::AlternatePaper;
+  use constant MathImage__level_radix => 2;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::AlternatePaperMidpoint;
+  use constant MathImage__level_radix => 2;
+}
+{ package Math::PlanePath::CCurve;
+  use constant MathImage__level_radix => 2;
+  use constant MathImage__level_end_offset => 0;
+}
+{ package Math::PlanePath::ComplexPlus;
+  sub MathImage__level_radix {
+    my ($self) = @_;
+    return $self->{'realpart'}**2 + 1;
+  }
+}
+{ package Math::PlanePath::ComplexMinus;
+  sub MathImage__level_radix {
+    my ($self) = @_;
+    return $self->{'realpart'}**2 + 1;
+  }
+}
+{ package Math::PlanePath::ComplexRevolving;
+  use constant MathImage__level_radix => 2;
+}
+{ package Math::PlanePath::DekkingCurve;
+  use constant MathImage__level_radix => 25;
+}
+{ package Math::PlanePath::DekkingStraight;
+  use constant MathImage__level_radix => 25;
+}
+{ package Math::PlanePath::MooreSpiral;
+  use constant MathImage__level_radix => 9;
+}
+{ package Math::PlanePath::PeanoHalf;
+  use constant MathImage__level_radix => 9;
+}
 
 #------------------------------------------------------------------------------
 # path x,y negative
 
 sub x_negative {
   my ($self) = @_;
-  return $self->path_object->class_x_negative;
+  my $path_object = $self->path_object;
+  if ($self->{'use_class_negative'}) {
+    return $path_object->class_x_negative;
+  } else {
+    return $path_object->x_negative;
+  }
 }
 sub y_negative {
   my ($self) = @_;
-  return $self->path_object->class_y_negative;
+  my $path_object = $self->path_object;
+  if ($self->{'use_class_negative'}) {
+    return $path_object->class_y_negative;
+  } else {
+    return $path_object->y_negative;
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -618,6 +877,8 @@ sub y_negative {
                            BetaOmega
                            AR2W2Curve
                            KochelCurve
+                           DekkingCurve
+                           DekkingCentres
                            CincoCurve
 
                            ImaginaryBase
@@ -639,10 +900,10 @@ sub y_negative {
                            QuintetCentres
                            QuintetReplicate
 
+                           KochCurve
+                           KochPeaks
                            KochSnowflakes
                            KochSquareflakes
-                           KochPeaks
-                           KochCurve
 
                            QuadricCurve
                            QuadricIslands
@@ -706,11 +967,15 @@ sub y_negative {
                                     V
                                     triangle
                                     hexagon
+                                    octagon
                                     undiamond
                                     unellipse
                                     unellipunf
                                     arrow
                                     eobar
+                                    toothpick_E
+                                    toothpick_V
+                                    toothpick_Y
                                   );
 
   #------------------------------------------------------------------------------
@@ -734,7 +999,7 @@ sub y_negative {
       {
       };
     my @ret = (values_parameters => $values_parameters,
-               path_parameters => $path_parameters);
+               path_parameters   => $path_parameters);
 
     my @path_choices = $self->path_choices;
     @path_choices
@@ -1040,10 +1305,11 @@ sub path_object {
     #### $path_class
 
     my $scale = $self->{'scale'} || 1;
-    my %parameters = %{$self->{'path_parameters'} || {}};
+    my %parameters = (width  => ceil(($self->{'width'}||0) / $scale),
+                      height => ceil(($self->{'height'}||0) / $scale),
+                      %{$self->{'path_parameters'}});
     ### %parameters
-    $parameters{'width'} = ceil(($parameters{'width'}||0) / $scale);
-    $parameters{'height'} = ceil(($parameters{'height'}||0) / $scale);
+
     if (($parameters{'rotation_type'}||'') eq 'custom') {
       delete $parameters{'rotation_type'};
     }
@@ -1080,12 +1346,14 @@ sub affine_object {
 
     my $affine = Geometry::AffineTransform->new;
     $affine->scale ($self->{'scale'}, - $self->{'scale'});
+    if ($self->{'figure'} =~ /toothpick/) {
+      $affine->scale (sqrt(3), 1);
+    }
     $affine->translate ($x_origin, $y_origin);
   });
 }
 
 use constant 1.02; # for leading underscore
-use constant _POINTS_CHUNKS     => 200 * 2;  # of X,Y
 use constant _RECTANGLES_CHUNKS => 200 * 4;  # of X1,Y1,X2,Y2
 
 sub covers_quadrants {
@@ -1151,6 +1419,18 @@ sub colours_exp_shrink {
   my $shrink = 0.6;
   if ($self->{'values'} eq 'Totient') {
     $shrink = .9995;
+  } elsif ($self->{'values'} eq 'PlanePathCoord') {
+    if ($self->values_seq->{'coordinate_type'} =~ /Squared/) {
+      $shrink = 1 - 1/300;
+    } elsif ($self->values_seq->{'coordinate_type'} eq 'Depth') {
+      $shrink = 1 - 1/10
+    } else {
+      $shrink = 1 - 1/50;
+    }
+  } elsif ($self->{'values'} eq 'PisanoPeriod') {
+    $shrink = 1 - 1/100;
+  } elsif ($self->{'values'} eq 'LeonardoLogarithm') {
+    $shrink = .8;
   } elsif ($self->{'values'} eq 'PowerFlip') {
     $shrink = 1 - 1/15;
   } elsif ($self->{'values'} eq 'SqrtContinuedPeriod') {
@@ -1345,6 +1625,44 @@ sub rgb1_to_rgbstr {
 #   # ($self->{m12} * $self->{tx} - $self->{m11} * $self->{ty}) / $det);
 # }
 
+my %figure_is_circular = (circle  => 1,
+                          ring    => 1,
+                          point   => 1,
+                          diamond => 1,
+                          plus    => 1,
+                         );
+my %figure_fill = (square  => 1,
+                   circle  => 1,
+                   diamond => 1,
+                   unellipse => 1,
+                   hexagon => 1,
+                   octagon => 1,
+                   toothpick_E => 1,
+                   toothpick_V => 1,
+                   toothpick_Y => 1,
+                  );
+my %figure_image_method
+  = (square      => 'rectangle',
+     box         => 'rectangle',
+     circle      => 'ellipse',
+     ring        => 'ellipse',
+     diamond     => 'diamond',
+     diamunf     => 'diamond',
+     plus        => \&App::MathImage::Image::Base::Other::plus,
+     X           => \&App::MathImage::Image::Base::Other::draw_X,
+     L           => \&App::MathImage::Image::Base::Other::draw_L,
+     V           => \&App::MathImage::Image::Base::Other::draw_V,
+     unellipse   => \&App::MathImage::Image::Base::Other::unellipse,
+     unellipunf  => \&App::MathImage::Image::Base::Other::unellipse,
+     undiamond   => \&undiamond,
+     triangle    => \&_triangle,
+     hexagon     => \&_hexagon_vertical,
+     octagon     => \&_octagon,
+     toothpick_E => 'ellipse',
+     toothpick_V => 'ellipse',
+     toothpick_Y => 'ellipse',
+    );
+
 my $colours_text_plus_or_minus = [ '-', ' ', '+' ];
 my $colours_text = [ 0 .. 9, 'A'..'Z', 'a'..'z' ];
 
@@ -1352,22 +1670,27 @@ sub draw_Image_start {
   my ($self, $image) = @_;
   ### draw_Image_start()...
   ### values: $self->{'values'}
-  
+
   $self->{'image'} = $image;
   my $width  = $self->{'width'}  = $image->get('-width');
   my $height = $self->{'height'} = $image->get('-height');
   my $scale = $self->{'scale'};
   ### $width
   ### $height
-  
+
   my $path_object = $self->path_object;
   my $foreground    = $self->{'foreground'};
   my $background    = $self->{'background'};
   my $undrawnground = $self->{'undrawnground'};
+  my $figure = $self->figure;
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my @colours = ($foreground);
-  
+  my $values_seq = $self->values_seq;
+  my $lines_type = $values_seq->{'lines_type'} || 'integer';
+  ### $figure
+  ### $undrawnground
+
   # clear undrawn quadrants
   {
     my @undrawn_rects;
@@ -1400,13 +1723,18 @@ sub draw_Image_start {
     App::MathImage::Image::Base::Other::rectangles
         ($image, $background, 1, @background_rects);
   }
-  
+
   my ($n_lo, $n_hi);
   my $rectangle_area = 1;
   if ($self->{'values'} eq 'LinesLevel') {
     my $level = ($self->{'values_parameters'}->{'level'} ||= 2);
+    ($n_lo,$n_hi) = $path_object->MathImage__level_n_range ($level);
+    if (! defined $n_hi) {
+      $n_lo = $path_object->n_start;
+      $n_hi = $n_lo + $level*$level;
+    }
     ### $level
-    $n_lo = $path_object->n_start;
+
     my $yfactor = 1;
     my $n_angle;
     my $xmargin = .05;
@@ -1414,68 +1742,47 @@ sub draw_Image_start {
         || $path_object->isa ('Math::PlanePath::FlowsnakeCentres')
         || $path_object->isa ('Math::PlanePath::GosperReplicate')) {
       $yfactor = sqrt(3);
-      $n_hi = 7 ** $level;
       $n_angle = 6;
       foreach (2 .. $level) {
         $n_angle = (7 * $n_angle + 0);
       }
-    } elsif ($path_object->isa ('Math::PlanePath::PeanoCurve')
-             || $path_object->isa ('Math::PlanePath::WunderlichMeander')
-             || $path_object->isa ('Math::PlanePath::WunderlichSerpentine')) {
-      $n_hi = 9 ** $level - 1;
-    } elsif ($path_object->isa ('Math::PlanePath::BetaOmega')) {
-      $n_hi = 4 ** $level - 1;
-    } elsif ($path_object->isa ('Math::PlanePath::KochelCurve')) {
-      $n_hi = 9 ** $level - 1;
+
+    } elsif ($path_object->isa ('Math::PlanePath::GosperIslands')) {
+      # FIXME: x,y range ...
+    } elsif ($path_object->isa ('Math::PlanePath::QuadricIslandsIslands')) {
+      # FIXME: x,y range ...
+
     } elsif ($path_object->isa ('Math::PlanePath::KochCurve')) {
-      $n_hi = 4 ** $level;
       $yfactor = sqrt(3)*2;
     } elsif ($path_object->isa ('Math::PlanePath::KochPeaks')) {
-      $n_lo = $level + (2*4**$level + 1)/3;
-      $n_hi = ($level+1) + (2*4**($level+1) + 1)/3 - 1;
+      # FIXME: x,y range
       $yfactor = sqrt(3)*2;
     } elsif ($path_object->isa ('Math::PlanePath::KochSnowflakes')) {
-      $n_lo = 4 ** $level;
-      $n_hi = 4 ** ($level+1) - 1;
+      # FIXME: x,y range
       $yfactor = sqrt(3)*2;
     } elsif ($path_object->isa ('Math::PlanePath::KochSquareflakes')) {
-      $n_lo = (4 ** ($level+1) - 1) / 3;
-      $n_hi = (4 ** ($level+2) - 4) / 3;
+      # FIXME: x,y range
       $yfactor = sqrt(3)*2;
     } elsif ($path_object->isa ('Math::PlanePath::SierpinskiArrowhead')
              || $path_object->isa ('Math::PlanePath::SierpinskiArrowheadCentres')
              || $path_object->isa ('Math::PlanePath::SierpinskiTriangle')) {
-      $n_hi = 3 ** $level;
       $n_angle = 2 * 3**($level-1);
       $yfactor = sqrt(3);
     } elsif ($path_object->isa ('Math::PlanePath::SierpinskiCurve')
              || $path_object->isa ('Math::PlanePath::SierpinskiCurveStair')) {
-      $n_hi = 4 ** $level;
       $yfactor = 2;
-    } elsif ($path_object->isa ('Math::PlanePath::HIndexing')) {
-      $n_hi = 2 * 4 ** $level;
-    } elsif ($path_object->isa ('Math::PlanePath::QuadricCurve')) {
-      $n_hi = 8 ** $level;
-    } elsif ($path_object->isa ('Math::PlanePath::QuadricIslands')) {
-      $n_hi = 4 * 8 ** $level;
-    } elsif ($path_object->isa ('Math::PlanePath::QuintetCurve')
-             || $path_object->isa ('Math::PlanePath::QuintetCentres')
-             || $path_object->isa ('Math::PlanePath::QuintetReplicate')) {
-      $n_hi = 5 ** $level - 1;
-    } else {
-      $n_hi = $level*$level;
     }
     $n_angle ||= $n_hi;
-    
+
     ### $level
     ### $n_lo
     ### $n_hi
     ### $n_angle
     ### $yfactor
-    
+
     $affine = Geometry::AffineTransform->new;
     $affine->scale (1, $yfactor);
-    
+
     my ($xlo, $ylo) = $path_object->n_to_xy ($n_lo);
     my ($xang, $yang) = $path_object->n_to_xy ($n_angle);
     my $theta = - atan2 ($yang*$yfactor, $xang);
@@ -1485,7 +1792,7 @@ sub draw_Image_start {
     ### hi raw: $path_object->n_to_xy($n_hi)
     ### $theta
     ### $r
-    
+
     ### origin: $self->{'width'} * .15, $self->{'height'} * .5
     $affine->rotate ($theta / 3.14159 * 180);
     my $rot = $affine->clone;
@@ -1493,12 +1800,12 @@ sub draw_Image_start {
                     - $self->{'width'} * .7 / $r * .3);
     $affine->translate ($self->{'width'} * $xmargin,
                         $self->{'height'} * .5);
-    
+
     ### width: $self->{'width'}
     ### scale x: $self->{'width'} * (1-2*$xmargin) / $r
     ### transform lo: join(',',$affine->transform($xlo,$ylo))
     ### transform ang: join(',',$affine->transform($xang,$yang))
-    
+
     # FIXME: wrong when rotated ... ??
     if (defined $self->{'x_left'}) {
       ### x_left: $self->{'x_left'}
@@ -1510,20 +1817,20 @@ sub draw_Image_start {
       $affine->translate (0,
                           $self->{'y_bottom'} * $self->{'scale'});
     }
-    
-    my ($x,$y) = $path_object->n_to_xy ($n_lo++);
+
+    my ($x,$y) = $path_object->n_to_xy ($n_lo);
     ### start raw: "$x, $y"
     ($x,$y) = $affine->transform ($x, $y);
     $x = floor ($x + 0.5);
     $y = floor ($y + 0.5);
-    
+
     $self->{'xprev'} = $x;
     $self->{'yprev'} = $y;
     $self->{'affine_object'} = $affine;
     ### prev: "$x,$y"
     ### theta degrees: $theta*180/3.14159
     ### start: "$self->{'xprev'}, $self->{'yprev'}"
-    
+
   } else {
     my $affine_inv = $affine->clone->invert;
     my ($x1, $y1) = $affine_inv->transform (-$scale, -$scale);
@@ -1535,90 +1842,212 @@ sub draw_Image_start {
     ### $x2
     ### $y1
     ### $y2
-    
+
     ($n_lo, $n_hi) = $path_object->rect_to_n_range ($x1,$y1, $x2,$y2);
     # if ($n_hi > _SV_N_LIMIT) {
     #   ### n_hi: "$n_hi"
     #   ### bigint n range ...
     #   ($n_lo, $n_hi) = $path_object->rect_to_n_range (_bigint()->new(floor($x1)),$y1, $x2,$y2);
     # }
-    
-    if ($self->{'values'} eq 'Lines') {
-      $n_hi += 1;
-    }
   }
 
   ### n_lo: "$n_lo"
   ### n_hi: "$n_hi"
 
+  $self->{'n_list'} = [];
   $self->{'n_prev'} = $n_lo - 1;
   $self->{'upto_n'} = $n_lo;
   $self->{'n_hi'}   = $n_hi;
   $self->{'count_total'} = 0;
   $self->{'count_outside'} = 0;
+  $self->{'figure_image_fill'} = $figure_fill{$figure};
 
-  # origin point
+  # dot at origin
   if ($scale >= 3 && $self->figure ne 'point') {
-    my ($x,$y) = $affine->transform(0,0);
-    $x = floor ($x + 0.5);
-    $y = floor ($y + 0.5);
-    if ($x >= 0 && $y >= 0 && $x < $width && $y < $height) {
-      $image->xy ($x, $y, $foreground);
+    my ($wx,$wy) = $self->transform_xy(0,0);
+    if ($wx >= 0 && $wy >= 0 && $wx < $width && $wy < $height) {
+      $image->xy ($wx, $wy, $foreground);
     }
+  }
+
+  {
+    my $xpscale = $scale;
+    my $ypscale = $scale;
+    if ($self->{'values'} =~ /^Lines/) {
+      # smaller figures for lines 'midpoint' and 'rounded'
+      $xpscale = $ypscale = $scale * ($figure =~ /toothpick/ ? .6
+                                      : $lines_type eq 'integer' ? .4
+                                      : .2);
+    } elsif ($path_object->figure eq 'circle'
+             && ! $figure_is_circular{$figure}) {
+      $xpscale *= sqrt(1/2);
+      $ypscale *= sqrt(1/2);
+    } elsif ($figure eq 'arrow') {
+      $xpscale *= .7;
+      $ypscale *= .7;
+    } elsif ($path_object->MathImage__lattice_type eq 'triangular'
+             && $figure_is_circular{$figure}) {
+      $xpscale *= sqrt(2);
+      $ypscale *= sqrt(2);
+    } elsif ($path_object->MathImage__lattice_type eq 'triangular'
+             && $figure eq 'triangle') {
+      $xpscale *= 2;
+      $ypscale *= 1;
+    } elsif ($path_object->MathImage__lattice_type eq 'triangular'
+             && $figure eq 'hexagon') {
+      $xpscale *= 2;
+      $ypscale *= 4/3;
+      unless ($self->{'figure_image_fill'}) {
+        $xpscale *= .98;
+        $ypscale *= .98;
+      }
+    }
+    ### $xpscale
+    ### $ypscale
+
+    $xpscale = max (1, floor ($xpscale));
+    $ypscale = max (1, floor ($ypscale));
+    ### $xpscale
+    ### $ypscale
+
+    if ($xpscale == 1 && $ypscale == 1) {
+      $figure = 'point';
+    }
+
+    #   +----+----+----+       scale=3  lo=int((3-2)/2)=1
+    #   |    |    |    | -1
+    #   +----+----+----+      +----+----+   scale=2
+    #   |    |  x |    |      |    |    |
+    #   +----+----+----+      +----+----+   xlo=int((2-1)/2)=1
+    #   |    |    |    | +1   |  x |    |   ylo=int((2-1)/2)=0
+    #   +----+----+----+      +----+----+
+
+    $self->{'xscale_lo'} = int (($xpscale-1) / 2);
+    $self->{'xscale_hi'} = $xpscale-1 - $self->{'xscale_lo'};
+
+    $self->{'yscale_lo'} = int ($ypscale / 2);
+    $self->{'yscale_hi'} = $ypscale-1 - $self->{'yscale_lo'};
+  }
+
+  {
+    $self->{'figure_image_method'} = $figure_image_method{$figure};
+    my $draw_figure_method = $self->can("draw_figure_$figure");
+    if (! $draw_figure_method) {
+      $draw_figure_method = 'draw_figure_image_method';
+      $self->{'figure_image_method'}
+        || croak 'Unrecognised figure: ',$figure;
+    }
+    $self->{'draw_figure_method'} = $draw_figure_method;
+  }
+
+  if ($self->{'values'} eq 'LinesTree') {
+    $self->{'lines_figure_method'} = $self->{'draw_figure_method'};
+    $self->{'draw_figure_method'} = 'draw_figure_linestree';
   }
 
   if ($self->{'values'} eq 'Lines') {
+    ### $values_seq
+    ### lines_type: $values_seq->{'lines_type'}
+    ### midpoint_offset: $values_seq->{'midpoint_offset'}
+    ### increment: $values_seq->{'increment'}
 
-  } elsif ($self->{'values'} eq 'LinesTree') {
-    require App::MathImage::LinesTree;
-    my $branches = $self->{'values_parameters'}->{'branches'} || 0;
-    # if ($branches && ! $path_object->MathImage__tree_n_children($path_object->n_start)) {
-    #   $branches = 1;
-    # }
-    $self->{'branches'} = $branches;
-    $self->{'upto_n'} = $path_object->n_start - 1;
-    $self->{'upto_n_dest'} = $path_object->n_start + 1;
+    $self->{'lines_figure_method'} = $self->{'draw_figure_method'};
+    $self->{'draw_figure_method'} = 'draw_figure_lines';
 
-  } else {
-    my $filter = $self->{'filter'} || 'All';
-    $self->{'filter_obj'} =
-      $self->values_class($filter)->new (lo => $n_lo,
-                                         hi => $n_hi);
-    my $values_seq = $self->values_seq;
+    my $arms_count = $path_object->arms_count;
 
-    ### $rectangle_area
-    ### $n_hi
-    ### $n_lo
+    my $midpoint_offset = 0;
+    if ($lines_type eq 'integer') {
+      $midpoint_offset = 0;
+    } elsif ($lines_type eq 'midpoint') {
+      $midpoint_offset = $values_seq->{'midpoint_offset'};
+      if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
+    } elsif ($lines_type eq 'rounded') {
+      $midpoint_offset = $values_seq->{'midpoint_offset'};
+      if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
+      $midpoint_offset /= 2;
+    }
+    ### $midpoint_offset
 
-    my $i_estimate = $n_hi;
-    if ($self->use_colours) {
-      if ($values_seq->can('seek_to_value')) {
-        $values_seq->seek_to_value($n_lo);
-        $i_estimate -= $values_seq->tell_i;
-        ### less tell_i(): $values_seq->tell_i
-      }
+    my @n_offset_list;
+    my @n_figure_list;
+    if ($lines_type eq 'rounded') {
+      @n_offset_list = (-.5 - $arms_count + 1,
+                        -$midpoint_offset - $arms_count + 1,
+                        min($midpoint_offset,0.499),
+                        .499);
+      @n_figure_list = (0,1,1,0);
     } else {
-      if ($values_seq->can('value_to_i_estimate')) {
-        $i_estimate = $values_seq->value_to_i_estimate($n_hi);
-        ### value_to_i_estimate(): "n_hi=$n_hi  i_est=$i_estimate"
-      }
-      if ($values_seq->can('seek_to_value')) {
-        $values_seq->seek_to_value($n_lo);
-        $i_estimate -= $values_seq->tell_i;
-        ### less tell_i(): $values_seq->tell_i
-      }
-    }
-    ### $i_estimate
+      my $increment = $values_seq->{'increment'} || $arms_count;
+      my $n_offset_from = -$increment;
+      my $n_offset_to = $increment;
 
-    if ($i_estimate > $rectangle_area * 4
-        && $self->can_use_xy) {
-      ### use_xy initially due to big i steps: $i_estimate
-      $self->use_xy($image);
+      # draw point n+midoff
+      # discont start at n-disc
+      # diff n+moff-(n-disc) = moff+disc, negative
+      my $n_discontinuity = $path_object->n_frac_discontinuity;
+      if ($increment == 1 && defined $n_discontinuity) {
+        $n_offset_from = -($midpoint_offset+$n_discontinuity);
+        if ($n_offset_from <= -1) {
+          $n_offset_from++;
+        }
+        $n_offset_to = $n_offset_from + .9999;
+      }
+      ### $n_offset_from
+      ### $n_offset_to
+
+      if ($n_offset_from) {
+        push @n_offset_list, $n_offset_from+$midpoint_offset;
+        push @n_figure_list, 0+$midpoint_offset;
+      }
+      push @n_offset_list,
+        $midpoint_offset,
+          $n_offset_to+$midpoint_offset;
+      push @n_figure_list, 1;
     }
+    $self->{'n_offset_list'} = \@n_offset_list;
+    $self->{'n_figure_list'} = \@n_figure_list;
+    ### @n_offset_list
+    ### @n_figure_list
+  }
+
+  my $filter = $self->{'filter'} || 'All';
+  $self->{'filter_obj'} =
+    $self->values_class($filter)->new (lo => $n_lo,
+                                       hi => $n_hi);
+
+  ### $rectangle_area
+  ### $n_hi
+  ### $n_lo
+
+  my $i_estimate = $n_hi;
+  if ($self->use_colours) {
+    if ($values_seq->can('seek_to_value')) {
+      $values_seq->seek_to_value($n_lo);
+      $i_estimate -= $values_seq->tell_i;
+      ### less tell_i(): $values_seq->tell_i
+    }
+  } else {
+    if ($values_seq->can('value_to_i_estimate')) {
+      $i_estimate = $values_seq->value_to_i_estimate($n_hi);
+      ### value_to_i_estimate(): "n_hi=$n_hi  i_est=$i_estimate"
+    }
+    if ($values_seq->can('seek_to_value')) {
+      $values_seq->seek_to_value($n_lo);
+      $i_estimate -= $values_seq->tell_i;
+      ### less tell_i(): $values_seq->tell_i
+    }
+  }
+  ### $i_estimate
+
+  if ($i_estimate > $rectangle_area * 4
+      && $self->can_use_xy) {
+    ### use_xy initially due to big i steps: $i_estimate
+    $self->use_xy($image);
   }
 
   # ### force use_xy for testing ...
-  #  $self->use_xy($image);
+  # $self->use_xy($image);
 }
 
 sub use_colours {
@@ -1648,7 +2077,11 @@ sub use_colours {
       ($values_min,$values_max) = ($values_max,$values_min);
     }
 
-    my $colours_base = $self->{'colours_base'} = $values_min || 0;
+    my $colours_base = $values_min || 0;
+    if ($colours_base >= 1 && $values_seq->characteristic('integer')) {
+      $colours_base -= 1;
+    }
+
     my $colours_max = $self->{'colours_max'} = $values_max;
     my $image = $self->{'image'};
 
@@ -1656,13 +2089,14 @@ sub use_colours {
         && defined $values_max
         && $values_seq->characteristic('integer')
         && $values_max - $values_min == 1) {
-      # binary two values
-      if ($image->isa('Image::Base::Text')) {
+      ### binary two values ...
+      if ($image && $image->isa('Image::Base::Text')) {
         $self->{'colours_array'} = [ ' ', '*' ];
       } else {
         $self->{'colours_array'} = [ $self->{'background'},
                                      $self->{'foreground'} ];
       }
+      $colours_base = $values_min;
 
     } elsif (defined $values_min
              && defined $values_max
@@ -1681,6 +2115,8 @@ sub use_colours {
         $self->{'use_colours'} = 1;
       }
     }
+
+    $self->{'colours_base'} = $colours_base;
     $self->{'colours_shrink'} = $self->colours_exp_shrink;
     $self->{'colours_shrink_log'} = log($self->{'colours_shrink'});
 
@@ -1697,40 +2133,335 @@ sub use_colours {
 
     ### use_colours: $self->{'use_colours'}
     ### colours_base: $self->{'colours_base'}
-    ### per values_min: $values_seq->values_min
+    ### cf values_min: $values_seq->values_min
   }
   return $self->{'use_colours'};
 }
 
-my %figure_is_circular = (circle  => 1,
-                          ring    => 1,
-                          point   => 1,
-                          diamond => 1,
-                          plus    => 1,
-                         );
-my %figure_fill = (square  => 1,
-                   circle  => 1,
-                   diamond => 1,
-                   unellipse => 1,
-                  );
-my %figure_method = (square  => 'rectangle',
-                     box     => 'rectangle',
-                     circle  => 'ellipse',
-                     ring    => 'ellipse',
-                     diamond => 'diamond',
-                     diamunf => 'diamond',
-                     plus    => \&App::MathImage::Image::Base::Other::plus,
-                     X       => \&App::MathImage::Image::Base::Other::draw_X,
-                     L       => \&App::MathImage::Image::Base::Other::draw_L,
-                     V       => \&App::MathImage::Image::Base::Other::draw_V,
-                     unellipse => \&App::MathImage::Image::Base::Other::unellipse,
-                     unellipunf => \&App::MathImage::Image::Base::Other::unellipse,
-                     undiamond => \&undiamond,
-                     triangle => \&_triangle,
-                     hexagon => \&_hexagon,
-                     arrow => 'rectangle',
-                     eobar => sub{},
-                    );
+sub transform_xy {
+  my ($self, $x,$y) = @_;
+  # BigInt no good for $affine->transform multiply
+  if (ref $x) { $x = $x->numify; }
+  if (ref $y) { $y = $y->numify; }
+  my ($wx, $wy) = $self->{'affine_object'}->transform ($x, $y);
+  return (floor ($wx + 0.5),
+          floor ($wy + 0.5));
+}
+
+sub draw_figure_point {
+  my ($self, $colour) = @_;
+  $self->{'image'}->xy ($self->{'wx'},$self->{'wy'}, $colour);
+}
+sub draw_figure_square {
+  my ($self, $colour) = @_;
+  $self->{'image'}->rectangle ($self->{'wx'} - $self->{'xscale_lo'},
+                               $self->{'wy'} - $self->{'yscale_lo'},
+                               $self->{'wx'} + $self->{'xscale_hi'},
+                               $self->{'wy'} + $self->{'yscale_hi'},
+                               $colour,
+                               1);  # fill
+}
+sub draw_figure_image_method {
+  my ($self, $colour) = @_;
+  my $figure_image_method = $self->{'figure_image_method'};
+  $self->{'image'}->$figure_image_method ($self->{'wx'} - $self->{'xscale_lo'},
+                                          $self->{'wy'} - $self->{'yscale_lo'},
+                                          $self->{'wx'} + $self->{'xscale_hi'},
+                                          $self->{'wy'} + $self->{'yscale_hi'},
+                                          $colour,
+                                          $self->{'figure_image_fill'});
+}
+sub draw_figure_eobar {
+  my ($self, $colour) = @_;
+  if (($self->{'x'}+$self->{'y'}) % 2) {
+    # horizontal
+    $self->{'image'}->line ($self->{'wx'} - $self->{'xscale_lo'}, $self->{'wy'},
+                            $self->{'wx'} + $self->{'xscale_hi'}, $self->{'wy'},
+                            $colour);
+  } else {
+    # vertical
+    $self->{'image'}->line ($self->{'wx'}, $self->{'wy'} - $self->{'yscale_lo'},
+                            $self->{'wx'}, $self->{'wy'} + $self->{'yscale_hi'},
+                            $colour);
+  }
+}
+sub draw_figure_toothpick_E {
+  my ($self, $colour) = @_;
+  my $image = $self->{'image'};
+  my $path_object = $self->{'path_object'};
+  my $x = $self->{'x'};
+  my $y = $self->{'y'};
+  my $wx = $self->{'wx'};
+  my $wy = $self->{'wy'};
+  foreach my $n (@{$self->{'n_list'}}) {
+    my $n_parent = $path_object->tree_n_parent($n);
+    next if ! defined $n_parent;
+    my ($px,$py) = $path_object->n_to_xy($n_parent);
+    my $dx = ($x - $px);
+    my $dy = ($y - $py);
+    {
+      my $dx = .8*$dx;
+      my $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x+$dx, $y+$dy),
+                    $colour);
+    }
+    {
+      my ($dx,$dy) = (($dx+$dy)/2,
+                      ($dy-3*$dx)/2);
+      $dx = .8*$dx;
+      $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+    {
+      my ($dx,$dy) = (($dx-$dy)/2,
+                      ($dy+3*$dx)/2);
+      $dx = .8*$dx;
+      $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+  }
+
+
+  if (my $n_to_level = $path_object->{'n_to_level'}) {
+    if (my $level = $n_to_level->[$self->{'n'}]) {
+      if ($level == 7) {
+        $colour = 'red';
+      }
+    }
+  }
+  $self->draw_figure_image_method($colour);
+}
+sub draw_figure_toothpick_V {
+  my ($self, $colour) = @_;
+  my $image = $self->{'image'};
+  my $path_object = $self->{'path_object'};
+  my $x = $self->{'x'};
+  my $y = $self->{'y'};
+  my $wx = $self->{'wx'};
+  my $wy = $self->{'wy'};
+  foreach my $n (@{$self->{'n_list'}}) {
+    my $n_parent = $path_object->tree_n_parent($n);
+    next if ! defined $n_parent;
+    my ($px,$py) = $path_object->n_to_xy($n_parent);
+    my $dx = ($x - $px);
+    my $dy = ($y - $py);
+    {
+      my ($dx,$dy) = (($dx+$dy)/2,
+                      ($dy-3*$dx)/2);
+      $dx = .8*$dx;
+      $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+    {
+      my ($dx,$dy) = (($dx-$dy)/2,
+                      ($dy+3*$dx)/2);
+      $dx = .8*$dx;
+      $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+  }
+  $self->draw_figure_image_method('red'); # $colour
+}
+sub draw_figure_toothpick_Y {
+  my ($self, $colour) = @_;
+  my $image = $self->{'image'};
+  my $path_object = $self->{'path_object'};
+  my $x = $self->{'x'};
+  my $y = $self->{'y'};
+  my $wx = $self->{'wx'};
+  my $wy = $self->{'wy'};
+  foreach my $n (@{$self->{'n_list'}}) {
+    my $n_parent = $path_object->tree_n_parent($n);
+    next if ! defined $n_parent;
+    my ($px,$py) = $path_object->n_to_xy($n_parent);
+    my $dx = ($x - $px);
+    my $dy = ($y - $py);
+    {
+      my $dx = .8*$dx;
+      my $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x+$dx, $y+$dy),
+                    $colour);
+    }
+    {
+      my ($dx,$dy) = (($dy-$dx)/2,
+                      -($dy+3*$dx)/2);
+      $dx = .8*$dx;
+      $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+    {
+      my ($dx,$dy) = (($dx+$dy)/-2,
+                      (3*$dx-$dy)/2);
+      $dx = .8*$dx;
+      $dy = .8*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+  }
+  if ($self->{'n'} > 37) {
+    $self->draw_figure_image_method('green'); # $colour
+  } else {
+    $self->draw_figure_image_method('red'); # $colour
+  }
+}
+sub draw_figure_arrow {
+  my ($self, $colour) = @_;
+  my $wx = $self->{'wx'};
+  my $wy = $self->{'wy'};
+  my $image = $self->{'image'};
+  my $path_object = $self->{'path_object'};
+
+  my $x = $self->{'x'};
+  my $y = $self->{'y'};
+  if (ref $x) { $x = $x->numify; }
+  if (ref $y) { $y = $y->numify; }
+
+  foreach my $n (@{$self->{'n_list'}}) {
+    my ($dx,$dy) = $path_object->n_to_dxdy($n);
+    ### dxdy: "$dx,$dy"
+    if (ref $dx) { $dx = $dx->numify; }
+    if (ref $dy) { $dy = $dy->numify; }
+    my $h = hypot($dx,$dy);
+    if ($h) {
+      my $f = .6 / hypot($dx,$dy);  # 0.6 of an X,Y unit
+      $dx *= $f;
+      $dy *= $f;
+      ### scaled dxdy: "$dx,$dy"
+      ### draw line(): $wx,$wy, $self->transform_xy($x+$dx, $y+$dy),
+      _image_arrow ($image,
+                    $wx,$wy,
+                    $self->transform_xy($x+$dx, $y+$dy),
+                    $colour);
+    } else {
+      $image->xy ($self->{'wx'},$self->{'wy'}, $colour);
+    }
+  }
+}
+# rotate +45  X-Y,X+Y
+# rotate -45  X+Y,X-Y
+sub _image_arrow {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  ### _image_arrow(): "$x1,$y1 to $x2,$y2"
+  $image->line ($x1,$y1, $x2,$y2, $colour);
+  my $dx = ($x2-$x1)/3;
+  my $dy = ($y2-$y1)/3;
+  my $sum = int($dx+$dy);
+  my $diff = int($dx-$dy);
+  if ($sum || $diff) {
+    $image->line ($x2-$diff,$y2-$sum,  $x2,$y2, $colour);
+    $image->line ($x2-$sum, $y2+$diff, $x2,$y2, $colour);
+  }
+}
+
+sub draw_figure_lines {
+  my ($self, $colour) = @_;
+  ### draw_figure_lines() ...
+
+  my $orig_wx = $self->{'wx'};
+  my $orig_wy = $self->{'wy'};
+  my $path_object = $self->{'path_object'};
+
+  my $lines_figure_method = $self->{'lines_figure_method'};
+  my $image = $self->{'image'};
+  my $n_offset_list = $self->{'n_offset_list'};
+  my $n_figure_list = $self->{'n_figure_list'};
+
+  foreach my $n (@{$self->{'n_list'}}) {
+    ### $n
+    my ($wx,$wy);
+    foreach my $i (0 .. $#$n_offset_list) {
+      ### n with offset: $n+$n_offset_list->[$i]
+      my ($x2, $y2) = $path_object->n_to_xy($n+$n_offset_list->[$i]);
+      my ($wx2, $wy2);
+
+      if (defined $x2) {
+        $self->{'x'} = $x2;
+        $self->{'y'} = $y2;
+
+        ($wx2, $wy2) = $self->transform_xy($x2, $y2);
+        ### frag: "to x2,y2 = $x2,$y2"
+        ### affined to x2,y2: "$wx2, $wy2"
+
+        if ($n_figure_list->[$i]) {
+          $self->{'x'} = $x2;
+          $self->{'y'} = $y2;
+          $self->{'wx'} = $wx2;
+          $self->{'wy'} = $wy2;
+          $self->$lines_figure_method($colour);
+        }
+
+        if (defined $wx) {
+          my $drawn = _image_line_clipped ($image, $wx,$wy, $wx2,$wy2,
+                                           $self->{'width'},$self->{'height'},
+                                           $colour);
+          # $count_total++;
+          # $count_outside += !$drawn;
+          # $count_figures += $drawn;
+        }
+      }
+      $wx = $wx2;
+      $wy = $wy2;
+    }
+  }
+}
+
+sub draw_figure_linestree {
+  my ($self, $colour) = @_;
+
+  my $path_object = $self->{'path_object'};
+  my $x = $self->{'x'};
+  my $y = $self->{'y'};
+  if (ref $x) { $x = $x->numify; }
+  if (ref $y) { $y = $y->numify; }
+
+  my @n_children;
+  foreach my $n (@{$self->{'n_list'}}) {
+    if (my $branches = $self->{'branches'}) {
+      push @n_children,
+        tree_n_children_for_branches ($path_object, $n, $branches);
+    } else {
+      my @this_n_children;
+      @this_n_children = $path_object->tree_n_children($n)
+        or @this_n_children = $path_object->MathImage__tree_n_children($n);
+      push @n_children, @this_n_children;
+    }
+  }
+
+  my $wx = $self->{'wx'};
+  my $wy = $self->{'wy'};
+  my $image = $self->{'image'};
+
+  # draw line to each of @n_children
+  foreach my $n_dest (@n_children) {
+    my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
+      or next;
+    my $drawn = _image_line_clipped ($image,
+                                     $wx,$wy,
+                                     $self->transform_xy ($x_dest, $y_dest),
+                                     $self->{'width'},$self->{'height'},
+                                     $colour);
+    # $count_figures++;
+    # $count_total++;
+    # $count_outside += !$drawn;
+  }
+
+  my $lines_figure_method = $self->{'lines_figure_method'};
+  $self->$lines_figure_method($colour);
+}
+
 sub undiamond {
   my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
   my $width = $x2 - $x1 + 1;
@@ -1763,20 +2494,208 @@ sub _triangle {
 #             $fill);
 # }
 
-sub _hexagon {
+
+#    +----+      --+
+#   /      \       | sqrt(1/2)
+#  /        \      |
+# +          +   --+
+# |          |     |
+# |          |     | 1
+# |          |     |
+# +          +   --+
+#  \        /
+#   \      /
+#    +----+
+# total 2*sqrt(1/2)+1 = sqrt(2)+1
+# 1/(sqrt(2)+1) = sqrt(2)-1
+# straight sqrt(2)-1
+# angle sqrt(1/2)*(sqrt(2)-1)
+#     = sqrt(1/2)*sqrt(2)-sqrt(1/2)
+#     = 1-sqrt(1/2) = 0.2928
+#
+sub _octagon {
   my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  ### _octagon: "$x1,$y1, $x2,$y2, $colour"
+
   my $yc = int (($y1+$y2)/2);  # side centre
-  my $xoffset = int(.25 * ($x2-$x1+1));
+  my $xoffset = int(($x2-$x1+1) * (1-sqrt(1/2)));
+  my $yoffset = int(($y2-$y1+1) * (1-sqrt(1/2)));
+
+  my @x = ($x2-$xoffset,
+           $x2,
+           $x2,
+           $x2-$xoffset,
+           $x1+$xoffset,
+           $x1,
+           $x1,
+           $x1+$xoffset);
+  my @y = ($y1,
+           $y1+$yoffset,
+           $y2-$yoffset,
+           $y2,
+           $y2,
+           $y2-$yoffset,
+           $y1+$yoffset,
+           $y1);
+  my $x = $x[-1];
+  my $y = $y[-1];
+  while (@x) {
+    my $x2 = shift @x;
+    my $y2 = shift @y;
+    $image->line ($x,$y, $x2,$y2, $colour);
+    $x = $x2;
+    $y = $y2;
+  }
+}
+
+#    +----+
+#   /      \
+#  /        \
+# +          +
+#  \        /
+#   \      /
+#    +----+
+# height 2*sqrt(3/4) = sqrt(3)
+#
+sub _hexagon_horizontal {
+  my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+
+  my $xoffset = int(($x2-$x1+1) * .25);
+  my $yc = int (($y1+$y2)/2);  # side centre
+  my $yc_ceil = int (($y1+$y2+1)/2);  # side centre
   ### $xoffset
 
   $image->line ($x1,$yc, $x1+$xoffset,$y1, $colour);
-  $image->line ($x1,$yc, $x1+$xoffset,$y2, $colour);
+  $image->line ($x1,$yc_ceil, $x1+$xoffset,$y2, $colour);
 
   $image->line ($x1+$xoffset,$y1, $x2-$xoffset,$y1, $colour);
   $image->line ($x1+$xoffset,$y2, $x2-$xoffset,$y2, $colour);
 
   $image->line ($x2-$xoffset,$y1, $x2,$yc, $colour);
-  $image->line ($x2-$xoffset,$y2, $x2,$yc, $colour);
+  $image->line ($x2-$xoffset,$y2, $x2,$yc_ceil, $colour);
+}
+
+#    +      --+
+#   / \       | cos(Pi/3) = 1/2
+#  /   \      |
+# +     +   --+
+# |     |     | 1
+# |     |     |
+# +     +   --+
+#  \   /
+#   \ /
+#    +
+# total 2
+#
+sub _hexagon_vertical {
+  my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+
+  ### assert: $x2 >= $x1
+  ### assert: $y2 >= $y1
+
+  my $w = $x2 - $x1;
+  my $h = $y2 - $y1;
+  if ($w < 2 || $h < 2) {
+    $image->rectangle ($x1,$y1, $x2,$y2, $colour, 1);
+    return;
+  }
+
+  if ($fill) {
+    $w = int ($w / 2);
+    $h = int ($h / 4);
+
+    my $x = $w;  # middle
+    my $y = 0;   # top
+
+    ### $w
+    ### $h
+    ### x1+x: $x1+$w
+    ### x2-x: $x2-$w
+    ### y1+y: $y1+$h
+    ### y2-y: $y2-$h
+
+
+    my $draw;
+    if ($fill) {
+      $draw = sub {
+        ### draw across: "$x,$y"
+        $image->line ($x1+$x,$y1+$y, $x2-$x,$y1+$y, $colour); # upper
+        $image->line ($x1+$x,$y2-$y, $x2-$x,$y2-$y, $colour); # lower
+      };
+    } else {
+      $draw = sub {
+        ### draw: "$x,$y"
+        $image->xy ($x1+$x,$y1+$y, $colour); # upper left
+        $image->xy ($x2-$x,$y1+$y, $colour); # upper right
+
+        $image->xy ($x1+$x,$y2-$y, $colour); # lower left
+        $image->xy ($x2-$x,$y2-$y, $colour); # lower right
+      };
+    }
+
+    if ($w > $h) {
+      ### shallow ...
+
+      my $rem = int($w/2) - $w;
+      ### $rem
+
+      while ($x > 0) {
+        ### at: "x=$x  rem=$rem"
+
+        if (($rem += $h) >= 0) {
+          &$draw();
+          $y++;
+          $rem -= $w;
+          $x--;
+        } else {
+          if (! $fill) { &$draw() }
+          $x--;
+        }
+      }
+
+    } else {
+      ### steep ...
+
+      # when $h is odd bias towards pointier at the narrower top/bottom ends
+      my $rem = int(($h-1)/2) - $h;
+      ### $rem
+
+      while ($y < $h) {
+        ### $rem
+        &$draw();
+
+        if (($rem += $w) >= 0) {
+          $rem -= $h;
+          $x--;
+          ### x inc to: "x=$x  rem $rem"
+        }
+        $y++;
+      }
+    }
+
+
+    ### final: "$x,$y"
+
+    # middle rectangle
+    if ($fill) {
+      $image->rectangle ($x1,$y1+$h, $x2,$y2-$h, $colour, 1);
+    }
+
+  } else {
+    # unfilled
+    my $xc = int (($x1+$x2)/2);  # side centre
+    my $xc_ceil = int (($x1+$x2+1)/2);  # side centre
+    my $yoffset = int(($y2-$y1+1) * .25);
+
+    $image->line ($xc,$y1, $x1,$y1+$yoffset, $colour);         # top left
+    $image->line ($xc_ceil,$y1, $x2,$y1+$yoffset, $colour);    # top right
+
+    $image->line ($x1,$y1+$yoffset, $x1,$y2-$yoffset, $colour); # left
+    $image->line ($x2,$y1+$yoffset, $x2,$y2-$yoffset, $colour); # right
+
+    $image->line ($x1,$y2-$yoffset, $xc,$y2, $colour);
+    $image->line ($x2,$y2-$yoffset, $xc_ceil,$y2, $colour);
+  }
 }
 
 sub draw_Image_steps {
@@ -1833,55 +2752,17 @@ sub draw_Image_steps {
   my $affine = $self->affine_object;
   my $values_seq = $self->values_seq;
   my $filter_obj = $self->{'filter_obj'};
+  my $draw_figure_method = $self->{'draw_figure_method'};
+  my $n_list = $self->{'n_list'};
 
   my $lines_type = $values_seq->{'lines_type'} || 'integer';
   my $figure = $self->figure;
-  my $xpscale = $scale;
-  my $ypscale = $scale;
-  if ($self->{'values'} =~ /^Lines/) {
-    # smaller figures for lines 'midpoint' and 'rounded'
-    $xpscale = $ypscale = floor ($self->{'scale'}
-                                 * ($lines_type eq 'integer' ? .4 : .2));
-  } elsif ($path_object->figure eq 'circle' && ! $figure_is_circular{$figure}) {
-    $xpscale = $ypscale = floor ($self->{'scale'} * (1/sqrt(2)));
-  } elsif ($figure eq 'arrow') {
-    $xpscale *= .7;
-    $ypscale *= .7;
-  } elsif ($path_object->MathImage__lattice_type eq 'triangular'
-           && $figure_is_circular{$figure}) {
-    $xpscale = sqrt(2)*$self->{'scale'};
-    $ypscale = sqrt(2)*$self->{'scale'};
-  } elsif ($path_object->MathImage__lattice_type eq 'triangular'
-           && $figure eq 'triangle') {
-    $xpscale = 2*$self->{'scale'};
-    $ypscale = $self->{'scale'};
-  } elsif ($path_object->MathImage__lattice_type eq 'triangular'
-           && $figure eq 'hexagon') {
-    $xpscale = 2*$self->{'scale'};
-    $ypscale = $self->{'scale'};
-    # $xpscale = $ypscale = floor ($self->{'scale'} * sqrt(3));
-  }
-  $xpscale = max (1, $xpscale);
-  $ypscale = max (1, $ypscale);
-  if ($xpscale == 1 && $ypscale == 1) {
-    $figure = 'point';
-  }
-  $xpscale--;  # for x,y corner instead of width
-  $ypscale--;
-  my $figure_method = $figure_method{$figure} || $figure;
+
   my $figure_fill = $figure_fill{$figure};
   ### $figure
 
-  my %points_by_colour;
   my %rectangles_by_colour;
   my $flush = sub {
-    ### flush points: scalar(%points_by_colour)
-    ### colour keys: keys %points_by_colour
-    foreach my $colour (keys %points_by_colour) {
-      my $aref = delete $points_by_colour{$colour};
-      App::MathImage::Image::Base::Other::xy_points
-          ($image, $colour, @$aref);
-    }
     ### flush rectangles: scalar(%rectangles_by_colour)
     foreach my $colour (keys %rectangles_by_colour) {
       my $aref = delete $rectangles_by_colour{$colour};
@@ -1894,297 +2775,16 @@ sub draw_Image_steps {
   my $count_outside = $self->{'count_outside'};
   my $n_hi = $self->{'n_hi'};
 
-  my $figure_at_transformed =
-    ($figure eq 'point' || $xpscale < 2
-     ? sub { }
-     : sub {
-       my ($x,$y) = @_;
-       ### figure_at_transformed(): "$x, $y   $figure_method"
-       $count_total++;
-       $x = floor ($x - int($xpscale/2) + .5);
-       $y = floor ($y - int($ypscale/2) + .5);
-       if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
-                                         $width,$height)) {
-         ### coords: join(',',@coords)
-         $image->$figure_method (@coords, $foreground, $figure_fill);
-         $count_figures++;
-       }
-     });
-
-  if ($self->{'values'} eq 'Lines') {
-    ### $values_seq
-    ### lines_type: $values_seq->{'lines_type'}
-    ### midpoint_offset: $values_seq->{'midpoint_offset'}
-    ### increment: $values_seq->{'increment'}
-
-    my $arms_count = $path_object->arms_count;
-    my $increment = $values_seq->{'increment'} || $arms_count;
-    my $midpoint_offset = 0;
-    if ($lines_type eq 'integer') {
-      $midpoint_offset = 0;
-    } elsif ($lines_type eq 'midpoint') {
-      $midpoint_offset = $values_seq->{'midpoint_offset'};
-      if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
-    } elsif ($lines_type eq 'rounded') {
-      $midpoint_offset = $values_seq->{'midpoint_offset'};
-      if (! defined $midpoint_offset) { $midpoint_offset = 0.5; }
-      $midpoint_offset /= 2;
-    }
-    my $n_offset_from = ($self->{'use_xy'} ? -$increment : 0);
-    my $n_offset_to = $increment;
-
-    # draw point n+moff
-    # discont start at n-disc
-    # diff n+moff-(n-disc) = moff+disc, negative
-    my $n_discontinuity = $path_object->n_frac_discontinuity;
-    if ($increment == 1 && defined $n_discontinuity) {
-      $n_offset_from = -($midpoint_offset+$n_discontinuity);
-      if ($n_offset_from <= -1) {
-        $n_offset_from++;
-      }
-      $n_offset_to = $n_offset_from + .9999;
-    }
-    ### $n_offset_from
-    ### $n_offset_to
-
-    my ($x,$y, $n);
-    my $frag;
-    if ($lines_type eq 'rounded') {
-      my @n_offset_list = (-.5 - $arms_count + 1,
-                           -$midpoint_offset - $arms_count + 1,
-                           min($midpoint_offset,0.499),
-                           .499);
-      my @n_figure_list = (0,1,1,0);
-      ### @n_offset_list
-
-      $frag = sub {
-        ### rounded lines frag: $n
-
-        my ($x,$y);  # not the outer integer  point ...
-
-        # my ($x, $y) = $affine->transform ($x, $y);
-        # $figure_at_transformed->($x,$y);
-        # $x = floor ($x + 0.5);
-        # $y = floor ($y + 0.5);
-        # ### affined to: "$x,$y"
-
-        foreach my $i (0 .. $#n_offset_list) {
-          my ($x2, $y2) = $path_object->n_to_xy($n+$n_offset_list[$i]);
-          ### n with offset: $n+$n_offset_list[$i]
-
-          if (defined $x2) {
-            ### frag: "to x2,y2 = $x2,$y2"
-            ($x2, $y2) = $affine->transform ($x2, $y2);
-            $x2 = floor ($x2 + 0.5);
-            $y2 = floor ($y2 + 0.5);
-            ### affined to x2,y2: "$x2, $y2"
-
-            if ($n_figure_list[$i]) {
-              $figure_at_transformed->($x2,$y2);
-            }
-            if (defined $x) {
-              my $drawn = _image_line_clipped ($image, $x,$y, $x2,$y2,
-                                               $width,$height,
-                                               $foreground);
-              $count_total++;
-              $count_outside += !$drawn;
-              $count_figures += $drawn;
-            }
-          }
-          ($x,$y) = ($x2,$y2);
-        }
-      };
-    } else {
-      $frag = sub {
-        #### lines frag: "n=".($n+$midpoint_offset)."   $x,$y"
-
-        my ($x, $y) = $affine->transform ($x, $y);
-        $figure_at_transformed->($x,$y);
-        ### affine to: "$x, $y"
-        $x = floor ($x + 0.5);
-        $y = floor ($y + 0.5);
-
-        foreach my $n_offset (($n_offset_from ? $n_offset_from : ()),
-                              $n_offset_to) {
-          my ($x2, $y2) = $path_object->n_to_xy($n+$midpoint_offset+$n_offset)
-            or next;
-          ### n offset: "n=".($n+$midpoint_offset+$n_offset)."   $x2, $y2"
-          ($x2, $y2) = $affine->transform ($x2, $y2);
-          ### affine to: "$x2, $y2"
-          $x2 = floor ($x2 + 0.5);
-          $y2 = floor ($y2 + 0.5);
-
-          my $drawn = _image_line_clipped ($image,
-                                           $x,$y, $x2,$y2,
-                                           $width,$height,
-                                           $foreground);
-          $count_total++;
-          $count_outside += !$drawn;
-          $count_figures += $drawn;
-        }
-      };
-    }
-
-    if ($self->{'use_xy'}) {
-      ### Lines use_xy...
-      $x = $self->{'x'};
-      $y = $self->{'y'};
-      my $x_hi = $self->{'x_hi'};
-      #### draw by xy range: "$self->{'x_lo'} .. $self->{'x_hi'} and y to $self->{'y_hi'}"
-
-      for (;;) {
-        &$cont() or last;
-
-        $y = $self->{'y'};
-        if (($x = ++$self->{'x'}) > $x_hi) {
-          if (($y = ++$self->{'y'}) > $self->{'y_hi'}) {
-            last;
-          }
-          $x = $self->{'x'} = $self->{'x_lo'};
-          #### next row: "$x,$y"
-        }
-
-        my @n_list = $path_object->xy_to_n_list ($x, $y)
-          or next;  # no N for this x,y
-        ### Lines use_xy at: "$x, $y"
-        ### @n_list
-
-        foreach (@n_list) {
-          $n = $_;
-          ### $n
-          ### n_to_xy: $path_object->n_to_xy ($n)
-          ### xy_to_n: $path_object->xy_to_n ($x,$y)
-
-          if ($midpoint_offset) {
-            ($x, $y) = $path_object->n_to_xy($n+$midpoint_offset)
-              or next;
-            ### midpoint offset move to xy: "$x, $y"
-          }
-          &$frag();
-        }
-      }
-
-    } else {
-      ### Lines by N...
-      $n = $self->{'upto_n'};
-      # $n_hi = 32+7;
-
-      for ( ; $n < $n_hi; $n++) {
-        &$cont() or last;
-
-        ($x, $y) = $path_object->n_to_xy($n+$midpoint_offset)
-          or next;
-        &$frag();
-      }
-      $self->{'upto_n'} = $n;
-      $self->{'count_total'} = $count_total;
-      $self->{'count_outside'} = $count_outside;
-      $self->maybe_use_xy;
-    }
-    return $more;
-  }
-
-  if ($self->{'values'} eq 'LinesTree') {
-    # math-image --path=PythagoreanTree --values=LinesTree --scale=100
-    my $branches = $self->{'branches'};
-
-    my ($x,$y);
-    my $draw_linestree = sub {
-      my ($wx, $wy) = $affine->transform ($x, $y);
-      $figure_at_transformed->($wx,$wy);
-      $wx = floor ($wx + 0.5);
-      $wy = floor ($wy + 0.5);
-
-      my @n_children;
-      foreach my $n (@_) {
-        if ($branches) {
-          push @n_children,
-            tree_n_children_for_branches ($path_object, $n, $branches);
-        } else {
-          my @this_n_children;
-          @this_n_children = $path_object->tree_n_children($n)
-            or @this_n_children = $path_object->MathImage__tree_n_children($n);
-          push @n_children, @this_n_children;
-        }
-      }
-      # draw line to each of @n_children
-      foreach my $n_dest (@n_children) {
-        my ($x_dest, $y_dest) = $path_object->n_to_xy ($n_dest)
-          or next;
-        ($x_dest, $y_dest) = $affine->transform ($x_dest, $y_dest);
-        $x_dest = floor ($x_dest + 0.5);
-        $y_dest = floor ($y_dest + 0.5);
-        my $drawn = _image_line_clipped ($image, $wx,$wy, $x_dest,$y_dest,
-                                         $width,$height, $foreground);
-        $count_figures++;
-        $count_total++;
-        $count_outside += !$drawn;
-      }
-    };
-
-    if ($self->{'use_xy'}) {
-      ### LinesTree use_xy...
-
-      my $upto_n = $self->{'upto_n'};
-      for (;;) {
-        &$cont() or last;
-
-        ($x, $y) = $self->{'rectbyxy'}->next
-          or last;
-        ### use_xy rectbyxy: "$x,$y"
-
-        my @n_list;
-        if ($self->{'bignum_xy'}) {
-          @n_list = $path_object->xy_to_n_list (_bigint()->new($x),
-                                                _bigint()->new($y));
-        } else {
-          @n_list = $path_object->xy_to_n_list ($x, $y);
-        }
-        if (! @n_list || $n_list[-1] < $upto_n) {
-          next; # no N for this x,y, or below already seen
-        }
-        $draw_linestree->(@n_list);
-      }
-
-    } else {
-      ### LinesTree by N...
-      my $n = $self->{'upto_n'};
-
-      for (;;) {
-        &$cont() or last;
-
-        if (++$n > $n_hi) {
-          $more = 0;
-          last;
-        }
-        ($x, $y) = $path_object->n_to_xy($n)
-          or do {
-            # no more in path
-            $more = 0;
-            last;
-          };
-        ### n raw: "n=$n  $x,$y"
-        $draw_linestree->($n);
-      }
-
-      $self->{'count_total'} = $count_total;
-      $self->{'count_outside'} = $count_outside;
-      $self->{'upto_n'} = $n;
-      $self->maybe_use_xy;
-    }
-    return $more;
-  }
-
   if ($self->{'values'} eq 'LinesLevel') {
     ### LinesLevel step...
 
     my $n = $self->{'upto_n'};
-    my $xprev = $self->{'xprev'};
-    my $yprev = $self->{'yprev'};
+    my $wxprev = $self->{'wxprev'};
+    my $wyprev = $self->{'wyprev'};
 
     ### upto_n: $n
-    ### $xprev
-    ### $yprev
+    ### $wxprev
+    ### $wyprev
 
     for ( ; $n <= $n_hi; $n++) {
       &$cont() or last;
@@ -2194,275 +2794,136 @@ sub draw_Image_steps {
       ### n: "$n"
       ### xy raw: "$x,$y"
 
-      ($x,$y) = $affine->transform ($x, $y);
-      ### xy affine: "$x,$y"
-      $figure_at_transformed->($x,$y);
-      $x = floor ($x + 0.5);
-      $y = floor ($y + 0.5);
+      $self->{'x'} = $x;
+      $self->{'y'} = $y;
+      my ($wx,$wy) = $self->transform_xy ($x, $y);
+      $self->{'wx'} = $wx;
+      $self->{'wy'} = $wy;
+      $self->$draw_figure_method($foreground);
 
-      _image_line_clipped ($image, $xprev,$yprev, $x,$y,
-                           $width,$height, $foreground);
-      $count_figures++;
+      if (defined $wxprev) {
+        _image_line_clipped ($image, $wxprev,$wyprev, $wx,$wy,
+                             $width,$height, $foreground);
+        $count_figures++;
+      }
 
-      $xprev = $x;
-      $yprev = $y;
+      $wxprev = $wx;
+      $wyprev = $wy;
     }
     $self->{'upto_n'} = $n;
-    $self->{'xprev'} = $xprev;
-    $self->{'yprev'} = $yprev;
+    $self->{'wxprev'} = $wxprev;
+    $self->{'wyprev'} = $wyprev;
     return $more;
   }
 
-  my $n_prev = $self->{'n_prev'};
-  my $offset = ($figure eq 'point' ? 0 : int(($xpscale+1)/2));
+  my $background_fill_proc = sub {};
 
-  my $background_fill_proc;
-  if (! $covers && $figure eq 'point') {
-    $background_fill_proc = sub {
-      my ($n_to) = @_;
-      ### background fill for point...
-      foreach my $n ($n_prev+1 .. $n_to) {
-        $steps++;
-        $count_total++;
-        my ($x, $y) = $path_object->n_to_xy($n) or do {
-          $count_outside++;
-          next;
-        };
-        ($x, $y) = $affine->transform($x, $y);
-        $x = floor ($x - $offset + 0.5);
-        $y = floor ($y - $offset + 0.5);
-        ### back_point: $n
-        ### $x
-        ### $y
-        next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
+  # my $offset = ($figure eq 'point' ? 0 : int(($xpscale+1)/2));
+  # if (! $covers && $figure eq 'point') {
+  #   $background_fill_proc = sub {
+  #     my ($n_to) = @_;
+  #     ### background fill for point...
+  #     foreach my $n ($n_prev+1 .. $n_to) {
+  #       $steps++;
+  #       $count_total++;
+  #       my ($x, $y) = $path_object->n_to_xy($n) or do {
+  #         $count_outside++;
+  #         next;
+  #       };
+  #       ($x, $y) = $affine->transform($x, $y);
+  #       $x = floor ($x - $offset + 0.5);
+  #       $y = floor ($y - $offset + 0.5);
+  #       ### back_point: $n
+  #       ### $x
+  #       ### $y
+  #       next if ($x < 0 || $y < 0 || $x >= $width || $y >= $height);
+  #     }
+  #   };
+  # } elsif (! $covers && $figure eq 'square') {
+  #   $background_fill_proc = sub {
+  #     my ($n_to) = @_;
+  #     ### background fill for rectangle...
+  #     foreach my $n ($n_prev+1 .. $n_to) {
+  #       $steps++;
+  #       my ($x, $y) = $path_object->n_to_xy($n) or next;
+  #       ($x, $y) = $affine->transform($x, $y);
+  #       ### back_rectangle: "$n   $x,$y"
+  #       $x = floor ($x - $offset + 0.5);
+  #       $y = floor ($y - $offset + 0.5);
+  #       $count_total++;
+  #       my @rect = rect_clipper ($x, $y, $x+$xpscale, $y+$ypscale,
+  #                                $width,$height)
+  #         or do {
+  #           $count_outside++;
+  #           next;
+  #         };
+  #       push @{$rectangles_by_colour{$background}}, @rect;
+  #       if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
+  #         $flush->();
+  #       }
+  #     }
+  #   };
+  # } else {
+  #   ### background_fill_proc is noop...
+  #   $background_fill_proc = \&_noop;
+  # }
 
-        push @{$points_by_colour{$background}}, $x, $y;
-        if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
-          $flush->();
-        }
-      }
-    };
-  } elsif (! $covers && $figure eq 'square') {
-    $background_fill_proc = sub {
-      my ($n_to) = @_;
-      ### background fill for rectangle...
-      foreach my $n ($n_prev+1 .. $n_to) {
-        $steps++;
-        my ($x, $y) = $path_object->n_to_xy($n) or next;
-        ($x, $y) = $affine->transform($x, $y);
-        ### back_rectangle: "$n   $x,$y"
-        $x = floor ($x - $offset + 0.5);
-        $y = floor ($y - $offset + 0.5);
-        $count_total++;
-        my @rect = rect_clipper ($x, $y, $x+$xpscale, $y+$ypscale,
-                                 $width,$height)
-          or do {
-            $count_outside++;
-            next;
-          };
-        push @{$rectangles_by_colour{$background}}, @rect;
-        if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
-          $flush->();
-        }
-      }
-    };
-  } else {
-    ### background_fill_proc is noop...
-    $background_fill_proc = \&_noop;
-  }
-
-  my $colours = $self->{'colours'};
-  my $colours_base = $self->{'colours_base'};
   my $colour = $foreground;
   my $use_colours = $self->use_colours;
   my $values_non_decreasing_from_i = $values_seq->characteristic('non_decreasing_from_i');
   my $n;
   ### $use_colours
-  ### $colours_base
   ### $values_non_decreasing_from_i
+  ### n_decrease_count: $self->{'n_decrease_count'}
+  ### use_xy: $self->{'use_xy'}
 
-  if ($self->{'use_xy'}) {
-    my $x    = $self->{'x'};
-    my $x_hi = $self->{'x_hi'};
-    my $y        = $self->{'y'};
-    my $bignum_y = $self->{'bignum_y'};
-    #### draw by xy from: "$x,$y"
+  for (;;) {
+    &$cont() or last;
+    $count_total++;
+    my ($n, $x,$y, $value);
 
-    for (;;) {
-      &$cont() or last;
-
+    if ($self->{'use_xy'}) {
+      # by XY
       ($x, $y) = $self->{'rectbyxy'}->next
         or last;
-      ### rect xy: "$x,$y"
+      @$n_list = $path_object->xy_to_n_list
+        (($self->{'bignum_xy'} ? _bigint()->new($x) : $x),
+         ($self->{'bignum_xy'} ? _bigint()->new($y) : $y))
+          or do {
+            ### no N for this X,Y ...
+            next;
+          };
+      #### use_xy path: "$x,$y  n_list=".join(',',@$n_list)
 
-      my $n;
-      if ($self->{'bignum_xy'}) {
-        $n = $path_object->xy_to_n (_bigint()->new($x),
-                                    _bigint()->new($y));
-      } else {
-        $n = $path_object->xy_to_n ($x, $y);
-      }
-      if (! defined $n || $n < $n_prev) {
-        next; # no N for this x,y, or below already seen
-      }
-      #### use_xy path: "$x,$y  $n"
-
-      my $count = ($use_colours
-                   ? $values_seq->ith($n)
-                   : $values_seq->pred($n));
-      if (! defined $count) {
-        my ($wx, $wy) = $affine->transform($x,$y);
-        $wx = floor ($wx - $offset + 0.5);
-        $wy = floor ($wy - $offset + 0.5);
-        ### background win: "$wx,$wy"
-
-        if ($figure eq 'point') {
-          $count_figures++;
-          push @{$points_by_colour{$undrawnground}}, $wx, $wy;
-          if (@{$points_by_colour{$undrawnground}} >= _POINTS_CHUNKS) {
-            $flush->();
-          }
-        } else { # $figure eq 'square'
-          $count_figures++;
-          push @{$rectangles_by_colour{$undrawnground}},
-            rect_clipper ($wx, $wy,
-                          $wx+$xpscale, $wy+$ypscale,
-                          $width,$height);
-          if (@{$rectangles_by_colour{$undrawnground}} >= _RECTANGLES_CHUNKS){
-            $flush->();
-          }
-        }
+      if ($n_list->[-1] < $self->{'n_prev'}) {
+        ### below already drawn "by N" ...
         next;
       }
 
-      ### ith or pred: $count
-      if (! $count || ! $filter_obj->pred($n)) {
-        if (! $covers) {
-          ##### background fill...
-
-          my ($wx, $wy) = $affine->transform($x,$y);
-          $wx = floor ($wx - $offset + 0.5);
-          $wy = floor ($wy - $offset + 0.5);
-          ### background win: "$wx,$wy"
-
-          if ($figure eq 'point') {
-            $count_figures++;
-            push @{$points_by_colour{$background}}, $wx, $wy;
-            if (@{$points_by_colour{$background}} >= _POINTS_CHUNKS) {
-              $flush->();
-            }
-          } elsif ($figure eq 'diamond') {
-            if (my @coords = ellipse_clipper ($x,$y, $x+$xpscale,$y+$ypscale,
-                                              $width,$height)) {
-              $count_figures++;
-              $image->$figure_method (@coords, $colour, $figure_fill);
-            }
-          } else { # $figure eq 'square'
-            $count_figures++;
-            push @{$rectangles_by_colour{$background}},
-              rect_clipper ($wx, $wy,
-                            $wx+$xpscale, $wy+$ypscale,
-                            $width,$height);
-            if (@{$rectangles_by_colour{$background}} >= _RECTANGLES_CHUNKS) {
-              $flush->();
-            }
-          }
-        }
+      $n = $n_list->[0];
+      $value = ($use_colours
+                ? $values_seq->ith($n)
+                : $values_seq->pred($n) ? 1 : undef);
+      if (! defined $value) {
+        ### nothing at this X,Y, undrawnground ...
+        $self->{'x'} = $x;
+        $self->{'y'} = $y;
+        ($self->{'wx'},$self->{'wy'}) = $self->transform_xy($x,$y);
+        $self->draw_figure_square($undrawnground);
         next;
       }
 
-      my ($wx, $wy) = $affine->transform($x,$y);
-
-      $count_figures++;
-      if ($use_colours) {
-        $colour = $self->value_to_colour($count);
-      }
-      if ($figure eq 'point') {
-        push @{$points_by_colour{$colour}}, $wx, $wy;
-        if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
-          $flush->();
-        }
-      } elsif ($figure eq 'square') {
-        $wx = floor ($wx - $offset + 0.5);
-        $wy = floor ($wy - $offset + 0.5);
-        ### xy win: "$wx,$wy"
-        push @{$rectangles_by_colour{$colour}},
-          $wx, $wy, $wx+$xpscale, $wy+$ypscale;
-        if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
-          $flush->();
-        }
-
-      } elsif ($figure eq 'eobar') {
-        if ($wx < -$scale || $wy < -$scale
-            || $wx > $width+$scale || $wy > $height+$scale) {
-          ### skip, outside width,height...
-          $count_outside++;
-          next;
-        }
-        if (($x+$y) % 2) {
-          # horizontal
-          $image->line ($wx-$scale,$wy, $wx+$scale,$wy, $colour);
-        } else {
-          # vertical
-          $image->line ($wx,$wy-$scale, $wx,$wy+$scale, $colour);
-        }
-
-      } elsif ($figure eq 'arrow') {
-        my @dxdy_list = xy_to_dxdy_list($path_object,$x,$y);
-        while (my ($dx,$dy) = splice @dxdy_list, 0,2) {
-          ### dxdy: "$dx,$dy"
-          if (ref $dx) { $dx = $dx->numify; }
-          if (ref $dy) { $dy = $dy->numify; }
-          my $h = hypot($dx,$dy);
-          if ($h) {
-            my $f = .6 / hypot($dx,$dy);
-            $dx *= $f;
-            $dy *= $f;
-            ### scaled dxdy: "$dx,$dy"
-            ### draw line(): $wx,$wy, $affine->transform($x+$dx, $y+$dy)
-            _image_arrow ($image,
-                          $wx,$wy,
-                          $affine->transform($x+$dx, $y+$dy),
-                          $colour);
-          } else {
-            push @{$points_by_colour{$colour}}, $wx, $wy;
-            if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
-              $flush->();
-            }
-          }
-        }
-      } else { # ellipse, diamond, etc
-        $wx = floor ($wx - $offset + 0.5);
-        $wy = floor ($wy - $offset + 0.5);
-        ### xy win: "$wx,$wy"
-        $image->$figure_method ($wx,$wy, $wx+$xpscale,$wy+$ypscale,
-                                $colour, $figure_fill);
-      }
-    }
-    $self->{'x'} = $x;
-    $self->{'y'} = $y;
-    $self->{'bignum_y'} = $bignum_y;
-
-  } else {
-    ### draw by N...
-
-    for (;;) {
-      &$cont() or last;
-
-      my ($i, $value) = $values_seq->next;
+    } else {
+      # by N
+      (my $i, $value) = $values_seq->next;
       ### $i
       ### value: $value
-      ### n_prev: "$n_prev"
+      ### n_prev: "$self->{'n_prev'}"
 
-      my $n;
       if ($use_colours) {
         $n = $i;
-        if (! defined $n) {
-          ### seq i undef, stop ...
-          last;
-        }
         if (! defined $n || $n > $n_hi) {
-          ### n undef or past n_hi, stop ...
+          ### seq i undef or past n_hi, stop ...
           last;
         }
       } else {
@@ -2474,13 +2935,16 @@ sub draw_Image_steps {
           }
           next;
         }
+        my $n_prev = $self->{'n_prev'};
+        $self->{'n_prev'} = $n;
         if ($n <= $n_prev) {
-          if (++$self->{'n_decrease'} > 10) {
-            ### stop for n<n_prev many times ...
+          ### n not increasing, count: $self->{'n_decrease_count'}
+          if (++$self->{'n_decrease_count'} > 10) {
+            ### stop for n<=n_prev too many times ...
             last;
           }
         } else {
-          $self->{'n_decrease'} = 0;
+          $self->{'n_decrease_count'} = 0;
 
           if ($n > $n_hi) {
             if ((defined $values_non_decreasing_from_i
@@ -2494,133 +2958,50 @@ sub draw_Image_steps {
           }
         }
       }
-      $n_prev = $n;
-
-      ### filter n: $n
-      $filter_obj->pred($n)
-        or next;
-
-      my ($x, $y) = $path_object->n_to_xy($n) or next;
-      ### at: "n=$n  path xy=$x,$y"
-
-      if ($use_colours) {
-        if (! defined $value) {   #  || $value == 0
-          next; # background
-        }
-        $colour = $self->value_to_colour($value);
-        #### $colour
-        #### at index: abs($value - $colours_base)
-      }
-
-      # BigInt no good for $affine->transform multiplies
-      my $xn = $x;
-      my $yn = $y;
-      if (ref $xn) { $xn = $xn->numify; }  # numified bigints
-      if (ref $yn) { $yn = $yn->numify; }
-
-      my ($wx, $wy) = $affine->transform($xn, $yn);
-      ### affined to: "$wx,$wy"
-
-      $count_total++;
-      if ($figure eq 'point') {
-        $background_fill_proc->($n-1);
-
-        if ($wx < 0 || $wy < 0 || $wx >= $width || $wy >= $height) {
-          ### skip, outside width,height...
-          $count_outside++;
+      ($x, $y) = $path_object->n_to_xy($n)
+        or do {
+          ### no xy at this n ...
           next;
-        }
-        push @{$points_by_colour{$colour}}, $wx, $wy;
-        if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
-          $flush->();
-        }
-
-      } elsif ($figure eq 'eobar') {
-        if ($wx < -$scale || $wy < -$scale
-            || $wx > $width+$scale || $wy > $height+$scale) {
-          ### skip, outside width,height...
-          $count_outside++;
-          next;
-        }
-        if (($x+$y) % 2) {
-          # horizontal
-          $image->line ($wx-$scale,$wy, $wx+$scale,$wy, $colour);
-        } else {
-          # vertical
-          $image->line ($wx,$wy-$scale, $wx,$wy+$scale, $colour);
-        }
-
-      } elsif ($figure eq 'arrow') {
-        if ($wx < -$xpscale || $wy < -$xpscale
-            || $wx >= $width+$xpscale || $wy >= $height+$xpscale) {
-          ### skip, outside width,height...
-          $count_outside++;
-          next;
-        }
-        my @dxdy_list = xy_to_dxdy_list($path_object,$x,$y);
-        while (my ($dx,$dy) = splice @dxdy_list, 0,2) {
-          if (ref $dx) { $dx = $dx->numify; }
-          if (ref $dy) { $dy = $dy->numify; }
-          my $h = hypot($dx,$dy);
-          if ($h) {
-            my $f = .6 / hypot($dx,$dy);
-            $dx *= $f;
-            $dy *= $f;
-            ### scaled dxdy: "$dx,$dy"
-            ### draw line(): $wx,$wy, $affine->transform($xn+$dx, $yn+$dy)
-            _image_arrow ($image,
-                          $wx,$wy,
-                          $affine->transform($xn+$dx, $yn+$dy),
-                          $colour);
-          } else {
-            push @{$points_by_colour{$colour}}, $wx, $wy;
-            if (@{$points_by_colour{$colour}} >= _POINTS_CHUNKS) {
-              $flush->();
-            }
-          }
-        }
-
-      } elsif ($figure eq 'square') {
-        $wx = floor ($wx - $offset + 0.5);
-        $wy = floor ($wy - $offset + 0.5);
-        ### round to: "$wx,$wy"
-        $background_fill_proc->($n-1);
-
-        my @rect = rect_clipper ($wx, $wy, $wx+$xpscale, $wy+$ypscale,
-                                 $width,$height)
-          or do {
-            $count_outside++;
-            next;
-          };
-        push @{$rectangles_by_colour{$colour}}, @rect;
-        if (@{$rectangles_by_colour{$colour}} >= _RECTANGLES_CHUNKS) {
-          $flush->();
-        }
-
-      } else {
-        $wx = floor ($wx - $offset + 0.5);
-        $wy = floor ($wy - $offset + 0.5);
-        ### round to: "$wx,$wy"
-        my @rect = ellipse_clipper ($wx,$wy, $wx+$xpscale,$wy+$ypscale,
-                                    $width,$height)
-          or do {
-            $count_outside++;
-            next;
-          };
-        $image->$figure_method (@rect, $colour, $figure_fill);
-      }
-      $count_figures++;
+        };
+      @$n_list = ($n);
     }
 
-    $self->{'n_prev'} = $n_prev;
-    $self->{'count_total'} = $count_total;
-    $self->{'count_outside'} = $count_outside;
-    $self->maybe_use_xy;
-
-    if (! $more) {
-      ### final background fill...
-      $background_fill_proc->($n_hi);
+    if ($use_colours) {
+      if (! defined $value) {
+        ### value undef, background ...
+        next;
+      }
+      $colour = $self->value_to_colour($value);
+      #### $colour
     }
+
+    $self->{'n'} = $n;
+    $self->{'x'} = $x;
+    $self->{'y'} = $y;
+    ### at: "n=$n  path xy=$x,$y"
+
+    my ($wx, $wy) = $self->transform_xy($x,$y);
+    if ($wx < -$scale || $wy < -$scale || $wx >= $width+$scale || $wy >= $height+$scale) {
+      ### skip, outside width,height...
+      $count_outside++;
+      next;
+    }
+
+    $self->{'wx'} = $wx;
+    $self->{'wy'} = $wy;
+
+    if (! $filter_obj->pred($n)) {
+      if (! $covers) {
+        $self->draw_figure_square($undrawnground);
+      }
+      next;
+    }
+
+    $count_figures++;
+    if ($use_colours) {
+      $colour = $self->value_to_colour($value);
+    }
+    $self->$draw_figure_method($colour);
   }
 
   $flush->();
@@ -2636,7 +3017,7 @@ sub draw_Image_steps {
 #   my ($dx,$dy) = @_;
 #   return map {n_to_dxdy($path,$_)} $path->xy_to_n_list($x,$y);
 # }
-sub xy_to_dxdy_list {
+sub path_xy_to_dxdy_list {
   my ($path, $x,$y) = @_;
   return map {$path->n_to_dxdy($_)} $path->xy_to_n_list($x,$y);
 }
@@ -2669,7 +3050,6 @@ sub maybe_use_xy {
   ### maybe_use_xy() ...
   ### count_total: $self->{'count_total'}
   ### count_outside: $self->{'count_outside'}
-  ### square_grid: $pathname_square_grid{$self->{'path'}}
 
   my ($count_total, $values_seq);
   if (($count_total = $self->{'count_total'}) > 1000
@@ -2698,6 +3078,7 @@ sub value_to_colour {
 
   my $base = $self->{'colours_base'};
   if (my $aref = $self->{'colours_array'}) {
+    ### colour from array at: "base=$base, adjusted value=".abs($value - $base)
     $value = abs($value - $base);
     return $aref->[min ($#$aref, $value)];
   }
@@ -2765,18 +3146,13 @@ sub use_xy {
                                                        x_max => $x_hi,
                                                        y_min => $y_lo,
                                                        y_max => $y_hi);
-  
+
   $self->{'x'} = $x_lo - 1;
-  $self->{'bignum_y'} = $self->{'y'} = $y_lo;
+ $self->{'y'} = $y_lo;
   ### x range: "$x_lo to $x_hi start $self->{'x'}"
   ### y range: "$y_lo to $y_hi start $self->{'y'}"
   ### n_hi: "$self->{'n_hi'}   cf _SV_N_LIMIT "._SV_N_LIMIT()
 
-  if ($self->{'n_hi'} > _SV_N_LIMIT) {
-    ### bigint Y: "$self->{'y'}"
-    $self->{'bignum_y'} = _bigint()->new($y_lo);
-    ### y: $self->{'y'}
-  }
   $self->{'bignum_xy'} = ($self->{'n_hi'} > _SV_N_LIMIT);
 
   my $x_width = $self->{'x_width'} = $x_hi - $x_lo + 1;
@@ -2802,22 +3178,6 @@ sub draw_Image {
   $self->draw_Image_start ($image);
   while ($self->draw_Image_steps) {
     # more
-  }
-}
-
-# rotate +45  X-Y,X+Y
-# rotate -45  X+Y,X-Y
-sub _image_arrow {
-  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
-  ### _image_arrow(): "$x1,$y1 to $x2,$y2"
-  $image->line ($x1,$y1, $x2,$y2, $colour);
-  my $dx = ($x2-$x1)/3;
-  my $dy = ($y2-$y1)/3;
-  my $sum = int($dx+$dy);
-  my $diff = int($dx-$dy);
-  if ($sum || $diff) {
-    $image->line ($x2-$diff,$y2-$sum,  $x2,$y2, $colour);
-    $image->line ($x2-$sum, $y2+$diff, $x2,$y2, $colour);
   }
 }
 
@@ -2867,7 +3227,7 @@ sub rect_clipper {
   #   }
   # }
   # #  return if ($x1 < 0 && $x2 < 0);
-  # 
+  #
   # # return if ($y2 < 0);
   # return ($x1,$y1, $x2,$y2);
 
@@ -2875,7 +3235,7 @@ sub rect_clipper {
     || ($x1 >= $width && $x2 >= $width)
       || ($y1 < 0 && $y2 < 0)
         || ($y1 >= $height && $y2 >= $height);
-  
+
   return (max($x1,0),
           max($y1,0),
           min($x2,$width-1),

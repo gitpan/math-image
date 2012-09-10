@@ -20,6 +20,8 @@
 
 # Term::Caca::Bitmap  for dithering only?
 # Term::Caca::Sprite  load only?
+#
+# rectangle with given char, ascii chars, ibm line draw 
 
 
 package App::MathImage::Image::Base::Caca;
@@ -33,7 +35,7 @@ use vars '$VERSION', '@ISA';
 use Image::Base;
 @ISA = ('Image::Base');
 
-$VERSION = 106;
+$VERSION = 107;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

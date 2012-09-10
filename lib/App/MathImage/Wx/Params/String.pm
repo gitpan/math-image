@@ -25,9 +25,10 @@ use 5.004;
 use strict;
 use Carp;
 use Wx;
+use List::Util 'min';
 
 use base 'Wx::ComboBox';
-our $VERSION = 106;
+our $VERSION = 107;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -39,24 +40,22 @@ sub new {
 
   # my $display = ($newval->{'display'} || $newval->{'name'});
   my $choices = $info->{'choices'};
-
-  my $value = $info->{'default'};
-  if (! defined $value) { $value = '' }
-
-  my $width_chars = $info->{'width'} || 5;
-  # my $font = $self->GetFont;
-  # my $font_points = $font->GetPointSize;
-  # my $font_mm = $font_points * (1/72 * 25.4);
-  my $em_pixels = 10;
-  my $width_pixels = $width_chars * $em_pixels + 15;
-
   my $self = $class->SUPER::new ($parent,
                                  Wx::wxID_ANY(),   # id
-                                 $value,           # initial value
+                                 '',               # initial value
                                  Wx::wxDefaultPosition(),
-                                 Wx::Size->new ($width_pixels, -1),
+                                 Wx::wxDefaultSize(),
                                  $choices || [],
                                  Wx::wxTE_PROCESS_ENTER());  # style
+
+  {
+    my $width_chars = $info->{'width'} || 5;
+    my $char_pixels = $self->GetCharWidth;
+    $self->SetSize (Wx::Size->new ($width_chars * $char_pixels, -1));
+    ### $width_chars
+    ### $char_pixels
+    ### total width: $width_chars * $char_pixels
+  }
 
   my $type_hint = $info->{'type_hint'} || '';
   $self->{'oeis_anum'} = ($type_hint eq 'oeis_anum');
@@ -68,7 +67,23 @@ sub new {
   Wx::Event::EVT_COMBOBOX ($self, $self, 'OnTextEnter');
   Wx::Event::EVT_MOUSEWHEEL ($self, 'OnMouseWheel');
   Wx::Event::EVT_TEXT ($self, $self, 'OnTextUpdated');
+
+  # calling SetValue() so as to use SetSelection() when found (which it should)
+  my $default = $info->{'default'};
+  if (! defined $default) { $default = '' }
+  ### $default
+  $self->SetValue($default);
+
   return $self;
+}
+
+# cf Wx::Display->GetFromWindow($window), but wxDisplay doesn't have
+# millimetre sizes?
+sub x_mm_to_pixels {
+  my ($window, $mm) = @_;
+  my $size_pixels = Wx::GetDisplaySize();
+  my $size_mm = Wx::GetDisplaySizeMM();
+  return $mm * $size_pixels->GetWidth / $size_mm->GetWidth;
 }
 
 sub SetParameterInfo {

@@ -30,7 +30,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkDiagonostics');
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 sub Populate {
   my ($self, $args) = @_;

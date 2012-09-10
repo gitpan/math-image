@@ -32,7 +32,7 @@ use base qw(Wx::Frame);
 #use Smart::Comments;
 
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 sub new {
   my ($class, $parent, $id, $title) = @_;
@@ -277,6 +277,7 @@ sub new {
   # $self->values_update_tooltip;
   # $self->oeis_browse_update;
 
+  ### Wx-Main new() done ...
   return $self;
 }
 
@@ -407,7 +408,7 @@ sub path_update {
 }
 sub path_params_update {
   my ($self) = @_;
-  ### Main path_parameters_update(): "$self"
+  ### Wx-Main path_parameters_update(): "$self"
   my $draw = $self->{'draw'};
   my $path_params = $self->{'path_params'};
   $draw->{'path_parameters'} = $path_params->GetParameterValues;
@@ -419,10 +420,29 @@ sub values_update {
   my $draw = $self->{'draw'};
   my $values = $draw->{'values'} = $self->{'values_choice'}->GetStringSelection;
   $self->{'values_params'}->SetParameterInfoArray
-    (App::MathImage::Generator->values_class($values)->parameter_info_array);
+    ($self->values_parameter_info_array);
   $draw->redraw;
   $self->values_update_tooltip;
   $self->oeis_browse_update;
+}
+sub values_parameter_info_array {
+  my ($self) = @_;
+  my $values = $self->{'values_choice'}->GetStringSelection;
+  my $aref = App::MathImage::Generator->values_class($values)->parameter_info_array;
+  foreach my $i (0 .. $#$aref) {
+    if ($aref->[$i]->{'name'} eq 'planepath') {
+      require Clone::PP;
+      $aref = Clone::PP::clone($aref);
+      $aref->[$i]->{'default'} = 'ThisPath';
+      unshift @{$aref->[$i]->{'choices'}}, 'ThisPath';
+      if ($aref->[$i]->{'choices_display'}) {
+        unshift @{$aref->[$i]->{'choices_display'}}, 'This Path';
+      }
+      last;
+    }
+  }
+  ### $aref
+  return $aref;
 }
 sub values_params_update {
   my ($self) = @_;
@@ -430,6 +450,7 @@ sub values_params_update {
   my $draw = $self->{'draw'};
   my $values_params = $self->{'values_params'};
   $draw->{'values_parameters'} = $values_params->GetParameterValues;
+  ### values_parameters: $draw->{'values_parameters'}
   $draw->redraw;
   $self->values_update_tooltip;
   $self->oeis_browse_update;
@@ -443,13 +464,15 @@ sub values_update_tooltip {
 
   if (my $gen_object = $self->{'draw'}->gen_object_maybe) {
     if (my $values_seq = $gen_object->values_seq_maybe) {
-      if (my $desc = $values_seq->description) {
+      {
         my $name = $values_choice->GetStringSelection;
-        ### values_seq name: "$values_seq"
-        ### values_choice name: $name
-        $tooltip .= "\n\n"
-          . __x('Current setting: {name}', name => $name)
-            . "\n$desc";
+        $tooltip .= "\n\n" . __x('Current setting: {name}', name => $name);
+      }
+      if (my $desc = $values_seq->description) {
+        $tooltip .= "\n" . $desc;
+      }
+      if (my $anum = $values_seq->oeis_anum) {
+        $tooltip .= "\n" . __x('OEIS {anum}', anum => $anum);
       }
     }
   }
@@ -474,6 +497,7 @@ sub _controls_from_draw {
   my ($self) = @_;
   ### _controls_from_draw() ...
   ### path: $self->{'draw'}->{'path'}
+  ### path_parameters: $self->{'draw'}->{'path_parameters'}
   ### values: $self->{'draw'}->{'values'}
   ### draw seq: ($self->{'draw'}->gen_object->values_seq || '').''
 
@@ -487,7 +511,7 @@ sub _controls_from_draw {
   my $values = $draw->{'values'};
   $self->{'values_choice'}->SetStringSelection ($values);
   $self->{'values_params'}->SetParameterInfoArray
-    (App::MathImage::Generator->values_class($values)->parameter_info_array);
+    ($self->values_parameter_info_array);
   $self->{'values_params'}->SetParameterValues ($draw->{'values_parameters'} || {});
 
   $self->{'scale_spin'}->SetValue ($draw->{'scale'});
@@ -827,6 +851,7 @@ sub printout_object {
 
 sub command_line {
   my ($class, $mathimage) = @_;
+  ### Wx-Main command_line() ...
 
   my $app = Wx::SimpleApp->new;
   $app->SetAppName(__('Math Image'));
@@ -850,8 +875,8 @@ sub command_line {
   ### command_line draw: $gen_options
   %$draw = (%$draw,
             %$gen_options);
-  $draw->redraw;
   _controls_from_draw ($self);
+  $draw->redraw;
 
   if (defined $width) {
     #   require Wx::Perl::Units;

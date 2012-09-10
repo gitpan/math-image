@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 107;
 
 sub new {
   my $class = shift;

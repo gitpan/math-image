@@ -23,7 +23,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::CheckBox';
-our $VERSION = 106;
+our $VERSION = 107;
 
 sub new {
   my ($class, $parent, $info) = @_;

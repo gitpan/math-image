@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 #use Smart::Comments;
 
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -689,17 +689,19 @@ sub _update_values_tooltip {
     my $enum_type = $values_combobox->get('enum_type');
     my $values = $values_combobox->get('active-nick');
 
-    # my $desc = Glib::Ex::EnumBits::to_description($enum_type, $values)
-    my $values_seq;
-    if (($values_seq = $self->{'draw'}->gen_object->values_seq)
-        && (my $desc = $values_seq->description)) {
-      my $name = Glib::Ex::EnumBits::to_display ($enum_type, $values);
-      $tooltip .= "\n\n"
-        . __x('Current setting: {name}', name => $name)
-          . "\n"
-            . $desc;
+    my $gen_object = $self->{'draw'}->gen_object;
+    if (my $values_seq = $gen_object->values_seq_maybe) {
+      {
+        my $name = Glib::Ex::EnumBits::to_display ($enum_type, $values);
+        $tooltip .= "\n\n" . __x('Current setting: {name}', name => $name);
+      }
+      if (my $desc = $values_seq->description) {
+        $tooltip .= "\n" . $desc;
+      }
+      if (my $anum = $values_seq->oeis_anum) {
+        $tooltip .= "\n" . __x('OEIS {anum}', anum => $anum);
+      }
     }
-    ### values_seq: "$values_seq"
     ### $tooltip
     set_property_maybe ($toolitem, tooltip_text => $tooltip);
   }

@@ -27,7 +27,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -39,9 +39,11 @@ sub new {
 
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
+                                 use_class_negative => 1,
                                  @_);
   if ($self->{'wxframe'}) { Scalar::Util::weaken ($self->{'wxframe'}); }
   if ($self->{'widget'})  { Scalar::Util::weaken ($self->{'widget'}); }
+  $self->{'values_parameters'}->{'planepath'} ||= 'ThisPath';
 
   # either Drawing widget window or rootwin
   ### window: "$self->{'window'}"

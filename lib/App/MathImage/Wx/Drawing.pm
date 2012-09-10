@@ -28,7 +28,7 @@ use Wx;
 use Module::Load;
 
 use base 'Wx::Window';
-our $VERSION = 106;
+our $VERSION = 107;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -200,6 +200,7 @@ sub gen_object {
     ### $size
     ### $width
     ### $height
+    ### path_parameters: $self->{'path_parameters'}
 
     my $background_colorobj = $self->GetBackgroundColour;
     my $foreground_colorobj = $self->GetForegroundColour;
@@ -233,17 +234,13 @@ sub gen_object {
        values_parameters => $self->{'values_parameters'},
 
        path            => $self->{'path'},
-       path_parameters => {
-                           %{$self->{'path_parameters'} || {}},
-                           width           => $width,
-                           height          => $height,
-                          },
+       path_parameters => $self->{'path_parameters'},
 
        scale           => $self->{'scale'},
        figure          => $self->{'figure'},
 
        filter          => $self->{'filter'},
-       x_offset          => $self->{'x_offset'},
+       x_offset        => $self->{'x_offset'},
        y_offset        => $self->{'y_offset'},
 
        %gen_parameters)

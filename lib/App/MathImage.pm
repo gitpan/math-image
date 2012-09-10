@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 106;
+$VERSION = 107;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -354,6 +354,14 @@ sub command_line {
   my $output = $gui_options->{'output'};
   my $module = $gui_options->{'module'};
 
+  # bigger random or default scale since the Tektronix 12-bit 4096x3072
+  # addressing won't actually be visible to that resolution
+  if ($output eq 'xterm') {
+    if ($gen_defaults && defined $gen_defaults->{'scale'}) {
+      $gen_defaults->{'scale'} *= 10;
+    }
+  }
+
   # cap random scale at a requested width/height
   if ($gen_defaults->{'scale'} && defined $gen_options->{'width'}) {
     if ($gen_defaults->{'scale'} > $gen_options->{'width'}) {
@@ -370,8 +378,8 @@ sub command_line {
   ### gen_options: $gen_options
   if (! defined $gen_options->{'scale'}) {
     $gen_options->{'scale'}
-      = ($output eq 'text'
-         ? ($gen_options->{'values'} eq 'Lines' ? 2 : 1)
+      = ($output eq 'text' ? ($gen_options->{'values'} eq 'Lines' ? 2 : 1)
+         : $output eq 'xterm' ? ($gen_options->{'values'} eq 'Lines' ? 50 : 30)
          : ($gen_options->{'values'} eq 'Lines' ? 5 : 3));
   }
   if (defined $gen_options->{'width'}
@@ -389,8 +397,8 @@ sub command_line {
   }
 
   # maybe Image::Base::Prima::Image v.8 to avoid "use Prima" eating @ARGV
-  #
-  # if (! defined $module) {
+    #
+      # if (! defined $module) {
   #   if ($output eq 'gui') {
   #     if (eval { require Image::Base::Prima::Image }) {
   #       $module = 'Prima';
@@ -513,7 +521,9 @@ sub output_method_root_x11 {
   my $root = $self->{'gui_options'}->{'window_id'};
   if (! $root) {
     $root = $X->root;
-    $root = _root_to_virtual_root($X,$root);
+    require X11::Protocol::WM;
+    $root = (X11::Protocol::WM::root_to_virtual_root($X,$root)
+             || $root);
   }
   ### $root
 
@@ -527,32 +537,6 @@ sub output_method_root_x11 {
      flash  => $self->{'gui_options'}->{'flash'});
   $x11gen->draw;
   return 0;
-}
-# pending this in X11::Protocol::WM
-sub _root_to_virtual_root {
-  my ($X,$root) = @_;
-  ### root_to_virtual_root(): $root
-
-  my ($root_root, $root_parent, @toplevels) = $X->QueryTree($root);
-  foreach my $toplevel (@toplevels) {
-    ### $toplevel
-    my @ret = $X->robust_req ('GetProperty',
-                              $toplevel,
-                              $X->atom('__SWM_VROOT'),
-                              $X->atom('WINDOW'),  # type
-                              0,  # offset
-                              1,  # length x 32bits
-                              0); # delete;
-    ### @ret
-    next unless ref $ret[0]; # ignore errors from toplevels destroyed etc
-
-    my ($value, $type, $format, $bytes_after) = @{$ret[0]};
-    if (my $vroot = unpack 'L', $value) {
-      ### found: $vroot
-      return $vroot;
-    }
-  }
-  return $root;
 }
 
 *output_method_root_gtk = \&output_method_root_gtk2;
@@ -609,6 +593,30 @@ sub output_method_root_gtk2 {
   return 0;
 }
 
+sub output_method_xterm {
+  my ($self) = @_;
+  require App::MathImage::Image::Base::Tektronix;
+  binmode (\*STDOUT) or die;
+  my $gui_module = $self->{'gui_options'}->{'module'};
+  $self->{'gui_options'}->{'width'} ||= 1024;
+  $self->{'gui_options'}->{'height'} ||= 768;
+  # print "\e[!p"; # soft reset
+  
+  # In xterm circa 278 a "\e\f" page clear doesn't flush the "line_pt" queue
+  # of line segments and anything hanging around there will show up as stray
+  # drawing (until an expose or later clear).  Switch to "\037" alpha mode
+  # first so as to flush the lines queue before screen clear "\e\f".
+  # 
+  print "\e[?38h"; # enter Tektronix Mode (DECTEK)
+  print "\037";    # alpha mode
+  print "\e\f";    # clear screen
+
+  $self->output_image ('Tektronix');
+
+  print "\037";    # alpha mode, and flush xterm queued "line_pt"
+  print "\e\003";  # switch to VT100 mode
+  return 0;
+}
 sub output_method_png {
   my ($self) = @_;
   binmode (\*STDOUT) or die;
@@ -1059,7 +1067,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 3;   # 4 chars each
+  my $cell_width = 4;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);

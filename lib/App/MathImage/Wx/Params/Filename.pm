@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use base 'Wx::FilePickerCtrl';
-our $VERSION = 106;
+our $VERSION = 107;
 
 
 sub new {

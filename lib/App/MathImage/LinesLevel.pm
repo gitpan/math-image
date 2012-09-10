@@ -21,7 +21,7 @@ use strict;
 use Locale::TextDomain 'App-MathImage';
 
 use vars '$VERSION','@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 

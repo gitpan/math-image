@@ -41,7 +41,7 @@ use App::MathImage::Gtk2::Ex::AdjustmentBits;
 
 
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -409,11 +409,7 @@ sub gen_object {
      values_parameters => $self->{'values_parameters'},
 
      path            => $self->get('path'),
-     path_parameters => {
-                         %{$self->{'path_parameters'} || {}},
-                         width           => $width,
-                         height          => $height,
-                        },
+     path_parameters => $self->{'path_parameters'},
 
      scale           => $self->get('scale'),
      figure          => $self->get('figure'),

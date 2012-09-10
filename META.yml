@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            106
+version:            107
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -11,6 +11,7 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
+    Clone::PP:            0
     constant:             1.02
     constant::defer:      0
     File::Copy:           2.14
@@ -59,7 +60,6 @@ requires:
     Image::Base::Gtk2::Gdk::Window:  2
     Image::Base::Multiplex:  7
     Image::Base::Text:    8
-    List::MoreUtils:      0.24
     Locale::Messages:     0
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
@@ -87,7 +87,6 @@ requires:
     Math::PlanePath::VogelFloret:  0
     Math::Prime::XS:      0.23
     Module::Load:         0
-    Module::Pluggable:    0
     Module::Util:         0
     Number::Format:       0
     perl:                 5.008
@@ -119,17 +118,6 @@ optional_features:
         requires:
             Curses::UI:          0
             Curses::UI::Common:  0
-    for_x11:
-        description:  Things for native X through X11::Protocol.
-        requires:
-            Image::Base::X11::Protocol::Drawable:  13
-            Image::Base::X11::Protocol::Pixmap:  0
-            Image::Base::X11::Protocol::Window:  0
-            X11::AtomConstants:   2
-            X11::Protocol:        0
-            X11::Protocol::Other:  1
-            X11::Protocol::WM:    2
-            X11::Protocol::XSetRoot:  3
     gtk1_interface:
         description:  Gtk 1.x GUI modules.
         requires:
@@ -137,6 +125,7 @@ optional_features:
             Gtk::Ex::Statusbar::MessageUntilKey:  0
             Image::Base::Gtk::Gdk::Pixmap:  0
             Image::Base::Gtk::Gdk::Window:  0
+            Proc::SyncExec:       0
     gtk2_optionals:
         description:  Gtk2 things used if available.
         requires:
@@ -144,7 +133,6 @@ optional_features:
             Gtk2::Ex::ErrorTextDialog::Handler:  7
             Gtk2::Ex::PodViewer:  0
             Gtk2::Ex::QuadButton:  0
-            Software::License::GPL_3:  0
     maximum_interoperation:
         description:  All the optional things Math-Image can use.
         requires:
@@ -254,6 +242,7 @@ optional_features:
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  38
             Math::NumSeq::PythagoreanHypots:  29
+            Math::NumSeq::RadixConversion:  50
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::RepdigitRadix:  37
@@ -306,6 +295,8 @@ optional_features:
             Math::PlanePath::CornerReplicate:  52
             Math::PlanePath::CretanLabyrinth:  68
             Math::PlanePath::CubicBase:  75
+            Math::PlanePath::DekkingCentres:  88
+            Math::PlanePath::DekkingCurve:  88
             Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiagonalsAlternating:  56
@@ -370,8 +361,8 @@ optional_features:
             Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
-            Math::PlanePath::SierpinskiArrowhead:  32
-            Math::PlanePath::SierpinskiArrowheadCentres:  42
+            Math::PlanePath::SierpinskiArrowhead:  87
+            Math::PlanePath::SierpinskiArrowheadCentres:  87
             Math::PlanePath::SierpinskiCurve:  49
             Math::PlanePath::SierpinskiCurveStair:  73
             Math::PlanePath::SierpinskiTriangle:  83
@@ -396,7 +387,8 @@ optional_features:
             Math::PlanePath::ZOrderCurve:  34
             Math::Symbolic:       0.605
             Prima:                0
-            Software::License::GPL_3:  0
+            Proc::SyncExec:       0
+            Software::License::GPL_3:  0.001
             Tk::Balloon:          0
             Tk::JPEG:             0
             Tk::MainWindow:       0
@@ -408,7 +400,7 @@ optional_features:
             X11::AtomConstants:   2
             X11::Protocol:        0
             X11::Protocol::Other:  1
-            X11::Protocol::WM:    2
+            X11::Protocol::WM:    19
             X11::Protocol::XSetRoot:  3
     maximum_numseq:
         description:  Maximum NumSeq number sequence modules
@@ -494,6 +486,7 @@ optional_features:
             Math::NumSeq::Pronic:  1
             Math::NumSeq::ProthNumbers:  38
             Math::NumSeq::PythagoreanHypots:  29
+            Math::NumSeq::RadixConversion:  50
             Math::NumSeq::RadixWithoutDigit:  1
             Math::NumSeq::RepdigitAny:  16
             Math::NumSeq::RepdigitRadix:  37
@@ -549,6 +542,8 @@ optional_features:
             Math::PlanePath::CornerReplicate:  52
             Math::PlanePath::CretanLabyrinth:  68
             Math::PlanePath::CubicBase:  75
+            Math::PlanePath::DekkingCentres:  88
+            Math::PlanePath::DekkingCurve:  88
             Math::PlanePath::DiagonalRationals:  58
             Math::PlanePath::Diagonals:  2
             Math::PlanePath::DiagonalsAlternating:  56
@@ -613,8 +608,8 @@ optional_features:
             Math::PlanePath::RationalsTree:  45
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
-            Math::PlanePath::SierpinskiArrowhead:  32
-            Math::PlanePath::SierpinskiArrowheadCentres:  42
+            Math::PlanePath::SierpinskiArrowhead:  87
+            Math::PlanePath::SierpinskiArrowheadCentres:  87
             Math::PlanePath::SierpinskiCurve:  49
             Math::PlanePath::SierpinskiCurveStair:  73
             Math::PlanePath::SierpinskiTriangle:  83
@@ -644,7 +639,7 @@ optional_features:
                 Image::Base::GD:      4
                 Image::Base::PNGwriter:  2
                 Image::Xpm:           0
-                Test::Weaken:         3
+                Test::Weaken:         3.018
                 Test::Weaken::ExtraBits:  1
     tk_interface:
         description:  Tk GUI modules.
@@ -661,12 +656,22 @@ optional_features:
         description:  Wx GUI modules.
         recommends:
             Image::Base::Wx::Image:  0
-            Software::License::GPL_3:  0
             Wx::Perl::PodBrowser:  2
         requires:
             Image::Base::Wx::DC:  0
-            Tk::Balloon:          0
+            Software::License::GPL_3:  0.001
             Wx:                   0
+    x11_interface:
+        description:  Things for native X through X11::Protocol.
+        requires:
+            Image::Base::X11::Protocol::Drawable:  13
+            Image::Base::X11::Protocol::Pixmap:  0
+            Image::Base::X11::Protocol::Window:  0
+            X11::AtomConstants:   2
+            X11::Protocol:        0
+            X11::Protocol::Other:  1
+            X11::Protocol::WM:    19
+            X11::Protocol::XSetRoot:  3
 recommends:
     Browser::Open:        0
     Gtk2::Ex::CrossHair:  0
@@ -760,6 +765,7 @@ recommends:
     Math::NumSeq::Pronic:  1
     Math::NumSeq::ProthNumbers:  38
     Math::NumSeq::PythagoreanHypots:  29
+    Math::NumSeq::RadixConversion:  50
     Math::NumSeq::RadixWithoutDigit:  1
     Math::NumSeq::RepdigitAny:  16
     Math::NumSeq::RepdigitRadix:  37
@@ -812,6 +818,8 @@ recommends:
     Math::PlanePath::CornerReplicate:  52
     Math::PlanePath::CretanLabyrinth:  68
     Math::PlanePath::CubicBase:  75
+    Math::PlanePath::DekkingCentres:  88
+    Math::PlanePath::DekkingCurve:  88
     Math::PlanePath::DiagonalRationals:  58
     Math::PlanePath::Diagonals:  2
     Math::PlanePath::DiagonalsAlternating:  56
@@ -876,8 +884,8 @@ recommends:
     Math::PlanePath::RationalsTree:  45
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
-    Math::PlanePath::SierpinskiArrowhead:  32
-    Math::PlanePath::SierpinskiArrowheadCentres:  42
+    Math::PlanePath::SierpinskiArrowhead:  87
+    Math::PlanePath::SierpinskiArrowheadCentres:  87
     Math::PlanePath::SierpinskiCurve:  49
     Math::PlanePath::SierpinskiCurveStair:  73
     Math::PlanePath::SierpinskiTriangle:  83
@@ -901,9 +909,8 @@ recommends:
     Math::PlanePath::WythoffArray:  78
     Math::PlanePath::ZOrderCurve:  34
     Math::Symbolic:       0.605
-    Software::License::GPL_3:  0
     X11::AtomConstants:   2
     X11::Protocol:        0
     X11::Protocol::Other:  1
-    X11::Protocol::WM:    2
+    X11::Protocol::WM:    19
     X11::Protocol::XSetRoot:  3

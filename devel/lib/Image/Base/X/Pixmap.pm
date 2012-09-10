@@ -25,7 +25,7 @@ use vars '$VERSION', '@ISA';
 use App::MathImage::Image::Base::X::Drawable;
 @ISA = ('App::MathImage::Image::Base::X::Drawable');
 
-$VERSION = 106;
+$VERSION = 107;
 
 sub new {
   my ($class, %params) = @_;

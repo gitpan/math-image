@@ -29,7 +29,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
@@ -41,6 +41,7 @@ sub new {
 
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
+                                 use_class_negative => 1,
                                  @_);
   my $widget = $self->{'widget'};
   if ($widget) {

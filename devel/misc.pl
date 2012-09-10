@@ -35,6 +35,16 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
 {
+  require Image::Base::Text;
+  require App::MathImage::Generator;
+  my $image = Image::Base::Text->new (-width => 40, -height => 11);
+  # App::MathImage::Generator::_octagon($image, 0,0, 10,10, '*');
+  App::MathImage::Generator::_hexagon_horizontal($image, 0,0, 19,9, '*');
+  $image->save('/dev/stdout');
+  exit 0;
+}
+
+{
   my $x = ~0;
   my $y = $x / 3;
   print "$y\n";
@@ -109,22 +119,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
   ### draw_Image ...
   $gen->draw_Image ($image);
   $image->save('/dev/stdout');
-  exit 0;
-}
-
-
-{
-  require Math::NumSeq::Tribonacci;
-  my $seq = Math::NumSeq::Tribonacci->new (hi => 13);
-  my @next = ( $seq->next,
-               $seq->next,
-               $seq->next,
-               $seq->next,
-               $seq->next,
-               $seq->next );
-  ### @next
-  print $seq->pred(12),"\n";
-  ### $seq
   exit 0;
 }
 
@@ -581,18 +575,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 }
 
 {
-  require Math::PlanePath::SquareSpiral;
-  require Math::PlanePath::Diagonals;
-  my $path = Math::PlanePath::SquareSpiral->new;
-  # my $path = Math::PlanePath::Diagonals->new;
-  # print $path->rect_to_n_range (0,0, 5,0);
-  foreach (1 .. 1_000_000) {
-    $path->n_to_xy ($_);
-  }
-  exit 0;
-}
-
-{
   require Math::Prime::TiedArray;
   tie my @primes, 'Math::Prime::TiedArray';
   local $, = "\n";
@@ -616,64 +598,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
                                -height => 10);
   $image->ellipse(5,5, 15,15, 'white');
   $image->save('/dev/stdout');
-  exit 0;
-}
-
-
-
-{
-  require Math::Fibonacci;
-  require POSIX;
-  my $phi = (1 + sqrt(5)) / 2;
-  foreach my $i (1 .. 1000) {
-    my $theta = $i / ($phi*$phi);
-    my $frac = $theta - POSIX::floor($theta);
-    if ($frac < 0.02 || $frac > 0.98) {
-      printf("%2d  %1.3f  %5.3f\n",
-             $i, $frac, $theta);
-    }
-  }
-  exit 0;
-}
-
-{
-  require Math::Fibonacci;
-  require POSIX;
-  my $phi = (1 + sqrt(5)) / 2;
-  foreach my $i (1 .. 40) {
-    my $f = Math::Fibonacci::term($i);
-    my $theta = $f / ($phi*$phi);
-    my $frac = $theta - POSIX::floor($theta);
-    printf("%2d  %10.2f  %5.2f  %1.3f  %5.3f\n",
-           $i, $f, sqrt($f), $frac, $theta);
-  }
-  exit 0;
-}
-{
-  require Math::Fibonacci;
-  my @f = Math::Fibonacci::series(90);
-  local $, = ' ';
-  print @f,"\n";
-
-  foreach my $i (1 .. $#f) {
-    if ($f[$i] > $f[$i]) {
-      print "$i\n";
-    }
-  }
-  my @add = (1, 1);
-  for (;;) {
-    my $n = $add[-1] + $add[-2];
-    if ($n > 2**53) {
-      last;
-    }
-    push @add, $n;
-  }
-  print "add count ",scalar(@add),"\n";
-  foreach my $i (0 .. $#add) {
-    if ($f[$i] != $add[$i]) {
-      print "diff $i    $f[$i] != $add[$i]    log ",log($add[$i])/log(2),"\n";
-    }
-  }
   exit 0;
 }
 
@@ -702,12 +626,6 @@ use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 }
 
 
-
-#     my $count = POSIX::ceil (log($n_pixels * sqrt(5)) / log(PHI));
-#     @add = Math::Fibonacci::series ($count);
-#     if ($option_verbose) {
-#       print "fibonacci $count add to $add[-1]\n";
-#     }
 
 # miss 1928099
 {

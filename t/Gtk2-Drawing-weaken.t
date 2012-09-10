@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,12 +34,9 @@ Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
 
-# Test::Weaken 3 for "contents"
-eval "use Test::Weaken 3; 1"
-  or plan skip_all => "Test::Weaken 3 not available -- $@";
-
-eval { require Test::Weaken::ExtraBits; 1 }
-  or plan skip_all => "due to Test::Weaken::ExtraBits not available -- $@";
+# Test::Weaken 3.018 for "ignore_preds"
+eval "use Test::Weaken 3.018; 1"
+  or plan skip_all => "Test::Weaken 3.018 not available -- $@";
 
 plan tests => 1;
 
@@ -58,11 +55,9 @@ plan tests => 1;
                               $drawing->{'gen_object'}
                               && Scalar::Util::isweak($drawing->{'gen_object'}->{'widget'}));
        },
-       ignore => sub {
-         my ($ref) = @_;
-         return (Test::Weaken::Gtk2::ignore_default_root_window($ref)
-                 || $ref == App::MathImage::Generator::default_options->{'path_parameters'});
-       },
+       ignore_object => App::MathImage::Generator::default_options()->{'path_parameters'},
+       ignore_preds => [ \&Test::Weaken::Gtk2::ignore_default_root_window,
+                       ],
      });
   is ($leaks, undef,
       'deep garbage collection - gen on Drawing and root window');

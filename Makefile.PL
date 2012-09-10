@@ -22,33 +22,101 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
-my %gtk2_optionals = ('Gtk2::Ex::CrossHair'   => 0,
-                      # suggest ErrorTextDialog v.7 for popup control
-                      'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
-                      'Gtk2::Ex::PodViewer'   => 0,
-                      'Gtk2::Ex::QuadButton'  => 0,
-                      'Software::License::GPL_3' => 0, # about dialog
-                     );
+my %gtk2_interface
+  = (
+     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
+     'Glib::Object::Subclass' => 0,
+     'Glib::Ex::ConnectProperties' => 14, # v.14 for response-sensitive#
 
-my %for_x11 = ('X11::Protocol' => 0,
-               # my X11-Protocol-Other
-               'X11::Protocol::Other'    => 1,
-               'X11::Protocol::WM'       => 2,  # new in v.2
-               'X11::Protocol::XSetRoot' => 3,  # new in v.3
-               'X11::AtomConstants'      => 2,  # new in v.2
-               # my Image-Base-X11-Protocol
-               'Image::Base::X11::Protocol::Drawable' => 13, # v.13 clipping
-               'Image::Base::X11::Protocol::Pixmap' => 0,
-               'Image::Base::X11::Protocol::Window' => 0,
-              );
+     # my Glib-Ex-ObjectBits
+     'Glib::Ex::EnumBits'     => 11, # new in v.11
+     # 'Glib::Ex::FreezeNotify' => 0,
+     'Glib::Ex::ObjectBits'   => 12, # new in v.12
+     'Glib::Ex::SourceIds'    => 2,  # new in v.2
+     'Glib::Ex::SignalBits'   => 9,  # new in v.9
+     'Glib::Ex::SignalIds'    => 0,
 
-my %gtk1_interface = ('Gtk' => 0,
-                      # my Gtk-Ex-WidgetBits
-                      'Gtk::Ex::Statusbar::MessageUntilKey' => 0,
-                      # my Image-Base-Gtk
-                      'Image::Base::Gtk::Gdk::Pixmap' => 0,
-                      'Image::Base::Gtk::Gdk::Window' => 0,
-                     );
+     # Perl-Gtk2
+     'Gtk2' => '1.220',
+     'Gtk2::Pango' => 0, # part of Perl-Gtk2, used explicitly
+
+     # my Gtk2-Ex-WidgetBits
+     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
+     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
+     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
+     'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
+     'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
+     'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
+     'Gtk2::Ex::Statusbar::Message'         => 47, # new in v.47
+     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11, # new in v.11
+     'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
+     'Gtk2::Ex::ToolItem::CheckButton' => 42,  # new in v.42
+     'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
+     'Gtk2::Ex::Units'          => 13, # new in v.13
+     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
+     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
+     'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
+
+     # my QuadButton / QuadScroll
+     'Gtk2::Ex::AdjustmentBits' => 46, # v.46 for scroll_event()
+     'Gtk2::Ex::EntryBits'      => 46, # v.46 for scroll_number_handler()
+     'Gtk2::Ex::WidgetBits'     => 40, # v.40 for pixel_size_mm()
+     'Gtk2::Ex::Statusbar::DynamicContext' => 20, # new in v.20
+
+     # my Gtk2-Ex-ComboBoxBits
+     # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
+     'Gtk2::Ex::ComboBox::Enum' => 5, # v.5 for set_active_nick()
+     'Gtk2::Ex::ComboBox::Text' => 2,
+     'Gtk2::Ex::ComboBox::PixbufType' => 31, # v.31 fix initial for_width
+     'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
+     'Gtk2::Ex::ToolItem::ComboEnum' => 28, # new in version 28
+
+     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
+     'Gtk2::Ex::NumAxis' => 2,
+     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
+     'Gtk2::Ex::Splash' => 1,
+
+     # my Image-Base-Gtk2
+     'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
+     'Image::Base::Gtk2::Gdk::Window' => 2,
+     'Image::Base::Gtk2::Gdk::Pixbuf' => 11, # v.11 clip 0,0,width,height
+
+     'Proc::SyncExec' => 0,
+     'Software::License::GPL_3' => '0.001',  # about dialog
+     'Text::Capitalize' => 0,
+    );
+
+my %gtk2_optionals
+  = ('Gtk2::Ex::CrossHair'   => 0,
+     # suggest ErrorTextDialog v.7 for popup control
+     'Gtk2::Ex::ErrorTextDialog::Handler' => 7,
+     'Gtk2::Ex::PodViewer'   => 0,
+     'Gtk2::Ex::QuadButton'  => 0,
+    );
+
+my %x11_interface
+  = ('X11::Protocol' => 0,
+     # my X11-Protocol-Other
+     'X11::Protocol::Other'    => 1,
+     'X11::Protocol::WM'       => 19, # v.19 root_to_virtual_root()
+     'X11::Protocol::XSetRoot' => 3,  # new in v.3
+     'X11::AtomConstants'      => 2,  # new in v.2
+     # my Image-Base-X11-Protocol
+     'Image::Base::X11::Protocol::Drawable' => 13, # v.13 clipping
+     'Image::Base::X11::Protocol::Pixmap' => 0,
+     'Image::Base::X11::Protocol::Window' => 0,
+    );
+
+my %gtk1_interface
+  = ('Gtk' => 0,
+     # my Gtk-Ex-WidgetBits
+     'Gtk::Ex::Statusbar::MessageUntilKey' => 0,
+     # my Image-Base-Gtk
+     'Image::Base::Gtk::Gdk::Pixmap' => 0,
+     'Image::Base::Gtk::Gdk::Window' => 0,
+
+     'Proc::SyncExec' => 0,
+    );
 
 my %tk_interface = (# main Perl-Tk of whatever new enough version
                     'Tk::MainWindow' => 0,
@@ -65,19 +133,21 @@ my %tk_optionals = (# main Perl-Tk of whatever new enough version
                     'Tk::Pod' => 0,
                    );
 
-my %wx_interface = (# main wxPerl of whatever new enough version
-                    'Wx' => 0,
-                    'Tk::Balloon' => 0,
+my %wx_interface
+  = (# main wxPerl of whatever new enough version
+     'Wx' => 0,
 
-                    # my Image-Base-Wx
-                    'Image::Base::Wx::DC' => 0,
-                   );
-my %wx_optionals = (# main Perl-Tk of whatever new enough version
-                    'Wx::Perl::PodBrowser'     => 2,  # v.2 for File/Print
-                    'Software::License::GPL_3' => 0, # about dialog
-                    # my Image-Base-Wx
-                    'Image::Base::Wx::Image' => 0, # --png etc file output
-                   );
+     # my Image-Base-Wx
+     'Image::Base::Wx::DC' => 0,
+
+     'Software::License::GPL_3' => '0.001', # about dialog
+    );
+my %wx_optionals
+  = ('Wx::Perl::PodBrowser'   => 2,  # v.2 for File/Print
+
+     # my Image-Base-Wx
+     'Image::Base::Wx::Image' => 0, # --png etc file output
+    );
 
 my %curses_interface = ('Curses::UI' => 0,
                         'Curses::UI::Common' => 0,
@@ -154,6 +224,8 @@ my %maximum_planepath
      'Math::PlanePath::BetaOmega'            => 54, # v.54 exact rect
      'Math::PlanePath::AR2W2Curve'           => 59, # new in v.59
      'Math::PlanePath::KochelCurve'          => 55, # new in v.55
+     'Math::PlanePath::DekkingCurve'         => 88, # new in v.88
+     'Math::PlanePath::DekkingCentres'       => 88, # new in v.88
      'Math::PlanePath::CincoCurve'           => 56, # new in v.56
      'Math::PlanePath::ImaginaryBase'        => 41, # new in v.41
      'Math::PlanePath::ImaginaryHalf'        => 74, # new in v.74
@@ -186,8 +258,8 @@ my %maximum_planepath
      'Math::PlanePath::HIndexing'            => 52, # new in v.52
 
      'Math::PlanePath::SierpinskiTriangle'   => 83, # v.83 align option
-     'Math::PlanePath::SierpinskiArrowhead'  => 32, # new in v.32
-     'Math::PlanePath::SierpinskiArrowheadCentres' => 42, # new in v.42
+     'Math::PlanePath::SierpinskiArrowhead'        => 87, # v.87 align
+     'Math::PlanePath::SierpinskiArrowheadCentres' => 87, # v.87 align
      'Math::PlanePath::DragonCurve'          => 66, # v.66 faster xy_to_n()
      'Math::PlanePath::DragonRounded'        => 67, # v.67 xy_to_n() arms fix
      'Math::PlanePath::DragonMidpoint'       => 67, # v.67 xy_to_n() arms fix
@@ -284,6 +356,7 @@ my %maximum_numseq
      'Math::NumSeq::DigitLengthCumulative' => 38, # v.38 value_to_i_estimate()
      'Math::NumSeq::SelfLengthCumulative'  => 38, # new in v.38
      'Math::NumSeq::RadixWithoutDigit'     => 1,
+     'Math::NumSeq::RadixConversion'       => 50, # new in v.50
      'Math::NumSeq::MaxDigitCount'         => 42, # new in v.42
 
      'Math::NumSeq::DigitSum'              => 2, # new in v.2
@@ -344,9 +417,11 @@ my %maximum_numseq
 
 my %prereq_pm
   = (
-     'constant' => 1.02,  # leading underscore in prima bits
+     %gtk2_interface,
+
+     'Clone::PP' => 0,
+     'constant'        => 1.02,  # 1.02 for various leading underscores
      'constant::defer' => 0,
-     'Proc::SyncExec' => 0,
 
      # File::Copy 2.11 of perl 5.10.0 gives warnings on File::Temp file
      # handles by outsmarting itself in some compares plus File::Temp having
@@ -357,80 +432,20 @@ my %prereq_pm
      'File::HomeDir' => 0,
      'Geometry::AffineTransform' => '1.3', # version 1.3 for invert()
 
-     'Glib' => '1.220', # for Glib::SOURCE_REMOVE
-     'Glib::Object::Subclass' => 0,
-     'Glib::Ex::ConnectProperties' => 14, # v.14 for response-sensitive#
-
-     # my Glib-Ex-ObjectBits
-     'Glib::Ex::EnumBits'     => 11, # new in v.11
-     # 'Glib::Ex::FreezeNotify' => 0,
-     'Glib::Ex::ObjectBits'   => 12, # new in v.12
-     'Glib::Ex::SourceIds'    => 2,  # new in v.2
-     'Glib::Ex::SignalBits'   => 9,  # new in v.9
-     'Glib::Ex::SignalIds'    => 0,
-
-     # Perl-Gtk2
-     'Gtk2' => '1.220',
-     'Gtk2::Pango' => 0, # part of Perl-Gtk2, used explicitly
-
-     # my Gtk2-Ex-WidgetBits
-     'Gtk2::Ex::ActionTooltips' => 10, # new in v.10
-     'Gtk2::Ex::ContainerBits'  => 21, # new in v.21
-     'Gtk2::Ex::GdkBits'        => 23, # v.23 for window_clear_region()
-     'Gtk2::Ex::MenuItem::Subclass' => 29, # new in v.29
-     'Gtk2::Ex::MenuBits'       => 35, # v.35 for mnemonic_escape()
-     'Gtk2::Ex::PixbufBits'     => 37, # v.37 fix save_adapt()
-     'Gtk2::Ex::Statusbar::Message'         => 47, # new in v.47
-     'Gtk2::Ex::Statusbar::MessageUntilKey' => 11, # new in v.11
-     'Gtk2::Ex::ToolbarBits'    => 36, # v.36 avoid stray 5.010
-     'Gtk2::Ex::ToolItem::CheckButton' => 42,  # new in v.42
-     'Gtk2::Ex::ToolItem::OverflowToDialog' => 41,  # v.41 fix overflow-mnemonic
-     'Gtk2::Ex::Units'          => 13, # new in v.13
-     'Gtk2::Ex::SyncCall'       => 12, # v.12 workaround gtk 2.12 bug
-     'Gtk2::Ex::WidgetEvents'   => 21, # new in v.21
-     'Test::Weaken::Gtk2'       => 39, # v.39 for ignore_default_root_window()
-
-     # QuadButton / QuadScroll
-     'Gtk2::Ex::AdjustmentBits' => 46, # v.46 for scroll_event()
-     'Gtk2::Ex::EntryBits'      => 46, # v.46 for scroll_number_handler()
-     'Gtk2::Ex::WidgetBits'     => 40, # v.40 for pixel_size_mm()
-     'Gtk2::Ex::Statusbar::DynamicContext' => 20, # new in v.20
-
-     # my Gtk2-Ex-ComboBoxBits
-     # 'Gtk2::Ex::ComboBoxBits'   => 2, # version 2 fix MoreUtils dependency
-     'Gtk2::Ex::ComboBox::Enum' => 5, # v.5 for set_active_nick()
-     'Gtk2::Ex::ComboBox::Text' => 2,
-     'Gtk2::Ex::ComboBox::PixbufType' => 31, # v.31 fix initial for_width
-     'Gtk2::Ex::Menu::EnumRadio' => 6, # new in version 6
-     'Gtk2::Ex::ToolItem::ComboEnum' => 28, # new in version 28
-
-     'Gtk2::Ex::Dragger' => 2, # v.2 for external adj changes
-     'Gtk2::Ex::NumAxis' => 2,
-     'Gtk2::Ex::WidgetCursor' => 15, # v.15 for SignalIds fix
-     'Gtk2::Ex::Splash' => 1,
-
      'Image::Base' => '1.16', # version 1.16 for diamond()
 
      # my Image-Base-Other
      'Image::Base::Multiplex' => 7, # v.7 for diamond()
      'Image::Base::Text'      => 8, # v.8 for 0,0,width,height clipping
 
-     # my Image-Base-Gtk2
-     'Image::Base::Gtk2::Gdk::Pixmap' => 2, # v.2 lowering 5.10
-     'Image::Base::Gtk2::Gdk::Window' => 2,
-     'Image::Base::Gtk2::Gdk::Pixbuf' => 11, # v.11 clip 0,0,width,height
-
-     'List::MoreUtils' => '0.24', # 0.24 for stack growing, maybe
+     # 'List::MoreUtils' => '0.24', # 0.24 for stack growing, maybe
      'Locale::TextDomain' => '1.19',
      'Locale::Messages' => 0,
      'Module::Load' => 0,
-     'Module::Pluggable' => 0,
      'Module::Util' => 0,
      'Number::Format' => 0,
      'Scalar::Util' => '1.18', # v1.18 for pure-perl refaddr() fix
      'Scope::Guard' => 0,
-     'Software::License::GPL_3' => '0.001', # gpl3 in 0.001
-     'Text::Capitalize' => 0,
      'Term::Size' => 0,
 
      'Math::Prime::XS' => '0.23', # version 0.23 for fix of 1928099
@@ -439,13 +454,13 @@ my %prereq_pm
      'Math::Libm' => 0,
 
      # my Math-PlanePath, and should work with any set of paths
-     'Math::PlanePath' => 83, # v.83 for n_to_dxdy()
+     'Math::PlanePath'               => 83, # v.83 for n_to_dxdy()
      'Math::PlanePath::SquareSpiral' => 1, # for default display
      'Math::PlanePath::SacksSpiral'  => 0, # for --sacks option
      'Math::PlanePath::VogelFloret'  => 0, # for --vogel option
 
      # my Math-NumSeq
-     'Math::NumSeq' => 38, # v.38 for tell_i()
+     'Math::NumSeq'                  => 38, # v.38 for tell_i()
      'Math::NumSeq::All'             => 1, # for Lines base, for --all option
      'Math::NumSeq::Even'            => 1, # for --even option
      'Math::NumSeq::Odd'             => 1, # for --odd option
@@ -487,7 +502,7 @@ WriteMakefile
       %maximum_planepath,
       %maximum_numseq,
       %gtk2_optionals,
-      %for_x11,
+      %x11_interface,
       'Math::Symbolic' => '0.605', # 0.605 fixing a simplify
       'Math::Expression::Evaluator' => 0, # maybe any ok
       'Language::Expr' => '0.14',
@@ -496,9 +511,9 @@ WriteMakefile
      },
      optional_features =>
      {
-      for_x11 =>
+      x11_interface =>
       { description => 'Things for native X through X11::Protocol.',
-        requires => \%for_x11,
+        requires => \%x11_interface,
       },
       gtk2_optionals =>
       { description => 'Gtk2 things used if available.',
@@ -540,7 +555,7 @@ WriteMakefile
         requires => {
                      %maximum_planepath,
                      %maximum_numseq,
-                     %for_x11,
+                     %x11_interface,
                      %gtk2_optionals,
                      %tk_interface,
                      %tk_optionals,
@@ -570,7 +585,7 @@ WriteMakefile
       maximum_tests =>
       { description => 'Have "make test" do as much as possible.',
         prereqs =>
-        { test => { 'Test::Weaken'            => 3,
+        { test => { 'Test::Weaken'            => 3.018, # 3.018 ignore_preds
                     'Test::Weaken::ExtraBits' => 1,
                     'Image::Xpm'              => 0,
                     'Image::Base::GD'         => 4, # bug fixes

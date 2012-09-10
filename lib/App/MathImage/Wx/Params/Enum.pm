@@ -23,7 +23,7 @@ use Wx;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 use base 'Wx::Choice';
-our $VERSION = 106;
+our $VERSION = 107;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,9 +36,11 @@ sub new {
   ### $info
 
   my $choices = $info->{'choices'};
+  my $choices_display = $info->{'choices_display'};
+  my $default = $info->{'default'};
+
   my %choice_display_to_value;
   my %value_to_choice_display;
-  my $choices_display = $info->{'choices_display'};
   if ($choices_display) {
     foreach my $i (0 .. $#$choices) {
       $choice_display_to_value{$choices_display->[$i]} = $choices->[$i];
@@ -66,7 +68,7 @@ sub new {
   $display =~ s/&/&&/g;
   $self->SetLabel($display);
 
-  $self->SetValue ($info->{'default'});
+  $self->SetValue ($default);
 
   Wx::Event::EVT_CHOICE ($self, $self, 'OnChoiceSelected');
   return $self;
@@ -86,8 +88,10 @@ sub SetValue {
   ### Wx-Params-Enum SetValue(): $newval
   ### label: $self->GetLabelText
 
-  $self->SetStringSelection ($self->{'value_to_choice_display'}->{$newval}
-                             || $newval);
+  if (defined (my $display = $self->{'value_to_choice_display'}->{$newval})) {
+    $newval = $display;
+  }
+  $self->SetStringSelection ($newval);
 }
 
 sub OnChoiceSelected {

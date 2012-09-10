@@ -22,12 +22,11 @@ use warnings;
 use Carp;
 use Gtk2;
 use Scalar::Util;
-use List::MoreUtils;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 
 sub filename_to_format {

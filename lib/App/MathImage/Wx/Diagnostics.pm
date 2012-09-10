@@ -27,7 +27,7 @@ use Locale::TextDomain ('App-MathImage');
 #use Smart::Comments;
 
 use base qw(Wx::Dialog);
-our $VERSION = 106;
+our $VERSION = 107;
 
 sub new {
   my ($class, $parent, $id) = @_;
@@ -81,6 +81,15 @@ sub new {
   # $self->SetSize ($topsizer->GetSize);
   $self->SetSizer($topsizer);
   $text->SetFocus;
+
+  # {
+  #   my $timer = Wx::Timer->new ($self);
+  #   $timer->Start (500);
+  #   Wx::Event::EVT_TIMER($self,$timer,sub {
+  #                          print "refresh\n";
+  #                          $self->refresh;
+  #                        });
+  # }
 
   return $self;
 }

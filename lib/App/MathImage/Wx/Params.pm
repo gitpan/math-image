@@ -27,7 +27,7 @@ use Module::Load;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 106;
+our $VERSION = 107;
 
 # after_item => $item
 #
@@ -42,6 +42,8 @@ sub new {
 
 sub GetParameterValues {
   my ($self) = @_;
+  ### Wx-Params GetParameterValues() ...
+
   my $items_hash = $self->{'items_hash'};
   # ### $items_hash
   ### parameter_info_array: $self->{'parameter_info_array'}
@@ -153,6 +155,8 @@ sub SetParameterInfoArray {
   $toolbar->Realize;
   $self->{'parameter_info_array'} = $newval;
   _update_visible ($self);
+
+  ### parameter_values now: $self->GetParameterValues()
 }
 
 sub _update_visible {

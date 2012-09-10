@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -26,6 +26,9 @@ use 5.004;
 use strict;
 use warnings;
 use Term::Caca;
+
+# lib/Image/Base/Caca.pm
+use Image::Base::Caca;
 
 
 my $size = $ARGV[0] || 80;
