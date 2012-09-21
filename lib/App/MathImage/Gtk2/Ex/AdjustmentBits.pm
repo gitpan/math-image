@@ -26,7 +26,7 @@ use Gtk2::Ex::AdjustmentBits 46;  # v.46 for scroll_event
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 107;
+our $VERSION = 108;
 
 sub scroll_widget_ai {
   my ($widget, $event) = @_;

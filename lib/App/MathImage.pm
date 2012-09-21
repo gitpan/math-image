@@ -26,7 +26,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;

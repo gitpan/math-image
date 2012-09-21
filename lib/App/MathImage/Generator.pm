@@ -31,7 +31,7 @@ use Locale::TextDomain 'App-MathImage';
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -965,6 +965,8 @@ sub y_negative {
                                     X
                                     L
                                     V
+                                    Z
+                                    N
                                     triangle
                                     hexagon
                                     octagon
@@ -972,7 +974,7 @@ sub y_negative {
                                     unellipse
                                     unellipunf
                                     arrow
-                                    eobar
+                                    toothpick
                                     toothpick_E
                                     toothpick_V
                                     toothpick_Y
@@ -1427,6 +1429,8 @@ sub colours_exp_shrink {
     } else {
       $shrink = 1 - 1/50;
     }
+  } elsif ($self->{'values'} eq 'JacobsthalFunction') {
+    $shrink = 1 - 1/4;
   } elsif ($self->{'values'} eq 'PisanoPeriod') {
     $shrink = 1 - 1/100;
   } elsif ($self->{'values'} eq 'LeonardoLogarithm') {
@@ -1652,6 +1656,8 @@ my %figure_image_method
      X           => \&App::MathImage::Image::Base::Other::draw_X,
      L           => \&App::MathImage::Image::Base::Other::draw_L,
      V           => \&App::MathImage::Image::Base::Other::draw_V,
+     Z           => \&App::MathImage::Image::Base::Other::draw_Z,
+     N           => \&App::MathImage::Image::Base::Other::draw_N,
      unellipse   => \&App::MathImage::Image::Base::Other::unellipse,
      unellipunf  => \&App::MathImage::Image::Base::Other::unellipse,
      undiamond   => \&undiamond,
@@ -2171,7 +2177,7 @@ sub draw_figure_image_method {
                                           $colour,
                                           $self->{'figure_image_fill'});
 }
-sub draw_figure_eobar {
+sub draw_figure_toothpick {
   my ($self, $colour) = @_;
   if (($self->{'x'}+$self->{'y'}) % 2) {
     # horizontal

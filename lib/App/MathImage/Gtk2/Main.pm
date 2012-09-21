@@ -46,7 +46,7 @@ use App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 #use Smart::Comments;
 
 
-our $VERSION = 107;
+our $VERSION = 108;
 
 use Glib::Object::Subclass
   'Gtk2::Window',

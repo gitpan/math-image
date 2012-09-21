@@ -29,7 +29,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -79,10 +79,12 @@ sub create_window {
     my $x = int (max (0, $X->{'width_in_pixels'} - $width) / 2); #  + 100
     my $y = int (max (0, $X->{'height_in_pixels'} - $height) / 2);
 
-    ### sync: $X->QueryPointer($X->root)
+    my $parent = (X11::Protocol::WM::root_to_virtual_root($X,$X->root)
+                  || $X->root);
+
     my $window = $X->new_rsrc;
     $X->CreateWindow ($window,
-                      $X->root,         # parent
+                      $parent,
                       'InputOutput',    # class
                       0,                # depth, from parent
                       'CopyFromParent', # visual

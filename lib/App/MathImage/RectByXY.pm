@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'min', 'max';
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

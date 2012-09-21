@@ -27,7 +27,7 @@ use Locale::TextDomain ('App-MathImage');
 #use Smart::Comments;
 
 use base qw(Wx::Dialog);
-our $VERSION = 107;
+our $VERSION = 108;
 
 sub new {
   my ($class, $parent, $id) = @_;

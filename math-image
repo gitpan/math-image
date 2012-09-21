@@ -22,7 +22,7 @@ use strict;
 use App::MathImage;
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 exit App::MathImage->command_line;
 
@@ -465,24 +465,24 @@ to draw a random image from your F<~/.xsession> startup,
 
     math-image --root --random &
 
-Add C<--verbose> to print what was in fact chosen and displayed.  Output
-from F<~/.xsession> normally goes to the F<~/.xsession-errors> file.
-Sometimes C<--random> may use a lot of memory, so consider C<limit> (see
-L<sh(1)>) or C<timeout> (see L<timeout(1)>) or both, and perhaps low
-priority (see L<nice(1)>).
+Add C<--verbose> to print what was chosen and displayed.  Output from
+F<~/.xsession> normally goes to the F<~/.xsession-errors> file.  Sometimes
+C<--random> may use a lot of memory, so consider C<limit> or C<timeout>
+both, and perhaps low priority (see L<sh(1)>, L<timeout(1)> and L<nice(1)>).
 
-The root window is set with C<Gtk2>, or under X with C<X11::Protocol> is
-preferred if available because it allows C<--foreground> and C<--background>
-colours to be preserved on a PseudoColor visual.  C<Gtk2> is fine on a
-TrueColor and for black and white (being permanent pixels), but on a
-PseudoColor allocated colours may not be preserved.
+The root window is set with C<Gtk2>, or under X with
+C<X11::Protocol::XSetRoot> if available.  C<XSetRoot> allows C<--foreground>
+and C<--background> colours to be preserved on a PseudoColor visual, and it
+can act on an C<__SWM_VROOT> style window manager virtual root desktop.
+C<Gtk2> is fine on a TrueColor and for black and white (being permanent
+pixels), but on a PseudoColor allocated colours may not be preserved.
 
 =item --flash
 
 Flash the requested image on the screen instead of starting the GUI.
 A combination C<--root --flash> means draw to the root and then flash.  This
-is good if updating the background randomly every so often, as it shows the
-completed image briefly when it might be hidden by lots of windows.
+is good if updating the background randomly every so often, since it shows
+the completed image briefly where it might be hidden by lots of windows.
 
     math-image --root --random --flash
 
@@ -496,15 +496,15 @@ clicks.
 =item --xpm
 
 Write a PNG or XPM image file to standard output and exit.  PNG is always
-possible with C<Gtk2::Gdk::Pixbuf> but can also use GD, PNGwriter, Imager,
-ImageMagick, Prima, Tk or Wx with the right libraries and C<Image::Base>
-supporting module.
+possible with C<Gtk2::Gdk::Pixbuf> but it can also use GD, PNGwriter,
+Imager, ImageMagick, Prima, Tk or Wx with the right libraries and
+C<Image::Base> supporting module.
 
     math-image --png >/tmp/my-file.png
 
 XPM output requires either C<Image::Xpm>, ImageMagick, Prima, Tk or Wx.
-Prima, Tk and Wx for X11 require an X server even for file output and may
-give obscure error messages if no display.
+Prima, Tk and Wx for X11 use the X server even for file output and may give
+obscure error messages if no display.
 
 Combinations C<--prima --png>, or C<--tk --xpm>, etc, force the respective
 output module rather than an automatic choice among available possibilities.
@@ -543,18 +543,19 @@ section of your F<~/.xscreensaver> file,
     math-image --xscreensaver \n\
 
 F<xscreensaver/math-image.xml> in the Math-Image sources can be used give a
-description in the C<xscreensaver-demo> program.  Currently the Math-Image
-"make install" doesn't try to install this so it must be copied manually.
+description in the C<xscreensaver-demo> program.  Currently "make install"
+doesn't try to install this so it must be copied manually to the
+F</usr/share/xscreensaver/config/> directory..
 
 There's no options for the screensaver yet.  The intention would be a
 control for the redraw rate, unless there's a global xscreensaver option for
 that, and to limit each image drawing to the redraw time so slow or very
 slow things aren't continued indefinitely.
 
-For reference under C<xscreensaver> a saver program draws to a target X
+For reference, under C<xscreensaver> a saver program draws to a target
 window given either by a C<-window-id> command line option from
 C<xscreensaver-demo>, or by C<__SWM_VROOT> root window property from the
-C<xscreensaver> daemon.  The latter is recognised automatically by
+C<xscreensaver> daemon.  The latter is recognised by
 C<X11::Protocol::XSetRoot> version 18 and up.
 
 =back
@@ -602,24 +603,25 @@ The X display to use.
 
 =head1 BUGS
 
-Some of the values plotted can be a bit slow to generate or use a lot of
-memory, or both.  When the path goes out to large positions, or when
-scrolled out away from the origin the display might hang a little or a lot
-while generating values.
+Some of the values plotted can be a slow to generate or use a lot of memory,
+or both.  When the path goes out to large positions, or when scrolled out
+away from the origin the display might hang a little or a lot while
+generating values.
 
 The paths which have big N values near the origin, such as RationalsTree or
 PythagoreanTree, are calculated with C<Math::BigInt> for accuracy.  This
 becomes very slow.  In some cases the values and/or path calculations might
 end up rounding off anyway.
 
-When plotting colours on paths which duplicate points, such as the dragon
-curve, the colour shown is sometimes the biggest N and sometimes the
-smallest N.
+When plotting colours on paths which duplicate points (eg. the DragonCurve),
+the colour shown is sometimes the smallest N or sometimes the biggest N due
+to overwriting.  Not sure whether to try some colour mixing, or force the
+smallest among overlaps.
 
-Colours for counts etc have some hard-coded scaling to try to show a range
-of colours for the typical range of values.  There ought to be a user
-control for this, and/or perhaps relevant NumSeq modules could indicate
-their approximate growth rate to make a sensible initial scale.
+Colours for counts etc have some hard-coded scaling to show a range of
+colours for the typical range of values.  There ought to be a user control
+for this.  Perhaps relevant NumSeq modules should indicate their approximate
+growth rate to make a sensible initial scale.
 
 =head1 SEE ALSO
 
@@ -630,6 +632,7 @@ L<Math::NumSeq>
 
 L<Gtk2>,
 L<X11::Protocol>,
+L<X11::Protocol::XSetRoot>,
 L<Gtk2::Ex::PodViewer>,
 L<Gtk2::Ex::CrossHair>,
 L<Gtk2::Ex::ErrorTextDialog>

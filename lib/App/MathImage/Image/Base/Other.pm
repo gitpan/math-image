@@ -24,7 +24,7 @@ use strict;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -98,6 +98,22 @@ sub draw_X {
   my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
   $image->line ($x1,$y1, $x2,$y2, $colour);
   $image->line ($x2,$y1, $x1,$y2, $colour);
+}
+
+# draw a Z in the rectangle top-left x1,y1, bottom-right x2,y2
+sub draw_Z {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  $image->line ($x1,$y1, $x2,$y1, $colour);
+  $image->line ($x2,$y1, $x1,$y2, $colour);
+  $image->line ($x1,$y2, $x2,$y2, $colour);
+}
+
+# draw an N in the rectangle top-left x1,y1, bottom-right x2,y2
+sub draw_N {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  $image->line ($x1,$y2, $x1,$y1, $colour);
+  $image->line ($x1,$y1, $x2,$y2, $colour);
+  $image->line ($x2,$y2, $x2,$y1, $colour);
 }
 
 # draw an L in the rectangle top-left x1,y1, bottom-right x2,y2,

@@ -23,7 +23,7 @@ use Wx;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
 use base 'Wx::Choice';
-our $VERSION = 107;
+our $VERSION = 108;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

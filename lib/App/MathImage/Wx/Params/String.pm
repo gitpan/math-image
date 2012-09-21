@@ -28,7 +28,7 @@ use Wx;
 use List::Util 'min';
 
 use base 'Wx::ComboBox';
-our $VERSION = 107;
+our $VERSION = 108;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,7 +49,7 @@ sub new {
                                  Wx::wxTE_PROCESS_ENTER());  # style
 
   {
-    my $width_chars = $info->{'width'} || 5;
+    my $width_chars = ($info->{'width'} || 5) + 4;  # extra for combo pull
     my $char_pixels = $self->GetCharWidth;
     $self->SetSize (Wx::Size->new ($width_chars * $char_pixels, -1));
     ### $width_chars
