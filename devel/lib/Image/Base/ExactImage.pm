@@ -27,7 +27,7 @@ use Carp;
 use ExactImage;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 
 use Image::Base 1.12; # version 1.12 for ellipse() $fill
 @ISA = ('Image::Base');

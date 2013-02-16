@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -33,7 +33,7 @@ Gtk2->init_check
   or plan skip_all => 'due to no DISPLAY available';
 MyTestHelpers::glib_gtk_versions();
 
-plan tests => 22;
+plan tests => 24;
 
 require App::MathImage::Gtk2::Main;
 
@@ -41,7 +41,7 @@ require App::MathImage::Gtk2::Main;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 108;
+my $want_version = 109;
 {
   is ($App::MathImage::Gtk2::Main::VERSION, $want_version,
       'VERSION variable');
@@ -82,7 +82,7 @@ my $have_podviewer = Module::Util::find_installed('Gtk2::Ex::PodViewer');
                     # 'Print', # interactive run ...
                     'Random','Random','Random','Random','Random','Random',
                     'Centre',
-                    'Toolbar',
+                    'ToolbarHorizontal','ToolbarVertical','ToolbarHide',
                     'Fullscreen',
                     'DrawProgressive',
                     ($have_cross ? 'Cross' : 'no-Cross'),

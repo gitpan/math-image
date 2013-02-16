@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -26,6 +26,92 @@ use Scalar::Util;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  my $mw = MainWindow->new;
+  require App::MathImage::Tk::Diagnostics;
+  {
+    my $diagnostics = App::MathImage::Tk::Diagnostics->new ($mw);
+    $diagnostics->Show;
+  }
+  # {
+  #   my $diagnostics = $mw->AppMathImageTkDiagnostics;
+  #   $diagnostics->Show;
+  # }
+  MainLoop;
+  exit 0;
+}
+{
+  my $mw = MainWindow->new;
+  require App::MathImage::Tk::About;
+  {
+    my $about = App::MathImage::Tk::About->new ($mw);
+    $about->Show;
+  }
+  # {
+  #   my $about = $mw->AppMathImageTkAbout;
+  #   $about->Show;
+  # }
+  MainLoop;
+  exit 0;
+}
+
+{
+  require App::MathImage::Tk::About;
+  require Class::ISA;
+  my @classes = Class::ISA::super_path('App::MathImage::Tk::About');
+  ### @classes
+
+  dump_ISA('App::MathImage::Tk::About');
+  sub dump_ISA {
+    my ($class, $indent) = @_;
+    $indent ||= 0;
+    no strict 'refs';
+    foreach my $isa (@{"${class}::ISA"}) {
+      print ' 'x$indent,$isa,"\n";
+      dump_ISA($isa,$indent+2);
+    }
+  }
+  exit 0;
+}
+
+{
+  use FindBin;
+  my $progname = $FindBin::Script;
+
+  my $mw = MainWindow->new;
+  Scalar::Util::weaken($mw);
+  # ### $mw
+
+  my $label = $mw->Label(-text => 'hello');
+  # $label->pack;
+  Scalar::Util::weaken($label);
+  ### $label
+
+  my $id = $mw->after(10_000, sub { print "after\n"; });
+  Scalar::Util::weaken($id);
+  ### id class: ref $id
+  ### $id
+
+  use Devel::FindRef;
+  print Devel::FindRef::track($id);
+
+  my @ret = $mw->afterInfo($id);
+  ### @ret
+
+  MainLoop;
+  exit 0;
+}
+
+{
+  my $mw = MainWindow->new;
+  require Tk::WidgetDump;
+  my @configure = $mw->configure;
+  ### @configure
+  $mw->WidgetDump;
+  MainLoop;
+  exit 0;
+}
 {
   my $mw = MainWindow->new;
   my $label = $mw->Label(-text => 'hello');
@@ -76,70 +162,4 @@ use Smart::Comments;
   #print "name ",$mw->property('get','WM_NAME'),"\n";
   MainLoop;
   exit 0;
-}
-
-{
-  use FindBin;
-  my $progname = $FindBin::Script;
-
-  my $mw = MainWindow->new;
-
-  my $id = $mw->after(10_000, sub { print "after\n"; });
-  Scalar::Util::weaken($id);
-  # ### $id
-
-  use Devel::FindRef;
-  print Devel::FindRef::track($id);
-
-
-  my @ret = $mw->afterInfo($id);
-  ### @ret
-
-  MainLoop;
-  exit 0;
-}
-
-{
-  # after, repeat, idle
-
-  package Tk::Perl::AfterObject;
-  sub new {
-    my ($class, $widget, $ms, $repeat) = @_;
-    my $self = bless { widget => $widget }, $class;
-    Scalar::Util::weaken($self->{'widget'});
-    my $method = ($ms eq 'idle' ? 'afterIdle'
-                  : ($repeat||'') eq 'repeat' ? 'repeat' : 'after');
-    # $self->{'id'} = $widget->$method($ms,$callback,$type);
-    return $self;
-  }
-  sub DESTROY {
-    my ($self) = @_;
-    $self->cancel;
-  }
-  sub cancel {
-    my ($self) = @_;
-    if (my $id = $self->{'id'}) {
-      $id->cancel;
-    }
-  }
-  sub info {
-    my ($self) = @_;
-    if (my $id = $self->{'id'}) {
-      return $id->afterInfo;
-    } else {
-      return;
-    }
-  }
-  sub time {
-    my ($self, $ms) = @_;
-    if (my $id = $self->{'id'}) {
-      if ($ms == 0) {
-        $self->cancel;
-      } else {
-        $id->time ($ms);
-      }
-    } else {
-      return;
-    }
-  }
 }

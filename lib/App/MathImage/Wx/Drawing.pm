@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,10 +28,10 @@ use Wx;
 use Module::Load;
 
 use base 'Wx::Window';
-our $VERSION = 108;
+our $VERSION = 109;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant _IDLE_TIME_SLICE => 0.25;  # seconds
@@ -177,9 +177,7 @@ sub start_drawing_window {
   my $gen = $self->gen_object
     (generator_class => 'App::MathImage::Wx::Generator',
      busycursor      => Wx::BusyCursor->new);
-
-  $self->{'path_object'} = $gen->path_object;
-  $self->{'affine_object'} = $gen->affine_object;
+  # ### $gen
 
   # if drawing to self, not if drawing to root window
   if ($target == $self) {
@@ -194,6 +192,9 @@ sub gen_object_maybe {
 sub gen_object {
   my ($self, %gen_parameters) = @_;
   return ($self->{'gen_object'} ||= do {
+    ### Wx-Drawing gen_object() create ...
+    ### %gen_parameters
+
     my $size = $self->GetClientSize;
     my $width = $size->GetWidth;
     my $height = $size->GetHeight;
@@ -204,10 +205,6 @@ sub gen_object {
 
     my $background_colorobj = $self->GetBackgroundColour;
     my $foreground_colorobj = $self->GetForegroundColour;
-    my $undrawnground_colorobj = Wx::Colour->new
-      (map {0.8 * $background_colorobj->$_()
-              + 0.2 * $foreground_colorobj->$_()}
-       'Red', 'Blue', 'Green');
 
     my $generator_class = delete $gen_parameters{'generator_class'}
       || 'App::MathImage::Generator';
@@ -220,9 +217,8 @@ sub gen_object {
        window  => $self,
        wxframe => $self->GetParent,
 
-       # foreground       => $foreground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
-       # background       => $background_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
-       # undrawnground    => $undrawnground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
+       foreground       => $foreground_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
+       background       => $background_colorobj->GetAsString(Wx::wxC2S_HTML_SYNTAX()),
        draw_progressive => 1, # $self->get('draw-progressive'),
 
        width           => $width,

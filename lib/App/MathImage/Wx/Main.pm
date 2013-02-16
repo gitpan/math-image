@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,10 +29,10 @@ use App::MathImage::Wx::Params;
 use base qw(Wx::Frame);
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 sub new {
   my ($class, $parent, $id, $title) = @_;
@@ -86,12 +86,13 @@ sub new {
     }
     {
       my $item = $menu->Append(Wx::wxID_ANY(),
-                               __("&Centre\tC"),
+                               __("&Centre\tCtrl-C"),
                                __('Scroll to centre the origin 0,0 on screen (or at the left or bottom if no negatives in the path).'));
       EVT_MENU ($self, $item, '_menu_centre');
     }
     {
-      my $submenu = Wx::Menu->new (__('Toolbar'));
+      my $submenu = Wx::Menu->new;
+      $menu->AppendSubMenu ($submenu, __('&Toolbar'));
       {
         my $item = $submenu->AppendRadioItem
           (Wx::wxID_ANY(),
@@ -113,7 +114,6 @@ sub new {
            __('Hide the toolbar.'));
         EVT_MENU ($self, $item, '_toolbar_hide');
       }
-      $menu->AppendSubMenu ($submenu, __('&Toolbar'));
     }
   }
   {
@@ -148,7 +148,7 @@ sub new {
         = $self->{'help_oeis_menuitem'}
           = $menu->Append (Wx::wxID_ANY(),
                            __('&OEIS Web Page'),
-                           ''); # tooltip set by oeis_browse_update()
+                           ''); # tooltip set by _oeis_browse_update()
       EVT_MENU ($self, $item, 'oeis_browse');
     }
     {
@@ -275,7 +275,7 @@ sub new {
   my $draw = $self->{'draw'} = App::MathImage::Wx::Drawing->new ($self);
   _controls_from_draw ($self);
   # $self->values_update_tooltip;
-  # $self->oeis_browse_update;
+  # _oeis_browse_update($self);
 
   ### Wx-Main new() done ...
   return $self;
@@ -309,29 +309,38 @@ sub _menu_centre {
 
 sub _toolbar_horizontal {
   my ($self, $event) = @_;
+  ### _toolbar_horizontal() ...
   my $toolbar = $self->{'toolbar'};
+  $self->SetToolBar(undef);
 
   my $style = $toolbar->GetWindowStyleFlag;
   $style &= ~ Wx::wxTB_VERTICAL();
   $style |= Wx::wxTB_HORIZONTAL();
   $toolbar->SetWindowStyleFlag($style);
+  $toolbar->SetSize (Wx::wxDefaultSize());
 
-  $toolbar->Show;
-  $self->SetToolBar(undef);
+  $toolbar->Show;  # if previously hidden
   $self->SetToolBar($toolbar);
+  # $toolbar->SetSize ($toolbar->GetBestSize);
+  ### toolbar horizontal GetBestSize: $toolbar->GetBestSize->GetWidth, $toolbar->GetBestSize->GetHeight
+  ### toolbar sizer: $toolbar->GetSizer
 }
 sub _toolbar_vertical {
   my ($self, $event) = @_;
   my $toolbar = $self->{'toolbar'};
+  $self->SetToolBar(undef);
 
   my $style = $toolbar->GetWindowStyleFlag;
   $style &= ~ Wx::wxTB_HORIZONTAL();
   $style |= Wx::wxTB_VERTICAL();
   $toolbar->SetWindowStyleFlag($style);
+  $toolbar->SetSize (Wx::wxDefaultSize());
 
-  $toolbar->Show;
-  $self->SetToolBar(undef);
+  $toolbar->Show;  # if previously hidden
   $self->SetToolBar($toolbar);
+  # $toolbar->SetSize ($toolbar->GetBestSize);
+  ### toolbar vertical GetBestSize: $toolbar->GetBestSize->GetWidth, $toolbar->GetBestSize->GetHeight
+  ### toolbar sizer: $toolbar->GetSizer
 }
 sub _toolbar_hide {
   my ($self, $event) = @_;
@@ -372,7 +381,7 @@ sub randomize {
   _controls_from_draw ($self);
   $draw->redraw;
   $self->values_update_tooltip;
-  $self->oeis_browse_update;
+  _oeis_browse_update($self);
 }
 sub scale_update {
   my ($self, $event) = @_;
@@ -423,7 +432,7 @@ sub values_update {
     ($self->values_parameter_info_array);
   $draw->redraw;
   $self->values_update_tooltip;
-  $self->oeis_browse_update;
+  _oeis_browse_update($self);
 }
 sub values_parameter_info_array {
   my ($self) = @_;
@@ -453,7 +462,7 @@ sub values_params_update {
   ### values_parameters: $draw->{'values_parameters'}
   $draw->redraw;
   $self->values_update_tooltip;
-  $self->oeis_browse_update;
+  _oeis_browse_update($self);
 }
 sub values_update_tooltip {
   my ($self) = @_;
@@ -480,7 +489,7 @@ sub values_update_tooltip {
   my $toolbar = $self->{'toolbar'};
   $toolbar->SetToolShortHelp ($values_choice->GetId, $tooltip);
 }
-sub oeis_browse_update {
+sub _oeis_browse_update {
   my ($self) = @_;
   my $item = $self->{'help_oeis_menuitem'};
   my $menu = $self->{'help_menu'};
@@ -518,7 +527,7 @@ sub _controls_from_draw {
   $self->{'figure_choice'}->SetStringSelection ($draw->{'figure'});
 
   $self->values_update_tooltip;
-  $self->oeis_browse_update;
+  _oeis_browse_update($self);
 }
 
 sub quit {
@@ -875,8 +884,8 @@ sub command_line {
   ### command_line draw: $gen_options
   %$draw = (%$draw,
             %$gen_options);
-  _controls_from_draw ($self);
   $draw->redraw;
+  _controls_from_draw ($self);
 
   if (defined $width) {
     #   require Wx::Perl::Units;
@@ -922,6 +931,7 @@ sub command_line {
 }
 
 1;
+__END__
 
 =for stopwords Ryde menubar multi Wx
 
@@ -996,6 +1006,11 @@ window.
 
 =over
 
+=item C<< $main->randomize () >>
+
+Display a random combination of path, values, figure, etc.  This is the
+toolbar randomize button.
+
 =item C<< $main->toggle_fullscreen () >>
 
 Toggle the window between fullscreen and normal.  This is the
@@ -1017,6 +1032,8 @@ Open a C<Wx::Perl::PodBrowser> window showing the POD documentation for
 either the C<math-image> program, the currently selected path module, or
 currently selected values module.  These are the "Help/Program POD" etc menu
 entries.
+
+=item C<< $main->oeis_browse() >>
 
 =back
 
@@ -1047,19 +1064,19 @@ L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Copyright 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
-Wx-Perl-PodBrowser is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 3, or (at your option) any later
+Math-Image is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
 version.
 
-Wx-Perl-PodBrowser is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+Math-Image is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 more details.
 
 You should have received a copy of the GNU General Public License along with
-Wx-Perl-PodBrowser.  If not, see L<http://www.gnu.org/licenses/>.
+Math-Image.  If not, see L<http://www.gnu.org/licenses/>.
 
 =cut

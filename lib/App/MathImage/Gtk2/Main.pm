@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -43,10 +43,10 @@ use App::MathImage::Gtk2::Params;
 use App::MathImage::Gtk2::Ex::Statusbar::PointerPosition;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 use Glib::Object::Subclass
   'Gtk2::Window',
@@ -188,6 +188,9 @@ my $actions_array
      { name  => 'ToolsMenu',
        label => dgettext('gtk20-properties','_Tools'),
      },
+     { name  => 'ToolbarMenu',
+       label => __('_Toolbar'),
+     },
      { name     => 'RunGolly',
        label    => __('Run _Golly Program'),
        callback => \&_do_action_golly,
@@ -223,7 +226,7 @@ my $actions_array
       : ()),
      (defined (Module::Util::find_installed('Browser::Open'))
       ? ({ name     => 'OeisBrowse',
-           label    => __('OEIS Web Page'),
+           label    => __('_OEIS Web Page'),
            callback => sub {
              my ($action, $self) = @_;
              if (my $url = _oeis_url($self)) {
@@ -242,22 +245,39 @@ Click repeatedly to see interesting things.'),
      },
     ];
 
+my $toolbar_radio_actions_array
+  = [
+     { name        => 'ToolbarHorizontal',
+       label       =>  __('_Horizontal'),
+       value       => 0,
+       is_active   => 0,
+       tooltip     => __('Show the toolbar horizontally.'),
+     },
+     { name        => 'ToolbarVertical',
+       label       =>  __('_Vertical'),
+       value       => 1,
+       is_active   => 0,
+       tooltip     => __('Show the toolbar vertically.'),
+     },
+     { name        => 'ToolbarHide',
+       label       =>  __('Hi_de'),
+       value       => 2,
+       is_active   => 0,
+       tooltip     => __('Hide the toolbar.'),
+     },
+    ];
+
 my $toggle_actions_array
   = [
-     { name    => 'Toolbar',
-       label   => __('_Toolbar'),
-       tooltip => __('Whether to show the toolbar.'),
-     },
+     # { name    => 'Toolbar',
+     #   label   => __('_Toolbar'),
+     #   tooltip => __('Whether to show the toolbar.'),
+     # },
+
      { name    => 'Axes',
        label   => __('A_xes'),
        tooltip => __('Whether to show axes beside the image.'),
        is_active  => 1,
-     },
-     { name        => 'ToolbarVertical',
-       label       =>  __('Toolbar _Vertical'),
-       callback    => \&_do_action_toolbar_vertical,
-       is_active   => 0,
-       # tooltip     => __('.'),
      },
 
      (Module::Util::find_installed('Gtk2::Ex::CrossHair')
@@ -308,8 +328,11 @@ HERE
   $ui_str .= <<'HERE';
       <menuitem action='Fullscreen'/>
       <menuitem action='DrawProgressive'/>
-      <menuitem action='Toolbar'/>
-      <menuitem action='ToolbarVertical'/>
+      <menu action='ToolbarMenu'>
+        <menuitem action='ToolbarHorizontal'/>
+        <menuitem action='ToolbarVertical'/>
+        <menuitem action='ToolbarHide'/>
+      </menu>
       <menuitem action='Axes'/>
       <menuitem action='RunGolly'/>
     </menu>
@@ -339,6 +362,9 @@ sub init_actiongroup {
   my $actiongroup = $self->{'actiongroup'} = Gtk2::ActionGroup->new ('main');
   $actiongroup->add_actions ($actions_array, $self);
   $actiongroup->add_toggle_actions ($toggle_actions_array, $self);
+  $actiongroup->add_radio_actions ($toolbar_radio_actions_array,
+                                   0,  # initial selection
+                                   \&_toolbar_radio_change, $self);
 
   {
     my $action = Gtk2::ToggleAction->new (name => 'Fullscreen',
@@ -434,9 +460,9 @@ sub INIT_INSTANCE {
   $toolbar->show;
   $table->attach ($toolbar, 1,3, 0,1, ['expand','fill'],[],0,0);
   # $vbox->pack_start ($toolbar, 0,0,0);
-  Glib::Ex::ConnectProperties->new
-      ([$toolbar,'visible'],
-       [$actiongroup->get_action('ToolbarVertical'),'sensitive']);
+  # Glib::Ex::ConnectProperties->new
+  #     ([$toolbar,'visible'],
+  #      [$actiongroup->get_action('ToolbarVertical'),'sensitive']);
 
   my $vbox2 = $self->{'vbox2'} = Gtk2::VBox->new;
   $table->attach ($vbox2, 1,2, 1,2, ['expand','fill'],['expand','fill'],0,0);
@@ -504,11 +530,11 @@ sub INIT_INSTANCE {
     $pointerposition->signal_connect
       (message_string => \&_statusbar_pointerposition_message);
   }
-  {
-    my $action = $actiongroup->get_action ('Toolbar');
-    Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
-                                      [$action,'active']);
-  }
+  # {
+  #   my $action = $actiongroup->get_action ('Toolbar');
+  #   Glib::Ex::ConnectProperties->new ([$toolbar,'visible'],
+  #                                     [$action,'active']);
+  # }
 
   my $toolpos = -999;
   my $path_combobox;
@@ -817,9 +843,43 @@ sub menubar {
   my ($self) = @_;
   return $self->{'ui'}->get_widget('/MenuBar');
 }
+
 sub toolbar {
   my ($self) = @_;
   return $self->{'ui'}->get_widget('/ToolBar');
+}
+sub _toolbar_radio_change {
+  my ($first_action, $selected_action, $self) = @_;
+  ### _toolbar_radio_change() ...
+
+  my $toolbar = $self->get('toolbar');
+  my $n = $selected_action->get_current_value;
+  ### $n
+  if ($n == 0) {
+    $toolbar->set (orientation => 'horizontal');
+    $self->{'table'}->child_set_property ($toolbar,
+                                          left_attach => 1,
+                                          right_attach => 3,
+                                          top_attach => 0,
+                                          bottom_attach => 1,
+                                          x_options => ['expand','fill'],
+                                          y_options => [],
+                                          );
+    $toolbar->show;
+  } elsif ($n == 1) {
+    $toolbar->set (orientation => 'vertical');
+    $self->{'table'}->child_set_property ($toolbar,
+                                          left_attach => 0,
+                                          right_attach => 1,
+                                          top_attach => 1,
+                                          bottom_attach => 3,
+                                          x_options => [],
+                                          y_options => ['expand','fill'],
+                                          );
+    $toolbar->show;
+  } elsif ($n == 2) {
+    $toolbar->hide;
+  }
 }
 
 sub popup_save_as {
@@ -961,29 +1021,6 @@ sub _do_action_crosshair {
     #        });
     #     $self->{'draw'}->notify('scale'); # initial
   };
-}
-sub _do_action_toolbar_vertical {
-  my ($action, $self) = @_;
-  my $vertical = $action->get_active;
-  my $toolbar = $self->get('toolbar');
-  $toolbar->set (orientation => ($vertical ? 'vertical' : 'horizontal'));
-
-  $self->{'table'}->child_set_property ($toolbar,
-                                        $vertical
-                                        ? (left_attach => 0,
-                                           right_attach => 1,
-                                           top_attach => 1,
-                                           bottom_attach => 3,
-                                           x_options => [],
-                                           y_options => ['expand','fill'],
-                                          )
-                                        : (left_attach => 1,
-                                           right_attach => 3,
-                                           top_attach => 0,
-                                           bottom_attach => 1,
-                                           x_options => ['expand','fill'],
-                                           y_options => [],
-                                          ));
 }
 
 # my %type_to_adjname = (left  => 'hadjustment',

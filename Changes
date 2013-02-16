@@ -1,4 +1,4 @@
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of math-image.
 
@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 109, February 2013
+    - fix for Wx experimental "ThisPath" hurting some OEIS
+
 Version 108, September 2012
     - X11 flash on virtual root
 
@@ -30,7 +33,7 @@ Version 105, July 2012
     - use PlanePath tree_n_children()
 
 Version 104, July 2012
-    - new --oeis option as a shorthand for --values=OEIS,anum=A000000
+    - new --oeis option shorthand for --values=OEIS,anum=A000000
 
 Version 103, July 2012
     - new figure "arrow"

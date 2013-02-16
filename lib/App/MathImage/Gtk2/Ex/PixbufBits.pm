@@ -26,7 +26,7 @@ use Scalar::Util;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 
 sub filename_to_format {

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,14 +28,15 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 
 use App::MathImage::Generator;
 use App::MathImage::Tk::Drawing;
+use App::MathImage::Tk::Perl::WidgetBits 'with_underline';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -53,6 +54,8 @@ sub Populate {
                                    'AppMathImageTkMain',
                                    'AppMathImageTkMain',
                                    undef ]);
+
+  my $balloon = $self->Balloon;
 
   # cf add-on Tk::ToolBar
   my $toolbar
@@ -95,7 +98,6 @@ sub Populate {
 
   $self->SUPER::Populate($args);
 
-  my $balloon = $self->Balloon;
   $menubar->pack(-side => 'top', -fill => 'x');
   $toolbar->pack(-side => 'top', -fill => 'x');
 
@@ -164,9 +166,10 @@ sub Populate {
                     -command => [$self, 'popup_path_pod']);
     $menu->command (-label => with_underline(__('_Values POD')),
                     -command => [$self, 'popup_values_pod']);
-    $menu->command (-label => with_underline(__('Dia_gnostics ...')),
+    $menu->command (-label => with_underline(__('Dia_gnostics')),
                     -command => [ $self, 'popup_diagnostics' ]);
-
+    $menu->command (-label => with_underline(__('_Widget Dump')),
+                    -command => [ $self, 'popup_widgetdump' ]);
   }
 
   $drawing->{'gen_options'} = $gen_options;
@@ -270,37 +273,6 @@ sub Populate {
                     .'x'
                     .int($self->screenheight * .8));
   }
-}
-
-# If $str has an underscore like "Save _As" then return
-#     "Save As", -underline => 5
-# with the underscore becoming a -underline position.
-#
-# If $str doesn't have an underscore then return $str unchanged.
-# A literal underscore can be included by doubling it, for example
-#     "Literal__Underscore"
-#
-# This is designed for use on a -label or -text argument such as
-#     $menu->comman (-label => with_underline("_File"),
-#                    -command => ...)
-# Parsing the underline position from the string has the advantage of
-# guarding against wrongly counting character number for -underline, and
-# allowing labels translated into other languages to have a different
-# underline position, or no underline at all.
-#
-sub with_underline {
-  my ($str) = @_;
-  my @underline;
-  $str =~ s{_(.)}{
-    ### $1
-    if ($1 ne '_') {
-      @underline = (-underline => pos($str)||0);
-    }
-    $1
-  }ge;
-  ### $str
-  ### @underline
-  return ($str, @underline);
 }
 
 my %_values_to_mnemonic =
@@ -512,9 +484,7 @@ sub _tk_pod {
     return 1;
   } else {
     my $err = $@;
-    $self->messageBox (-type => 'Ok',
-                       -icon => 'error',
-                       -message => "Tk::Pod not available:\n$err");
+    $self->popup_module_not_available ('Tk::Pod', $err);
     return 0;
   }
 }
@@ -524,6 +494,26 @@ sub popup_diagnostics {
   require App::MathImage::Tk::Diagnostics;
   my $diagnostics = $self->AppMathImageTkDiagonostics;
   $diagnostics->Popup;
+}
+sub popup_widgetdump {
+  my ($self) = @_;
+  if (! eval { require Tk::WixdgetDump; 1}) {
+    my $err = $@;
+    $self->popup_module_not_available ('Tk::WidgetDump', $err);
+    return;
+  }
+  $self->WidgetDump;
+}
+
+# ENHANCE-ME: MessageBox isn't very good on long $error messages
+sub popup_module_not_available {
+  my ($self, $module, $error) = @_;
+  $self->messageBox (-type => 'Ok',
+                     -icon => 'error',
+                     -message => (__x('{module} not available',
+                                      module => $module,
+                                      error  => $error)
+                                  . "\n" . $error));
 }
 
 sub command_line {

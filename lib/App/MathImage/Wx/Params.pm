@@ -27,7 +27,7 @@ use Module::Load;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 # after_item => $item
 #
@@ -167,7 +167,9 @@ sub _update_visible {
   foreach my $pinfo (@{$self->{'parameter_info_array'}}) {
     ### name: $pinfo->{'name'}
     if (my $item = _pinfo_to_item($self,$pinfo)) {
-      $item->Show (_pinfo_when($self,$pinfo));
+      my $show = _pinfo_when($self,$pinfo);
+        ### $show
+      $item->Show ($show);
     }
   }
   ### Wx-Params _update_visible() done ...
@@ -190,12 +192,22 @@ sub _pinfo_when {
       if (my $when_item = _pinfo_to_item($self,$when_pinfo)) {
         my $got_value = $when_item->GetValue;
         ### $got_value
-        return (defined $got_value
-                &&
-                List::Util::first
-                {$_ eq $got_value}
-                (defined $pinfo->{'when_value'} ? $pinfo->{'when_value'} : ()),
-                @{$pinfo->{'when_values'}});
+        if (defined $got_value) {
+          if (my $when_condition = $pinfo->{'when_condition'}) {
+            ### $when_condition
+            if ($when_condition eq 'odd') {
+              return ($got_value % 2) != 0;
+            }
+          }
+
+          {
+            my @when_values = ((defined $pinfo->{'when_value'} ? $pinfo->{'when_value'} : ()),
+                               @{$pinfo->{'when_values'} || []});
+            if (@when_values) {
+              return (List::Util::first {$_ eq $got_value} @when_values);
+            }
+          }
+        }
       }
     }
   }

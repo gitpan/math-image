@@ -27,7 +27,7 @@ use POSIX qw(floor ceil);
 use base 'Tk::Derived', 'Tk::Canvas';
 Tk::Widget->Construct('AppMathImageTkPerlNumAxis');
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 
 # uncomment this to run the ### lines
@@ -87,9 +87,9 @@ sub Populate {
 
               # must initial -image so that Tk::Label -width and -height are
               # interpreted as pixels, not lines/columns
-              -image => $self->Photo (-width => 1, -height => 1),
-              -width              => 1, # desired size any, not from -image
-              -height             => 1,
+              -image   => $self->Photo (-width => 1, -height => 1),
+              -width   => 1, # desired size any, not from -image
+              -height  => 1,
 
               %$args);
   $self->SUPER::Populate(\%args);
@@ -103,18 +103,12 @@ sub Populate {
                #   accumulator => \&Glib::Ex::SignalBits::accumulator_first_defined,
                #   class_closure => \&_do_number_to_text },
 
-  # properties => [Glib::ParamSpec->object
-  #                ('adjustment',
-  #                 'Adjustment object',
-  #                 'The adjustment object to display values from.',
-  #                 'Gtk2::Adjustment',
-  #                 Glib::G_PARAM_READWRITE),
 
 
 # as fraction of digit width
 # these not documented, could be properties or style properties
-use constant { TICK_WIDTH_FRAC => 0.8,
-               TICK_GAP_FRAC   => 0.5,
+use constant { TICK_WIDTH_FRAC   => 0.8,
+               TICK_GAP_FRAC     => 0.5,
                TICK_HEIGHT_FRAC  => 0.4,
                TICK_VGAP_FRAC    => 0.1,
              };

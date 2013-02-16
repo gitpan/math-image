@@ -29,7 +29,7 @@ diag ("Tk version ", Tk->VERSION);
 
 plan tests => 11;
 
-require App::MathImage::Tk::Perl::AfterObject;
+require App::MathImage::Tk::Perl::WeakAfter;
 
 
 # uncomment this to run the ### lines
@@ -40,15 +40,15 @@ require App::MathImage::Tk::Perl::AfterObject;
 # VERSION
 
 my $want_version = 99;
-is ($App::MathImage::Tk::Perl::AfterObject::VERSION, $want_version,
+is ($App::MathImage::Tk::Perl::WeakAfter::VERSION, $want_version,
     'VERSION variable');
-is (App::MathImage::Tk::Perl::AfterObject->VERSION, $want_version,
+is (App::MathImage::Tk::Perl::WeakAfter->VERSION, $want_version,
     'VERSION class method');
 
-ok (eval { App::MathImage::Tk::Perl::AfterObject->VERSION($want_version); 1 },
+ok (eval { App::MathImage::Tk::Perl::WeakAfter->VERSION($want_version); 1 },
     "VERSION class check $want_version");
 my $check_version = $want_version + 1000;
-ok (! eval { App::MathImage::Tk::Perl::AfterObject->VERSION($check_version); 1 },
+ok (! eval { App::MathImage::Tk::Perl::WeakAfter->VERSION($check_version); 1 },
     "VERSION class check $check_version");
 
 #------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ ok (! eval { App::MathImage::Tk::Perl::AfterObject->VERSION($check_version); 1 }
 my $mw = MainWindow->new;
 {
   my $called = 0;
-  my $af = App::MathImage::Tk::Perl::AfterObject->new;
+  my $af = App::MathImage::Tk::Perl::WeakAfter->new;
   is ($af->type, '');
   $af->idle($mw, sub { $called++ });
   is ($af->type, 'idle');
@@ -66,7 +66,7 @@ my $mw = MainWindow->new;
 }
 {
   my $called = 0;
-  my $af = App::MathImage::Tk::Perl::AfterObject->new;
+  my $af = App::MathImage::Tk::Perl::WeakAfter->new;
   $af->idle($mw, sub { $called++; });
   undef $af;
   $mw->update;
@@ -81,7 +81,7 @@ my $mw = MainWindow->new;
 # {
 #   my $label = $mw->Label;
 #   my $called = 0;
-#   my $af = App::MathImage::Tk::Perl::AfterObject->new($label, sub {
+#   my $af = App::MathImage::Tk::Perl::WeakAfter->new($label, sub {
 #                                                   $called++;
 #                                                 });
 #   $label->destroy;
@@ -93,7 +93,7 @@ my $mw = MainWindow->new;
 # }
 
 {
-  my $af = App::MathImage::Tk::Perl::AfterObject->new;
+  my $af = App::MathImage::Tk::Perl::WeakAfter->new;
   { my @info = $af->info;
     is_deeply(\@info,[]);
   }
@@ -109,7 +109,7 @@ my $mw = MainWindow->new;
 #   my @info = $mw->afterInfo($id);
 #   ### @info
 #   my $called = 0;
-#   my $af = App::MathImage::Tk::Perl::AfterObject->new($mw, sub {
+#   my $af = App::MathImage::Tk::Perl::WeakAfter->new($mw, sub {
 #                                                   $called++;
 #                                                 });
 #   my @info = $af->info;

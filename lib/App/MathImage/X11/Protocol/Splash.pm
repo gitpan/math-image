@@ -29,7 +29,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 108;
+$VERSION = 109;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

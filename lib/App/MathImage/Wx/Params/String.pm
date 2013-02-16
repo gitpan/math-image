@@ -28,10 +28,13 @@ use Wx;
 use List::Util 'min';
 
 use base 'Wx::ComboBox';
-our $VERSION = 108;
+our $VERSION = 109;
+
+use Regexp::Common 'no_defaults';
+use App::MathImage::Regexp::Common::OEIS;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 sub new {
@@ -122,6 +125,7 @@ sub SetValue {
   } else {
     $self->SUPER::SetSelection ($n);
   }
+  $self->{'prev'} = $value;
   _update_tooltip($self);
 }
 
@@ -144,15 +148,18 @@ sub OnTextUpdated {
   my $prev = $self->{'prev'};
   my $str = $self->GetValue;
   my $addlen = length($str) - length($prev);
-  my $pos = $self->GetInsertionPoint;
+  ### $prev
+  ### $addlen
 
-  foreach my $anumlen (6, 7) {
-    if ($addlen == $anumlen && $pos >= $anumlen) {
-      my $anum = substr ($str, $pos-$anumlen, $anumlen);
-      if ($anum =~ /^A\d+$/) {
-        $self->SetValue($anum);
+  if ($addlen > 0) {
+    my $pos = $self->GetInsertionPoint - $addlen;
+    ### $pos
+    if ($pos >= 0) {
+      my $addstr = substr ($str, $pos, $addlen);
+      ### $addstr
+      if ($addstr =~ $RE{OEIS}{anum}{-keep}) {
+        $self->SetValue($1);
         $self->OnTextEnter;
-        return;
       }
     }
   }

@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass

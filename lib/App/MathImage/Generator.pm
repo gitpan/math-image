@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# count_outside / count_total decay progressively ...
+
+
 package App::MathImage::Generator;
 use 5.004;
 use strict;
@@ -26,15 +30,16 @@ use Module::Util;
 use Image::Base 1.16; # 1.16 for diamond()
 use Time::HiRes;
 use List::Util 'min', 'max';
+use List::Pairwise 'mapp';
 use Locale::TextDomain 'App-MathImage';
 
 use App::MathImage::Image::Base::Other;
 
 use vars '$VERSION';
-$VERSION = 108;
+$VERSION = 109;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant default_options => {
@@ -72,12 +77,28 @@ sub new {
   my $class = shift;
   ### Generator new()...
   my $self = bless { %{$class->default_options()}, @_ }, $class;
+
   if (! defined $self->{'undrawnground'}) {
-    $self->{'undrawnground'} = $self->{'background'};
+    $self->{'undrawnground'}
+      = _colour_average ($self->{'foreground'},
+                         $self->{'background'},
+                         0.2)
+        || $self->{'background'};
   }
+
   $self->{'path_parameters'} ||= {};
   $self->{'values_parameters'} ||= {};
   return $self;
+}
+
+sub _colour_average {
+  my ($c1, $c2, $f1) = @_;
+  my ($r1,$g1,$b1) = colour_to_rgb($c1) or return;
+  my ($r2,$g2,$b2) = colour_to_rgb($c2) or return;
+  my $f2 = 1-$f1;
+  return rgb1_to_rgbstr ($r1*$f1 + $r2*$f2,
+                         $g1*$f1 + $g2*$f2,
+                         $b1*$f1 + $b2*$f2);
 }
 
 use constant::defer values_choices => sub {
@@ -96,6 +117,7 @@ use constant::defer values_choices => sub {
   foreach my $prefer (qw(Primes
                          MobiusFunction
                          LiouvilleFunction
+                         PrimeFactorCount
                          TwinPrimes
                          SophieGermainPrimes
                          SafePrimes
@@ -114,7 +136,6 @@ use constant::defer values_choices => sub {
                          LemoineCount
                          PythagoreanHypots
 
-                         PrimeFactorCount
                          AllPrimeFactors
 
                          Totient
@@ -152,8 +173,9 @@ use constant::defer values_choices => sub {
                          Fibbinary
                          FibbinaryBitCount
                          FibonacciWord
+                         LucasSequenceModulo
                          PisanoPeriod
-                         FibonacciFrequency
+                         PisanoPeriodSteps
                          Pell
                          Perrin
                          Padovan
@@ -161,13 +183,15 @@ use constant::defer values_choices => sub {
                          SpiroFibonacci
                          Factorials
                          Primorials
+                         Catalan
+                         BalancedBinary
 
                          FractionDigits
                          SqrtDigits
                          SqrtEngel
                          SqrtContinued
                          SqrtContinuedPeriod
-                         CbrtContinued
+                         AlgebraicContinued
                          PiBits
                          Ln2Bits
 
@@ -246,6 +270,7 @@ use constant::defer values_choices => sub {
 
                          AlphabeticalLength
                          AlphabeticalLengthSteps
+                         SevenSegments
 
                          OEIS
                          File
@@ -320,7 +345,7 @@ sub values_seq {
                         height => $self->{'height'},
                         %$values_parameters,
                         (($values_parameters->{'planepath'}||'') eq 'ThisPath'
-                         ? (planepath => $self->{'path'})
+                         ? (planepath_object => $self->path_object)
                          : ()))
   };
   if (! $values_seq) {
@@ -364,13 +389,15 @@ my %pathname_square_grid
                      Hypot
                      HypotOctant
                      TriangularHypot
-                     PythagoreanTree
-                     CoprimeColumns
                      RationalsTree
                      FractionsTree
+                     ChanTree
+                     PythagoreanTree
+                     CoprimeColumns
                      DiagonalRationals
-                     FactorRationals
                      GcdRationals
+                     FactorRationals
+                     CfracDigits
                      DivisibleColumns
 
                      PeanoCurve
@@ -478,6 +505,70 @@ my %pathname_square_grid
 
 
 #------------------------------------------------------------------------------
+# N string
+
+{ package Math::PlanePath;
+  use constant MathImage__n_to_radixstr => undef;
+}
+{ package Math::PlanePath::PythagoreanTree;
+  sub MathImage__n_to_radixstr {
+    my ($self, $n) = @_;
+    if ($n < 1) { return undef; }
+    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
+    $n -= ($pow+1)/2;  # offset into row
+    if (is_infinite($n)) { return "$n"; }
+    my @digits = digit_split_lowtohigh($n,3);
+    push @digits, (0) x ($exp - scalar(@digits));  # high pad to $exp many
+    return '1'.join('',reverse @digits);
+  }
+}
+{ package Math::PlanePath::FractionsTree;
+  use Math::PlanePath::Base::Generic;
+  use Math::PlanePath::Base::Digits;
+  sub MathImage__n_to_radixstr {
+    my ($self, $n) = @_;
+    if ($n < 1) { return undef; }
+    if (Math::PlanePath::Base::Generic::is_infinite($n)) { return "$n"; }
+    my @digits = Math::PlanePath::Base::Digits::digit_split_lowtohigh($n,2);
+    return join('',reverse @digits);
+  }
+}
+{ package Math::PlanePath::RationalsTree;
+  use Math::PlanePath::Base::Digits;
+  *MathImage__n_to_radixstr = \&Math::PlanePath::FractionsTree::MathImage__n_to_radixstr;
+}
+{ package Math::PlanePath::ChanTree;
+  use Math::PlanePath::Base::Digits;
+  my @digit_to_char = (0..9, 'A'..'Z');
+  sub MathImage__n_to_radixstr {
+    my ($self, $n) = @_;
+    my $n_start = $self->{'n_start'};
+    if ($n < $n_start) { return undef; }
+    my $offset = $self->{'n_start'}-1;
+    $n -= $offset;
+    if (is_infinite($n)) { return "$n"; }
+    my $k = $self->{'k'};
+    my @digits = reverse
+      Math::PlanePath::Base::Digits::digit_split_lowtohigh($n,$k);
+    my $str;
+    if ($k <= scalar(@digit_to_char)) {
+      if ($k > 10) {
+        @digits = map {$digit_to_char[$_]} @digits;
+      }
+      $str = join('', @digits);
+    } else {
+      $str = join(',', @digits);
+    }
+    if ($offset > 0) {
+      $str .= "+$offset";
+    } elsif ($offset < 0) {
+      $str .= $offset;  # "-123"
+    }
+    return $str;
+  }
+}
+
+#------------------------------------------------------------------------------
 # path lattice
 
 { package Math::PlanePath;
@@ -556,6 +647,10 @@ my %pathname_square_grid
   use constant MathImage__lattice_type => 'triangular';
 }
 { package Math::PlanePath::TerdragonMidpoint;
+  use constant MathImage__lattice_type => 'triangular';
+}
+
+{ package Math::PlanePath::OneOfSixByCells;
   use constant MathImage__lattice_type => 'triangular';
 }
 
@@ -815,135 +910,153 @@ sub y_negative {
       $choices{$choice} = 1;
     }
     my @choices;
-    foreach my $prefer (qw(SquareSpiral
-                           SacksSpiral
-                           VogelFloret
-                           TheodorusSpiral
-                           ArchimedeanChords
-                           MultipleRings
-                           PixelRings
-                           FilledRings
-                           Hypot
-                           HypotOctant
-                           TriangularHypot
+    foreach my $prefer ('SquareSpiral',
+                        'SacksSpiral',
+                        'VogelFloret',
+                        'TheodorusSpiral',
+                        'ArchimedeanChords',
+                        'MultipleRings',
+                        'PixelRings',
+                        'FilledRings',
+                        'Hypot',
+                        'HypotOctant',
+                        'TriangularHypot',
 
-                           DiamondSpiral
-                           AztecDiamondRings
-                           PentSpiral
-                           PentSpiralSkewed
-                           HexSpiral
-                           HexSpiralSkewed
-                           HeptSpiralSkewed
-                           AnvilSpiral
-                           TriangleSpiral
-                           TriangleSpiralSkewed
-                           OctagramSpiral
-                           KnightSpiral
-                           CretanLabyrinth
+                        'DiamondSpiral',
+                        'AztecDiamondRings',
+                        'PentSpiral',
+                        'PentSpiralSkewed',
+                        'HexSpiral',
+                        'HexSpiralSkewed',
+                        'HeptSpiralSkewed',
+                        'AnvilSpiral',
+                        'TriangleSpiral',
+                        'TriangleSpiralSkewed',
+                        'OctagramSpiral',
+                        'KnightSpiral',
+                        'CretanLabyrinth',
 
-                           SquareArms
-                           DiamondArms
-                           HexArms
-                           GreekKeySpiral
-                           MPeaks
+                        'SquareArms',
+                        'DiamondArms',
+                        'HexArms',
+                        'GreekKeySpiral',
+                        'MPeaks',
 
-                           PyramidRows
-                           PyramidSides
-                           PyramidSpiral
-                           CellularRule
-                           CellularRule54
-                           CellularRule57
-                           CellularRule190
+                        'PyramidRows',
+                        'PyramidSides',
+                        'PyramidSpiral',
+                        'CellularRule',
+                        'CellularRule54',
+                        'CellularRule57',
+                        'CellularRule190',
 
-                           Corner
-                           Diagonals
-                           DiagonalsAlternating
-                           DiagonalsOctant
-                           Staircase
-                           StaircaseAlternating
-                           Rows
-                           Columns
-                           UlamWarburton
-                           UlamWarburtonQuarter
+                        'Corner',
+                        'Diagonals',
+                        'DiagonalsAlternating',
+                        'DiagonalsOctant',
+                        'Staircase',
+                        'StaircaseAlternating',
+                        'Rows',
+                        'Columns',
 
-                           PeanoCurve
-                           HilbertCurve
-                           HilbertMidpoint
-                           HilbertSpiral
-                           ZOrderCurve
-                           GrayCode
-                           WunderlichSerpentine
-                           WunderlichMeander
-                           BetaOmega
-                           AR2W2Curve
-                           KochelCurve
-                           DekkingCurve
-                           DekkingCentres
-                           CincoCurve
+                        'PeanoCurve',
+                        'HilbertCurve',
+                        'HilbertMidpoint',
+                        'HilbertSpiral',
+                        'ZOrderCurve',
+                        'GrayCode',
+                        'WunderlichSerpentine',
+                        'WunderlichMeander',
+                        'BetaOmega',
+                        'AR2W2Curve',
+                        'KochelCurve',
+                        'DekkingCurve',
+                        'DekkingCentres',
+                        'CincoCurve',
 
-                           ImaginaryBase
-                           ImaginaryHalf
-                           CubicBase
-                           SquareReplicate
-                           CornerReplicate
-                           LTiling
-                           FibonacciWordFractal
-                           DigitGroups
+                        'ImaginaryBase',
+                        'ImaginaryHalf',
+                        'CubicBase',
+                        'SquareReplicate',
+                        'CornerReplicate',
+                        'LTiling',
+                        'FibonacciWordFractal',
+                        'DigitGroups',
 
-                           Flowsnake
-                           FlowsnakeCentres
-                           GosperReplicate
-                           GosperIslands
-                           GosperSide
+                        'Flowsnake',
+                        'FlowsnakeCentres',
+                        'GosperReplicate',
+                        'GosperIslands',
+                        'GosperSide',
 
-                           QuintetCurve
-                           QuintetCentres
-                           QuintetReplicate
+                        'QuintetCurve',
+                        'QuintetCentres',
+                        'QuintetReplicate',
 
-                           KochCurve
-                           KochPeaks
-                           KochSnowflakes
-                           KochSquareflakes
+                        'KochCurve',
+                        'KochPeaks',
+                        'KochSnowflakes',
+                        'KochSquareflakes',
 
-                           QuadricCurve
-                           QuadricIslands
+                        'QuadricCurve',
+                        'QuadricIslands',
 
-                           SierpinskiCurve
-                           SierpinskiCurveStair
-                           HIndexing
+                        'SierpinskiCurve',
+                        'SierpinskiCurveStair',
+                        'HIndexing',
 
-                           SierpinskiTriangle
-                           SierpinskiArrowhead
-                           SierpinskiArrowheadCentres
+                        'SierpinskiTriangle',
+                        'SierpinskiArrowhead',
+                        'SierpinskiArrowheadCentres',
 
-                           DragonCurve
-                           DragonRounded
-                           DragonMidpoint
-                           TerdragonCurve
-                           TerdragonRounded
-                           TerdragonMidpoint
-                           R5DragonCurve
-                           R5DragonMidpoint
-                           AlternatePaper
-                           AlternatePaperMidpoint
-                           CCurve
-                           ComplexPlus
-                           ComplexMinus
-                           ComplexRevolving
+                        'DragonCurve',
+                        'DragonRounded',
+                        'DragonMidpoint',
+                        'TerdragonCurve',
+                        'TerdragonRounded',
+                        'TerdragonMidpoint',
+                        'R5DragonCurve',
+                        'R5DragonMidpoint',
+                        'AlternatePaper',
+                        'AlternatePaperMidpoint',
+                        'CCurve',
+                        'ComplexPlus',
+                        'ComplexMinus',
+                        'ComplexRevolving',
 
-                           PythagoreanTree
-                           CoprimeColumns
-                           DiagonalRationals
-                           FactorRationals
-                           GcdRationals
-                           RationalsTree
-                           FractionsTree
+                        'CoprimeColumns',
+                        'DivisibleColumns',
+                        'DiagonalRationals',
+                        'FactorRationals',
+                        'CfracDigits',
+                        'GcdRationals',
+                        'RationalsTree',
+                        'FractionsTree',
+                        'ChanTree',
+                        'PythagoreanTree',
 
-                           DivisibleColumns
-                           WythoffArray
-                           PowerArray
-                           File
-                         )) {
+                        'LCornerTree',
+                        'LCornerReplicate',
+                        'LCornerSingle',
+                        'OneOfEight',
+
+                        'ToothpickTree',
+                        'ToothpickByCells', # experimental
+                        'ToothpickReplicate',
+                        'ToothpickUpist',
+                        'EToothpickTree', # experimental
+                        'LToothpickTree', # experimental
+
+                        'SurroundOneEight', # experimental
+                        'SurroundOneEightByCells', # experimental
+                        'UlamWarburton',
+                        'UlamWarburtonQuarter',
+
+                        'WythoffArray',
+                        'PowerArray',
+
+                        'File',
+                       ) {
       if (delete $choices{$prefer}) {
         push @choices, $prefer;
       }
@@ -967,6 +1080,7 @@ sub y_negative {
                                     V
                                     Z
                                     N
+                                    hash
                                     triangle
                                     hexagon
                                     octagon
@@ -976,6 +1090,7 @@ sub y_negative {
                                     arrow
                                     toothpick
                                     toothpick_E
+                                    toothpick_L
                                     toothpick_V
                                     toothpick_Y
                                   );
@@ -1348,7 +1463,7 @@ sub affine_object {
 
     my $affine = Geometry::AffineTransform->new;
     $affine->scale ($self->{'scale'}, - $self->{'scale'});
-    if ($self->{'figure'} =~ /toothpick/) {
+    if ($self->{'figure'} =~ /toothpick_[EVY]/) {
       $affine->scale (sqrt(3), 1);
     }
     $affine->translate ($x_origin, $y_origin);
@@ -1425,16 +1540,26 @@ sub colours_exp_shrink {
     if ($self->values_seq->{'coordinate_type'} =~ /Squared/) {
       $shrink = 1 - 1/300;
     } elsif ($self->values_seq->{'coordinate_type'} eq 'Depth') {
-      $shrink = 1 - 1/10
+      $shrink = 1 - 1/30;
+    } elsif ($self->values_seq->{'coordinate_type'} eq 'ToLeaf') {
+      $shrink = 1 - 1/4;
+    } elsif ($self->values_seq->{'coordinate_type'} eq 'GcdDivisions') {
+      $shrink = 1 - 1/3;
+    } elsif ($self->values_seq->{'coordinate_type'} eq 'IntXY') {
+      $shrink = 1 - 1/4;
     } else {
       $shrink = 1 - 1/50;
     }
+  } elsif ($self->{'values'} eq 'DigitLength') {
+    $shrink = 1 - 1/16 * 1/log(2) * log($self->values_seq->{'radix'});
   } elsif ($self->{'values'} eq 'JacobsthalFunction') {
     $shrink = 1 - 1/4;
   } elsif ($self->{'values'} eq 'PisanoPeriod') {
     $shrink = 1 - 1/100;
-  } elsif ($self->{'values'} eq 'LeonardoLogarithm') {
-    $shrink = .8;
+  } elsif ($self->{'values'} eq 'PisanoPeriodSteps') {
+    if ($self->values_seq->{'values_type'} eq 'log') {
+      $shrink = .8;
+    }
   } elsif ($self->{'values'} eq 'PowerFlip') {
     $shrink = 1 - 1/15;
   } elsif ($self->{'values'} eq 'SqrtContinuedPeriod') {
@@ -1531,6 +1656,7 @@ sub colours_exp_shrink {
   return $shrink;
 }
 
+# return R,G,B in range 0 to 1.0
 sub colour_to_rgb {
   my ($colour) = @_;
   my $scale;
@@ -1543,6 +1669,8 @@ sub colour_to_rgb {
   } elsif (eval { require Color::Library }
            && (my $c = Color::Library->color($colour))) {
     return map {$_/255} $c->rgb;
+  } else {
+    return;  # unrecognised colour
   }
   return (hex($1)/$scale, hex($2)/$scale, hex($3)/$scale);
 }
@@ -1642,6 +1770,7 @@ my %figure_fill = (square  => 1,
                    hexagon => 1,
                    octagon => 1,
                    toothpick_E => 1,
+                   toothpick_L => 1,
                    toothpick_V => 1,
                    toothpick_Y => 1,
                   );
@@ -1658,6 +1787,7 @@ my %figure_image_method
      V           => \&App::MathImage::Image::Base::Other::draw_V,
      Z           => \&App::MathImage::Image::Base::Other::draw_Z,
      N           => \&App::MathImage::Image::Base::Other::draw_N,
+     hash        => \&App::MathImage::Image::Base::Other::draw_hash,
      unellipse   => \&App::MathImage::Image::Base::Other::unellipse,
      unellipunf  => \&App::MathImage::Image::Base::Other::unellipse,
      undiamond   => \&undiamond,
@@ -1665,6 +1795,7 @@ my %figure_image_method
      hexagon     => \&_hexagon_vertical,
      octagon     => \&_octagon,
      toothpick_E => 'ellipse',
+     toothpick_L => 'ellipse',
      toothpick_V => 'ellipse',
      toothpick_Y => 'ellipse',
     );
@@ -1879,10 +2010,16 @@ sub draw_Image_start {
   {
     my $xpscale = $scale;
     my $ypscale = $scale;
-    if ($self->{'values'} =~ /^Lines/) {
+    if ($figure =~ /toothpick/i) {
+      # FIXME: Identify ToothpickTree and ToothpickReplicate lattice.
+      if ($self->{'path'} =~ /^Toothpick/i) {
+        $xpscale = $ypscale = $scale * 1.8;
+      } else {
+        $xpscale = $ypscale = $scale * .35;
+      }
+    } elsif ($self->{'values'} =~ /^Lines/) {
       # smaller figures for lines 'midpoint' and 'rounded'
-      $xpscale = $ypscale = $scale * ($figure =~ /toothpick/ ? .6
-                                      : $lines_type eq 'integer' ? .4
+      $xpscale = $ypscale = $scale * ($lines_type eq 'integer' ? .4
                                       : .2);
     } elsif ($path_object->figure eq 'circle'
              && ! $figure_is_circular{$figure}) {
@@ -2019,8 +2156,9 @@ sub draw_Image_start {
 
   my $filter = $self->{'filter'} || 'All';
   $self->{'filter_obj'} =
-    $self->values_class($filter)->new (lo => $n_lo,
-                                       hi => $n_hi);
+    $self->values_class($filter)->new;
+  # (lo => $n_lo,
+  #  hi => $n_hi);
 
   ### $rectangle_area
   ### $n_hi
@@ -2076,6 +2214,8 @@ sub use_colours {
     my $is_count = $values_seq->characteristic('count');
     my $is_smaller = $values_seq->characteristic('smaller');
 
+    ### $values_min
+    ### $values_max
     ### characteristic(count): $is_count
     ### characteristic(smaller): $is_smaller
 
@@ -2108,9 +2248,20 @@ sub use_colours {
              && defined $values_max
              && $values_seq->characteristic('integer')
              && $values_max == 1 && $values_min == -1
-             && $image->isa('Image::Base::Text')) {
+             && $image && $image->isa('Image::Base::Text')) {
       # +/-1 in text
       $self->{'colours_array'} = $colours_text_plus_or_minus;
+
+    } elsif (defined $values_min
+             && defined $values_max
+             && $values_seq->characteristic('integer')
+             && $values_max == 1 && $values_min == -1) {
+      # +/-1 in graphics
+      $self->{'colours_array'} = [ _colour_average ($self->{'foreground'},
+                                                    $self->{'background'},
+                                                    0.5),
+                                   $self->{'background'},
+                                   $self->{'foreground'} ];
 
     } elsif (defined $image && $image->isa('Image::Base::Text')) {
       $self->{'colours_array'} = $colours_text;
@@ -2179,6 +2330,7 @@ sub draw_figure_image_method {
 }
 sub draw_figure_toothpick {
   my ($self, $colour) = @_;
+
   if (($self->{'x'}+$self->{'y'}) % 2) {
     # horizontal
     $self->{'image'}->line ($self->{'wx'} - $self->{'xscale_lo'}, $self->{'wy'},
@@ -2235,11 +2387,52 @@ sub draw_figure_toothpick_E {
 
   if (my $n_to_level = $path_object->{'n_to_level'}) {
     if (my $level = $n_to_level->[$self->{'n'}]) {
+      if ($level == 0) {
+        $colour = 'green';
+      }
       if ($level == 7) {
         $colour = 'red';
       }
     }
   }
+  $self->draw_figure_image_method($colour);
+}
+sub draw_figure_toothpick_L {
+  my ($self, $colour) = @_;
+  my $image = $self->{'image'};
+  my $path_object = $self->{'path_object'};
+  my $x = $self->{'x'};
+  my $y = $self->{'y'};
+  my $wx = $self->{'wx'};
+  my $wy = $self->{'wy'};
+  foreach my $n (@{$self->{'n_list'}}) {
+    my $n_parent = $path_object->tree_n_parent($n);
+    next if ! defined $n_parent;
+    my ($px,$py) = $path_object->n_to_xy($n_parent);
+    my $dx = ($x - $px);
+    my $dy = ($y - $py);
+    {
+      my ($dx,$dy) = ($dx+$dy, $dy-$dx);
+      if (($dx % 2) == 0) { $dx /= 2; }
+      if (($dy % 2) == 0) { $dy /= 2; }
+      $dx = .6*$dx;
+      $dy = .6*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+    {
+      my ($dx,$dy) = ($dx-$dy, $dy+$dx);
+      if (($dx % 2) == 0) { $dx /= 2; }
+      if (($dy % 2) == 0) { $dy /= 2; }
+      $dx = .6*$dx;
+      $dy = .6*$dy;
+      $image->line ($wx,$wy,
+                    $self->transform_xy($x + $dx, $y + $dy),
+                    $colour);
+    }
+  }
+
   $self->draw_figure_image_method($colour);
 }
 sub draw_figure_toothpick_V {
@@ -2335,25 +2528,38 @@ sub draw_figure_arrow {
   if (ref $x) { $x = $x->numify; }
   if (ref $y) { $y = $y->numify; }
 
+  my $frac = ($self->{'values'} eq 'LinesTree' ? 0.6
+              : 0.6);
+
   foreach my $n (@{$self->{'n_list'}}) {
-    my ($dx,$dy) = $path_object->n_to_dxdy($n);
-    ### dxdy: "$dx,$dy"
-    if (ref $dx) { $dx = $dx->numify; }
-    if (ref $dy) { $dy = $dy->numify; }
-    my $h = hypot($dx,$dy);
-    if ($h) {
-      my $f = .6 / hypot($dx,$dy);  # 0.6 of an X,Y unit
-      $dx *= $f;
-      $dy *= $f;
-      ### scaled dxdy: "$dx,$dy"
-      ### draw line(): $wx,$wy, $self->transform_xy($x+$dx, $y+$dy),
-      _image_arrow ($image,
-                    $wx,$wy,
-                    $self->transform_xy($x+$dx, $y+$dy),
-                    $colour);
-    } else {
-      $image->xy ($self->{'wx'},$self->{'wy'}, $colour);
+    mapp {
+      my $dx = $a;
+      my $dy = $b;
+      ### dxdy: "$dx,$dy"
+
+      if (ref $dx) { $dx = $dx->numify; }
+      if (ref $dy) { $dy = $dy->numify; }
+      my $h = hypot($dx,$dy);
+      if ($h) {
+        if ($frac) {
+          my $f = $frac / $h;
+          $dx *= $f;
+          $dy *= $f;
+          ### scaled dxdy: "$dx,$dy"
+        }
+        ### draw line(): $wx,$wy, $self->transform_xy($x+$dx, $y+$dy),
+        _image_arrow ($image,
+                      $wx,$wy,
+                      $self->transform_xy($x+$dx, $y+$dy),
+                      $colour);
+      } else {
+        $image->xy ($self->{'wx'},$self->{'wy'}, $colour);
+      }
     }
+      ($self->{'values'} eq 'LinesTree'
+       ? (map {my ($cx,$cy) = $path_object->n_to_xy($_); ($cx-$x, $cy-$y)}
+          $path_object->tree_n_children($n))
+       : $path_object->n_to_dxdy($n));
   }
 }
 # rotate +45  X-Y,X+Y
@@ -2426,8 +2632,10 @@ sub draw_figure_lines {
 
 sub draw_figure_linestree {
   my ($self, $colour) = @_;
+  ### draw_figure_linestree(): "$colour N=".join(',',@{$self->{'n_list'}})
 
   my $path_object = $self->{'path_object'};
+  ### path_object: "$path_object"
   my $x = $self->{'x'};
   my $y = $self->{'y'};
   if (ref $x) { $x = $x->numify; }
@@ -2440,11 +2648,13 @@ sub draw_figure_linestree {
         tree_n_children_for_branches ($path_object, $n, $branches);
     } else {
       my @this_n_children;
-      @this_n_children = $path_object->tree_n_children($n)
-        or @this_n_children = $path_object->MathImage__tree_n_children($n);
+      @this_n_children = $path_object->tree_n_children($n);
+      ### this_n_children: "n=$n children=".join(',',@this_n_children) 
+      # or @this_n_children = $path_object->MathImage__tree_n_children($n);
       push @n_children, @this_n_children;
     }
   }
+  ### @n_children
 
   my $wx = $self->{'wx'};
   my $wy = $self->{'wy'};
@@ -2463,6 +2673,15 @@ sub draw_figure_linestree {
     # $count_total++;
     # $count_outside += !$drawn;
   }
+
+  # if ($self->{'n'} == 0) {
+  #   $colour = 'lightgreen';
+  # }
+  # if (my $depth = $self->{'path_object'}->tree_n_to_depth($self->{'n'})) {
+  #   if ($depth == 8) {
+  #     $colour = 'red';
+  #   }
+  # }
 
   my $lines_figure_method = $self->{'lines_figure_method'};
   $self->$lines_figure_method($colour);
@@ -2706,9 +2925,9 @@ sub _hexagon_vertical {
 
 sub draw_Image_steps {
   my ($self) = @_;
-  #### draw_Image_steps()
+  #### draw_Image_steps() ...
   my $steps = 0;
-
+  
   my $path_object = $self->path_object;
   my $step_figures = $self->{'step_figures'};
   if ($pathname_square_grid{$self->{'path'}}) {
@@ -2744,7 +2963,7 @@ sub draw_Image_steps {
     }
     return 1; # continue
   };
-
+  
   my $image  = $self->{'image'};
   my $width  = $self->{'width'};
   my $height = $self->{'height'};
@@ -2753,20 +2972,20 @@ sub draw_Image_steps {
   my $undrawnground = $self->{'undrawnground'};
   my $scale = $self->{'scale'};
   ### $scale
-
+  
   my $covers = $self->covers_quadrants;
   my $affine = $self->affine_object;
   my $values_seq = $self->values_seq;
   my $filter_obj = $self->{'filter_obj'};
   my $draw_figure_method = $self->{'draw_figure_method'};
   my $n_list = $self->{'n_list'};
-
+  
   my $lines_type = $values_seq->{'lines_type'} || 'integer';
   my $figure = $self->figure;
-
+  
   my $figure_fill = $figure_fill{$figure};
   ### $figure
-
+  
   my %rectangles_by_colour;
   my $flush = sub {
     ### flush rectangles: scalar(%rectangles_by_colour)
@@ -2776,43 +2995,43 @@ sub draw_Image_steps {
           ($image, $colour, 1, @$aref);
     }
   };
-
+  
   my $count_total = $self->{'count_total'};
   my $count_outside = $self->{'count_outside'};
   my $n_hi = $self->{'n_hi'};
-
+  
   if ($self->{'values'} eq 'LinesLevel') {
     ### LinesLevel step...
-
+    
     my $n = $self->{'upto_n'};
     my $wxprev = $self->{'wxprev'};
     my $wyprev = $self->{'wyprev'};
-
+    
     ### upto_n: $n
     ### $wxprev
     ### $wyprev
-
+    
     for ( ; $n <= $n_hi; $n++) {
       &$cont() or last;
-
+      
       my ($x,$y) = $path_object->n_to_xy($n)
         or last; # no more
       ### n: "$n"
       ### xy raw: "$x,$y"
-
+      
       $self->{'x'} = $x;
       $self->{'y'} = $y;
       my ($wx,$wy) = $self->transform_xy ($x, $y);
       $self->{'wx'} = $wx;
       $self->{'wy'} = $wy;
       $self->$draw_figure_method($foreground);
-
+      
       if (defined $wxprev) {
         _image_line_clipped ($image, $wxprev,$wyprev, $wx,$wy,
                              $width,$height, $foreground);
         $count_figures++;
       }
-
+      
       $wxprev = $wx;
       $wyprev = $wy;
     }
@@ -2821,9 +3040,9 @@ sub draw_Image_steps {
     $self->{'wyprev'} = $wyprev;
     return $more;
   }
-
+  
   my $background_fill_proc = sub {};
-
+  
   # my $offset = ($figure eq 'point' ? 0 : int(($xpscale+1)/2));
   # if (! $covers && $figure eq 'point') {
   #   $background_fill_proc = sub {
@@ -2873,23 +3092,24 @@ sub draw_Image_steps {
   #   ### background_fill_proc is noop...
   #   $background_fill_proc = \&_noop;
   # }
-
+  
   my $colour = $foreground;
   my $use_colours = $self->use_colours;
   my $values_non_decreasing_from_i = $values_seq->characteristic('non_decreasing_from_i');
   my $n;
+
   ### $use_colours
   ### $values_non_decreasing_from_i
   ### n_decrease_count: $self->{'n_decrease_count'}
   ### use_xy: $self->{'use_xy'}
-
+  
   for (;;) {
     &$cont() or last;
     $count_total++;
     my ($n, $x,$y, $value);
-
+    
     if ($self->{'use_xy'}) {
-      # by XY
+      ### by XY ...
       ($x, $y) = $self->{'rectbyxy'}->next
         or last;
       @$n_list = $path_object->xy_to_n_list
@@ -2900,32 +3120,39 @@ sub draw_Image_steps {
             next;
           };
       #### use_xy path: "$x,$y  n_list=".join(',',@$n_list)
-
+      
       if ($n_list->[-1] < $self->{'n_prev'}) {
         ### below already drawn "by N" ...
         next;
       }
-
+      
       $n = $n_list->[0];
-      $value = ($use_colours
-                ? $values_seq->ith($n)
-                : $values_seq->pred($n) ? 1 : undef);
+      if ($use_colours) {
+        $value = $values_seq->ith($n);
+      } else {
+        $value = $values_seq->pred($n);
+        if (defined $value && ! $value) {
+          ### pred false, background ...
+          next;
+        }
+      }
+      ### $value
       if (! defined $value) {
-        ### nothing at this X,Y, undrawnground ...
+        ### ith() or pred() undef, unknown at this X,Y, undrawnground ...
         $self->{'x'} = $x;
         $self->{'y'} = $y;
         ($self->{'wx'},$self->{'wy'}) = $self->transform_xy($x,$y);
         $self->draw_figure_square($undrawnground);
         next;
       }
-
+      
     } else {
-      # by N
       (my $i, $value) = $values_seq->next;
+      ### by N ...
       ### $i
       ### value: $value
       ### n_prev: "$self->{'n_prev'}"
-
+      
       if ($use_colours) {
         $n = $i;
         if (! defined $n || $n > $n_hi) {
@@ -2951,7 +3178,7 @@ sub draw_Image_steps {
           }
         } else {
           $self->{'n_decrease_count'} = 0;
-
+          
           if ($n > $n_hi) {
             if ((defined $values_non_decreasing_from_i
                  && $i >= $values_non_decreasing_from_i)
@@ -2974,7 +3201,11 @@ sub draw_Image_steps {
 
     if ($use_colours) {
       if (! defined $value) {
-        ### value undef, background ...
+        ### value undef, undrawnground ...
+        $self->{'x'} = $x;
+        $self->{'y'} = $y;
+        ($self->{'wx'},$self->{'wy'}) = $self->transform_xy($x,$y);
+        $self->draw_figure_square($undrawnground);
         next;
       }
       $colour = $self->value_to_colour($value);
@@ -3098,8 +3329,8 @@ sub value_to_colour {
     return $self->colour_grey ($value)
   }
   ### exponential ...
-  $value -= $base;
-  if ($value <= 0) { return $self->{'background'}; }
+  $value = abs($value - $base);
+  # if ($value <= 0) { return $self->{'background'}; }
   $value = "$value" + 0.0; # numize bigint
   $value = exp($value * $self->{'colours_shrink_log'});
   # $value = log(1 + ($value - $base)) / (1- $self->{'colours_shrink'});
@@ -3361,10 +3592,20 @@ sub xy_message {
   }
 
   my $values_seq = $self->values_seq;
-  my $join = '   N=';
+  my $join = '   ';
   foreach my $n (@n_list) {
-    $message .= $join . $n;
-    $join = ' and N=';
+    $message .= $join;
+    $join = ' and ';
+
+    $message .= "N=$n";
+    if (defined (my $str = $path_object->MathImage__n_to_radixstr($n))) {
+      $message .= "=[$str]";
+    }
+
+    # only when path is a tree
+    if (defined (my $depth = $path_object->tree_n_to_depth($n))) {
+      $message .= " depth=$depth";
+    }
 
     if (! $values_seq) {
       ### no values_seq ...

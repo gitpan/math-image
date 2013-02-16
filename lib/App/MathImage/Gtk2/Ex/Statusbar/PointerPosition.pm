@@ -24,7 +24,7 @@ use Gtk2 1.220;
 use Scalar::Util 1.18 'refaddr'; # 1.18 for pure-perl refaddr() fix
 use Gtk2::Ex::SyncCall 12; # v.12 workaround gtk 2.12 bug
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Locale::TextDomain ('App-MathImage');
 #use Devel::Comments;
 
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 use Glib::Object::Subclass
   'Gtk2::AboutDialog';
@@ -44,13 +44,9 @@ sub popup {
 sub INIT_INSTANCE {
   my ($self) = @_;
 
-  # Per Gtk docs, this must be before set_website() etc.
-  # Had thought the default in Gtk 2.16 up was gtk_show_uri, needing no
-  # setting here, but that doesn't seem to be so.
+  # Before set_website() etc.
   # ENHANCE-ME: Maybe this belongs with global GUI inits.
-  if (Gtk2->can('show_uri')) { # new in Gtk 2.14
-    Gtk2::AboutDialog->set_url_hook (\&_do_url_hook);
-  }
+   _AboutDialogBits__set_url_hook_show_uri();
 
   # "authors" comes out as a separate button and dialog, don't need that
   # $self->set_authors (__('Kevin Ryde'));
@@ -93,12 +89,45 @@ sub _do_response {
   }
 }
 
-sub _do_url_hook {
-  my ($self, $url) = @_;
-  eval { my $screen = $self->get_screen;
-         Gtk2::show_uri ($screen, $url);
-         1 }
-    or warn "Oops, cannot open browser for $url";
+#-----------------------------------------------------------------------------
+# Had thought the default in Gtk 2.16 up was gtk_show_uri, needing no
+# setting here, but that doesn't seem to be so.  It is the default in 2.24.
+
+# =item C<_AboutDialogBits__url_hook_show_uri ($about, $url)>
+#
+# This function is designed for use as the hook in C<set_url_hook()> for
+# About dialogs,
+#
+#     Gtk2::AboutDialog->set_url_hook (\&Gtk2::Ex::AboutDialogBits::url_hook_show_uri);
+#
+# This handler displays the C<$url> using C<Gtk2::show_uri()>, and a warning
+# if that fails for some reason.
+#
+# Would a message dialog be better if C<show_uri()> fails?
+#
+sub _AboutDialogBits__url_hook_show_uri {
+  my ($about, $url) = @_;
+  eval { Gtk2::show_uri ($about->get_screen, $url); 1 }
+    or warn "Oops, cannot open browser for ",$url;
+}
+
+# =item C<Gtk2::Ex::AboutDialogBits::set_url_hook_show_uri()>
+#
+# Set the C<Gtk2::AboutDialog-E<gt>set_url_hook()> to C<url_hook_show_uri()>
+# so as to have C<Gtk2::show_uri()> used to follow URL links in the About
+# dialog.
+#
+# C<set_url_hook()> is a global setting so this affects all About dialogs in
+# the program, including those created from C code.  Note that per the Gtk
+# docs this must be done before C<set_website()> of an About dialog.
+#
+sub _AboutDialogBits__set_url_hook_show_uri {
+  if (Gtk2->can('show_uri')) { # new in Gtk 2.14
+    Gtk2::AboutDialog->set_url_hook (\&_AboutDialogBits__url_hook_show_uri);
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 1;
@@ -147,7 +176,7 @@ L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

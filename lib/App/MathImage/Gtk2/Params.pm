@@ -28,7 +28,7 @@ use Glib::Ex::ConnectProperties;
 use Gtk2::Ex::ToolbarBits;
 use Gtk2::Ex::MenuBits;
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -241,12 +241,17 @@ sub _pinfo_when {
       if (my $when_toolitem = _pinfo_to_toolitem($self,$when_pinfo)) {
         my $got_value = $when_toolitem->get('parameter-value');
         ### $got_value
+        if (my $when_condition = $pinfo->{'when_condition'}) {
+          if ($when_condition eq 'odd' && ($got_value % 2) == 0) {
+            return 0;
+          }
+        }
         return (defined $got_value
                 &&
                 List::Util::first
                 {$_ eq $got_value}
                 (defined $pinfo->{'when_value'} ? $pinfo->{'when_value'} : ()),
-                @{$pinfo->{'when_values'}});
+                @{$pinfo->{'when_values'} || []});
       }
     }
   }

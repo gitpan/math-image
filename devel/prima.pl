@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -19,10 +19,64 @@
 
 use strict;
 use Prima;
+use Prima::Buttons;
 use Prima 'Application';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
+
+{
+  # maximize buttons
+  my $main = Prima::MainWindow->new (size => [100,100]);
+  $main->insert ('Button',
+                 text => 'Maximize',
+                 pack => { side => 'top' },
+                 onClick  => sub {
+                   my ($button) = @_;
+                   print "windowState was ",$main->windowState,"\n";
+                   print "maximize\n";
+                   $main->maximize;
+                   print " windowState now ",$main->windowState,"\n";
+                   print "\n";
+                 });
+  $main->insert ('Button',
+                 text => 'Restore',
+                 pack => { side => 'top' },
+                 onClick  => sub {
+                   my ($button) = @_;
+                   print "windowState was ",$main->windowState,"\n";
+                   print "restore\n";
+                   $main->restore;
+                   my $state = $main->windowState;
+                   print " windowState now $state\n";
+                   print "\n";
+                 });
+  Prima->run;
+  exit 0;
+}
+{
+  # maximize
+  my $main = Prima::MainWindow->new (size => [100,100]);
+  my $timer = Prima::Timer->create
+    (timeout => 2000,
+     onTick  => sub {
+       my $state = $main->windowState;
+       print "tick, state=$state\n";
+       if ($state == ws::Maximized()) {
+         print " set windowstate normal\n";
+         $main->windowState(ws::Normal());
+       } else {
+         print " set windowstate maximized\n";
+         $main->windowState(ws::Maximized());
+         $state = $main->windowState;
+         print " state now $state\n";
+       }
+     },
+    );
+  $timer->start;
+  Prima->run;
+  exit 0;
+}
 
 {
   # mouse wheel args
@@ -110,5 +164,5 @@ use Smart::Comments;
     #           } else {
     #              die "can't draw on image:$@";
     #           }
-
+  exit 0;
 }

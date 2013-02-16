@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,9 +25,9 @@ use Scalar::Util;
 use base 'App::MathImage::Generator';
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -35,7 +35,7 @@ use constant _PRIORITY => 0;  # below redraw
 
 sub new {
   my $class = shift;
-  ### Wx-Generator new()...
+  ### Wx-Generator new(): @_
 
   my $self = $class->SUPER::new (step_time    => _DEFAULT_IDLE_TIME_SLICE,
                                  step_figures => _DEFAULT_IDLE_TIME_FIGURES,
@@ -43,7 +43,13 @@ sub new {
                                  @_);
   if ($self->{'wxframe'}) { Scalar::Util::weaken ($self->{'wxframe'}); }
   if ($self->{'widget'})  { Scalar::Util::weaken ($self->{'widget'}); }
-  $self->{'values_parameters'}->{'planepath'} ||= 'ThisPath';
+
+  {
+    my $values_class = $self->values_class($self->{'values'});
+    if (exists $values_class->parameter_info_hash->{'planepath'}) {
+      $self->{'values_parameters'}->{'planepath'} ||= 'ThisPath';
+    }
+  }
 
   # either Drawing widget window or rootwin
   ### window: "$self->{'window'}"
@@ -153,7 +159,7 @@ sub OnIdle {
       # _sync_handler ($ref_weak_self);
 
     } else {
-      ### done, install bitmap...
+      ### Wx-Generator OnIdle() draw_Image_steps says done, install bitmap...
       $self->{'more'} = 0;
       _drawing_finished ($self);
     }

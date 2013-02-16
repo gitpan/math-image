@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,11 +34,11 @@ use App::MathImage::Prima::Drawing;
 use App::MathImage::Generator;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 @ISA = ('Prima::MainWindow');
 
 sub profile_default {
@@ -71,7 +71,11 @@ sub profile_default {
                  [ __('~Program POD'), 'help_program' ],
                  [ __('Pa~th POD'), 'help_path' ],
                  [ __('~Values POD'), 'help_values' ],
-               ] ],
+                 (defined (Module::Util::find_installed('Browser::Open'))
+                  ? [ 'help-oeis', __('~OEIS Web Page'), 'help_oeis' ]
+                  : ()),
+               ],
+             ],
            ],
          };
 }
@@ -244,6 +248,7 @@ Click repeatedly to see interesting things.'),
 sub _update {
   my ($self) = @_;
   ### Prima-Main _update() ...
+
   my $gen_options = $self->{'draw'}->gen_options;
 
   my $menu = $self->menu;
@@ -292,6 +297,12 @@ sub _update {
   if ($self->{'values_combo'}->text ne $values) {
     ### values_combo set text() ...
     $self->{'values_combo'}->text ($values);
+  }
+
+  {
+    my $url = _oeis_url($self);
+    ### $url
+    $menu->enabled('help-oeis', defined($url));
   }
 
   $self->{'scale_spin'}->value ($gen_options->{'scale'});
@@ -427,6 +438,20 @@ sub help_values {
   if (my $module = App::MathImage::Generator->values_choice_to_class($values)){
     $::application->open_help ($module);
   }
+}
+sub help_oeis {
+  my ($self) = @_;
+  if (my $url = _oeis_url($self)) {
+    require Browser::Open;
+    Browser::Open::open_browser ($url);
+  }
+}
+sub _oeis_url {
+  my ($self) = @_;
+  my ($values_seq, $anum);
+  return (($values_seq = $self->{'draw'}->gen_object->values_seq)
+          && ($anum = $values_seq->oeis_anum)
+          && "http://oeis.org/$anum");
 }
 
 sub draw_centre {

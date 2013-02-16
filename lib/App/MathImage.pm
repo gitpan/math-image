@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -22,11 +22,12 @@ use Carp;
 use List::Util 'min','max';
 use POSIX 'floor';
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
 use vars '$VERSION';
-$VERSION = 108;
+$VERSION = 109;
+
+# uncomment this to run the ### lines
+# use Smart::Comments;
+
 
 sub _hopt {
   my ($self, $hashname, $key, $value) = @_;
@@ -839,6 +840,13 @@ sub output_method_numbers {
     $rect_y1 = -$height_half;
     $rect_y2 = $height_half;
   }
+  # $rect_x1 += $gen->{'x_offset'} || 0;
+  # $rect_x2 += $gen->{'x_offset'} || 0;
+  # $rect_y1 += $gen->{'y_offset'} || 0;
+  # $rect_y2 += $gen->{'y_offset'} || 0;
+  # ### rect adjust: "x_offset=$gen->{'x_offset'} y_offset=$gen->{'y_offset'}"
+  ### rect: "x1=$rect_x1 y1=$rect_y1   x2=$rect_x2 y2=$rect_y2"
+
   my ($n_lo, $n_hi) = $path->rect_to_n_range
     ($rect_x1, $rect_y1, $rect_x2, $rect_y2);
 
@@ -1067,7 +1075,7 @@ sub output_method_numbers_dash {
   my $path = $gen->path_object;
   my $width = $gen->{'width'};
   my $height = $gen->{'height'};
-  my $cell_width = 4;   # 4 chars each
+  my $cell_width = 3;   # 4 chars each
   my $pwidth = int($width/$cell_width) - 1;
   my $pheight = int($height/2) - 1; # 2 rows each
   my $pwidth_half = int($pwidth/2);
@@ -1275,7 +1283,7 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

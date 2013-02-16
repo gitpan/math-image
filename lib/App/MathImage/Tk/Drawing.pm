@@ -21,12 +21,12 @@ use strict;
 use warnings;
 use Tk;
 use Image::Base::Tk::Photo;
-use App::MathImage::Tk::Perl::AfterObject;
+use App::MathImage::Tk::Perl::WeakAfter;
 
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 sub ClassInit {
   my ($class, $mw) = @_;
@@ -66,7 +66,7 @@ sub Populate {
   ### background: $self->cget('-background')
   ### borderwidth: $self->cget('-borderwidth')
   $self->{'dirty'} = 1;
-  $self->{'aft'} = App::MathImage::Tk::Perl::AfterObject->new;
+  $self->{'aft'} = App::MathImage::Tk::Perl::WeakAfter->new;
 }
 
 sub destroy {

@@ -151,7 +151,7 @@ use Smart::Comments;
 
   ### maximum_request_length: $X->{'maximum_request_length'}
   my $str = 'A' x (16384*1000);
-  App::MathImage::X11::Protocol::Splash::_set_text_property
+  X11::Protocol::WM::set_text_property
       ($X, $root, $X->atom('MY_FOO'), $str);
 
   my ($value, $type, $format, $bytes_after)

@@ -22,7 +22,7 @@ use Scalar::Util;
 use Locale::TextDomain ('App-MathImage');
 
 use vars '$VERSION','@ISA';
-$VERSION = 108;
+$VERSION = 109;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

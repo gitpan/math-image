@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use strict;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 108;
+$VERSION = 109;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -133,6 +133,28 @@ sub draw_V {
   $image->line ($x1,$y1, $xc,$y2, $colour);
   if ($x1 != $x2) {
     $image->line ($xc,$y2, $x2,$y1, $colour);
+  }
+}
+
+# draw an N in the rectangle top-left x1,y1, bottom-right x2,y2
+sub draw_hash {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  { my $width23  = int(2*($x2-$x1+1) / 3);
+    { my $x = $x2-$width23;
+      $image->line ($x,$y1, $x,$y2, $colour);
+    }
+    { my $x = $x1 + $width23;
+      $image->line ($x,$y1, $x,$y2, $colour);
+    }
+  }
+  {
+    my $height23 = int(2*($y2-$y1+1) / 3);
+    { my $y = $y2-$height23;
+      $image->line ($x1,$y, $x2,$y, $colour);
+    }
+    { my $y = $y1+$height23;
+      $image->line ($x1,$y, $x2,$y, $colour);
+    }
   }
 }
 

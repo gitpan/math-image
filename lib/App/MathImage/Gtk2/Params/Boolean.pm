@@ -24,7 +24,7 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Locale::TextDomain ('App-MathImage');
 #use Smart::Comments;
 
 use base qw(Wx::Dialog);
-our $VERSION = 108;
+our $VERSION = 109;
 
 sub new {
   my ($class, $parent, $id) = @_;
@@ -126,7 +126,7 @@ sub str {
       my $main;
       if (! $self || ! ($main = $self->GetParent)) {
         $str .= "No Main object.\n\n";
-      } if (! (my $drawing = $main->{'draw'})) {
+      } elsif (! (my $drawing = $main->{'draw'})) {
         $str .= "Oops, no drawing object in Main.\n\n";
       } elsif (! (my $gen_object = $drawing->gen_object_maybe)) {
         $str .= "No Generator object currently.\n\n";

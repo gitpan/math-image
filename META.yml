@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               math-image
-version:            108
+version:            109
 abstract:           Draw some mathematical images.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -60,6 +60,7 @@ requires:
     Image::Base::Gtk2::Gdk::Window:  2
     Image::Base::Multiplex:  7
     Image::Base::Text:    8
+    List::Pairwise:       0
     Locale::Messages:     0
     Locale::TextDomain:   1.19
     Math::BaseCnv:        0
@@ -82,6 +83,8 @@ requires:
     Math::NumSeq::Triangular:  1
     Math::NumSeq::TwinPrimes:  1
     Math::PlanePath:      83
+    Math::PlanePath::Base::Digits:  82
+    Math::PlanePath::Base::Generic:  0
     Math::PlanePath::SacksSpiral:  0
     Math::PlanePath::SquareSpiral:  1
     Math::PlanePath::VogelFloret:  0
@@ -91,6 +94,7 @@ requires:
     Number::Format:       0
     perl:                 5.008
     Proc::SyncExec:       0
+    Regexp::Common:       0
     Scalar::Util:         1.18
     Scope::Guard:         0
     Software::License::GPL_3:  0.001
@@ -164,13 +168,18 @@ optional_features:
             Math::Expression::Evaluator:  0
             Math::NumSeq:         23
             Math::NumSeq::Abundant:  24
+            Math::NumSeq::AlgebraicContinued:  54
             Math::NumSeq::AllDigits:  25
             Math::NumSeq::AllPrimeFactors:  42
             Math::NumSeq::AlmostPrimes:  14
+            Math::NumSeq::AlphabeticalLength:  1
+            Math::NumSeq::AlphabeticalLengthSteps:  1
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
+            Math::NumSeq::BalancedBinary:  53
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
+            Math::NumSeq::Catalan:  53
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::ConcatNumbers:  38
             Math::NumSeq::Cubes:  1
@@ -200,7 +209,7 @@ optional_features:
             Math::NumSeq::FibonacciWord:  36
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  38
-            Math::NumSeq::GolayRudinShapiro:  38
+            Math::NumSeq::GolayRudinShapiro:  51
             Math::NumSeq::GolayRudinShapiroCumulative:  38
             Math::NumSeq::GoldbachCount:  43
             Math::NumSeq::GolombSequence:  43
@@ -212,7 +221,7 @@ optional_features:
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
             Math::NumSeq::LemoineCount:  43
-            Math::NumSeq::Liouville:  13
+            Math::NumSeq::LiouvilleFunction:  52
             Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::LuckyNumbers:  38
             Math::NumSeq::MaxDigitCount:  42
@@ -225,9 +234,9 @@ optional_features:
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   38
             Math::NumSeq::Perrin:  29
-            Math::NumSeq::PlanePathCoord:  71
+            Math::NumSeq::PlanePathCoord:  98
             Math::NumSeq::PlanePathDelta:  83
-            Math::NumSeq::PlanePathN:  83
+            Math::NumSeq::PlanePathN:  94
             Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
@@ -253,6 +262,7 @@ optional_features:
             Math::NumSeq::ReverseAddSteps:  1
             Math::NumSeq::Runs:   34
             Math::NumSeq::SelfLengthCumulative:  38
+            Math::NumSeq::SevenSegments:  2
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SpiroFibonacci:  40
             Math::NumSeq::SqrtContinued:  27
@@ -275,7 +285,7 @@ optional_features:
             Math::NumSeq::WoodallNumbers:  29
             Math::PlanePath::AlternatePaper:  64
             Math::PlanePath::AlternatePaperMidpoint:  80
-            Math::PlanePath::AnvilSpiral:  64
+            Math::PlanePath::AnvilSpiral:  96
             Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
@@ -285,6 +295,8 @@ optional_features:
             Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::CellularRule57:  67
+            Math::PlanePath::CfracDigits:  90
+            Math::PlanePath::ChanTree:  90
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
@@ -311,7 +323,7 @@ optional_features:
             Math::PlanePath::FactorRationals:  61
             Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
-            Math::PlanePath::FilledRings:  71
+            Math::PlanePath::FilledRings:  96
             Math::PlanePath::Flowsnake:  80
             Math::PlanePath::FlowsnakeCentres:  80
             Math::PlanePath::FractionsTree:  62
@@ -331,26 +343,31 @@ optional_features:
             Math::PlanePath::Hypot:  78
             Math::PlanePath::HypotOctant:  78
             Math::PlanePath::ImaginaryBase:  41
-            Math::PlanePath::ImaginaryHalf:  74
+            Math::PlanePath::ImaginaryHalf:  94
             Math::PlanePath::KnightSpiral:  1
             Math::PlanePath::KochCurve:  30
             Math::PlanePath::KochelCurve:  55
             Math::PlanePath::KochPeaks:  30
             Math::PlanePath::KochSnowflakes:  30
             Math::PlanePath::KochSquareflakes:  30
+            Math::PlanePath::LCornerReplicate:  1
+            Math::PlanePath::LCornerTree:  2
             Math::PlanePath::LTiling:  57
             Math::PlanePath::MPeaks:  55
             Math::PlanePath::MultipleRings:  74
             Math::PlanePath::OctagramSpiral:  21
+            Math::PlanePath::OneOfEight:  3
             Math::PlanePath::PeanoCurve:  36
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
+            Math::PlanePath::PisanoPeriod:  54
+            Math::PlanePath::PisanoPeriodSteps:  54
             Math::PlanePath::PixelRings:  28
             Math::PlanePath::PowerArray:  78
             Math::PlanePath::PyramidRows:  84
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
-            Math::PlanePath::PythagoreanTree:  26
+            Math::PlanePath::PythagoreanTree:  95
             Math::PlanePath::QuadricCurve:  41
             Math::PlanePath::QuadricIslands:  66
             Math::PlanePath::QuintetCentres:  45
@@ -358,7 +375,7 @@ optional_features:
             Math::PlanePath::QuintetReplicate:  45
             Math::PlanePath::R5DragonCurve:  75
             Math::PlanePath::R5DragonMidpoint:  80
-            Math::PlanePath::RationalsTree:  45
+            Math::PlanePath::RationalsTree:  89
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  87
@@ -375,6 +392,9 @@ optional_features:
             Math::PlanePath::TerdragonMidpoint:  80
             Math::PlanePath::TerdragonRounded:  80
             Math::PlanePath::TheodorusSpiral:  70
+            Math::PlanePath::ToothpickReplicate:  1
+            Math::PlanePath::ToothpickTree:  2
+            Math::PlanePath::ToothpickUpist:  2
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  81
@@ -408,13 +428,18 @@ optional_features:
             Math::Aronson:        4
             Math::NumSeq:         23
             Math::NumSeq::Abundant:  24
+            Math::NumSeq::AlgebraicContinued:  54
             Math::NumSeq::AllDigits:  25
             Math::NumSeq::AllPrimeFactors:  42
             Math::NumSeq::AlmostPrimes:  14
+            Math::NumSeq::AlphabeticalLength:  1
+            Math::NumSeq::AlphabeticalLengthSteps:  1
             Math::NumSeq::Aronson:  6
             Math::NumSeq::AsciiSelf:  12
+            Math::NumSeq::BalancedBinary:  53
             Math::NumSeq::BaumSweet:  10
             Math::NumSeq::Beastly:  1
+            Math::NumSeq::Catalan:  53
             Math::NumSeq::CollatzSteps:  1
             Math::NumSeq::ConcatNumbers:  38
             Math::NumSeq::Cubes:  1
@@ -444,7 +469,7 @@ optional_features:
             Math::NumSeq::FibonacciWord:  36
             Math::NumSeq::File:   1
             Math::NumSeq::FractionDigits:  38
-            Math::NumSeq::GolayRudinShapiro:  38
+            Math::NumSeq::GolayRudinShapiro:  51
             Math::NumSeq::GolayRudinShapiroCumulative:  38
             Math::NumSeq::GoldbachCount:  43
             Math::NumSeq::GolombSequence:  43
@@ -456,7 +481,7 @@ optional_features:
             Math::NumSeq::KlarnerRado:  11
             Math::NumSeq::Kolakoski:  13
             Math::NumSeq::LemoineCount:  43
-            Math::NumSeq::Liouville:  13
+            Math::NumSeq::LiouvilleFunction:  52
             Math::NumSeq::LucasNumbers:  29
             Math::NumSeq::LuckyNumbers:  38
             Math::NumSeq::MaxDigitCount:  42
@@ -469,9 +494,9 @@ optional_features:
             Math::NumSeq::Palindromes:  1
             Math::NumSeq::Pell:   38
             Math::NumSeq::Perrin:  29
-            Math::NumSeq::PlanePathCoord:  71
+            Math::NumSeq::PlanePathCoord:  98
             Math::NumSeq::PlanePathDelta:  83
-            Math::NumSeq::PlanePathN:  83
+            Math::NumSeq::PlanePathN:  94
             Math::NumSeq::PlanePathTurn:  72
             Math::NumSeq::PolignacObstinate:  25
             Math::NumSeq::Polygonal:  25
@@ -497,6 +522,7 @@ optional_features:
             Math::NumSeq::ReverseAddSteps:  1
             Math::NumSeq::Runs:   34
             Math::NumSeq::SelfLengthCumulative:  38
+            Math::NumSeq::SevenSegments:  2
             Math::NumSeq::SophieGermainPrimes:  4
             Math::NumSeq::SpiroFibonacci:  40
             Math::NumSeq::SqrtContinued:  27
@@ -517,12 +543,14 @@ optional_features:
             Math::NumSeq::UlamSequence:  29
             Math::NumSeq::UndulatingNumbers:  34
             Math::NumSeq::WoodallNumbers:  29
+            Math::PlanePath::PisanoPeriod:  54
+            Math::PlanePath::PisanoPeriodSteps:  54
     maximum_planepath:
         description:  Maximum PlanePath modules
         requires:
             Math::PlanePath::AlternatePaper:  64
             Math::PlanePath::AlternatePaperMidpoint:  80
-            Math::PlanePath::AnvilSpiral:  64
+            Math::PlanePath::AnvilSpiral:  96
             Math::PlanePath::AR2W2Curve:  59
             Math::PlanePath::ArchimedeanChords:  23
             Math::PlanePath::AztecDiamondRings:  49
@@ -532,6 +560,8 @@ optional_features:
             Math::PlanePath::CellularRule190:  54
             Math::PlanePath::CellularRule54:  40
             Math::PlanePath::CellularRule57:  67
+            Math::PlanePath::CfracDigits:  90
+            Math::PlanePath::ChanTree:  90
             Math::PlanePath::CincoCurve:  56
             Math::PlanePath::Columns:  26
             Math::PlanePath::ComplexMinus:  44
@@ -558,7 +588,7 @@ optional_features:
             Math::PlanePath::FactorRationals:  61
             Math::PlanePath::FibonacciWordFractal:  53
             Math::PlanePath::File:  37
-            Math::PlanePath::FilledRings:  71
+            Math::PlanePath::FilledRings:  96
             Math::PlanePath::Flowsnake:  80
             Math::PlanePath::FlowsnakeCentres:  80
             Math::PlanePath::FractionsTree:  62
@@ -578,17 +608,20 @@ optional_features:
             Math::PlanePath::Hypot:  78
             Math::PlanePath::HypotOctant:  78
             Math::PlanePath::ImaginaryBase:  41
-            Math::PlanePath::ImaginaryHalf:  74
+            Math::PlanePath::ImaginaryHalf:  94
             Math::PlanePath::KnightSpiral:  1
             Math::PlanePath::KochCurve:  30
             Math::PlanePath::KochelCurve:  55
             Math::PlanePath::KochPeaks:  30
             Math::PlanePath::KochSnowflakes:  30
             Math::PlanePath::KochSquareflakes:  30
+            Math::PlanePath::LCornerReplicate:  1
+            Math::PlanePath::LCornerTree:  2
             Math::PlanePath::LTiling:  57
             Math::PlanePath::MPeaks:  55
             Math::PlanePath::MultipleRings:  74
             Math::PlanePath::OctagramSpiral:  21
+            Math::PlanePath::OneOfEight:  3
             Math::PlanePath::PeanoCurve:  36
             Math::PlanePath::PentSpiral:  4
             Math::PlanePath::PentSpiralSkewed:  3
@@ -597,7 +630,7 @@ optional_features:
             Math::PlanePath::PyramidRows:  84
             Math::PlanePath::PyramidSides:  1
             Math::PlanePath::PyramidSpiral:  3
-            Math::PlanePath::PythagoreanTree:  26
+            Math::PlanePath::PythagoreanTree:  95
             Math::PlanePath::QuadricCurve:  41
             Math::PlanePath::QuadricIslands:  66
             Math::PlanePath::QuintetCentres:  45
@@ -605,7 +638,7 @@ optional_features:
             Math::PlanePath::QuintetReplicate:  45
             Math::PlanePath::R5DragonCurve:  75
             Math::PlanePath::R5DragonMidpoint:  80
-            Math::PlanePath::RationalsTree:  45
+            Math::PlanePath::RationalsTree:  89
             Math::PlanePath::Rows:  26
             Math::PlanePath::SacksSpiral:  1
             Math::PlanePath::SierpinskiArrowhead:  87
@@ -622,6 +655,9 @@ optional_features:
             Math::PlanePath::TerdragonMidpoint:  80
             Math::PlanePath::TerdragonRounded:  80
             Math::PlanePath::TheodorusSpiral:  70
+            Math::PlanePath::ToothpickReplicate:  1
+            Math::PlanePath::ToothpickTree:  2
+            Math::PlanePath::ToothpickUpist:  2
             Math::PlanePath::TriangleSpiral:  3
             Math::PlanePath::TriangleSpiralSkewed:  3
             Math::PlanePath::TriangularHypot:  81
@@ -687,13 +723,18 @@ recommends:
     Math::Expression::Evaluator:  0
     Math::NumSeq:         23
     Math::NumSeq::Abundant:  24
+    Math::NumSeq::AlgebraicContinued:  54
     Math::NumSeq::AllDigits:  25
     Math::NumSeq::AllPrimeFactors:  42
     Math::NumSeq::AlmostPrimes:  14
+    Math::NumSeq::AlphabeticalLength:  1
+    Math::NumSeq::AlphabeticalLengthSteps:  1
     Math::NumSeq::Aronson:  6
     Math::NumSeq::AsciiSelf:  12
+    Math::NumSeq::BalancedBinary:  53
     Math::NumSeq::BaumSweet:  10
     Math::NumSeq::Beastly:  1
+    Math::NumSeq::Catalan:  53
     Math::NumSeq::CollatzSteps:  1
     Math::NumSeq::ConcatNumbers:  38
     Math::NumSeq::Cubes:  1
@@ -723,7 +764,7 @@ recommends:
     Math::NumSeq::FibonacciWord:  36
     Math::NumSeq::File:   1
     Math::NumSeq::FractionDigits:  38
-    Math::NumSeq::GolayRudinShapiro:  38
+    Math::NumSeq::GolayRudinShapiro:  51
     Math::NumSeq::GolayRudinShapiroCumulative:  38
     Math::NumSeq::GoldbachCount:  43
     Math::NumSeq::GolombSequence:  43
@@ -735,7 +776,7 @@ recommends:
     Math::NumSeq::KlarnerRado:  11
     Math::NumSeq::Kolakoski:  13
     Math::NumSeq::LemoineCount:  43
-    Math::NumSeq::Liouville:  13
+    Math::NumSeq::LiouvilleFunction:  52
     Math::NumSeq::LucasNumbers:  29
     Math::NumSeq::LuckyNumbers:  38
     Math::NumSeq::MaxDigitCount:  42
@@ -748,9 +789,9 @@ recommends:
     Math::NumSeq::Palindromes:  1
     Math::NumSeq::Pell:   38
     Math::NumSeq::Perrin:  29
-    Math::NumSeq::PlanePathCoord:  71
+    Math::NumSeq::PlanePathCoord:  98
     Math::NumSeq::PlanePathDelta:  83
-    Math::NumSeq::PlanePathN:  83
+    Math::NumSeq::PlanePathN:  94
     Math::NumSeq::PlanePathTurn:  72
     Math::NumSeq::PolignacObstinate:  25
     Math::NumSeq::Polygonal:  25
@@ -776,6 +817,7 @@ recommends:
     Math::NumSeq::ReverseAddSteps:  1
     Math::NumSeq::Runs:   34
     Math::NumSeq::SelfLengthCumulative:  38
+    Math::NumSeq::SevenSegments:  2
     Math::NumSeq::SophieGermainPrimes:  4
     Math::NumSeq::SpiroFibonacci:  40
     Math::NumSeq::SqrtContinued:  27
@@ -798,7 +840,7 @@ recommends:
     Math::NumSeq::WoodallNumbers:  29
     Math::PlanePath::AlternatePaper:  64
     Math::PlanePath::AlternatePaperMidpoint:  80
-    Math::PlanePath::AnvilSpiral:  64
+    Math::PlanePath::AnvilSpiral:  96
     Math::PlanePath::AR2W2Curve:  59
     Math::PlanePath::ArchimedeanChords:  23
     Math::PlanePath::AztecDiamondRings:  49
@@ -808,6 +850,8 @@ recommends:
     Math::PlanePath::CellularRule190:  54
     Math::PlanePath::CellularRule54:  40
     Math::PlanePath::CellularRule57:  67
+    Math::PlanePath::CfracDigits:  90
+    Math::PlanePath::ChanTree:  90
     Math::PlanePath::CincoCurve:  56
     Math::PlanePath::Columns:  26
     Math::PlanePath::ComplexMinus:  44
@@ -834,7 +878,7 @@ recommends:
     Math::PlanePath::FactorRationals:  61
     Math::PlanePath::FibonacciWordFractal:  53
     Math::PlanePath::File:  37
-    Math::PlanePath::FilledRings:  71
+    Math::PlanePath::FilledRings:  96
     Math::PlanePath::Flowsnake:  80
     Math::PlanePath::FlowsnakeCentres:  80
     Math::PlanePath::FractionsTree:  62
@@ -854,26 +898,31 @@ recommends:
     Math::PlanePath::Hypot:  78
     Math::PlanePath::HypotOctant:  78
     Math::PlanePath::ImaginaryBase:  41
-    Math::PlanePath::ImaginaryHalf:  74
+    Math::PlanePath::ImaginaryHalf:  94
     Math::PlanePath::KnightSpiral:  1
     Math::PlanePath::KochCurve:  30
     Math::PlanePath::KochelCurve:  55
     Math::PlanePath::KochPeaks:  30
     Math::PlanePath::KochSnowflakes:  30
     Math::PlanePath::KochSquareflakes:  30
+    Math::PlanePath::LCornerReplicate:  1
+    Math::PlanePath::LCornerTree:  2
     Math::PlanePath::LTiling:  57
     Math::PlanePath::MPeaks:  55
     Math::PlanePath::MultipleRings:  74
     Math::PlanePath::OctagramSpiral:  21
+    Math::PlanePath::OneOfEight:  3
     Math::PlanePath::PeanoCurve:  36
     Math::PlanePath::PentSpiral:  4
     Math::PlanePath::PentSpiralSkewed:  3
+    Math::PlanePath::PisanoPeriod:  54
+    Math::PlanePath::PisanoPeriodSteps:  54
     Math::PlanePath::PixelRings:  28
     Math::PlanePath::PowerArray:  78
     Math::PlanePath::PyramidRows:  84
     Math::PlanePath::PyramidSides:  1
     Math::PlanePath::PyramidSpiral:  3
-    Math::PlanePath::PythagoreanTree:  26
+    Math::PlanePath::PythagoreanTree:  95
     Math::PlanePath::QuadricCurve:  41
     Math::PlanePath::QuadricIslands:  66
     Math::PlanePath::QuintetCentres:  45
@@ -881,7 +930,7 @@ recommends:
     Math::PlanePath::QuintetReplicate:  45
     Math::PlanePath::R5DragonCurve:  75
     Math::PlanePath::R5DragonMidpoint:  80
-    Math::PlanePath::RationalsTree:  45
+    Math::PlanePath::RationalsTree:  89
     Math::PlanePath::Rows:  26
     Math::PlanePath::SacksSpiral:  1
     Math::PlanePath::SierpinskiArrowhead:  87
@@ -898,6 +947,9 @@ recommends:
     Math::PlanePath::TerdragonMidpoint:  80
     Math::PlanePath::TerdragonRounded:  80
     Math::PlanePath::TheodorusSpiral:  70
+    Math::PlanePath::ToothpickReplicate:  1
+    Math::PlanePath::ToothpickTree:  2
+    Math::PlanePath::ToothpickUpist:  2
     Math::PlanePath::TriangleSpiral:  3
     Math::PlanePath::TriangleSpiralSkewed:  3
     Math::PlanePath::TriangularHypot:  81

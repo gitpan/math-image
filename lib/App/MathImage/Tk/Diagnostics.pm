@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -30,7 +30,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkDiagonostics');
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -375,3 +375,89 @@ use constant::defer number_formatter => sub {
 
 1;
 __END__
+
+# =for stopwords Ryde Tk
+# 
+# =head1 NAME
+# 
+# App::MathImage::Tk::Diagnostics -- math-image wxWidgets main window
+# 
+# =head1 SYNOPSIS
+# 
+#  use App::MathImage::Tk::Diagnostics;
+#  my $diagnostics = App::MathImage::Tk::Diagnostics->new ($parent_widget);
+#  $diagnostics->Show;
+# 
+# =head1 CLASS HIERARCHY
+# 
+# C<App::MathImage::Tk::Diagnostics> is a subclass of C<Tk::Dialog>.
+# 
+#     Tk::Widget
+#       Tk::Frame
+#       Tk::Wm
+#         Tk::TopLevel
+#           Tk::DialogBox
+#             Tk::Dialog
+#               App::MathImage::Tk::Diagnostics
+# 
+# =head1 DESCRIPTION
+# 
+# This is the diagnostics dialog for the math-image program Tk interface.
+# 
+#     +---------------------------------------------+
+#     |               Diagnostics                   |
+#     +---------------------------------------------+
+#     | +--+   Generator 1148x630                   |
+#     | |  |   Values Math::NumSeq::Primes          |
+#     | |--|   Path   Math::PlanePath::SquareSpiral |
+#     | |  |   ...                                  |
+#     | |  |                                        |
+#     | |  |                                        |
+#     | |  |                                        |
+#     | +--+                                        |
+#     +---------------------------------------------+
+#     |           Close          Refresh            |
+#     +---------------------------------------------+
+# 
+# =head1 FUNCTIONS
+# 
+# =over 4
+# 
+# =item C<< $main = App::MathImage::Tk::Diagnostics->new () >>
+# 
+# =item C<< $main = App::MathImage::Tk::Diagnostics->new ($parent) >>
+# 
+# Create and return a new diagnostics dialog.
+# 
+# The optional C<$parent> is per C<Tk::Dialog>.  Usually it should be the
+# application main window.
+# 
+# =head1 SEE ALSO
+# 
+# L<App::MathImage::Tk::Main>,
+# L<App::MathImage::Tk::About>
+# L<math-image>,
+# L<Tk>
+# 
+# =head1 HOME PAGE
+# 
+# L<http://user42.tuxfamily.org/math-image/index.html>
+# 
+# =head1 LICENSE
+# 
+# Copyright 2011, 2012, 2013 Kevin Ryde
+# 
+# Math-Image is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3, or (at your option) any later
+# version.
+# 
+# Math-Image is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+# 
+# You should have received a copy of the GNU General Public License along with
+# Math-Image.  If not, see L<http://www.gnu.org/licenses/>.
+# 
+# =cut

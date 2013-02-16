@@ -32,10 +32,13 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use Glib::Ex::ObjectBits;
 use App::MathImage::Gtk2::Ex::ArrowButton;
 
+use Regexp::Common 'no_defaults';
+use App::MathImage::Regexp::Common::OEIS;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 108;
+our $VERSION = 109;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {
@@ -206,7 +209,7 @@ sub _do_size_allocate {
 
 sub _do_entry_insert_text {
   my ($entry, $str, $pos, $pointer) = @_;
-  if ($str =~ m{^(http:.*/)?(A\d{6})}) {
+  if ($str =~ m{^(http:.*/)?($RE{OEIS}{anum})}) {
     ### replace for insert of whole A-number
     $entry->set_text('');
     return ($2, 0);
