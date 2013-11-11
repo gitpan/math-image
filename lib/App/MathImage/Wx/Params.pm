@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,9 +25,9 @@ use POSIX ();
 use Module::Load;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 # after_item => $item
 #
@@ -44,9 +44,9 @@ sub GetParameterValues {
   my ($self) = @_;
   ### Wx-Params GetParameterValues() ...
 
-  my $items_hash = $self->{'items_hash'};
-  # ### $items_hash
+  ### items_hash: keys %{$self->{'items_hash'}}
   ### parameter_info_array: $self->{'parameter_info_array'}
+
   my %ret;
   foreach my $pinfo (@{$self->{'parameter_info_array'} || []}) {
     if (_pinfo_when($self,$pinfo)

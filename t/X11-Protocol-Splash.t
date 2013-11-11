@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -78,7 +78,7 @@ require App::MathImage::X11::Protocol::Splash;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 109;
+my $want_version = 110;
 ok ($App::MathImage::X11::Protocol::Splash::VERSION, $want_version,
     'VERSION variable');
 ok (App::MathImage::X11::Protocol::Splash->VERSION, $want_version,

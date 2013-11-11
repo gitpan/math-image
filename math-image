@@ -1,6 +1,6 @@
 #!perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -22,19 +22,19 @@ use strict;
 use App::MathImage;
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 exit App::MathImage->command_line;
 
 __END__
 
-=for stopwords recurrences Gtk Gtk2 Ulam's --ulam Ulam Vogel pronic
+=for stopwords Gtk Gtk2 Ulam's --ulam Ulam Vogel pronic
 --pronic fibonacci --fibonacci fullscreen --fullscreen unfullscreened --png
 png --xpm xpm RGB menubar toplevel colormap Ryde ie perrin --perrin padovan
 --padovan Perrin Padovan Vogel's --vogel Archimedian WIDTHxHEIGHT
 --theodorus Theodorus semiprimes segfault Aronson's --aronson startup
 GdkPixbuf prima Prima --prima tty renamings MathImageFoo OEIS tribonnaci
-PseudoColor TrueColor PNGwriter Imager ImageMagick Tk tk PythagoreanTree
+TrueColor PNGwriter Imager ImageMagick Tk tk PythagoreanTree
 
 =head1 NAME
 
@@ -52,7 +52,7 @@ C<math-image> displays some mathematical images, either
 
 =item *
 
-in a Gtk2 GUI,
+in a Gtk2 or Wx GUI,
 
 =item *
 
@@ -62,8 +62,8 @@ as an image file output,
 
 =back
 
-There's lots of options for what to display, in particular it includes
-Ulam's spiral of prime numbers, and several variations on the numbers in a
+There's many options for what to display, in particular the display includes
+Ulam's spiral of prime numbers and several variations on the numbers in a
 path such as Sacks spiral and Vogel floret.  Try C<--random> or the
 Randomize button for interesting combinations.
 
@@ -172,8 +172,8 @@ example
     math-image --corner \
                --values=FractionDigits,radix=2,fraction=1/137
 
-is the fine structure constant 1/137 in binary on the Corner path and is a
-repeating pattern of an angry man with a beard and a skull wearing a hat.
+gives the fine structure constant 1/137 in binary on the Corner path.  It's
+a repeating pattern of an angry man with a beard and a skull wearing a hat.
 No doubt this has deep cosmic significance.
 
 =item --all
@@ -189,7 +189,7 @@ C<--sacks> and C<--vogel> it shows where all the points lie.
 =item --aronson
 
 Aronson's sequence 1,4,9,... of "T is the first, fourth, ninth, ...".  This
-requires the C<Math::NumSeq::Aronson> module.
+requires the L<Math::NumSeq::Aronson> module.
 
 =item --expression='i**2 + 2*i + 1'
 
@@ -228,7 +228,7 @@ Parameters can be passed as comma separated NAME=VALUE, for example
 
     math-image --values=TwinPrimes,pairs=both
 
-The File module can read values from a text file
+The C<File> module can read values from a text file (L<Math::NumSeq::File>)
 
     math-image --values=File,filename=/my/dir/data.txt
 
@@ -334,12 +334,12 @@ points shown.  Try a shade of grey instead
 
     math-image --root --foreground=lightgrey
 
-Available names depend on the output module.  Gtk2 uses a hard-coded copy of
-the X F</etc/X11/rgb.txt>.  C<X11::Protocol> C<--root> uses the server's
-database.  C<--png> with GD has the C<GD::Simple> names.  C<--xpm> with
-C<Image::Xpm> passes anything at all through to the file.  For C<--text>
-currently the colours can be single characters to show, though perhaps that
-will change.
+Available names depend on the output module.  C<X11::Protocol> C<--root>
+uses the server's database, usually F</etc/X11/rgb.txt>.  Gtk2 uses a
+hard-coded copy of that F</etc/X11/rgb.txt>.  C<--png> with GD has the
+C<GD::Simple> names.  C<--xpm> with C<Image::Xpm> passes anything at all
+through to the file.  For C<--text> currently the colours can be single
+characters to show, though perhaps that will change.
 
 =item --size=PIXELS
 
@@ -379,7 +379,9 @@ circle depending on the path.  The choices are
     plus              "+" shape
     X                 "X" shape
     L                 "L" shape
+    N                 "N" shape
     V                 "V" shape
+    Z                 "Z" shape
     arrow             arrow in direction of path
 
 =cut
@@ -422,7 +424,7 @@ menus still work, just press Alt-F, Alt-T, etc as normal to pop up.
 =item --wx
 
 Run the wxWidgets GUI.  This requires wxPerl (see L<Wx>), probably for
-wxWidgets 2.8 or higher.  It might have a few less features than the Gtk2
+wxWidgets 2.8 or higher.
 GUI.
 
 =item --prima
@@ -465,31 +467,30 @@ to draw a random image from your F<~/.xsession> startup,
 
     math-image --root --random &
 
-Add C<--verbose> to print what was chosen and displayed.  Output from
-F<~/.xsession> normally goes to the F<~/.xsession-errors> file.  Sometimes
-C<--random> may use a lot of memory, so consider C<limit> or C<timeout>
+Add C<--verbose> to print what was chosen and displayed (output from
+F<~/.xsession> normally goes to the F<~/.xsession-errors> file).  Sometimes
+C<--random> may use a lot of memory, so consider C<limit> or C<timeout> or
 both, and perhaps low priority (see L<sh(1)>, L<timeout(1)> and L<nice(1)>).
 
 The root window is set with C<Gtk2>, or under X with
-C<X11::Protocol::XSetRoot> if available.  C<XSetRoot> allows C<--foreground>
-and C<--background> colours to be preserved on a PseudoColor visual, and it
-can act on an C<__SWM_VROOT> style window manager virtual root desktop.
-C<Gtk2> is fine on a TrueColor and for black and white (being permanent
-pixels), but on a PseudoColor allocated colours may not be preserved.
+C<X11::Protocol::XSetRoot> if available.  The C<XSetRoot> method uses
+C<Esetroot> style and so supports pseudo-transparency such as C<Eterm
+--trans>.  C<XSetRoot> also preserves colormap entries on a C<PseudoColor>
+visual and can act on an C<__SWM_VROOT> style window manager virtual root.
 
 =item --flash
 
 Flash the requested image on the screen instead of starting the GUI.
 A combination C<--root --flash> means draw to the root and then flash.  This
 is good if updating the background randomly every so often, since it shows
-the completed image briefly where it might be hidden by lots of windows.
+the completed image briefly where it might be hidden underneath windows.
 
     math-image --root --random --flash
 
 The flash is done with a temporary full-screen window, either some X11
 native or a Gtk2 (see L<Gtk2::Ex::Splash>).  In both cases the keyboard
-focus is unchanged so you don't lose any typing, but it does eat mouse
-clicks.
+focus is not moved so you don't lose any typing, but the flash does eat
+mouse clicks.
 
 =item --png
 
@@ -503,11 +504,11 @@ C<Image::Base> supporting module.
     math-image --png >/tmp/my-file.png
 
 XPM output requires either C<Image::Xpm>, ImageMagick, Prima, Tk or Wx.
-Prima, Tk and Wx for X11 use the X server even for file output and may give
-obscure error messages if no display.
 
 Combinations C<--prima --png>, or C<--tk --xpm>, etc, force the respective
 output module rather than an automatic choice among available possibilities.
+Prima, Tk and Wx under X use the X server even when writing to a file and
+may give obscure error messages if no display.
 
 =item --text
 
@@ -534,28 +535,28 @@ for big sequence values, but currently for example
 =item --xscreensaver
 
 Run under the L<xscreensaver(1)> program.  This requires the
-C<X11::Protocol::XSetRoot> module and is slightly experimental, but works as
-far as it goes.
+C<X11::Protocol::XSetRoot> module.  This option is slightly experimental but
+works as far as it goes.
 
 To make C<math-image> available in C<xscreensaver> add to the "programs:"
 section of your F<~/.xscreensaver> file,
 
     math-image --xscreensaver \n\
 
-F<xscreensaver/math-image.xml> in the Math-Image sources can be used give a
-description in the C<xscreensaver-demo> program.  Currently "make install"
-doesn't try to install this so it must be copied manually to the
+File F<xscreensaver/math-image.xml> in the Math-Image sources can be used
+give a description in the C<xscreensaver-demo> program.  Currently "make
+install" doesn't try to install this so it must be copied manually to the
 F</usr/share/xscreensaver/config/> directory..
 
 There's no options for the screensaver yet.  The intention would be a
-control for the redraw rate, unless there's a global xscreensaver option for
-that, and to limit each image drawing to the redraw time so slow or very
+control for the redraw rate (unless there's a global xscreensaver option for
+that), and to limit each image drawing to the redraw time so slow or very
 slow things aren't continued indefinitely.
 
 For reference, under C<xscreensaver> a saver program draws to a target
-window given either by a C<-window-id> command line option from
-C<xscreensaver-demo>, or by C<__SWM_VROOT> root window property from the
-C<xscreensaver> daemon.  The latter is recognised by
+window given either by C<__SWM_VROOT> root window property from the
+C<xscreensaver> daemon, or by a C<-window-id> command line option under
+C<xscreensaver-demo>.  C<__SWM_VROOT> is recognised by
 C<X11::Protocol::XSetRoot> version 18 and up.
 
 =back
@@ -591,13 +592,19 @@ Scroll arrows in the bottom right corner.
 
 =back
 
-=head1 ENVIRONMENT
+=head1 ENVIRONMENT VARIABLES
 
 =over
 
 =item C<DISPLAY>
 
 The X display to use.
+
+=item C<TMPDIR>
+
+A temporary directory to use, as per L<File::Temp> and L<File::Spec> (and on
+MS-DOS C<File::Spec> may look at C<TEMP> or C<TMP> too, see
+L<File::Spec::Win32>).
 
 =back
 
@@ -608,20 +615,20 @@ or both.  When the path goes out to large positions, or when scrolled out
 away from the origin the display might hang a little or a lot while
 generating values.
 
-The paths which have big N values near the origin, such as RationalsTree or
-PythagoreanTree, are calculated with C<Math::BigInt> for accuracy.  This
-becomes very slow.  In some cases the values and/or path calculations might
-end up rounding off anyway.
+The paths which have big N values near the origin, such as C<RationalsTree>
+or C<PythagoreanTree>, are calculated with C<Math::BigInt> for accuracy.
+This becomes very slow.  In some cases the values and/or path calculations
+might end up rounding off anyway.
 
-When plotting colours on paths which duplicate points (eg. the DragonCurve),
-the colour shown is sometimes the smallest N or sometimes the biggest N due
-to overwriting.  Not sure whether to try some colour mixing, or force the
-smallest among overlaps.
+When plotting colours on paths which duplicate points (eg. the
+C<DragonCurve>), the colour shown is sometimes the smallest N or sometimes
+the biggest N due to overwriting.  Not sure whether to try some colour
+mixing, or force the smallest among overlaps.
 
 Colours for counts etc have some hard-coded scaling to show a range of
 colours for the typical range of values.  There ought to be a user control
-for this.  Perhaps relevant NumSeq modules should indicate their approximate
-growth rate to make a sensible initial scale.
+for this.  Perhaps relevant C<NumSeq> modules should indicate their
+approximate growth rate to make a sensible initial scale.
 
 =head1 SEE ALSO
 
@@ -637,13 +644,16 @@ L<Gtk2::Ex::PodViewer>,
 L<Gtk2::Ex::CrossHair>,
 L<Gtk2::Ex::ErrorTextDialog>
 
+L<xscreensaver(1)>, and in particular its L<ccurve(6x)> which is a saver
+displaying various C curve, dragon curve and Koch curves.
+
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Math-Image is Copyright 2010, 2011, 2012 Kevin Ryde
+Math-Image is Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

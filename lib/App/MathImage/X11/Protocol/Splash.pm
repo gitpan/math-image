@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use X11::Protocol;
 use X11::Protocol::WM;
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -177,11 +177,11 @@ L<X11::Protocol::Other>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the

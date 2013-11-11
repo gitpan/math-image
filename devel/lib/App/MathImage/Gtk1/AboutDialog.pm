@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -22,10 +22,11 @@ use Scalar::Util;
 use Locale::TextDomain ('App-MathImage');
 
 use vars '$VERSION','@ISA';
-$VERSION = 109;
+$VERSION = 110;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
+
 
 sub popup {
   my ($self) = @_;
@@ -37,6 +38,18 @@ sub popup {
   }
 }
 
+# Maybe:
+#
+# =over 4
+# 
+# =item C<< App::MathImage::AboutDialog->instance() >>
+# 
+# Return a shared instance of the AboutDialog, ready to be presented to the
+# user.  The dialog close button or delete event destroys the dialog; a
+# subsequent call to C<instance> creates a new one.
+# 
+# =back
+#
 my $instance;
 sub instance {
   my ($class) = @_;
@@ -121,16 +134,6 @@ sub _do_button_close {
 1;
 __END__
 
-# =over 4
-# 
-# =item C<< App::MathImage::AboutDialog->instance() >>
-# 
-# Return a shared instance of the AboutDialog, ready to be presented to the
-# user.  The dialog close button or delete event destroys the dialog; a
-# subsequent call to C<instance> creates a new one.
-# 
-# =back
-
 =for stopwords AboutDialog Ryde
 
 =head1 NAME
@@ -164,7 +167,7 @@ L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

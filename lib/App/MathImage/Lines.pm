@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Locale::TextDomain 'App-MathImage';
 
 
 use vars '$VERSION','@ISA';
-$VERSION = 109;
+$VERSION = 110;
 use Math::NumSeq::All;
 @ISA = ('Math::NumSeq::All');
 
@@ -42,11 +42,12 @@ use constant parameter_info_array =>
       width   => 3,
       description => __('An N increment between line segments.  0 means the default for the path.'),
     },
-    { name    => 'lines_type',
-      display => __('Lines Type'),
-      type    => 'enum',
-      default => 'integer',
-      choices => [ 'integer','midpoint','rounded' ],
+    { name            => 'lines_type',
+      display         => __('Lines Type'),
+      type            => 'enum',
+      default         => 'integer',
+      choices         => [ 'integer','midpoint','rounded' ],
+      choices_display => [ __('Integer'),__('Midpoint'),__('Rounded') ],
     },
     { name           => 'midpoint_offset',
       type           => 'float',
@@ -82,11 +83,11 @@ L<App::MathImage::LinesTree>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

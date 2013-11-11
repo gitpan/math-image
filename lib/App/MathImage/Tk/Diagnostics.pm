@@ -30,7 +30,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::DialogBox';
 Tk::Widget->Construct('AppMathImageTkDiagonostics');
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -380,7 +380,7 @@ __END__
 # 
 # =head1 NAME
 # 
-# App::MathImage::Tk::Diagnostics -- math-image wxWidgets main window
+# App::MathImage::Tk::Diagnostics -- math-image Tk diagnostics window
 # 
 # =head1 SYNOPSIS
 # 

@@ -1,7 +1,7 @@
 # -file_format to select codec
 
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Carp;
 use ExactImage;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 
 use Image::Base 1.12; # version 1.12 for ellipse() $fill
 @ISA = ('Image::Base');
@@ -72,12 +72,12 @@ sub new {
 }
 
 my %attr_to_get_func = (-width      => \&ExactImage::imageWidth,
-                          -height     => \&ExactImage::imageHeight,
+                        -height     => \&ExactImage::imageHeight,
 
-                          # these not documented yet ...
-                          -channels  => \&ExactImage::imageChannels,
-                          -depth     => \&ExactImage::imageChannelDepth,
-                         );
+                        # these not documented yet ...
+                        -channels  => \&ExactImage::imageChannels,
+                        -depth     => \&ExactImage::imageChannelDepth,
+                       );
 sub _get {
   my ($self, $key) = @_;
   ### Image-Base-ExactImage _get(): $key

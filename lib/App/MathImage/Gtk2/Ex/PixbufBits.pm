@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -26,7 +26,7 @@ use Scalar::Util;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 
 sub filename_to_format {

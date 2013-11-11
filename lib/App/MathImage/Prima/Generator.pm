@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use base 'App::MathImage::Generator';
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 use constant 1.02; # for leading underscore
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.25;  # seconds
@@ -97,6 +97,14 @@ sub new {
   $widget->post_message (\$weak_self, $id);
 
   return $self;
+}
+sub DESTROY {
+  my ($self) = @_;
+  if (my $widget = $self->{'widget'}) {
+    if (my $id = delete $self->{'id'}) {
+      $widget->remove_notification ($id);
+    }
+  }
 }
 
 # Or maybe a private Prima::Object to receive post_message()

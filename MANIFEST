@@ -23,9 +23,23 @@ devel/Gtk2-Main-weaken.t
 devel/gzseek.pl
 devel/heatmap.pl
 devel/image-base-exactimage.pl
+devel/image-base-g2.pl
 devel/inverse.pl
+devel/lib/App/MathImage/Gtk1/AboutDialog.pm
+devel/lib/App/MathImage/Gtk1/Drawing.pm
+devel/lib/App/MathImage/Gtk1/Ex/ComboBits.pm
+devel/lib/App/MathImage/Gtk1/Ex/IdleHandler.pm
+devel/lib/App/MathImage/Gtk1/Ex/SignalIds.pm
+devel/lib/App/MathImage/Gtk1/Ex/SpinButtonBits.pm
+devel/lib/App/MathImage/Gtk1/Ex/SyncCall.pm
+devel/lib/App/MathImage/Gtk1/Ex/Units.pm
+devel/lib/App/MathImage/Gtk1/Ex/WidgetBits.pm
+devel/lib/App/MathImage/Gtk1/Generator.pm
+devel/lib/App/MathImage/Gtk1/Main.pm
+devel/lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 devel/lib/Image/Base/Caca.pm
 devel/lib/Image/Base/ExactImage.pm
+devel/lib/Image/Base/G2.pm
 devel/lib/Image/Base/X/Drawable.pm
 devel/lib/Image/Base/X/Pixmap.pm
 devel/Makefile
@@ -36,6 +50,7 @@ devel/notify.pl
 devel/oeis-entry.pl
 devel/OrNone.pm
 devel/pixbuf-types.pl
+devel/prima-maximize.pl
 devel/prima.pl
 devel/rectbyxy.pl
 devel/rle.pl
@@ -54,28 +69,17 @@ devel/wx-oninit.pl
 devel/wx.pl
 devel/x11-protocol.pl
 devel/x11-splash.pl
+devel/xev.pl
 lib/App/MathImage.pm
 lib/App/MathImage/Curses/Drawing.pm
 lib/App/MathImage/Curses/Main.pm
 lib/App/MathImage/Generator.pm
-lib/App/MathImage/Gtk1/AboutDialog.pm
-lib/App/MathImage/Gtk1/Drawing.pm
-lib/App/MathImage/Gtk1/Ex/ComboBits.pm
-lib/App/MathImage/Gtk1/Ex/IdleHandler.pm
-lib/App/MathImage/Gtk1/Ex/SignalIds.pm
-lib/App/MathImage/Gtk1/Ex/SpinButtonBits.pm
-lib/App/MathImage/Gtk1/Ex/SyncCall.pm
-lib/App/MathImage/Gtk1/Ex/Units.pm
-lib/App/MathImage/Gtk1/Ex/WidgetBits.pm
-lib/App/MathImage/Gtk1/Generator.pm
-lib/App/MathImage/Gtk1/Main.pm
 lib/App/MathImage/Gtk2/AboutDialog.pm
 lib/App/MathImage/Gtk2/Drawing.pm
 lib/App/MathImage/Gtk2/Drawing/Values.pm
 lib/App/MathImage/Gtk2/Ex/AdjustmentBits.pm
 lib/App/MathImage/Gtk2/Ex/ArrowButton.pm
 lib/App/MathImage/Gtk2/Ex/GdkColorBits.pm
-lib/App/MathImage/Gtk2/Ex/Menu/ForComboBox.pm
 lib/App/MathImage/Gtk2/Ex/PixbufBits.pm
 lib/App/MathImage/Gtk2/Ex/Statusbar/PointerPosition.pm
 lib/App/MathImage/Gtk2/Ex/ToolItem/ComboText.pm
@@ -144,12 +148,12 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 math-image
 SIGNATURE
-t/GdkColorBits.t
 t/Generator.t
 t/Gtk2-AboutDialog-weaken.t
 t/Gtk2-AboutDialog.t
 t/Gtk2-Drawing-weaken.t
 t/Gtk2-Ex-PointerPosition.t
+t/Gtk2-GdkColorBits.t
 t/Gtk2-Generator-weaken.t
 t/Gtk2-Main.t
 t/Gtk2-PodDialog-weaken.t
@@ -181,4 +185,5 @@ xtools/my-manifest.sh
 xtools/my-pc.sh
 xtools/my-tags.sh
 xtools/my-wunused.sh
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

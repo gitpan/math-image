@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::SpinCtrl';
-our $VERSION = 109;
+our $VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -51,7 +51,7 @@ sub new {
 
   if (defined (my $width = $info->{'width'})) {
     my ($digit_width) = $self->GetTextExtent('0123456789');
-    $self->SetSize (int($digit_width/9 * ($width+2)),
+    $self->SetSize (int($digit_width/9 * ($width+2.5)),
                     -1);
   }
 

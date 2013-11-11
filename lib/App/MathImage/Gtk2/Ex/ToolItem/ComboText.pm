@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 use Glib::Object::Subclass
   'Gtk2::ToolItem',
@@ -181,77 +181,3 @@ sub _menu_want_tearoff {
 
 1;
 __END__
-
-# =for stopwords Math-Image enum ParamSpec pspec Enum Ryde
-#
-# =head1 NAME
-#
-# App::MathImage::Gtk2::Ex::Menu::ForComboBox -- menu of entries from a combobox
-#
-# =head1 SYNOPSIS
-#
-#  use App::MathImage::Gtk2::Ex::Menu::ForComboBox;
-#  my $menu = App::MathImage::Gtk2::Ex::Menu::ForComboBox->new
-#               (combobox => $my_combobox);
-#
-# =head1 WIDGET HIERARCHY
-#
-# C<App::MathImage::Gtk2::Ex::Menu::ForComboBox> is a subclass of C<Gtk2::Menu>,
-#
-#     Gtk2::Widget
-#       Gtk2::Container
-#         Gtk2::MenuShell
-#           Gtk2::Menu
-#             App::MathImage::Gtk2::Ex::Menu::ForComboBox
-#
-# =head1 DESCRIPTION
-#
-# =head1 FUNCTIONS
-#
-# =over 4
-#
-# =item C<< $menu = App::MathImage::Gtk2::Ex::Menu::ForComboBox->new (key=>value,...) >>
-#
-# Create and return a new C<ComboText> object.  Optional key/value pairs
-# set initial properties per C<< Glib::Object->new >>.
-#
-#     my $menu = App::MathImage::Gtk2::Ex::Menu::ForComboBox->new
-#                  (combobox => $my_combobox);
-#
-# =back
-#
-# =head1 PROPERTIES
-#
-# =over 4
-#
-# =item C<combobox> (C<Gtk2::ComboBox> object, default C<undef>)
-#
-# =back
-#
-# =head1 SEE ALSO
-#
-# L<Gtk2::Menu>,
-# L<Gtk2::ComboBox>,
-#
-# =head1 HOME PAGE
-#
-# http://user42.tuxfamily.org/math-image/index.html
-#
-# =head1 LICENSE
-#
-# Copyright 2010, 2011, 2012 Kevin Ryde
-#
-# Math-Image is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 3, or (at your option) any later
-# version.
-#
-# Math-Image is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Math-Image.  If not, see L<http://www.gnu.org/licenses/>.
-#
-# =cut

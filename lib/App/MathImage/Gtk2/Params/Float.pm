@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use Glib::Ex::ObjectBits 'set_property_maybe';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 use Gtk2::Ex::ToolItem::OverflowToDialog 41; # v.41 fix overflow-mnemonic
 use Glib::Object::Subclass

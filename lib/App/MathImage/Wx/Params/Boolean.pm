@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,7 +23,7 @@ use Wx;
 use Wx::Event;
 
 use base 'Wx::CheckBox';
-our $VERSION = 109;
+our $VERSION = 110;
 
 sub new {
   my ($class, $parent, $info) = @_;

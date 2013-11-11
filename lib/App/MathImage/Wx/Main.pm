@@ -32,7 +32,7 @@ use base qw(Wx::Frame);
 # use Smart::Comments;
 
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 sub new {
   my ($class, $parent, $id, $title) = @_;
@@ -1034,6 +1034,9 @@ currently selected values module.  These are the "Help/Program POD" etc menu
 entries.
 
 =item C<< $main->oeis_browse() >>
+
+Open a web browser on the OEIS page for the currently selected sequence.
+This is the Help/OEIS menu entry.
 
 =back
 

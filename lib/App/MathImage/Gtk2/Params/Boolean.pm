@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use Glib;
 use Gtk2;
 use Glib::Ex::ObjectBits 'set_property_maybe';
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

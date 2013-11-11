@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use Gtk2;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 use Glib::Object::Subclass
   'Gtk2::CheckMenuItem',

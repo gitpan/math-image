@@ -1,4 +1,4 @@
-# Copyright 2008, 2009, 2010, 2011, 2012 Kevin Ryde
+# Copyright 2008, 2009, 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -15,6 +15,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Maybe:
+#
+# $s = Gtk2::Ex::SyncCall->new
+# $s->sync_call (subr, arg)
+# $s->sync_and_idle (priority, subr, arg)
+# $s->sync_redraw (widget)
+# $s->sync_method (widget, method, millisecs)
+
+
+
 package App::MathImage::Gtk1::Ex::SyncCall;
 use 5.004;
 use strict;
@@ -23,7 +34,7 @@ use Carp;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

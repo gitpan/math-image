@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -31,7 +31,7 @@ HERE
 }
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

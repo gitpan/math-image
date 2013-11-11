@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -43,7 +43,7 @@ use App::MathImage::Gtk1::Ex::WidgetBits;
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 
 use constant::defer init => sub {
   ### Main init(): @_

@@ -38,7 +38,7 @@ use App::MathImage::Generator;
 
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 @ISA = ('Prima::MainWindow');
 
 sub profile_default {
@@ -201,13 +201,12 @@ Click repeatedly to see interesting things.'),
 
   $self->{'draw'} = $self->insert
     ('App::MathImage::Prima::Drawing',
-     onMouseMove  => \&_draw_on_mousemove,
+     name   => 'Drawing',
+     width  => (defined $gen_options->{'width'} ? $gen_options->{'width'} :-1),
+     height => (defined $gen_options->{'height'}? $gen_options->{'height'}:-1),
+     pack   => { expand => 1, fill => 'both' },
+     delegations  => ['MouseMove'],
      gen_options  => $gen_options,
-     width   => (defined $gen_options->{'width'} ? $gen_options->{'width'} : -1),
-     height  => (defined $gen_options->{'height'} ? $gen_options->{'height'} : -1),
-     pack => { expand => 1,
-               fill => 'both',
-             },
     );
 
   my $statusbar = $self->{'statusbar'} = $self->insert
@@ -406,15 +405,22 @@ sub nick_to_display {
 
 
 
+#------------------------------------------------------------------------------
+# fullscreen
+
 sub toggle_fullscreen {
   my ($self, $itemname) = @_;
-  ### toggle_fullscreen(): "@_"
-  $self->windowState ($self->menu->toggle($itemname)
-                      ? ws::Maximized()
-                      : ws::Normal());
-  ### windowState now: $self->windowState
+  ### toggle_fullscreen(), current: $self->menu->checked($itemname)
+  $self->windowState ($self->menu->checked($itemname)
+                      ? ws::Normal() : ws::Maximized()); # opposite
+}
+sub on_windowstate {
+  my ($self, $windowstate) = @_;
+  ### on_windowstate(): $windowstate
+  $self->menu->checked('fullscreen', $windowstate == ws::Maximized());
 }
 
+#------------------------------------------------------------------------------
 sub help_about {
   my ($self) = @_;
   require App::MathImage::Prima::About;
@@ -465,16 +471,14 @@ sub draw_centre {
   }
 }
 
-sub _draw_on_mousemove {
-  my ($draw, $modifiers, $x, $y) = @_;
-  ### _draw_on_mousemove() ...
-
+sub Drawing_MouseMove {
+  my ($self, $modifiers, $x, $y) = @_;
+  ### Draw_Mousemove() ...
+  my $draw = $self->{'draw'};
   # Generator based on 0 at top, so reverse $y
   my $message = $draw->gen_object->xy_message ($x,
                                                $draw->height-1 - $y);
   ### $message
-
-  my $self = $draw->get_parent;
   my $statusbar = $self->{'statusbar'};
   $statusbar->text ($message);
 }

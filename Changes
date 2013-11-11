@@ -17,6 +17,9 @@ You can get a copy of the GNU General Public License online at
 
 
 
+Version 110, November 2013
+    - misc bits
+
 Version 109, February 2013
     - fix for Wx experimental "ThisPath" hurting some OEIS
 

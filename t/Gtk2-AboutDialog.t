@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -40,7 +40,7 @@ require App::MathImage::Gtk2::AboutDialog;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 109;
+my $want_version = 110;
 {
   is ($App::MathImage::Gtk2::AboutDialog::VERSION, $want_version,
       'VERSION variable');

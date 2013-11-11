@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use vars '$VERSION', '@ISA';
 use App::MathImage::Image::Base::X::Drawable;
 @ISA = ('App::MathImage::Image::Base::X::Drawable');
 
-$VERSION = 109;
+$VERSION = 110;
 
 sub new {
   my ($class, %params) = @_;

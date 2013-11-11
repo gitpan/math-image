@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use App::MathImage::Generator;
 use App::MathImage::Gtk1::Ex::SignalIds;
 
 use vars '$VERSION','@ISA';
-$VERSION = 109;
+$VERSION = 110;
 
 # use Locale::TextDomain ('App-MathImage');
 

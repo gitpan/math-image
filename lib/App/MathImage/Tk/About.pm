@@ -26,7 +26,7 @@ use Locale::TextDomain 1.19 ('App-MathImage');
 use base 'Tk::Derived', 'Tk::Dialog';
 Tk::Widget->Construct('AppMathImageTkAbout');
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -63,7 +63,7 @@ __END__
 # 
 # =head1 NAME
 # 
-# App::MathImage::Tk::About -- math-image wxWidgets main window
+# App::MathImage::Tk::About -- math-image Tk about dialog
 # 
 # =head1 SYNOPSIS
 # 

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -38,7 +38,7 @@ use App::MathImage::Regexp::Common::OEIS;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 Gtk2::Rc->parse_string (<<'HERE');
 style "App__MathImage__Gtk2__OeisEntry_style" {

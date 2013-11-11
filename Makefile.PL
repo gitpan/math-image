@@ -161,14 +161,14 @@ my %maximum_planepath
      'Math::PlanePath::VogelFloret'    => 12, # v.12 other rotations + fix
      'Math::PlanePath::TheodorusSpiral'      => 70, # v.70 save pos fix
      'Math::PlanePath::ArchimedeanChords'    => 23, # new in v.23
-     'Math::PlanePath::MultipleRings'        => 74, # v.74 polygon option
+     'Math::PlanePath::MultipleRings'        => 101, # v.101 polygon fixes
      'Math::PlanePath::PixelRings'           => 28, # v.28 fix xy_to_n diagonal
      'Math::PlanePath::FilledRings'          => 96, # v.96 n_start
      'Math::PlanePath::Hypot'                => 78, # v.78 points odd,even
      'Math::PlanePath::HypotOctant'          => 78, # v.78 points odd,even
      'Math::PlanePath::TriangularHypot'      => 81, # v.81 points hex_rotated
      'Math::PlanePath::PythagoreanTree'      => 95, # v.95 coordinates AC,BC
-     'Math::PlanePath::DiagonalRationals'    => 58, # new in v.58
+     'Math::PlanePath::DiagonalRationals'    => 101, # v.101 direction=up
      'Math::PlanePath::FactorRationals'      => 61, # new in v.61
      'Math::PlanePath::GcdRationals'         => 78, # v.78 pairs_order
      'Math::PlanePath::RationalsTree'        => 89, # v.89 L-tree
@@ -179,15 +179,15 @@ my %maximum_planepath
      'Math::PlanePath::DivisibleColumns'     => 49, # new in v.49
 
      'Math::PlanePath::DiamondSpiral'        => 1,
-     'Math::PlanePath::PentSpiral'           => 4,  # new in v.4
-     'Math::PlanePath::PentSpiralSkewed'     => 3,  # new in v.3
+     'Math::PlanePath::PentSpiral'           => 107, # v.107 n_start
+     'Math::PlanePath::PentSpiralSkewed'     => 107, # v.107 n_start
      'Math::PlanePath::HexSpiral'            => 9,  # v.9 wider parameter
      'Math::PlanePath::HexSpiralSkewed'      => 9,  # v.9 wider parameter
-     'Math::PlanePath::HeptSpiralSkewed'     => 4,  # new in v.4
+     'Math::PlanePath::HeptSpiralSkewed'     => 107, # v.107 n_start
      'Math::PlanePath::TriangleSpiral'       => 3,  # new in v.3
-     'Math::PlanePath::TriangleSpiralSkewed' => 3,  # new in v.3
+     'Math::PlanePath::TriangleSpiralSkewed' => 100, # v.100 skew
      'Math::PlanePath::AnvilSpiral'          => 96, # v.96 n_start
-     'Math::PlanePath::OctagramSpiral'       => 21, # new in v.21
+     'Math::PlanePath::OctagramSpiral'       => 107, # v.107 n_start
      'Math::PlanePath::KnightSpiral'         => 1,
      'Math::PlanePath::CretanLabyrinth'      => 68, # new in v.68
 
@@ -200,19 +200,19 @@ my %maximum_planepath
 
      'Math::PlanePath::PyramidRows'          => 84, # v.84 align parameter
      'Math::PlanePath::PyramidSides'         => 1,
-     'Math::PlanePath::PyramidSpiral'        => 3,  # new in v.3
+     'Math::PlanePath::PyramidSpiral'        => 106, # v.106 n_start
      'Math::PlanePath::CellularRule'         => 63, # new in v.63
      'Math::PlanePath::CellularRule54'       => 40, # new in v.40
      'Math::PlanePath::CellularRule57'       => 67, # new in v.67
      'Math::PlanePath::CellularRule190'      => 54, # v.54 exact rect
-     'Math::PlanePath::UlamWarburton'        => 48, # new in v.48
+     'Math::PlanePath::UlamWarburton'        => 103, # v.103 parts=2,1
      'Math::PlanePath::UlamWarburtonQuarter' => 49, # new in v.49
      'Math::PlanePath::Corner'               => 1,
      'Math::PlanePath::Diagonals'            => 2,  # v.2 sqrt fix
      'Math::PlanePath::DiagonalsAlternating' => 56, # new in v.56
      'Math::PlanePath::DiagonalsOctant'      => 77, # new in v.77
-     'Math::PlanePath::Staircase'            => 16, # new in v.16
-     'Math::PlanePath::StaircaseAlternating' => 70, # v.70 end_type=>'square'
+     'Math::PlanePath::Staircase'            => 107, # v.107 n_start
+     'Math::PlanePath::StaircaseAlternating' => 107, # v.107 end_type info
      'Math::PlanePath::Rows'                 => 26, # v.26 against width==0
      'Math::PlanePath::Columns'              => 26, # v.26 against height==0
 
@@ -281,12 +281,13 @@ my %maximum_planepath
      'Math::PlanePath::PowerArray'           => 78, # new in v.78
      'Math::PlanePath::File'                 => 37, # new in v.37
 
-     'Math::PlanePath::ToothpickTree'        => 2, # v.2 num_children_max
+     'Math::PlanePath::ToothpickTree'        => 6,  # v.6 parts=octant
      'Math::PlanePath::ToothpickReplicate'   => 1,
-     'Math::PlanePath::ToothpickUpist'       => 2, # v.2 num_children_max
-     'Math::PlanePath::LCornerTree'          => 2, # v.2 num_children_max
+     'Math::PlanePath::ToothpickUpist'       => 2,  # v.2 num_children_max
+     'Math::PlanePath::ToothpickSpiral'      => 10, # new in v.10
+     'Math::PlanePath::LCornerTree'          => 9,  # v.9 parts=octant+1
      'Math::PlanePath::LCornerReplicate'     => 1,
-     'Math::PlanePath::OneOfEight'           => 3, # new in v.3
+     'Math::PlanePath::OneOfEight'           => 5,  # v.5 parts=octant_up
     );
 
 my %maximum_numseq
@@ -332,7 +333,7 @@ my %maximum_numseq
      'Math::NumSeq::TotientPerfect'      => 36, # v.36 bigger range
      'Math::NumSeq::DedekindPsiCumulative' => 36, # new in v.36
      'Math::NumSeq::DedekindPsiSteps'      => 36, # new in v.36
-     'Math::NumSeq::Abundant'              => 24, # new in v.24
+     'Math::NumSeq::Abundant'              => 65, # v.64 pred() bug fix
      'Math::NumSeq::PolignacObstinate'     => 25, # new in v.25
      'Math::NumSeq::DuffinianNumbers'      => 47, # new in v.47
 
@@ -373,9 +374,9 @@ my %maximum_numseq
      'Math::NumSeq::RadixConversion'       => 50, # new in v.50
      'Math::NumSeq::MaxDigitCount'         => 42, # new in v.42
 
-     'Math::NumSeq::DigitSum'              => 2, # new in v.2
-     'Math::NumSeq::DigitSumModulo'        => 5, # new in v.5
-     'Math::NumSeq::DigitProduct'          => 2, # new in v.2
+     'Math::NumSeq::DigitSum'              => 56, # v.56 bug fixes
+     'Math::NumSeq::DigitSumModulo'        => 5,  # new in v.5
+     'Math::NumSeq::DigitProduct'          => 2,  # new in v.2
      'Math::NumSeq::DigitProductSteps'     => 42, # new in v.42
 
      'Math::NumSeq::Beastly'           => 1,
@@ -400,9 +401,10 @@ my %maximum_numseq
      'Math::NumSeq::BaumSweet'      => 10, # new in v.10
      'Math::NumSeq::GolayRudinShapiro' => 51, # v.51 values_type
      'Math::NumSeq::GolayRudinShapiroCumulative' => 38, # new in v.38
+     'Math::NumSeq::HafermanCarpet' => 64, # new in v.64
      'Math::NumSeq::KlarnerRado'    => 11, # new in v.11
      'Math::NumSeq::UlamSequence'   => 29, # new in v.29
-     'Math::NumSeq::AsciiSelf'      => 12, # new in v.12
+     'Math::NumSeq::AsciiSelf'      => 67, # v.67 fix characteristic smaller
      'Math::NumSeq::Kolakoski'      => 13, # new in v.13
      'Math::NumSeq::GolombSequence' => 43, # v.43 squares,primes in paraminfo
      'Math::NumSeq::ReRound'        => 38, # v.38 fix value_to_i_estimate()
@@ -423,8 +425,8 @@ my %maximum_numseq
      'Math::NumSeq::Aronson' => 6, # new in v.6
 
      # in Math-PlanePath
-     'Math::NumSeq::PlanePathCoord' => 98, # v.98 IntXY
-     'Math::NumSeq::PlanePathDelta' => 83, # v.83 dDiffYX
+     'Math::NumSeq::PlanePathCoord' => 106, # v.106 RootN
+     'Math::NumSeq::PlanePathDelta' => 100, # v.100 dAbsDiff
      'Math::NumSeq::PlanePathTurn'  => 72, # v.72 turn_type "Right"
      'Math::NumSeq::PlanePathN'     => 94, # v.94 "Depth_start" in options
 
@@ -499,7 +501,8 @@ my %prereq_pm
      'Math::NumSeq::FractionDigits'  => 1, # for --fraction
      'Math::NumSeq::Tetrahedral'     => 1, # for --tetrahedral
      'Math::NumSeq::Expression'      => 1, # for --expression
-     'Math::NumSeq::OEIS::Catalogue' => 1,  # for OeisEntry widget
+     'Math::NumSeq::OEIS::Catalogue' => 1, # for OeisEntry widget
+     'Math::NumSeq::Fibbinary'       => 1, # for Zeck status message
     );
 
 #------------------------------------------------------------------------------

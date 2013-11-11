@@ -26,58 +26,13 @@ use Prima 'Application';
 use Smart::Comments;
 
 {
-  # maximize buttons
-  my $main = Prima::MainWindow->new (size => [100,100]);
-  $main->insert ('Button',
-                 text => 'Maximize',
-                 pack => { side => 'top' },
-                 onClick  => sub {
-                   my ($button) = @_;
-                   print "windowState was ",$main->windowState,"\n";
-                   print "maximize\n";
-                   $main->maximize;
-                   print " windowState now ",$main->windowState,"\n";
-                   print "\n";
-                 });
-  $main->insert ('Button',
-                 text => 'Restore',
-                 pack => { side => 'top' },
-                 onClick  => sub {
-                   my ($button) = @_;
-                   print "windowState was ",$main->windowState,"\n";
-                   print "restore\n";
-                   $main->restore;
-                   my $state = $main->windowState;
-                   print " windowState now $state\n";
-                   print "\n";
-                 });
-  Prima->run;
+  # Prima::Object post message
+  my $obj = Prima::Object->new (onPostMessage => sub {
+                                  ### onPostMessage(): @_
+                                });
+  $obj->post_message (123);
   exit 0;
 }
-{
-  # maximize
-  my $main = Prima::MainWindow->new (size => [100,100]);
-  my $timer = Prima::Timer->create
-    (timeout => 2000,
-     onTick  => sub {
-       my $state = $main->windowState;
-       print "tick, state=$state\n";
-       if ($state == ws::Maximized()) {
-         print " set windowstate normal\n";
-         $main->windowState(ws::Normal());
-       } else {
-         print " set windowstate maximized\n";
-         $main->windowState(ws::Maximized());
-         $state = $main->windowState;
-         print " state now $state\n";
-       }
-     },
-    );
-  $timer->start;
-  Prima->run;
-  exit 0;
-}
-
 {
   # mouse wheel args
   my $main = Prima::MainWindow->new

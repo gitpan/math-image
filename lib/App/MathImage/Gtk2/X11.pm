@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,7 +34,7 @@ use Glib::Ex::SourceIds;
 #use Smart::Comments '###';
 
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 sub new {
   my ($class, %self) = @_;

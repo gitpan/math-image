@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -26,7 +26,7 @@ use App::MathImage::Tk::Perl::WeakAfter;
 use base 'Tk::Derived', 'Tk::Label';
 Tk::Widget->Construct('AppMathImageTkDrawing');
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 sub ClassInit {
   my ($class, $mw) = @_;

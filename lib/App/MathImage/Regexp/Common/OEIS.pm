@@ -1,4 +1,4 @@
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Carp;
 use Regexp::Common ();
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 ## no critic (RequireInterpolationOfMetachars)
 
@@ -33,22 +33,23 @@ $VERSION = 109;
 # use Smart::Comments;
 
 
-{
-  # "[:digit:]" available in perl 5.6
-  # "0-9"       in perl 5.005 and earlier
-  my $digit = do {
-    local $^W = 0;
-    eval q{'0' =~ /[[:digit:]]/ ? '[:digit:]' : '0-9'}
-      || die "Oops, eval for [:digit:] error: ",$@;
-  };
-  ### $digit
+# "[:digit:]" available in perl 5.6
+# "0-9"       in perl 5.005 and earlier
+use constant _DIGIT => do {
+  local $^W = 0;
+  eval q{'0' =~ /[[:digit:]]/ ? '[:digit:]' : '0-9'}
+    || die "Oops, eval for [:digit:] error: ",$@;
+};
 
-  # A123456 or A1234567
-  #
-  Regexp::Common::pattern
-      (name   => ['OEIS','anum'],
-       create => "(?k:A(?k:[$digit]{6,7}))");
-}
+# A123456 or A1234567
+#
+Regexp::Common::pattern
+  (name   => ['OEIS','anum'],
+   create => '(?k:A(?k:['._DIGIT().']{6,7}))');
+
+# Regexp::Common::pattern
+#   (name   => ['OEIS','bfile'],
+#    create => '(?k:b(?k:['._DIGIT().']{6,7})\.txt)');
 
 1;
 __END__
@@ -99,9 +100,10 @@ The C<-keep> option captures are
     $1    whole string "A000040"
     $2    number part "000040"
 
-A minimum of 6 digits are required, for example "A123" is not an A-number.
+A minimum of 6 digits are required, so for example "A123" is not an
+A-number.
 
-As of Jan 2013 there are about 200,000 A-numbers in use so 6 digits suffice.
+As of Nov 2013 there are about 220,000 A-numbers in use so 6 digits suffice.
 Rumour has it the plan is to go 7 digits when a million sequences is reached
 and the regexp here anticipates that.
 
@@ -110,17 +112,17 @@ and the regexp here anticipates that.
 =cut
 
 # =head1 IMPORTS
-# 
+#
 # This module should be loaded through the C<Regexp::Common> mechanism, see
 # L<Regexp::Common/Loading specific sets of patterns.>.  Remember that loading
 # a non-builtin pattern like this module also loads all the builtin patterns.
-# 
+#
 #     # OEIS plus all builtins
 #     use Regexp::Common 'OEIS';
-# 
+#
 # If you want only C<$RE{OEIS}> then add C<no_defaults> (or a specific set of
 # desired builtins).
-# 
+#
 #     # OEIS alone
 #     use Regexp::Common 'OEIS', 'no_defaults';
 
@@ -130,11 +132,11 @@ L<Regexp::Common>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 
-Copyright 2012 Kevin Ryde
+Copyright 2012, 2013 Kevin Ryde
 
 Math-Image is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -34,6 +34,22 @@ use lib 'devel/lib';
 use constant DBL_INT_MAX => (FLT_RADIX**DBL_MANT_DIG - 1);
 
 
+{
+  require Image::Base::Text;
+  require App::MathImage::Image::Base::Other;
+  my $image = Image::Base::Text->new (-width => 78, -height => 30);
+
+  my $fill = 1;
+  my $w = 30;
+  my $h = int($w / sqrt(3));
+  App::MathImage::Image::Base::Other::hexrect($image, 10,5, 10+$w,5+$h,
+                                              '*',$fill);
+  # App::MathImage::Image::Base::Other::hexrect($image, 10,5+$h+1, 10+$w,5+$h+$h+1, '@');
+  # $image->rectangle(10,5, 10+$w,5+$h, '*');
+  # $image->rectangle(10,5+$h+1, 10+$w,5+$h+$h+1, '@');
+  $image->save('/dev/stdout');
+  exit 0;
+}
 {
   require Image::Base::Text;
   require App::MathImage::Generator;

@@ -23,7 +23,7 @@ use List::Util 'min','max';
 use POSIX 'floor';
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -125,7 +125,7 @@ sub getopt_long_specifications {
      'all'     => sub { _hopt($self,'gen_options','values', 'All');  },
      'lines'   => sub { _hopt($self,'gen_options','values', 'Lines');  },
      'oeis=s'  => sub { my ($optname, $value) = @_;
-                        _hopt($self,'gen_options','values', 'OEIS'); 
+                        _hopt($self,'gen_options','values', 'OEIS');
                         $self->{'gen_options'}->{'values_parameters'}->{'anum'} = "$value"; },
      'aronson' => sub { _hopt($self,'gen_options','values', 'Aronson');  },
 
@@ -168,18 +168,18 @@ sub getopt_long_specifications {
             } keys %path_options)
      },
 
-     'scale=i'  => sub{my ($optname, $value) = @_;
-                       _hopt($self,'gen_options','scale', "$value");  },
+     'scale=i'  => sub{ my ($optname, $value) = @_;
+                        _hopt($self,'gen_options','scale', "$value");  },
 
-     'output=s'   => sub{ my ($optname, $value) = @_;
-                          _hopt($self, 'gui_options', 'output', "$value");  },
-     'root'     => sub{_hopt($self, 'gui_options', 'output', 'root');  },
+     'output=s' => sub{ my ($optname, $value) = @_;
+                        _hopt($self, 'gui_options', 'output', "$value");  },
+     'root'     => sub{ _hopt($self, 'gui_options', 'output', 'root'); },
      'xscreensaver' => sub{
        _hopt($self, 'gui_options', 'output', 'xscreensaver');
      },
      'window-id=s' => sub{
        my ($optname, $value) = @_;
-       _hopt($self, 'gui_options', 'window_id', hex("$value"));
+       _hopt($self, 'gui_options', 'window_id', hex($value));
      },
      'xpm'      => sub{_hopt($self, 'gui_options', 'output', 'XPM');  },
      'png'      => sub{_hopt($self, 'gui_options', 'output', 'PNG');  },
@@ -462,15 +462,23 @@ sub output_method_root {
 
   if (! defined $gui_options->{'module'}) {
     my $x11_error;
-    if (eval { $self->x11_protocol_object }) {
+    if (eval { $self->x11_protocol_object;
+               require X11::Protocol::XSetRoot;
+               require X11::Protocol::WM;
+               require Image::Base::X11::Protocol::Window;
+             }) {
       $gui_options->{'module'} = 'X11';
     } else {
       $x11_error = $@;
+      ### $x11_error
       if ($self->try_gtk) {
         $gui_options->{'module'} = 'Gtk2';
       } else {
         die "Cannot use X11::Protocol nor Gtk2 for root:\n",$x11_error;
       }
+    }
+    if ($self->{'verbose'} >= 2) {
+      print STDERR "Using module=$gui_options->{'module'}\n";
     }
   }
 
@@ -1279,7 +1287,7 @@ L<math-image>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+L<http://user42.tuxfamily.org/math-image/index.html>
 
 =head1 LICENSE
 

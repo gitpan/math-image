@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use Wx;
 use List::Util 'min';
 
 use base 'Wx::ComboBox';
-our $VERSION = 109;
+our $VERSION = 110;
 
 use Regexp::Common 'no_defaults';
 use App::MathImage::Regexp::Common::OEIS;

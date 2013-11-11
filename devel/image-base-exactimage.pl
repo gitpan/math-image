@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -24,7 +24,7 @@ use warnings;
 use Smart::Comments;
 
 
-require 'devel/Image-Base-ExactImage.pm';
+require 'devel/lib/Image/Base/ExactImage.pm';
 
 my $image = Image::Base::ExactImage->new(-width => 40,
                                          -height => 20,

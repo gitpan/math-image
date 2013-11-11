@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ use Prima::MsgBox;
 #use Smart::Comments;
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 sub init {
   my ($self, %profile) = @_;

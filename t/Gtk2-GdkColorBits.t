@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2008, 2009, 2010, 2011, 2012 Kevin Ryde
+# Copyright 2008, 2009, 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -29,7 +29,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 require App::MathImage::Gtk2::Ex::GdkColorBits;
 
 {
-  my $want_version = 109;
+  my $want_version = 110;
   is ($App::MathImage::Gtk2::Ex::GdkColorBits::VERSION, $want_version,
       'VERSION variable');
   is (App::MathImage::Gtk2::Ex::GdkColorBits->VERSION,  $want_version,

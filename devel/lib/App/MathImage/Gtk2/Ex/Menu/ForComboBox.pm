@@ -1,7 +1,7 @@
 # working ?
 
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -30,7 +30,7 @@ use Gtk2::Ex::MenuView;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 use Glib::Object::Subclass
   'Gtk2::Ex::MenuView',
@@ -185,11 +185,11 @@ __END__
 #
 # =head1 HOME PAGE
 #
-# http://user42.tuxfamily.org/math-image/index.html
+# L<http://user42.tuxfamily.org/math-image/index.html>
 #
 # =head1 LICENSE
 #
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 #
 # Math-Image is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the

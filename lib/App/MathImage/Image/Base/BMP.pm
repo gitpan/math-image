@@ -3,7 +3,7 @@
 
 
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use Carp;
 use Image::BMP ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 109;
+$VERSION = 110;
 
 use Image::Base;
 @ISA = ('Image::Base');

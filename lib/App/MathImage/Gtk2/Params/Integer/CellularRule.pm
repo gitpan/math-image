@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -23,7 +23,7 @@ use warnings;
 use Gtk2;
 use Locale::TextDomain 1.19 ('App-MathImage');
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

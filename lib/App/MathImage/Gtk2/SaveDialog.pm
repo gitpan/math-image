@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -40,7 +40,7 @@ use App::MathImage::Gtk2::Drawing;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 use Glib::Object::Subclass
   'Gtk2::FileChooserDialog',

@@ -24,7 +24,7 @@ use warnings;
 use base 'Exporter';
 our @EXPORT_OK = ('with_underline');
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 # =item C<($str, -underline =E<gt> $pos) = with_underline($str)>
 #

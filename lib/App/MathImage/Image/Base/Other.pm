@@ -24,7 +24,7 @@ use strict;
 #use Devel::Comments;
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 sub _save_to_tempfh {
   my ($image) = @_;
@@ -93,6 +93,48 @@ sub plus {
   }
 }
 
+# +------------------+
+# |      |     |     |
+# |      |     |     |
+# |------+     +-----|
+# |                  |
+# |------+     +-----|
+# |      |     |     |
+# |      |     |     |
+# +------------------+
+#
+sub plus_fat {
+  my ($image, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  ### assert: $x2 >= $x1
+  ### assert: $y2 >= $y1
+
+  my $w = int(($x2-$x1+1)/3);
+  my $h = int(($y2-$y1+1)/3);
+  if ($fill) {
+    $image->rectangle ($x1+$w,$y1, $x2-$w,$y2, $colour, 1);
+    $image->rectangle ($x1,$y1+$h, $x2,$y2-$h, $colour, 1);
+  } else {
+    my $ya = $y1 + $h;
+    my $yb = $y2 - $h;
+    my $xa = $x1 + $w;
+    my $xb = $x2 - $w;
+    foreach my $y ($y1, $y2) {
+      $image->line ($xa,$y, $xb,$y, $colour);  # top,bottom
+    }
+    foreach my $x ($x1, $x2) {
+      $image->line ($x,$ya, $x,$yb, $colour);  # left,right
+    }
+    foreach my $y ($ya, $yb) {
+      $image->line ($x1,$y, $xa,$y, $colour);  # left horiz
+      $image->line ($x2,$y, $xb,$y, $colour);  # right horiz
+    }
+    foreach my $x ($xa, $xb) {
+      $image->line ($x,$y1, $x,$ya, $colour);  # left horiz
+      $image->line ($x,$y2, $x,$yb, $colour);  # right horiz
+    }
+  }
+}
+
 # draw an X in the rectangle top-left x1,y1, bottom-right x2,y2
 sub draw_X {
   my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
@@ -136,7 +178,7 @@ sub draw_V {
   }
 }
 
-# draw an N in the rectangle top-left x1,y1, bottom-right x2,y2
+# draw a # the rectangle top-left x1,y1, bottom-right x2,y2
 sub draw_hash {
   my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
   { my $width23  = int(2*($x2-$x1+1) / 3);
@@ -158,6 +200,16 @@ sub draw_hash {
   }
 }
 
+# draw a / in the rectangle top-left x1,y1, bottom-right x2,y2
+sub draw_slash {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  $image->line ($x1,$y2, $x2,$y1, $colour);
+}
+# draw a \ in the rectangle top-left x1,y1, bottom-right x2,y2
+sub draw_backslash {
+  my ($image, $x1,$y1, $x2,$y2, $colour) = @_;
+  $image->line ($x1,$y1, $x2,$y2, $colour);
+}
 
 
 sub xy_points {
@@ -323,6 +375,188 @@ sub unellipse {
     # $self->rectangle( $ox + $x, $oy - $y,  # right
     #                   $x1,      $oy + $y,
     #                   $colour, 1 ) ;
+  }
+}
+
+sub maltese_cross {
+  my ($self, $x1,$y1, $x2,$y2, $colour, $fill) = @_;
+  ### maltese_cross(): "$x1,$y1, $x2,$y2, $colour fill=".($fill||0)
+
+  ### assert: $x2 >= $x1
+  ### assert: $y2 >= $y1
+
+  my $w = $x2 - $x1;
+  my $h = $y2 - $y1;
+  if ($w < 2 || $h < 2) {
+    $self->rectangle ($x1,$y1, $x2,$y2, $colour, 1);
+    return;
+  }
+  $w = int ($w / 2);
+  $h = int ($h / 2);
+  my $wq = $w - int($w/2);
+  my $hq = $h - int($h/2);
+  my $x = $wq;
+  my $y = 0;   # top
+
+  ### $w
+  ### $h
+  ### x1+x: $x1+$w
+  ### x2-x: $x2-$w
+  ### y1+y: $y1+$h
+  ### y2-y: $y2-$h
+
+  my $draw;
+  if ($fill) {
+    $draw = sub {
+      ### draw across: "$x,$y"
+      $self->line ($x1+$x,$y1+$y, $x2-$x,$y1+$y, $colour); # upper
+      $self->line ($x1+$x,$y2-$y, $x2-$x,$y2-$y, $colour); # lower
+    };
+  } else {
+    $draw = sub {
+      ### draw: "$x,$y"
+      $self->xy ($x1+$x,$y1+$y, $colour); # upper left
+      $self->xy ($x2-$x,$y1+$y, $colour); # upper right
+
+      $self->xy ($x1+$x,$y2-$y, $colour); # lower left
+      $self->xy ($x2-$x,$y2-$y, $colour); # lower right
+    };
+  }
+
+  if ($wq > $h) {
+    ### shallow ...
+
+    my $rem = int($wq/2) - $wq;
+    ### $rem
+
+    while ($x < $w) {
+      ### at: "x=$x  rem=$rem"
+
+      if (($rem += $h) >= 0) {
+        &$draw();
+        $y++;
+        $rem -= $w;
+        $x++;
+      } else {
+        if (! $fill) { &$draw() }
+        $x++;
+      }
+    }
+
+  } else {
+    ### steep ...
+
+    # when $h is odd bias towards pointier at the narrower top/bottom ends
+    my $rem = int(($h-1)/2) - $h;
+    ### $rem
+
+    while ($y < $h) {
+      ### $rem
+      &$draw();
+
+      if (($rem += $wq) >= 0) {
+        $rem -= $h;
+        $x++;
+        ### x inc to: "x=$x  rem $rem"
+      }
+      $y++;
+    }
+  }
+
+  ### final: "$x,$y"
+
+  # middle row if $h odd, or middle two rows if $h even
+  # done explicitly rather than with &$draw() so as not to draw the middle
+  # row twice when $h odd
+  if ($fill) {
+    $self->rectangle ($x1,$y1+$h, $x2,$y2-$h, $colour, 1);
+  } else {
+    $self->rectangle ($x1,$y1+$h, $x1+$x,$y2-$h, $colour, 1);  # left
+    $self->rectangle ($x2-$x,$y1+$h, $x2,$y2-$h, $colour, 1);  # right
+  }
+}
+
+
+sub NOTWORKING__draw_triangle {
+  my ($image, $x1,$y1, $x2,$y2, $x3,$y3, $colour, $fill) = @_;
+  if ($fill) {
+    if ($y2 < $y1) { ($x1,$y1, $x2,$y2) = ($x2,$y2, $x1,$y1); }
+    if ($y3 < $y1) { ($x1,$y1, $x3,$y3) = ($x3,$y3, $x1,$y1); }
+    if ($y2 < $y1) { ($x1,$y1, $x2,$y2) = ($x2,$y2, $x1,$y1); }
+    if ($y3 < $y2) { ($x3,$y3, $x2,$y2) = ($x2,$y2, $x3,$y3); }
+  } else {
+    $image->line($x1,$y1, $x2,$y2);
+    $image->line($x2,$y2, $x3,$y3);
+    $image->line($x3,$y3, $x1,$y1);
+  }
+}
+
+#           *
+#          *  ***
+#        +--------***-----------+      
+#       *|            ***       |
+#      * |               **     |
+#       *|                      |
+#        |                      |
+#        |                      |
+#        |                      |
+#        |                      |
+#        +----------------------+
+#
+sub hexrect {
+  my ($self, $x1,$y1, $x2,$y2, $colour, $fill, $left) = @_;
+  ### maltese_cross(): "$x1,$y1, $x2,$y2, $colour fill=".($fill||0)
+
+  ### assert: $x2 >= $x1
+  ### assert: $y2 >= $y1
+
+  my $w = $x2 - $x1;
+  my $h = $y2 - $y1;
+  if ($w < 2 || $h < 2) {
+    $self->rectangle ($x1,$y1, $x2,$y2, $colour, 1);
+    return;
+  }
+
+  my $w6 = int($w/6);
+  my $h6 = int($h/6);
+
+  if ($fill) {
+  my $h3 = int($h/3);
+  my $w3 = int($w/3);
+    foreach my $o (0 .. $h3) {
+      $self->line(int($x1+$w/6-$w3*$o/$h3), $y1-$h6+$o,
+                  int($x2-$w*2/3 + 2*$w3*$o/$h3), $y1-$h6+$o,
+                  $colour);
+
+      $self->line(int($x1+$w*2/3-$w3*$o/$h3), $y2+$h6-$o,
+                  int($x2-$w/6 + 2*$w3*$o/$h3), $y2+$h6-$o,
+                  $colour);
+    }
+    my $h23 = $h - $h3;
+    foreach my $o (0 .. $h23) {
+      $self->line(int($x1 - $w/6 + $w3*$o/$h23), $y1+$h6+$o,
+                  int($x2 - $w/6 + $w3*$o/$h23), $y1+$h6+$o,
+                  '@');
+    }
+
+  } else {
+    $self->line ($x1+$w6,$y1-$h6,
+                 $x2-$w6,$y1+$h6, $colour);
+    $self->line ($x2-$w6,$y1+$h6,
+                 $x2+$w6,$y2-$h6, $colour);
+    $self->line ($x2+$w6,$y2-$h6,
+                 $x2-$w6,$y2+$h6,
+                 $colour);
+
+    $self->line ($x2-$w6,$y2+$h6,
+                 $x1+$w6,$y2-$h6, $colour);
+    $self->line ($x1+$w6,$y2-$h6,
+                 $x1-$w6,$y1+$h6,
+                 $colour);
+    $self->line ($x1-$w6,$y1+$h6,
+                 $x1+$w6,$y1-$h6,
+                 $colour);
+
   }
 }
 

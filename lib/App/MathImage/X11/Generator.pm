@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -38,7 +38,7 @@ use App::MathImage::X11::Protocol::EventHandlerExtra;
 
 
 use vars '$VERSION';
-$VERSION = 109;
+$VERSION = 110;
 
 use constant _DEFAULT_IDLE_TIME_SLICE => 0.5;  # seconds
 use constant _DEFAULT_IDLE_TIME_FIGURES => 1000;  # drawing requests
@@ -172,7 +172,8 @@ sub draw_steps {
         (X      => $self->{'X'},
          root   => $window,
          pixmap => delete $self->{'pixmap'},
-         pixmap_allocated_colors => $allocated);
+         pixmap_allocated_colors => $allocated,
+         use_esetroot => 1);
   }
 
   return $more;

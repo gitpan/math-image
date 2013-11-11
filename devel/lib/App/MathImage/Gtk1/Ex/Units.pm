@@ -1,7 +1,7 @@
 # size_request() broken ...
 
 
-# Copyright 2007, 2008, 2009, 2010, 2011, 2012 Kevin Ryde
+# Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -25,7 +25,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA', '@EXPORT_OK', '%EXPORT_TAGS';
-$VERSION = 109;
+$VERSION = 110;
 
 use Exporter;
 our @ISA = ('Exporter');

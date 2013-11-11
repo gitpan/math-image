@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -28,7 +28,7 @@ use Glib::Ex::ConnectProperties;
 use Gtk2::Ex::ToolbarBits;
 use Gtk2::Ex::MenuBits;
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

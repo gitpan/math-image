@@ -36,7 +36,7 @@ use App::MathImage::Tk::Perl::WidgetBits 'with_underline';
 use base 'Tk::Derived', 'Tk::MainWindow';
 Tk::Widget->Construct('AppMathImageTkMain');
 
-our $VERSION = 109;
+our $VERSION = 110;
 
 sub Populate {
   my ($self, $args) = @_;
@@ -478,6 +478,9 @@ sub popup_values_pod {
     }
   }
 }
+
+# Load the Tk::Pod module if available.
+# Return 1 if available, return 0 and open an error dialog if not.
 sub _tk_pod {
   my ($self) = @_;
   if (eval { require Tk::Pod; 1}) {
@@ -492,8 +495,7 @@ sub _tk_pod {
 sub popup_diagnostics {
   my ($self) = @_;
   require App::MathImage::Tk::Diagnostics;
-  my $diagnostics = $self->AppMathImageTkDiagonostics;
-  $diagnostics->Popup;
+  $self->AppMathImageTkDiagonostics->Popup;
 }
 sub popup_widgetdump {
   my ($self) = @_;

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -27,7 +27,7 @@ use Wx;
 use List::Util 'min', 'max';
 
 use base 'Wx::TextCtrl';
-our $VERSION = 109;
+our $VERSION = 110;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
